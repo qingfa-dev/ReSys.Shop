@@ -9,7 +9,6 @@ import Tag from 'primevue/tag'
 import Plus from '@primeicons/vue/plus'
 import Trash from '@primeicons/vue/trash'
 import Upload from '@primeicons/vue/upload'
-import Card from 'primevue/card'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -100,82 +99,85 @@ function confirmDelete() {
 </script>
 
 <template>
-  <!-- Page shell -->
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">Countries</div>
-      <p class="text-muted-color mb-4">Manage supported countries</p>
-    <!-- Toolbar -->
-    <Toolbar class="mb-4">
-      <template #start>
-        <Button label="New Country" severity="secondary" class="mr-2" @click="navigateToNew">
-          <Plus />
-        </Button>
-        <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" @click="confirmDelete">
-          <Trash />
-        </Button>
-      </template>
-      <template #end>
-        <Button label="Export" severity="secondary" @click="exportCSV">
-          <Upload />
-        </Button>
-      </template>
-    </Toolbar>
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">Countries</div>
+        <p class="text-muted-color mt-1">Manage supported countries</p>
+      </div>
+      <Toolbar>
+        <template #start>
+          <Button label="New Country" severity="secondary" class="mr-2" @click="navigateToNew">
+            <Plus />
+          </Button>
+          <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" @click="confirmDelete">
+            <Trash />
+          </Button>
+        </template>
+        <template #end>
+          <Button label="Export" severity="secondary" @click="exportCSV">
+            <Upload />
+          </Button>
+        </template>
+      </Toolbar>
+    </div>
 
-    <!-- Data table -->
-    <DataTable size="large"
-      ref="dt"
-      v-model:selection="selectedItems"
-      :value="items"
-      :loading="loading"
-      :paginator="true"
-      :rows="pageSize"
-      filter-display="menu"
-      data-key="id"
-      :global-filter-fields="COUNTRY_FILTER_FIELDS"
-      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-      :rows-per-page-options="[5, 10, 25]"
-      current-page-report-template="Showing {first} to {last} of {totalRecords}"
-    >
-      <Column selection-mode="multiple" header-style="width: 3rem" />
-      <template #header>
-        <div class="flex justify-between items-center">
-          <IconField>
-            <InputIcon><i class="pi pi-search" /></InputIcon>
-            <InputText
-              :model-value="searchTerm"
-              placeholder="Search countries..."
-              @update:model-value="onSearch($event ?? '')"
-            />
-          </IconField>
-          <Button label="Clear" outlined @click="clearSearch" />
-        </div>
-      </template>
-      <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
-      <Column field="isoCode" header="ISO Code" :sortable="true" :filter="true" filter-field="isoCode" />
-      <Column field="callingCode" header="Calling Code" :sortable="true" />
-      <Column field="statesRequired" header="States Required" :sortable="true" body-style="text-align: center">
-        <template #body="{ data }">
-          <Tag :value="data.statesRequired ? 'Yes' : 'No'" :severity="data.statesRequired ? 'info' : 'secondary'" />
-        </template>
-      </Column>
-      <Column field="isActive" header="Active" :sortable="true" :filter="true" filter-field="isActive" body-style="text-align: center">
-        <template #body="{ data }">
-          <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'danger'" />
-        </template>
-      </Column>
-      <Column header="" body-style="text-align: right; width: 6rem">
-        <template #body="{ data }">
-          <div class="flex justify-end gap-2">
-            <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
-            <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [data]; confirmDelete()" />
+    <div class="flex-1 min-h-0 mt-4">
+      <DataTable size="large"
+        ref="dt"
+        v-model:selection="selectedItems"
+        :value="items"
+        :loading="loading"
+        scrollable
+        :paginator="true"
+        :rows="pageSize"
+        filter-display="menu"
+        data-key="id"
+        :global-filter-fields="COUNTRY_FILTER_FIELDS"
+        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rows-per-page-options="[5, 10, 25]"
+        current-page-report-template="Showing {first} to {last} of {totalRecords}"
+        :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
+      >
+        <Column selection-mode="multiple" header-style="width: 3rem" />
+        <template #header>
+          <div class="flex justify-between items-center">
+            <IconField>
+              <InputIcon><i class="pi pi-search" /></InputIcon>
+              <InputText
+                :model-value="searchTerm"
+                placeholder="Search countries..."
+                @update:model-value="onSearch($event ?? '')"
+              />
+            </IconField>
+            <Button label="Clear" outlined @click="clearSearch" />
           </div>
         </template>
-      </Column>
-      <template #empty>
-        <div class="text-center py-8 text-muted-color">No countries found.</div>
-      </template>
-    </DataTable>
-    </template>
-  </Card>
+        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
+        <Column field="isoCode" header="ISO Code" :sortable="true" :filter="true" filter-field="isoCode" />
+        <Column field="callingCode" header="Calling Code" :sortable="true" />
+        <Column field="statesRequired" header="States Required" :sortable="true" body-style="text-align: center">
+          <template #body="{ data }">
+            <Tag :value="data.statesRequired ? 'Yes' : 'No'" :severity="data.statesRequired ? 'info' : 'secondary'" />
+          </template>
+        </Column>
+        <Column field="isActive" header="Active" :sortable="true" :filter="true" filter-field="isActive" body-style="text-align: center">
+          <template #body="{ data }">
+            <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'danger'" />
+          </template>
+        </Column>
+        <Column header="" body-style="text-align: right; width: 6rem">
+          <template #body="{ data }">
+            <div class="flex justify-end gap-2">
+              <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
+              <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [data]; confirmDelete()" />
+            </div>
+          </template>
+        </Column>
+        <template #empty>
+          <div class="text-center py-8 text-muted-color">No countries found.</div>
+        </template>
+      </DataTable>
+    </div>
+  </div>
 </template>

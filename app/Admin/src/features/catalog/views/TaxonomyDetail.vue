@@ -167,73 +167,77 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
 </script>
 
 <template>
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
-      <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">{{ pageTitle }}</div>
+        <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
+      </div>
+    </div>
 
-    <Card>
-      <template #content>
-        <div class="flex flex-col gap-6">
-          <div class="font-semibold text-xl">Taxonomy Details</div>
-          <Form v-slot="$form" :key="String(formLoaded)" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-              <InputText fluid />
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
-              <InputText fluid />
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
-              <InputNumber fluid :min="-1" />
-              <small class="text-muted-color">Sort order (lower = first)</small>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-            </FormField>
-            <div class="flex justify-end gap-2 pt-4 border-t border-surface">
-              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="saving" />
-              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-            </div>
-          </Form>
-        </div>
-      </template>
-    </Card>
-
-    <Toolbar v-if="isEdit" class="mb-4 mt-4">
-      <template #start>
-        <Button label="Add Taxon" severity="secondary" @click="navigateToCreateTaxon()">
-          <Plus />
-        </Button>
-      </template>
-    </Toolbar>
-
-    <TreeTable
-      v-if="isEdit"
-      :value="treeNodes"
-      :loading="treeLoading"
-      class="mt-0"
-    >
-      <Column field="name" header="Name" :expander="true" />
-      <Column field="slug" header="Slug" />
-      <Column field="position" header="Position" />
-      <Column field="childrenCount" header="Children" />
-      <Column field="taxonRuleCount" header="Rules" />
-      <Column field="productCount" header="Products" />
-      <Column header="" body-style="text-align: right; width: 6rem">
-        <template #body="{ node }">
-          <div class="flex justify-end gap-2">
-            <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEditTaxon(node.data.id)" />
-            <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="confirmDeleteTaxon(node.data)" />
+    <div class="flex-1 min-h-0 overflow-auto mt-4">
+      <Card>
+        <template #content>
+          <div class="flex flex-col gap-6">
+            <div class="font-semibold text-xl">Taxonomy Details</div>
+            <Form v-slot="$form" :key="String(formLoaded)" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+              <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                <InputText fluid />
+                <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+              </FormField>
+              <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+                <InputText fluid />
+                <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+              </FormField>
+              <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+                <InputNumber fluid :min="-1" />
+                <small class="text-muted-color">Sort order (lower = first)</small>
+                <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+              </FormField>
+              <div class="flex justify-end gap-2 pt-4 border-t border-surface sticky bottom-0 bg-surface-card py-3">
+                <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="saving" />
+                <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+              </div>
+            </Form>
           </div>
         </template>
-      </Column>
-      <template #empty>
-        <div class="text-center py-8 text-muted-color">No taxons defined. Add one to start building your category tree.</div>
-      </template>
-    </TreeTable>
-    </template>
-  </Card>
+      </Card>
+
+      <Toolbar v-if="isEdit" class="mb-4 mt-4">
+        <template #start>
+          <Button label="Add Taxon" severity="secondary" @click="navigateToCreateTaxon()">
+            <Plus />
+          </Button>
+        </template>
+      </Toolbar>
+
+      <TreeTable
+        v-if="isEdit"
+        :value="treeNodes"
+        :loading="treeLoading"
+        class="mt-0"
+      >
+        <Column field="name" header="Name" :expander="true" />
+        <Column field="slug" header="Slug" />
+        <Column field="position" header="Position" />
+        <Column field="childrenCount" header="Children" />
+        <Column field="taxonRuleCount" header="Rules" />
+        <Column field="productCount" header="Products" />
+        <Column header="" body-style="text-align: right; width: 6rem">
+          <template #body="{ node }">
+            <div class="flex justify-end gap-2">
+              <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEditTaxon(node.data.id)" />
+              <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="confirmDeleteTaxon(node.data)" />
+            </div>
+          </template>
+        </Column>
+        <template #empty>
+          <div class="text-center py-8 text-muted-color">No taxons defined. Add one to start building your category tree.</div>
+        </template>
+      </TreeTable>
+    </div>
+  </div>
 </template>

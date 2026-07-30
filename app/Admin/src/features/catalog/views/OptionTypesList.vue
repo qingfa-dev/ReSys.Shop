@@ -9,7 +9,7 @@ import Tag from 'primevue/tag'
 import Plus from '@primeicons/vue/plus'
 import Trash from '@primeicons/vue/trash'
 import Upload from '@primeicons/vue/upload'
-import Card from 'primevue/card'
+
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -101,79 +101,82 @@ function confirmDelete() {
 </script>
 
 <template>
-  <!-- Page shell -->
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">Option Types</div>
-      <p class="text-muted-color mb-4">Manage product option types (Size, Color, Material, etc.)</p>
-    <!-- Toolbar -->
-    <Toolbar class="mb-4">
-      <template #start>
-        <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
-          <Plus />
-        </Button>
-        <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" @click="confirmDelete">
-          <Trash />
-        </Button>
-      </template>
-      <template #end>
-        <Button label="Export" severity="secondary" @click="exportCSV">
-          <Upload />
-        </Button>
-      </template>
-    </Toolbar>
-
-    <!-- Data table -->
-    <DataTable size="large"
-      ref="dt"
-      v-model:selection="selectedItems"
-      :value="items"
-      :loading="loading"
-      :paginator="true"
-      :rows="pageSize"
-      filter-display="menu"
-      data-key="id"
-      :global-filter-fields="allowedSearchFields"
-      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-      :rows-per-page-options="[5, 10, 25]"
-      current-page-report-template="Showing {first} to {last} of {totalRecords}"
-    >
-      <Column selection-mode="multiple" header-style="width: 3rem" />
-      <template #header>
-        <div class="flex justify-between items-center">
-          <IconField>
-            <InputIcon><i class="pi pi-search" /></InputIcon>
-            <InputText
-              :model-value="searchTerm"
-              placeholder="Search option types..."
-              @update:model-value="onSearch($event ?? '')"
-            />
-          </IconField>
-          <Button label="Clear" outlined @click="clearSearch" />
-        </div>
-      </template>
-      <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
-      <Column field="presentation" header="Presentation" :sortable="true" />
-      <Column field="position" header="Position" :sortable="true" />
-      <Column field="filterable" header="Filterable" :sortable="true" body-style="text-align: center">
-        <template #body="{ data }">
-          <Tag :value="data.filterable ? 'Yes' : 'No'" :severity="data.filterable ? 'success' : 'secondary'" />
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">Option Types</div>
+        <p class="text-muted-color mt-1">Manage product option types (Size, Color, Material, etc.)</p>
+      </div>
+      <Toolbar>
+        <template #start>
+          <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
+            <Plus />
+          </Button>
+          <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" @click="confirmDelete">
+            <Trash />
+          </Button>
         </template>
-      </Column>
-      <Column field="optionValuesCount" header="Values" :sortable="true" />
-      <Column field="productsCount" header="Products" :sortable="true" />
-      <Column header="" body-style="text-align: right; width: 6rem">
-        <template #body="{ data }">
-          <div class="flex justify-end gap-2">
-            <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
-            <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [data]; confirmDelete()" />
+        <template #end>
+          <Button label="Export" severity="secondary" @click="exportCSV">
+            <Upload />
+          </Button>
+        </template>
+      </Toolbar>
+    </div>
+
+    <div class="flex-1 min-h-0 mt-4">
+      <DataTable size="large"
+        ref="dt"
+        v-model:selection="selectedItems"
+        :value="items"
+        :loading="loading"
+        scrollable
+        :paginator="true"
+        :rows="pageSize"
+        filter-display="menu"
+        data-key="id"
+        :global-filter-fields="allowedSearchFields"
+        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rows-per-page-options="[5, 10, 25]"
+        current-page-report-template="Showing {first} to {last} of {totalRecords}"
+        :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
+      >
+        <Column selection-mode="multiple" header-style="width: 3rem" />
+        <template #header>
+          <div class="flex justify-between items-center">
+            <IconField>
+              <InputIcon><i class="pi pi-search" /></InputIcon>
+              <InputText
+                :model-value="searchTerm"
+                placeholder="Search option types..."
+                @update:model-value="onSearch($event ?? '')"
+              />
+            </IconField>
+            <Button label="Clear" outlined @click="clearSearch" />
           </div>
         </template>
-      </Column>
-      <template #empty>
-        <div class="text-center py-8 text-muted-color">No option types found.</div>
-      </template>
-    </DataTable>
-    </template>
-  </Card>
+        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
+        <Column field="presentation" header="Presentation" :sortable="true" />
+        <Column field="position" header="Position" :sortable="true" />
+        <Column field="filterable" header="Filterable" :sortable="true" body-style="text-align: center">
+          <template #body="{ data }">
+            <Tag :value="data.filterable ? 'Yes' : 'No'" :severity="data.filterable ? 'success' : 'secondary'" />
+          </template>
+        </Column>
+        <Column field="optionValuesCount" header="Values" :sortable="true" />
+        <Column field="productsCount" header="Products" :sortable="true" />
+        <Column header="" body-style="text-align: right; width: 6rem">
+          <template #body="{ data }">
+            <div class="flex justify-end gap-2">
+              <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
+              <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [data]; confirmDelete()" />
+            </div>
+          </template>
+        </Column>
+        <template #empty>
+          <div class="text-center py-8 text-muted-color">No option types found.</div>
+        </template>
+      </DataTable>
+    </div>
+  </div>
 </template>

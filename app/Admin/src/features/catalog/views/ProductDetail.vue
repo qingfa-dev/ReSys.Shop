@@ -255,205 +255,213 @@ function onCancel() {
 </script>
 
 <template>
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
-      <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-
-    <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
-      <Tabs v-model:value="activeTab">
-        <TabList>
-          <Tab value="0">General</Tab>
-          <Tab value="1">SEO</Tab>
-          <Tab value="2">Fashion</Tab>
-          <Tab value="3">Timing</Tab>
-          <Tab v-if="isEdit" value="4">Option Types</Tab>
-          <Tab v-if="isEdit" value="5">Classifications</Tab>
-        </TabList>
-
-        <TabPanels>
-          <TabPanel value="0">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">Product Details</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="slug" :resolver="slugResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="description" :resolver="descriptionResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
-                        <Textarea fluid rows="4" />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-if="isEdit" v-slot="$field" name="status" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Status</label>
-                        <Select :options="['Draft', 'Active', 'Archived']" fluid />
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel value="1">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">Search Engine Optimization</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="metaDescription" :resolver="metaDescriptionResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
-                        <Textarea fluid rows="3" />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="metaKeywords" :resolver="metaKeywordsResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel value="2">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">Fashion Attributes</div>
-                    <div class="grid grid-cols-2 gap-4">
-                      <FormField v-slot="$field" name="styleCode" :resolver="styleCodeResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Style Code</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="seasonName" :resolver="seasonNameResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Season</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="department" :resolver="departmentResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Department</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="genderTarget" :resolver="genderTargetResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Gender Target</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                    </div>
-                    <FormField v-slot="$field" name="materialComposition" :resolver="materialCompositionResolver" class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Material Composition</label>
-                      <Textarea fluid rows="2" />
-                      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                    </FormField>
-                    <FormField v-slot="$field" name="careInstructions" :resolver="careInstructionsResolver" class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Care Instructions</label>
-                      <Textarea fluid rows="2" />
-                      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                    </FormField>
-                    <FormField v-slot="$field" name="fitNotes" :resolver="fitNotesResolver" class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Fit Notes</label>
-                      <Textarea fluid rows="2" />
-                      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                    </FormField>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel value="3">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">Availability</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="availableOn" :resolver="availableOnResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
-                        <InputText fluid type="date" />
-                      </FormField>
-                      <FormField v-slot="$field" name="discontinueOn" :resolver="discontinueOnResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
-                        <InputText fluid type="date" />
-                      </FormField>
-                      <FormField v-slot="$field" name="trackInventory" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Track Inventory</label>
-                        <ToggleSwitch />
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel v-if="isEdit" value="4">
-            <PickList
-              v-model:target="assignedOptionTypes"
-              :source="unassignedOptionTypes"
-              source-header="Available"
-              target-header="Assigned"
-              :loading="optionTypesLoading"
-              list-style="height: 300px"
-              source-filter-placeholder="Search..."
-              target-filter-placeholder="Search..."
-            >
-              <template #option="slotProps">
-                <div class="flex items-center gap-2">
-                  <span class="font-medium">{{ slotProps.option.name }}</span>
-                  <span class="text-muted-color text-sm">({{ slotProps.option.presentation }})</span>
-                </div>
-              </template>
-            </PickList>
-            <div class="mt-3">
-              <Button label="Save Option Types" severity="primary" @click="saveOptionTypes" />
-            </div>
-          </TabPanel>
-
-          <TabPanel v-if="isEdit" value="5">
-            <PickList
-              v-model:target="assignedClassifications"
-              :source="unassignedClassifications"
-              source-header="Unassigned"
-              target-header="Assigned"
-              :loading="classificationsLoading"
-              list-style="height: 300px"
-              source-filter-placeholder="Search..."
-              target-filter-placeholder="Search..."
-            >
-              <template #option="slotProps">
-                <div class="flex items-center gap-2">
-                  <span class="font-medium">{{ slotProps.option.name }}</span>
-                  <span v-if="slotProps.option.prettyName" class="text-muted-color text-sm">({{ slotProps.option.prettyName }})</span>
-                </div>
-              </template>
-            </PickList>
-            <div class="mt-3">
-              <Button label="Save Classifications" severity="primary" @click="saveClassifications" />
-            </div>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-
-      <div class="flex justify-end gap-2 pt-4 border-t border-surface mt-4">
-        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
-        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">{{ pageTitle }}</div>
+        <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
       </div>
-    </Form>
-    </template>
-  </Card>
+    </div>
+
+    <div class="flex-1 min-h-0 overflow-auto mt-4">
+      <Card>
+        <template #content>
+          <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+            <Tabs v-model:value="activeTab">
+              <TabList>
+                <Tab value="0">General</Tab>
+                <Tab value="1">SEO</Tab>
+                <Tab value="2">Fashion</Tab>
+                <Tab value="3">Timing</Tab>
+                <Tab v-if="isEdit" value="4">Option Types</Tab>
+                <Tab v-if="isEdit" value="5">Classifications</Tab>
+              </TabList>
+
+              <TabPanels>
+                <TabPanel value="0">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Product Details</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="slug" :resolver="slugResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="description" :resolver="descriptionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
+                              <Textarea fluid rows="4" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-if="isEdit" v-slot="$field" name="status" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Status</label>
+                              <Select :options="['Draft', 'Active', 'Archived']" fluid />
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="1">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Search Engine Optimization</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="metaDescription" :resolver="metaDescriptionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
+                              <Textarea fluid rows="3" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="metaKeywords" :resolver="metaKeywordsResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="2">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Fashion Attributes</div>
+                          <div class="grid grid-cols-2 gap-4">
+                            <FormField v-slot="$field" name="styleCode" :resolver="styleCodeResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Style Code</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="seasonName" :resolver="seasonNameResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Season</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="department" :resolver="departmentResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Department</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="genderTarget" :resolver="genderTargetResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Gender Target</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                          </div>
+                          <FormField v-slot="$field" name="materialComposition" :resolver="materialCompositionResolver" class="flex flex-col gap-1">
+                            <label class="text-surface-900 dark:text-surface-0 font-medium">Material Composition</label>
+                            <Textarea fluid rows="2" />
+                            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                          </FormField>
+                          <FormField v-slot="$field" name="careInstructions" :resolver="careInstructionsResolver" class="flex flex-col gap-1">
+                            <label class="text-surface-900 dark:text-surface-0 font-medium">Care Instructions</label>
+                            <Textarea fluid rows="2" />
+                            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                          </FormField>
+                          <FormField v-slot="$field" name="fitNotes" :resolver="fitNotesResolver" class="flex flex-col gap-1">
+                            <label class="text-surface-900 dark:text-surface-0 font-medium">Fit Notes</label>
+                            <Textarea fluid rows="2" />
+                            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                          </FormField>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="3">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Availability</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="availableOn" :resolver="availableOnResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
+                              <InputText fluid type="date" />
+                            </FormField>
+                            <FormField v-slot="$field" name="discontinueOn" :resolver="discontinueOnResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
+                              <InputText fluid type="date" />
+                            </FormField>
+                            <FormField v-slot="$field" name="trackInventory" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Track Inventory</label>
+                              <ToggleSwitch />
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel v-if="isEdit" value="4">
+                  <PickList
+                    v-model:target="assignedOptionTypes"
+                    :source="unassignedOptionTypes"
+                    source-header="Available"
+                    target-header="Assigned"
+                    :loading="optionTypesLoading"
+                    list-style="height: 300px"
+                    source-filter-placeholder="Search..."
+                    target-filter-placeholder="Search..."
+                  >
+                    <template #option="slotProps">
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">{{ slotProps.option.name }}</span>
+                        <span class="text-muted-color text-sm">({{ slotProps.option.presentation }})</span>
+                      </div>
+                    </template>
+                  </PickList>
+                  <div class="mt-3">
+                    <Button label="Save Option Types" severity="primary" @click="saveOptionTypes" />
+                  </div>
+                </TabPanel>
+
+                <TabPanel v-if="isEdit" value="5">
+                  <PickList
+                    v-model:target="assignedClassifications"
+                    :source="unassignedClassifications"
+                    source-header="Unassigned"
+                    target-header="Assigned"
+                    :loading="classificationsLoading"
+                    list-style="height: 300px"
+                    source-filter-placeholder="Search..."
+                    target-filter-placeholder="Search..."
+                  >
+                    <template #option="slotProps">
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium">{{ slotProps.option.name }}</span>
+                        <span v-if="slotProps.option.prettyName" class="text-muted-color text-sm">({{ slotProps.option.prettyName }})</span>
+                      </div>
+                    </template>
+                  </PickList>
+                  <div class="mt-3">
+                    <Button label="Save Classifications" severity="primary" @click="saveClassifications" />
+                  </div>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+
+            <div class="flex justify-end gap-2 pt-4 border-t border-surface sticky bottom-0 bg-surface-card py-3">
+              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+            </div>
+          </Form>
+        </template>
+      </Card>
+    </div>
+  </div>
 </template>

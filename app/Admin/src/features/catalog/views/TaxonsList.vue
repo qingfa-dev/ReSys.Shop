@@ -9,7 +9,7 @@ import Toolbar from 'primevue/toolbar'
 import Plus from '@primeicons/vue/plus'
 import Trash from '@primeicons/vue/trash'
 import Upload from '@primeicons/vue/upload'
-import Card from 'primevue/card'
+
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -149,121 +149,124 @@ function confirmDelete() {
 </script>
 
 <template>
-  <!-- Page shell -->
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">Taxons</div>
-      <p class="text-muted-color mb-4">Manage product classification taxons</p>
-    <!-- Toolbar -->
-    <Toolbar class="mb-4">
-      <template #start>
-        <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
-          <Plus />
-        </Button>
-        <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" class="mr-2" @click="confirmDelete">
-          <Trash />
-        </Button>
-      </template>
-      <template #end>
-        <Button
-          :label="viewMode === 'table' ? 'Tree' : 'Table'"
-          severity="secondary"
-          class="mr-2"
-          :icon="viewMode === 'table' ? 'pi pi-sitemap' : 'pi pi-list'"
-          @click="toggleViewMode"
-        />
-        <Button v-if="viewMode === 'table'" label="Export" severity="secondary" @click="exportCSV">
-          <Upload />
-        </Button>
-      </template>
-    </Toolbar>
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">Taxons</div>
+        <p class="text-muted-color mt-1">Manage product classification taxons</p>
+      </div>
+      <Toolbar>
+        <template #start>
+          <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
+            <Plus />
+          </Button>
+          <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" class="mr-2" @click="confirmDelete">
+            <Trash />
+          </Button>
+        </template>
+        <template #end>
+          <Button
+            :label="viewMode === 'table' ? 'Tree' : 'Table'"
+            severity="secondary"
+            class="mr-2"
+            :icon="viewMode === 'table' ? 'pi pi-sitemap' : 'pi pi-list'"
+            @click="toggleViewMode"
+          />
+          <Button v-if="viewMode === 'table'" label="Export" severity="secondary" @click="exportCSV">
+            <Upload />
+          </Button>
+        </template>
+      </Toolbar>
+    </div>
 
-    <!-- Data table -->
-    <DataTable size="large"
-      v-if="viewMode === 'table'"
-      ref="dt"
-      v-model:selection="selectedItems"
-      :value="items"
-      :loading="loading"
-      :paginator="true"
-      :rows="20"
-      filter-display="menu"
-      data-key="id"
-      :global-filter-fields="allowedSearchFields"
-      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-      :rows-per-page-options="[5, 10, 25]"
-      current-page-report-template="Showing {first} to {last} of {totalRecords}"
-    >
-      <Column selection-mode="multiple" header-style="width: 3rem" />
-      <template #header>
-        <div class="flex justify-between items-center">
-          <IconField>
-            <InputIcon><i class="pi pi-search" /></InputIcon>
-            <InputText
-              :model-value="searchTerm"
-              placeholder="Search taxons..."
-              @update:model-value="onSearch($event ?? '')"
-            />
-          </IconField>
-          <Button label="Clear" outlined @click="clearSearch" />
-        </div>
-      </template>
-      <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
-      <Column field="slug" header="Slug" :sortable="true" />
-      <Column field="taxonomyName" header="Taxonomy" :sortable="true" />
-      <Column field="parentName" header="Parent" :sortable="true" />
-      <Column field="depth" header="Depth" :sortable="true" body-style="text-align: center" />
-      <Column field="position" header="Position" :sortable="true" />
-      <Column field="taxonRuleCount" header="Rules" :sortable="true" body-style="text-align: center" />
-      <Column field="productCount" header="Products" :sortable="true" body-style="text-align: center" />
-      <Column header="" body-style="text-align: right; width: 6rem">
-        <template #body="{ data }">
-          <div class="flex justify-end gap-2">
-            <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
-            <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [data]; confirmDelete()" />
+    <div class="flex-1 min-h-0 mt-4">
+      <DataTable size="large"
+        v-if="viewMode === 'table'"
+        ref="dt"
+        v-model:selection="selectedItems"
+        :value="items"
+        :loading="loading"
+        scrollable
+        :paginator="true"
+        :rows="20"
+        filter-display="menu"
+        data-key="id"
+        :global-filter-fields="allowedSearchFields"
+        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rows-per-page-options="[5, 10, 25]"
+        current-page-report-template="Showing {first} to {last} of {totalRecords}"
+        :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
+      >
+        <Column selection-mode="multiple" header-style="width: 3rem" />
+        <template #header>
+          <div class="flex justify-between items-center">
+            <IconField>
+              <InputIcon><i class="pi pi-search" /></InputIcon>
+              <InputText
+                :model-value="searchTerm"
+                placeholder="Search taxons..."
+                @update:model-value="onSearch($event ?? '')"
+              />
+            </IconField>
+            <Button label="Clear" outlined @click="clearSearch" />
           </div>
         </template>
-      </Column>
-      <template #empty>
-        <div class="text-center py-8 text-muted-color">No taxons found.</div>
-      </template>
-    </DataTable>
-
-    <div v-if="viewMode === 'tree'">
-      <div class="flex justify-between items-center mb-3">
-        <IconField>
-          <InputIcon><i class="pi pi-search" /></InputIcon>
-          <InputText
-            v-model="treeFilter"
-            placeholder="Filter tree..."
-            @update:model-value="filterTree($event ?? '')"
-          />
-        </IconField>
-      </div>
-
-      <TreeTable
-        :value="treeData"
-        :loading="treeLoading"
-        v-model:filter-value="treeFilter"
-      >
-        <Column field="name" header="Name" :expander="true" />
-        <Column field="slug" header="Slug" />
-        <Column field="position" header="Position" />
-        <Column field="taxonRuleCount" header="Rules" />
-        <Column field="productCount" header="Products" />
+        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
+        <Column field="slug" header="Slug" :sortable="true" />
+        <Column field="taxonomyName" header="Taxonomy" :sortable="true" />
+        <Column field="parentName" header="Parent" :sortable="true" />
+        <Column field="depth" header="Depth" :sortable="true" body-style="text-align: center" />
+        <Column field="position" header="Position" :sortable="true" />
+        <Column field="taxonRuleCount" header="Rules" :sortable="true" body-style="text-align: center" />
+        <Column field="productCount" header="Products" :sortable="true" body-style="text-align: center" />
         <Column header="" body-style="text-align: right; width: 6rem">
-          <template #body="{ node }">
+          <template #body="{ data }">
             <div class="flex justify-end gap-2">
-              <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(node.data.id)" />
-              <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [{ ...node.data, ...node.data }] as any; confirmDelete()" />
+              <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
+              <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [data]; confirmDelete()" />
             </div>
           </template>
         </Column>
         <template #empty>
-          <div class="text-center py-8 text-muted-color">No taxons in tree.</div>
+          <div class="text-center py-8 text-muted-color">No taxons found.</div>
         </template>
-      </TreeTable>
+      </DataTable>
+
+      <div v-if="viewMode === 'tree'" class="h-full overflow-auto">
+        <div class="flex justify-between items-center mb-3">
+          <IconField>
+            <InputIcon><i class="pi pi-search" /></InputIcon>
+            <InputText
+              v-model="treeFilter"
+              placeholder="Filter tree..."
+              @update:model-value="filterTree($event ?? '')"
+            />
+          </IconField>
+        </div>
+
+        <TreeTable
+          :value="treeData"
+          :loading="treeLoading"
+          v-model:filter-value="treeFilter"
+        >
+          <Column field="name" header="Name" :expander="true" />
+          <Column field="slug" header="Slug" />
+          <Column field="position" header="Position" />
+          <Column field="taxonRuleCount" header="Rules" />
+          <Column field="productCount" header="Products" />
+          <Column header="" body-style="text-align: right; width: 6rem">
+            <template #body="{ node }">
+              <div class="flex justify-end gap-2">
+                <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(node.data.id)" />
+                <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [{ ...node.data, ...node.data }] as any; confirmDelete()" />
+              </div>
+            </template>
+          </Column>
+          <template #empty>
+            <div class="text-center py-8 text-muted-color">No taxons in tree.</div>
+          </template>
+        </TreeTable>
+      </div>
     </div>
-    </template>
-  </Card>
+  </div>
 </template>

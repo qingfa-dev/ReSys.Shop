@@ -197,123 +197,131 @@ function onValueSearch(value: string) {
 </script>
 
 <template>
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
-      <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-
-    <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
-      <Tabs v-model:value="activeTab">
-        <TabList>
-          <Tab value="0">General</Tab>
-          <Tab v-if="isEdit" value="1">Option Values</Tab>
-        </TabList>
-
-        <TabPanels>
-          <TabPanel value="0">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">Option Type Details</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
-                        <InputNumber fluid :min="-1" />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="filterable" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Filterable</label>
-                        <ToggleSwitch />
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel v-if="isEdit" value="1">
-            <Toolbar>
-              <template #start>
-                <Button label="Add Value" severity="secondary" @click="openAddDialog">
-                  <Plus />
-                </Button>
-              </template>
-            </Toolbar>
-
-            <DataTable size="large"
-              :value="optionValues"
-              :loading="valuesLoading"
-              data-key="id"
-              :global-filter-fields="valueSearchFields"
-            >
-              <template #header>
-                <div class="flex justify-between items-center">
-                  <IconField>
-                    <InputIcon><i class="pi pi-search" /></InputIcon>
-                    <InputText
-                      :model-value="valueSearchTerm"
-                      placeholder="Search values..."
-                      @update:model-value="onValueSearch($event ?? '')"
-                    />
-                  </IconField>
-                </div>
-              </template>
-              <Column field="name" header="Name" :sortable="true" />
-              <Column field="presentation" header="Presentation" :sortable="true" />
-              <Column field="position" header="Position" :sortable="true" />
-              <Column header="" body-style="text-align: right; width: 8rem">
-                <template #body="{ data }">
-                  <div class="flex justify-end gap-2">
-                    <Button
-                      icon="pi pi-pencil"
-                      severity="secondary"
-                      text
-                      rounded
-                      aria-label="Edit"
-                      @click="openEditDialog(data)"
-                    />
-                    <Button
-                      icon="pi pi-trash"
-                      severity="secondary"
-                      text
-                      rounded
-                      aria-label="Delete"
-                      @click="confirmDeleteValue(data)"
-                    />
-                  </div>
-                </template>
-              </Column>
-              <template #empty>
-                <div class="text-center py-8 text-muted-color">No option values defined.</div>
-              </template>
-            </DataTable>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-
-      <div class="flex justify-end gap-2 pt-4 border-t border-surface mt-4">
-        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
-        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">{{ pageTitle }}</div>
+        <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
       </div>
-    </Form>
+    </div>
 
-    <OptionValueFormDialog
-      :visible="dialogVisible"
-      :option-type-id="(route.params.id as string) || ''"
-      :editing-value="editingValue"
-      @update:visible="dialogVisible = $event"
-      @saved="onDialogSaved"
-    />
-    </template>
-  </Card>
+    <div class="flex-1 min-h-0 overflow-auto mt-4">
+      <Card>
+        <template #content>
+          <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+            <Tabs v-model:value="activeTab">
+              <TabList>
+                <Tab value="0">General</Tab>
+                <Tab v-if="isEdit" value="1">Option Values</Tab>
+              </TabList>
+
+              <TabPanels>
+                <TabPanel value="0">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Option Type Details</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+                              <InputNumber fluid :min="-1" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="filterable" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Filterable</label>
+                              <ToggleSwitch />
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel v-if="isEdit" value="1">
+                  <Toolbar>
+                    <template #start>
+                      <Button label="Add Value" severity="secondary" @click="openAddDialog">
+                        <Plus />
+                      </Button>
+                    </template>
+                  </Toolbar>
+
+                  <DataTable size="large"
+                    :value="optionValues"
+                    :loading="valuesLoading"
+                    data-key="id"
+                    :global-filter-fields="valueSearchFields"
+                  >
+                    <template #header>
+                      <div class="flex justify-between items-center">
+                        <IconField>
+                          <InputIcon><i class="pi pi-search" /></InputIcon>
+                          <InputText
+                            :model-value="valueSearchTerm"
+                            placeholder="Search values..."
+                            @update:model-value="onValueSearch($event ?? '')"
+                          />
+                        </IconField>
+                      </div>
+                    </template>
+                    <Column field="name" header="Name" :sortable="true" />
+                    <Column field="presentation" header="Presentation" :sortable="true" />
+                    <Column field="position" header="Position" :sortable="true" />
+                    <Column header="" body-style="text-align: right; width: 8rem">
+                      <template #body="{ data }">
+                        <div class="flex justify-end gap-2">
+                          <Button
+                            icon="pi pi-pencil"
+                            severity="secondary"
+                            text
+                            rounded
+                            aria-label="Edit"
+                            @click="openEditDialog(data)"
+                          />
+                          <Button
+                            icon="pi pi-trash"
+                            severity="secondary"
+                            text
+                            rounded
+                            aria-label="Delete"
+                            @click="confirmDeleteValue(data)"
+                          />
+                        </div>
+                      </template>
+                    </Column>
+                    <template #empty>
+                      <div class="text-center py-8 text-muted-color">No option values defined.</div>
+                    </template>
+                  </DataTable>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+
+            <div class="flex justify-end gap-2 pt-4 border-t border-surface sticky bottom-0 bg-surface-card py-3">
+              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+            </div>
+          </Form>
+
+          <OptionValueFormDialog
+            :visible="dialogVisible"
+            :option-type-id="(route.params.id as string) || ''"
+            :editing-value="editingValue"
+            @update:visible="dialogVisible = $event"
+            @saved="onDialogSaved"
+          />
+        </template>
+      </Card>
+    </div>
+  </div>
 </template>

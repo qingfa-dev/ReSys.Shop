@@ -267,188 +267,196 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 </script>
 
 <template>
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
-      <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-
-    <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
-      <Tabs v-model:value="activeTab">
-        <TabList>
-          <Tab value="0">General</Tab>
-          <Tab value="1">Settings</Tab>
-          <Tab value="2">SEO</Tab>
-          <Tab value="3">Images</Tab>
-          <Tab v-if="isEdit" value="4">Rules</Tab>
-        </TabList>
-
-        <TabPanels>
-          <TabPanel value="0">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">General</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="taxonomyId" :resolver="taxonomyIdResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
-                        <Select :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
-                        <Select :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
-                      </FormField>
-                      <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="slug" :resolver="slugResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="description" :resolver="descriptionResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
-                        <Textarea fluid rows="3" />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
-                        <InputNumber fluid :min="-1" />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel value="1">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">Settings</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="sortOrder" :resolver="sortOrderResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
-                        <Select :options="TAXON_SORT_ORDERS" fluid />
-                      </FormField>
-                      <FormField v-slot="$field" name="hideFromNav" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Hide from Navigation</label>
-                        <ToggleSwitch />
-                      </FormField>
-                      <FormField v-slot="$field" name="automatic" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Automatic Classification</label>
-                        <ToggleSwitch />
-                      </FormField>
-                      <FormField v-slot="$field" name="rulesMatchPolicy" :resolver="rulesMatchPolicyResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Rules Match Policy</label>
-                        <Select :options="TAXON_MATCH_POLICIES" fluid />
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel value="2">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">SEO</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="metaDescription" :resolver="metaDescriptionResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
-                        <Textarea fluid rows="3" />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="metaKeywords" :resolver="metaKeywordsResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel value="3">
-            <Card>
-              <template #content>
-                <div class="flex flex-col gap-6">
-                  <div class="font-semibold text-xl">Images</div>
-                    <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="imageUrl" :resolver="imageUrlResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Image URL</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                      <FormField v-slot="$field" name="squareImageUrl" :resolver="squareImageUrlResolver" class="flex flex-col gap-1">
-                        <label class="text-surface-900 dark:text-surface-0 font-medium">Square Image URL</label>
-                        <InputText fluid />
-                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                      </FormField>
-                    </div>
-                </div>
-              </template>
-            </Card>
-          </TabPanel>
-
-          <TabPanel v-if="isEdit" value="4">
-            <Toolbar>
-              <template #start>
-                <Button label="Add Rule" severity="secondary" @click="openAddRule">
-                  <Plus />
-                </Button>
-              </template>
-            </Toolbar>
-
-            <DataTable size="large" :value="rules" :loading="rulesLoading" data-key="id">
-              <Column field="type" header="Type" />
-              <Column field="matchPolicy" header="Match Policy" />
-              <Column field="value" header="Value" />
-              <Column header="" body-style="text-align: right; width: 6rem">
-                <template #body="{ data }">
-                  <div class="flex justify-end gap-2">
-                    <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="openEditRule(data)" />
-                    <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="confirmDeleteRule(data)" />
-                  </div>
-                </template>
-              </Column>
-              <template #empty>
-                <div class="text-center py-8 text-muted-color">No rules defined.</div>
-              </template>
-            </DataTable>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-
-      <div class="flex justify-end gap-2 pt-4 border-t border-surface mt-4">
-        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
-        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">{{ pageTitle }}</div>
+        <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
       </div>
-    </Form>
+    </div>
 
-    <TaxonRuleFormDialog
-      v-if="isEdit"
-      :visible="dialogVisible"
-      :taxon-id="(route.params.id as string) || ''"
-      :editing-rule="editingRule"
-      @update:visible="dialogVisible = $event"
-      @saved="onRuleSaved"
-    />
-    </template>
-  </Card>
+    <div class="flex-1 min-h-0 overflow-auto mt-4">
+      <Card>
+        <template #content>
+          <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+            <Tabs v-model:value="activeTab">
+              <TabList>
+                <Tab value="0">General</Tab>
+                <Tab value="1">Settings</Tab>
+                <Tab value="2">SEO</Tab>
+                <Tab value="3">Images</Tab>
+                <Tab v-if="isEdit" value="4">Rules</Tab>
+              </TabList>
+
+              <TabPanels>
+                <TabPanel value="0">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">General</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="taxonomyId" :resolver="taxonomyIdResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
+                              <Select :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
+                              <Select :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
+                            </FormField>
+                            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="slug" :resolver="slugResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="description" :resolver="descriptionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
+                              <Textarea fluid rows="3" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+                              <InputNumber fluid :min="-1" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="1">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Settings</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="sortOrder" :resolver="sortOrderResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
+                              <Select :options="TAXON_SORT_ORDERS" fluid />
+                            </FormField>
+                            <FormField v-slot="$field" name="hideFromNav" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Hide from Navigation</label>
+                              <ToggleSwitch />
+                            </FormField>
+                            <FormField v-slot="$field" name="automatic" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Automatic Classification</label>
+                              <ToggleSwitch />
+                            </FormField>
+                            <FormField v-slot="$field" name="rulesMatchPolicy" :resolver="rulesMatchPolicyResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Rules Match Policy</label>
+                              <Select :options="TAXON_MATCH_POLICIES" fluid />
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="2">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">SEO</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="metaDescription" :resolver="metaDescriptionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
+                              <Textarea fluid rows="3" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="metaKeywords" :resolver="metaKeywordsResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="3">
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Images</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="imageUrl" :resolver="imageUrlResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Image URL</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="squareImageUrl" :resolver="squareImageUrlResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Square Image URL</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel v-if="isEdit" value="4">
+                  <Toolbar>
+                    <template #start>
+                      <Button label="Add Rule" severity="secondary" @click="openAddRule">
+                        <Plus />
+                      </Button>
+                    </template>
+                  </Toolbar>
+
+                  <DataTable size="large" :value="rules" :loading="rulesLoading" data-key="id">
+                    <Column field="type" header="Type" />
+                    <Column field="matchPolicy" header="Match Policy" />
+                    <Column field="value" header="Value" />
+                    <Column header="" body-style="text-align: right; width: 6rem">
+                      <template #body="{ data }">
+                        <div class="flex justify-end gap-2">
+                          <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="openEditRule(data)" />
+                          <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="confirmDeleteRule(data)" />
+                        </div>
+                      </template>
+                    </Column>
+                    <template #empty>
+                      <div class="text-center py-8 text-muted-color">No rules defined.</div>
+                    </template>
+                  </DataTable>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+
+            <div class="flex justify-end gap-2 pt-4 border-t border-surface sticky bottom-0 bg-surface-card py-3">
+              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+            </div>
+          </Form>
+
+          <TaxonRuleFormDialog
+            v-if="isEdit"
+            :visible="dialogVisible"
+            :taxon-id="(route.params.id as string) || ''"
+            :editing-rule="editingRule"
+            @update:visible="dialogVisible = $event"
+            @saved="onRuleSaved"
+          />
+        </template>
+      </Card>
+    </div>
+  </div>
 </template>

@@ -93,49 +93,53 @@ function onCancel() {
 </script>
 
 <template>
-  <Card>
-    <template #content>
-      <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
-      <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
+  <div class="flex flex-col h-full p-4">
+    <div class="flex-none flex flex-col gap-4">
+      <div>
+        <div class="font-semibold text-xl">{{ pageTitle }}</div>
+        <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
+      </div>
+    </div>
 
-    <Card>
-      <template #content>
-        <div class="flex flex-col gap-6">
-          <div class="font-semibold text-xl">Country Details</div>
-          <Form v-slot="$form" :key="String(formLoaded)" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-              <InputText fluid />
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$field" name="isoCode" :resolver="isoCodeResolver" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">ISO Code <span class="text-red-500">*</span></label>
-              <InputText fluid maxlength="3" />
-              <small class="text-muted-color">2-3 uppercase letters (e.g. US, VN)</small>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$field" name="callingCode" :resolver="callingCodeResolver" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">Calling Code</label>
-              <InputText fluid maxlength="10" />
-              <small class="text-muted-color">Optional (e.g. +1, +84)</small>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-            </FormField>
-            <FormField v-slot="$field" name="statesRequired" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">States Required</label>
-              <ToggleSwitch />
-            </FormField>
-            <FormField v-slot="$field" name="isActive" class="flex flex-col gap-1">
-              <label class="text-surface-900 dark:text-surface-0 font-medium">Active</label>
-              <ToggleSwitch />
-            </FormField>
-            <div class="flex justify-end gap-2 pt-4 border-t border-surface">
-              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
-              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-            </div>
-          </Form>
-        </div>
-      </template>
-    </Card>
-    </template>
-  </Card>
+    <div class="flex-1 min-h-0 overflow-auto mt-4">
+      <Card>
+        <template #content>
+          <div class="flex flex-col gap-6">
+            <div class="font-semibold text-xl">Country Details</div>
+            <Form v-slot="$form" :key="String(formLoaded)" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+              <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                <InputText fluid />
+                <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+              </FormField>
+              <FormField v-slot="$field" name="isoCode" :resolver="isoCodeResolver" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">ISO Code <span class="text-red-500">*</span></label>
+                <InputText fluid maxlength="3" />
+                <small class="text-muted-color">2-3 uppercase letters (e.g. US, VN)</small>
+                <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+              </FormField>
+              <FormField v-slot="$field" name="callingCode" :resolver="callingCodeResolver" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">Calling Code</label>
+                <InputText fluid maxlength="10" />
+                <small class="text-muted-color">Optional (e.g. +1, +84)</small>
+                <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+              </FormField>
+              <FormField v-slot="$field" name="statesRequired" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">States Required</label>
+                <ToggleSwitch />
+              </FormField>
+              <FormField v-slot="$field" name="isActive" class="flex flex-col gap-1">
+                <label class="text-surface-900 dark:text-surface-0 font-medium">Active</label>
+                <ToggleSwitch />
+              </FormField>
+              <div class="flex justify-end gap-2 pt-4 border-t border-surface sticky bottom-0 bg-surface-card py-3">
+                <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+                <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+              </div>
+            </Form>
+          </div>
+        </template>
+      </Card>
+    </div>
+  </div>
 </template>
