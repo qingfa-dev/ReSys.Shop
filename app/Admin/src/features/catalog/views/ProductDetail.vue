@@ -9,7 +9,9 @@ import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import PickList from 'primevue/picklist'
 import Card from 'primevue/card'
-import { FormSection, FormField } from '@form'
+import { Form } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { ProductApi } from '../services/productApi'
@@ -35,6 +37,8 @@ const pageDescription = computed(() =>
 )
 const activeTab = ref('0')
 
+const resolver = zodResolver(productSchema)
+
 const form = ref<ProductForm & { status?: string }>({
   name: '',
   slug: '',
@@ -55,8 +59,7 @@ const form = ref<ProductForm & { status?: string }>({
   status: 'Draft',
 })
 
-const fieldErrors = ref<Record<string, string>>({})
-const saving = ref(false)
+const loading = ref(false)
 
 const unassignedOptionTypes = ref<OptionTypeAssignment[]>([])
 const assignedOptionTypes = ref<OptionTypeAssignment[]>([])
@@ -164,22 +167,12 @@ async function saveClassifications() {
   }
 }
 
-async function onSave() {
-  fieldErrors.value = {}
-  const parsed = productSchema.safeParse(form.value)
+async function onSubmit(event: FormSubmitEvent) {
+  if (!event.valid) return
 
-  if (!parsed.success) {
-    for (const issue of parsed.error.issues) {
-      const field = String(issue.path[0])
-      if (!fieldErrors.value[field]) {
-        fieldErrors.value[field] = issue.message
-      }
-    }
-    return
-  }
+  const data = event.values as ProductForm
+  loading.value = true
 
-  saving.value = true
-  const data = parsed.data
   const request = {
     name: data.name,
     slug: data.slug,
@@ -203,7 +196,7 @@ async function onSave() {
     ? await ProductApi.updateProduct(route.params.id as string, request)
     : await ProductApi.createProduct(request)
 
-  saving.value = false
+  loading.value = false
 
   if (result.isSuccess) {
     notify.success(isEdit.value ? 'Product updated' : 'Product created')
@@ -242,168 +235,205 @@ function onCancel() {
 </script>
 
 <template>
-  <!-- Page shell -->
   <Card>
     <template #content>
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-    <!-- Page actions -->
-    <div class="flex justify-end gap-2 mb-8">
-      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-    </div>
 
-    <!-- Tabs -->
-    <Tabs v-model:value="activeTab">
-      <TabList>
-        <Tab value="0">General</Tab>
-        <Tab value="1">SEO</Tab>
-        <Tab value="2">Fashion</Tab>
-        <Tab value="3">Timing</Tab>
-        <Tab v-if="isEdit" value="4">Option Types</Tab>
-        <Tab v-if="isEdit" value="5">Classifications</Tab>
-      </TabList>
+    <Form v-slot="$form" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+      <Tabs v-model:value="activeTab">
+        <TabList>
+          <Tab value="0">General</Tab>
+          <Tab value="1">SEO</Tab>
+          <Tab value="2">Fashion</Tab>
+          <Tab value="3">Timing</Tab>
+          <Tab v-if="isEdit" value="4">Option Types</Tab>
+          <Tab v-if="isEdit" value="5">Classifications</Tab>
+        </TabList>
 
-      <TabPanels>
-        <TabPanel value="0">
-          <FormSection title="Product Details">
-            <!-- Tab 0: General -->
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-              <InputText v-model="form.name" fluid />
-              <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
-            </FormField>
-            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens">
-              <InputText v-model="form.slug" fluid />
-              <small v-if="fieldErrors.slug" class="text-red-500">{{ fieldErrors.slug }}</small>
-            </FormField>
-            <FormField label="Description" :invalid="!!fieldErrors.description">
-              <Textarea v-model="form.description" fluid rows="4" />
-              <small v-if="fieldErrors.description" class="text-red-500">{{ fieldErrors.description }}</small>
-            </FormField>
-            <FormField v-if="isEdit" label="Status">
-              <Select v-model="form.status" :options="['Draft', 'Active', 'Archived']" fluid />
-            </FormField>
-          </FormSection>
-        </TabPanel>
+        <TabPanels>
+          <TabPanel value="0">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">Product Details</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                      <InputText name="name" fluid />
+                      <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
+                      <InputText name="slug" fluid />
+                      <small v-if="$form.slug?.invalid" class="text-red-500">{{ $form.slug?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
+                      <Textarea name="description" fluid rows="4" />
+                      <small v-if="$form.description?.invalid" class="text-red-500">{{ $form.description?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div v-if="isEdit" class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Status</label>
+                      <Select v-model="form.status" :options="['Draft', 'Active', 'Archived']" fluid />
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </Card>
+          </TabPanel>
 
-        <TabPanel value="1">
-          <FormSection title="Search Engine Optimization">
-            <!-- Tab 1: SEO -->
-            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle">
-              <InputText v-model="form.metaTitle" fluid />
-              <small v-if="fieldErrors.metaTitle" class="text-red-500">{{ fieldErrors.metaTitle }}</small>
-            </FormField>
-            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription">
-              <Textarea v-model="form.metaDescription" fluid rows="3" />
-              <small v-if="fieldErrors.metaDescription" class="text-red-500">{{ fieldErrors.metaDescription }}</small>
-            </FormField>
-            <FormField label="Meta Keywords" :invalid="!!fieldErrors.metaKeywords">
-              <InputText v-model="form.metaKeywords" fluid />
-              <small v-if="fieldErrors.metaKeywords" class="text-red-500">{{ fieldErrors.metaKeywords }}</small>
-            </FormField>
-          </FormSection>
-        </TabPanel>
+          <TabPanel value="1">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">Search Engine Optimization</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
+                      <InputText name="metaTitle" fluid />
+                      <small v-if="$form.metaTitle?.invalid" class="text-red-500">{{ $form.metaTitle?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
+                      <Textarea name="metaDescription" fluid rows="3" />
+                      <small v-if="$form.metaDescription?.invalid" class="text-red-500">{{ $form.metaDescription?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
+                      <InputText name="metaKeywords" fluid />
+                      <small v-if="$form.metaKeywords?.invalid" class="text-red-500">{{ $form.metaKeywords?.errors?.[0]?.message }}</small>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </Card>
+          </TabPanel>
 
-        <TabPanel value="2">
-          <FormSection title="Fashion Attributes">
-            <!-- Tab 2: Fashion -->
-            <!-- 2-col grid fields -->
-            <div class="grid grid-cols-2 gap-4">
-              <FormField label="Style Code" :invalid="!!fieldErrors.styleCode">
-                <InputText v-model="form.styleCode" fluid />
-                <small v-if="fieldErrors.styleCode" class="text-red-500">{{ fieldErrors.styleCode }}</small>
-              </FormField>
-              <FormField label="Season" :invalid="!!fieldErrors.seasonName">
-                <InputText v-model="form.seasonName" fluid />
-                <small v-if="fieldErrors.seasonName" class="text-red-500">{{ fieldErrors.seasonName }}</small>
-              </FormField>
-              <FormField label="Department" :invalid="!!fieldErrors.department">
-                <InputText v-model="form.department" fluid />
-                <small v-if="fieldErrors.department" class="text-red-500">{{ fieldErrors.department }}</small>
-              </FormField>
-              <FormField label="Gender Target" :invalid="!!fieldErrors.genderTarget">
-                <InputText v-model="form.genderTarget" fluid />
-                <small v-if="fieldErrors.genderTarget" class="text-red-500">{{ fieldErrors.genderTarget }}</small>
-              </FormField>
+          <TabPanel value="2">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">Fashion Attributes</div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Style Code</label>
+                      <InputText name="styleCode" fluid />
+                      <small v-if="$form.styleCode?.invalid" class="text-red-500">{{ $form.styleCode?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Season</label>
+                      <InputText name="seasonName" fluid />
+                      <small v-if="$form.seasonName?.invalid" class="text-red-500">{{ $form.seasonName?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Department</label>
+                      <InputText name="department" fluid />
+                      <small v-if="$form.department?.invalid" class="text-red-500">{{ $form.department?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Gender Target</label>
+                      <InputText name="genderTarget" fluid />
+                      <small v-if="$form.genderTarget?.invalid" class="text-red-500">{{ $form.genderTarget?.errors?.[0]?.message }}</small>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-surface-900 dark:text-surface-0 font-medium">Material Composition</label>
+                    <Textarea name="materialComposition" fluid rows="2" />
+                    <small v-if="$form.materialComposition?.invalid" class="text-red-500">{{ $form.materialComposition?.errors?.[0]?.message }}</small>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-surface-900 dark:text-surface-0 font-medium">Care Instructions</label>
+                    <Textarea name="careInstructions" fluid rows="2" />
+                    <small v-if="$form.careInstructions?.invalid" class="text-red-500">{{ $form.careInstructions?.errors?.[0]?.message }}</small>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-surface-900 dark:text-surface-0 font-medium">Fit Notes</label>
+                    <Textarea name="fitNotes" fluid rows="2" />
+                    <small v-if="$form.fitNotes?.invalid" class="text-red-500">{{ $form.fitNotes?.errors?.[0]?.message }}</small>
+                  </div>
+                </div>
+              </template>
+            </Card>
+          </TabPanel>
+
+          <TabPanel value="3">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">Availability</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
+                      <InputText name="availableOn" fluid type="date" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
+                      <InputText name="discontinueOn" fluid type="date" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Track Inventory</label>
+                      <ToggleSwitch name="trackInventory" />
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </Card>
+          </TabPanel>
+
+          <TabPanel v-if="isEdit" value="4">
+            <PickList
+              v-model:target="assignedOptionTypes"
+              :source="unassignedOptionTypes"
+              source-header="Available"
+              target-header="Assigned"
+              :loading="optionTypesLoading"
+              list-style="height: 300px"
+              source-filter-placeholder="Search..."
+              target-filter-placeholder="Search..."
+            >
+              <template #item="{ item }">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">{{ item.name }}</span>
+                  <span class="text-muted-color text-sm">({{ item.presentation }})</span>
+                </div>
+              </template>
+            </PickList>
+            <div class="mt-3">
+              <Button label="Save Option Types" severity="primary" @click="saveOptionTypes" />
             </div>
-            <!-- Textarea fields -->
-            <FormField label="Material Composition" :invalid="!!fieldErrors.materialComposition">
-              <Textarea v-model="form.materialComposition" fluid rows="2" />
-              <small v-if="fieldErrors.materialComposition" class="text-red-500">{{ fieldErrors.materialComposition }}</small>
-            </FormField>
-            <FormField label="Care Instructions" :invalid="!!fieldErrors.careInstructions">
-              <Textarea v-model="form.careInstructions" fluid rows="2" />
-              <small v-if="fieldErrors.careInstructions" class="text-red-500">{{ fieldErrors.careInstructions }}</small>
-            </FormField>
-            <FormField label="Fit Notes" :invalid="!!fieldErrors.fitNotes">
-              <Textarea v-model="form.fitNotes" fluid rows="2" />
-              <small v-if="fieldErrors.fitNotes" class="text-red-500">{{ fieldErrors.fitNotes }}</small>
-            </FormField>
-          </FormSection>
-        </TabPanel>
+          </TabPanel>
 
-        <TabPanel value="3">
-          <FormSection title="Availability">
-            <!-- Tab 3: Timing -->
-            <FormField label="Available On">
-              <InputText v-model="form.availableOn" fluid type="date" />
-            </FormField>
-            <FormField label="Discontinue On">
-              <InputText v-model="form.discontinueOn" fluid type="date" />
-            </FormField>
-            <FormField label="Track Inventory" help-text="Enable inventory tracking for this product">
-              <ToggleSwitch v-model="form.trackInventory" />
-            </FormField>
-          </FormSection>
-        </TabPanel>
+          <TabPanel v-if="isEdit" value="5">
+            <PickList
+              v-model:target="assignedClassifications"
+              :source="unassignedClassifications"
+              source-header="Unassigned"
+              target-header="Assigned"
+              :loading="classificationsLoading"
+              list-style="height: 300px"
+              source-filter-placeholder="Search..."
+              target-filter-placeholder="Search..."
+            >
+              <template #item="{ item }">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">{{ item.name }}</span>
+                  <span v-if="item.prettyName" class="text-muted-color text-sm">({{ item.prettyName }})</span>
+                </div>
+              </template>
+            </PickList>
+            <div class="mt-3">
+              <Button label="Save Classifications" severity="primary" @click="saveClassifications" />
+            </div>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
 
-        <TabPanel v-if="isEdit" value="4">
-          <PickList
-            v-model:target="assignedOptionTypes"
-            :source="unassignedOptionTypes"
-            source-header="Available"
-            target-header="Assigned"
-            :loading="optionTypesLoading"
-            list-style="height: 300px"
-            source-filter-placeholder="Search..."
-            target-filter-placeholder="Search..."
-          >
-            <template #item="{ item }">
-              <div class="flex items-center gap-2">
-                <span class="font-medium">{{ item.name }}</span>
-                <span class="text-muted-color text-sm">({{ item.presentation }})</span>
-              </div>
-            </template>
-          </PickList>
-          <div class="mt-3">
-            <Button label="Save Option Types" severity="primary" @click="saveOptionTypes" />
-          </div>
-        </TabPanel>
-
-        <TabPanel v-if="isEdit" value="5">
-          <PickList
-            v-model:target="assignedClassifications"
-            :source="unassignedClassifications"
-            source-header="Unassigned"
-            target-header="Assigned"
-            :loading="classificationsLoading"
-            list-style="height: 300px"
-            source-filter-placeholder="Search..."
-            target-filter-placeholder="Search..."
-          >
-            <template #item="{ item }">
-              <div class="flex items-center gap-2">
-                <span class="font-medium">{{ item.name }}</span>
-                <span v-if="item.prettyName" class="text-muted-color text-sm">({{ item.prettyName }})</span>
-              </div>
-            </template>
-          </PickList>
-          <div class="mt-3">
-            <Button label="Save Classifications" severity="primary" @click="saveClassifications" />
-          </div>
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+      <div class="flex justify-end gap-2 pt-4 border-t border-surface mt-4">
+        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </div>
+    </Form>
     </template>
   </Card>
 </template>

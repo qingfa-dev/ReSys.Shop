@@ -6,7 +6,9 @@ import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
 import Plus from '@primeicons/vue/plus'
 import Card from 'primevue/card'
-import { FormSection, FormField } from '@form'
+import { Form } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { TaxonomyApi } from '../services/taxonomyApi'
@@ -35,7 +37,7 @@ const form = ref<TaxonomyForm>({
   position: 1,
 })
 
-const fieldErrors = ref<Record<string, string>>({})
+const taxonomyResolver = zodResolver(taxonomySchema)
 const saving = ref(false)
 
 const treeNodes = ref<TaxonTreeItem[]>([])
@@ -79,22 +81,11 @@ watch(() => route.params.id, (newId) => {
   }
 })
 
-async function onSave() {
-  fieldErrors.value = {}
-  const parsed = taxonomySchema.safeParse(form.value)
-
-  if (!parsed.success) {
-    for (const issue of parsed.error.issues) {
-      const field = String(issue.path[0])
-      if (!fieldErrors.value[field]) {
-        fieldErrors.value[field] = issue.message
-      }
-    }
-    return
-  }
+async function onSubmit(event: FormSubmitEvent) {
+  if (!event.valid) return
 
   saving.value = true
-  const data = parsed.data
+  const data = event.values as TaxonomyForm
   const request = {
     name: data.name,
     presentation: data.presentation,
@@ -160,35 +151,42 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
 </script>
 
 <template>
-  <!-- Page shell -->
   <Card>
     <template #content>
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-    <!-- Page actions -->
-    <div class="flex justify-end gap-2 mb-8">
-      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-    </div>
 
-    <!-- Form section -->
-    <FormSection title="Taxonomy Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-        <InputText v-model="form.name" fluid />
-        <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
-      </FormField>
-      <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation">
-        <InputText v-model="form.presentation" fluid />
-        <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
-      </FormField>
-      <FormField label="Position" :invalid="!!fieldErrors.position" help-text="Sort order (lower = first)">
-        <InputNumber v-model="form.position" fluid :min="-1" />
-        <small v-if="fieldErrors.position" class="text-red-500">{{ fieldErrors.position }}</small>
-      </FormField>
-    </FormSection>
+    <Card>
+      <template #content>
+        <div class="flex flex-col gap-6">
+          <div class="font-semibold text-xl">Taxonomy Details</div>
+          <Form v-slot="$form" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+            <div class="flex flex-col gap-1">
+              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+              <InputText name="name" fluid />
+              <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+              <InputText name="presentation" fluid />
+              <small v-if="$form.presentation?.invalid" class="text-red-500">{{ $form.presentation?.errors?.[0]?.message }}</small>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+              <InputNumber name="position" fluid :min="-1" />
+              <small class="text-muted-color">Sort order (lower = first)</small>
+              <small v-if="$form.position?.invalid" class="text-red-500">{{ $form.position?.errors?.[0]?.message }}</small>
+            </div>
+            <div class="flex justify-end gap-2 pt-4 border-t border-surface">
+              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="saving" />
+              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+            </div>
+          </Form>
+        </div>
+      </template>
+    </Card>
 
-    <!-- Child entity: Taxons tree -->
-    <Toolbar v-if="isEdit">
+    <Toolbar v-if="isEdit" class="mb-4 mt-4">
       <template #start>
         <Button label="Add Taxon" severity="secondary" @click="navigateToCreateTaxon()">
           <Plus />

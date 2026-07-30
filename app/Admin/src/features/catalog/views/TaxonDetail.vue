@@ -11,7 +11,9 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Plus from '@primeicons/vue/plus'
 import Card from 'primevue/card'
-import { FormSection, FormField } from '@form'
+import { Form } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
@@ -40,6 +42,8 @@ const pageDescription = computed(() =>
 )
 const activeTab = ref('0')
 
+const resolver = zodResolver(taxonSchema)
+
 const form = ref<TaxonForm>({
   taxonomyId: (route.query.taxonomyId as string) || '',
   parentId: (route.query.parentId as string) || null,
@@ -59,8 +63,7 @@ const form = ref<TaxonForm>({
   hideFromNav: false,
 })
 
-const fieldErrors = ref<Record<string, string>>({})
-const saving = ref(false)
+const loading = ref(false)
 
 const parentOptions = ref<{ label: string; value: string }[]>([])
 const dialogVisible = ref(false)
@@ -143,26 +146,12 @@ watch(() => route.params.id, (newId) => {
   }
 })
 
-async function onSave() {
-  fieldErrors.value = {}
-  const parsed = taxonSchema.safeParse({
-    ...form.value,
-    parentId: form.value.parentId || null,
-    description: form.value.description || null,
-  })
+async function onSubmit(event: FormSubmitEvent) {
+  if (!event.valid) return
 
-  if (!parsed.success) {
-    for (const issue of parsed.error.issues) {
-      const field = String(issue.path[0])
-      if (!fieldErrors.value[field]) {
-        fieldErrors.value[field] = issue.message
-      }
-    }
-    return
-  }
+  const data = event.values as TaxonForm
+  loading.value = true
 
-  saving.value = true
-  const data = parsed.data
   const request = {
     taxonomyId: data.taxonomyId,
     parentId: data.parentId || null,
@@ -186,7 +175,7 @@ async function onSave() {
     ? await TaxonApi.updateTaxon(route.params.id as string, request)
     : await TaxonApi.createTaxon(request)
 
-  saving.value = false
+  loading.value = false
 
   if (result.isSuccess) {
     notify.success(isEdit.value ? 'Taxon updated' : 'Taxon created')
@@ -259,140 +248,179 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 </script>
 
 <template>
-  <!-- Page shell -->
   <Card>
     <template #content>
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-    <!-- Page actions -->
-    <div class="flex justify-end gap-2 mb-8">
-      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-    </div>
 
-    <!-- Tabs -->
-    <Tabs v-model:value="activeTab">
-      <TabList>
-        <Tab value="0">General</Tab>
-        <Tab value="1">Settings</Tab>
-        <Tab value="2">SEO</Tab>
-        <Tab value="3">Images</Tab>
-        <Tab v-if="isEdit" value="4">Rules</Tab>
-      </TabList>
+    <Form v-slot="$form" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+      <Tabs v-model:value="activeTab">
+        <TabList>
+          <Tab value="0">General</Tab>
+          <Tab value="1">Settings</Tab>
+          <Tab value="2">SEO</Tab>
+          <Tab value="3">Images</Tab>
+          <Tab v-if="isEdit" value="4">Rules</Tab>
+        </TabList>
 
-      <TabPanels>
-        <TabPanel value="0">
-          <!-- Tab 0: General -->
-          <FormSection title="General">
-            <FormField label="Taxonomy" :required="true" :invalid="!!fieldErrors.taxonomyId">
-              <Select v-model="form.taxonomyId" :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
-              <small v-if="fieldErrors.taxonomyId" class="text-red-500">{{ fieldErrors.taxonomyId }}</small>
-            </FormField>
-            <FormField label="Parent" help-text="Leave empty for root-level taxon">
-              <Select v-model="form.parentId" :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
-            </FormField>
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-              <InputText v-model="form.name" fluid />
-              <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
-            </FormField>
-            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation">
-              <InputText v-model="form.presentation" fluid />
-              <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
-            </FormField>
-            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens (e.g. running-shoes)">
-              <InputText v-model="form.slug" fluid />
-              <small v-if="fieldErrors.slug" class="text-red-500">{{ fieldErrors.slug }}</small>
-            </FormField>
-            <FormField label="Description" :invalid="!!fieldErrors.description">
-              <Textarea v-model="form.description" fluid rows="3" />
-              <small v-if="fieldErrors.description" class="text-red-500">{{ fieldErrors.description }}</small>
-            </FormField>
-            <FormField label="Position" :invalid="!!fieldErrors.position" help-text="Sort order">
-              <InputNumber v-model="form.position" fluid :min="-1" />
-              <small v-if="fieldErrors.position" class="text-red-500">{{ fieldErrors.position }}</small>
-            </FormField>
-          </FormSection>
-        </TabPanel>
-
-        <TabPanel value="1">
-          <!-- Tab 1: Settings -->
-          <FormSection title="Settings">
-            <FormField label="Sort Order">
-              <Select v-model="form.sortOrder" :options="TAXON_SORT_ORDERS" fluid />
-            </FormField>
-            <FormField label="Hide from Navigation">
-              <ToggleSwitch v-model="form.hideFromNav" />
-            </FormField>
-            <FormField label="Automatic Classification" help-text="Use rules to auto-assign products">
-              <ToggleSwitch v-model="form.automatic" />
-            </FormField>
-            <FormField label="Rules Match Policy" help-text="How multiple rules are combined">
-              <Select v-model="form.rulesMatchPolicy" :options="TAXON_MATCH_POLICIES" fluid />
-            </FormField>
-          </FormSection>
-        </TabPanel>
-
-        <TabPanel value="2">
-          <!-- Tab 2: SEO -->
-          <FormSection title="SEO">
-            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle">
-              <InputText v-model="form.metaTitle" fluid />
-              <small v-if="fieldErrors.metaTitle" class="text-red-500">{{ fieldErrors.metaTitle }}</small>
-            </FormField>
-            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription">
-              <Textarea v-model="form.metaDescription" fluid rows="3" />
-              <small v-if="fieldErrors.metaDescription" class="text-red-500">{{ fieldErrors.metaDescription }}</small>
-            </FormField>
-            <FormField label="Meta Keywords" :invalid="!!fieldErrors.metaKeywords">
-              <InputText v-model="form.metaKeywords" fluid />
-              <small v-if="fieldErrors.metaKeywords" class="text-red-500">{{ fieldErrors.metaKeywords }}</small>
-            </FormField>
-          </FormSection>
-        </TabPanel>
-
-        <TabPanel value="3">
-          <!-- Tab 3: Images -->
-          <FormSection title="Images">
-            <FormField label="Image URL" :invalid="!!fieldErrors.imageUrl">
-              <InputText v-model="form.imageUrl" fluid />
-              <small v-if="fieldErrors.imageUrl" class="text-red-500">{{ fieldErrors.imageUrl }}</small>
-            </FormField>
-            <FormField label="Square Image URL" :invalid="!!fieldErrors.squareImageUrl">
-              <InputText v-model="form.squareImageUrl" fluid />
-              <small v-if="fieldErrors.squareImageUrl" class="text-red-500">{{ fieldErrors.squareImageUrl }}</small>
-            </FormField>
-          </FormSection>
-        </TabPanel>
-
-        <TabPanel v-if="isEdit" value="4">
-          <!-- Tab 4: Rules (child entity) -->
-          <Toolbar>
-            <template #start>
-              <Button label="Add Rule" severity="secondary" @click="openAddRule">
-                <Plus />
-              </Button>
-            </template>
-          </Toolbar>
-
-          <DataTable :value="rules" :loading="rulesLoading" data-key="id">
-            <Column field="type" header="Type" />
-            <Column field="matchPolicy" header="Match Policy" />
-            <Column field="value" header="Value" />
-            <Column header="" body-style="text-align: right; width: 6rem">
-              <template #body="{ data }">
-                <div class="flex justify-end gap-2">
-                  <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="openEditRule(data)" />
-                  <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="confirmDeleteRule(data)" />
+        <TabPanels>
+          <TabPanel value="0">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">General</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
+                      <Select name="taxonomyId" :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
+                      <small v-if="$form.taxonomyId?.invalid" class="text-red-500">{{ $form.taxonomyId?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
+                      <Select name="parentId" :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                      <InputText name="name" fluid />
+                      <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+                      <InputText name="presentation" fluid />
+                      <small v-if="$form.presentation?.invalid" class="text-red-500">{{ $form.presentation?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
+                      <InputText name="slug" fluid />
+                      <small v-if="$form.slug?.invalid" class="text-red-500">{{ $form.slug?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
+                      <Textarea name="description" fluid rows="3" />
+                      <small v-if="$form.description?.invalid" class="text-red-500">{{ $form.description?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+                      <InputNumber name="position" fluid :min="-1" />
+                      <small v-if="$form.position?.invalid" class="text-red-500">{{ $form.position?.errors?.[0]?.message }}</small>
+                    </div>
+                  </div>
                 </div>
               </template>
-            </Column>
-            <template #empty>
-              <div class="text-center py-8 text-muted-color">No rules defined.</div>
-            </template>
-          </DataTable>
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+            </Card>
+          </TabPanel>
+
+          <TabPanel value="1">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">Settings</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
+                      <Select name="sortOrder" :options="TAXON_SORT_ORDERS" fluid />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Hide from Navigation</label>
+                      <ToggleSwitch name="hideFromNav" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Automatic Classification</label>
+                      <ToggleSwitch name="automatic" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Rules Match Policy</label>
+                      <Select name="rulesMatchPolicy" :options="TAXON_MATCH_POLICIES" fluid />
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </Card>
+          </TabPanel>
+
+          <TabPanel value="2">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">SEO</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
+                      <InputText name="metaTitle" fluid />
+                      <small v-if="$form.metaTitle?.invalid" class="text-red-500">{{ $form.metaTitle?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
+                      <Textarea name="metaDescription" fluid rows="3" />
+                      <small v-if="$form.metaDescription?.invalid" class="text-red-500">{{ $form.metaDescription?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
+                      <InputText name="metaKeywords" fluid />
+                      <small v-if="$form.metaKeywords?.invalid" class="text-red-500">{{ $form.metaKeywords?.errors?.[0]?.message }}</small>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </Card>
+          </TabPanel>
+
+          <TabPanel value="3">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">Images</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Image URL</label>
+                      <InputText name="imageUrl" fluid />
+                      <small v-if="$form.imageUrl?.invalid" class="text-red-500">{{ $form.imageUrl?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Square Image URL</label>
+                      <InputText name="squareImageUrl" fluid />
+                      <small v-if="$form.squareImageUrl?.invalid" class="text-red-500">{{ $form.squareImageUrl?.errors?.[0]?.message }}</small>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </Card>
+          </TabPanel>
+
+          <TabPanel v-if="isEdit" value="4">
+            <Toolbar>
+              <template #start>
+                <Button label="Add Rule" severity="secondary" @click="openAddRule">
+                  <Plus />
+                </Button>
+              </template>
+            </Toolbar>
+
+            <DataTable :value="rules" :loading="rulesLoading" data-key="id">
+              <Column field="type" header="Type" />
+              <Column field="matchPolicy" header="Match Policy" />
+              <Column field="value" header="Value" />
+              <Column header="" body-style="text-align: right; width: 6rem">
+                <template #body="{ data }">
+                  <div class="flex justify-end gap-2">
+                    <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="openEditRule(data)" />
+                    <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="confirmDeleteRule(data)" />
+                  </div>
+                </template>
+              </Column>
+              <template #empty>
+                <div class="text-center py-8 text-muted-color">No rules defined.</div>
+              </template>
+            </DataTable>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-surface mt-4">
+        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </div>
+    </Form>
 
     <TaxonRuleFormDialog
       v-if="isEdit"

@@ -11,7 +11,9 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Plus from '@primeicons/vue/plus'
 import Card from 'primevue/card'
-import { FormSection, FormField } from '@form'
+import { Form } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
@@ -36,6 +38,8 @@ const pageDescription = computed(() =>
 )
 const activeTab = ref('0')
 
+const resolver = zodResolver(optionTypeSchema)
+
 const form = ref<OptionTypeForm>({
   name: '',
   presentation: '',
@@ -43,8 +47,7 @@ const form = ref<OptionTypeForm>({
   filterable: false,
 })
 
-const fieldErrors = ref<Record<string, string>>({})
-const saving = ref(false)
+const loading = ref(false)
 
 const dialogVisible = ref(false)
 const editingValue = ref<OptionValueListItem | null>(null)
@@ -102,22 +105,12 @@ watch(
   },
 )
 
-async function onSave() {
-  fieldErrors.value = {}
-  const parsed = optionTypeSchema.safeParse(form.value)
+async function onSubmit(event: FormSubmitEvent) {
+  if (!event.valid) return
 
-  if (!parsed.success) {
-    for (const issue of parsed.error.issues) {
-      const field = String(issue.path[0])
-      if (!fieldErrors.value[field]) {
-        fieldErrors.value[field] = issue.message
-      }
-    }
-    return
-  }
+  const data = event.values as OptionTypeForm
+  loading.value = true
 
-  saving.value = true
-  const data = parsed.data
   const request = {
     name: data.name,
     presentation: data.presentation,
@@ -129,7 +122,7 @@ async function onSave() {
     ? await OptionTypeApi.updateOptionType(route.params.id as string, request)
     : await OptionTypeApi.createOptionType(request)
 
-  saving.value = false
+  loading.value = false
 
   if (result.isSuccess) {
     notify.success(isEdit.value ? 'Option type updated' : 'Option type created')
@@ -196,106 +189,115 @@ function onValueSearch(value: string) {
 </script>
 
 <template>
-  <!-- Page shell -->
   <Card>
     <template #content>
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-    <!-- Page actions -->
-    <div class="flex justify-end gap-2 mb-8">
-      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-    </div>
 
-    <!-- Tabs -->
-    <Tabs v-model:value="activeTab">
-      <TabList>
-        <Tab value="0">General</Tab>
-        <Tab v-if="isEdit" value="1">Option Values</Tab>
-      </TabList>
+    <Form v-slot="$form" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+      <Tabs v-model:value="activeTab">
+        <TabList>
+          <Tab value="0">General</Tab>
+          <Tab v-if="isEdit" value="1">Option Values</Tab>
+        </TabList>
 
-      <TabPanels>
-        <TabPanel value="0">
-          <!-- Tab 0: General -->
-          <FormSection title="Option Type Details">
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-              <InputText v-model="form.name" fluid />
-              <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
-            </FormField>
-            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation" help-text="Display text shown to customers">
-              <InputText v-model="form.presentation" fluid />
-              <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
-            </FormField>
-            <FormField label="Position" :invalid="!!fieldErrors.position" help-text="Sort order (lower = first)">
-              <InputNumber v-model="form.position" fluid :min="-1" />
-              <small v-if="fieldErrors.position" class="text-red-500">{{ fieldErrors.position }}</small>
-            </FormField>
-            <FormField label="Filterable" help-text="Show in storefront filter panel">
-              <ToggleSwitch v-model="form.filterable" />
-            </FormField>
-          </FormSection>
-        </TabPanel>
-
-        <TabPanel v-if="isEdit" value="1">
-          <!-- Tab 1: Option Values (child entity) -->
-          <Toolbar>
-            <template #start>
-              <Button label="Add Value" severity="secondary" @click="openAddDialog">
-                <Plus />
-              </Button>
-            </template>
-          </Toolbar>
-
-          <DataTable
-            :value="optionValues"
-            :loading="valuesLoading"
-            data-key="id"
-            :global-filter-fields="valueSearchFields"
-          >
-            <template #header>
-              <div class="flex justify-between items-center">
-                <IconField>
-                  <InputIcon><i class="pi pi-search" /></InputIcon>
-                  <InputText
-                    :model-value="valueSearchTerm"
-                    placeholder="Search values..."
-                    @update:model-value="onValueSearch($event ?? '')"
-                  />
-                </IconField>
-              </div>
-            </template>
-            <Column field="name" header="Name" :sortable="true" />
-            <Column field="presentation" header="Presentation" :sortable="true" />
-            <Column field="position" header="Position" :sortable="true" />
-            <Column header="" body-style="text-align: right; width: 8rem">
-              <template #body="{ data }">
-                <div class="flex justify-end gap-2">
-                  <Button
-                    icon="pi pi-pencil"
-                    severity="secondary"
-                    text
-                    rounded
-                    aria-label="Edit"
-                    @click="openEditDialog(data)"
-                  />
-                  <Button
-                    icon="pi pi-trash"
-                    severity="secondary"
-                    text
-                    rounded
-                    aria-label="Delete"
-                    @click="confirmDeleteValue(data)"
-                  />
+        <TabPanels>
+          <TabPanel value="0">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-6">
+                  <div class="font-semibold text-xl">Option Type Details</div>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                      <InputText name="name" fluid />
+                      <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+                      <InputText name="presentation" fluid />
+                      <small v-if="$form.presentation?.invalid" class="text-red-500">{{ $form.presentation?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+                      <InputNumber name="position" fluid :min="-1" />
+                      <small v-if="$form.position?.invalid" class="text-red-500">{{ $form.position?.errors?.[0]?.message }}</small>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Filterable</label>
+                      <ToggleSwitch name="filterable" />
+                    </div>
+                  </div>
                 </div>
               </template>
-            </Column>
-            <template #empty>
-              <div class="text-center py-8 text-muted-color">No option values defined.</div>
-            </template>
-          </DataTable>
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+            </Card>
+          </TabPanel>
+
+          <TabPanel v-if="isEdit" value="1">
+            <Toolbar>
+              <template #start>
+                <Button label="Add Value" severity="secondary" @click="openAddDialog">
+                  <Plus />
+                </Button>
+              </template>
+            </Toolbar>
+
+            <DataTable
+              :value="optionValues"
+              :loading="valuesLoading"
+              data-key="id"
+              :global-filter-fields="valueSearchFields"
+            >
+              <template #header>
+                <div class="flex justify-between items-center">
+                  <IconField>
+                    <InputIcon><i class="pi pi-search" /></InputIcon>
+                    <InputText
+                      :model-value="valueSearchTerm"
+                      placeholder="Search values..."
+                      @update:model-value="onValueSearch($event ?? '')"
+                    />
+                  </IconField>
+                </div>
+              </template>
+              <Column field="name" header="Name" :sortable="true" />
+              <Column field="presentation" header="Presentation" :sortable="true" />
+              <Column field="position" header="Position" :sortable="true" />
+              <Column header="" body-style="text-align: right; width: 8rem">
+                <template #body="{ data }">
+                  <div class="flex justify-end gap-2">
+                    <Button
+                      icon="pi pi-pencil"
+                      severity="secondary"
+                      text
+                      rounded
+                      aria-label="Edit"
+                      @click="openEditDialog(data)"
+                    />
+                    <Button
+                      icon="pi pi-trash"
+                      severity="secondary"
+                      text
+                      rounded
+                      aria-label="Delete"
+                      @click="confirmDeleteValue(data)"
+                    />
+                  </div>
+                </template>
+              </Column>
+              <template #empty>
+                <div class="text-center py-8 text-muted-color">No option values defined.</div>
+              </template>
+            </DataTable>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-surface mt-4">
+        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </div>
+    </Form>
 
     <OptionValueFormDialog
       :visible="dialogVisible"

@@ -2,7 +2,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
-import { FormSection, FormField } from '@form'
+import { Form } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { StateApi } from '../services/stateApi'
@@ -32,7 +34,7 @@ const form = ref<StateForm>({
   isActive: true,
 })
 
-const fieldErrors = ref<Record<string, string>>({})
+const stateResolver = zodResolver(stateSchema)
 const loading = ref(false)
 
 onMounted(async () => {
@@ -55,22 +57,11 @@ onMounted(async () => {
   }
 })
 
-async function onSave() {
-  fieldErrors.value = {}
-  const parsed = stateSchema.safeParse(form.value)
-
-  if (!parsed.success) {
-    for (const issue of parsed.error.issues) {
-      const field = String(issue.path[0])
-      if (!fieldErrors.value[field]) {
-        fieldErrors.value[field] = issue.message
-      }
-    }
-    return
-  }
+async function onSubmit(event: FormSubmitEvent) {
+  if (!event.valid) return
 
   loading.value = true
-  const data = parsed.data
+  const data = event.values as StateForm
   const request = {
     name: data.name,
     abbreviation: data.abbreviation,
@@ -98,42 +89,44 @@ function onCancel() {
 </script>
 
 <template>
-  <!-- Page shell -->
   <Card>
     <template #content>
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
-    <!-- Page actions -->
-    <div class="flex justify-end gap-2 mb-8">
-      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-    </div>
 
-    <!-- Form section -->
-    <FormSection title="State Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-        <InputText v-model="form.name" fluid />
-        <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
-      </FormField>
-      <FormField label="Abbreviation" :required="true" :invalid="!!fieldErrors.abbreviation" help-text="Short code (e.g. CA, NY, TX)">
-        <InputText v-model="form.abbreviation" fluid maxlength="10" />
-        <small v-if="fieldErrors.abbreviation" class="text-red-500">{{ fieldErrors.abbreviation }}</small>
-      </FormField>
-      <FormField label="Country" :required="true" :invalid="!!fieldErrors.countryId">
-        <Select
-          v-model="form.countryId"
-          :options="countryStore.activeCountries"
-          option-label="name"
-          option-value="id"
-          placeholder="Select a country"
-          fluid
-        />
-        <small v-if="fieldErrors.countryId" class="text-red-500">{{ fieldErrors.countryId }}</small>
-      </FormField>
-      <FormField label="Active">
-        <ToggleSwitch v-model="form.isActive" />
-      </FormField>
-    </FormSection>
+    <Card>
+      <template #content>
+        <div class="flex flex-col gap-6">
+          <div class="font-semibold text-xl">State Details</div>
+          <Form v-slot="$form" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+            <div class="flex flex-col gap-1">
+              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+              <InputText name="name" fluid />
+              <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-surface-900 dark:text-surface-0 font-medium">Abbreviation <span class="text-red-500">*</span></label>
+              <InputText name="abbreviation" fluid maxlength="10" />
+              <small class="text-muted-color">Short code (e.g. CA, NY, TX)</small>
+              <small v-if="$form.abbreviation?.invalid" class="text-red-500">{{ $form.abbreviation?.errors?.[0]?.message }}</small>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-surface-900 dark:text-surface-0 font-medium">Country <span class="text-red-500">*</span></label>
+              <Select name="countryId" :options="countryStore.activeCountries" option-label="name" option-value="id" placeholder="Select a country" fluid />
+              <small v-if="$form.countryId?.invalid" class="text-red-500">{{ $form.countryId?.errors?.[0]?.message }}</small>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-surface-900 dark:text-surface-0 font-medium">Active</label>
+              <ToggleSwitch name="isActive" />
+            </div>
+            <div class="flex justify-end gap-2 pt-4 border-t border-surface">
+              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
+              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+            </div>
+          </Form>
+        </div>
+      </template>
+    </Card>
     </template>
   </Card>
 </template>
