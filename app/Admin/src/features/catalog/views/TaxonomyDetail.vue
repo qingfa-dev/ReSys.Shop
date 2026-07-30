@@ -173,11 +173,11 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
 
     <!-- Form section -->
     <FormSection title="Taxonomy Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
         <InputText v-model="form.name" fluid />
         <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
       </FormField>
-      <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation" class="mb-4">
+      <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation">
         <InputText v-model="form.presentation" fluid />
         <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
       </FormField>
@@ -188,7 +188,7 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
     </FormSection>
 
     <!-- Child entity: Taxons tree -->
-    <Toolbar v-if="isEdit" class="mb-4">
+    <Toolbar v-if="isEdit">
       <template #start>
         <Button label="Add Taxon" severity="secondary" @click="navigateToCreateTaxon()">
           <Plus />

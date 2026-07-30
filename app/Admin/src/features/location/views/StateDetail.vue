@@ -111,15 +111,15 @@ function onCancel() {
 
     <!-- Form section -->
     <FormSection title="State Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
         <InputText v-model="form.name" fluid />
         <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
       </FormField>
-      <FormField label="Abbreviation" :required="true" :invalid="!!fieldErrors.abbreviation" help-text="Short code (e.g. CA, NY, TX)" class="mb-4">
+      <FormField label="Abbreviation" :required="true" :invalid="!!fieldErrors.abbreviation" help-text="Short code (e.g. CA, NY, TX)">
         <InputText v-model="form.abbreviation" fluid maxlength="10" />
         <small v-if="fieldErrors.abbreviation" class="text-red-500">{{ fieldErrors.abbreviation }}</small>
       </FormField>
-      <FormField label="Country" :required="true" :invalid="!!fieldErrors.countryId" class="mb-4">
+      <FormField label="Country" :required="true" :invalid="!!fieldErrors.countryId">
         <Select
           v-model="form.countryId"
           :options="countryStore.activeCountries"

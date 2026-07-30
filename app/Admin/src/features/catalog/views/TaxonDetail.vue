@@ -284,26 +284,26 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
         <TabPanel value="0">
           <!-- Tab 0: General -->
           <FormSection title="General">
-            <FormField label="Taxonomy" :required="true" :invalid="!!fieldErrors.taxonomyId" class="mb-4">
+            <FormField label="Taxonomy" :required="true" :invalid="!!fieldErrors.taxonomyId">
               <Select v-model="form.taxonomyId" :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
               <small v-if="fieldErrors.taxonomyId" class="text-red-500">{{ fieldErrors.taxonomyId }}</small>
             </FormField>
-            <FormField label="Parent" help-text="Leave empty for root-level taxon" class="mb-4">
+            <FormField label="Parent" help-text="Leave empty for root-level taxon">
               <Select v-model="form.parentId" :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
             </FormField>
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
               <InputText v-model="form.name" fluid />
               <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
             </FormField>
-            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation" class="mb-4">
+            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation">
               <InputText v-model="form.presentation" fluid />
               <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
             </FormField>
-            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens (e.g. running-shoes)" class="mb-4">
+            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens (e.g. running-shoes)">
               <InputText v-model="form.slug" fluid />
               <small v-if="fieldErrors.slug" class="text-red-500">{{ fieldErrors.slug }}</small>
             </FormField>
-            <FormField label="Description" :invalid="!!fieldErrors.description" class="mb-4">
+            <FormField label="Description" :invalid="!!fieldErrors.description">
               <Textarea v-model="form.description" fluid rows="3" />
               <small v-if="fieldErrors.description" class="text-red-500">{{ fieldErrors.description }}</small>
             </FormField>
@@ -317,13 +317,13 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
         <TabPanel value="1">
           <!-- Tab 1: Settings -->
           <FormSection title="Settings">
-            <FormField label="Sort Order" class="mb-4">
+            <FormField label="Sort Order">
               <Select v-model="form.sortOrder" :options="TAXON_SORT_ORDERS" fluid />
             </FormField>
-            <FormField label="Hide from Navigation" class="mb-4">
+            <FormField label="Hide from Navigation">
               <ToggleSwitch v-model="form.hideFromNav" />
             </FormField>
-            <FormField label="Automatic Classification" help-text="Use rules to auto-assign products" class="mb-4">
+            <FormField label="Automatic Classification" help-text="Use rules to auto-assign products">
               <ToggleSwitch v-model="form.automatic" />
             </FormField>
             <FormField label="Rules Match Policy" help-text="How multiple rules are combined">
@@ -335,11 +335,11 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
         <TabPanel value="2">
           <!-- Tab 2: SEO -->
           <FormSection title="SEO">
-            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle" class="mb-4">
+            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle">
               <InputText v-model="form.metaTitle" fluid />
               <small v-if="fieldErrors.metaTitle" class="text-red-500">{{ fieldErrors.metaTitle }}</small>
             </FormField>
-            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription" class="mb-4">
+            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription">
               <Textarea v-model="form.metaDescription" fluid rows="3" />
               <small v-if="fieldErrors.metaDescription" class="text-red-500">{{ fieldErrors.metaDescription }}</small>
             </FormField>
@@ -353,7 +353,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
         <TabPanel value="3">
           <!-- Tab 3: Images -->
           <FormSection title="Images">
-            <FormField label="Image URL" :invalid="!!fieldErrors.imageUrl" class="mb-4">
+            <FormField label="Image URL" :invalid="!!fieldErrors.imageUrl">
               <InputText v-model="form.imageUrl" fluid />
               <small v-if="fieldErrors.imageUrl" class="text-red-500">{{ fieldErrors.imageUrl }}</small>
             </FormField>
@@ -366,7 +366,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 
         <TabPanel v-if="isEdit" value="4">
           <!-- Tab 4: Rules (child entity) -->
-          <Toolbar class="mb-4">
+          <Toolbar>
             <template #start>
               <Button label="Add Rule" severity="secondary" @click="openAddRule">
                 <Plus />

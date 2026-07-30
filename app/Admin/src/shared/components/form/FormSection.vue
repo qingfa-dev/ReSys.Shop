@@ -12,13 +12,17 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <Card class="flex flex-col gap-4">
+  <Card>
     <template #content>
-      <div>
-        <div class="font-semibold text-xl">{{ title }}</div>
-        <p v-if="description" class="text-muted-color mt-1">{{ description }}</p>
+      <div class="flex flex-col gap-6">
+        <div>
+          <div class="font-semibold text-xl">{{ title }}</div>
+          <p v-if="description" class="text-muted-color mt-1">{{ description }}</p>
+        </div>
+        <div class="flex flex-col gap-4">
+          <slot />
+        </div>
       </div>
-      <slot />
     </template>
   </Card>
 </template>

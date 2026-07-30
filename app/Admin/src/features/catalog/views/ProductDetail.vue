@@ -268,15 +268,15 @@ function onCancel() {
         <TabPanel value="0">
           <FormSection title="Product Details">
             <!-- Tab 0: General -->
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
               <InputText v-model="form.name" fluid />
               <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
             </FormField>
-            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens" class="mb-4">
+            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens">
               <InputText v-model="form.slug" fluid />
               <small v-if="fieldErrors.slug" class="text-red-500">{{ fieldErrors.slug }}</small>
             </FormField>
-            <FormField label="Description" :invalid="!!fieldErrors.description" class="mb-4">
+            <FormField label="Description" :invalid="!!fieldErrors.description">
               <Textarea v-model="form.description" fluid rows="4" />
               <small v-if="fieldErrors.description" class="text-red-500">{{ fieldErrors.description }}</small>
             </FormField>
@@ -289,11 +289,11 @@ function onCancel() {
         <TabPanel value="1">
           <FormSection title="Search Engine Optimization">
             <!-- Tab 1: SEO -->
-            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle" class="mb-4">
+            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle">
               <InputText v-model="form.metaTitle" fluid />
               <small v-if="fieldErrors.metaTitle" class="text-red-500">{{ fieldErrors.metaTitle }}</small>
             </FormField>
-            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription" class="mb-4">
+            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription">
               <Textarea v-model="form.metaDescription" fluid rows="3" />
               <small v-if="fieldErrors.metaDescription" class="text-red-500">{{ fieldErrors.metaDescription }}</small>
             </FormField>
@@ -327,11 +327,11 @@ function onCancel() {
               </FormField>
             </div>
             <!-- Textarea fields -->
-            <FormField label="Material Composition" :invalid="!!fieldErrors.materialComposition" class="mb-4">
+            <FormField label="Material Composition" :invalid="!!fieldErrors.materialComposition">
               <Textarea v-model="form.materialComposition" fluid rows="2" />
               <small v-if="fieldErrors.materialComposition" class="text-red-500">{{ fieldErrors.materialComposition }}</small>
             </FormField>
-            <FormField label="Care Instructions" :invalid="!!fieldErrors.careInstructions" class="mb-4">
+            <FormField label="Care Instructions" :invalid="!!fieldErrors.careInstructions">
               <Textarea v-model="form.careInstructions" fluid rows="2" />
               <small v-if="fieldErrors.careInstructions" class="text-red-500">{{ fieldErrors.careInstructions }}</small>
             </FormField>
@@ -345,10 +345,10 @@ function onCancel() {
         <TabPanel value="3">
           <FormSection title="Availability">
             <!-- Tab 3: Timing -->
-            <FormField label="Available On" class="mb-4">
+            <FormField label="Available On">
               <InputText v-model="form.availableOn" fluid type="date" />
             </FormField>
-            <FormField label="Discontinue On" class="mb-4">
+            <FormField label="Discontinue On">
               <InputText v-model="form.discontinueOn" fluid type="date" />
             </FormField>
             <FormField label="Track Inventory" help-text="Enable inventory tracking for this product">

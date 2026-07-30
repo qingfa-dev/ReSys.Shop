@@ -218,15 +218,15 @@ function onValueSearch(value: string) {
         <TabPanel value="0">
           <!-- Tab 0: General -->
           <FormSection title="Option Type Details">
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
               <InputText v-model="form.name" fluid />
               <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
             </FormField>
-            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation" help-text="Display text shown to customers" class="mb-4">
+            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation" help-text="Display text shown to customers">
               <InputText v-model="form.presentation" fluid />
               <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
             </FormField>
-            <FormField label="Position" :invalid="!!fieldErrors.position" help-text="Sort order (lower = first)" class="mb-4">
+            <FormField label="Position" :invalid="!!fieldErrors.position" help-text="Sort order (lower = first)">
               <InputNumber v-model="form.position" fluid :min="-1" />
               <small v-if="fieldErrors.position" class="text-red-500">{{ fieldErrors.position }}</small>
             </FormField>
@@ -238,7 +238,7 @@ function onValueSearch(value: string) {
 
         <TabPanel v-if="isEdit" value="1">
           <!-- Tab 1: Option Values (child entity) -->
-          <Toolbar class="mb-4">
+          <Toolbar>
             <template #start>
               <Button label="Add Value" severity="secondary" @click="openAddDialog">
                 <Plus />

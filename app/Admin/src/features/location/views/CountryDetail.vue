@@ -113,19 +113,19 @@ function onCancel() {
 
     <!-- Form section -->
     <FormSection title="Country Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
         <InputText v-model="form.name" fluid />
         <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
       </FormField>
-      <FormField label="ISO Code" :required="true" :invalid="!!fieldErrors.isoCode" help-text="2-3 uppercase letters (e.g. US, VN)" class="mb-4">
+      <FormField label="ISO Code" :required="true" :invalid="!!fieldErrors.isoCode" help-text="2-3 uppercase letters (e.g. US, VN)">
         <InputText v-model="form.isoCode" fluid maxlength="3" @update:model-value="(v: string | undefined) => onIsoCodeInput(v)" />
         <small v-if="fieldErrors.isoCode" class="text-red-500">{{ fieldErrors.isoCode }}</small>
       </FormField>
-      <FormField label="Calling Code" :invalid="!!fieldErrors.callingCode" help-text="Optional (e.g. +1, +84)" class="mb-4">
+      <FormField label="Calling Code" :invalid="!!fieldErrors.callingCode" help-text="Optional (e.g. +1, +84)">
         <InputText v-model="form.callingCode" fluid maxlength="10" />
         <small v-if="fieldErrors.callingCode" class="text-red-500">{{ fieldErrors.callingCode }}</small>
       </FormField>
-      <FormField label="States Required" class="mb-4">
+      <FormField label="States Required">
         <ToggleSwitch v-model="form.statesRequired" />
       </FormField>
       <FormField label="Active">
