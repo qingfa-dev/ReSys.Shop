@@ -60,7 +60,7 @@ export const PRODUCT_SORT_FIELDS = [
 export function toProductQueryParams(query: ProductQuery): QueryingParameters {
   const filters: string[] = []
 
-  if (query.status !== undefined && query.status !== '') {
+  if (query.status !== undefined) {
     filters.push(`status=${query.status}`)
   }
   if (query.season !== undefined && query.season !== '') {

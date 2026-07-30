@@ -45,7 +45,7 @@ const presentationResolver = zodResolver(z.object({ presentation: taxonomyPresen
 const positionResolver = zodResolver(z.object({ position: taxonomyPosition }))
 const saving = ref(false)
 
-const treeNodes = ref<TaxonTreeItem[]>([])
+const treeNodes = ref<any[]>([])
 const treeLoading = ref(false)
 
 async function initEditMode(id: string) {
@@ -65,11 +65,19 @@ async function initEditMode(id: string) {
   await loadTree(id)
 }
 
+function addTreeNodeKeys(nodes: any[]): any[] {
+  return nodes.map(n => ({
+    ...n,
+    key: n.id,
+    children: n.children ? addTreeNodeKeys(n.children) : [],
+  }))
+}
+
 async function loadTree(taxonomyId: string) {
   treeLoading.value = true
   const result = await TaxonApi.getTree(taxonomyId)
   if (result.isSuccess && result.value?.tree) {
-    treeNodes.value = result.value.tree
+    treeNodes.value = addTreeNodeKeys(result.value.tree) as any
   }
   treeLoading.value = false
 }
@@ -145,7 +153,7 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
       if (result.isSuccess) {
         notify.success('Taxon deleted', `${node.name} has been removed.`)
         if (isEdit.value) {
-          await loadTree()
+          await loadTree(route.params.id as string)
         }
       } else {
         notify.error('Delete failed', result.errors?.[0]?.message ?? 'Could not delete taxon.')

@@ -409,10 +409,10 @@ function onCancel() {
               source-filter-placeholder="Search..."
               target-filter-placeholder="Search..."
             >
-              <template #item="{ item }">
+              <template #option="slotProps">
                 <div class="flex items-center gap-2">
-                  <span class="font-medium">{{ item.name }}</span>
-                  <span class="text-muted-color text-sm">({{ item.presentation }})</span>
+                  <span class="font-medium">{{ slotProps.option.name }}</span>
+                  <span class="text-muted-color text-sm">({{ slotProps.option.presentation }})</span>
                 </div>
               </template>
             </PickList>
@@ -432,10 +432,10 @@ function onCancel() {
               source-filter-placeholder="Search..."
               target-filter-placeholder="Search..."
             >
-              <template #item="{ item }">
+              <template #option="slotProps">
                 <div class="flex items-center gap-2">
-                  <span class="font-medium">{{ item.name }}</span>
-                  <span v-if="item.prettyName" class="text-muted-color text-sm">({{ item.prettyName }})</span>
+                  <span class="font-medium">{{ slotProps.option.name }}</span>
+                  <span v-if="slotProps.option.prettyName" class="text-muted-color text-sm">({{ slotProps.option.prettyName }})</span>
                 </div>
               </template>
             </PickList>

@@ -109,7 +109,7 @@ function onCancel() {
             </FormField>
             <FormField v-slot="$field" name="isoCode" :resolver="isoCodeResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">ISO Code <span class="text-red-500">*</span></label>
-              <InputText fluid maxlength="3" @update:model-value="(v: any) => $field?.setValue?.((v ?? '').toUpperCase())" />
+              <InputText fluid maxlength="3" />
               <small class="text-muted-color">2-3 uppercase letters (e.g. US, VN)</small>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>

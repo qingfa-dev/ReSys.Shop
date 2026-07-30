@@ -44,7 +44,7 @@ const {
   defaultPageSize: 20,
 })
 
-const treeData = ref<TaxonTreeItem[]>([])
+const treeData = ref<any[]>([])
 const treeLoading = ref(false)
 const treeFilter = ref('')
 
@@ -55,6 +55,14 @@ onMounted(() => {
   }
 })
 
+function addTreeNodeKeys(nodes: any[]): any[] {
+  return nodes.map(n => ({
+    ...n,
+    key: n.id,
+    children: n.children ? addTreeNodeKeys(n.children) : [],
+  }))
+}
+
 async function loadTree() {
   const taxonomyId = route.query.taxonomyId as string | undefined
   if (!taxonomyId) return
@@ -62,7 +70,7 @@ async function loadTree() {
   treeLoading.value = true
   const result = await TaxonApi.getTree(taxonomyId)
   if (result.isSuccess && result.value?.tree) {
-    treeData.value = result.value.tree
+    treeData.value = addTreeNodeKeys(result.value.tree) as any
   }
   treeLoading.value = false
 }

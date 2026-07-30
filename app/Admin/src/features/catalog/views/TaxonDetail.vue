@@ -182,7 +182,7 @@ async function onSubmit(event: FormSubmitEvent) {
     imageUrl: data.imageUrl ?? null,
     squareImageUrl: data.squareImageUrl ?? null,
     automatic: data.automatic,
-    rulesMatchPolicy: data.rulesMatchPolicy,
+    rulesMatchPolicy: data.rulesMatchPolicy as 'All' | 'Any',
     sortOrder: data.sortOrder,
     hideFromNav: data.hideFromNav,
   }
