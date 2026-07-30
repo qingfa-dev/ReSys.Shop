@@ -56,3 +56,14 @@ export {
   TAXON_RULE_MATCH_POLICIES,
   toTaxonRuleQueryParams,
 } from './taxonRule'
+export type {
+  ProductRequest,
+  ProductListItem,
+  ProductDetail,
+  ProductQuery,
+} from './product'
+export {
+  PRODUCT_FILTER_FIELDS,
+  PRODUCT_SORT_FIELDS,
+  toProductQueryParams,
+} from './product'
