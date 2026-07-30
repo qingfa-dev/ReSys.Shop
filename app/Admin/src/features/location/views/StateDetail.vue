@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { PageShell, PageHeading } from '@panel'
+import Toolbar from 'primevue/toolbar'
+import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
@@ -94,19 +95,22 @@ function onCancel() {
 
 <template>
   <PageShell :title="pageTitle">
-    <PageHeading
-      title=""
-      :breadcrumbs="[
-        { label: 'Home', to: '/' },
-        { label: 'States', to: '/location/states' },
-        { label: pageTitle },
-      ]"
-      :actions="[
-        { label: 'Save', icon: 'pi pi-check', severity: 'primary' },
-        { label: 'Cancel', icon: 'pi pi-times' },
-      ]"
-      @action="(i: number) => i === 0 ? onSave() : onCancel()"
-    />
+    <div class="flex items-center gap-2 text-muted-color mb-4">
+      <router-link to="/" class="hover:text-primary">Home</router-link>
+      <i class="pi pi-angle-right text-xs" />
+      <router-link to="/location/states" class="hover:text-primary">States</router-link>
+      <i class="pi pi-angle-right text-xs" />
+      <span>{{ pageTitle }}</span>
+    </div>
+    <Toolbar class="mb-8">
+      <template #start>
+        <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
+      </template>
+      <template #end>
+        <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
+        <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </template>
+    </Toolbar>
     <FormSection title="State Details">
       <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
         <InputText v-model="form.name" fluid class="w-full" />

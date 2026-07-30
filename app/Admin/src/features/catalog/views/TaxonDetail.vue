@@ -12,7 +12,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Toolbar from 'primevue/toolbar'
 import Plus from '@primeicons/vue/plus'
-import { PageShell, PageHeading } from '@panel'
+import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
@@ -257,19 +257,22 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 
 <template>
   <PageShell :title="pageTitle">
-    <PageHeading
-      title=""
-      :breadcrumbs="[
-        { label: 'Home', to: '/' },
-        { label: 'Taxons', to: '/catalog/taxons' },
-        { label: pageTitle },
-      ]"
-      :actions="[
-        { label: 'Save', icon: 'pi pi-check', severity: 'primary' },
-        { label: 'Cancel', icon: 'pi pi-times' },
-      ]"
-      @action="(i: number) => i === 0 ? onSave() : onCancel()"
-    />
+    <div class="flex items-center gap-2 text-muted-color mb-4">
+      <router-link to="/" class="hover:text-primary">Home</router-link>
+      <i class="pi pi-angle-right text-xs" />
+      <router-link to="/catalog/taxons" class="hover:text-primary">Taxons</router-link>
+      <i class="pi pi-angle-right text-xs" />
+      <span>{{ pageTitle }}</span>
+    </div>
+    <Toolbar class="mb-8">
+      <template #start>
+        <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
+      </template>
+      <template #end>
+        <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
+        <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </template>
+    </Toolbar>
 
     <Tabs v-model:value="activeTab">
       <TabList>
