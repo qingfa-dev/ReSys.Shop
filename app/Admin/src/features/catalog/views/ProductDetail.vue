@@ -8,6 +8,7 @@ import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import PickList from 'primevue/picklist'
+import Breadcrumb from 'primevue/breadcrumb'
 import Toolbar from 'primevue/toolbar'
 import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
@@ -29,6 +30,11 @@ const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Product' : 'New Product')
+const breadcrumbs = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Products', to: '/catalog/products' },
+  { label: pageTitle.value },
+])
 const activeTab = ref('0')
 
 const form = ref<ProductForm & { status?: string }>({
@@ -239,13 +245,7 @@ function onCancel() {
 
 <template>
   <PageShell :title="pageTitle">
-    <div class="flex items-center gap-2 text-muted-color mb-4">
-      <router-link to="/" class="hover:text-primary">Home</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <router-link to="/catalog/products" class="hover:text-primary">Products</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <span>{{ pageTitle }}</span>
-    </div>
+    <Breadcrumb :model="breadcrumbs" class="mb-4" />
     <Toolbar class="mb-8">
       <template #start>
         <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>

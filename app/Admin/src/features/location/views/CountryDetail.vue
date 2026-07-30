@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Breadcrumb from 'primevue/breadcrumb'
 import Toolbar from 'primevue/toolbar'
 import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
@@ -17,6 +18,11 @@ const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Country' : 'New Country')
+const breadcrumbs = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Countries', to: '/location/countries' },
+  { label: pageTitle.value },
+])
 
 const form = ref<CountryForm>({
   name: '',
@@ -97,13 +103,7 @@ function onCancel() {
 
 <template>
   <PageShell :title="pageTitle">
-    <div class="flex items-center gap-2 text-muted-color mb-4">
-      <router-link to="/" class="hover:text-primary">Home</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <router-link to="/location/countries" class="hover:text-primary">Countries</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <span>{{ pageTitle }}</span>
-    </div>
+    <Breadcrumb :model="breadcrumbs" class="mb-4" />
     <Toolbar class="mb-8">
       <template #start>
         <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>

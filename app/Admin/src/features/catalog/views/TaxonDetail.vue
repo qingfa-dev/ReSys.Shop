@@ -10,6 +10,7 @@ import TabPanel from 'primevue/tabpanel'
 import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Breadcrumb from 'primevue/breadcrumb'
 import Toolbar from 'primevue/toolbar'
 import Plus from '@primeicons/vue/plus'
 import { PageShell } from '@panel'
@@ -35,6 +36,11 @@ const taxonomyStore = useTaxonomyStore()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Taxon' : 'New Taxon')
+const breadcrumbs = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Taxons', to: '/catalog/taxons' },
+  { label: pageTitle.value },
+])
 const activeTab = ref('0')
 
 const form = ref<TaxonForm>({
@@ -257,13 +263,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 
 <template>
   <PageShell :title="pageTitle">
-    <div class="flex items-center gap-2 text-muted-color mb-4">
-      <router-link to="/" class="hover:text-primary">Home</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <router-link to="/catalog/taxons" class="hover:text-primary">Taxons</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <span>{{ pageTitle }}</span>
-    </div>
+    <Breadcrumb :model="breadcrumbs" class="mb-4" />
     <Toolbar class="mb-8">
       <template #start>
         <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>

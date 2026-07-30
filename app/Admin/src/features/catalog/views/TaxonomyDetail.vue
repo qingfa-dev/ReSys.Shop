@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
+import Breadcrumb from 'primevue/breadcrumb'
 import Toolbar from 'primevue/toolbar'
 import Card from 'primevue/card'
 import Plus from '@primeicons/vue/plus'
@@ -25,6 +26,11 @@ const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Taxonomy' : 'New Taxonomy')
+const breadcrumbs = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Taxonomies', to: '/catalog/taxonomies' },
+  { label: pageTitle.value },
+])
 
 const form = ref<TaxonomyForm>({
   name: '',
@@ -158,13 +164,7 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
 
 <template>
   <PageShell :title="pageTitle">
-    <div class="flex items-center gap-2 text-muted-color mb-4">
-      <router-link to="/" class="hover:text-primary">Home</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <router-link to="/catalog/taxonomies" class="hover:text-primary">Taxonomies</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <span>{{ pageTitle }}</span>
-    </div>
+    <Breadcrumb :model="breadcrumbs" class="mb-4" />
     <Toolbar class="mb-8">
       <template #start>
         <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>

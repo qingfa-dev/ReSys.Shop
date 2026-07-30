@@ -10,6 +10,7 @@ import TabPanel from 'primevue/tabpanel'
 import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Breadcrumb from 'primevue/breadcrumb'
 import Toolbar from 'primevue/toolbar'
 import Plus from '@primeicons/vue/plus'
 import { PageShell } from '@panel'
@@ -33,6 +34,11 @@ const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Option Type' : 'New Option Type')
+const breadcrumbs = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Option Types', to: '/catalog/option-types' },
+  { label: pageTitle.value },
+])
 const activeTab = ref('0')
 
 const form = ref<OptionTypeForm>({
@@ -190,13 +196,7 @@ function onValueSearch(value: string) {
 
 <template>
   <PageShell :title="pageTitle">
-    <div class="flex items-center gap-2 text-muted-color mb-4">
-      <router-link to="/" class="hover:text-primary">Home</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <router-link to="/catalog/option-types" class="hover:text-primary">Option Types</router-link>
-      <i class="pi pi-angle-right text-xs" />
-      <span>{{ pageTitle }}</span>
-    </div>
+    <Breadcrumb :model="breadcrumbs" class="mb-4" />
     <Toolbar class="mb-8">
       <template #start>
         <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
