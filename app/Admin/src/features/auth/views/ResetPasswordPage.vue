@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
@@ -81,14 +82,16 @@ async function onSubmit(event: FormSubmitEvent) {
     </FormField>
 
     <FormField v-slot="$field" name="newPassword" class="flex flex-col gap-1">
-      <label class="text-surface-900 dark:text-surface-0 font-medium">New Password</label>
-      <IconField>
-        <InputPassword :mask="mask" fluid size="large" :feedback="false" />
-        <InputIcon class="cursor-pointer" @click="mask = !mask">
-          <Eye v-if="mask" />
-          <EyeSlash v-else />
-        </InputIcon>
-      </IconField>
+      <FloatLabel variant="on">
+        <IconField>
+          <InputPassword id="newPassword" :mask="mask" fluid size="large" :feedback="false" />
+          <InputIcon class="cursor-pointer" @click="mask = !mask">
+            <Eye v-if="mask" />
+            <EyeSlash v-else />
+          </InputIcon>
+        </IconField>
+        <label for="newPassword">New Password</label>
+      </FloatLabel>
       <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
     </FormField>
 

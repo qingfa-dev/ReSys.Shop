@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
@@ -36,19 +37,23 @@ async function onSubmit(event: FormSubmitEvent) {
   <div>
     <Form v-slot="$form" :resolver="loginResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
       <FormField v-slot="$field" name="credential" class="flex flex-col gap-1">
-        <label class="text-surface-900 dark:text-surface-0 font-medium">Email or Username</label>
-        <InputText type="text" placeholder="Email address" fluid size="large" autocomplete="username" />
+        <FloatLabel variant="on">
+          <InputText id="credential" type="text" fluid size="large" autocomplete="username" />
+          <label for="credential">Email or Username</label>
+        </FloatLabel>
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
       </FormField>
       <FormField v-slot="$field" name="password" class="flex flex-col gap-1">
-        <label class="text-surface-900 dark:text-surface-0 font-medium">Password</label>
-        <IconField>
-          <InputPassword placeholder="Password" :mask="mask" fluid size="large" :feedback="false" autocomplete="current-password" />
-          <InputIcon class="cursor-pointer" @click="mask = !mask">
-            <Eye v-if="mask" />
-            <EyeSlash v-else />
-          </InputIcon>
-        </IconField>
+        <FloatLabel variant="on">
+          <IconField>
+            <InputPassword id="password" placeholder="Password" :mask="mask" fluid size="large" :feedback="false" autocomplete="current-password" />
+            <InputIcon class="cursor-pointer" @click="mask = !mask">
+              <Eye v-if="mask" />
+              <EyeSlash v-else />
+            </InputIcon>
+          </IconField>
+          <label for="password">Password</label>
+        </FloatLabel>
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
       </FormField>
       <div class="flex items-center justify-between mt-2 mb-8 gap-8">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
@@ -37,8 +38,10 @@ async function onSubmit(event: FormSubmitEvent) {
   <div v-else>
     <Form v-slot="$form" :resolver="forgotResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
       <FormField v-slot="$field" name="email" class="flex flex-col gap-1">
-        <label class="text-surface-900 dark:text-surface-0 font-medium">Email</label>
-        <InputText type="email" placeholder="Email address" fluid size="large" autocomplete="email" />
+        <FloatLabel variant="on">
+          <InputText id="email" type="email" fluid size="large" autocomplete="email" />
+          <label for="email">Email</label>
+        </FloatLabel>
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
       </FormField>
       <Message v-if="submitError" severity="error" :closable="false">{{ submitError }}</Message>
