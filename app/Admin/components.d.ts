@@ -24,6 +24,7 @@ declare module 'vue' {
     Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
+    Toolbar: typeof import('primevue/toolbar')['default']
   }
   export interface GlobalDirectives {
     StyleClass: typeof import('primevue/styleclass')['default']
@@ -44,4 +45,5 @@ declare global {
   const Textarea: typeof import('primevue/textarea')['default']
   const Toast: typeof import('primevue/toast')['default']
   const ToggleSwitch: typeof import('primevue/toggleswitch')['default']
+  const Toolbar: typeof import('primevue/toolbar')['default']
 }

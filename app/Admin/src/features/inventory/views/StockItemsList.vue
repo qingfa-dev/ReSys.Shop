@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { PageShell } from '@panel'
+import Card from 'primevue/card'
 </script>
 
 <template>
-  <PageShell title="Stock Items">
-    <p class="text-muted-color">Stock items list coming soon.</p>
-  </PageShell>
+  <Card class="mb-4">
+    <template #content>
+      <div class="font-semibold text-xl mb-4">Stock Items</div>
+      <p class="text-muted-color">Stock items list coming soon.</p>
+    </template>
+  </Card>
 </template>

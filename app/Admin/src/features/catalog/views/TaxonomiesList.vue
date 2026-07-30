@@ -8,7 +8,7 @@ import Toolbar from 'primevue/toolbar'
 import Plus from '@primeicons/vue/plus'
 import Trash from '@primeicons/vue/trash'
 import Upload from '@primeicons/vue/upload'
-import { PageShell } from '@panel'
+import Card from 'primevue/card'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -104,7 +104,11 @@ function confirmDelete() {
 </script>
 
 <template>
-  <PageShell title="Taxonomies" description="Manage product classification taxonomies">
+  <!-- Page shell -->
+  <Card>
+    <template #content>
+      <div class="font-semibold text-xl mb-4">Taxonomies</div>
+      <p class="text-muted-color mb-4">Manage product classification taxonomies</p>
     <!-- Toolbar -->
     <Toolbar class="mb-4">
       <template #start>
@@ -168,5 +172,6 @@ function confirmDelete() {
         <div class="text-center py-8 text-muted-color">No taxonomies found.</div>
       </template>
     </DataTable>
-  </PageShell>
+    </template>
+  </Card>
 </template>

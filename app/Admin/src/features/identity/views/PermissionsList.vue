@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { PageShell } from '@panel'
+import Card from 'primevue/card'
 </script>
 
 <template>
-  <PageShell title="Permissions">
-    <p class="text-muted-color">Permissions list coming soon.</p>
-  </PageShell>
+  <Card class="mb-4">
+    <template #content>
+      <div class="font-semibold text-xl mb-4">Permissions</div>
+      <p class="text-muted-color">Permissions list coming soon.</p>
+    </template>
+  </Card>
 </template>

@@ -8,7 +8,7 @@ import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import PickList from 'primevue/picklist'
-import { PageShell } from '@panel'
+import Card from 'primevue/card'
 import { FormSection, FormField } from '@form'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
@@ -242,7 +242,11 @@ function onCancel() {
 </script>
 
 <template>
-  <PageShell :title="pageTitle" :description="pageDescription">
+  <!-- Page shell -->
+  <Card>
+    <template #content>
+      <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
+      <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
     <!-- Page actions -->
     <div class="flex justify-end gap-2 mb-8">
       <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
@@ -400,5 +404,6 @@ function onCancel() {
         </TabPanel>
       </TabPanels>
     </Tabs>
-  </PageShell>
+    </template>
+  </Card>
 </template>

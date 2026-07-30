@@ -10,7 +10,7 @@ import TabPanel from 'primevue/tabpanel'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Plus from '@primeicons/vue/plus'
-import { PageShell } from '@panel'
+import Card from 'primevue/card'
 import { FormSection, FormField } from '@form'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
@@ -196,7 +196,11 @@ function onValueSearch(value: string) {
 </script>
 
 <template>
-  <PageShell :title="pageTitle" :description="pageDescription">
+  <!-- Page shell -->
+  <Card>
+    <template #content>
+      <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
+      <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
     <!-- Page actions -->
     <div class="flex justify-end gap-2 mb-8">
       <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
@@ -300,5 +304,6 @@ function onValueSearch(value: string) {
       @update:visible="dialogVisible = $event"
       @saved="onDialogSaved"
     />
-  </PageShell>
+    </template>
+  </Card>
 </template>

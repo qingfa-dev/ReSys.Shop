@@ -9,7 +9,7 @@ import Toolbar from 'primevue/toolbar'
 import Plus from '@primeicons/vue/plus'
 import Trash from '@primeicons/vue/trash'
 import Upload from '@primeicons/vue/upload'
-import { PageShell } from '@panel'
+import Card from 'primevue/card'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -141,7 +141,11 @@ function confirmDelete() {
 </script>
 
 <template>
-  <PageShell title="Taxons" description="Manage product classification taxons">
+  <!-- Page shell -->
+  <Card>
+    <template #content>
+      <div class="font-semibold text-xl mb-4">Taxons</div>
+      <p class="text-muted-color mb-4">Manage product classification taxons</p>
     <!-- Toolbar -->
     <Toolbar class="mb-4">
       <template #start>
@@ -252,5 +256,6 @@ function confirmDelete() {
         </template>
       </TreeTable>
     </div>
-  </PageShell>
+    </template>
+  </Card>
 </template>
