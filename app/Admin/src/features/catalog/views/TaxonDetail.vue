@@ -415,7 +415,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
               </template>
             </Toolbar>
 
-            <DataTable :value="rules" :loading="rulesLoading" data-key="id">
+            <DataTable size="large" :value="rules" :loading="rulesLoading" data-key="id">
               <Column field="type" header="Type" />
               <Column field="matchPolicy" header="Match Policy" />
               <Column field="value" header="Value" />

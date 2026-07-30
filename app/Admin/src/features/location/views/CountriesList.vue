@@ -123,7 +123,7 @@ function confirmDelete() {
     </Toolbar>
 
     <!-- Data table -->
-    <DataTable
+    <DataTable size="large"
       ref="dt"
       v-model:selection="selectedItems"
       :value="items"

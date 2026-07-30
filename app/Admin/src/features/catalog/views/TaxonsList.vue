@@ -41,7 +41,7 @@ const {
   defaultSearchFields: allowedSearchFields,
   defaultSearchMode: 'any',
   defaultSort: ['lft'],
-  defaultPageSize: 20,
+  defaultPageSize: 25,
 })
 
 const treeData = ref<any[]>([])
@@ -179,7 +179,7 @@ function confirmDelete() {
     </Toolbar>
 
     <!-- Data table -->
-    <DataTable
+    <DataTable size="large"
       v-if="viewMode === 'table'"
       ref="dt"
       v-model:selection="selectedItems"

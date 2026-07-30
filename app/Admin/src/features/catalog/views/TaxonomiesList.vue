@@ -40,7 +40,7 @@ const {
   defaultSearchFields: allowedSearchFields,
   defaultSearchMode: 'any',
   defaultSort: ['name'],
-  defaultPageSize: 20,
+  defaultPageSize: 25,
 })
 
 function navigateToNew() {
@@ -127,7 +127,7 @@ function confirmDelete() {
     </Toolbar>
 
     <!-- Data table -->
-    <DataTable
+    <DataTable size="large"
       ref="dt"
       v-model:selection="selectedItems"
       :value="items"

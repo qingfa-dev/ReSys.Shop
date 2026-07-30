@@ -250,7 +250,7 @@ function onValueSearch(value: string) {
               </template>
             </Toolbar>
 
-            <DataTable
+            <DataTable size="large"
               :value="optionValues"
               :loading="valuesLoading"
               data-key="id"
