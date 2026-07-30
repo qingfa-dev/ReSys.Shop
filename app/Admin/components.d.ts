@@ -19,7 +19,9 @@ declare module 'vue' {
     InputText: typeof import('primevue/inputtext')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('primevue/select')['default']
     SelectButton: typeof import('primevue/selectbutton')['default']
+    Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
   }
@@ -37,7 +39,9 @@ declare global {
   const InputText: typeof import('primevue/inputtext')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const Select: typeof import('primevue/select')['default']
   const SelectButton: typeof import('primevue/selectbutton')['default']
+  const Textarea: typeof import('primevue/textarea')['default']
   const Toast: typeof import('primevue/toast')['default']
   const ToggleSwitch: typeof import('primevue/toggleswitch')['default']
 }
