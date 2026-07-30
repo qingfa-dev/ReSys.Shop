@@ -40,6 +40,7 @@ export type { TaxonRuleForm } from './taxonRule'
 export {
   productName,
   productSlug,
+  productDescription,
   productSchema,
 } from './product'
 export type { ProductForm } from './product'
