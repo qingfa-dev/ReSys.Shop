@@ -1,2 +1,5 @@
 export { OptionTypeApi } from './optionTypeApi'
 export { OptionValueApi } from './optionValueApi'
+export { TaxonomyApi } from './taxonomyApi'
+export { TaxonApi } from './taxonApi'
+export { TaxonRuleApi } from './taxonRuleApi'
