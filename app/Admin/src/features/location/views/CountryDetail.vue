@@ -14,7 +14,7 @@ const router = useRouter()
 const notify = useNotify()
 const { handleResult } = useApiErrorHandler()
 
-const isEdit = computed(() => !!route.params.id)
+const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Country' : 'New Country')
 
 const form = ref<CountryForm>({

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
@@ -31,7 +31,7 @@ const notify = useNotify()
 const confirm = useConfirm()
 const { handleResult } = useApiErrorHandler()
 
-const isEdit = computed(() => !!route.params.id)
+const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Option Type' : 'New Option Type')
 const activeTab = ref('0')
 
@@ -68,24 +68,33 @@ const {
 
 const valueSearchTerm = ref('')
 
-onMounted(async () => {
-  if (isEdit.value) {
-    const id = route.params.id as string
-    setValueFilter(`optionTypeId=${id}`)
+async function initEditMode(id: string) {
+  setValueFilter(`optionTypeId=${id}`)
 
-    const result = await OptionTypeApi.getOptionType(id)
-    if (result.isSuccess) {
-      const ot = result.value
-      form.value = {
-        name: ot.name,
-        presentation: ot.presentation,
-        position: ot.position,
-        filterable: ot.filterable,
-      }
-    } else {
-      handleResult(result)
-      router.push('/catalog/option-types')
+  const result = await OptionTypeApi.getOptionType(id)
+  if (result.isSuccess) {
+    const ot = result.value
+    form.value = {
+      name: ot.name,
+      presentation: ot.presentation,
+      position: ot.position,
+      filterable: ot.filterable,
     }
+  } else {
+    handleResult(result)
+    router.push('/catalog/option-types')
+  }
+}
+
+onMounted(() => {
+  if (isEdit.value) {
+    initEditMode(route.params.id as string)
+  }
+})
+
+watch(() => route.params.id, (newId) => {
+  if (newId && newId !== 'new') {
+    initEditMode(newId as string)
   }
 })
 
@@ -121,7 +130,14 @@ async function onSave() {
   if (result.isSuccess) {
     notify.success(isEdit.value ? 'Option type updated' : 'Option type created')
     if (!isEdit.value && result.value) {
-      router.push(`/catalog/option-types/${result.value.id}`)
+      const created = result.value
+      form.value = {
+        name: created.name,
+        presentation: created.presentation,
+        position: created.position,
+        filterable: created.filterable,
+      }
+      router.replace(`/catalog/option-types/${created.id}`)
     }
   } else {
     handleResult(result)
