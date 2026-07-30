@@ -112,12 +112,12 @@ async function onSave() {
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium">Type</label>
-        <Select v-model="form.type" :options="TAXON_RULE_TYPES" option-label="type" fluid :invalid="!!fieldErrors.type" />
+        <Select v-model="form.type" :options="TAXON_RULE_TYPES" fluid :invalid="!!fieldErrors.type" />
         <small v-if="fieldErrors.type" class="text-red-500">{{ fieldErrors.type }}</small>
       </div>
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium">Match Policy</label>
-        <Select v-model="form.matchPolicy" :options="TAXON_RULE_MATCH_POLICIES" option-label="matchPolicy" fluid :invalid="!!fieldErrors.matchPolicy" />
+        <Select v-model="form.matchPolicy" :options="TAXON_RULE_MATCH_POLICIES" fluid :invalid="!!fieldErrors.matchPolicy" />
         <small v-if="fieldErrors.matchPolicy" class="text-red-500">{{ fieldErrors.matchPolicy }}</small>
       </div>
       <div class="flex flex-col gap-1">

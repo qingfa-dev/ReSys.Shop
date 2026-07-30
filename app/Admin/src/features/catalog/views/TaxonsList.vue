@@ -100,13 +100,6 @@ function filterTree(name: string) {
   treeFilter.value = name ? name.toLowerCase() : ''
 }
 
-function isNodeVisible(node: TaxonTreeItem): boolean {
-  if (!treeFilter.value) return true
-  return node.name.toLowerCase().includes(treeFilter.value)
-    || node.slug.toLowerCase().includes(treeFilter.value)
-    || node.children.some(c => isNodeVisible(c))
-}
-
 function confirmDelete() {
   if (selectedItems.value.length === 0) return
 
@@ -239,7 +232,7 @@ function confirmDelete() {
       <TreeTable
         :value="treeData"
         :loading="treeLoading"
-        filter-mode="lenient"
+        v-model:filter-value="treeFilter"
       >
         <Column field="name" header="Name" :expander="true" />
         <Column field="slug" header="Slug" />
