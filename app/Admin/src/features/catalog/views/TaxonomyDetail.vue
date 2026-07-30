@@ -43,6 +43,7 @@ const nameResolver = zodResolver(taxonomyName)
 const presentationResolver = zodResolver(taxonomyPresentation)
 const positionResolver = zodResolver(taxonomyPosition)
 const saving = ref(false)
+const formLoaded = ref(!isEdit.value)
 
 const treeNodes = ref<any[]>([])
 const treeLoading = ref(false)
@@ -56,6 +57,7 @@ async function initEditMode(id: string) {
       presentation: t.presentation,
       position: t.position,
     }
+    formLoaded.value = true
   } else {
     handleResult(result)
     router.push('/catalog/taxonomies')
@@ -89,7 +91,9 @@ onMounted(() => {
 
 watch(() => route.params.id, (newId) => {
   if (newId && newId !== 'new') {
-    initEditMode(newId as string)
+    initEditMode(newId as string).then(() => {
+      formLoaded.value = true
+    })
   }
 })
 
@@ -172,7 +176,7 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
       <template #content>
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">Taxonomy Details</div>
-          <Form v-slot="$form" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+          <Form v-slot="$form" :key="String(formLoaded)" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />

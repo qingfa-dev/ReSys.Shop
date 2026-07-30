@@ -38,6 +38,7 @@ const nameResolver = zodResolver(countryName)
 const isoCodeResolver = zodResolver(countryIsoCode)
 const callingCodeResolver = zodResolver(countryCallingCode)
 const loading = ref(false)
+const formLoaded = ref(!isEdit.value)
 
 onMounted(async () => {
   if (isEdit.value) {
@@ -51,6 +52,7 @@ onMounted(async () => {
         statesRequired: c.statesRequired,
         isActive: c.isActive,
       }
+      formLoaded.value = true
     } else {
       handleResult(result)
       router.push('/location/countries')
@@ -100,7 +102,7 @@ function onCancel() {
       <template #content>
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">Country Details</div>
-          <Form v-slot="$form" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+          <Form v-slot="$form" :key="String(formLoaded)" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />

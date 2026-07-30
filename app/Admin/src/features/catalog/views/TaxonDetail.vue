@@ -79,6 +79,7 @@ const form = ref<TaxonForm>({
 })
 
 const loading = ref(false)
+const formLoaded = ref(!isEdit.value)
 
 const parentOptions = ref<{ label: string; value: string }[]>([])
 const dialogVisible = ref(false)
@@ -116,6 +117,7 @@ async function initEditMode(id: string) {
       sortOrder: t.sortOrder,
       hideFromNav: t.hideFromNav,
     }
+    formLoaded.value = true
 
     await Promise.all([loadParents(result.value.taxonomyId), loadRules(id)])
   } else {
@@ -157,7 +159,9 @@ onMounted(async () => {
 
 watch(() => route.params.id, (newId) => {
   if (newId && newId !== 'new') {
-    initEditMode(newId as string)
+    initEditMode(newId as string).then(() => {
+      formLoaded.value = true
+    })
   }
 })
 
@@ -268,7 +272,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
 
-    <Form v-slot="$form" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+    <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
       <Tabs v-model:value="activeTab">
         <TabList>
           <Tab value="0">General</Tab>

@@ -39,6 +39,7 @@ const nameResolver = zodResolver(stateName)
 const abbreviationResolver = zodResolver(stateAbbreviation)
 const countryIdResolver = zodResolver(stateCountryId)
 const loading = ref(false)
+const formLoaded = ref(!isEdit.value)
 
 onMounted(async () => {
   countryStore.fetchActive()
@@ -53,6 +54,7 @@ onMounted(async () => {
         countryId: s.countryId,
         isActive: s.isActive,
       }
+      formLoaded.value = true
     } else {
       handleResult(result)
       router.push('/location/states')
@@ -101,7 +103,7 @@ function onCancel() {
       <template #content>
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">State Details</div>
-          <Form v-slot="$form" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+          <Form v-slot="$form" :key="String(formLoaded)" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />

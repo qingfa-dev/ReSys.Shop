@@ -52,6 +52,7 @@ const form = ref<OptionTypeForm>({
 })
 
 const loading = ref(false)
+const formLoaded = ref(!isEdit.value)
 
 const dialogVisible = ref(false)
 const editingValue = ref<OptionValueListItem | null>(null)
@@ -88,6 +89,7 @@ async function initEditMode(id: string) {
       position: ot.position,
       filterable: ot.filterable,
     }
+    formLoaded.value = true
   } else {
     handleResult(result)
     router.push('/catalog/option-types')
@@ -104,7 +106,9 @@ watch(
   () => route.params.id,
   (newId) => {
     if (newId && newId !== 'new') {
-      initEditMode(newId as string)
+      initEditMode(newId as string).then(() => {
+        formLoaded.value = true
+      })
     }
   },
 )
@@ -198,7 +202,7 @@ function onValueSearch(value: string) {
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
 
-    <Form v-slot="$form" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+    <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
       <Tabs v-model:value="activeTab">
         <TabList>
           <Tab value="0">General</Tab>

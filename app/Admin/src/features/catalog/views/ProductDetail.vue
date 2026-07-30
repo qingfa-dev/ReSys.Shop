@@ -76,6 +76,7 @@ const form = ref<ProductForm & { status?: string }>({
 })
 
 const loading = ref(false)
+const formLoaded = ref(!isEdit.value)
 
 const unassignedOptionTypes = ref<OptionTypeAssignment[]>([])
 const assignedOptionTypes = ref<OptionTypeAssignment[]>([])
@@ -108,6 +109,7 @@ async function initEditMode(id: string) {
       genderTarget: p.genderTarget,
       status: p.status,
     }
+    formLoaded.value = true
   } else {
     handleResult(result)
     router.push('/catalog/products')
@@ -122,7 +124,9 @@ onMounted(() => {
 
 watch(() => route.params.id, (newId) => {
   if (newId && newId !== 'new') {
-    initEditMode(newId as string)
+    initEditMode(newId as string).then(() => {
+      formLoaded.value = true
+    })
   }
 })
 
@@ -256,7 +260,7 @@ function onCancel() {
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
 
-    <Form v-slot="$form" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+    <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
       <Tabs v-model:value="activeTab">
         <TabList>
           <Tab value="0">General</Tab>
