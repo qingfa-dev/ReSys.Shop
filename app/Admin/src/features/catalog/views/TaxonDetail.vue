@@ -17,14 +17,15 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
-import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useTaxonomyStore } from '../stores/taxonomyStore'
+import { useTaxonDetailStore } from '../stores/taxonDetailStore'
+import { useTaxonTreeStore } from '../stores/taxonTreeStore'
 import { TaxonApi } from '../services/taxonApi'
 import { TaxonRuleApi } from '../services/taxonRuleApi'
 import { taxonSchema, taxonTaxonomyId, taxonParentId, taxonName, taxonPresentation, taxonSlug, taxonDescription, taxonPosition, taxonMetaTitle, taxonMetaDescription, taxonMetaKeywords, taxonImageUrl, taxonSquareImageUrl, taxonSortOrder, taxonRulesMatchPolicy } from '../validations/taxon'
 import type { TaxonForm } from '../validations/taxon'
 import type { TaxonRuleListItem } from '../types/taxonRule'
-import { TAXON_SORT_ORDERS, TAXON_MATCH_POLICIES } from '../types/taxon'
+import { TAXON_SORT_ORDERS, TAXON_MATCH_POLICIES, type TaxonTreeItem } from '../types/taxon'
 import TaxonRuleFormDialog from '../components/TaxonRuleFormDialog.vue'
 
 const route = useRoute()
@@ -33,6 +34,8 @@ const notify = useNotify()
 const confirm = useConfirm()
 const { handleResult } = useApiErrorHandler()
 const taxonomyStore = useTaxonomyStore()
+const detailStore = useTaxonDetailStore()
+const treeStore = useTaxonTreeStore()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Taxon' : 'New Taxon')
@@ -85,18 +88,8 @@ const parentOptions = ref<{ label: string; value: string }[]>([])
 const dialogVisible = ref(false)
 const editingRule = ref<TaxonRuleListItem | null>(null)
 
-const {
-  items: rules,
-  loading: rulesLoading,
-  refresh: refreshRules,
-} = usePagedQuery<TaxonRuleListItem>('', {
-  allowedFilterFields: [],
-  allowedSortFields: [],
-  defaultPageSize: 100,
-})
-
 async function initEditMode(id: string) {
-  const result = await TaxonApi.getTaxon(id)
+  const result = await detailStore.fetchDetail(id)
   if (result.isSuccess) {
     const t = result.value
     form.value = {
@@ -127,25 +120,20 @@ async function initEditMode(id: string) {
 }
 
 async function loadParents(taxonomyId: string) {
-  const result = await TaxonApi.getTree(taxonomyId)
-  if (result.isSuccess && result.value?.tree) {
-    const flat: { label: string; value: string }[] = [{ label: '(None — root level)', value: '' }]
-    function walk(nodes: any[], depth: number) {
-      for (const n of nodes) {
-        flat.push({ label: '  '.repeat(depth) + '|-- ' + n.name, value: n.id })
-        if (n.children?.length) walk(n.children, depth + 1)
-      }
+  await treeStore.fetchTree(taxonomyId)
+  const flat: { label: string; value: string }[] = [{ label: '(None — root level)', value: '' }]
+  function walk(nodes: TaxonTreeItem[], depth: number) {
+    for (const n of nodes) {
+      flat.push({ label: '  '.repeat(depth) + '|-- ' + n.name, value: n.id })
+      if (n.children?.length) walk(n.children, depth + 1)
     }
-    walk(result.value.tree, 1)
-    parentOptions.value = flat
   }
+  walk(treeStore.tree, 1)
+  parentOptions.value = flat
 }
 
 async function loadRules(taxonId: string) {
-  const result = await TaxonRuleApi.getRules(taxonId)
-  if (result.isSuccess) {
-    rules.value = result.items
-  }
+  await detailStore.fetchRules(taxonId)
 }
 
 onMounted(async () => {
@@ -241,7 +229,6 @@ function openEditRule(rule: TaxonRuleListItem) {
 }
 
 function onRuleSaved() {
-  refreshRules()
   loadRules(route.params.id as string)
 }
 
@@ -282,7 +269,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form id="taxon-form" v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+          <Form id="taxon-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -302,7 +289,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                               <Select :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
                               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                             </FormField>
-                            <FormField v-slot="$field" name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
+                            <FormField name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
                               <Select :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
                             </FormField>
@@ -340,19 +327,19 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-4">
-                            <FormField v-slot="$field" name="sortOrder" :resolver="sortOrderResolver" class="flex flex-col gap-1">
+                            <FormField name="sortOrder" :resolver="sortOrderResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
                               <Select :options="TAXON_SORT_ORDERS" fluid />
                             </FormField>
-                            <FormField v-slot="$field" name="hideFromNav" class="flex flex-col gap-1">
+                            <FormField name="hideFromNav" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Hide from Navigation</label>
                               <ToggleSwitch />
                             </FormField>
-                            <FormField v-slot="$field" name="automatic" class="flex flex-col gap-1">
+                            <FormField name="automatic" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Automatic Classification</label>
                               <ToggleSwitch />
                             </FormField>
-                            <FormField v-slot="$field" name="rulesMatchPolicy" :resolver="rulesMatchPolicyResolver" class="flex flex-col gap-1">
+                            <FormField name="rulesMatchPolicy" :resolver="rulesMatchPolicyResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Rules Match Policy</label>
                               <Select :options="TAXON_MATCH_POLICIES" fluid />
                             </FormField>
@@ -413,7 +400,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                     </template>
                   </Toolbar>
 
-                  <DataTable size="large" :value="rules" :loading="rulesLoading" data-key="id">
+                  <DataTable size="large" :value="detailStore.rules" :loading="detailStore.rulesLoading" data-key="id">
                     <Column field="type" header="Type" />
                     <Column field="matchPolicy" header="Match Policy" />
                     <Column field="value" header="Value" />
