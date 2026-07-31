@@ -97,8 +97,8 @@ async function initEditMode(id: string) {
       costPrice: v.costPrice ?? null,
       costCurrency: v.costCurrency ?? null,
     }
-    formLoaded.value = true
     await loadOptionValues()
+    formLoaded.value = true
   } else {
     handleResult(result)
     router.push('/catalog/variants')
@@ -181,13 +181,24 @@ async function onSubmit(event: FormSubmitEvent) {
       const toRevoke = originalAssignedIds.filter(
         (id) => !selectedOptionValueIds.value.includes(id),
       )
+      let optionValueDiffError: string | undefined
       if (toAssign.length > 0) {
-        await VariantApi.assignOptionValues(variantId, toAssign)
+        const assignResult = await VariantApi.assignOptionValues(variantId, toAssign)
+        if (!assignResult.isSuccess) {
+          optionValueDiffError = assignResult.errors?.[0]?.message
+        }
       }
       if (toRevoke.length > 0) {
-        await VariantApi.revokeOptionValues(variantId, toRevoke)
+        const revokeResult = await VariantApi.revokeOptionValues(variantId, toRevoke)
+        if (!revokeResult.isSuccess && !optionValueDiffError) {
+          optionValueDiffError = revokeResult.errors?.[0]?.message
+        }
       }
-      notify.success('Variant updated')
+      if (optionValueDiffError) {
+        notify.error('Variant updated but option value diff failed', optionValueDiffError)
+      } else {
+        notify.success('Variant updated')
+      }
     } else {
       notify.success('Variant created')
       const created = result.value!
@@ -212,6 +223,8 @@ async function loadImages() {
   if (result.isSuccess && result.value) {
     images.value = result.value.images
     imagesLoaded.value = true
+  } else {
+    handleResult(result)
   }
 }
 
@@ -279,6 +292,8 @@ async function loadOptionValues() {
     selectedOptionValueIds.value = result.value.items
       .filter((o) => o.isAssigned)
       .map((o) => o.optionValueId)
+  } else {
+    handleResult(result)
   }
   optionValuesLoading.value = false
 }
@@ -318,6 +333,8 @@ async function loadPrices() {
   if (result.isSuccess && result.value) {
     prices.value = result.value.items
     pricesLoaded.value = true
+  } else {
+    handleResult(result)
   }
 }
 

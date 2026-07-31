@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 export const variantSchema = z.object({
-  sku: z.string().min(1, 'SKU is required').max(255),
+  sku: z.string()
+    .min(1, 'SKU is required')
+    .max(255, 'SKU must not exceed 255 characters')
+    .refine((s) => s.trim().length > 0, 'SKU is required'),
   position: z.number().int().min(-1).default(0),
   isMaster: z.boolean().default(false),
   trackInventory: z.boolean().default(true),
