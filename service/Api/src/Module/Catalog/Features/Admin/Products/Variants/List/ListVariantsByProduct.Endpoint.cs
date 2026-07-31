@@ -15,19 +15,20 @@ public static partial class ListVariantsByProduct
         {
             app.MapGet(CatalogFeature.Admin.Products.Variants.GetAll.Route, async (
                 [FromRoute] Guid productId,
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(productId);
+                var query = new Query(productId, parameters);
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(ListVariantsByProduct))
             .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.Products.Variants.GetAll.Permission)
             .WithSummary(CatalogFeature.Admin.Products.Variants.GetAll.Summary)
             .WithDescription(CatalogFeature.Admin.Products.Variants.GetAll.Description)
-            .Produces<Result<Response>>();
+            .Produces<PagedResult<Response>>();
         }
     }
 }
