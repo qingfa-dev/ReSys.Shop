@@ -7,7 +7,7 @@ import Column from 'primevue/column'
 import Tag from 'primevue/tag'
 import { useNotify } from '@/shared/composables/useNotify'
 import { VariantApi } from '../services/variantApi'
-import type { Variant } from '../types/variant'
+import type { VariantListItem } from '../types/variant'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,7 +15,7 @@ const confirm = useConfirm()
 const notify = useNotify()
 
 const productId = computed(() => route.query.productId as string | undefined)
-const items = ref<Variant[]>([])
+const items = ref<VariantListItem[]>([])
 const loading = ref(false)
 const searchTerm = ref('')
 
@@ -59,7 +59,7 @@ const filteredItems = computed(() => {
   )
 })
 
-function confirmDelete(variant: Variant) {
+function confirmDelete(variant: VariantListItem) {
   confirm.require({
     message: `Are you sure you want to delete variant "${variant.sku}"?`,
     header: 'Confirm Delete',

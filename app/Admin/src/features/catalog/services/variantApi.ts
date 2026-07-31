@@ -3,7 +3,7 @@ import { CATALOG } from '@/shared/constants/api'
 import type { Result } from '@/shared/types'
 import type {
   VariantRequest,
-  Variant,
+  VariantDetail,
   OptionValueAssignment,
 } from '../types/variant'
 
@@ -12,21 +12,21 @@ const BASE = `${CATALOG}/variants`
 export class VariantApi {
   static getVariants(
     productId: string,
-  ): Promise<Result<{ items: Variant[] }>> {
-    return get<Result<{ items: Variant[] }>>(
+  ): Promise<Result<{ items: VariantDetail[] }>> {
+    return get<Result<{ items: VariantDetail[] }>>(
       `${CATALOG}/products/${productId}/variants`,
     )
   }
 
-  static getVariant(id: string): Promise<Result<Variant>> {
-    return get<Result<Variant>>(`${BASE}/${id}`)
+  static getVariant(id: string): Promise<Result<VariantDetail>> {
+    return get<Result<VariantDetail>>(`${BASE}/${id}`)
   }
 
   static createVariant(
     productId: string,
     request: VariantRequest,
-  ): Promise<Result<Variant>> {
-    return post<Result<Variant>>(
+  ): Promise<Result<VariantDetail>> {
+    return post<Result<VariantDetail>>(
       `${CATALOG}/products/${productId}/variants`,
       request,
     )
@@ -35,8 +35,8 @@ export class VariantApi {
   static updateVariant(
     id: string,
     request: VariantRequest,
-  ): Promise<Result<Variant>> {
-    return put<Result<Variant>>(`${BASE}/${id}`, request)
+  ): Promise<Result<VariantDetail>> {
+    return put<Result<VariantDetail>>(`${BASE}/${id}`, request)
   }
 
   static deleteVariant(id: string): Promise<Result<void>> {

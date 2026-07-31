@@ -70,7 +70,9 @@ export {
 export type {
   VariantParameters,
   VariantRequest,
-  Variant,
+  VariantListItem,
+  VariantDetail,
+  VariantQuery,
   VariantImage,
   Price,
   OptionValueAssignment,
@@ -78,4 +80,6 @@ export type {
 export {
   VARIANT_FILTER_FIELDS,
   VARIANT_SORT_FIELDS,
+  VARIANT_SEARCH_FIELDS,
+  toVariantQueryParams,
 } from './variant'

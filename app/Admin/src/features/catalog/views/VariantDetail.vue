@@ -62,6 +62,7 @@ const form = ref<VariantForm>({
 
 const loading = ref(false)
 const formLoaded = ref(!isEdit.value)
+const loadedProductId = ref<string | undefined>()
 
 const weightUnitOptions = [
   { label: 'Gram (g)', value: 'g' },
@@ -82,6 +83,7 @@ async function initEditMode(id: string) {
   const result = await VariantApi.getVariant(id)
   if (result.isSuccess) {
     const v = result.value!
+    loadedProductId.value = v.productId
     form.value = {
       sku: v.sku,
       position: v.position,
@@ -147,6 +149,7 @@ async function onSubmit(event: FormSubmitEvent) {
     price: data.price ?? undefined,
     costPrice: data.costPrice ?? undefined,
     costCurrency: data.costCurrency ?? undefined,
+    productId: isEdit.value ? loadedProductId.value ?? '' : productId.value,
     optionValueIds: isEdit.value
       ? undefined
       : selectedOptionValueIds.value.length > 0

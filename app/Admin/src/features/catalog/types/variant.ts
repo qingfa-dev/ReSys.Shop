@@ -1,3 +1,5 @@
+import type { QueryingParameters } from '@/shared/types/querying'
+
 export interface VariantParameters {
   sku: string
   position: number
@@ -14,16 +16,70 @@ export interface VariantParameters {
 }
 
 export interface VariantRequest extends VariantParameters {
+  productId: string
   isMaster: boolean
   optionValueIds?: string[]
 }
 
-export interface Variant extends VariantParameters {
+export interface VariantListItem extends VariantParameters {
   id: string
   productId: string
   isMaster: boolean
-  discontinuedOn?: string
+  discontinuedOn?: string | null
   pricesCount: number
+}
+
+export type VariantDetail = VariantListItem
+
+export interface VariantQuery {
+  search?: string
+  isMaster?: boolean
+  sortBy?: 'sku' | 'position' | 'price' | 'weight' | 'height' | 'width' | 'depth'
+  sortDirection?: 'asc' | 'desc'
+  page?: number
+  pageSize?: number
+}
+
+export const VARIANT_FILTER_FIELDS = [
+  'isMaster',
+  'trackInventory',
+  'discontinuedOn',
+  'dimensionsUnit',
+  'weightUnit',
+]
+
+export const VARIANT_SORT_FIELDS = [
+  'sku',
+  'position',
+  'price',
+  'weight',
+  'height',
+  'width',
+  'depth',
+]
+
+export const VARIANT_SEARCH_FIELDS = ['sku', 'barcode', 'hsCode']
+
+export function toVariantQueryParams(query: VariantQuery): QueryingParameters {
+  const filters: string[] = []
+
+  if (query.isMaster === true) {
+    filters.push('isMaster=true')
+  }
+
+  let sort: string[] | null = null
+  if (query.sortBy) {
+    const dir = query.sortDirection === 'desc' ? '-' : ''
+    sort = [`${dir}${query.sortBy}`]
+  }
+
+  return {
+    filter: filters.length > 0 ? filters.join(',') : null,
+    search: query.search ?? null,
+    sort,
+    pageNumber: query.page ?? null,
+    pageSize: query.pageSize ?? null,
+  }
 }
 
 export interface VariantImage {
@@ -58,16 +114,3 @@ export interface OptionValueAssignment {
   presentation: string
   isAssigned: boolean
 }
-
-export const VARIANT_FILTER_FIELDS = [
-  'sku',
-  'position',
-  'isMaster',
-  'discontinuedOn',
-]
-
-export const VARIANT_SORT_FIELDS = [
-  'sku',
-  'position',
-  'isMaster',
-]
