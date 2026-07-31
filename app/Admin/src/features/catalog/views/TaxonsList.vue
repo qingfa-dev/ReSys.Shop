@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
-import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
+import Tag from 'primevue/tag'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { TaxonApi } from '../services/taxonApi'
-import type { TaxonListItem, TaxonTreeItem } from '../types/taxon'
+import type { TaxonListItem } from '../types/taxon'
 import { TAXON_FILTER_FIELDS, TAXON_SORT_FIELDS } from '../types/taxon'
 
-const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
@@ -20,71 +19,27 @@ const notify = useNotify()
 const { dt, exportCSV } = useDataTableExport()
 const selectedItems = ref<TaxonListItem[]>([])
 const searchTerm = ref('')
-const viewMode = ref<'table' | 'tree'>('table')
-const allowedSearchFields = ['name', 'slug']
 
 const {
   items,
   loading,
+  totalCount,
+  page,
+  pageSize,
   setSearch,
-  setFilter,
   refresh,
 } = usePagedQuery<TaxonListItem>('api/catalog/taxonomies/taxons', {
   allowedFilterFields: TAXON_FILTER_FIELDS,
   allowedSortFields: TAXON_SORT_FIELDS,
-  allowedSearchFields,
-  defaultSearchFields: allowedSearchFields,
+  allowedSearchFields: TAXON_FILTER_FIELDS,
+  defaultSearchFields: TAXON_FILTER_FIELDS,
   defaultSearchMode: 'any',
   defaultSort: ['lft'],
   defaultPageSize: 25,
 })
 
-const treeData = ref<any[]>([])
-const treeLoading = ref(false)
-const treeFilter = ref('')
-
-onMounted(() => {
-  const taxonomyId = route.query.taxonomyId as string | undefined
-  if (taxonomyId) {
-    setFilter(`taxonomyId=${taxonomyId}`)
-  }
-})
-
-function addTreeNodeKeys(nodes: any[]): any[] {
-  return nodes.map(n => ({
-    ...n,
-    key: n.id,
-    children: n.children ? addTreeNodeKeys(n.children) : [],
-  }))
-}
-
-async function loadTree() {
-  const taxonomyId = route.query.taxonomyId as string | undefined
-  if (!taxonomyId) return
-
-  treeLoading.value = true
-  const result = await TaxonApi.getTree(taxonomyId)
-  if (result.isSuccess && result.value?.tree) {
-    treeData.value = addTreeNodeKeys(result.value.tree) as any
-  }
-  treeLoading.value = false
-}
-
-function toggleViewMode() {
-  if (viewMode.value === 'table') {
-    viewMode.value = 'tree'
-    if (treeData.value.length === 0) {
-      loadTree()
-    }
-  } else {
-    viewMode.value = 'table'
-  }
-}
-
 function navigateToNew() {
-  const taxonomyId = route.query.taxonomyId as string | undefined
-  const query = taxonomyId ? `?taxonomyId=${taxonomyId}` : ''
-  router.push(`/catalog/taxons/new${query}`)
+  router.push('/catalog/taxons/new')
 }
 
 function navigateToEdit(id: string) {
@@ -99,10 +54,6 @@ function onSearch(value: string) {
 function clearSearch() {
   searchTerm.value = ''
   setSearch('')
-}
-
-function filterTree(name: string) {
-  treeFilter.value = name ? name.toLowerCase() : ''
 }
 
 function confirmDelete() {
@@ -154,17 +105,16 @@ function confirmDelete() {
 
     <div class="flex-1 min-h-0 mt-4">
       <DataTable size="large"
-        v-if="viewMode === 'table'"
         ref="dt"
         v-model:selection="selectedItems"
         :value="items"
         :loading="loading"
         scrollable
         :paginator="true"
-        :rows="20"
+        :rows="pageSize"
         filter-display="menu"
         data-key="id"
-        :global-filter-fields="allowedSearchFields"
+        :global-filter-fields="TAXON_FILTER_FIELDS"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rows-per-page-options="[5, 10, 25]"
         current-page-report-template="Showing {first} to {last} of {totalRecords}"
@@ -190,13 +140,7 @@ function confirmDelete() {
             <div class="flex items-center gap-2">
               <Button label="New Taxon" icon="pi pi-plus" severity="primary" @click="navigateToNew" />
               <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="refresh" />
-              <Button
-                :label="viewMode === 'table' ? 'Tree' : 'Table'"
-                severity="secondary"
-                :icon="viewMode === 'table' ? 'pi pi-sitemap' : 'pi pi-list'"
-                @click="toggleViewMode"
-              />
-              <Button v-if="viewMode === 'table'" label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV" />
+              <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV" />
             </div>
           </div>
         </template>
@@ -220,42 +164,6 @@ function confirmDelete() {
           <div class="text-center py-8 text-muted-color">No taxons found.</div>
         </template>
       </DataTable>
-
-      <div v-if="viewMode === 'tree'" class="h-full overflow-auto">
-        <div class="flex justify-between items-center mb-3">
-          <IconField>
-            <InputIcon><i class="pi pi-search" /></InputIcon>
-            <InputText
-              v-model="treeFilter"
-              placeholder="Filter tree..."
-              @update:model-value="filterTree($event ?? '')"
-            />
-          </IconField>
-        </div>
-
-        <TreeTable
-          :value="treeData"
-          :loading="treeLoading"
-          v-model:filter-value="treeFilter"
-        >
-          <Column field="name" header="Name" :expander="true" />
-          <Column field="slug" header="Slug" />
-          <Column field="position" header="Position" />
-          <Column field="taxonRuleCount" header="Rules" />
-          <Column field="productCount" header="Products" />
-          <Column header="" body-style="text-align: right; width: 6rem">
-            <template #body="{ node }">
-              <div class="flex justify-end gap-2">
-                <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(node.data.id)" />
-                <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [{ ...node.data, ...node.data }] as any; confirmDelete()" />
-              </div>
-            </template>
-          </Column>
-          <template #empty>
-            <div class="text-center py-8 text-muted-color">No taxons in tree.</div>
-          </template>
-        </TreeTable>
-      </div>
     </div>
   </div>
 </template>
