@@ -1,3 +1,6 @@
+using Shared.Operational.Persistence.Specifications.Paging;
+using Shared.Operational.Persistence.Specifications.Paging.Extensions;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 
@@ -5,23 +8,22 @@ namespace Module.Inventory.Features.Admin.StockItems.GetAll;
 
 public static partial class GetAllStockItems
 {
-    public sealed record Query : IQuery<List<Response>>;
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
     /// <summary>Handler for getting all stock items.</summary>
-    public sealed class QueryHandler(IApplicationDbContext dbContext)
-        : IQueryHandler<Query, List<Response>>
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
+        : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Gets all stock items.</summary>
+        /// <summary>Gets all stock items, paged or all in a single page.</summary>
         // Contract: pre=request!=null, post=result!=null
-        public async Task<Result<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Load: Fetch all stock items without tracking for read-only access
-            var items = await dbContext.Set<StockItem>()
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
 
-            // Transform: Map domain entities to response DTOs
-            return items.Select(x => x.MapToListItem<Response>()).ToList();
+            // Load: Fetch stock items without tracking, ordered for stable paging
+            return await dbContext.Set<StockItem>()
+                .OrderBy(x => x.Id)
+                .ToPagedOrAllAsync(x => x.MapToListItem<Response>(), pageModel, cancellationToken);
         }
     }
 }
