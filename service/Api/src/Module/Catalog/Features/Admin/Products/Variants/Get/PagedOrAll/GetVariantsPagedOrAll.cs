@@ -1,15 +1,16 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Features.Admin.Products.Variants.Shared.Mappings;
+
 using Shared.Operational.Persistence.Specifications.Sorting;
 
-namespace Module.Catalog.Features.Admin.Products.Variants.List;
+namespace Module.Catalog.Features.Admin.Products.Variants.Get.PagedOrAll;
 
 /// <summary>
 /// Defines the use case for listing variants by product.
 /// </summary>
-public static partial class ListVariantsByProduct
+public static partial class GetVariantsPagedOrAll
 {
-    public sealed record Query(Guid ProductId, Parameters Parameters) : IPagedQuery<Response>;
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
     /// <summary>
     /// Lists non-deleted variants for a product, including prices, option-value
@@ -35,7 +36,7 @@ public static partial class ListVariantsByProduct
                 .Include(x => x.OptionValueVariants)
                     .ThenInclude(ovv => ovv.OptionValue)
                 .Include(x => x.VariantImages)
-                .Where(x => x.ProductId == query.ProductId && !x.IsDeleted)
+                .Where(x => !x.IsDeleted && (query.Parameters.ProductId == null || x.ProductId == query.Parameters.ProductId))
                 .ApplyQuerying(parsing.Value, defaultSortClauses: [new SortClause { Field = nameof(Variant.Position) }])
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToDetail<Response>(), cancellationToken);
         }

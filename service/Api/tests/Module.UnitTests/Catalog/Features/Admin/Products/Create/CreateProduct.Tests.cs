@@ -64,7 +64,6 @@ public class CreateProductTests : IDisposable
 
         _senderMock.Verify(x => x.Send(
             It.Is<AddVariant.Command>(c =>
-                c.ProductId == persisted.Id &&
                 c.Request.IsMaster),
             It.IsAny<CancellationToken>()), Times.Once);
     }

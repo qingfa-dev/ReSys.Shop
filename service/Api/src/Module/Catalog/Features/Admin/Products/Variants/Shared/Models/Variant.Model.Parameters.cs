@@ -14,4 +14,5 @@ public abstract record VariantParameters
     public decimal? Price { get; init; }
     public decimal? CostPrice { get; init; }
     public string? CostCurrency { get; init; }
+    public Guid ProductId { get; init; }
 }

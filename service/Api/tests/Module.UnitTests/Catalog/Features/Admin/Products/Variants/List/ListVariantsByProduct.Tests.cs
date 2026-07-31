@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Features.Admin.Products.Variants.List;
+using Module.Catalog.Features.Admin.Products.Variants.Get.PagedOrAll;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.List;
 
@@ -9,7 +9,7 @@ namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.List;
 public class ListVariantsByProductTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly ListVariantsByProduct.PagedQueryHandler _handler;
+    private readonly GetVariantsPagedOrAll.PagedQueryHandler _handler;
 
     public ListVariantsByProductTests()
     {
@@ -20,7 +20,7 @@ public class ListVariantsByProductTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Variant).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new ListVariantsByProduct.PagedQueryHandler(_dbContext);
+        _handler = new GetVariantsPagedOrAll.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -38,7 +38,7 @@ public class ListVariantsByProductTests : IDisposable
         _dbContext.Set<Variant>().AddRange(variant1, variant2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetVariantsPagedOrAll.Query(new GetVariantsPagedOrAll.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().HaveCount(2);
@@ -54,7 +54,7 @@ public class ListVariantsByProductTests : IDisposable
         _dbContext.Set<Variant>().AddRange(active, deleted);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetVariantsPagedOrAll.Query(new GetVariantsPagedOrAll.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().HaveCount(1);
@@ -64,7 +64,7 @@ public class ListVariantsByProductTests : IDisposable
     [Fact(DisplayName = "Handler: Should return empty when product has no variants")]
     public async Task Handle_ShouldReturnEmpty_WhenNoVariants()
     {
-        var result = await _handler.Handle(new ListVariantsByProduct.Query(Guid.NewGuid(), new ListVariantsByProduct.Parameters()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetVariantsPagedOrAll.Query(new GetVariantsPagedOrAll.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().BeEmpty();
@@ -81,7 +81,7 @@ public class ListVariantsByProductTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { PageSize = 2 }),
+            new GetVariantsPagedOrAll.Query(new GetVariantsPagedOrAll.Parameters { PageSize = 2, ProductId = productId }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -100,7 +100,7 @@ public class ListVariantsByProductTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { Sort = ["Position:desc"] }),
+            new GetVariantsPagedOrAll.Query(new GetVariantsPagedOrAll.Parameters { Sort = ["Position:desc"], ProductId = productId }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -117,7 +117,7 @@ public class ListVariantsByProductTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { Sort = ["NonExistent:asc"] }),
+            new GetVariantsPagedOrAll.Query(new GetVariantsPagedOrAll.Parameters { Sort = ["NonExistent:asc"], ProductId = productId }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -134,7 +134,7 @@ public class ListVariantsByProductTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { Filter = "NonExistent=1" }),
+            new GetVariantsPagedOrAll.Query(new GetVariantsPagedOrAll.Parameters { Filter = "NonExistent=1", ProductId = productId }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();

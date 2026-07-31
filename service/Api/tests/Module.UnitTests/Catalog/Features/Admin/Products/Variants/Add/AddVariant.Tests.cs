@@ -48,9 +48,10 @@ public class AddVariantTests : IDisposable
             Sku = "SKU-001",
             IsMaster = false,
             Position = 1,
+            ProductId = product.Id,
         };
 
-        var result = await _handler.Handle(new AddVariant.Command(product.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new AddVariant.Command(request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -66,9 +67,9 @@ public class AddVariantTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when product not found")]
     public async Task Handle_ShouldReturnFailure_WhenProductNotFound()
     {
-        var request = new AddVariant.Request { Sku = "SKU-001" };
+        var request = new AddVariant.Request { Sku = "SKU-001", ProductId = Guid.NewGuid() };
 
-        var result = await _handler.Handle(new AddVariant.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new AddVariant.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(ProductResult.Errors.NotFound(Guid.Empty).Code);
@@ -86,9 +87,10 @@ public class AddVariantTests : IDisposable
             Sku = "MASTER-SKU",
             IsMaster = true,
             OptionValueIds = [Guid.NewGuid()],
+            ProductId = product.Id
         };
 
-        var result = await _handler.Handle(new AddVariant.Command(product.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new AddVariant.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(VariantResult.Errors.MasterCannotHaveOptions.Code);

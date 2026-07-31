@@ -410,12 +410,11 @@ public static partial class CatalogFeature
 
             public static class Variants
             {
-                public const string ProductBaseRoute = $"{BaseRoute}/{{productId:guid}}/variants";
-                public const string StandaloneBaseRoute = $"{Route}/variants";
+                public const string VariantBaseRoute = $"{Route}/variants";
 
                 public static class Add
                 {
-                    public const string Route = ProductBaseRoute;
+                    public const string Route = VariantBaseRoute;
                     public const string Description = "Add a new variant to a product";
                     public const string Summary = "Add variant";
                     public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.Create;
@@ -423,7 +422,7 @@ public static partial class CatalogFeature
 
                 public static class GetAll
                 {
-                    public const string Route = ProductBaseRoute;
+                    public const string Route = VariantBaseRoute;
                     public const string Description = "Retrieve all variants for a product";
                     public const string Summary = "Get all variants";
                     public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.List;
@@ -431,7 +430,7 @@ public static partial class CatalogFeature
 
                 public static class GetById
                 {
-                    public const string Route = $"{StandaloneBaseRoute}/{{id:guid}}";
+                    public const string Route = $"{VariantBaseRoute}/{{id:guid}}";
                     public const string Description = "Retrieve a variant by identifier";
                     public const string Summary = "Get variant by ID";
                     public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.List;
@@ -439,7 +438,7 @@ public static partial class CatalogFeature
 
                 public static class Update
                 {
-                    public const string Route = $"{StandaloneBaseRoute}/{{id:guid}}";
+                    public const string Route = $"{VariantBaseRoute}/{{id:guid}}";
                     public const string Description = "Update an existing variant";
                     public const string Summary = "Update variant";
                     public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.Update;
@@ -447,7 +446,7 @@ public static partial class CatalogFeature
 
                 public static class Delete
                 {
-                    public const string Route = $"{StandaloneBaseRoute}/{{id:guid}}";
+                    public const string Route = $"{VariantBaseRoute}/{{id:guid}}";
                     public const string Description = "Delete a variant";
                     public const string Summary = "Delete variant";
                     public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.Delete;
@@ -455,7 +454,7 @@ public static partial class CatalogFeature
 
                 public static class Prices
                 {
-                    private const string PriceBaseRoute = $"{StandaloneBaseRoute}/{{variantId:guid}}/prices";
+                    private const string PriceBaseRoute = $"{VariantBaseRoute}/{{variantId:guid}}/prices";
 
                     public static class Set
                     {
@@ -492,7 +491,7 @@ public static partial class CatalogFeature
 
                 public static class OptionValues
                 {
-                    private const string OptionValueBaseRoute = $"{StandaloneBaseRoute}/{{variantId:guid}}/option-values";
+                    private const string OptionValueBaseRoute = $"{VariantBaseRoute}/{{variantId:guid}}/option-values";
 
                     public static class Get
                     {
@@ -529,8 +528,8 @@ public static partial class CatalogFeature
 
                 public static class Images
                 {
-                    private const string ImageBaseRoute = $"{StandaloneBaseRoute}/{{variantId:guid}}/images";
-                    private const string StandaloneImageRoute = $"{StandaloneBaseRoute}/images";
+                    private const string ImageBaseRoute = $"{VariantBaseRoute}/{{variantId:guid}}/images";
+                    private const string StandaloneImageRoute = $"{VariantBaseRoute}/images";
 
                     public static class Upload
                     {

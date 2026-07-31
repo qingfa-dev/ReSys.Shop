@@ -14,12 +14,11 @@ public static partial class AddVariant
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPost(CatalogFeature.Admin.Products.Variants.Add.Route, async (
-                [FromRoute] Guid productId,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(productId, request);
+                var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
