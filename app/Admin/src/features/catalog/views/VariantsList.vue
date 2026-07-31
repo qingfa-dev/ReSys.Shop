@@ -59,7 +59,7 @@ watch(productId, (id) => {
     setSearch('')
     refresh()
   }
-})
+}, { immediate: true })
 
 function navigateToNew() {
   if (!productId.value) return
