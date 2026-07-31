@@ -17,14 +17,14 @@ public static partial class SearchByImage
             {
                 var command = new Command(request);
                 var result = await sender.Send(command, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(SearchByImage))
             .WithTags(CatalogFeature.Tags.Product)
             .WithSummary(CatalogFeature.Storefront.Products.Get.SearchByImage.Summary)
             .WithDescription(CatalogFeature.Storefront.Products.Get.SearchByImage.Description)
             .DisableAntiforgery()
-            .Produces<Result<Response>>()
+            .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest);
         }
     }
