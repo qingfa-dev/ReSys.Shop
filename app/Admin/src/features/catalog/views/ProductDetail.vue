@@ -142,9 +142,9 @@ watch(activeTab, (tab) => {
 async function loadOptionTypes() {
   optionTypesLoading.value = true
   const result = await ProductOptionTypeApi.getOptionTypes(route.params.id as string)
-  if (result.isSuccess && result.value?.items) {
-    unassignedOptionTypes.value = result.value.items.filter(i => !i.isAssigned)
-    assignedOptionTypes.value = result.value.items.filter(i => i.isAssigned)
+  if (result.isSuccess && result.items) {
+    unassignedOptionTypes.value = result.items.filter(i => !i.isAssigned)
+    assignedOptionTypes.value = result.items.filter(i => i.isAssigned)
   }
   optionTypesLoading.value = false
 }
@@ -152,9 +152,9 @@ async function loadOptionTypes() {
 async function loadClassifications() {
   classificationsLoading.value = true
   const result = await ProductClassificationApi.getClassifications(route.params.id as string)
-  if (result.isSuccess && result.value?.items) {
-    unassignedClassifications.value = result.value.items.filter(i => !i.isAssigned)
-    assignedClassifications.value = result.value.items.filter(i => i.isAssigned)
+  if (result.isSuccess && result.items) {
+    unassignedClassifications.value = result.items.filter(i => !i.isAssigned)
+    assignedClassifications.value = result.items.filter(i => i.isAssigned)
   }
   classificationsLoading.value = false
 }

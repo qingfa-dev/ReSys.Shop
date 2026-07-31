@@ -1,6 +1,6 @@
 import { post, get } from '@/shared/api/client'
 import { CATALOG } from '@/shared/constants/api'
-import type { Result } from '@/shared/types'
+import type { Result, PagedResult } from '@/shared/types'
 
 export interface ClassificationAssignment {
   taxonId: string
@@ -20,8 +20,8 @@ export class ProductClassificationApi {
     return `${CATALOG}/products/${productId}/classifications`
   }
 
-  static getClassifications(productId: string): Promise<Result<{ items: ClassificationAssignment[] }>> {
-    return get<Result<{ items: ClassificationAssignment[] }>>(ProductClassificationApi.getBase(productId))
+  static getClassifications(productId: string): Promise<PagedResult<ClassificationAssignment>> {
+    return get<PagedResult<ClassificationAssignment>>(ProductClassificationApi.getBase(productId))
   }
 
   static syncClassifications(productId: string, items: ClassificationSyncItem[]): Promise<Result<void>> {
