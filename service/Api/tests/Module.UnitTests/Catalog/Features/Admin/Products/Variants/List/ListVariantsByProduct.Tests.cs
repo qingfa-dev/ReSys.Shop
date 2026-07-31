@@ -123,4 +123,21 @@ public class ListVariantsByProductTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().HaveCount(1);
     }
+
+    [Fact(DisplayName = "Handler: Should silently ignore disallowed filter field")]
+    public async Task Handle_ShouldIgnoreDisallowedFilterField()
+    {
+        var productId = Guid.NewGuid();
+        var variant1 = VariantMethod.Create(productId, "SKU-001", isMaster: true).Value;
+        var variant2 = VariantMethod.Create(productId, "SKU-002", isMaster: false).Value;
+        _dbContext.Set<Variant>().AddRange(variant1, variant2);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { Filter = "NonExistent=1" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+    }
 }

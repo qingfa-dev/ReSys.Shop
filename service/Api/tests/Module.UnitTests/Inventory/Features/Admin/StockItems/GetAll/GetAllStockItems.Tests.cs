@@ -83,6 +83,21 @@ public class GetAllStockItemsTests : IDisposable
         result.Items.Should().AllSatisfy(i => i.Backorderable.Should().BeFalse());
     }
 
+    [Fact(DisplayName = "Handle: Ignores disallowed filter field")]
+    public async Task Handle_Ignores_DisallowedFilterField()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 1 });
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 2 });
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(
+            new GetAllStockItems.Query(new GetAllStockItems.Parameters { Filter = "NonExistent=1" }), ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+    }
+
     [Fact(DisplayName = "Handle: Sorts by CountOnHand descending")]
     public async Task Handle_Sorts_ByCountOnHandDescending()
     {

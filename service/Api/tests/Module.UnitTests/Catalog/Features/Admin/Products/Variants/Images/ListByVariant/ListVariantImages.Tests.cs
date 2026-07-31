@@ -144,4 +144,25 @@ public class ListVariantImagesTests : IDisposable
         result.Items.Should().HaveCount(3);
         result.Items.Should().BeInDescendingOrder(i => i.Position);
     }
+
+    [Fact(DisplayName = "Handler: Should silently ignore disallowed filter field")]
+    public async Task Handle_ShouldIgnoreDisallowedFilterField()
+    {
+        var variantId = Guid.NewGuid();
+        _dbContext.Set<VariantImage>().AddRange(
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+                url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
+                position: 0, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+                url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
+                position: 1, variantId: variantId).Value);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantImages.Query(variantId, new ListVariantImages.Parameters { Filter = "NonExistent=1" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+    }
 }
