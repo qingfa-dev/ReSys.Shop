@@ -107,7 +107,8 @@ public static partial class FeatureName
 **Test conventions:** xUnit `[Fact(DisplayName: ...)]` + FluentAssertions `Should()`. In-memory `ApplicationDbContext` via `UseInMemoryDatabase(Guid.NewGuid().ToString())` and `ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(<DomainType>).Assembly];`. Handler now constructed as `new <Feature>.PagedQueryHandler(...)`; results assert on `result.Items`, `result.TotalCount`, `result.IsSuccess` (no `result.Value`).
 
 Run single-feature tests with:
-`dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~<FeatureName>"`
+`dotnet test service/Api/tests/Module.UnitTests --filter-class "<Fully.Qualified.TestClass>"`
+(Note: this project uses Microsoft.Testing.Platform; `--filter "FullyQualifiedName~..."` is unsupported and yields exit code 5 / zero tests. Use `--filter-class` with the test class's fully qualified name, e.g. `Module.UnitTests.Inventory.Features.Admin.StockItems.GetAll.GetAllStockItemsTests`.)
 
 ---
 
@@ -200,7 +201,7 @@ public class GetAllStockItemsTests : IDisposable
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetAllStockItems"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Admin.StockItems.GetAll.GetAllStockItemsTests"`
 Expected: FAIL — `PagedQueryHandler` and `Parameters` do not exist; `Query` constructor mismatch.
 
 - [ ] **Step 3: Implement the conversion**
@@ -283,7 +284,7 @@ public static partial class GetAllStockItems
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetAllStockItems"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Admin.StockItems.GetAll.GetAllStockItemsTests"`
 Expected: PASS (2 tests).
 
 - [ ] **Step 5: Build**
@@ -347,7 +348,7 @@ public async Task Handle_Pages_WhenParamsSupplied()
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetStockSummary"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Admin.StockItems.Summary.GetStockSummaryTests"`
 Expected: FAIL — compile errors (missing `PagedQueryHandler`, `Parameters`, `Query(Parameters)`).
 
 - [ ] **Step 3: Implement the conversion**
@@ -383,7 +384,7 @@ Modify `GetStockSummary.Endpoint.cs`:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetStockSummary"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Admin.StockItems.Summary.GetStockSummaryTests"`
 Expected: PASS (4 tests).
 
 - [ ] **Step 5: Build**
@@ -491,7 +492,7 @@ public class GetLowStockItemsTests : IDisposable
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetLowStockItems"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Admin.StockItems.LowStock.GetLowStockItemsTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -527,7 +528,7 @@ Modify `GetLowStockItems.Endpoint.cs`:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetLowStockItems"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Admin.StockItems.LowStock.GetLowStockItemsTests"`
 Expected: PASS (2 tests).
 
 - [ ] **Step 5: Build**
@@ -567,7 +568,7 @@ In `GetCartReservations.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetCartReservations"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Storefront.CartReservations.Status.GetCartReservationsTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -603,7 +604,7 @@ Modify `GetCartReservations.Endpoint.cs`:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetCartReservations"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Storefront.CartReservations.Status.GetCartReservationsTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -652,7 +653,7 @@ result.Items[0].Available.Should().BeTrue();
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetStockAvailability"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Storefront.StockAvailability.Check.GetStockAvailabilityTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -702,7 +703,7 @@ Modify `GetStockAvailability.Endpoint.cs`: `ToResult()` → `ToPagedResult()`; `
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetStockAvailability"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Inventory.Features.Storefront.StockAvailability.Check.GetStockAvailabilityTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -742,7 +743,7 @@ In `ListVariantImages.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~ListVariantImages"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.ListByVariant.ListVariantImagesTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -805,7 +806,7 @@ Modify `ListVariantImages.Endpoint.cs`:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~ListVariantImages"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.ListByVariant.ListVariantImagesTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -845,7 +846,7 @@ In `ListVariantsByProduct.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~ListVariantsByProduct"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Variants.List.ListVariantsByProductTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -922,7 +923,7 @@ Modify `ListVariantsByProduct.Endpoint.cs`:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~ListVariantsByProduct"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Variants.List.ListVariantsByProductTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -962,7 +963,7 @@ In `GetProductOptionTypesUseCase.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetProductOptionTypes"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.OptionTypes.Get.GetProductOptionTypesTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1019,7 +1020,7 @@ Modify `GetProductOptionTypes.Endpoint.cs`:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetProductOptionTypes"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.OptionTypes.Get.GetProductOptionTypesTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -1059,7 +1060,7 @@ In `GetProductClassificationsUseCase.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetProductClassifications"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Classifications.Get.GetProductClassificationsTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1113,7 +1114,7 @@ Modify `GetProductClassifications.Endpoint.cs`: add `[AsParameters] Parameters p
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetProductClassifications"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Classifications.Get.GetProductClassificationsTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -1154,7 +1155,7 @@ In `GetVariantOptionValues.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetVariantOptionValues"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Variants.OptionValues.Get.GetVariantOptionValuesTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1226,7 +1227,7 @@ Modify `GetVariantOptionValues.Validator.cs` — add page-size rule after the ex
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetVariantOptionValues"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Products.Variants.OptionValues.Get.GetVariantOptionValuesTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -1267,7 +1268,7 @@ In `SyncTaxonRulesUseCase.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~SyncTaxonRules"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync.SyncTaxonRulesTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1298,7 +1299,7 @@ Modify `SyncTaxonRules.Endpoint.cs`: `ToResult()` → `ToPagedResult()`; `.Produ
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~SyncTaxonRules"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync.SyncTaxonRulesTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -1337,7 +1338,7 @@ In `GetSimilarProductsTests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetSimilarProducts"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Storefront.Products.Get.Similar.GetSimilarProductsTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1376,7 +1377,7 @@ Modify `GetSimilarProducts.Endpoint.cs`: `ToResult()` → `ToPagedResult()`; `.P
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetSimilarProducts"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Storefront.Products.Get.Similar.GetSimilarProductsTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -1415,7 +1416,7 @@ In `SearchByImageTests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~SearchByImage"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Storefront.Products.SearchByImage.SearchByImageTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1454,7 +1455,7 @@ Modify `SearchByImage.Endpoint.cs`: `ToResult()` → `ToPagedResult()`; `.Produc
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~SearchByImage"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Catalog.Features.Storefront.Products.SearchByImage.SearchByImageTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -1494,7 +1495,7 @@ In `GetUserRoles.Tests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetUserRoles"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Identity.Features.Admin.Users.Roles.Get.GetUserRolesTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1550,7 +1551,7 @@ Modify `GetUserRoles.Endpoint.cs`: add `[AsParameters] Parameters parameters,`; 
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetUserRoles"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Identity.Features.Admin.Users.Roles.Get.GetUserRolesTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
@@ -1591,7 +1592,7 @@ In `GetShippingMethodsHandlerTests.cs`:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetShippingMethods"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Shipping.Features.Storefront.Shipping.Methods.GetShippingMethodsHandlerTests"`
 Expected: FAIL — compile errors.
 
 - [ ] **Step 3: Implement the conversion**
@@ -1664,7 +1665,7 @@ Modify `GetShippingMethods.Validator.cs` — add:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~GetShippingMethods"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-class "Module.UnitTests.Shipping.Features.Storefront.Shipping.Methods.GetShippingMethodsHandlerTests"`
 Expected: PASS.
 
 - [ ] **Step 5: Build**
