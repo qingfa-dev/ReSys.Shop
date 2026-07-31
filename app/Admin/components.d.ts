@@ -13,7 +13,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
+    Card: typeof import('primevue/card')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
+    FloatLabel: typeof import('primevue/floatlabel')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputNumber: typeof import('primevue/inputnumber')['default']
@@ -36,7 +38,9 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const Button: typeof import('primevue/button')['default']
+  const Card: typeof import('primevue/card')['default']
   const Checkbox: typeof import('primevue/checkbox')['default']
+  const FloatLabel: typeof import('primevue/floatlabel')['default']
   const IconField: typeof import('primevue/iconfield')['default']
   const InputIcon: typeof import('primevue/inputicon')['default']
   const InputNumber: typeof import('primevue/inputnumber')['default']
