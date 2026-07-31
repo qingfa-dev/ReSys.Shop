@@ -320,7 +320,7 @@ In `GetStockSummary.Tests.cs`:
 - Line 14: `private readonly GetStockSummary.QueryHandler _handler;` → `private readonly GetStockSummary.PagedQueryHandler _handler;`
 - Line 26: `new GetStockSummary.QueryHandler(_dbContext)` → `new GetStockSummary.PagedQueryHandler(_dbContext)`
 - Line 55: `new GetStockSummary.Query()` → `new GetStockSummary.Query(new GetStockSummary.Parameters())`
-- Assertions: `result.Value.Should().HaveCount(1)` → `result.Items.Should().HaveCount(1)`; `var summary = result.Value[0];` → `var summary = result.Items[0];`; `result.Value[0].LocationBreakdown[0].IsLowStock` → `result.Items[0].LocationBreakdown[0].IsLowStock`; `result.Value.Should().BeEmpty()` → `result.Items.Should().BeEmpty()`.
+- Assertions: `result.Value.Should().HaveCount(1)` → `result.Items.Should().HaveCount(1)`; `var summary = result.Value[0];` → `var summary = result.Items.First();`; `result.Value[0].LocationBreakdown[0].IsLowStock` → `result.Items.First().LocationBreakdown[0].IsLowStock`; `result.Value.Should().BeEmpty()` → `result.Items.Should().BeEmpty()`. (Note: `PagedResult<T>.Items` is `IEnumerable<T>` — use `.First()`, never `[0]`.)
 - Add a paging test after the empty test:
 
 ```csharp
@@ -465,7 +465,7 @@ public class GetLowStockItemsTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().ContainSingle();
-        result.Items[0].Status.Should().Be("low");
+        result.Items.First().Status.Should().Be("low");
     }
 
     [Fact(DisplayName = "Handle: Pages results when params supplied")]
@@ -647,8 +647,8 @@ var result = await _handler.Handle(new GetStockAvailability.Query(new GetStockAv
 
 result.IsSuccess.Should().BeTrue();
 result.Items.Should().NotBeEmpty();
-result.Items[0].StockLocationId.Should().Be(locA);
-result.Items[0].Available.Should().BeTrue();
+result.Items.First().StockLocationId.Should().Be(locA);
+result.Items.First().Available.Should().BeTrue();
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
