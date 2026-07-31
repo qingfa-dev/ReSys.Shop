@@ -19,7 +19,6 @@ export const variantWeight = z.number()
   .nullable().optional().default(null)
 
 export const variantWeightUnit = z.string()
-  .max(50, 'Weight unit must not exceed 50 characters.')
   .nullable().optional().default(null)
 
 export const variantHeight = z.number()
@@ -35,7 +34,6 @@ export const variantDepth = z.number()
   .nullable().optional().default(null)
 
 export const variantDimensionsUnit = z.string()
-  .max(50, 'Dimensions unit must not exceed 50 characters.')
   .nullable().optional().default(null)
 
 export const variantPrice = z.number()
