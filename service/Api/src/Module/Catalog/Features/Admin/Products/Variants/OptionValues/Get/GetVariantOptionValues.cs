@@ -9,20 +9,14 @@ namespace Module.Catalog.Features.Admin.Products.Variants.OptionValues.Get;
 /// </summary>
 public static partial class GetVariantOptionValues
 {
-    public sealed record Query(Guid VariantId) : IQuery<Response>;
+    public sealed record Query(Guid VariantId, Parameters Parameters) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(
+    public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext)
-        : IQueryHandler<Query, Response>
+        : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>
-        /// Retrieves all option values with their assigned state for a variant.
-        /// </summary>
-        /// <param name="request">The query containing the variant ID.</param>
-        /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success result with the variant option values and their assignment status.</returns>
         // Contract: pre=request.VariantId!=Guid.Empty, post=result!=null
-        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Check: Variant must exist before querying assigned option values
             var variantExists = await dbContext.Set<Variant>()
@@ -43,7 +37,7 @@ public static partial class GetVariantOptionValues
                 .ToHashSetAsync(cancellationToken);
 
             // Transform: Enrich each option value with its assignment status
-            var items = allOptionValues.Select(ov => new Response.OptionValueItem
+            var items = allOptionValues.Select(ov => new Response
             {
                 OptionValueId = ov.Id,
                 OptionTypeId = ov.OptionTypeId,
@@ -51,9 +45,12 @@ public static partial class GetVariantOptionValues
                 Name = ov.Name,
                 Presentation = ov.Presentation,
                 IsAssigned = assignedOptionValueIds.Contains(ov.Id)
-            }).ToList();
+            }).OrderBy(i => i.OptionTypeName).ThenBy(i => i.Name).ToList();
 
-            return new Response { Items = items };
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+            return pageModel.IsEmpty
+                ? PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count)
+                : items.ToPagedResult(pageModel);
         }
     }
 }

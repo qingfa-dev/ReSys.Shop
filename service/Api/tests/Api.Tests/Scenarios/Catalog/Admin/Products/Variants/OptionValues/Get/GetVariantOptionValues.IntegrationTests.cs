@@ -77,9 +77,9 @@ public sealed class GetVariantOptionValuesIntegrationTests(ApiFixture fixture) :
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
-        GetVariantOptionValues.Response? value = result.DeserializeValue<GetVariantOptionValues.Response>();
-        value.Should().NotBeNull();
-        value!.Items.Should().NotBeEmpty();
+        PagedResult<GetVariantOptionValues.Response> value = await response.ReadAsPagedResultAsync<GetVariantOptionValues.Response>();
+        value.IsSuccess.Should().BeTrue();
+        value.Items.Should().NotBeEmpty();
         value.Items.Should().Contain(i => i.Name == "Cotton" && i.IsAssigned);
     }
 
