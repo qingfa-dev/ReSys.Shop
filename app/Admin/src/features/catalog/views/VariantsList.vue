@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
+import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
+import Message from 'primevue/message'
+import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { VariantApi } from '../services/variantApi'
 import type { VariantListItem } from '../types/variant'
+import {
+  VARIANT_FILTER_FIELDS,
+  VARIANT_SORT_FIELDS,
+  VARIANT_SEARCH_FIELDS,
+} from '../types/variant'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,22 +23,43 @@ const confirm = useConfirm()
 const notify = useNotify()
 
 const productId = computed(() => route.query.productId as string | undefined)
-const items = ref<VariantListItem[]>([])
-const loading = ref(false)
 const searchTerm = ref('')
 
-async function loadVariants() {
-  if (!productId.value) {
-    items.value = []
-    return
+const {
+  items,
+  loading,
+  error,
+  totalCount,
+  page,
+  pageSize,
+  totalPages,
+  setPage,
+  setPageSize,
+  setSearch,
+  setSort,
+  refresh,
+} = usePagedQuery<VariantListItem>(
+  () => `api/catalog/variants?productId=${productId.value}`,
+  {
+    allowedFilterFields: VARIANT_FILTER_FIELDS,
+    allowedSortFields: VARIANT_SORT_FIELDS,
+    allowedSearchFields: VARIANT_SEARCH_FIELDS,
+    defaultSearchFields: VARIANT_SEARCH_FIELDS,
+    defaultSearchMode: 'any',
+    defaultSort: ['position'],
+    defaultPageSize: 20,
+    immediate: false,
+  },
+)
+
+const first = computed(() => (page.value - 1) * pageSize.value)
+
+watch(productId, (id) => {
+  if (id) {
+    setSearch('')
+    refresh()
   }
-  loading.value = true
-  const result = await VariantApi.getVariants(productId.value)
-  if (result.isSuccess && result.value) {
-    items.value = result.value.items
-  }
-  loading.value = false
-}
+})
 
 function navigateToNew() {
   if (!productId.value) return
@@ -49,15 +78,27 @@ function navigateToProduct() {
 
 function onSearch(value: string) {
   searchTerm.value = value
+  setSearch(value)
 }
 
-const filteredItems = computed(() => {
-  if (!searchTerm.value) return items.value
-  const q = searchTerm.value.toLowerCase()
-  return items.value.filter(
-    (v) => v.sku.toLowerCase().includes(q),
-  )
-})
+function clearSearch() {
+  searchTerm.value = ''
+  setSearch('')
+}
+
+function onPage(event: DataTablePageEvent) {
+  setPage(event.page + 1)
+}
+
+function onRows(rows: number) {
+  setPageSize(rows)
+}
+
+function onSort(event: DataTableSortEvent) {
+  const field = event.sortField
+  if (typeof field !== 'string') return
+  setSort(event.sortOrder === -1 ? [`-${field}`] : [field])
+}
 
 function confirmDelete(variant: VariantListItem) {
   confirm.require({
@@ -71,7 +112,7 @@ function confirmDelete(variant: VariantListItem) {
       const result = await VariantApi.deleteVariant(variant.id)
       if (result.isSuccess) {
         notify.success('Variant deleted', `${variant.sku} has been removed.`)
-        await loadVariants()
+        refresh()
       } else {
         notify.error('Delete failed', result.errors?.[0]?.message ?? 'Could not delete variant.')
       }
@@ -79,17 +120,9 @@ function confirmDelete(variant: VariantListItem) {
   })
 }
 
-function refresh() {
-  loadVariants()
+function refreshPage() {
+  refresh()
 }
-
-function clearSearch() {
-  searchTerm.value = ''
-}
-
-onMounted(() => {
-  loadVariants()
-})
 </script>
 
 <template>
@@ -119,12 +152,33 @@ onMounted(() => {
         </div>
       </div>
 
+      <div v-else-if="error" class="flex items-center justify-center h-full">
+        <Message severity="error" :closable="false" class="w-full max-w-lg">
+          <div class="flex flex-col gap-2">
+            <span>{{ error }}</span>
+            <Button label="Reload" icon="pi pi-sync" severity="secondary" size="small" @click="refreshPage" />
+          </div>
+        </Message>
+      </div>
+
       <DataTable
         v-else
-        :value="filteredItems"
+        size="large"
+        :value="items"
         :loading="loading"
+        :total-records="totalCount"
+        :first="first"
+        :rows="pageSize"
         scrollable
+        :paginator="true"
         data-key="id"
+        :global-filter-fields="VARIANT_SEARCH_FIELDS"
+        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rows-per-page-options="[5, 10, 25]"
+        current-page-report-template="Showing {first} to {last} of {totalRecords}"
+        @page="onPage"
+        @update:rows="onRows"
+        @sort="onSort"
         :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
       >
         <template #header>
@@ -145,7 +199,7 @@ onMounted(() => {
             </div>
             <div class="flex items-center gap-2">
               <Button label="New Variant" icon="pi pi-plus" severity="primary" @click="navigateToNew" />
-              <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="refresh" />
+              <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="refreshPage" />
             </div>
           </div>
         </template>
@@ -155,12 +209,12 @@ onMounted(() => {
             <span v-else class="text-muted-color">—</span>
           </template>
         </Column>
-        <Column field="sku" header="SKU">
+        <Column field="sku" header="SKU" :sortable="true">
           <template #body="{ data }">
             <span :class="{ 'text-muted-color': !data.sku }">{{ data.sku || '—' }}</span>
           </template>
         </Column>
-        <Column field="position" header="Position" body-style="text-align: center" />
+        <Column field="position" header="Position" :sortable="true" body-style="text-align: center" />
         <Column field="price" header="Price">
           <template #body="{ data }">
             <span v-if="data.price != null">
