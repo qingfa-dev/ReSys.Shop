@@ -9,34 +9,27 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
 /// </summary>
 public static partial class ListVariantImages
 {
-    public sealed record Query(Guid VariantId) : IQuery<Response>;
+    public sealed record Query(Guid VariantId, Parameters Parameters) : IPagedQuery<VariantImageDetailResponse>;
 
     /// <summary>
     /// Handles listing all images for a given variant, ordered by display position.
     /// </summary>
-    public sealed class QueryHandler(IApplicationDbContext dbContext)
-        : IQueryHandler<Query, Response>
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
+        : IPagedQueryHandler<Query, VariantImageDetailResponse>
     {
         /// <summary>
-        /// Executes the query: loads all images for the variant, ordered by position ascending.
+        /// Executes the query: loads images for the variant ordered by position, paged or all in one page.
         /// </summary>
-        /// <param name="query">The query containing the variant ID.</param>
-        /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A response containing the ordered image list.</returns>
         // Contract: pre=query!=null, post=result!=null
-        public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
+        public async Task<PagedResult<VariantImageDetailResponse>> Handle(Query query, CancellationToken cancellationToken)
         {
-            // Filter: Load all images scoped to the variant, ordered by display position
-            var images = await dbContext.Set<VariantImage>()
+            var pageModel = PageModelExtensions.FromValues(query.Parameters.PageNumber, query.Parameters.PageSize).Value;
+
+            // Filter: Load images scoped to the variant, ordered by display position
+            return await dbContext.Set<VariantImage>()
                 .Where(x => x.VariantId == query.VariantId)
                 .OrderBy(x => x.Position)
-                .ToListAsync(cancellationToken);
-
-            // Map: Domain entities to wire-format detail DTOs
-            return Result<Response>.Ok(new Response
-            {
-                Images = images.Select(x => x.MapToDetail<VariantImageDetailResponse>()).ToList()
-            });
+                .ToPagedOrAllAsync(x => x.MapToDetail<VariantImageDetailResponse>(), pageModel, cancellationToken);
         }
     }
 }
