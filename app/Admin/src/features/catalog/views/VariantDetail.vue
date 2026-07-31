@@ -98,6 +98,7 @@ async function initEditMode(id: string) {
       costCurrency: v.costCurrency ?? null,
     }
     formLoaded.value = true
+    await loadOptionValues()
   } else {
     handleResult(result)
     router.push('/catalog/variants')
