@@ -1,5 +1,4 @@
-using Shared.Operational.Persistence.Specifications.Paging;
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
+using Shared.Operational.Persistence.Specifications.Sorting;
 
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
@@ -18,12 +17,19 @@ public static partial class GetAllStockItems
         // Contract: pre=request!=null, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+            // Validate: Parse and validate query parameters against allowed fields
+            var parsing = request.Parameters.ParseAll(
+                allowedFilterFields: StockItemConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: StockItemConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: StockItemConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (parsing.IsFailure)
+                return parsing.Errors;
 
-            // Load: Fetch stock items without tracking, ordered for stable paging
+            // Load: Fetch stock items without tracking, with querying and stable default sort
             return await dbContext.Set<StockItem>()
-                .OrderBy(x => x.Id)
-                .ToPagedOrAllAsync(x => x.MapToListItem<Response>(), pageModel, cancellationToken);
+                .AsNoTracking()
+                .ApplyQuerying(parsing.Value, defaultSortClauses: [new SortClause { Field = nameof(StockItem.Id) }])
+                .ToPagedOrAllAsync(parsing.Value, x => x.MapToListItem<Response>(), cancellationToken);
         }
     }
 }
