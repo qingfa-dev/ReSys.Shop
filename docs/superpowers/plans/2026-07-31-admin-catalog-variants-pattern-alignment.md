@@ -15,6 +15,7 @@
 - Filter/sort/search field constants must match the backend: filter `['isMaster','trackInventory','discontinuedOn','dimensionsUnit','weightUnit']`, sort `['sku','position','price','weight','height','width','depth']`, search `['sku','barcode','hsCode']`.
 - Every constraint in the zod schemas carries an explicit message (no zod-default messages).
 - List services return `Promise<PagedResult<T>>` via `getPaged`, never `Result<{ items }>`.
+- Variant routes are standalone under `api/catalog/variants` (committed backend refactor `48f8fe30`): list = `GET /variants?productId=<id>`, create = `POST /variants` with `productId` in the body, update/delete = `PUT|DELETE /variants/{id}`. `getPaged` must preserve an existing `?` in its base URL using `&`.
 - `VariantsList` keeps the "Select a product" empty state when no `productId` route query; shows a visible inline error banner when the paged fetch fails.
 - Work from `app/Admin/`. Commit after each task. Verify with `pnpm run type-check`, `pnpm run test:unit -- run`, `pnpm run build-only`.
 
@@ -26,7 +27,7 @@
 - Test: `app/Admin/src/features/catalog/__tests__/types/variant.spec.ts` (create)
 
 **Interfaces:**
-- Produces: `VariantListItem` (interface extends `VariantParameters` with `id`, `productId`, `isMaster`, `discontinuedOn?: string | null`, `pricesCount: number`), `VariantDetail` (`type VariantDetail = VariantListItem`), `VariantQuery` (`{ search?: string; isMaster?: boolean; sortBy?: 'sku'|'position'|'price'|'weight'|'height'|'width'|'depth'; sortDirection?: 'asc'|'desc'; page?: number; pageSize?: number }`), `VARIANT_FILTER_FIELDS`, `VARIANT_SORT_FIELDS`, `VARIANT_SEARCH_FIELDS` constants, `toVariantQueryParams(query: VariantQuery): QueryingParameters`. Keeps `VariantParameters`, `VariantRequest`, `VariantImage`, `Price`, `OptionValueAssignment` unchanged. Exports `QueryingParameters` import from `@/shared/types/querying`.
+- Produces: `VariantListItem` (interface extends `VariantParameters` with `id`, `productId`, `isMaster`, `discontinuedOn?: string | null`, `pricesCount: number`), `VariantDetail` (`type VariantDetail = VariantListItem`), `VariantQuery` (`{ search?: string; isMaster?: boolean; sortBy?: 'sku'|'position'|'price'|'weight'|'height'|'width'|'depth'; sortDirection?: 'asc'|'desc'; page?: number; pageSize?: number }`), `VARIANT_FILTER_FIELDS`, `VARIANT_SORT_FIELDS`, `VARIANT_SEARCH_FIELDS` constants, `toVariantQueryParams(query: VariantQuery): QueryingParameters`. `VariantRequest` gains a required `productId: string` field (backend `VariantRequest : VariantParameters` now includes `ProductId`). Keeps `VariantParameters`, `VariantImage`, `Price`, `OptionValueAssignment` unchanged. Exports `QueryingParameters` import from `@/shared/types/querying`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -138,6 +139,7 @@ export interface VariantParameters {
 }
 
 export interface VariantRequest extends VariantParameters {
+  productId: string
   isMaster: boolean
   optionValueIds?: string[]
 }
@@ -505,8 +507,8 @@ git commit -m "feat(catalog): add per-field zod schemas for variants"
 
 **Interfaces:**
 - Consumes: from Task 1 — `VariantListItem`, `VariantDetail`, `VariantQuery`, `toVariantQueryParams`, `VARIANT_FILTER_FIELDS`, `VARIANT_SORT_FIELDS`, `VARIANT_SEARCH_FIELDS`; existing `VariantImage`, `Price`, `OptionValueAssignment`, `VariantRequest`.
-- Produces: `VariantApi.getVariants(productId: string, query: VariantQuery): Promise<PagedResult<VariantListItem>>`, `VariantApi.getVariant(id): Promise<Result<VariantDetail>>`, `VariantApi.createVariant(productId, request): Promise<Result<VariantDetail>>`, `VariantApi.updateVariant(id, request): Promise<Result<VariantDetail>>`, `VariantApi.getOptionValues(variantId): Promise<PagedResult<OptionValueAssignment>>`, unchanged `deleteVariant`/`assignOptionValues`/`revokeOptionValues`; `VariantImageApi.listImages(variantId): Promise<PagedResult<VariantImage>>` (unchanged `uploadImage`/`deleteImage`); `VariantPriceApi.listPrices(variantId): Promise<PagedResult<Price>>` (unchanged `setPrice`/`removePrice`/`PriceRequest`).
-- View consumers (Task 4/5) rely on: `getVariants(productId, query)` and the `.items` field of PagedResult.
+- Produces: `VariantApi.getVariants(productId: string, query: VariantQuery): Promise<PagedResult<VariantListItem>>`, `VariantApi.getVariant(id): Promise<Result<VariantDetail>>`, `VariantApi.createVariant(request: VariantRequest): Promise<Result<VariantDetail>>` (productId lives in the body), `VariantApi.updateVariant(id, request): Promise<Result<VariantDetail>>`, `VariantApi.getOptionValues(variantId): Promise<PagedResult<OptionValueAssignment>>`, unchanged `deleteVariant`/`assignOptionValues`/`revokeOptionValues`; `VariantImageApi.listImages(variantId): Promise<PagedResult<VariantImage>>` (unchanged `uploadImage`/`deleteImage`); `VariantPriceApi.listPrices(variantId): Promise<PagedResult<Price>>` (unchanged `setPrice`/`removePrice`/`PriceRequest`). Also fix `getPaged` in `shared/api/paged.ts` to append `&` instead of `?` when the base URL already contains a query string.
+- View consumers (Task 4/5) rely on: `getVariants(productId, query)`, `createVariant(request)`, and the `.items` field of PagedResult. The `getPaged` fix is required because `getVariants` passes `${BASE}?productId=...` as the URL.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -551,7 +553,7 @@ describe('VariantApi.getVariants', () => {
     await VariantApi.getVariants('prod-1', { search: 'M', page: 2, pageSize: 25 })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/products/prod-1/variants',
+      'api/catalog/variants?productId=prod-1',
       expect.objectContaining({ search: 'M', pageNumber: 2, pageSize: 25 }),
       expect.objectContaining({ allowedFilterFields: expect.any(Array) }),
     )
@@ -568,10 +570,10 @@ describe('VariantApi.getVariant', () => {
 
 describe('VariantApi.createVariant', () => {
   it('calls POST with request body', async () => {
-    const req = { sku: 'SHIRT-M', position: 0, trackInventory: true, isMaster: false, optionValueIds: [] } as any
+    const req = { sku: 'SHIRT-M', position: 0, trackInventory: true, isMaster: false, productId: 'prod-1', optionValueIds: [] } as any
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
-    await VariantApi.createVariant('prod-1', req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/products/prod-1/variants', req)
+    await VariantApi.createVariant(req)
+    expect(mockPost).toHaveBeenCalledWith('api/catalog/variants', req)
   })
 })
 
@@ -771,7 +773,7 @@ export class VariantApi {
     query: VariantQuery,
   ): Promise<PagedResult<VariantListItem>> {
     return getPaged<VariantListItem>(
-      `${CATALOG}/products/${productId}/variants`,
+      `${BASE}?productId=${productId}`,
       toVariantQueryParams(query),
       {
         allowedFilterFields: VARIANT_FILTER_FIELDS,
@@ -786,11 +788,10 @@ export class VariantApi {
   }
 
   static createVariant(
-    productId: string,
     request: VariantRequest,
   ): Promise<Result<VariantDetail>> {
     return post<Result<VariantDetail>>(
-      `${CATALOG}/products/${productId}/variants`,
+      BASE,
       request,
     )
   }
@@ -916,7 +917,16 @@ export class VariantPriceApi {
 }
 ```
 
-- [ ] **Step 4: Update the detail view tab loaders (PagedResult consumers)**
+- [ ] **Step 4: Fix `getPaged` URL concatenation and update the detail view consumers**
+
+In `app/Admin/src/shared/api/paged.ts`, change the URL assembly (around line 49) so an existing query string in the base URL is preserved with `&` instead of `?`:
+
+```ts
+const sep = url.includes('?') ? '&' : '?'
+const fullUrl = qs ? `${url}${sep}${qs}` : url
+```
+
+This is required because `VariantApi.getVariants` passes `${BASE}?productId=...` as the base URL. It also fixes the same latent bug in `taxonApi.getList`.
 
 In `app/Admin/src/features/catalog/views/VariantDetail.vue`:
 
@@ -924,6 +934,7 @@ In `app/Admin/src/features/catalog/views/VariantDetail.vue`:
 - `loadPrices` (around line 332): change `if (result.isSuccess && result.value) { prices.value = result.value.items }` to `if (result.isSuccess) { prices.value = result.items }`.
 - `loadOptionValues` (around line 289): change `if (result.isSuccess && result.value) { optionValueAssignments.value = result.value.items; selectedOptionValueIds.value = result.value.items }` to `if (result.isSuccess) { optionValueAssignments.value = result.items; selectedOptionValueIds.value = result.items }`.
 - Also add `error` reporting in the else branch of all three loaders via `handleResult(result)` (import already present at line 20). For `loadOptionValues`, the else branch currently only logs; replace with `handleResult(result)`.
+- `onSubmit` create path (around line 167): change `result = await VariantApi.createVariant(pid, request)` to `result = await VariantApi.createVariant({ ...request, productId: pid })`.
 
 - [ ] **Step 5: Run tests to verify they pass**
 
@@ -940,7 +951,7 @@ Expected: 584 + new tests passing (585 total tests added across the three new sp
 - [ ] **Step 7: Commit**
 
 ```bash
-git add app/Admin/src/features/catalog/services/variantApi.ts app/Admin/src/features/catalog/services/variantImageApi.ts app/Admin/src/features/catalog/services/variantPriceApi.ts app/Admin/src/features/catalog/views/VariantDetail.vue app/Admin/src/features/catalog/__tests__/services/variantApi.spec.ts app/Admin/src/features/catalog/__tests__/services/variantImageApi.spec.ts app/Admin/src/features/catalog/__tests__/services/variantPriceApi.spec.ts
+git add app/Admin/src/shared/api/paged.ts app/Admin/src/features/catalog/services/variantApi.ts app/Admin/src/features/catalog/services/variantImageApi.ts app/Admin/src/features/catalog/services/variantPriceApi.ts app/Admin/src/features/catalog/views/VariantDetail.vue app/Admin/src/features/catalog/__tests__/services/variantApi.spec.ts app/Admin/src/features/catalog/__tests__/services/variantImageApi.spec.ts app/Admin/src/features/catalog/__tests__/services/variantPriceApi.spec.ts
 git commit -m "feat(catalog): return PagedResult from variant list services"
 ```
 
@@ -952,7 +963,7 @@ git commit -m "feat(catalog): return PagedResult from variant list services"
 
 **Interfaces:**
 - Consumes: from Task 1 — `VariantListItem`, `VARIANT_FILTER_FIELDS`, `VARIANT_SORT_FIELDS`, `VARIANT_SEARCH_FIELDS`; `usePagedQuery` from `@/shared/composables/usePagedQuery`; `VariantApi` (unchanged `deleteVariant`).
-- Produces: a server-paged VariantsList page. Route flow unchanged: `catalog/variants?productId=<id>` from ProductsList; `catalog/variants/new?productId=<id>` for new; `catalog/variants/:id` for edit.
+- Produces: a server-paged VariantsList page. Route flow unchanged: `catalog/variants?productId=<id>` from ProductsList; `catalog/variants/new?productId=<id>` for new; `catalog/variants/:id` for edit. The `usePagedQuery` URL is `api/catalog/variants?productId=<id>` (relies on the Task 3 `getPaged` fix for the `&` separator).
 
 - [ ] **Step 1: Verify current behavior compiles (baseline)**
 
@@ -1004,7 +1015,7 @@ const {
   setSort,
   refresh,
 } = usePagedQuery<VariantListItem>(
-  () => `api/catalog/products/${productId.value}/variants`,
+  () => `api/catalog/variants?productId=${productId.value}`,
   {
     allowedFilterFields: VARIANT_FILTER_FIELDS,
     allowedSortFields: VARIANT_SORT_FIELDS,
