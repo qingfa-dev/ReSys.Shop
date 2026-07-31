@@ -1,4 +1,4 @@
-import { post, get, del } from '@/shared/api/client'
+import { post, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
