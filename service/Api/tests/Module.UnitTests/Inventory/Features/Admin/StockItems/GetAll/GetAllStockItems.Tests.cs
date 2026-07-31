@@ -65,4 +65,38 @@ public class GetAllStockItemsTests : IDisposable
         result.PageNumber.Should().Be(2);
         result.TotalCount.Should().Be(5);
     }
+
+    [Fact(DisplayName = "Handle: Filters by Backorderable")]
+    public async Task Handle_Filters_ByBackorderable()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 5, Backorderable = false });
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 6, Backorderable = false });
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 7, Backorderable = true });
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(
+            new GetAllStockItems.Query(new GetAllStockItems.Parameters { Filter = "Backorderable=false" }), ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+        result.Items.Should().AllSatisfy(i => i.Backorderable.Should().BeFalse());
+    }
+
+    [Fact(DisplayName = "Handle: Sorts by CountOnHand descending")]
+    public async Task Handle_Sorts_ByCountOnHandDescending()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 1 });
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 2 });
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), CountOnHand = 3 });
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(
+            new GetAllStockItems.Query(new GetAllStockItems.Parameters { Sort = ["CountOnHand:desc"] }), ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(3);
+        result.Items.Should().BeInDescendingOrder(i => i.CountOnHand);
+    }
 }
