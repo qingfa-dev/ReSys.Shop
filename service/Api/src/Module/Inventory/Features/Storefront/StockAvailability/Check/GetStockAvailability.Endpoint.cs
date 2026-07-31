@@ -18,13 +18,13 @@ public static partial class GetStockAvailability
             {
                 var query = new Query(new Request { VariantId = variantId, CartToken = cartToken });
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetStockAvailability))
             .WithTags(InventoryFeature.Tags.StockItem)
             .WithSummary(InventoryFeature.Storefront.StockAvailability.Check.Summary)
             .WithDescription(InventoryFeature.Storefront.StockAvailability.Check.Description)
-            .Produces<Result<Response>>()
+            .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

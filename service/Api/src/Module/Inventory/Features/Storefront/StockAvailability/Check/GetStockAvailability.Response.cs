@@ -2,19 +2,8 @@ namespace Module.Inventory.Features.Storefront.StockAvailability.Check;
 
 public static partial class GetStockAvailability
 {
-    // EXCEPTION: availability aggregate response — composite of stock item + reservation data
+    // EXCEPTION: computed availability DTO — composite of stock item + reservation data
     public sealed record Response
-    {
-        public Guid VariantId { get; init; }
-        public int TotalOnHand { get; init; }
-        public int TotalReserved { get; init; }
-        public int CartReserved { get; init; }
-        public int TotalAvailable { get; init; }
-        public int AvailableToCart { get; init; }
-        public List<LocationAvailability> LocationAvailability { get; init; } = [];
-    }
-
-    public sealed record LocationAvailability
     {
         public Guid StockLocationId { get; init; }
         public string LocationName { get; init; } = string.Empty;
