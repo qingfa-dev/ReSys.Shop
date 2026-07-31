@@ -9,7 +9,7 @@ namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.ListB
 public class ListVariantImagesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly ListVariantImages.QueryHandler _handler;
+    private readonly ListVariantImages.PagedQueryHandler _handler;
 
     public ListVariantImagesTests()
     {
@@ -19,7 +19,7 @@ public class ListVariantImagesTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(VariantImage).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new ListVariantImages.QueryHandler(_dbContext);
+        _handler = new ListVariantImages.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -46,27 +46,52 @@ public class ListVariantImagesTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ListVariantImages.Query(variantId),
+            new ListVariantImages.Query(variantId, new ListVariantImages.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Images.Should().HaveCount(3);
-        result.Value.Images[0].Position.Should().Be(0);
-        result.Value.Images[0].FileName.Should().Be("second.png");
-        result.Value.Images[1].Position.Should().Be(1);
-        result.Value.Images[1].FileName.Should().Be("third.gif");
-        result.Value.Images[2].Position.Should().Be(2);
-        result.Value.Images[2].FileName.Should().Be("first.jpg");
+        result.Items.Should().HaveCount(3);
+        result.Items.First().Position.Should().Be(0);
+        result.Items.First().FileName.Should().Be("second.png");
+        result.Items.ElementAt(1).Position.Should().Be(1);
+        result.Items.ElementAt(1).FileName.Should().Be("third.gif");
+        result.Items.ElementAt(2).Position.Should().Be(2);
+        result.Items.ElementAt(2).FileName.Should().Be("first.jpg");
     }
 
     [Fact(DisplayName = "Handler: Should return empty list when variant has no images")]
     public async Task Handle_ShouldReturnEmpty_WhenNoImages()
     {
         var result = await _handler.Handle(
-            new ListVariantImages.Query(Guid.NewGuid()),
+            new ListVariantImages.Query(Guid.NewGuid(), new ListVariantImages.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Images.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "Handler: Should return images in pages when parameters supplied")]
+    public async Task Handle_ShouldPage_WhenParametersSupplied()
+    {
+        var variantId = Guid.NewGuid();
+        _dbContext.Set<VariantImage>().AddRange(
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+                url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
+                position: 0, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+                url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
+                position: 1, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
+                url: "https://cdn.test.com/3.gif", storagePath: "u/3.gif",
+                position: 2, variantId: variantId).Value);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantImages.Query(variantId, new ListVariantImages.Parameters { PageSize = 2 }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+        result.TotalCount.Should().Be(3);
     }
 }

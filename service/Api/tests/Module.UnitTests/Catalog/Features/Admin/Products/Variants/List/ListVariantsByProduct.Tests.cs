@@ -9,7 +9,7 @@ namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.List;
 public class ListVariantsByProductTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly ListVariantsByProduct.QueryHandler _handler;
+    private readonly ListVariantsByProduct.PagedQueryHandler _handler;
 
     public ListVariantsByProductTests()
     {
@@ -20,7 +20,7 @@ public class ListVariantsByProductTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Variant).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new ListVariantsByProduct.QueryHandler(_dbContext);
+        _handler = new ListVariantsByProduct.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -38,10 +38,10 @@ public class ListVariantsByProductTests : IDisposable
         _dbContext.Set<Variant>().AddRange(variant1, variant2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new ListVariantsByProduct.Query(productId), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().HaveCount(2);
+        result.Items.Should().HaveCount(2);
     }
 
     [Fact(DisplayName = "Handler: Should exclude soft-deleted variants")]
@@ -54,19 +54,38 @@ public class ListVariantsByProductTests : IDisposable
         _dbContext.Set<Variant>().AddRange(active, deleted);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new ListVariantsByProduct.Query(productId), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().HaveCount(1);
-        result.Value.Items.First().Sku.Should().Be("SKU-001");
+        result.Items.Should().HaveCount(1);
+        result.Items.First().Sku.Should().Be("SKU-001");
     }
 
     [Fact(DisplayName = "Handler: Should return empty when product has no variants")]
     public async Task Handle_ShouldReturnEmpty_WhenNoVariants()
     {
-        var result = await _handler.Handle(new ListVariantsByProduct.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new ListVariantsByProduct.Query(Guid.NewGuid(), new ListVariantsByProduct.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "Handler: Should page variants when parameters supplied")]
+    public async Task Handle_ShouldPage_WhenParametersSupplied()
+    {
+        var productId = Guid.NewGuid();
+        var variant1 = VariantMethod.Create(productId, "SKU-001", isMaster: true).Value;
+        var variant2 = VariantMethod.Create(productId, "SKU-002", isMaster: false).Value;
+        var variant3 = VariantMethod.Create(productId, "SKU-003", isMaster: false).Value;
+        _dbContext.Set<Variant>().AddRange(variant1, variant2, variant3);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { PageSize = 2 }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+        result.TotalCount.Should().Be(3);
     }
 }

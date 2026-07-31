@@ -1,3 +1,4 @@
+using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 using Module.Catalog.Features.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
@@ -15,20 +16,21 @@ public static partial class ListVariantImages
         {
             app.MapGet(CatalogFeature.Admin.Products.Variants.Images.GetAll.Route, async (
                 [FromRoute] Guid variantId,
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
                 // Dispatch: List-images query via MediatR pipeline
-                var query = new Query(variantId);
+                var query = new Query(variantId, parameters);
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(ListVariantImages))
             .WithTags(CatalogFeature.Tags.VariantImage)
             .HasPermission(CatalogFeature.Admin.Products.Variants.Images.GetAll.Permission)
             .WithSummary(CatalogFeature.Admin.Products.Variants.Images.GetAll.Summary)
             .WithDescription(CatalogFeature.Admin.Products.Variants.Images.GetAll.Description)
-            .Produces<Result<Response>>();
+            .Produces<PagedResult<VariantImageDetailResponse>>();
         }
     }
 }

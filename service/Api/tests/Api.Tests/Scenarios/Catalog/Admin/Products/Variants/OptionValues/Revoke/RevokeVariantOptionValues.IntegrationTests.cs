@@ -88,11 +88,9 @@ public sealed class RevokeVariantOptionValuesIntegrationTests(ApiFixture fixture
 
         HttpResponseMessage getResponse = await Client.GetAsAdminRawAsync(
             $"/api/catalog/variants/{variant.Id}/option-values");
-        ApiResponse getResult = await getResponse.ReadApiResponseAsync();
-        getResult.IsSuccess.Should().BeTrue();
-        GetVariantOptionValues.Response? value = getResult.DeserializeValue<GetVariantOptionValues.Response>();
-        value.Should().NotBeNull();
-        value!.Items.Should().Contain(i => i.Name == "Red" && !i.IsAssigned);
+        PagedResult<GetVariantOptionValues.Response> value = await getResponse.ReadAsPagedResultAsync<GetVariantOptionValues.Response>();
+        value.IsSuccess.Should().BeTrue();
+        value.Items.Should().Contain(i => i.Name == "Red" && !i.IsAssigned);
     }
 
     private record ProductResponse
