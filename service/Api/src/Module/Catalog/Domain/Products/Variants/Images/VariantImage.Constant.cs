@@ -66,4 +66,29 @@ public static class VariantImageConstant
         public const string ConvNextTiny = "convnext-v2-tiny";
         public const string EfficientNetB0 = "efficientnet_b0";
     }
+
+    /// <summary>
+    /// Field metadata for searching, sorting, and filtering.
+    /// </summary>
+    public static class Query
+    {
+        public static readonly string[] AllowedSearchFields =
+        [
+            nameof(VariantImage.FileName),
+            nameof(VariantImage.Alt)
+        ];
+
+        public static readonly string[] AllowedSortFields =
+        [
+            nameof(VariantImage.Position),
+            nameof(VariantImage.CreatedAtUtc)
+        ];
+
+        public static readonly string[] AllowedFilterFields =
+        [
+            nameof(VariantImage.Type),
+            nameof(VariantImage.ContentType),
+            nameof(VariantImage.DimensionsUnit)
+        ];
+    }
 }
