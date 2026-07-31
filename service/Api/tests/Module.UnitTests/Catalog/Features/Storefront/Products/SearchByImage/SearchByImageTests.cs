@@ -21,7 +21,7 @@ public class SearchByImageTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IInferenceClient> _inferenceClientMock;
-    private readonly SearchByImageFeature.QueryHandler _handler;
+    private readonly SearchByImageFeature.PagedQueryHandler _handler;
 
     public SearchByImageTests()
     {
@@ -33,7 +33,7 @@ public class SearchByImageTests : IDisposable
         _dbContext = new ApplicationDbContext(options);
         _inferenceClientMock = new Mock<IInferenceClient>();
         var vectorSearchService = new VectorSearchService(_dbContext);
-        _handler = new SearchByImageFeature.QueryHandler(_dbContext, _inferenceClientMock.Object, vectorSearchService);
+        _handler = new SearchByImageFeature.PagedQueryHandler(_dbContext, _inferenceClientMock.Object, vectorSearchService);
     }
 
     public void Dispose()
@@ -51,7 +51,7 @@ public class SearchByImageTests : IDisposable
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
     }
 
     [Fact(DisplayName = "Handler: Should return empty response when image is zero bytes")]
@@ -64,7 +64,7 @@ public class SearchByImageTests : IDisposable
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
     }
 
     [Fact(DisplayName = "Handler: Should return validation error when file exceeds 10 MB")]
@@ -154,8 +154,8 @@ public class SearchByImageTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().NotBeEmpty();
-        result.Value.Items.Should().ContainSingle(i => i.VariantId == variant.Id);
+        result.Items.Should().NotBeEmpty();
+        result.Items.Should().ContainSingle(i => i.VariantId == variant.Id);
         _inferenceClientMock.Verify(
             x => x.CreateEmbeddingFromBytesAsync(
                 It.IsAny<byte[]>(), "image/jpeg", "openclip-vit-b-32", It.IsAny<CancellationToken>()),

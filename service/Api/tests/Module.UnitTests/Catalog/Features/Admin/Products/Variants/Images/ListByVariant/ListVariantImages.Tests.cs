@@ -94,4 +94,75 @@ public class ListVariantImagesTests : IDisposable
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(3);
     }
+
+    [Fact(DisplayName = "Handler: Should filter images by type when specified")]
+    public async Task Handle_ShouldFilterByType_WhenSpecified()
+    {
+        var variantId = Guid.NewGuid();
+        _dbContext.Set<VariantImage>().AddRange(
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "default.jpg", 100,
+                url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
+                position: 0, type: VariantImageType.Default, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "default.png", 200,
+                url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
+                position: 1, type: VariantImageType.Default, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/gif", "gallery.gif", 300,
+                url: "https://cdn.test.com/3.gif", storagePath: "u/3.gif",
+                position: 2, type: VariantImageType.Gallery, variantId: variantId).Value);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantImages.Query(variantId, new ListVariantImages.Parameters { Filter = "Type=Default" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+        result.Items.Should().AllSatisfy(i => i.FileName.Should().BeOneOf("default.jpg", "default.png"));
+    }
+
+    [Fact(DisplayName = "Handler: Should sort images by position descending when specified")]
+    public async Task Handle_ShouldSortByPositionDescending_WhenSpecified()
+    {
+        var variantId = Guid.NewGuid();
+        _dbContext.Set<VariantImage>().AddRange(
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+                url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
+                position: 0, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+                url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
+                position: 1, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
+                url: "https://cdn.test.com/3.gif", storagePath: "u/3.gif",
+                position: 2, variantId: variantId).Value);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantImages.Query(variantId, new ListVariantImages.Parameters { Sort = ["Position:desc"] }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(3);
+        result.Items.Should().BeInDescendingOrder(i => i.Position);
+    }
+
+    [Fact(DisplayName = "Handler: Should silently ignore disallowed filter field")]
+    public async Task Handle_ShouldIgnoreDisallowedFilterField()
+    {
+        var variantId = Guid.NewGuid();
+        _dbContext.Set<VariantImage>().AddRange(
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+                url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
+                position: 0, variantId: variantId).Value,
+            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+                url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
+                position: 1, variantId: variantId).Value);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantImages.Query(variantId, new ListVariantImages.Parameters { Filter = "NonExistent=1" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+    }
 }

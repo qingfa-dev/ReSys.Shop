@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Features.Admin.Products.Variants.Shared.Mappings;
+using Shared.Operational.Persistence.Specifications.Sorting;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.List;
 
@@ -20,17 +21,23 @@ public static partial class ListVariantsByProduct
         // Contract: pre=query.ProductId!=Guid.Empty, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
-            var pageModel = PageModelExtensions.FromValues(query.Parameters.PageNumber, query.Parameters.PageSize).Value;
+            // Validate: Parse and validate query parameters against allowed fields
+            var parsing = query.Parameters.ParseAll(
+                allowedFilterFields: VariantConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: VariantConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: VariantConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (parsing.IsFailure)
+                return parsing.Errors;
 
-            // Load: Fetch non-deleted variants for product with relations, ordered by position
+            // Load: Fetch non-deleted variants for product with relations and querying, default-sorted by position
             return await dbContext.Set<Variant>()
                 .Include(x => x.Prices)
                 .Include(x => x.OptionValueVariants)
                     .ThenInclude(ovv => ovv.OptionValue)
                 .Include(x => x.VariantImages)
                 .Where(x => x.ProductId == query.ProductId && !x.IsDeleted)
-                .OrderBy(x => x.Position)
-                .ToPagedOrAllAsync(x => x.MapToDetail<Response>(), pageModel, cancellationToken);
+                .ApplyQuerying(parsing.Value, defaultSortClauses: [new SortClause { Field = nameof(Variant.Position) }])
+                .ToPagedOrAllAsync(parsing.Value, x => x.MapToDetail<Response>(), cancellationToken);
         }
     }
 }

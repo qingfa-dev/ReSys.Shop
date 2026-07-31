@@ -9,21 +9,21 @@ public static partial class GetAllStockItems
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /admin/inventory/stock-items — gets all stock items
+            // Map: GET /admin/inventory/stock-items — gets all stock items (optionally paged)
             app.MapGet(InventoryFeature.Admin.StockItems.GetAll.Route, async (
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query();
-                var result = await sender.Send(query, ct);
-                return result.ToResult();
+                var result = await sender.Send(new Query(parameters), ct);
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetAllStockItems))
             .WithTags(InventoryFeature.Tags.StockItem)
             .HasPermission(InventoryFeature.Admin.StockItems.GetAll.Permission)
             .WithSummary(InventoryFeature.Admin.StockItems.GetAll.Summary)
             .WithDescription(InventoryFeature.Admin.StockItems.GetAll.Description)
-            .Produces<Result<List<Response>>>();
+            .Produces<PagedResult<Response>>();
         }
     }
 }

@@ -1,6 +1,7 @@
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
+using Shared.Operational.Persistence.Specifications.Sorting;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
 
@@ -23,13 +24,19 @@ public static partial class ListVariantImages
         // Contract: pre=query!=null, post=result!=null
         public async Task<PagedResult<VariantImageDetailResponse>> Handle(Query query, CancellationToken cancellationToken)
         {
-            var pageModel = PageModelExtensions.FromValues(query.Parameters.PageNumber, query.Parameters.PageSize).Value;
+            // Validate: Parse and validate query parameters against allowed fields
+            var parsing = query.Parameters.ParseAll(
+                allowedFilterFields: VariantImageConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: VariantImageConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: VariantImageConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (parsing.IsFailure)
+                return parsing.Errors;
 
-            // Filter: Load images scoped to the variant, ordered by display position
+            // Filter: Load images scoped to the variant with querying, default-sorted by position
             return await dbContext.Set<VariantImage>()
                 .Where(x => x.VariantId == query.VariantId)
-                .OrderBy(x => x.Position)
-                .ToPagedOrAllAsync(x => x.MapToDetail<VariantImageDetailResponse>(), pageModel, cancellationToken);
+                .ApplyQuerying(parsing.Value, defaultSortClauses: [new SortClause { Field = nameof(VariantImage.Position) }])
+                .ToPagedOrAllAsync(parsing.Value, x => x.MapToDetail<VariantImageDetailResponse>(), cancellationToken);
         }
     }
 }

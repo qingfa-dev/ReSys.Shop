@@ -4,11 +4,5 @@ namespace Module.Catalog.Features.Admin.Products.OptionTypes.Get;
 
 public static partial class GetProductOptionTypes
 {
-    // EXCEPTION: collection wrapper — inner items are OptionTypeDetailResponse
-    public sealed record Response
-    {
-        public List<OptionTypeItem> Items { get; init; } = [];
-
-        public sealed record OptionTypeItem : ProductOptionTypeItemResponse;
-    }
+    public sealed record Response : ProductOptionTypeItemResponse;
 }

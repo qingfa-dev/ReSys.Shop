@@ -18,13 +18,13 @@ public static partial class GetSimilarProducts
             {
                 var query = new Query(id, topK);
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetSimilarProducts))
             .WithTags(CatalogFeature.Tags.Product)
             .WithSummary(CatalogFeature.Storefront.Products.Get.Similar.Summary)
             .WithDescription(CatalogFeature.Storefront.Products.Get.Similar.Description)
-            .Produces<Result<Response>>()
+            .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

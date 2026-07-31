@@ -10,21 +10,22 @@ public static partial class GetLowStockItems
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(InventoryFeature.Admin.StockItems.LowStock.Route, async (
+                [AsParameters] Parameters parameters,
                 [FromQuery] Guid? locationId,
                 [FromQuery] int? threshold,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(new Request { LocationId = locationId, Threshold = threshold });
+                var query = new Query(new Request { LocationId = locationId, Threshold = threshold }, parameters);
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetLowStockItems))
             .WithTags(InventoryFeature.Tags.StockItem)
             .HasPermission(InventoryFeature.Admin.StockItems.LowStock.Permission)
             .WithSummary(InventoryFeature.Admin.StockItems.LowStock.Summary)
             .WithDescription(InventoryFeature.Admin.StockItems.LowStock.Description)
-            .Produces<Result<List<Response>>>();
+            .Produces<PagedResult<Response>>();
         }
     }
 }

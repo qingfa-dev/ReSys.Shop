@@ -12,7 +12,7 @@ namespace Module.UnitTests.Inventory.Features.Storefront.StockAvailability.Check
 public class GetStockAvailabilityTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetStockAvailability.QueryHandler _handler;
+    private readonly GetStockAvailability.PagedQueryHandler _handler;
 
     public GetStockAvailabilityTests()
     {
@@ -23,8 +23,7 @@ public class GetStockAvailabilityTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(StockItem).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetStockAvailability.QueryHandler(
-            _dbContext,
+        _handler = new GetStockAvailability.PagedQueryHandler(
             new StockAvailabilityCalculator(_dbContext));
     }
 
@@ -57,12 +56,9 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-        result.Value.TotalOnHand.Should().Be(8);
-        result.Value.TotalReserved.Should().Be(0);
-        result.Value.TotalAvailable.Should().Be(8);
-        result.Value.LocationAvailability.Should().HaveCount(2);
-        result.Value.LocationAvailability.Sum(x => x.CountOnHand).Should().Be(8);
+        result.Items.Should().NotBeEmpty();
+        result.Items.Should().HaveCount(2);
+        result.Items.Sum(x => x.CountOnHand).Should().Be(8);
     }
 
     [Fact(DisplayName = "Handler: Should return zero availability when no stock exists")]
@@ -78,9 +74,7 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.TotalOnHand.Should().Be(0);
-        result.Value.TotalAvailable.Should().Be(0);
-        result.Value.LocationAvailability.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
     }
 
     [Fact(DisplayName = "Handler: Should subtract active reservations from available count")]
@@ -107,9 +101,10 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.TotalOnHand.Should().Be(10);
-        result.Value.TotalReserved.Should().Be(3);
-        result.Value.TotalAvailable.Should().Be(7);
+        var loc = result.Items.Should().ContainSingle().Subject;
+        loc.CountOnHand.Should().Be(10);
+        loc.ReservedCount.Should().Be(3);
+        loc.AvailableCount.Should().Be(7);
     }
 
     [Fact(DisplayName = "Handler: Should show per-location reserved and available counts")]
@@ -135,7 +130,7 @@ public class GetStockAvailabilityTests : IDisposable
             TestContext.Current.CancellationToken);
 
         // Assert
-        var loc = result.Value.LocationAvailability.Should().ContainSingle().Subject;
+        var loc = result.Items.Should().ContainSingle().Subject;
         loc.CountOnHand.Should().Be(5);
         loc.ReservedCount.Should().Be(2);
         loc.AvailableCount.Should().Be(3);
@@ -164,8 +159,9 @@ public class GetStockAvailabilityTests : IDisposable
             TestContext.Current.CancellationToken);
 
         // Assert
-        result.Value.TotalAvailable.Should().Be(10); // not reduced by expired
-        result.Value.TotalReserved.Should().Be(0);
+        var locationAvailability = result.Items.Should().ContainSingle().Subject;
+        locationAvailability.AvailableCount.Should().Be(10); // not reduced by expired
+        locationAvailability.ReservedCount.Should().Be(0);
     }
 
     [Fact(DisplayName = "Handler: AvailableCount should never be negative")]
@@ -191,8 +187,7 @@ public class GetStockAvailabilityTests : IDisposable
             TestContext.Current.CancellationToken);
 
         // Assert: AvailableCount should be 0, not -3
-        var locAvailability = result.Value.LocationAvailability.Should().ContainSingle().Subject;
+        var locAvailability = result.Items.Should().ContainSingle().Subject;
         locAvailability.AvailableCount.Should().Be(0);
-        result.Value.TotalAvailable.Should().Be(0);
     }
 }

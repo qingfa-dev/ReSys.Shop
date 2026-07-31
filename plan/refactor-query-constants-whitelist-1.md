@@ -20,7 +20,7 @@ This plan follows the review "which endpoint could be applied full querying para
 - **REQ-002**: Each EF-native candidate handler must accept `filter`, `search`, `searchFields`, `searchMode`, and `sort` query-string parameters via the existing `Parameters : QueryingParameters` record, parsed with `ParseAll` and applied with `ApplyQuerying`.
 - **REQ-003**: Existing default ordering must be preserved for stable paging when the caller supplies no `sort` (via `ApplyQuerying` `defaultSortClauses`).
 - **REQ-004**: The HTTP surface must not change: endpoints keep `PagedResult<T>` envelopes and `Parameters : QueryingParameters`; no `Endpoint.cs` file is modified by this plan.
-- **SEC-001**: Field whitelists are the enforcement mechanism — a `filter`/`search`/`sort` referencing a disallowed field must produce a validation failure result (never a silently-ignored or arbitrary-projection query).
+- **SEC-001**: Field whitelists are the enforcement mechanism. Per the established shared-layer contract (`QueryingParametersExtensions.ParseAll` — pinned by `QueryingParametersExtensions.Tests.cs:74-92`), a `filter`/`search`/`sort` referencing a disallowed field is **silently ignored** (parse returns `IsSuccess=true`, violations recorded on `*.IsValid=false`; `ApplyFilter`/`ApplySort` skip unknown fields) — never an arbitrary-projection query. This is the human-partner ruling of 2026-07-31: follow the codebase contract, do not add rejection guards.
 - **CON-001**: `ApplyFilter`/`ApplySearch`/`ApplySort`/`ApplyQuerying` are `IQueryable<T>`-only extensions; **no `IEnumerable<T>` (in-memory) overloads exist** in `Shared.Operational.Persistence.Specifications.*`. Handlers that page in-memory cannot use them without new infrastructure.
 - **CON-002**: `TreatWarningsAsErrors=true` globally — any warning fails the build.
 - **CON-003**: `Shared.Operational.Persistence.Specifications.Paging`, `.Paging.Extensions`, and `.Querying` are global usings (Module/GlobalUsing.cs:25-27). `Shared.Operational.Persistence.Specifications.Sorting` is **not** global — handlers using `SortClause` must add that `using` explicitly.
@@ -58,9 +58,9 @@ This plan follows the review "which endpoint could be applied full querying para
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
 | TASK-005 | `service/Api/tests/Module.UnitTests/Inventory/Features/Admin/StockItems/GetAll/GetAllStockItems.Tests.cs`: add a filter test (seed items with distinct `Backorderable` values, query `new Parameters { Filter = "Backorderable=false" }`, assert only matching items returned) and a sort test (`new Parameters { Sort = ["CountOnHand:desc"] }`, assert descending order). | |  |
-| TASK-006 | `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Variants/List/ListVariantsByProduct.Tests.cs`: add a sort test (`Sort = ["Position:desc"]` within a seeded product, assert order) and a disallowed-field rejection test (`Sort = ["NonExistent:asc"]` → `result.IsSuccess.Should().BeFalse()`). | |  |
+| TASK-006 | `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Variants/List/ListVariantsByProduct.Tests.cs`: add a sort test (`Sort = ["Position:desc"]` within a seeded product, assert order) and a disallowed-field ignore test (`Sort = ["NonExistent:asc"]` → `result.IsSuccess.Should().BeTrue()` and items unchanged, per SEC-001 silent-skip ruling). | |  |
 | TASK-007 | `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Variants/Images/ListByVariant/ListVariantImages.Tests.cs`: add a filter test (`Filter = "Type=Default"` over seeded images with distinct `Type`) and a sort test (`Sort = ["Position:desc"]`). | |  |
-| TASK-008 | In each of the three test files, add a disallowed-filter-field rejection test (e.g. `Filter = "NonExistent=1"` → `result.IsSuccess.Should().BeFalse()`) verifying SEC-001 enforcement. | |  |
+| TASK-008 | In each of the three test files, add a disallowed-field ignore test (e.g. `Filter = "NonExistent=1"` → `result.IsSuccess.Should().BeTrue()`) verifying SEC-001 silent-skip behavior per the human ruling. | |  |
 
 ### Implementation Phase 4
 
@@ -102,7 +102,7 @@ This plan follows the review "which endpoint could be applied full querying para
 - **TEST-003**: `ListVariantsByProduct` — sort (`Position:desc`) within a seeded product returns descending order.
 - **TEST-004**: `ListVariantImages` — filter (`Type=Default`) returns only matching images.
 - **TEST-005**: `ListVariantImages` — sort (`Position:desc`) returns descending order.
-- **TEST-006**: Disallowed-field rejection (SEC-001) on each handler — `Filter`/`Sort` referencing a non-whitelisted field yields `result.IsSuccess.Should().BeFalse()`.
+- **TEST-006**: Disallowed-field ignore (SEC-001, per human ruling) on each handler — `Filter`/`Sort` referencing a non-whitelisted field yields `result.IsSuccess.Should().BeTrue()` with the disallowed clause silently ignored (result items unchanged).
 - **TEST-007**: Regression — existing paging tests for all three handlers still pass unchanged, and full `Module.UnitTests` build/tests remain green.
 
 ## 7. Risks & Assumptions

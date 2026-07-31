@@ -12,13 +12,13 @@ namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
 /// </summary>
 public static partial class SearchByImage
 {
-    public sealed record Command(Request Request) : ICommand<Response>;
+    public sealed record Command(Request Request) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(
+    public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,
         IInferenceClient inferenceClient,
         IVectorSearchService vectorSearchService)
-        : ICommandHandler<Command, Response>
+        : IPagedQueryHandler<Command, Response>
     {
         private const string DefaultModel = VariantImageConstant.Defaults.DefaultEmbeddingModel;
 
@@ -26,17 +26,14 @@ public static partial class SearchByImage
         /// Performs a visual similarity search by encoding an uploaded image into an embedding vector
         /// and querying the nearest neighbors in pgvector space.
         /// </summary>
-        /// <param name="command">The command containing the uploaded image file.</param>
-        /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success result with the list of visually similar product variants.</returns>
         // Contract: pre=command!=null, post=result!=null
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var image = command.Request.Image;
 
             // Validate: Reject empty, oversized, and non-image files
             if (image is null || image.Length == 0)
-                return new Response();
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
 
             const long MaxFileSize = 10_485_760; // 10 MB
             if (image.Length > MaxFileSize)
@@ -69,7 +66,7 @@ public static partial class SearchByImage
                 queryVector, modelName, topK, excludeProductId: null, cancellationToken);
 
             if (similarVariantIds.Count == 0)
-                return new Response();
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
 
             // Load: Fetch full variant data with includes for response mapping
             var similarVariants = await dbContext.Set<Variant>()
@@ -87,14 +84,14 @@ public static partial class SearchByImage
             // Map: Build search result items with variant and image URLs
             var items = orderedVariants.Select(MapToItem).ToList();
 
-            return new Response { Items = items };
+            return PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count);
         }
     }
 
-    private static SearchResultItem MapToItem(Variant v)
+    private static Response MapToItem(Variant v)
     {
         var primaryImage = v.VariantImages.FirstOrDefault();
-        return new SearchResultItem
+        return new Response
         {
             VariantId = v.Id,
             ProductId = v.ProductId,

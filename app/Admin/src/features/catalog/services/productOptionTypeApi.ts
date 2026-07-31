@@ -1,6 +1,6 @@
 import { post, get } from '@/shared/api/client'
 import { CATALOG } from '@/shared/constants/api'
-import type { Result } from '@/shared/types'
+import type { Result, PagedResult } from '@/shared/types'
 
 export interface OptionTypeAssignment {
   optionTypeId: string
@@ -20,8 +20,8 @@ export class ProductOptionTypeApi {
     return `${CATALOG}/products/${productId}/option-types`
   }
 
-  static getOptionTypes(productId: string): Promise<Result<{ items: OptionTypeAssignment[] }>> {
-    return get<Result<{ items: OptionTypeAssignment[] }>>(ProductOptionTypeApi.getBase(productId))
+  static getOptionTypes(productId: string): Promise<PagedResult<OptionTypeAssignment>> {
+    return get<PagedResult<OptionTypeAssignment>>(ProductOptionTypeApi.getBase(productId))
   }
 
   static syncOptionTypes(productId: string, items: OptionTypeSyncItem[]): Promise<Result<void>> {

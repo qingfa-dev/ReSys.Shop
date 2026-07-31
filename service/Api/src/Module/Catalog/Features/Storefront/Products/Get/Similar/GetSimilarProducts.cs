@@ -10,21 +10,18 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 /// </summary>
 public static partial class GetSimilarProducts
 {
-    public sealed record Query(Guid Id, int TopK = 20) : ICommand<Response>;
+    public sealed record Query(Guid Id, int TopK = 20) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(
+    public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,
         IVectorSearchService vectorSearchService)
-        : ICommandHandler<Query, Response>
+        : IPagedQueryHandler<Query, Response>
     {
         /// <summary>
         /// Finds visually similar products using pgvector cosine distance on image embeddings.
         /// </summary>
-        /// <param name="request">The query containing the product ID.</param>
-        /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success result with the list of similar product variants.</returns>
         // Contract: pre=request.Id!=Guid.Empty, post=result!=null
-        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Load: Find the variant and its product.
             var variant = await dbContext.Set<Variant>()
@@ -33,7 +30,7 @@ public static partial class GetSimilarProducts
                 .FirstOrDefaultAsync(x => x.ProductId == request.Id && !x.IsDeleted, cancellationToken);
 
             if (variant is null || variant.Product is null)
-                return Result<Response>.NotFound();
+                return PagedResult<Response>.NotFound();
 
             const string similarityModel = VariantImageConstant.Defaults.DefaultSimilarityModel;
 
@@ -46,7 +43,7 @@ public static partial class GetSimilarProducts
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (embeddingData is null)
-                return Result<Response>.Ok(new Response { Items = [] });
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
 
             // Query: Find nearest neighbors in vector space using cosine distance.
             var similarVariantIds = await vectorSearchService.FindSimilarVariantIdsAsync(
@@ -54,7 +51,7 @@ public static partial class GetSimilarProducts
                 excludeProductId: variant.ProductId, cancellationToken);
 
             if (similarVariantIds.Count == 0)
-                return Result<Response>.Ok(new Response { Items = [] });
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
 
             // Load: Fetch full variant data with includes for response mapping.
             var similarVariants = await dbContext.Set<Variant>()
@@ -71,7 +68,7 @@ public static partial class GetSimilarProducts
                 .ToList();
 
             // Map: Build response with similar products.
-            var items = orderedVariants.Select(v => new SimilarProductItem
+            var items = orderedVariants.Select(v => new Response
             {
                 VariantId = v.Id,
                 ProductId = v.ProductId,
@@ -80,7 +77,7 @@ public static partial class GetSimilarProducts
                 Price = v.Price ?? 0
             }).ToList();
 
-            return Result<Response>.Ok(new Response { Items = items });
+            return PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count);
         }
     }
 }

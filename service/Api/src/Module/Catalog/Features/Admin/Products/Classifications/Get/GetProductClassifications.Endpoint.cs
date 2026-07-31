@@ -10,19 +10,20 @@ public static partial class GetProductClassifications
         {
             app.MapGet(CatalogFeature.Admin.Products.Classifications.Get.Route, async (
                 Guid id,
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(id);
+                var query = new Query(id, parameters);
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetProductClassifications))
             .WithTags(CatalogFeature.Tags.Product)
             .HasPermission(CatalogFeature.Admin.Products.Classifications.Get.Permission)
             .WithSummary(CatalogFeature.Admin.Products.Classifications.Get.Summary)
             .WithDescription(CatalogFeature.Admin.Products.Classifications.Get.Description)
-            .Produces<Result<Response>>()
+            .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

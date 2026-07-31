@@ -10,20 +10,16 @@ namespace Module.Catalog.Features.Admin.Products.OptionTypes.Get;
 /// </summary>
 public static partial class GetProductOptionTypes
 {
-    public sealed record Query(Guid Id) : IQuery<Response>;
+    public sealed record Query(Guid Id, Parameters Parameters) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(
-        IApplicationDbContext dbContext)
-        : IQueryHandler<Query, Response>
+    /// <summary>
+    /// Retrieves all option types with their assigned state and position for a product.
+    /// </summary>
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
+        : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>
-        /// Retrieves all option types with their assigned state and position for a product.
-        /// </summary>
-        /// <param name="request">The query containing the product ID.</param>
-        /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success result with the product option types.</returns>
         // Contract: pre=request.Id!=Guid.Empty, post=result!=null
-        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Check: Product exists before retrieving option types
             var productExists = await dbContext.Set<Product>()
@@ -45,12 +41,15 @@ public static partial class GetProductOptionTypes
             var items = allOptionTypes.Select(ot =>
             {
                 var isAssigned = assignedPositions.ContainsKey(ot.Id);
-                return ot.MapToListItem<Response.OptionTypeItem>(
+                return ot.MapToListItem<Response>(
                     isAssigned,
                     isAssigned ? assignedPositions[ot.Id] : 0);
-            }).ToList();
+            }).OrderBy(i => i.Position).ToList();
 
-            return new Response { Items = items };
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+            return pageModel.IsEmpty
+                ? PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count)
+                : items.ToPagedResult(pageModel);
         }
     }
 }

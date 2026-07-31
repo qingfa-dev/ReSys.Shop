@@ -11,23 +11,21 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
 /// </summary>
 public static partial class SyncTaxonRules
 {
-    public sealed record Command(Guid TaxonId, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid TaxonId, Request Request) : IPagedQuery<Response>;
 
-    public sealed class CommandHandler(
+    public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,
         IAutoClassificationService autoClassificationService,
-        ILogger<CommandHandler> logger)
-        : ICommandHandler<Command, Response>
+        ILogger<PagedQueryHandler> logger)
+        : IPagedQueryHandler<Command, Response>
     {
         /// <summary>
         /// Synchronises taxon rules — creates, updates, and removes rules to match the
         /// incoming set, then triggers auto-classification if the taxon is automatic.
         /// </summary>
-        /// <param name="command">The command containing taxonomy ID, taxon ID, and rule set.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
-        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.TaxonId!=Guid.Empty, post=result.Rules!=null, throws=DbUpdateException
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.TaxonId!=Guid.Empty, post=result!=null, throws=DbUpdateException
+        public async Task<PagedResult<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonId = command.TaxonId;
             var request = command.Request;
@@ -95,8 +93,8 @@ public static partial class SyncTaxonRules
                 .OrderBy(x => x.Type)
                 .ToListAsync(cancellationToken);
 
-            var mapped = updatedRules.Select(r => r.MapToListItem<TaxonRuleItem>()).ToList();
-            return new Response { Rules = mapped };
+            var mapped = updatedRules.Select(r => r.MapToListItem<Response>()).ToList();
+            return PagedResult<Response>.Create(mapped, 1, Math.Max(1, mapped.Count), mapped.Count);
         }
     }
 }

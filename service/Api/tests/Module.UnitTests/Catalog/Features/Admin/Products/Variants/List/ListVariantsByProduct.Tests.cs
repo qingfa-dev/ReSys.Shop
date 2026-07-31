@@ -88,4 +88,56 @@ public class ListVariantsByProductTests : IDisposable
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(3);
     }
+
+    [Fact(DisplayName = "Handler: Should sort variants by position descending when specified")]
+    public async Task Handle_ShouldSortByPositionDescending_WhenSpecified()
+    {
+        var productId = Guid.NewGuid();
+        var variant1 = VariantMethod.Create(productId, "SKU-001", isMaster: true, position: 1).Value;
+        var variant2 = VariantMethod.Create(productId, "SKU-002", isMaster: false, position: 2).Value;
+        var variant3 = VariantMethod.Create(productId, "SKU-003", isMaster: false, position: 3).Value;
+        _dbContext.Set<Variant>().AddRange(variant1, variant2, variant3);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { Sort = ["Position:desc"] }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(3);
+        result.Items.Should().BeInDescendingOrder(i => i.Position);
+    }
+
+    [Fact(DisplayName = "Handler: Should silently ignore disallowed sort field")]
+    public async Task Handle_ShouldIgnoreDisallowedSortField()
+    {
+        var productId = Guid.NewGuid();
+        var variant = VariantMethod.Create(productId, "SKU-001", isMaster: true).Value;
+        _dbContext.Set<Variant>().Add(variant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { Sort = ["NonExistent:asc"] }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(1);
+    }
+
+    [Fact(DisplayName = "Handler: Should silently ignore disallowed filter field")]
+    public async Task Handle_ShouldIgnoreDisallowedFilterField()
+    {
+        var productId = Guid.NewGuid();
+        var variant1 = VariantMethod.Create(productId, "SKU-001", isMaster: true).Value;
+        var variant2 = VariantMethod.Create(productId, "SKU-002", isMaster: false).Value;
+        _dbContext.Set<Variant>().AddRange(variant1, variant2);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ListVariantsByProduct.Query(productId, new ListVariantsByProduct.Parameters { Filter = "NonExistent=1" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+    }
 }
