@@ -17,7 +17,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.Similar;
 public class GetSimilarProductsTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetSimilarProducts.QueryHandler _handler;
+    private readonly GetSimilarProducts.PagedQueryHandler _handler;
 
     public GetSimilarProductsTests()
     {
@@ -29,7 +29,7 @@ public class GetSimilarProductsTests : IDisposable
         _dbContext = new ApplicationDbContext(options);
 
         var vectorSearchService = new VectorSearchService(_dbContext);
-        _handler = new GetSimilarProducts.QueryHandler(_dbContext, vectorSearchService);
+        _handler = new GetSimilarProducts.PagedQueryHandler(_dbContext, vectorSearchService);
     }
 
     public void Dispose()
@@ -69,7 +69,7 @@ public class GetSimilarProductsTests : IDisposable
 
         // Assert: No embedding -> returns empty
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
     }
 
     [Fact(DisplayName = "Handler: Should return similar products when embeddings exist")]
@@ -150,8 +150,8 @@ public class GetSimilarProductsTests : IDisposable
 
         // Assert: Similar product should be returned, source product should be excluded
         result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().NotBeEmpty();
-        result.Value.Items.Should().ContainSingle(i => i.VariantId == similarVariant.Id);
-        result.Value.Items.Should().NotContain(i => i.VariantId == sourceVariant.Id);
+        result.Items.Should().NotBeEmpty();
+        result.Items.Should().ContainSingle(i => i.VariantId == similarVariant.Id);
+        result.Items.Should().NotContain(i => i.VariantId == sourceVariant.Id);
     }
 }
