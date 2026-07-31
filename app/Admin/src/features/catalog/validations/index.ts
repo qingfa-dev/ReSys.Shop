@@ -45,6 +45,19 @@ export {
 } from './product'
 export type { ProductForm } from './product'
 export {
+  variantSku,
+  variantPosition,
+  variantIsMaster,
+  variantTrackInventory,
+  variantWeight,
+  variantWeightUnit,
+  variantHeight,
+  variantWidth,
+  variantDepth,
+  variantDimensionsUnit,
+  variantPrice,
+  variantCostPrice,
+  variantCostCurrency,
   variantSchema,
 } from './variant'
 export type { VariantForm } from './variant'
