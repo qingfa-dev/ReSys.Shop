@@ -11,18 +11,19 @@ public static partial class GetShippingMethods
         {
             // Map: GET {route} → list shipping methods
             app.MapGet(ShippingFeature.Storefront.Shipping.Methods.Route, async (
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var result = await sender.Send(new Query(), ct);
-                return result.ToResult();
+                var result = await sender.Send(new Query(parameters), ct);
+                return result.ToPagedResult();
             })
             .RequireAuthorization()
             .WithName(nameof(GetShippingMethods))
             .WithTags(ShippingFeature.Tags.ShippingMethod)
             .WithSummary(ShippingFeature.Storefront.Shipping.Methods.Summary)
             .WithDescription(ShippingFeature.Storefront.Shipping.Methods.Description)
-            .Produces<Result<Response>>();
+            .Produces<PagedResult<Response>>();
         }
     }
 }
