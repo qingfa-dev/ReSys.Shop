@@ -11,6 +11,7 @@ export const useTaxonomyStore = defineStore('taxonomies', () => {
     if (loaded.value) return
 
     const result = await TaxonomyApi.getTaxonomies({
+      pageSize: 100,
       sortBy: 'name',
       sortDirection: 'asc',
     })
