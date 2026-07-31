@@ -8,6 +8,8 @@ const TaxonsList = () => import('../views/TaxonsList.vue')
 const OptionTypesList = () => import('../views/OptionTypesList.vue')
 const OptionTypeDetail = () => import('../views/OptionTypeDetail.vue')
 const TaxonDetail = () => import('../views/TaxonDetail.vue')
+const VariantsList = () => import('../views/VariantsList.vue')
+const VariantDetail = () => import('../views/VariantDetail.vue')
 
 export const catalogRoutes: RouteRecordRaw[] = [
   {
@@ -62,6 +64,24 @@ export const catalogRoutes: RouteRecordRaw[] = [
     component: TaxonDetail,
     meta: { title: 'Taxon Detail' },
   },
+  {
+    path: 'catalog/variants',
+    name: 'catalog-variants',
+    component: VariantsList,
+    meta: { title: 'Variants' },
+  },
+  {
+    path: 'catalog/variants/:id',
+    name: 'catalog-variant-detail',
+    component: VariantDetail,
+    meta: { title: 'Variant Detail' },
+  },
+  {
+    path: 'catalog/variants/new',
+    name: 'catalog-variant-new',
+    component: VariantDetail,
+    meta: { title: 'New Variant' },
+  },
 ]
 
 export const catalogMenuItems = [
@@ -73,6 +93,7 @@ export const catalogMenuItems = [
       { label: 'Taxonomies', icon: 'pi pi-fw pi-sitemap', to: '/catalog/taxonomies' },
       { label: 'Taxons', icon: 'pi pi-fw pi-list', to: '/catalog/taxons' },
       { label: 'Option Types', icon: 'pi pi-fw pi-sliders-h', to: '/catalog/option-types' },
+      { label: 'Variants', icon: 'pi pi-fw pi-box', to: '/catalog/variants' },
     ],
   },
 ]
