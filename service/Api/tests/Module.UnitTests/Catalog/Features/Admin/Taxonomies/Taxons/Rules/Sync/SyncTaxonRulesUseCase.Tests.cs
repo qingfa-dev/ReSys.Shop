@@ -13,8 +13,8 @@ public class SyncTaxonRulesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IAutoClassificationService> _autoClassificationMock;
-    private readonly Mock<ILogger<SyncTaxonRules.CommandHandler>> _loggerMock;
-    private readonly SyncTaxonRules.CommandHandler _handler;
+    private readonly Mock<ILogger<SyncTaxonRules.PagedQueryHandler>> _loggerMock;
+    private readonly SyncTaxonRules.PagedQueryHandler _handler;
 
     public SyncTaxonRulesTests()
     {
@@ -29,9 +29,9 @@ public class SyncTaxonRulesTests : IDisposable
         _autoClassificationMock.Setup(x => x.RegenerateForTaxonAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        _loggerMock = new Mock<ILogger<SyncTaxonRules.CommandHandler>>();
+        _loggerMock = new Mock<ILogger<SyncTaxonRules.PagedQueryHandler>>();
 
-        _handler = new SyncTaxonRules.CommandHandler(_dbContext, _autoClassificationMock.Object, _loggerMock.Object);
+        _handler = new SyncTaxonRules.PagedQueryHandler(_dbContext, _autoClassificationMock.Object, _loggerMock.Object);
     }
 
     public void Dispose()
@@ -72,7 +72,7 @@ public class SyncTaxonRulesTests : IDisposable
         var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().HaveCount(2);
+        result.Items.Should().HaveCount(2);
 
         var persisted = await _dbContext.Set<TaxonRule>().Where(x => x.TaxonId == taxon.Id).ToListAsync(TestContext.Current.CancellationToken);
         persisted.Should().HaveCount(2);
@@ -108,7 +108,7 @@ public class SyncTaxonRulesTests : IDisposable
         var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().HaveCount(1);
+        result.Items.Should().HaveCount(1);
 
         var updated = await _dbContext.Set<TaxonRule>().FindAsync([existingRule.Id], TestContext.Current.CancellationToken);
         updated.Should().NotBeNull();
@@ -155,7 +155,7 @@ public class SyncTaxonRulesTests : IDisposable
         var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().HaveCount(2);
+        result.Items.Should().HaveCount(2);
 
         var allPersisted = await _dbContext.Set<TaxonRule>().Where(x => x.TaxonId == taxon.Id).ToListAsync(TestContext.Current.CancellationToken);
         allPersisted.Should().HaveCount(2);
@@ -179,7 +179,7 @@ public class SyncTaxonRulesTests : IDisposable
         var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
 
         var persisted = await _dbContext.Set<TaxonRule>().Where(x => x.TaxonId == taxon.Id).ToListAsync(TestContext.Current.CancellationToken);
         persisted.Should().BeEmpty();
@@ -192,7 +192,7 @@ public class SyncTaxonRulesTests : IDisposable
             new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request()),
             TestContext.Current.CancellationToken);
 
-        result.IsFailure.Should().BeTrue();
+        result.IsSuccess.Should().BeFalse();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
     }
 

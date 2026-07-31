@@ -16,14 +16,14 @@ public static partial class SyncTaxonRules
             {
                 var command = new Command(id, request);
                 var result = await sender.Send(command, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(SyncTaxonRules))
             .WithTags(CatalogFeature.Tags.Taxon)
             .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Sync.Permission)
             .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Sync.Summary)
             .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Sync.Description)
-            .Produces<Result<Response>>(StatusCodes.Status200OK)
+            .Produces<PagedResult<Response>>(StatusCodes.Status200OK)
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)
             .Produces<Result>(StatusCodes.Status404NotFound)
