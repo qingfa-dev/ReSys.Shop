@@ -1795,7 +1795,7 @@ Expected: no lint errors, all tests PASS.
 - [ ] **Step 6: Run convention scripts**
 
 Run: `bash scripts/check-feature-conventions.sh`
-Expected: all checks PASS (AC-001/002/003/005).
+Expected: no NEW violations vs. baseline (baseline has 4 pre-existing AC-001, 10 AC-002, 2 AC-003 failures outside this plan's scope — recorded in the SDD ledger for final-review triage; AC-001 script updated to permit `(Request, Parameters)` and `(string x, Parameters)` shapes per plan amendment).
 
 Run: `bash scripts/check-cross-module-refs.sh`
 Expected: no new cross-module reference violations.
