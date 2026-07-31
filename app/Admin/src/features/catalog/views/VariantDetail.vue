@@ -167,7 +167,7 @@ async function onSubmit(event: FormSubmitEvent) {
       loading.value = false
       return
     }
-    result = await VariantApi.createVariant({ ...request, productId: pid })
+    result = await VariantApi.createVariant(request)
   }
 
   loading.value = false

@@ -47,7 +47,7 @@ const {
     defaultSearchFields: VARIANT_SEARCH_FIELDS,
     defaultSearchMode: 'any',
     defaultSort: ['position'],
-    defaultPageSize: 20,
+    defaultPageSize: 25,
     immediate: false,
   },
 )
@@ -57,7 +57,6 @@ const first = computed(() => (page.value - 1) * pageSize.value)
 watch(productId, (id) => {
   if (id) {
     setSearch('')
-    refresh()
   }
 }, { immediate: true })
 

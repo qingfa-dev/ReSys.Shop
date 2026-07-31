@@ -104,6 +104,28 @@ describe('getPaged', () => {
     expect(result.errors[0]?.code).toBe('NetworkError')
   })
 
+  it('joins query params with & when base url already has a query', async () => {
+    mockGet.mockResolvedValue(okResponse())
+
+    await getPaged<unknown>('/api/variants?productId=x', { pageNumber: 1, pageSize: 20 })
+
+    expect(mockGet).toHaveBeenCalledWith(
+      '/api/variants?productId=x&page=1&pageSize=20',
+      undefined,
+    )
+  })
+
+  it('appends a fresh query when base url has no query', async () => {
+    mockGet.mockResolvedValue(okResponse())
+
+    await getPaged<unknown>('/api/variants', { pageNumber: 1, pageSize: 20 })
+
+    expect(mockGet).toHaveBeenCalledWith(
+      '/api/variants?page=1&pageSize=20',
+      undefined,
+    )
+  })
+
   it('passes signal to get', async () => {
     mockGet.mockResolvedValue(okResponse())
     const controller = new AbortController()
