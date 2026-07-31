@@ -44,7 +44,10 @@ export interface TaxonTreeItem extends TaxonListItem {
 export interface TaxonQuery {
   taxonomyId?: string
   name?: string
+  filter?: string
   search?: string
+  searchFields?: string[]
+  searchMode?: string
   sortBy?: 'name' | 'slug' | 'position' | 'depth' | 'createdAtUtc' | 'modifiedAtUtc'
   sortDirection?: 'asc' | 'desc'
   page?: number
@@ -85,6 +88,9 @@ export const TAXON_MATCH_POLICIES = ['All', 'Any']
 export function toTaxonQueryParams(query: TaxonQuery): QueryingParameters {
   const filters: string[] = []
 
+  if (query.filter !== undefined && query.filter !== '') {
+    filters.push(query.filter)
+  }
   if (query.taxonomyId !== undefined && query.taxonomyId !== '') {
     filters.push(`taxonomyId=${query.taxonomyId}`)
   }
@@ -101,6 +107,8 @@ export function toTaxonQueryParams(query: TaxonQuery): QueryingParameters {
   return {
     filter: filters.length > 0 ? filters.join(',') : null,
     search: query.search ?? null,
+    searchFields: query.searchFields && query.searchFields.length > 0 ? query.searchFields : null,
+    searchMode: query.searchMode ?? null,
     sort,
     pageNumber: query.page ?? null,
     pageSize: query.pageSize ?? null,

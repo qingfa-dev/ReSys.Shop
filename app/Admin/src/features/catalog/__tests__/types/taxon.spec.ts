@@ -26,6 +26,23 @@ describe('toTaxonQueryParams', () => {
     const result = toTaxonQueryParams({ sortBy: 'name', sortDirection: 'asc' })
     expect(result.sort).toEqual(['name'])
   })
+
+  it('passes through a raw filter string', () => {
+    const result = toTaxonQueryParams({ filter: 'depth=1' })
+    expect(result.filter).toBe('depth=1')
+  })
+
+  it('forwards search fields and mode', () => {
+    const result = toTaxonQueryParams({ search: 'shoes', searchFields: ['name', 'slug'], searchMode: 'any' })
+    expect(result.search).toBe('shoes')
+    expect(result.searchFields).toEqual(['name', 'slug'])
+    expect(result.searchMode).toBe('any')
+  })
+
+  it('merges raw filter with taxonomyId filter', () => {
+    const result = toTaxonQueryParams({ filter: 'depth=1', taxonomyId: 'abc-123' })
+    expect(result.filter).toBe('depth=1,taxonomyId=abc-123')
+  })
 })
 
 describe('TAXON_FILTER_FIELDS', () => {
