@@ -67,3 +67,15 @@ export {
   PRODUCT_SORT_FIELDS,
   toProductQueryParams,
 } from './product'
+export type {
+  VariantParameters,
+  VariantRequest,
+  Variant,
+  VariantImage,
+  Price,
+  OptionValueAssignment,
+} from './variant'
+export {
+  VARIANT_FILTER_FIELDS,
+  VARIANT_SORT_FIELDS,
+} from './variant'
