@@ -15,19 +15,20 @@ public static partial class GetProductOptionTypes
         {
             app.MapGet(CatalogFeature.Admin.Products.OptionTypes.Get.Route, async (
                 Guid id,
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(id);
+                var query = new Query(id, parameters);
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetProductOptionTypes))
             .WithTags(CatalogFeature.Tags.Product)
             .HasPermission(CatalogFeature.Admin.Products.OptionTypes.Get.Permission)
             .WithSummary(CatalogFeature.Admin.Products.OptionTypes.Get.Summary)
             .WithDescription(CatalogFeature.Admin.Products.OptionTypes.Get.Description)
-            .Produces<Result<Response>>()
+            .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
