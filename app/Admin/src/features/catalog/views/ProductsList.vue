@@ -45,6 +45,10 @@ function navigateToEdit(id: string) {
   router.push(`/catalog/products/${id}`)
 }
 
+function navigateToVariants(productId: string) {
+  router.push(`/catalog/variants?productId=${productId}`)
+}
+
 function onSearch(value: string) {
   searchTerm.value = value
   setSearch(value)
@@ -154,9 +158,10 @@ function confirmDelete() {
         <Column field="seasonName" header="Season" :sortable="true" />
         <Column field="variantsCount" header="Variants" :sortable="true" body-style="text-align: center" />
         <Column field="createdAtUtc" header="Created" :sortable="true" />
-        <Column header="" body-style="text-align: right; width: 6rem">
+        <Column header="" body-style="text-align: right; width: 9rem">
           <template #body="{ data }">
             <div class="flex justify-end gap-2">
+              <Button icon="pi pi-box" severity="secondary" text rounded aria-label="Variants" @click="navigateToVariants(data.id)" />
               <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
               <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [data]; confirmDelete()" />
             </div>
