@@ -37,6 +37,7 @@ export const useTaxonStore = defineStore('taxons', () => {
 
     if (sort.value.length > 0) {
       const raw = sort.value[0]
+      if (!raw) return query
       const descending = raw.startsWith('-')
       const field = descending ? raw.slice(1) : raw
       if (field) {
