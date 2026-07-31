@@ -45,7 +45,8 @@ export async function getPaged<T>(
   const qs = searchParams.toString()
 
   try {
-    const fullUrl = qs ? `${url}?${qs}` : url
+    const sep = url.includes('?') ? '&' : '?'
+    const fullUrl = qs ? `${url}${sep}${qs}` : url
     return await get<PagedResult<T>>(fullUrl, options?.signal)
   } catch (e) {
     if (e instanceof HttpError) {

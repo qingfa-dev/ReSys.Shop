@@ -1,17 +1,17 @@
 import { post, get, del } from '@/shared/api/client'
+import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
-import type { Result } from '@/shared/types'
+import type { Result, PagedResult } from '@/shared/types'
 import type { VariantImage } from '../types/variant'
 
 const BASE = `${CATALOG}/variants`
 
 export class VariantImageApi {
-  static listImages(
-    variantId: string,
-  ): Promise<Result<{ images: VariantImage[] }>> {
-    return get<Result<{ images: VariantImage[] }>>(
-      `${BASE}/${variantId}/images`,
-    )
+  static listImages(variantId: string): Promise<PagedResult<VariantImage>> {
+    return getPaged<VariantImage>(`${BASE}/${variantId}/images`, {
+      pageNumber: 1,
+      pageSize: 100,
+    })
   }
 
   static uploadImage(

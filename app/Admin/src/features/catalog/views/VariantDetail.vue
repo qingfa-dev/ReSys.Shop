@@ -167,7 +167,7 @@ async function onSubmit(event: FormSubmitEvent) {
       loading.value = false
       return
     }
-    result = await VariantApi.createVariant(pid, request)
+    result = await VariantApi.createVariant({ ...request, productId: pid })
   }
 
   loading.value = false
@@ -223,8 +223,8 @@ const uploadLoading = ref(false)
 async function loadImages() {
   if (!isEdit.value) return
   const result = await VariantImageApi.listImages(route.params.id as string)
-  if (result.isSuccess && result.value) {
-    images.value = result.value.images
+  if (result.isSuccess) {
+    images.value = result.items
     imagesLoaded.value = true
   } else {
     handleResult(result)
@@ -290,9 +290,9 @@ async function loadOptionValues() {
   if (!isEdit.value) return
   optionValuesLoading.value = true
   const result = await VariantApi.getOptionValues(route.params.id as string)
-  if (result.isSuccess && result.value) {
-    optionValueAssignments.value = result.value.items
-    selectedOptionValueIds.value = result.value.items
+  if (result.isSuccess) {
+    optionValueAssignments.value = result.items
+    selectedOptionValueIds.value = result.items
       .filter((o) => o.isAssigned)
       .map((o) => o.optionValueId)
   } else {
@@ -333,8 +333,8 @@ const priceForm = ref<PriceRequest>({
 async function loadPrices() {
   if (!isEdit.value) return
   const result = await VariantPriceApi.listPrices(route.params.id as string)
-  if (result.isSuccess && result.value) {
-    prices.value = result.value.items
+  if (result.isSuccess) {
+    prices.value = result.items
     pricesLoaded.value = true
   } else {
     handleResult(result)

@@ -1,6 +1,7 @@
 import { post, get, del } from '@/shared/api/client'
+import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
-import type { Result } from '@/shared/types'
+import type { Result, PagedResult } from '@/shared/types'
 import type { Price } from '../types/variant'
 
 const BASE = `${CATALOG}/variants`
@@ -13,12 +14,11 @@ export interface PriceRequest {
 }
 
 export class VariantPriceApi {
-  static listPrices(
-    variantId: string,
-  ): Promise<Result<{ items: Price[] }>> {
-    return get<Result<{ items: Price[] }>>(
-      `${BASE}/${variantId}/prices`,
-    )
+  static listPrices(variantId: string): Promise<PagedResult<Price>> {
+    return getPaged<Price>(`${BASE}/${variantId}/prices`, {
+      pageNumber: 1,
+      pageSize: 100,
+    })
   }
 
   static setPrice(
