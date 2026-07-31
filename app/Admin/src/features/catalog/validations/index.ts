@@ -44,3 +44,7 @@ export {
   productSchema,
 } from './product'
 export type { ProductForm } from './product'
+export {
+  variantSchema,
+} from './variant'
+export type { VariantForm } from './variant'
