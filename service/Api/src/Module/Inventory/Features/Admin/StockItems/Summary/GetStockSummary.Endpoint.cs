@@ -11,19 +11,19 @@ public static partial class GetStockSummary
         {
             // Map: GET /admin/inventory/stock-items/summary — gets stock summary statistics
             app.MapGet(InventoryFeature.Admin.StockItems.StockSummary.Route, async (
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query();
-                var result = await sender.Send(query, ct);
-                return result.ToResult();
+                var result = await sender.Send(new Query(parameters), ct);
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetStockSummary))
             .WithTags(InventoryFeature.Tags.StockItem)
             .HasPermission(InventoryFeature.Admin.StockItems.StockSummary.Permission)
             .WithSummary(InventoryFeature.Admin.StockItems.StockSummary.Summary)
             .WithDescription(InventoryFeature.Admin.StockItems.StockSummary.Description)
-            .Produces<Result<List<Response>>>();
+            .Produces<PagedResult<Response>>();
         }
     }
 }

@@ -7,17 +7,17 @@ namespace Module.Inventory.Features.Admin.StockItems.Summary;
 /// <summary>Handles retrieval of consolidated per-variant stock summary across all locations.</summary>
 public static partial class GetStockSummary
 {
-    public sealed record Query : IQuery<List<Response>>;
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(IApplicationDbContext dbContext)
-        : IQueryHandler<Query, List<Response>>
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
+        : IPagedQueryHandler<Query, Response>
     {
         /// <summary>Executes the get stock summary query.</summary>
         /// <param name="request">The query (no parameters needed).</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A list of per-variant stock summaries.</returns>
         // Contract: pre=request!=null, post=result!=null
-        public async Task<Result<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var now = DateTimeOffset.UtcNow;
 
@@ -78,7 +78,13 @@ public static partial class GetStockSummary
                 })
                 .ToList();
 
-            return grouped.ToList();
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+            var results = grouped.OrderBy(s => s.VariantId).ToList();
+
+            // Transform: Return all in one page or honor caller-supplied paging
+            return pageModel.IsEmpty
+                ? PagedResult<Response>.Create(results, 1, Math.Max(1, results.Count), results.Count)
+                : results.ToPagedResult(pageModel);
         }
     }
 }
