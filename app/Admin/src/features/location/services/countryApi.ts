@@ -28,6 +28,10 @@ export class CountryApi {
     return get<Result<CountryDetail>>(`${CountryApi.BASE}/${id}`)
   }
 
+  static getCountryByIso(isoCode: string): Promise<Result<CountryDetail>> {
+    return get<Result<CountryDetail>>(`${CountryApi.BASE}/by-iso/${isoCode}`)
+  }
+
   static createCountry(request: CountryRequest): Promise<Result<CountryDetail>> {
     return post<Result<CountryDetail>>(CountryApi.BASE, request)
   }

@@ -28,6 +28,10 @@ export class StateApi {
     return get<Result<StateDetail>>(`${StateApi.BASE}/${id}`)
   }
 
+  static getStateByIso(isoCode: string): Promise<Result<StateDetail>> {
+    return get<Result<StateDetail>>(`${StateApi.BASE}/by-iso/${isoCode}`)
+  }
+
   static createState(request: StateRequest): Promise<Result<StateDetail>> {
     return post<Result<StateDetail>>(StateApi.BASE, request)
   }

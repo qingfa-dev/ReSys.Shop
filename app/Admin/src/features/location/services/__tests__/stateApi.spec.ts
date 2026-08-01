@@ -59,6 +59,15 @@ describe('StateApi.getState', () => {
   })
 })
 
+describe('StateApi.getStateByIso', () => {
+  it('calls GET with by-iso URL', async () => {
+    mockGet.mockResolvedValue({ value: { id: '1', name: 'New York', abbreviation: 'NY' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+
+    await StateApi.getStateByIso('NY')
+    expect(mockGet).toHaveBeenCalledWith('api/locations/states/by-iso/NY')
+  })
+})
+
 describe('StateApi.createState', () => {
   it('calls POST with request body', async () => {
     const req = { name: 'Texas', abbreviation: 'TX', countryId: 'us-id', isActive: true }

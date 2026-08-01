@@ -59,6 +59,15 @@ describe('CountryApi.getCountry', () => {
   })
 })
 
+describe('CountryApi.getCountryByIso', () => {
+  it('calls GET with by-iso URL', async () => {
+    mockGet.mockResolvedValue({ value: { id: '1', name: 'United States', isoCode: 'US' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+
+    await CountryApi.getCountryByIso('US')
+    expect(mockGet).toHaveBeenCalledWith('api/locations/countries/by-iso/US')
+  })
+})
+
 describe('CountryApi.createCountry', () => {
   it('calls POST with request body', async () => {
     const req = { name: 'Canada', isoCode: 'CA', callingCode: '+1', statesRequired: true, isActive: true }
