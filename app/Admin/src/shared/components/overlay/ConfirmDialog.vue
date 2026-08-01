@@ -11,7 +11,7 @@ interface Props {
   cancelLabel?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   header: 'Confirm',
   icon: 'pi pi-exclamation-triangle',
   confirmLabel: 'Yes',
@@ -27,7 +27,7 @@ const emit = defineEmits<{
 
 <template>
   <Dialog
-    v-model:visible="visible"
+    :visible="visible"
     :header="header"
     :modal="true"
     :style="{ width: '450px' }"

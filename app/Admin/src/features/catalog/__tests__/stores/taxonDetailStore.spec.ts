@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import type { TaxonDetail } from '../../types/taxon'
 
 const { mockGetTaxon, mockGetRules } = vi.hoisted(() => ({
-  mockGetTaxon: vi.fn<any>(),
-  mockGetRules: vi.fn<any>(),
+  mockGetTaxon: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGetRules: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('../../services/taxonApi', () => ({
@@ -38,7 +39,7 @@ describe('useTaxonDetailStore', () => {
   it('fetchDetail returns failure and keeps currentTaxon unchanged', async () => {
     mockGetTaxon.mockResolvedValue({ isSuccess: false, statusCode: 404, message: 'Not found', errors: [{ code: 'NotFound', message: 'Not found', type: 404 }], metadata: null, value: null })
     const store = useTaxonDetailStore()
-    store.currentTaxon = { id: 'old' } as any
+    store.currentTaxon = { id: 'old' } as TaxonDetail
     const result = await store.fetchDetail('t1')
     expect(result.isSuccess).toBe(false)
     expect(store.currentTaxon).toEqual({ id: 'old' })

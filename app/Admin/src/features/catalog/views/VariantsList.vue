@@ -32,7 +32,6 @@ const {
   totalCount,
   page,
   pageSize,
-  totalPages,
   setPage,
   setPageSize,
   setSearch,

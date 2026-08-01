@@ -64,13 +64,13 @@ async function onSubmit(event: FormSubmitEvent) {
 </script>
 
 <template>
-  <Form v-slot="$form" :resolver="resetResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
-    <FormField v-slot="$field" name="email" class="flex flex-col gap-1">
+  <Form :resolver="resetResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
+    <FormField name="email" class="flex flex-col gap-1">
       <label class="text-surface-900 dark:text-surface-0 font-medium">Email</label>
       <InputText type="email" fluid size="large" disabled />
     </FormField>
 
-    <FormField v-slot="$field" name="userId" class="flex flex-col gap-1">
+    <FormField name="userId" class="flex flex-col gap-1">
       <label class="text-surface-900 dark:text-surface-0 font-medium">User ID</label>
       <InputText fluid size="large" disabled />
     </FormField>

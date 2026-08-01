@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const { mockPost, mockGet, mockPut, mockDel, mockGetPaged } = vi.hoisted(() => ({
-  mockPost: vi.fn<any>(),
-  mockGet: vi.fn<any>(),
-  mockPut: vi.fn<any>(),
-  mockDel: vi.fn<any>(),
-  mockGetPaged: vi.fn<any>(),
+  mockPost: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGet: vi.fn<(...args: unknown[]) => unknown>(),
+  mockPut: vi.fn<(...args: unknown[]) => unknown>(),
+  mockDel: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGetPaged: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('@/shared/api/client', () => ({
@@ -19,6 +19,7 @@ vi.mock('@/shared/api', () => ({
   getPaged: mockGetPaged,
 }))
 
+import type { VariantRequest } from '../../types/variant'
 import { VariantApi } from '../../services/variantApi'
 
 beforeEach(() => {
@@ -53,7 +54,7 @@ describe('VariantApi.getVariant', () => {
 
 describe('VariantApi.createVariant', () => {
   it('calls POST with request body', async () => {
-    const req = { sku: 'SHIRT-M', position: 0, trackInventory: true, isMaster: false, productId: 'prod-1', optionValueIds: [] } as any
+    const req: VariantRequest = { sku: 'SHIRT-M', position: 0, trackInventory: true, isMaster: false, productId: 'prod-1', optionValueIds: [] }
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await VariantApi.createVariant(req)
     expect(mockPost).toHaveBeenCalledWith('api/catalog/variants', req)
@@ -62,7 +63,7 @@ describe('VariantApi.createVariant', () => {
 
 describe('VariantApi.updateVariant', () => {
   it('calls PUT with request body', async () => {
-    const req = { sku: 'SHIRT-M', position: 1, trackInventory: true, isMaster: false } as any
+    const req: VariantRequest = { sku: 'SHIRT-M', position: 1, trackInventory: true, isMaster: false, productId: 'prod-1' }
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantApi.updateVariant('abc-123', req)
     expect(mockPut).toHaveBeenCalledWith('api/catalog/variants/abc-123', req)

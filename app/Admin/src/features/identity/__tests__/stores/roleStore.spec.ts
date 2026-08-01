@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
 const { mockGetRoles } = vi.hoisted(() => ({
-  mockGetRoles: vi.fn<any>(),
+  mockGetRoles: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('../../services/roleApi', () => ({

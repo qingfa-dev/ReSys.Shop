@@ -16,7 +16,7 @@ const notify = useNotify()
 const popover = ref<InstanceType<typeof Popover> | null>(null)
 
 function togglePopover(event: Event) {
-  ;(popover.value as any)?.toggle(event)
+  popover.value?.toggle(event)
 }
 
 async function handleLogout() {

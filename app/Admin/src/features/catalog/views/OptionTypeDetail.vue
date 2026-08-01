@@ -212,7 +212,7 @@ function onValueSearch(value: string) {
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form id="option-type-form" v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+          <Form id="option-type-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -239,7 +239,7 @@ function onValueSearch(value: string) {
                               <InputNumber fluid :min="-1" />
                               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                             </FormField>
-                            <FormField v-slot="$field" name="filterable" class="flex flex-col gap-1">
+                            <FormField name="filterable" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Filterable</label>
                               <ToggleSwitch />
                             </FormField>

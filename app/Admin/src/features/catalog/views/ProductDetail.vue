@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
 import Tab from 'primevue/tab'
@@ -26,7 +25,6 @@ import type { ProductForm } from '../validations/product'
 const route = useRoute()
 const router = useRouter()
 const notify = useNotify()
-const confirm = useConfirm()
 const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
@@ -270,7 +268,7 @@ function onCancel() {
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form id="product-form" v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+          <Form id="product-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -301,7 +299,7 @@ function onCancel() {
                               <Textarea fluid rows="4" />
                               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                             </FormField>
-                            <FormField v-if="isEdit" v-slot="$field" name="status" class="flex flex-col gap-1">
+                            <FormField v-if="isEdit" name="status" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Status</label>
                               <Select :options="['Draft', 'Active', 'Archived']" fluid />
                             </FormField>
@@ -390,15 +388,15 @@ function onCancel() {
                       <div class="flex flex-col gap-6">
                         <div class="font-semibold text-xl">Availability</div>
                           <div class="flex flex-col gap-4">
-                            <FormField v-slot="$field" name="availableOn" :resolver="availableOnResolver" class="flex flex-col gap-1">
+                            <FormField name="availableOn" :resolver="availableOnResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
                               <InputText fluid type="date" />
                             </FormField>
-                            <FormField v-slot="$field" name="discontinueOn" :resolver="discontinueOnResolver" class="flex flex-col gap-1">
+                            <FormField name="discontinueOn" :resolver="discontinueOnResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
                               <InputText fluid type="date" />
                             </FormField>
-                            <FormField v-slot="$field" name="trackInventory" class="flex flex-col gap-1">
+                            <FormField name="trackInventory" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Track Inventory</label>
                               <ToggleSwitch />
                             </FormField>

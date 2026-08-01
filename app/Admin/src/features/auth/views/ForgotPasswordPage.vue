@@ -36,7 +36,7 @@ async function onSubmit(event: FormSubmitEvent) {
   </p>
 
   <div v-else>
-    <Form v-slot="$form" :resolver="forgotResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
+    <Form :resolver="forgotResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
       <FormField v-slot="$field" name="email" class="flex flex-col gap-1">
         <FloatLabel variant="on">
           <InputText id="email" type="email" fluid size="large" autocomplete="email" />

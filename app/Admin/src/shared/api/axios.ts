@@ -5,7 +5,7 @@ import { camelCaseInterceptor } from './interceptors/camelcase'
 import { errorInterceptor } from './interceptors/error'
 
 const BASE_URL = typeof import.meta !== 'undefined'
-  ? (import.meta as Record<string, any>).env?.VITE_API_URL ?? ''
+  ? import.meta.env?.VITE_API_URL ?? ''
   : ''
 const TIMEOUT = 30_000
 

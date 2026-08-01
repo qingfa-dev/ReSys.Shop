@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
 const { mockGetProfiles } = vi.hoisted(() => ({
-  mockGetProfiles: vi.fn<any>(),
+  mockGetProfiles: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('../../services/profileApi', () => ({

@@ -406,7 +406,7 @@ function confirmRemovePrice(price: Price) {
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form id="variant-form" v-slot="$form" :resolver="resolver" :initial-values="form" :key="String(formLoaded)" @submit="onSubmit">
+          <Form id="variant-form" :resolver="resolver" :initial-values="form" :key="String(formLoaded)" @submit="onSubmit">
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>

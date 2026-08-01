@@ -1,4 +1,4 @@
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: never[]) => unknown>(
   fn: T,
   limitMs: number,
 ): (...args: Parameters<T>) => void {

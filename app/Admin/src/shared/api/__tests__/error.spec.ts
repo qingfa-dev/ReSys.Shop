@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import axios from 'axios'
+import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { errorInterceptor } from '../interceptors/error'
 
 function axiosError(overrides: Record<string, unknown> = {}) {
-  const err = new Error((overrides.message as string) ?? 'Request failed')
-  ;(err as any).isAxiosError = true
-  ;(err as any).config = overrides.config ?? { headers: {}, url: '/api/products' }
-  ;(err as any).response = overrides.response ?? null
+  const err = new Error((overrides.message as string) ?? 'Request failed') as AxiosError
+  err.isAxiosError = true
+  err.config = (overrides.config ?? { headers: {}, url: '/api/products' }) as InternalAxiosRequestConfig
+  err.response = overrides.response as AxiosResponse | undefined
   return err
 }
 

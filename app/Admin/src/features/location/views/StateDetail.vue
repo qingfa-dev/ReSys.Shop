@@ -109,7 +109,7 @@ function onCancel() {
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form id="state-form" v-slot="$form" :key="String(formLoaded)" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+          <Form id="state-form" :key="String(formLoaded)" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
               <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                 <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
                 <InputText fluid />
@@ -126,7 +126,7 @@ function onCancel() {
                 <Select :options="countryStore.activeCountries" option-label="name" option-value="id" placeholder="Select a country" fluid />
                 <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
               </FormField>
-              <FormField v-slot="$field" name="isActive" class="flex flex-col gap-1">
+              <FormField name="isActive" class="flex flex-col gap-1">
                 <label class="text-surface-900 dark:text-surface-0 font-medium">Active</label>
                 <ToggleSwitch />
               </FormField>

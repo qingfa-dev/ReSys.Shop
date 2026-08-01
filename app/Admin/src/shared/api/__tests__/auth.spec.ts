@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import type { InternalAxiosRequestConfig } from 'axios'
 import { authInterceptor, setTokenGetter } from '../interceptors/auth'
 
-function mockConfig(overrides: Record<string, unknown> = {}) {
+function mockConfig(overrides: Record<string, unknown> = {}): InternalAxiosRequestConfig {
   return {
     url: '/api/products',
     headers: {} as Record<string, string>,
     ...overrides,
-  } as any
+  } as InternalAxiosRequestConfig
 }
 
 beforeEach(() => {

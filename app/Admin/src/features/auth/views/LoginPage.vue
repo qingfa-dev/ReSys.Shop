@@ -35,7 +35,7 @@ async function onSubmit(event: FormSubmitEvent) {
 
 <template>
   <div>
-    <Form v-slot="$form" :resolver="loginResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+    <Form :resolver="loginResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
       <FormField v-slot="$field" name="credential" class="flex flex-col gap-1">
         <FloatLabel variant="on">
           <InputText id="credential" type="text" fluid size="large" autocomplete="username" />

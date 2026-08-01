@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const { mockPost, mockGet, mockPut, mockPatch, mockDel, mockGetPaged } = vi.hoisted(() => ({
-  mockPost: vi.fn<any>(),
-  mockGet: vi.fn<any>(),
-  mockPut: vi.fn<any>(),
-  mockPatch: vi.fn<any>(),
-  mockDel: vi.fn<any>(),
-  mockGetPaged: vi.fn<any>(),
+  mockPost: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGet: vi.fn<(...args: unknown[]) => unknown>(),
+  mockPut: vi.fn<(...args: unknown[]) => unknown>(),
+  mockPatch: vi.fn<(...args: unknown[]) => unknown>(),
+  mockDel: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGetPaged: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('@/shared/api/client', () => ({
@@ -21,6 +21,7 @@ vi.mock('@/shared/api', () => ({
   getPaged: mockGetPaged,
 }))
 
+import type { TaxonRequest } from '../../types/taxon'
 import { TaxonApi } from '../../services/taxonApi'
 
 beforeEach(() => {
@@ -87,12 +88,12 @@ describe('TaxonApi.getList', () => {
 
 describe('TaxonApi.createTaxon', () => {
   it('calls POST with request body', async () => {
-    const req = {
+    const req: TaxonRequest = {
       taxonomyId: 'tax-1', parentId: null, name: 'Shoes', presentation: 'Shoes', description: null,
       slug: 'shoes', position: 0, metaTitle: null, metaDescription: null, metaKeywords: null,
       imageUrl: null, squareImageUrl: null, automatic: false, rulesMatchPolicy: 'All',
       sortOrder: 'Manual', hideFromNav: false,
-    } as any
+    }
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await TaxonApi.createTaxon(req)
     expect(mockPost).toHaveBeenCalledWith('api/catalog/taxons', req)
@@ -101,12 +102,12 @@ describe('TaxonApi.createTaxon', () => {
 
 describe('TaxonApi.updateTaxon', () => {
   it('calls PUT with request body', async () => {
-    const req = {
+    const req: TaxonRequest = {
       taxonomyId: 'tax-1', parentId: null, name: 'Shoes', presentation: 'Shoes', description: null,
       slug: 'shoes', position: 1, metaTitle: null, metaDescription: null, metaKeywords: null,
       imageUrl: null, squareImageUrl: null, automatic: false, rulesMatchPolicy: 'Any',
       sortOrder: 'BestSelling', hideFromNav: true,
-    } as any
+    }
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonApi.updateTaxon('abc-123', req)
     expect(mockPut).toHaveBeenCalledWith('api/catalog/taxons/abc-123', req)
@@ -131,12 +132,12 @@ describe('TaxonApi.restoreTaxon', () => {
 
 describe('TaxonApi.repositionTaxon', () => {
   it('calls POST with reposition URL and request body', async () => {
-    const req = {
+    const req: TaxonRequest = {
       taxonomyId: 'tax-1', parentId: null, name: 'Shoes', presentation: 'Shoes', description: null,
       slug: 'shoes', position: 2, metaTitle: null, metaDescription: null, metaKeywords: null,
       imageUrl: null, squareImageUrl: null, automatic: false, rulesMatchPolicy: 'All',
       sortOrder: 'Manual', hideFromNav: false,
-    } as any
+    }
     mockPost.mockResolvedValue({ value: { id: '1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonApi.repositionTaxon('abc-123', req)
     expect(mockPost).toHaveBeenCalledWith('api/catalog/taxons/abc-123/reposition', req)

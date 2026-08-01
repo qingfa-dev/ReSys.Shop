@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
 const { mockGetTaxons, mockGetList } = vi.hoisted(() => ({
-  mockGetTaxons: vi.fn<any>(),
-  mockGetList: vi.fn<any>(),
+  mockGetTaxons: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGetList: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('../../services/taxonApi', () => ({
@@ -15,7 +15,7 @@ vi.mock('../../services/taxonApi', () => ({
 
 import { useTaxonStore } from '../../stores/taxonStore'
 
-function pagedResult(items: any[] = []) {
+function pagedResult(items: unknown[] = []) {
   return {
     isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null,
     items, page: 1, pageSize: 20, totalCount: items.length, totalPages: 0,

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const { mockPost, mockPut } = vi.hoisted(() => ({
-  mockPost: vi.fn<any>(),
-  mockPut: vi.fn<any>(),
+  mockPost: vi.fn<(...args: unknown[]) => unknown>(),
+  mockPut: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('@/shared/api/client', () => ({

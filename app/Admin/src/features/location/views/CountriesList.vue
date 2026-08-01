@@ -23,8 +23,6 @@ const searchTerm = ref('')
 const {
   items,
   loading,
-  totalCount,
-  page,
   pageSize,
   setSearch,
   refresh,

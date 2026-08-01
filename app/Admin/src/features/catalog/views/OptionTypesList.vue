@@ -25,8 +25,6 @@ const allowedSearchFields = ['name', 'presentation']
 const {
   items,
   loading,
-  totalCount,
-  page,
   pageSize,
   setSearch,
   refresh,

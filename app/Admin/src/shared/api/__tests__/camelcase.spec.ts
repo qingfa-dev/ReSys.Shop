@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest'
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { camelCaseInterceptor } from '../interceptors/camelcase'
 
-function mockResponse(data: unknown) {
+function mockResponse(data: unknown): AxiosResponse {
   return {
     data,
     status: 200,
     statusText: 'OK',
     headers: { 'content-type': 'application/json' },
-    config: {} as any,
+    config: {} as InternalAxiosRequestConfig,
   }
 }
 

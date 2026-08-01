@@ -108,7 +108,7 @@ function onCancel() {
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form id="country-form" v-slot="$form" :key="String(formLoaded)" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+          <Form id="country-form" :key="String(formLoaded)" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />
@@ -126,11 +126,11 @@ function onCancel() {
               <small class="text-muted-color">Optional (e.g. +1, +84)</small>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" name="statesRequired" class="flex flex-col gap-1">
+            <FormField name="statesRequired" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">States Required</label>
               <ToggleSwitch />
             </FormField>
-            <FormField v-slot="$field" name="isActive" class="flex flex-col gap-1">
+            <FormField name="isActive" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Active</label>
               <ToggleSwitch />
             </FormField>

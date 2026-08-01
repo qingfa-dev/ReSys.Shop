@@ -25,7 +25,7 @@ const selectedCountryId = ref<string | null>(null)
 const selectedItems = ref<StateListItem[]>([])
 const searchTerm = ref('')
 
-const { items, loading, totalCount, page, pageSize, setSearch, setFilter, refresh } =
+const { items, loading, pageSize, setSearch, setFilter, refresh } =
   usePagedQuery<StateListItem>('api/locations/states', {
     allowedFilterFields: STATE_FILTER_FIELDS,
     allowedSortFields: STATE_SORT_FIELDS,

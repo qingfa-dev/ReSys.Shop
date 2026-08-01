@@ -10,6 +10,7 @@ import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
+import type { TreeNode } from 'primevue/treenode'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { TaxonomyApi } from '../services/taxonomyApi'
@@ -45,7 +46,7 @@ const positionResolver = zodResolver(taxonomyPosition)
 const saving = ref(false)
 const formLoaded = ref(!isEdit.value)
 
-const treeNodes = ref<any[]>([])
+const treeNodes = ref<TreeNode[]>([])
 const treeLoading = ref(false)
 
 async function initEditMode(id: string) {
@@ -66,7 +67,7 @@ async function initEditMode(id: string) {
   await loadTree(id)
 }
 
-function addTreeNodeKeys(nodes: any[]): any[] {
+function addTreeNodeKeys(nodes: TaxonTreeItem[]): TreeNode[] {
   return nodes.map(n => ({
     ...n,
     key: n.id,
@@ -78,7 +79,7 @@ async function loadTree(taxonomyId: string) {
   treeLoading.value = true
   const result = await TaxonApi.getTree(taxonomyId)
   if (result.isSuccess && result.items) {
-    treeNodes.value = addTreeNodeKeys(result.items) as any
+    treeNodes.value = addTreeNodeKeys(result.items)
   }
   treeLoading.value = false
 }
@@ -182,7 +183,7 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form id="taxonomy-form" v-slot="$form" :key="String(formLoaded)" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+          <Form id="taxonomy-form" :key="String(formLoaded)" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
               <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                 <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
                 <InputText fluid />
