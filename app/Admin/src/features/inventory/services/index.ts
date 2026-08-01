@@ -1,1 +1,1 @@
-// Barrel exports for inventory/services
+export { StockItemApi } from './stockItemApi'
