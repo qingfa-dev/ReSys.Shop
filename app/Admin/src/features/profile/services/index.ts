@@ -1,1 +1,1 @@
-// Barrel exports for profile/services
+export { ProfileApi } from './profileApi'
