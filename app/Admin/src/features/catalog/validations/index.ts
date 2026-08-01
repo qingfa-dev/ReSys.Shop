@@ -61,3 +61,40 @@ export {
   variantSchema,
 } from './variant'
 export type { VariantForm } from './variant'
+export {
+  productOptionTypeOptionTypeId,
+  productOptionTypePosition,
+  productOptionTypeItemSchema,
+  productOptionTypeSchema,
+} from './productOptionType'
+export type { ProductOptionTypeForm } from './productOptionType'
+export {
+  productClassificationTaxonId,
+  productClassificationPosition,
+  productClassificationItemSchema,
+  productClassificationSchema,
+} from './productClassification'
+export type { ProductClassificationForm } from './productClassification'
+export {
+  variantPriceAmount,
+  variantPriceCurrency,
+  variantPriceCompareAtAmount,
+  variantPriceCountryIso,
+  variantPriceSchema,
+} from './variantPrice'
+export type { VariantPriceForm } from './variantPrice'
+export {
+  variantImageAlt,
+  variantImagePosition,
+  variantImageType,
+  variantImageSchema,
+} from './variantImage'
+export type { VariantImageForm } from './variantImage'
+export {
+  imageEmbeddingVariantImageId,
+  imageEmbeddingModelName,
+  imageEmbeddingModelVersion,
+  createEmbeddingSchema,
+  regenerateEmbeddingSchema,
+} from './imageEmbedding'
+export type { CreateEmbeddingForm, RegenerateEmbeddingForm } from './imageEmbedding'

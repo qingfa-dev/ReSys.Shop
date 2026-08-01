@@ -21,10 +21,12 @@ import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { VariantApi } from '../services/variantApi'
 import { VariantImageApi } from '../services/variantImageApi'
 import { VariantPriceApi } from '../services/variantPriceApi'
-import type { PriceRequest } from '../services/variantPriceApi'
+import type { PriceRequest } from '../types/variantPrice'
 import type { VariantForm } from '../validations/variant'
 import { variantSchema } from '../validations/variant'
-import type { VariantImage, Price, OptionValueAssignment } from '../types/variant'
+import type { VariantImage } from '../types/variantImage'
+import type { Price } from '../types/variantPrice'
+import type { OptionValueAssignment } from '../types/variant'
 
 const route = useRoute()
 const router = useRouter()

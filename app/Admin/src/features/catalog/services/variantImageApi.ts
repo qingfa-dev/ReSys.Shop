@@ -2,7 +2,7 @@ import { get, post, put, del, getBlob } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
-import type { VariantImage } from '../types/variant'
+import type { VariantImage, VariantImageUpdateRequest, VariantImageUploadRequest } from '../types/variantImage'
 
 const BASE = `${CATALOG}/variant-images`
 
@@ -18,13 +18,7 @@ export class VariantImageApi {
     return get<Result<VariantImage>>(`${BASE}/${id}`)
   }
 
-  static uploadImage(request: {
-    variantId: string
-    file: File
-    alt?: string
-    position?: number
-    type?: string
-  }): Promise<Result<VariantImage>> {
+  static uploadImage(request: VariantImageUploadRequest): Promise<Result<VariantImage>> {
     const formData = new FormData()
     formData.append('variantId', request.variantId)
     formData.append('file', request.file)
@@ -36,7 +30,7 @@ export class VariantImageApi {
 
   static updateImage(
     id: string,
-    request: { alt?: string; position?: number; type?: string },
+    request: VariantImageUpdateRequest,
   ): Promise<Result<VariantImage>> {
     return put<Result<VariantImage>>(`${BASE}/${id}`, request)
   }

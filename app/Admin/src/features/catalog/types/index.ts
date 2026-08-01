@@ -73,8 +73,6 @@ export type {
   VariantListItem,
   VariantDetail,
   VariantQuery,
-  VariantImage,
-  Price,
   OptionValueAssignment,
 } from './variant'
 export {
@@ -83,3 +81,41 @@ export {
   VARIANT_SEARCH_FIELDS,
   toVariantQueryParams,
 } from './variant'
+export type {
+  OptionTypeAssignment,
+  OptionTypeSyncItem,
+  ProductOptionTypeAssignmentRequest,
+} from './productOptionType'
+export type {
+  ClassificationAssignment,
+  ClassificationSyncItem,
+  ProductClassificationAssignmentRequest,
+} from './productClassification'
+export type {
+  Price,
+  PriceRequest,
+  PriceQuery,
+} from './variantPrice'
+export {
+  VARIANT_PRICE_FILTER_FIELDS,
+  VARIANT_PRICE_SORT_FIELDS,
+  VARIANT_PRICE_SEARCH_FIELDS,
+  toVariantPriceQueryParams,
+} from './variantPrice'
+export type {
+  VariantImage,
+  VariantImageUploadRequest,
+  VariantImageUpdateRequest,
+  VariantImageQuery,
+} from './variantImage'
+export {
+  VARIANT_IMAGE_FILTER_FIELDS,
+  VARIANT_IMAGE_SORT_FIELDS,
+  VARIANT_IMAGE_SEARCH_FIELDS,
+  toVariantImageQueryParams,
+} from './variantImage'
+export type {
+  CreateEmbeddingRequest,
+  RegenerateEmbeddingRequest,
+  EmbeddingDetailResponse,
+} from './imageEmbedding'

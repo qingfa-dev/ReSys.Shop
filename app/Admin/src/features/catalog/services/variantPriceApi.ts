@@ -2,16 +2,9 @@ import { post, delWithBody } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
-import type { Price } from '../types/variant'
+import type { Price, PriceRequest } from '../types/variantPrice'
 
 const BASE = `${CATALOG}/variant-prices`
-
-export interface PriceRequest {
-  amount?: number
-  currency: string
-  compareAtAmount?: number
-  countryIso?: string
-}
 
 export class VariantPriceApi {
   static listPrices(variantId: string): Promise<PagedResult<Price>> {

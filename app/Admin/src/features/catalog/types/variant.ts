@@ -82,30 +82,6 @@ export function toVariantQueryParams(query: VariantQuery): QueryingParameters {
   }
 }
 
-export interface VariantImage {
-  id: string
-  variantId: string
-  url: string
-  contentType: string
-  fileName: string
-  fileSize: number
-  width?: number
-  height?: number
-  alt?: string
-  position: number
-  type: string
-  createdAtUtc: string
-}
-
-export interface Price {
-  id: string
-  variantId: string
-  amount?: number
-  currency: string
-  compareAtAmount?: number
-  countryIso?: string
-}
-
 export interface OptionValueAssignment {
   optionValueId: string
   optionTypeId: string
