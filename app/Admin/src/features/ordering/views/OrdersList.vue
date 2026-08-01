@@ -1,12 +1,155 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Tag from 'primevue/tag'
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
+import Select from 'primevue/select'
+import { useDataTableExport } from '@/shared/composables/useDataTableExport'
+import { formatDate } from '@/shared/utils/date'
+import { useOrderList } from '../composables/useOrderList'
+import type { OrderStatus } from '../types/order'
+import { ORDER_SEARCH_FIELDS } from '../types/order'
+
+const router = useRouter()
+const { dt, exportCSV } = useDataTableExport()
+const search = ref('')
+const statusFilter = ref<OrderStatus | null>(null)
+
+const { items, loading, setFilter, setSearch, refresh } = useOrderList({
+  defaultSearchFields: ORDER_SEARCH_FIELDS,
+  defaultSort: ['-createdAtUtc'],
+})
+
+const STATUS_OPTIONS: OrderStatus[] = ['Draft', 'Placed', 'Canceled', 'Expired']
+
+const STATUS_SEVERITY: Record<OrderStatus, string> = {
+  Draft: 'warn',
+  Placed: 'success',
+  Canceled: 'danger',
+  Expired: 'secondary',
+}
+
+function onSearch(value: string) {
+  search.value = value
+  setSearch(value)
+}
+
+function clearSearch() {
+  search.value = ''
+  setSearch('')
+}
+
+function onStatusFilterChange(value: OrderStatus | null | undefined) {
+  statusFilter.value = value ?? null
+  setFilter(value ? `status=${value}` : '')
+}
+
+function statusSeverity(status: OrderStatus): string {
+  return STATUS_SEVERITY[status]
+}
+
+function formatCurrency(value: number | null | undefined): string {
+  return (value ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+}
+
+function navigateToDetail(id: string) {
+  router.push(`/ordering/orders/${id}`)
+}
 </script>
 
 <template>
-  <Card class="mb-4">
-    <template #content>
-      <div class="font-semibold text-xl mb-4">Orders</div>
-      <p class="text-muted-color">Orders list coming soon.</p>
-    </template>
-  </Card>
+  <div class="flex flex-col h-full">
+    <div class="mb-6">
+      <h1 class="text-2xl font-semibold mb-1">Orders</h1>
+      <p class="text-muted-color">View and manage customer orders</p>
+    </div>
+
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
+      <IconField>
+        <InputIcon class="pi pi-search" />
+        <InputText
+          :model-value="search"
+          placeholder="Search orders..."
+          @update:model-value="onSearch($event ?? '')"
+        />
+      </IconField>
+      <Button
+        v-if="search"
+        label="Clear"
+        severity="secondary"
+        icon="pi pi-times"
+        @click="clearSearch"
+      />
+      <Select
+        :model-value="statusFilter"
+        :options="STATUS_OPTIONS"
+        placeholder="All Statuses"
+        show-clear
+        class="w-48"
+        @change="onStatusFilterChange($event.value)"
+      />
+      <div class="flex-1" />
+      <Button
+        label="Reload"
+        icon="pi pi-refresh"
+        severity="secondary"
+        @click="refresh"
+      />
+      <Button
+        label="Export"
+        icon="pi pi-download"
+        severity="secondary"
+        @click="exportCSV"
+      />
+    </div>
+
+    <DataTable
+      ref="dt"
+      :value="items"
+      :loading="loading"
+      scrollable
+      paginator
+      :rows="20"
+      :rows-per-page-options="[10, 20, 50]"
+      data-key="id"
+    >
+      <Column field="number" header="Order #" :sortable="true" />
+      <Column field="email" header="Customer">
+        <template #body="{ data }">
+          {{ data.email ?? '—' }}
+        </template>
+      </Column>
+      <Column field="status" header="Status" :sortable="true">
+        <template #body="{ data }">
+          <Tag :value="data.status" :severity="statusSeverity(data.status)" />
+        </template>
+      </Column>
+      <Column field="total" header="Total" :sortable="true">
+        <template #body="{ data }">
+          {{ formatCurrency(data.total) }}
+        </template>
+      </Column>
+      <Column field="paymentTotal" header="Paid">
+        <template #body="{ data }">
+          {{ formatCurrency(data.paymentTotal) }}
+        </template>
+      </Column>
+      <Column field="createdAtUtc" header="Created" :sortable="true">
+        <template #body="{ data }">
+          {{ formatDate(data.createdAtUtc) }}
+        </template>
+      </Column>
+      <Column header="Actions" header-style="width:5rem">
+        <template #body="{ data }">
+          <Button icon="pi pi-eye" severity="secondary" text rounded @click="navigateToDetail(data.id)" />
+        </template>
+      </Column>
+      <template #empty>No orders found.</template>
+    </DataTable>
+  </div>
 </template>
