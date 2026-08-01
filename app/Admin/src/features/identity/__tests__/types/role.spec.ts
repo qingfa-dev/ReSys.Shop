@@ -16,9 +16,11 @@ describe('toRoleQueryParams', () => {
     expect(result.pageSize).toBeNull()
   })
 
-  it('builds filter DSL for name (contains operator)', () => {
+  it('routes name lookup through search fields', () => {
     const result = toRoleQueryParams({ name: 'Admin' })
-    expect(result.filter).toBe('name*=Admin')
+    expect(result.filter).toBeNull()
+    expect(result.search).toBe('Admin')
+    expect(result.searchFields).toEqual(['name'])
   })
 
   it('builds sort ascending', () => {
@@ -31,9 +33,9 @@ describe('toRoleQueryParams', () => {
     expect(result.sort).toEqual(['-name'])
   })
 
-  it('skips empty string values in filters', () => {
+  it('skips empty string values in name search', () => {
     const result = toRoleQueryParams({ name: '' })
-    expect(result.filter).toBeNull()
+    expect(result.search).toBeNull()
   })
 
   it('passes search and pagination', () => {

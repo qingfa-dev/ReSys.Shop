@@ -48,7 +48,7 @@ describe('RoleApi.getRoles', () => {
 
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/identity/roles',
-      { filter: 'name*=Admin', search: null, sort: null, pageNumber: 1, pageSize: 10 },
+      { filter: null, search: 'Admin', searchFields: ['name'], sort: null, pageNumber: 1, pageSize: 10 },
       expect.objectContaining({
         allowedFilterFields: ['isSystem', 'createdAtUtc', 'modifiedAtUtc'],
         allowedSortFields: ['name', 'isSystem', 'createdAtUtc', 'modifiedAtUtc'],

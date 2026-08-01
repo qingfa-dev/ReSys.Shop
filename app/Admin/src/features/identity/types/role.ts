@@ -48,21 +48,18 @@ export const ROLE_SORT_FIELDS = [
 export const ROLE_SEARCH_FIELDS = ['name', 'description']
 
 export function toRoleQueryParams(query: RoleQuery): QueryingParameters {
-  const filters: string[] = []
-
-  if (query.name !== undefined && query.name !== '') {
-    filters.push(`name*=${query.name}`)
-  }
-
   let sort: string[] | null = null
   if (query.sortBy) {
     const dir = query.sortDirection === 'desc' ? '-' : ''
     sort = [`${dir}${query.sortBy}`]
   }
 
+  const nameSearch = query.name !== undefined && query.name !== '' ? query.name : null
+
   return {
-    filter: filters.length > 0 ? filters.join(',') : null,
-    search: query.search ?? null,
+    filter: null,
+    search: nameSearch ?? query.search ?? null,
+    searchFields: nameSearch ? ['name'] : undefined,
     sort,
     pageNumber: query.page ?? null,
     pageSize: query.pageSize ?? null,
