@@ -1,4 +1,5 @@
-import { post, get } from '@/shared/api/client'
+import { getPaged } from '@/shared/api'
+import { post, put } from '@/shared/api/client'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
 
@@ -10,21 +11,27 @@ export interface ClassificationAssignment {
   isAssigned: boolean
 }
 
-interface ClassificationSyncItem {
+export interface ClassificationSyncItem {
   taxonId: string
   position: number
 }
 
 export class ProductClassificationApi {
-  private static getBase(productId: string): string {
-    return `${CATALOG}/products/${productId}/classifications`
-  }
+  private static readonly BASE = `${CATALOG}/product-classifications`
 
   static getClassifications(productId: string): Promise<PagedResult<ClassificationAssignment>> {
-    return get<PagedResult<ClassificationAssignment>>(ProductClassificationApi.getBase(productId))
+    return getPaged<ClassificationAssignment>(`${ProductClassificationApi.BASE}?productId=${productId}`, {})
   }
 
-  static syncClassifications(productId: string, items: ClassificationSyncItem[]): Promise<Result<void>> {
-    return post<Result<void>>(`${ProductClassificationApi.getBase(productId)}/sync`, { items })
+  static syncClassifications(request: { productId: string; items: ClassificationSyncItem[] }): Promise<Result<void>> {
+    return put<Result<void>>(`${ProductClassificationApi.BASE}/sync`, request)
+  }
+
+  static assignClassifications(request: { productId: string; items: ClassificationSyncItem[] }): Promise<Result<void>> {
+    return post<Result<void>>(`${ProductClassificationApi.BASE}/assign`, request)
+  }
+
+  static revokeClassifications(request: { productId: string; items: ClassificationSyncItem[] }): Promise<Result<void>> {
+    return post<Result<void>>(`${ProductClassificationApi.BASE}/revoke`, request)
   }
 }

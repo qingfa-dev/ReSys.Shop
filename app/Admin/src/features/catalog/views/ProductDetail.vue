@@ -178,7 +178,7 @@ async function saveClassifications() {
     taxonId: a.taxonId,
     position: i,
   }))
-  const result = await ProductClassificationApi.syncClassifications(route.params.id as string, items)
+  const result = await ProductClassificationApi.syncClassifications({ productId: route.params.id as string, items })
   if (result.isSuccess) {
     notify.success('Classifications saved')
     await loadClassifications()
