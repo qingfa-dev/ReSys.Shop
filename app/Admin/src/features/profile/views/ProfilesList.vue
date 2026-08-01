@@ -93,7 +93,7 @@ function navigateToDetail(id: string) {
       </Column>
       <Column header="Actions" header-style="width:5rem">
         <template #body="{ data }">
-          <Button icon="pi pi-eye" severity="secondary" text rounded @click="navigateToDetail(data.id)" />
+          <Button icon="pi pi-eye" severity="secondary" text rounded @click="navigateToDetail(data.userId)" />
         </template>
       </Column>
       <template #empty>No profiles found.</template>
