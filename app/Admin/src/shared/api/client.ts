@@ -43,3 +43,8 @@ export async function delWithBody<T>(url: string, body?: unknown, signal?: Abort
   const response = await getApiClient().delete<T>(url, { data: body, signal })
   return response.data
 }
+
+export async function getBlob(url: string, signal?: AbortSignal): Promise<Blob> {
+  const response = await getApiClient().get<Blob>(url, { responseType: 'blob', signal })
+  return response.data
+}

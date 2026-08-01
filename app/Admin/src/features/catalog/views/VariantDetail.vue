@@ -252,7 +252,7 @@ function onFileSelect(event: Event) {
 
 async function uploadImage(file: File) {
   uploadLoading.value = true
-  const result = await VariantImageApi.uploadImage(route.params.id as string, file)
+  const result = await VariantImageApi.uploadImage({ variantId: route.params.id as string, file })
   if (result.isSuccess) {
     notify.success('Image uploaded')
     await loadImages()

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { setBaseUrl, setAuthToken, get, post, put, patch, del, delWithBody } from '../client'
+import { setBaseUrl, setAuthToken, get, post, put, patch, del, delWithBody, getBlob } from '../client'
 
 const { mockGet, mockPost, mockPut, mockPatch, mockDelete, mockDefaults } = vi.hoisted(() => ({
   mockGet: vi.fn(),
@@ -92,6 +92,14 @@ describe('HTTP methods', () => {
     const controller = new AbortController()
     await delWithBody('/items/1', { foo: 1 }, controller.signal)
     expect(mockDelete).toHaveBeenCalledWith('/items/1', { data: { foo: 1 }, signal: controller.signal })
+  })
+
+  it('getBlob calls axios get with responseType blob and returns data', async () => {
+    const blob = new Blob(['data'], { type: 'application/octet-stream' })
+    mockGet.mockResolvedValue({ data: blob })
+    const result = await getBlob('/x')
+    expect(result).toBe(blob)
+    expect(mockGet).toHaveBeenCalledWith('/x', { responseType: 'blob', signal: undefined })
   })
 })
 

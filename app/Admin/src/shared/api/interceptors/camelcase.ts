@@ -19,6 +19,9 @@ function transformKeys(obj: unknown): unknown {
 import type { AxiosResponse } from 'axios'
 
 export function camelCaseInterceptor(response: AxiosResponse): AxiosResponse {
+  if (response.data instanceof Blob) {
+    return response
+  }
   if (response.data !== null && response.data !== undefined) {
     response.data = transformKeys(response.data)
   }
