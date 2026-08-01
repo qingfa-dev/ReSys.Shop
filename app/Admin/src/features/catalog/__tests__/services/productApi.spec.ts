@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { mockPost, mockGet, mockPut, mockDel, mockGetPaged } = vi.hoisted(() => ({
+const { mockPost, mockGet, mockPut, mockDel, mockPatch, mockGetPaged } = vi.hoisted(() => ({
   mockPost: vi.fn<any>(),
   mockGet: vi.fn<any>(),
   mockPut: vi.fn<any>(),
   mockDel: vi.fn<any>(),
+  mockPatch: vi.fn<any>(),
   mockGetPaged: vi.fn<any>(),
 }))
 
@@ -13,6 +14,7 @@ vi.mock('@/shared/api/client', () => ({
   get: mockGet,
   put: mockPut,
   del: mockDel,
+  patch: mockPatch,
 }))
 
 vi.mock('@/shared/api', () => ({
@@ -78,17 +80,17 @@ describe('ProductApi.deleteProduct', () => {
 })
 
 describe('ProductApi.activateProduct', () => {
-  it('calls POST with activate URL', async () => {
-    mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+  it('calls PATCH with activate URL', async () => {
+    mockPatch.mockResolvedValue({ value: { id: '1', name: 'Shirt' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductApi.activateProduct('abc-123')
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/products/abc-123/activate', {})
+    expect(mockPatch).toHaveBeenCalledWith('api/catalog/products/abc-123/activate')
   })
 })
 
 describe('ProductApi.discontinueProduct', () => {
-  it('calls POST with discontinue URL', async () => {
-    mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+  it('calls PATCH with discontinue URL', async () => {
+    mockPatch.mockResolvedValue({ value: { id: '1', name: 'Shirt' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductApi.discontinueProduct('abc-123')
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/products/abc-123/discontinue', {})
+    expect(mockPatch).toHaveBeenCalledWith('api/catalog/products/abc-123/discontinue')
   })
 })

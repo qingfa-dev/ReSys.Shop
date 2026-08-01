@@ -1,4 +1,4 @@
-import { post, get, put, del } from '@/shared/api/client'
+import { post, get, put, del, patch } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
@@ -40,11 +40,11 @@ export class ProductApi {
     return del<Result<ProductListItem>>(`${ProductApi.BASE}/${id}`)
   }
 
-  static activateProduct(id: string): Promise<Result<void>> {
-    return post<Result<void>>(`${ProductApi.BASE}/${id}/activate`, {})
+  static activateProduct(id: string): Promise<Result<ProductDetail>> {
+    return patch<Result<ProductDetail>>(`${ProductApi.BASE}/${id}/activate`)
   }
 
-  static discontinueProduct(id: string): Promise<Result<void>> {
-    return post<Result<void>>(`${ProductApi.BASE}/${id}/discontinue`, {})
+  static discontinueProduct(id: string): Promise<Result<ProductDetail>> {
+    return patch<Result<ProductDetail>>(`${ProductApi.BASE}/${id}/discontinue`)
   }
 }
