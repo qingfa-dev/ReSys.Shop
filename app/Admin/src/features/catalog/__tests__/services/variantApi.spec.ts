@@ -85,8 +85,41 @@ describe('VariantApi.getOptionValues', () => {
     })
     await VariantApi.getOptionValues('abc-123')
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/variants/abc-123/option-values',
+      'api/catalog/variant-option-values?variantId=abc-123',
       expect.objectContaining({ pageNumber: 1, pageSize: 100 }),
+    )
+  })
+})
+
+describe('VariantApi.assignOptionValues', () => {
+  it('calls POST with assign URL and body', async () => {
+    mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+    await VariantApi.assignOptionValues('abc-123', ['ov-1', 'ov-2'])
+    expect(mockPost).toHaveBeenCalledWith(
+      'api/catalog/variant-option-values/assign',
+      { variantId: 'abc-123', optionValueIds: ['ov-1', 'ov-2'] },
+    )
+  })
+})
+
+describe('VariantApi.revokeOptionValues', () => {
+  it('calls POST with revoke URL and body', async () => {
+    mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+    await VariantApi.revokeOptionValues('abc-123', ['ov-1', 'ov-2'])
+    expect(mockPost).toHaveBeenCalledWith(
+      'api/catalog/variant-option-values/revoke',
+      { variantId: 'abc-123', optionValueIds: ['ov-1', 'ov-2'] },
+    )
+  })
+})
+
+describe('VariantApi.syncOptionValues', () => {
+  it('calls PUT with sync URL and body', async () => {
+    mockPut.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+    await VariantApi.syncOptionValues('abc-123', ['ov-1', 'ov-2'])
+    expect(mockPut).toHaveBeenCalledWith(
+      'api/catalog/variant-option-values/sync',
+      { variantId: 'abc-123', optionValueIds: ['ov-1', 'ov-2'] },
     )
   })
 })

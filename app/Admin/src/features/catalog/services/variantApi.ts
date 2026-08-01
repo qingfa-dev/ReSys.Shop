@@ -62,7 +62,7 @@ export class VariantApi {
     variantId: string,
   ): Promise<PagedResult<OptionValueAssignment>> {
     return getPaged<OptionValueAssignment>(
-      `${BASE}/${variantId}/option-values`,
+      `${CATALOG}/variant-option-values?variantId=${variantId}`,
       { pageNumber: 1, pageSize: 100 },
     )
   }
@@ -72,8 +72,8 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return post<Result<void>>(
-      `${BASE}/${variantId}/option-values/assign`,
-      { optionValueIds },
+      `${CATALOG}/variant-option-values/assign`,
+      { variantId, optionValueIds },
     )
   }
 
@@ -82,8 +82,18 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return post<Result<void>>(
-      `${BASE}/${variantId}/option-values/revoke`,
-      { optionValueIds },
+      `${CATALOG}/variant-option-values/revoke`,
+      { variantId, optionValueIds },
+    )
+  }
+
+  static syncOptionValues(
+    variantId: string,
+    optionValueIds: string[],
+  ): Promise<Result<void>> {
+    return put<Result<void>>(
+      `${CATALOG}/variant-option-values/sync`,
+      { variantId, optionValueIds },
     )
   }
 }
