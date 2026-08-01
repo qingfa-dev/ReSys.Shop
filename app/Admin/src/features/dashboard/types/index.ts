@@ -1,1 +1,9 @@
-// Barrel exports for dashboard/types
+export type {
+  TrendPoint,
+  SalesSummaryData,
+  InventorySummaryData,
+  RecentProductData,
+  CatalogSummaryData,
+  ActivityItemData,
+  DashboardSummary,
+} from './dashboard'
