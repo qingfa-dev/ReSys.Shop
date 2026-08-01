@@ -35,7 +35,7 @@ public sealed class GetSimilarProductsIntegrationTests(ApiFixture fixture) : Cat
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{product.Id}/similar");
+            $"/api/storefront/products/similar?productId={product.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -47,7 +47,7 @@ public sealed class GetSimilarProductsIntegrationTests(ApiFixture fixture) : Cat
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{nonexistentId}/similar");
+            $"/api/storefront/products/similar?productId={nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

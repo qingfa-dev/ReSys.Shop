@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
+namespace Module.Catalog.Features.Admin.Taxons.Update;
 
 public static partial class UpdateTaxon
 {
@@ -10,7 +10,7 @@ public static partial class UpdateTaxon
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: PUT /api/admin/taxonomies/{taxonomyId}/taxons/{id} — update a taxon within a taxonomy
-            app.MapPut(CatalogFeature.Admin.Taxonomies.Taxons.Update.Route, async (
+            app.MapPut(CatalogFeature.Admin.Taxons.Update.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,
                 ISender sender,
@@ -22,9 +22,9 @@ public static partial class UpdateTaxon
             })
             .WithName(nameof(UpdateTaxon))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.Update.Permission)
-            .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.Update.Summary)
-            .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.Update.Description)
+            .HasPermission(CatalogFeature.Admin.Taxons.Update.Permission)
+            .WithSummary(CatalogFeature.Admin.Taxons.Update.Summary)
+            .WithDescription(CatalogFeature.Admin.Taxons.Update.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);

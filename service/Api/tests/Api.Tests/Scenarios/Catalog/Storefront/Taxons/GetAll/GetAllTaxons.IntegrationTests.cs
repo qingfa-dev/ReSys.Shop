@@ -33,7 +33,7 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
             taxonomyId = taxonomyId
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", createTaxonRequest);
+            "/api/catalog/taxons", createTaxonRequest);
         createTaxonResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync("/api/storefront/taxons");

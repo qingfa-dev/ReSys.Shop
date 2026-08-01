@@ -1,10 +1,10 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Create;
+namespace Module.Catalog.Features.Admin.Taxons.Rules.Create;
 
 /// <summary>
 /// Defines the use case for creating a new taxon rule.

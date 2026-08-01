@@ -46,7 +46,7 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
             taxonomyId = taxonomy!.Id
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", createTaxonRequest);
+            "/api/catalog/taxons", createTaxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue();
         var taxon = createTaxonResult.DeserializeValue<IdResponse>();
@@ -54,19 +54,21 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
 
         var assignRequest = new
         {
+            productId = product!.Id,
             items = new[] { new { taxonId = taxon!.Id, position = 0 } }
         };
         HttpResponseMessage assignResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/classifications/assign", assignRequest);
+            "/api/catalog/product-classifications/assign", assignRequest);
         assignResponse.IsSuccessStatusCode.Should().BeTrue();
 
         var revokeRequest = new
         {
+            productId = product.Id,
             items = new[] { new { taxonId = taxon.Id, position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product.Id}/classifications/revoke", revokeRequest);
+            "/api/catalog/product-classifications/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -79,11 +81,12 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
         Guid nonexistentId = Guid.NewGuid();
         var revokeRequest = new
         {
+            productId = nonexistentId,
             items = new[] { new { taxonId = Guid.NewGuid(), position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{nonexistentId}/classifications/revoke", revokeRequest);
+            "/api/catalog/product-classifications/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

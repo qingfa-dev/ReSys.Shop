@@ -6,14 +6,14 @@ public static partial class UpdateVariant
 {
     /// <summary>
     /// PUT endpoint that updates a variant by ID.
-    /// Route: api/catalog/products/variants/{id:guid}
+    /// Route: api/catalog/variants/{id:guid}
     /// Permission: Products.Variants.Update
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(CatalogFeature.Admin.Products.Variants.Update.Route, async (
+            app.MapPut(CatalogFeature.Admin.Variants.Update.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,
                 ISender sender,
@@ -25,9 +25,9 @@ public static partial class UpdateVariant
             })
             .WithName(nameof(UpdateVariant))
             .WithTags(CatalogFeature.Tags.Variant)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Update.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Update.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Update.Description)
+            .HasPermission(CatalogFeature.Admin.Variants.Update.Permission)
+            .WithSummary(CatalogFeature.Admin.Variants.Update.Summary)
+            .WithDescription(CatalogFeature.Admin.Variants.Update.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound)
             .Produces<Result>(StatusCodes.Status400BadRequest);

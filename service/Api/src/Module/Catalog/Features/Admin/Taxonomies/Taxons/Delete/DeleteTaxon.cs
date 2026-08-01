@@ -1,10 +1,10 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
+namespace Module.Catalog.Features.Admin.Taxons.Delete;
 
 /// <summary>
 /// Defines the use case for deleting (soft-deleting) a taxon.

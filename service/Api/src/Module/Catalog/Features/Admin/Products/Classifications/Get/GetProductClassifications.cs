@@ -1,9 +1,9 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Get;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 
 /// <summary>
 /// Defines the use case for retrieving product classifications with assigned state.

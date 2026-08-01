@@ -6,14 +6,14 @@ public static partial class GetVariantImageById
 {
     /// <summary>
     /// GET endpoint that retrieves a single variant image by its identifier.
-    /// Route: api/catalog/products/variants/images/{id:guid}
+    /// Route: api/catalog/variant-images/{id:guid}
     /// Permission: Products.VariantImageMethod.View
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Admin.Products.Variants.Images.GetById.Route, async (
+            app.MapGet(CatalogFeature.Admin.VariantImages.GetById.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
@@ -25,9 +25,9 @@ public static partial class GetVariantImageById
             })
             .WithName(nameof(GetVariantImageById))
             .WithTags(CatalogFeature.Tags.VariantImage)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Images.GetById.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Images.GetById.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Images.GetById.Description)
+            .HasPermission(CatalogFeature.Admin.VariantImages.GetById.Permission)
+            .WithSummary(CatalogFeature.Admin.VariantImages.GetById.Summary)
+            .WithDescription(CatalogFeature.Admin.VariantImages.GetById.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

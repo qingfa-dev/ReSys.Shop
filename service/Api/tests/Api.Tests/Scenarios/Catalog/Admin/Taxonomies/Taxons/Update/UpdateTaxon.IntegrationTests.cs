@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Taxons.Update;
 
@@ -35,7 +35,7 @@ public sealed class UpdateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", createRequest);
+            "/api/catalog/taxons", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonDetailResponse? created = createResult.DeserializeValue<TaxonDetailResponse>();
         created.Should().NotBeNull();
@@ -49,7 +49,7 @@ public sealed class UpdateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/taxonomies/taxons/{created!.Id}", updateRequest);
+            $"/api/catalog/taxons/{created!.Id}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -86,7 +86,7 @@ public sealed class UpdateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/taxonomies/taxons/{nonexistentId}", updateRequest);
+            $"/api/catalog/taxons/{nonexistentId}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
 
 public static partial class ProductClassificationMapping
 {

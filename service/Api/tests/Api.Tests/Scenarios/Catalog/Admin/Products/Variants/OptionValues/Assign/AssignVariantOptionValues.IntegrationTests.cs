@@ -49,14 +49,14 @@ public sealed class AssignVariantOptionValuesIntegrationTests(ApiFixture fixture
         };
 
         HttpResponseMessage optionValueResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types/option-values", createOptionValueRequest);
+            "/api/catalog/option-values", createOptionValueRequest);
         ApiResponse optionValueResult = await optionValueResponse.ReadApiResponseAsync();
         optionValueResult.IsSuccess.Should().BeTrue();
         var optionValue = optionValueResult.DeserializeValue<OptionValueResponse>();
         optionValue.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -66,11 +66,12 @@ public sealed class AssignVariantOptionValuesIntegrationTests(ApiFixture fixture
 
         var request = new
         {
+            variantId = variant!.Id,
             optionValueIds = new[] { optionValue!.Id }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}/option-values/assign", request);
+            "/api/catalog/variant-option-values/assign", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -114,7 +115,7 @@ public sealed class AssignVariantOptionValuesIntegrationTests(ApiFixture fixture
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -124,11 +125,12 @@ public sealed class AssignVariantOptionValuesIntegrationTests(ApiFixture fixture
 
         var request = new
         {
+            variantId = variant!.Id,
             optionValueIds = Array.Empty<Guid>()
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}/option-values/assign", request);
+            "/api/catalog/variant-option-values/assign", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

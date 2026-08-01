@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Options;
-using Module.Catalog.Features.Admin.Products.Variants.OptionValues.Assign;
+using Module.Catalog.Features.Admin.Products.Variants.Values.Assign;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.OptionValues.Assign;
 

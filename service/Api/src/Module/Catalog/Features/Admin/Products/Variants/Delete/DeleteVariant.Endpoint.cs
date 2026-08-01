@@ -6,14 +6,14 @@ public static partial class DeleteVariant
 {
     /// <summary>
     /// DELETE endpoint that soft-deletes a variant by ID.
-    /// Route: api/catalog/products/variants/{id:guid}
+    /// Route: api/catalog/variants/{id:guid}
     /// Permission: Products.Variants.Delete
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(CatalogFeature.Admin.Products.Variants.Delete.Route, async (
+            app.MapDelete(CatalogFeature.Admin.Variants.Delete.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
@@ -24,9 +24,9 @@ public static partial class DeleteVariant
             })
             .WithName(nameof(DeleteVariant))
             .WithTags(CatalogFeature.Tags.Variant)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Delete.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Delete.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Delete.Description)
+            .HasPermission(CatalogFeature.Admin.Variants.Delete.Permission)
+            .WithSummary(CatalogFeature.Admin.Variants.Delete.Summary)
+            .WithDescription(CatalogFeature.Admin.Variants.Delete.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound)
             .Produces<Result>(StatusCodes.Status409Conflict);

@@ -4,7 +4,7 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
 

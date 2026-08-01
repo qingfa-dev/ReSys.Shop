@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Create;
+using Module.Catalog.Features.Admin.Taxons.Rules.Create;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.CreateTaxon;
 

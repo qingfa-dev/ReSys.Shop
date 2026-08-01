@@ -6,11 +6,11 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 using Shared.Operational.Persistence.Specifications.Helpers;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
+namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
 
 /// <summary>
 /// Expression-tree based evaluation of a product against a taxon's rule set.

@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Delete;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
+using Module.Catalog.Features.Admin.Taxons.Delete;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Delete;
 

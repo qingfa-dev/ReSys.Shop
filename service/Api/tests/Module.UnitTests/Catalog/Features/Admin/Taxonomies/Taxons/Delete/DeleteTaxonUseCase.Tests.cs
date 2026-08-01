@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Delete;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
 

@@ -2,7 +2,7 @@ using System.Reflection;
 
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
 

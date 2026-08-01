@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Mappings;
 

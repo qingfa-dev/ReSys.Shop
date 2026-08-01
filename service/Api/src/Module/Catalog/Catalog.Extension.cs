@@ -2,10 +2,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 using Module.Catalog.Features.Storefront.Products.Shared.Services;
 using Module.Catalog.Persistence.Seeders;
 

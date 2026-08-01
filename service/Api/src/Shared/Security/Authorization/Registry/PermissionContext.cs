@@ -137,11 +137,11 @@ public static class PermissionContext
             "products_optiontypes", "Product Option Types", "Product-to-option-type assignment resource.");
         public static readonly OptionDescriptor<string> ProductsClassifications = OptionDescriptor<string>.Option(
             "products_classifications", "Product Classifications", "Product classification assignment resource.");
-        public static readonly OptionDescriptor<string> ProductsVariants = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> Variants = OptionDescriptor<string>.Option(
             "products_variants", "Product Variants", "Product variant resource.");
-        public static readonly OptionDescriptor<string> ProductsVariantsOptionValues = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> VariantOptionValues = OptionDescriptor<string>.Option(
             "products_variants_optionvalues", "Product Variant Option Values", "Product variant option value resource.");
-        public static readonly OptionDescriptor<string> ProductsVariantsImages = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> VariantImages = OptionDescriptor<string>.Option(
             "products_variants_images", "Product Variant Images", "Product variant image resource.");
         public static readonly OptionDescriptor<string> Taxonomies = OptionDescriptor<string>.Option(
             "taxonomies", "Taxonomies", "Taxonomy definition resource.");
@@ -149,7 +149,7 @@ public static class PermissionContext
             "taxons", "Taxons", "Taxon (category node) resource.");
         public static readonly OptionDescriptor<string> OptionTypes = OptionDescriptor<string>.Option(
             "optiontypes", "Option Types", "Option type definition resource.");
-        public static readonly OptionDescriptor<string> OptionTypesOptionValues = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> OptionTypeValues = OptionDescriptor<string>.Option(
             "optiontypes_optionvalues", "Option Type Values", "Option type value resource.");
         public static readonly OptionDescriptor<string> Orders = OptionDescriptor<string>.Option(
             "orders", "Orders", "Order resource.");

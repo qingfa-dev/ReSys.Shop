@@ -1,9 +1,9 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
+namespace Module.Catalog.Features.Admin.Taxons.Restore;
 
 /// <summary>
 /// Defines the use case for restoring a soft-deleted taxon.

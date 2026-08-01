@@ -9,21 +9,21 @@ public static partial class GetProducts
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /api/storefront/taxons/{id}/products — paged products within a taxon
-            app.MapGet(CatalogFeature.Storefront.Taxons.Get.Products.Route, async (
-                [FromRoute] Guid id,
+            // Map: GET /api/storefront/taxons/products?taxonId= — paged products within a taxon
+            app.MapGet(CatalogFeature.Storefront.Taxons.Products.Route, async (
+                [FromQuery] Guid taxonId,
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(id, parameters);
+                var query = new Query(taxonId, parameters);
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
             .WithName(nameof(GetProducts))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Taxons.Get.Products.Summary)
-            .WithDescription(CatalogFeature.Storefront.Taxons.Get.Products.Description)
+            .WithSummary(CatalogFeature.Storefront.Taxons.Products.Summary)
+            .WithDescription(CatalogFeature.Storefront.Taxons.Products.Description)
             .Produces<PagedResult<Response>>();
         }
     }

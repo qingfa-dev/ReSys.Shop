@@ -24,7 +24,7 @@ public sealed class GetAllVariantsIntegrationTests(ApiFixture fixture) : Catalog
         product.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/catalog/variants?productId={product!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();

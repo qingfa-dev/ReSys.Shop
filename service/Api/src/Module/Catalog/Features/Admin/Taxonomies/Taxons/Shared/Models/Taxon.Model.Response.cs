@@ -1,4 +1,4 @@
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+namespace Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 // List Item:
 public record TaxonListItemResponse : TaxonParameters, IResponse
@@ -46,11 +46,3 @@ public record TaxonTreeItem : TaxonListItemResponse
     public IEnumerable<TaxonTreeItem> Children { get; set; } = [];
 }
 
-// Tree:
-public record TaxonTreeResponse : Response
-{
-    public IEnumerable<TaxonTreeItem> Tree { get; set; } = [];
-    public IEnumerable<TaxonTreeItem> Breadcrumbs { get; set; } = [];
-    public TaxonTreeItem? FocusedNode { get; set; }
-    public TaxonTreeItem? FocusedSubtree { get; set; }
-}

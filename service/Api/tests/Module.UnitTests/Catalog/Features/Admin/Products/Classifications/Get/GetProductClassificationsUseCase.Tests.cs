@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.Classifications.Get;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Classifications.Get;
 

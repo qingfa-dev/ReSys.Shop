@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
+using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Models;
 using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
 
 using Shared.Operational.Persistence.Data;
@@ -52,11 +52,11 @@ public sealed class GetAllOptionValuesIntegrationTests(ApiFixture fixture) : Cat
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types/option-values", createValueRequest);
+            "/api/catalog/option-values", createValueRequest);
         createValResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            "/api/catalog/option-types/option-values?pageSize=100");
+            "/api/catalog/option-values?pageSize=100");
         PagedResult<OptionValueListItemResponse> result = await response.ReadAsPagedResultAsync<OptionValueListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();

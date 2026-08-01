@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Restore;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Restore;
 

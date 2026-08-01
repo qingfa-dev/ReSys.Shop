@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
+using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Models;
 using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.OptionValues.Update;
@@ -36,7 +36,7 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types/option-values", createValueRequest);
+            "/api/catalog/option-values", createValueRequest);
         ApiResponse createValResult = await createValResponse.ReadApiResponseAsync();
         createValResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? created = createValResult.DeserializeValue<OptionValueListItemResponse>();
@@ -50,7 +50,7 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/option-values/{created!.Id}", updateRequest);
+            $"/api/catalog/option-values/{created!.Id}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -75,7 +75,7 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/option-values/{nonexistentId}", request);
+            $"/api/catalog/option-values/{nonexistentId}", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

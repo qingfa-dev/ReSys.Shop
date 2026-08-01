@@ -27,13 +27,14 @@ public sealed class DeleteVariantIntegrationTests(ApiFixture fixture) : CatalogI
 
         var addVariantRequest = new
         {
+            productId = product!.Id,
             sku = "DELETE-SKU",
             isMaster = false,
             price = 9.99m
         };
 
         HttpResponseMessage addResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants", addVariantRequest);
+            "/api/catalog/variants", addVariantRequest);
         ApiResponse addResult = await addResponse.ReadApiResponseAsync();
         addResult.IsSuccess.Should().BeTrue();
         var created = addResult.DeserializeValue<VariantDetailResponse>();

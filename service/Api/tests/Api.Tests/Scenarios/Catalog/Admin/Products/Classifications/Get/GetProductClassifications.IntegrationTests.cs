@@ -28,7 +28,7 @@ public sealed class GetProductClassificationsIntegrationTests(ApiFixture fixture
         product.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/classifications");
+            $"/api/catalog/product-classifications?productId={product!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -41,7 +41,7 @@ public sealed class GetProductClassificationsIntegrationTests(ApiFixture fixture
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{nonexistentId}/classifications");
+            $"/api/catalog/product-classifications?productId={nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

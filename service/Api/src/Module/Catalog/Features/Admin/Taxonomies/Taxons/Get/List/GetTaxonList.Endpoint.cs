@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.List;
+namespace Module.Catalog.Features.Admin.Taxons.Get.List;
 
 public static partial class GetTaxonList
 {
@@ -8,7 +8,7 @@ public static partial class GetTaxonList
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Admin.Taxonomies.Taxons.GetList.Route, async (
+            app.MapGet(CatalogFeature.Admin.Taxons.GetList.Route, async (
                 Guid taxonomyId,
                 [AsParameters] Parameters parameters,
                 ISender sender,
@@ -20,9 +20,9 @@ public static partial class GetTaxonList
             })
             .WithName(nameof(GetTaxonList))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.GetList.Permission)
-            .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.GetList.Summary)
-            .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.GetList.Description)
+            .HasPermission(CatalogFeature.Admin.Taxons.GetList.Permission)
+            .WithSummary(CatalogFeature.Admin.Taxons.GetList.Summary)
+            .WithDescription(CatalogFeature.Admin.Taxons.GetList.Description)
             .Produces<PagedResult<Response>>();
         }
     }

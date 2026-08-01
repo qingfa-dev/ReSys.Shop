@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
+using Module.Catalog.Features.Admin.Taxons.Update;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Update;
 

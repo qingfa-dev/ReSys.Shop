@@ -10,8 +10,7 @@ public static partial class CreateEmbedding
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Create.Route, async (
-                [FromRoute] Guid id,
+            app.MapPost(CatalogFeature.Admin.VariantImageEmbeddings.Create.Route, async (
                 [FromBody] Request? request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -20,15 +19,19 @@ public static partial class CreateEmbedding
                     ? VariantImageConstant.Defaults.DefaultEmbeddingModel
                     : request.ModelName;
 
-                var command = new Command(new Request { VariantImageId = id, ModelName = modelName });
+                var command = new Command(new Request
+                {
+                    VariantImageId = request?.VariantImageId ?? Guid.Empty,
+                    ModelName = modelName
+                });
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
             .WithName(nameof(CreateEmbedding))
             .WithTags(CatalogFeature.Tags.VariantImage)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Create.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Create.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Create.Description)
+            .HasPermission(CatalogFeature.Admin.VariantImageEmbeddings.Create.Permission)
+            .WithSummary(CatalogFeature.Admin.VariantImageEmbeddings.Create.Summary)
+            .WithDescription(CatalogFeature.Admin.VariantImageEmbeddings.Create.Description)
             .Produces<Result<EmbeddingDetailResponse>>(StatusCodes.Status201Created)
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound)

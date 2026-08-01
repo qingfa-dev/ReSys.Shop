@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Validations;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Validations;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Create;
+namespace Module.Catalog.Features.Admin.Taxons.Rules.Create;
 
 public static partial class CreateTaxonRule
 {

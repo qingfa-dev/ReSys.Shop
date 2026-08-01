@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Reposition;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
 

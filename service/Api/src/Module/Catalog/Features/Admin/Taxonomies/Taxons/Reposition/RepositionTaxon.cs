@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
+namespace Module.Catalog.Features.Admin.Taxons.Reposition;
 
 /// <summary>
 /// Defines the use case for repositioning a taxon.

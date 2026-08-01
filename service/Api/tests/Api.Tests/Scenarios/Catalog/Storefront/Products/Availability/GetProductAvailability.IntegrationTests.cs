@@ -34,7 +34,7 @@ public sealed class GetProductAvailabilityIntegrationTests(ApiFixture fixture) :
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{productId}/availability");
+            $"/api/storefront/products/availability?productId={productId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -47,7 +47,7 @@ public sealed class GetProductAvailabilityIntegrationTests(ApiFixture fixture) :
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{nonexistentId}/availability");
+            $"/api/storefront/products/availability?productId={nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

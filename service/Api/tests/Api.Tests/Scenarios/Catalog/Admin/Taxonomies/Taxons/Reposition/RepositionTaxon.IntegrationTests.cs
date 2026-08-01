@@ -2,7 +2,7 @@ using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Taxons.Reposition;
 
@@ -34,7 +34,7 @@ public sealed class RepositionTaxonIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage createOneResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", taxonOneRequest);
+            "/api/catalog/taxons", taxonOneRequest);
         ApiResponse createOneResult = await createOneResponse.ReadApiResponseAsync();
         TaxonDetailResponse? first = createOneResult.DeserializeValue<TaxonDetailResponse>();
         first.Should().NotBeNull();
@@ -50,7 +50,7 @@ public sealed class RepositionTaxonIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage createTwoResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", taxonTwoRequest);
+            "/api/catalog/taxons", taxonTwoRequest);
         ApiResponse createTwoResult = await createTwoResponse.ReadApiResponseAsync();
         TaxonDetailResponse? second = createTwoResult.DeserializeValue<TaxonDetailResponse>();
         second.Should().NotBeNull();
@@ -62,7 +62,7 @@ public sealed class RepositionTaxonIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage repositionResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/taxons/{second!.Id}/reposition", repositionRequest);
+            $"/api/catalog/taxons/{second!.Id}/reposition", repositionRequest);
         ApiResponse repositionResult = await repositionResponse.ReadApiResponseAsync();
 
         repositionResult.IsSuccess.Should().BeTrue();

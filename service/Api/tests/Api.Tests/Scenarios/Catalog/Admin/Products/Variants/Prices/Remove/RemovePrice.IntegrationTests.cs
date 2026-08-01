@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
@@ -27,7 +28,7 @@ public sealed class RemovePriceIntegrationTests(ApiFixture fixture) : CatalogInt
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -37,27 +38,32 @@ public sealed class RemovePriceIntegrationTests(ApiFixture fixture) : CatalogInt
 
         var setPriceRequest = new
         {
+            variantId = variant!.Id,
             amount = 14.99m,
             currency = "USD"
         };
 
         HttpResponseMessage setResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}/prices", setPriceRequest);
+            "/api/catalog/variant-prices", setPriceRequest);
         setResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage getPricesResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{variant.Id}/prices");
+            $"/api/catalog/variant-prices?variantId={variant.Id}");
         var getPricesResult = await getPricesResponse.ReadAsPagedResultAsync<PriceResponse>();
         getPricesResult.IsSuccess.Should().BeTrue();
         var price = getPricesResult.Items.FirstOrDefault();
         price.Should().NotBeNull();
 
-        HttpResponseMessage removeResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/variants/{variant.Id}/prices/{price!.Id}");
+        using var removeRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/catalog/variant-prices/{price!.Id}")
+        {
+            Content = JsonContent.Create(new { variantId = variant.Id })
+        };
+        removeRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Api.Tests.Infrastructure.Auth.AuthTokenHelper.GenerateAdminToken());
+        HttpResponseMessage removeResponse = await Client.SendAsync(removeRequest);
         removeResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage verifyResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{variant.Id}/prices");
+            $"/api/catalog/variant-prices?variantId={variant.Id}");
         var verifyResult = await verifyResponse.ReadAsPagedResultAsync<PriceResponse>();
 
         verifyResult.IsSuccess.Should().BeTrue();
@@ -80,8 +86,12 @@ public sealed class RemovePriceIntegrationTests(ApiFixture fixture) : CatalogInt
         Guid nonexistentVariantId = Guid.NewGuid();
         Guid nonexistentPriceId = Guid.NewGuid();
 
-        HttpResponseMessage removeResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/variants/{nonexistentVariantId}/prices/{nonexistentPriceId}");
+        using var removeRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/catalog/variant-prices/{nonexistentPriceId}")
+        {
+            Content = JsonContent.Create(new { variantId = nonexistentVariantId })
+        };
+        removeRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Api.Tests.Infrastructure.Auth.AuthTokenHelper.GenerateAdminToken());
+        HttpResponseMessage removeResponse = await Client.SendAsync(removeRequest);
 
         removeResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

@@ -2,7 +2,7 @@ using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.GetAll;
 
@@ -44,7 +44,7 @@ public sealed class GetAllTaxonomiesIntegrationTests(ApiFixture fixture) : Catal
         created.Should().NotBeNull();
 
         HttpResponseMessage taxonResponse = await Client.GetAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons");
+            "/api/catalog/taxons");
         PagedResult<TaxonListItemResponse> taxonResult = await taxonResponse.ReadAsPagedResultAsync<TaxonListItemResponse>();
 
         taxonResult.IsSuccess.Should().BeTrue();

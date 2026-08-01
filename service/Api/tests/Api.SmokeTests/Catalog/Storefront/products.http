@@ -26,24 +26,24 @@ Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Availability matrix
-# GET /api/storefront/products/{id}/availability
+# GET /api/storefront/products/availability?productId=
 # Expected: 200 OK – variant availability matrix
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/storefront/products/{{existingProductId}}/availability
+GET {{baseUrl}}/api/storefront/products/availability?productId={{existingProductId}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Related products
-# GET /api/storefront/products/{id}/related
+# GET /api/storefront/products/related?productId=
 # Expected: 200 OK – list of related products
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/storefront/products/{{existingProductId}}/related
+GET {{baseUrl}}/api/storefront/products/related?productId={{existingProductId}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Similar products
-# GET /api/storefront/products/{id}/similar
+# GET /api/storefront/products/similar?productId=
 # Expected: 200 OK – list of similar products
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/storefront/products/{{existingProductId}}/similar
+GET {{baseUrl}}/api/storefront/products/similar?productId={{existingProductId}}
 Content-Type: {{contentType}}

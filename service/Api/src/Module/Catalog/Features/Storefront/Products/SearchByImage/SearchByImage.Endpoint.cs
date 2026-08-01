@@ -10,7 +10,7 @@ public static partial class SearchByImage
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: POST /api/storefront/products/search-by-image — visual similarity search via embedding
-            app.MapPost(CatalogFeature.Storefront.Products.Get.SearchByImage.Route, async (
+            app.MapPost(CatalogFeature.Storefront.Products.SearchByImage.Route, async (
                 [FromForm] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class SearchByImage
             })
             .WithName(nameof(SearchByImage))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Products.Get.SearchByImage.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.Get.SearchByImage.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.SearchByImage.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.SearchByImage.Description)
             .DisableAntiforgery()
             .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest);

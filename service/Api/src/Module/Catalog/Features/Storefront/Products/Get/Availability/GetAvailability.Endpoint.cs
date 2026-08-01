@@ -9,20 +9,20 @@ public static partial class GetAvailability
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /api/storefront/variants/{id}/availability — stock availability across locations
-            app.MapGet(CatalogFeature.Storefront.Products.Get.Availability.Route, async (
-                [FromRoute] Guid id,
+            // Map: GET /api/storefront/products/availability?productId= — stock availability across locations
+            app.MapGet(CatalogFeature.Storefront.Products.Availability.Route, async (
+                [FromQuery] Guid productId,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(id);
+                var query = new Query(productId);
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })
             .WithName(nameof(GetAvailability))
             .WithTags(CatalogFeature.Tags.Variant)
-            .WithSummary(CatalogFeature.Storefront.Products.Get.Availability.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.Get.Availability.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Availability.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Availability.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
+using Module.Catalog.Features.Admin.Taxons.Reposition;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
 

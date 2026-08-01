@@ -6,14 +6,14 @@ public static partial class UpdateVariantImage
 {
     /// <summary>
     /// PUT endpoint that updates a variant image's metadata (alt, position, type).
-    /// Route: api/catalog/products/variants/images/{id:guid}
+    /// Route: api/catalog/variant-images/{id:guid}
     /// Permission: Products.VariantImageMethod.Update
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(CatalogFeature.Admin.Products.Variants.Images.Update.Route, async (
+            app.MapPut(CatalogFeature.Admin.VariantImages.Update.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,
                 ISender sender,
@@ -26,9 +26,9 @@ public static partial class UpdateVariantImage
             })
             .WithName(nameof(UpdateVariantImage))
             .WithTags(CatalogFeature.Tags.VariantImage)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Images.Update.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Images.Update.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Images.Update.Description)
+            .HasPermission(CatalogFeature.Admin.VariantImages.Update.Permission)
+            .WithSummary(CatalogFeature.Admin.VariantImages.Update.Summary)
+            .WithDescription(CatalogFeature.Admin.VariantImages.Update.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);

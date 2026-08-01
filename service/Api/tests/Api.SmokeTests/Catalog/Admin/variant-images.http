@@ -10,75 +10,79 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Upload image – success
-# POST /api/catalog/products/variants/{variantId}/images
+# POST /api/catalog/variant-images (VariantId in form)
 # Expected: 201 Created – image uploaded
 # Content-Type: multipart/form-data
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/products/variants/{{existingVariantId}}/images
+POST {{baseUrl}}/api/catalog/variant-images
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 Authorization: Bearer {{adminToken}}
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="image"; filename="tshirt-front.jpg"
+Content-Disposition: form-data; name="VariantId"
+
+{{existingVariantId}}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="File"; filename="tshirt-front.jpg"
 Content-Type: image/jpeg
 
 < ../_shared/test-files/tshirt-front.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="altText"
+Content-Disposition: form-data; name="Alt"
 
 Classic T-Shirt Front View
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="position"
+Content-Disposition: form-data; name="Position"
 
 1
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ### ---------------------------------------------------------------------------
 ### 2. List images
-# GET /api/catalog/products/variants/{variantId}/images
+# GET /api/catalog/variant-images?variantId=
 # Expected: 200 OK – list of images for this variant
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/products/variants/{{existingVariantId}}/images
+GET {{baseUrl}}/api/catalog/variant-images?variantId={{existingVariantId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Get image by ID
-# GET /api/catalog/products/variants/images/{id}
+# GET /api/catalog/variant-images/{id}
 # Expected: 200 OK – image metadata
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/products/variants/images/{{nonExistentId}}
+GET {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Update image metadata – success
-# PUT /api/catalog/products/variants/images/{id}
+# PUT /api/catalog/variant-images/{id}
 # Expected: 200 OK – image metadata updated
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/products/variants/images/{{nonExistentId}}
+PUT {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
-  "altText": "Classic T-Shirt Front View – Updated",
+  "alt": "Classic T-Shirt Front View – Updated",
   "position": 2
 }
 
 ### ---------------------------------------------------------------------------
 ### 5. Delete image – success
-# DELETE /api/catalog/products/variants/images/{id}
+# DELETE /api/catalog/variant-images/{id}
 # Expected: 200 OK – image deleted
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/products/variants/images/{{nonExistentId}}
+DELETE {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Download image
-# GET /api/catalog/products/variants/images/{id}/download
+# GET /api/catalog/variant-images/{id}/download
 # Expected: 200 OK – binary image data returned
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/products/variants/images/{{nonExistentId}}/download
+GET {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}/download
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}

@@ -1,9 +1,9 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
+using Module.Catalog.Features.Admin.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Update;
 
 using Shared.Application.Domain.Concerns.Parameterizable;
 

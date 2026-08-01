@@ -1,11 +1,11 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
 
 using Shared.Application.Domain.Concerns.Parameterizable;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
+namespace Module.Catalog.Features.Admin.Taxons.Create;
 
 /// <summary>
 /// Defines the use case for creating a new taxon.

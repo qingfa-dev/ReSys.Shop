@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
+using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Models;
 using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.OptionValues.GetById;
@@ -36,14 +36,14 @@ public sealed class GetOptionValueByIdIntegrationTests(ApiFixture fixture) : Cat
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types/option-values", createValueRequest);
+            "/api/catalog/option-values", createValueRequest);
         ApiResponse createValResult = await createValResponse.ReadApiResponseAsync();
         createValResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? created = createValResult.DeserializeValue<OptionValueListItemResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/option-types/option-values/{created!.Id}");
+            $"/api/catalog/option-values/{created!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -61,7 +61,7 @@ public sealed class GetOptionValueByIdIntegrationTests(ApiFixture fixture) : Cat
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/option-types/option-values/{nonexistentId}");
+            $"/api/catalog/option-values/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

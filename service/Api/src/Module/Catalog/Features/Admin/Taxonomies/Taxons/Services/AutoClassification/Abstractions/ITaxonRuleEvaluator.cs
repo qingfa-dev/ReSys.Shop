@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 
 /// <summary>

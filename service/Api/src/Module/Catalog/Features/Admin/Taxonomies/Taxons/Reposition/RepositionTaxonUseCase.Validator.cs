@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
+namespace Module.Catalog.Features.Admin.Taxons.Reposition;
 
 public static partial class RepositionTaxon
 {

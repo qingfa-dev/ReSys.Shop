@@ -6,14 +6,14 @@ public static partial class GetVariantsPagedOrAll
 {
     /// <summary>
     /// GET endpoint that lists all variants for a product.
-    /// Route: api/catalog/products/{productId:guid}/variants
+    /// Route: api/catalog/variants
     /// Permission: Products.Variants.List
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Admin.Products.Variants.GetAll.Route, async (
+            app.MapGet(CatalogFeature.Admin.Variants.GetAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -24,9 +24,9 @@ public static partial class GetVariantsPagedOrAll
             })
             .WithName(nameof(GetVariantsPagedOrAll))
             .WithTags(CatalogFeature.Tags.Variant)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.GetAll.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.GetAll.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.GetAll.Description)
+            .HasPermission(CatalogFeature.Admin.Variants.GetAll.Permission)
+            .WithSummary(CatalogFeature.Admin.Variants.GetAll.Summary)
+            .WithDescription(CatalogFeature.Admin.Variants.GetAll.Description)
             .Produces<PagedResult<Response>>();
         }
     }

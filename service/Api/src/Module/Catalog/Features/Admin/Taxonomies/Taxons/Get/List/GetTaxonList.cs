@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.List;
+namespace Module.Catalog.Features.Admin.Taxons.Get.List;
 
 public static partial class GetTaxonList
 {

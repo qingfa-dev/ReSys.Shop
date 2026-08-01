@@ -1,6 +1,6 @@
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Get;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 
 public static partial class GetProductClassifications
 {

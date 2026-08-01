@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
+using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Models;
 using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.OptionValues.Create;
@@ -42,7 +42,7 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types/option-values", request);
+            "/api/catalog/option-values", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -66,7 +66,7 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types/option-values", request);
+            "/api/catalog/option-values", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -86,7 +86,7 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/option-types/option-values", request);
+            "/api/catalog/option-values", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

@@ -1,4 +1,4 @@
-namespace Module.Catalog.Features.Admin.Products.Classifications.Get;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 
 public static partial class GetProductClassifications
 {

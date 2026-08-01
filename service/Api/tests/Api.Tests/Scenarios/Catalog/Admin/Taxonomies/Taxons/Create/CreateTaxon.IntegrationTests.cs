@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Taxons.Create;
 
@@ -40,7 +40,7 @@ public sealed class CreateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", request);
+            "/api/catalog/taxons", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -64,7 +64,7 @@ public sealed class CreateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage rootResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", rootRequest);
+            "/api/catalog/taxons", rootRequest);
         ApiResponse rootResult = await rootResponse.ReadApiResponseAsync();
         TaxonDetailResponse? root = rootResult.DeserializeValue<TaxonDetailResponse>();
         root.Should().NotBeNull();
@@ -79,7 +79,7 @@ public sealed class CreateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage childResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", childRequest);
+            "/api/catalog/taxons", childRequest);
         ApiResponse childResult = await childResponse.ReadApiResponseAsync();
 
         childResult.IsSuccess.Should().BeTrue();
@@ -102,7 +102,7 @@ public sealed class CreateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons", request);
+            "/api/catalog/taxons", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -123,7 +123,7 @@ public sealed class CreateTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/taxonomies/taxons", request);
+            "/api/catalog/taxons", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

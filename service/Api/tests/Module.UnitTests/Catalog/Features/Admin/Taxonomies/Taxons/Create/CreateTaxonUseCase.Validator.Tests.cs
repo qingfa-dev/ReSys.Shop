@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Create;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Create;
 
