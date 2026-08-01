@@ -1,4 +1,4 @@
-import { post, get, put, del } from '@/shared/api/client'
+import { post, get, put, patch, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
@@ -38,5 +38,9 @@ export class TaxonomyApi {
 
   static deleteTaxonomy(id: string): Promise<Result<TaxonomyListItem>> {
     return del<Result<TaxonomyListItem>>(`${TaxonomyApi.BASE}/${id}`)
+  }
+
+  static restoreTaxonomy(id: string): Promise<Result<void>> {
+    return patch<Result<void>>(`${TaxonomyApi.BASE}/${id}/restore`)
   }
 }

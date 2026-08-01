@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { mockPost, mockGet, mockPut, mockDel, mockGetPaged } = vi.hoisted(() => ({
+const { mockPost, mockGet, mockPut, mockPatch, mockDel, mockGetPaged } = vi.hoisted(() => ({
   mockPost: vi.fn<any>(),
   mockGet: vi.fn<any>(),
   mockPut: vi.fn<any>(),
+  mockPatch: vi.fn<any>(),
   mockDel: vi.fn<any>(),
   mockGetPaged: vi.fn<any>(),
 }))
@@ -12,6 +13,7 @@ vi.mock('@/shared/api/client', () => ({
   post: mockPost,
   get: mockGet,
   put: mockPut,
+  patch: mockPatch,
   del: mockDel,
 }))
 
@@ -74,5 +76,13 @@ describe('TaxonomyApi.deleteTaxonomy', () => {
     mockDel.mockResolvedValue({ value: { id: '1', name: 'Categories' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonomyApi.deleteTaxonomy('abc-123')
     expect(mockDel).toHaveBeenCalledWith('api/catalog/taxonomies/abc-123')
+  })
+})
+
+describe('TaxonomyApi.restoreTaxonomy', () => {
+  it('calls PATCH restore with correct URL and no body', async () => {
+    mockPatch.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+    await TaxonomyApi.restoreTaxonomy('abc-123')
+    expect(mockPatch).toHaveBeenCalledWith('api/catalog/taxonomies/abc-123/restore')
   })
 })

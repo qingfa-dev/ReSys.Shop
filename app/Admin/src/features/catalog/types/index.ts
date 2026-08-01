@@ -119,3 +119,7 @@ export type {
   RegenerateEmbeddingRequest,
   EmbeddingDetailResponse,
 } from './imageEmbedding'
+export type {
+  CatalogDashboard,
+  RecentProductData,
+} from './catalogDashboard'
