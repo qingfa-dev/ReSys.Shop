@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { setBaseUrl, setAuthToken, get, post, put, patch, del } from '../client'
+import { setBaseUrl, setAuthToken, get, post, put, patch, del, delWithBody } from '../client'
 
 const { mockGet, mockPost, mockPut, mockPatch, mockDelete, mockDefaults } = vi.hoisted(() => ({
   mockGet: vi.fn(),
@@ -72,6 +72,26 @@ describe('HTTP methods', () => {
     mockDelete.mockResolvedValue({ data: null })
     await del('/items/1')
     expect(mockDelete).toHaveBeenCalledWith('/items/1', { signal: undefined })
+  })
+
+  it('delWithBody sends body as data on axios delete and returns data', async () => {
+    mockDelete.mockResolvedValue({ data: { deleted: true } })
+    const result = await delWithBody('/items/1', { foo: 1 })
+    expect(result).toEqual({ deleted: true })
+    expect(mockDelete).toHaveBeenCalledWith('/items/1', { data: { foo: 1 }, signal: undefined })
+  })
+
+  it('delWithBody works without body', async () => {
+    mockDelete.mockResolvedValue({ data: null })
+    await delWithBody('/items/1')
+    expect(mockDelete).toHaveBeenCalledWith('/items/1', { data: undefined, signal: undefined })
+  })
+
+  it('delWithBody passes signal', async () => {
+    mockDelete.mockResolvedValue({ data: null })
+    const controller = new AbortController()
+    await delWithBody('/items/1', { foo: 1 }, controller.signal)
+    expect(mockDelete).toHaveBeenCalledWith('/items/1', { data: { foo: 1 }, signal: controller.signal })
   })
 })
 

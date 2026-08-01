@@ -38,3 +38,8 @@ export async function del<T>(url: string, signal?: AbortSignal): Promise<T> {
   const response = await getApiClient().delete<T>(url, { signal })
   return response.data
 }
+
+export async function delWithBody<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+  const response = await getApiClient().delete<T>(url, { data: body, signal })
+  return response.data
+}
