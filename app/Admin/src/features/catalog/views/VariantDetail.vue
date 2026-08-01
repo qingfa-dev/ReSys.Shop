@@ -354,10 +354,7 @@ function openPriceDialog() {
 
 async function savePrice() {
   if (!priceForm.value.currency) return
-  const result = await VariantPriceApi.setPrice(
-    route.params.id as string,
-    priceForm.value,
-  )
+  const result = await VariantPriceApi.setPrice({ ...priceForm.value, variantId: route.params.id as string })
   if (result.isSuccess) {
     notify.success('Price saved')
     priceDialogVisible.value = false

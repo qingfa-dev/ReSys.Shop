@@ -1,16 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { mockPost, mockGet, mockDel, mockGetPaged } = vi.hoisted(() => ({
+const { mockPost, mockDelWithBody, mockGetPaged } = vi.hoisted(() => ({
   mockPost: vi.fn<any>(),
-  mockGet: vi.fn<any>(),
-  mockDel: vi.fn<any>(),
+  mockDelWithBody: vi.fn<any>(),
   mockGetPaged: vi.fn<any>(),
 }))
 
 vi.mock('@/shared/api/client', () => ({
   post: mockPost,
-  get: mockGet,
-  del: mockDel,
+  delWithBody: mockDelWithBody,
 }))
 
 vi.mock('@/shared/api', () => ({
@@ -31,7 +29,7 @@ describe('VariantPriceApi.listPrices', () => {
     })
     await VariantPriceApi.listPrices('abc-123')
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/variants/abc-123/prices',
+      'api/catalog/variant-prices?variantId=abc-123',
       expect.objectContaining({ pageNumber: 1, pageSize: 100 }),
     )
   })
@@ -39,17 +37,26 @@ describe('VariantPriceApi.listPrices', () => {
 
 describe('VariantPriceApi.setPrice', () => {
   it('calls POST with request body', async () => {
-    const req = { amount: 10, currency: 'USD' }
+    const req = { variantId: 'abc-123', amount: 10, currency: 'USD' }
     mockPost.mockResolvedValue({ value: { variantId: 'abc-123' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
-    await VariantPriceApi.setPrice('abc-123', req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/variants/abc-123/prices', req)
+    await VariantPriceApi.setPrice(req)
+    expect(mockPost).toHaveBeenCalledWith('api/catalog/variant-prices', req)
   })
 })
 
 describe('VariantPriceApi.removePrice', () => {
-  it('calls DELETE with correct URL', async () => {
-    mockDel.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+  it('calls DELETE with body', async () => {
+    mockDelWithBody.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantPriceApi.removePrice('abc-123', 'price-1')
-    expect(mockDel).toHaveBeenCalledWith('api/catalog/variants/abc-123/prices/price-1')
+    expect(mockDelWithBody).toHaveBeenCalledWith('api/catalog/variant-prices/price-1', { variantId: 'abc-123', priceId: 'price-1' })
+  })
+})
+
+describe('VariantPriceApi.syncPrices', () => {
+  it('calls POST with sync URL and request body', async () => {
+    const req = { variantId: 'abc-123', prices: [{ amount: 10, currency: 'USD' }] }
+    mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+    await VariantPriceApi.syncPrices(req)
+    expect(mockPost).toHaveBeenCalledWith('api/catalog/variant-prices/sync', req)
   })
 })
