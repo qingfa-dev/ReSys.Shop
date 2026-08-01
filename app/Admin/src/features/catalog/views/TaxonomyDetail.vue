@@ -77,8 +77,8 @@ function addTreeNodeKeys(nodes: any[]): any[] {
 async function loadTree(taxonomyId: string) {
   treeLoading.value = true
   const result = await TaxonApi.getTree(taxonomyId)
-  if (result.isSuccess && result.value?.tree) {
-    treeNodes.value = addTreeNodeKeys(result.value.tree) as any
+  if (result.isSuccess && result.items) {
+    treeNodes.value = addTreeNodeKeys(result.items) as any
   }
   treeLoading.value = false
 }

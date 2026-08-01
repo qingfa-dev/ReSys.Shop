@@ -15,8 +15,16 @@ import { useTaxonTreeStore } from '../../stores/taxonTreeStore'
 
 function treeResult() {
   return {
-    isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null,
-    value: { tree: [{ id: 'n1', name: 'Root', children: [] }] },
+    items: [{ id: 'n1', name: 'Root', children: [] }],
+    page: 1,
+    pageSize: 20,
+    totalCount: 1,
+    totalPages: 1,
+    isSuccess: true,
+    statusCode: 200,
+    message: null,
+    errors: [],
+    metadata: null,
   }
 }
 
