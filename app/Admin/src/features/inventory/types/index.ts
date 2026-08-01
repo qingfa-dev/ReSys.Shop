@@ -70,3 +70,4 @@ export {
   STOCK_TRANSFER_SEARCH_FIELDS,
   toStockTransferQueryParams,
 } from './stockTransfer'
+export type { InventoryDashboard, RecentMovementData } from './inventoryDashboard'
