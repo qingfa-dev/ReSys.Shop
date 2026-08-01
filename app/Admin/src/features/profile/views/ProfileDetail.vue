@@ -121,7 +121,7 @@ function navigateToAddAddress() {
 }
 
 function navigateToEditAddress(id: string) {
-  router.push(`/profile/addresses/${id}`)
+  router.push(`/profile/addresses/${id}?userId=${route.params.id}`)
 }
 
 function confirmDeleteAddress(id: string, label: string) {

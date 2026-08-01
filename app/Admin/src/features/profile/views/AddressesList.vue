@@ -61,8 +61,8 @@ function navigateToNew() {
   router.push(initialUserId ? `/profile/addresses/new?userId=${encodeURIComponent(initialUserId)}` : '/profile/addresses/new')
 }
 
-function navigateToEdit(id: string) {
-  router.push(`/profile/addresses/${id}`)
+function navigateToEdit(data: AddressResponse) {
+  router.push(`/profile/addresses/${data.id}?userId=${encodeURIComponent(data.userId)}`)
 }
 
 function confirmDelete(data: AddressResponse) {
@@ -157,7 +157,7 @@ function confirmDelete(data: AddressResponse) {
         </Column>
         <Column header="Actions" header-style="width:8rem">
           <template #body="{ data }">
-            <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data.id)" />
+            <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data)" />
             <Button icon="pi pi-trash" severity="danger" text rounded aria-label="Delete" @click="confirmDelete(data)" />
           </template>
         </Column>
