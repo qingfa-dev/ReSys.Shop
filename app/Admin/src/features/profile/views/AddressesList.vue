@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
@@ -29,13 +29,13 @@ const authStore = useAuthStore()
 
 const search = ref('')
 
-const userId = computed(() => {
+const initialUserId = (() => {
   const requested = route.query.userId
   const requestedUserId = typeof requested === 'string' ? requested : undefined
   return requestedUserId ?? authStore.currentUser?.userId ?? ''
-})
+})()
 
-const { items, loading, setSearch, refresh } = useAddressList(userId.value, {
+const { items, loading, setSearch, refresh } = useAddressList(initialUserId, {
   allowedFilterFields: ADDRESS_FILTER_FIELDS,
   allowedSortFields: ADDRESS_SORT_FIELDS,
   allowedSearchFields: ADDRESS_SEARCH_FIELDS,
@@ -44,7 +44,7 @@ const { items, loading, setSearch, refresh } = useAddressList(userId.value, {
 })
 
 onMounted(() => {
-  if (userId.value) refresh()
+  if (initialUserId) refresh()
 })
 
 function onSearch(value: string) {
@@ -58,7 +58,7 @@ function clearSearch() {
 }
 
 function navigateToNew() {
-  router.push(userId.value ? `/profile/addresses/new?userId=${encodeURIComponent(userId.value)}` : '/profile/addresses/new')
+  router.push(initialUserId ? `/profile/addresses/new?userId=${encodeURIComponent(initialUserId)}` : '/profile/addresses/new')
 }
 
 function navigateToEdit(id: string) {
@@ -94,7 +94,7 @@ function confirmDelete(data: AddressResponse) {
       <p class="text-muted-color">Manage user addresses</p>
     </div>
 
-    <Message v-if="!userId" severity="warn" variant="simple">
+    <Message v-if="!initialUserId" severity="warn" variant="simple">
       No user is currently selected. Open this page with a userId query parameter or sign in to view addresses.
     </Message>
 
