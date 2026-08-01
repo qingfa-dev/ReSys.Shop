@@ -1,1 +1,2 @@
-// Barrel exports for dashboard/composables
+export { useDashboard } from './useDashboard'
+export type { UseDashboardState } from './useDashboard'
