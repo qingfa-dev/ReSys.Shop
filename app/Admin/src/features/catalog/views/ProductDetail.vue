@@ -164,7 +164,7 @@ async function saveOptionTypes() {
     optionTypeId: a.optionTypeId,
     position: i,
   }))
-  const result = await ProductOptionTypeApi.syncOptionTypes(route.params.id as string, items)
+  const result = await ProductOptionTypeApi.syncOptionTypes({ productId: route.params.id as string, items })
   if (result.isSuccess) {
     notify.success('Option types saved')
     await loadOptionTypes()

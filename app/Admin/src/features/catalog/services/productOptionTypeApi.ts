@@ -1,4 +1,5 @@
-import { post, get } from '@/shared/api/client'
+import { getPaged } from '@/shared/api'
+import { post, put } from '@/shared/api/client'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
 
@@ -10,21 +11,27 @@ export interface OptionTypeAssignment {
   isAssigned: boolean
 }
 
-interface OptionTypeSyncItem {
+export interface OptionTypeSyncItem {
   optionTypeId: string
   position: number
 }
 
 export class ProductOptionTypeApi {
-  private static getBase(productId: string): string {
-    return `${CATALOG}/products/${productId}/option-types`
-  }
+  private static readonly BASE = `${CATALOG}/product-option-types`
 
   static getOptionTypes(productId: string): Promise<PagedResult<OptionTypeAssignment>> {
-    return get<PagedResult<OptionTypeAssignment>>(ProductOptionTypeApi.getBase(productId))
+    return getPaged<OptionTypeAssignment>(`${ProductOptionTypeApi.BASE}?productId=${productId}`, {})
   }
 
-  static syncOptionTypes(productId: string, items: OptionTypeSyncItem[]): Promise<Result<void>> {
-    return post<Result<void>>(`${ProductOptionTypeApi.getBase(productId)}/sync`, { items })
+  static syncOptionTypes(request: { productId: string; items: OptionTypeSyncItem[] }): Promise<Result<void>> {
+    return put<Result<void>>(`${ProductOptionTypeApi.BASE}/sync`, request)
+  }
+
+  static assignOptionTypes(request: { productId: string; items: OptionTypeSyncItem[] }): Promise<Result<void>> {
+    return post<Result<void>>(`${ProductOptionTypeApi.BASE}/assign`, request)
+  }
+
+  static revokeOptionTypes(request: { productId: string; items: OptionTypeSyncItem[] }): Promise<Result<void>> {
+    return post<Result<void>>(`${ProductOptionTypeApi.BASE}/revoke`, request)
   }
 }
