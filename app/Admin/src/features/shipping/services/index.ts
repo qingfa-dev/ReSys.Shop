@@ -1,1 +1,2 @@
-// Barrel exports for shipping/services
+export { ShippingMethodApi } from './shippingMethodApi'
+export { ShippingRateApi } from './shippingRateApi'
