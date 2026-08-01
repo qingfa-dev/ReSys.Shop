@@ -1,1 +1,1 @@
-// Barrel exports for dashboard/stores
+export { useDashboardStore } from './dashboardStore'

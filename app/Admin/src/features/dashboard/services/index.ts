@@ -1,1 +1,1 @@
-// Barrel exports for dashboard/services
+export { DashboardApi } from './dashboardApi'
