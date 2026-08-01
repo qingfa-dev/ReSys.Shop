@@ -1,1 +1,1 @@
-// Barrel exports for profile/components
+export {}

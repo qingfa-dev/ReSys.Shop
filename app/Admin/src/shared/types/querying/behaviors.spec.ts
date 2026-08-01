@@ -17,10 +17,10 @@ import {
   normalizePage,
   normalizePageSize,
 } from './behaviors'
-import { emptyFilterModel, emptyFilterGroup } from './filter'
+import { emptyFilterModel } from './filter'
 import { emptySortModel } from './sort'
 import { emptySearchModel } from './search'
-import { emptyPageModel, defaultPageBounds } from './page'
+import { emptyPageModel } from './page'
 
 describe('flatAnd / flatOr', () => {
   it('creates a filter group with given logic', () => {

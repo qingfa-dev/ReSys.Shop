@@ -7,7 +7,7 @@ describe('throttle', () => {
   })
 
   it('calls the function immediately on first invocation', () => {
-    const fn = vi.fn()
+    const fn = vi.fn<(...args: unknown[]) => unknown>()
     const throttled = throttle(fn, 100)
     throttled()
     expect(fn).toHaveBeenCalledOnce()
@@ -15,7 +15,7 @@ describe('throttle', () => {
 
   it('blocks subsequent calls within the limit window', () => {
     vi.useFakeTimers()
-    const fn = vi.fn()
+    const fn = vi.fn<(...args: unknown[]) => unknown>()
     const throttled = throttle(fn, 100)
     throttled()
     throttled()
@@ -26,7 +26,7 @@ describe('throttle', () => {
 
   it('allows call after the limit window expires', () => {
     vi.useFakeTimers()
-    const fn = vi.fn()
+    const fn = vi.fn<(...args: unknown[]) => unknown>()
     const throttled = throttle(fn, 100)
     throttled()
     vi.advanceTimersByTime(100)
@@ -36,7 +36,7 @@ describe('throttle', () => {
   })
 
   it('passes arguments to the original function', () => {
-    const fn = vi.fn()
+    const fn = vi.fn<(...args: unknown[]) => unknown>()
     const throttled = throttle(fn, 100)
     throttled('a', 1)
     expect(fn).toHaveBeenCalledWith('a', 1)

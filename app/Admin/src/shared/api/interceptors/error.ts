@@ -1,5 +1,4 @@
 import axios from 'axios'
-import type { AxiosError } from 'axios'
 import type { ApiError } from '@/shared/types/error'
 import { HttpError } from '../errors'
 import { notifyError } from '../notify'

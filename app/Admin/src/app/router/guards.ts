@@ -4,7 +4,7 @@ import { useAuthStore } from '@/features/auth/stores/authStore'
 let isInitialized = false
 
 export function setupGuards(router: Router): void {
-  router.beforeEach(async (to, _from) => {
+  router.beforeEach(async (_to, _from) => {
     const store = useAuthStore()
 
     if (!isInitialized) {

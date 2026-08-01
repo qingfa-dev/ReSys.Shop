@@ -3,7 +3,7 @@ import { getPaged } from '../paged'
 import type { PagedResult } from '@/shared/types/result'
 
 const { mockGet, mockHttpError } = vi.hoisted(() => ({
-  mockGet: vi.fn(),
+  mockGet: vi.fn<(url: string) => Promise<PagedResult<unknown>>>(),
   mockHttpError: class extends Error {
     statusCode: number
     errors: Array<{ code: string; message: string; type: number }>

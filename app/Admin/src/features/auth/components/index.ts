@@ -1,1 +1,1 @@
-// Barrel exports for auth/components
+export {}

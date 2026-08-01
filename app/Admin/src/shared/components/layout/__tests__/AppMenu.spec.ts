@@ -8,14 +8,14 @@ import AppMenu from '../AppMenu.vue'
 import AppMenuItem from '../AppMenuItem.vue'
 import * as authApi from '@/features/auth/services/authApi'
 
-let toastMock = { add: vi.fn() }
+let toastMock = { add: vi.fn<(...args: unknown[]) => unknown>() }
 
 vi.mock('primevue/usetoast', () => ({
-  useToast: vi.fn(() => toastMock),
+  useToast: vi.fn<(...args: unknown[]) => unknown>(() => toastMock),
 }))
 
 vi.mock('@/features/auth/services/authApi', () => ({
-  logout: vi.fn(() => Promise.resolve({ isSuccess: true, value: undefined })),
+  logout: vi.fn<(...args: unknown[]) => unknown>(() => Promise.resolve({ isSuccess: true, value: undefined })),
 }))
 
 vi.mock('@/features/dashboard/routes', () => ({ dashboardMenuItems: [{ label: 'Dashboard', icon: 'pi pi-home', to: '/' }] }))
@@ -59,7 +59,7 @@ function createWrapper(isLoggingOut = false) {
 
 beforeEach(() => {
   vi.clearAllMocks()
-  toastMock = { add: vi.fn() }
+  toastMock = { add: vi.fn<(...args: unknown[]) => unknown>() }
 })
 
 describe('AppMenu', () => {

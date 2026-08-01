@@ -1,1 +1,1 @@
-// Barrel exports for identity/components
+export {}

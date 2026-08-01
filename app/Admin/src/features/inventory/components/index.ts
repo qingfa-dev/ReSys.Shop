@@ -1,1 +1,1 @@
-// Barrel exports for inventory/components
+export {}

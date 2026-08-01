@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { usePagedQuery } from '../usePagedQuery'
 import type { PagedResult } from '@/shared/types/result'
 
-const { mockGetPaged } = vi.hoisted(() => ({ mockGetPaged: vi.fn() }))
+const { mockGetPaged } = vi.hoisted(() => ({ mockGetPaged: vi.fn<(...args: unknown[]) => unknown>() }))
 
 vi.mock('../../api', () => ({
   getPaged: mockGetPaged,
@@ -107,7 +107,7 @@ describe('usePagedQuery', () => {
 
   it('reset clears all state', async () => {
     mockGetPaged.mockResolvedValue(okResult())
-    const { items, filter, sort, search, page, pageSize, error, reset } = usePagedQuery<{ id: string; name: string }>('/api/products', { immediate: false })
+    const { items, filter, sort, search, page, pageSize, error: _error, reset } = usePagedQuery<{ id: string; name: string }>('/api/products', { immediate: false })
 
     filter.value = 'name=bolt'
     sort.value = ['-createdAt']
@@ -148,7 +148,7 @@ describe('usePagedQuery', () => {
 
   it('accepts a function returning URL', async () => {
     mockGetPaged.mockResolvedValue(okResult())
-    let basePath = '/api/v1'
+    const basePath = '/api/v1'
     const { items } = usePagedQuery<{ id: string }>(() => `${basePath}/products`)
 
     await vi.waitFor(() => {

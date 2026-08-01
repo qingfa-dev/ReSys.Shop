@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { HttpError } from '@/shared/api'
 
-const mockToastAdd = vi.fn()
+const mockToastAdd = vi.fn<(...args: unknown[]) => unknown>()
 
 vi.mock('primevue/usetoast', () => ({
-  useToast: vi.fn(() => ({ add: mockToastAdd })),
+  useToast: vi.fn<(...args: unknown[]) => unknown>(() => ({ add: mockToastAdd })),
 }))
 
 beforeEach(() => {

@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 const { mockLogin, mockLogout, mockGetSession } = vi.hoisted(() => ({
-  mockLogin: vi.fn(),
-  mockLogout: vi.fn(),
-  mockGetSession: vi.fn(),
+  mockLogin: vi.fn<(...args: unknown[]) => unknown>(),
+  mockLogout: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGetSession: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 vi.mock('../../services/authApi', () => ({
@@ -14,11 +14,11 @@ vi.mock('../../services/authApi', () => ({
 }))
 
 vi.mock('../../services/tokenService', () => ({
-  getAccessToken: vi.fn(() => 'access-token'),
-  getRefreshToken: vi.fn(() => 'refresh-token'),
-  setTokens: vi.fn(),
-  clearTokens: vi.fn(),
-  hasValidAccessToken: vi.fn(() => true),
+  getAccessToken: vi.fn<(...args: unknown[]) => unknown>(() => 'access-token'),
+  getRefreshToken: vi.fn<(...args: unknown[]) => unknown>(() => 'refresh-token'),
+  setTokens: vi.fn<(...args: unknown[]) => unknown>(),
+  clearTokens: vi.fn<(...args: unknown[]) => unknown>(),
+  hasValidAccessToken: vi.fn<(...args: unknown[]) => unknown>(() => true),
 }))
 
 import { useAuthStore } from '../authStore'

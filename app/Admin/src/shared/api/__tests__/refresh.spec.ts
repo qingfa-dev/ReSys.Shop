@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { handleTokenRefresh, setRefreshUrl } from '../interceptors/refresh'
 
-const { mockPost } = vi.hoisted(() => ({ mockPost: vi.fn() }))
+const { mockPost } = vi.hoisted(() => ({ mockPost: vi.fn<(...args: unknown[]) => unknown>() }))
 
 vi.mock('axios', () => ({
   default: {
-    create: vi.fn(() => ({ post: mockPost })),
-    isCancel: vi.fn(() => false),
-    isAxiosError: vi.fn(() => false),
+    create: vi.fn<(...args: unknown[]) => unknown>(() => ({ post: mockPost })),
+    isCancel: vi.fn<(...args: unknown[]) => unknown>(() => false),
+    isAxiosError: vi.fn<(...args: unknown[]) => unknown>(() => false),
   },
 }))
 
@@ -71,7 +71,7 @@ describe('handleTokenRefresh', () => {
 
     mockPost.mockRejectedValue(new Error('Network error'))
 
-    await expect(handleTokenRefresh()).rejects.toThrow()
+    await expect(handleTokenRefresh()).rejects.toThrow('Network error')
     expect(localStorage.getItem('accessToken')).toBeNull()
     expect(localStorage.getItem('refreshToken')).toBeNull()
   })
@@ -103,8 +103,8 @@ describe('handleTokenRefresh', () => {
     const promise1 = handleTokenRefresh()
     const promise2 = handleTokenRefresh()
 
-    await expect(promise1).rejects.toThrow()
-    await expect(promise2).rejects.toThrow()
+    await expect(promise1).rejects.toThrow('Network error')
+    await expect(promise2).rejects.toThrow('Network error')
     expect(mockPost).toHaveBeenCalledTimes(1)
   })
 

@@ -8,7 +8,7 @@ describe('debounce', () => {
 
   it('calls the function after the wait period', async () => {
     vi.useFakeTimers()
-    const fn = vi.fn()
+    const fn = vi.fn<(...args: unknown[]) => unknown>()
     const debounced = debounce(fn, 50)
     debounced()
     expect(fn).not.toHaveBeenCalled()
@@ -19,7 +19,7 @@ describe('debounce', () => {
 
   it('debounces multiple rapid calls', async () => {
     vi.useFakeTimers()
-    const fn = vi.fn()
+    const fn = vi.fn<(...args: unknown[]) => unknown>()
     const debounced = debounce(fn, 100)
     debounced()
     debounced()
@@ -34,7 +34,7 @@ describe('debounce', () => {
 
   it('passes arguments to the original function', async () => {
     vi.useFakeTimers()
-    const fn = vi.fn()
+    const fn = vi.fn<(...args: unknown[]) => unknown>()
     const debounced = debounce(fn, 50)
     debounced('a', 1)
     vi.advanceTimersByTime(60)

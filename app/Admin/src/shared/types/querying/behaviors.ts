@@ -1,11 +1,8 @@
 import type { FilterGroup, FilterCondition, FilterModel } from './filter'
-import { emptyFilterGroup } from './filter'
 import type { SortClause, SortModel } from './sort'
 import type { SearchModel } from './search'
 import type { PageModel, PageBounds } from './page'
 import { defaultPageBounds } from './page'
-import type { FilterLogic } from './enums'
-import type { SortDirection } from './enums'
 
 export function flatAnd(conditions: FilterCondition[]): FilterGroup {
   return { logic: 'And', conditions, groups: [] }

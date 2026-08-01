@@ -71,10 +71,12 @@ describe('loginSchema', () => {
 
   it('returns error messages on the correct fields', () => {
     const result = loginSchema.safeParse({ credential: '', password: '' })
-    if (!result.success) {
-      expect(result.error.issues.some(i => i.path[0] === 'credential')).toBe(true)
-      expect(result.error.issues.some(i => i.path[0] === 'password')).toBe(true)
+    expect(result.success).toBe(false)
+    if (result.success) {
+      throw new Error('Expected parse failure for empty credentials')
     }
+    expect(result.error.issues.some(i => i.path[0] === 'credential')).toBe(true)
+    expect(result.error.issues.some(i => i.path[0] === 'password')).toBe(true)
   })
 })
 

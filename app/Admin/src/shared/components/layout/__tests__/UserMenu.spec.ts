@@ -7,13 +7,13 @@ import ToastService from 'primevue/toastservice'
 import UserMenu from '../UserMenu.vue'
 import * as authApi from '@/features/auth/services/authApi'
 
-const mockToastAdd = vi.fn()
+const mockToastAdd = vi.fn<(...args: unknown[]) => unknown>()
 vi.mock('primevue/usetoast', () => ({
-  useToast: vi.fn(() => ({ add: mockToastAdd })),
+  useToast: vi.fn<(...args: unknown[]) => unknown>(() => ({ add: mockToastAdd })),
 }))
 
 vi.mock('@/features/auth/services/authApi', () => ({
-  logout: vi.fn(() => Promise.resolve({ isSuccess: true, value: undefined })),
+  logout: vi.fn<(...args: unknown[]) => unknown>(() => Promise.resolve({ isSuccess: true, value: undefined })),
 }))
 
 function createWrapper(authOverrides = {}) {

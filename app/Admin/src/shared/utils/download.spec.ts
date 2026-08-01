@@ -5,7 +5,7 @@ describe('downloadFile', () => {
   let anchor: HTMLAnchorElement
 
   beforeEach(() => {
-    anchor = { href: '', download: '', click: vi.fn(), style: {} } as unknown as HTMLAnchorElement
+    anchor = { href: '', download: '', click: vi.fn<(...args: unknown[]) => unknown>(), style: {} } as unknown as HTMLAnchorElement
     vi.spyOn(document, 'createElement').mockReturnValue(anchor)
     vi.spyOn(document.body, 'appendChild').mockReturnValue(anchor)
     vi.spyOn(document.body, 'removeChild').mockReturnValue(anchor)

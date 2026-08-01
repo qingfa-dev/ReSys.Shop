@@ -24,20 +24,16 @@ describe('parseFilterDsl', () => {
   it('parses a single condition', () => {
     const result = parseFilterDsl('name=bolt')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.root.conditions).toHaveLength(1)
-      expect(result.value.root.conditions[0]!.field).toBe('name')
-      expect(result.value.root.conditions[0]!.operator).toBe('Equal')
-      expect(result.value.root.conditions[0]!.value).toBe('bolt')
-    }
+    expect(result.value.root.conditions).toHaveLength(1)
+    expect(result.value.root.conditions[0]!.field).toBe('name')
+    expect(result.value.root.conditions[0]!.operator).toBe('Equal')
+    expect(result.value.root.conditions[0]!.value).toBe('bolt')
   })
 
   it('parses multiple conditions', () => {
     const result = parseFilterDsl('name=bolt,age>18')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.root.conditions).toHaveLength(2)
-    }
+    expect(result.value.root.conditions).toHaveLength(2)
   })
 
   it('rejects invalid DSL syntax', () => {
@@ -48,9 +44,7 @@ describe('parseFilterDsl', () => {
   it('rejects disallowed fields', () => {
     const result = parseFilterDsl('name=bolt', ['id'])
     expect(isFailure(result)).toBe(true)
-    if (isFailure(result)) {
-      expect(result.errors[0]!.code).toBe('Filter.Field.Disallowed')
-    }
+    expect(result.errors[0]!.code).toBe('Filter.Field.Disallowed')
   })
 })
 
@@ -62,10 +56,8 @@ describe('parseFilterJson', () => {
   it('parses valid JSON array', () => {
     const result = parseFilterJson('[{"field":"name","op":"eq","value":"bolt"}]')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.root.conditions).toHaveLength(1)
-      expect(result.value.root.conditions[0]!.field).toBe('name')
-    }
+    expect(result.value.root.conditions).toHaveLength(1)
+    expect(result.value.root.conditions[0]!.field).toBe('name')
   })
 
   it('rejects invalid JSON', () => {
@@ -75,9 +67,7 @@ describe('parseFilterJson', () => {
   it('rejects non-array JSON', () => {
     const result = parseFilterJson('{"field":"name"}')
     expect(isFailure(result)).toBe(true)
-    if (isFailure(result)) {
-      expect(result.errors[0]!.code).toBe('Filter.Json.InvalidStructure')
-    }
+    expect(result.errors[0]!.code).toBe('Filter.Json.InvalidStructure')
   })
 
   it('rejects missing field', () => {
@@ -104,52 +94,40 @@ describe('parseSortString', () => {
   it('parses ascending sort', () => {
     const result = parseSortString('name')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.clauses[0]!.field).toBe('name')
-      expect(result.value.clauses[0]!.direction).toBe('Ascending')
-    }
+    expect(result.value.clauses[0]!.field).toBe('name')
+    expect(result.value.clauses[0]!.direction).toBe('Ascending')
   })
 
   it('parses descending sort with - prefix', () => {
     const result = parseSortString('-name')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.clauses[0]!.field).toBe('name')
-      expect(result.value.clauses[0]!.direction).toBe('Descending')
-    }
+    expect(result.value.clauses[0]!.field).toBe('name')
+    expect(result.value.clauses[0]!.direction).toBe('Descending')
   })
 
   it('parses + prefix as ascending', () => {
     const result = parseSortString('+name')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.clauses[0]!.direction).toBe('Ascending')
-    }
+    expect(result.value.clauses[0]!.direction).toBe('Ascending')
   })
 
   it('parses colon syntax for direction', () => {
     const result = parseSortString('name:desc')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.clauses[0]!.field).toBe('name')
-      expect(result.value.clauses[0]!.direction).toBe('Descending')
-    }
+    expect(result.value.clauses[0]!.field).toBe('name')
+    expect(result.value.clauses[0]!.direction).toBe('Descending')
   })
 
   it('parses multiple sort clauses', () => {
     const result = parseSortString('name,-age')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.clauses).toHaveLength(2)
-    }
+    expect(result.value.clauses).toHaveLength(2)
   })
 
   it('rejects unknown colon direction', () => {
     const result = parseSortString('name:sideways')
     expect(isFailure(result)).toBe(true)
-    if (isFailure(result)) {
-      expect(result.errors[0]!.code).toBe('Sorting.Direction.Unknown')
-    }
+    expect(result.errors[0]!.code).toBe('Sorting.Direction.Unknown')
   })
 
   it('rejects missing field', () => {
@@ -171,9 +149,7 @@ describe('parseSortJson', () => {
   it('parses valid sort JSON', () => {
     const result = parseSortJson('[{"field":"name","direction":"Descending"}]')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.clauses[0]!.direction).toBe('Descending')
-    }
+    expect(result.value.clauses[0]!.direction).toBe('Descending')
   })
 
   it('rejects invalid JSON', () => {
@@ -224,10 +200,8 @@ describe('parseSearchJson', () => {
   it('parses valid search JSON', () => {
     const result = parseSearchJson('{"term":"bolt","fields":["name"],"mode":"All"}')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.term.value).toBe('bolt')
-      expect(result.value.mode).toBe('All')
-    }
+    expect(result.value.term.value).toBe('bolt')
+    expect(result.value.mode).toBe('All')
   })
 
   it('rejects invalid JSON', () => {
@@ -242,17 +216,13 @@ describe('parseSearchJson', () => {
   it('falls back to Any mode for unknown mode', () => {
     const result = parseSearchJson('{"term":"bolt","mode":"unknown"}')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.mode).toBe('Any')
-    }
+    expect(result.value.mode).toBe('Any')
   })
 
   it('parses caseSensitive as boolean string "true"', () => {
     const result = parseSearchJson('{"term":"bolt","caseSensitive":"true"}')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.term.caseSensitive).toBe(true)
-    }
+    expect(result.value.term.caseSensitive).toBe(true)
   })
 })
 
@@ -260,45 +230,35 @@ describe('parsePageValues', () => {
   it('returns default page when null', () => {
     const result = parsePageValues(null, null)
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.page).toBe(1)
-      expect(result.value.pageSize).toBe(20)
-    }
+    expect(result.value.page).toBe(1)
+    expect(result.value.pageSize).toBe(20)
   })
 
   it('parses valid values', () => {
     const result = parsePageValues(3, 50)
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.page).toBe(3)
-      expect(result.value.pageSize).toBe(50)
-    }
+    expect(result.value.page).toBe(3)
+    expect(result.value.pageSize).toBe(50)
   })
 
   it('uses default page when only pageSize provided', () => {
     const result = parsePageValues(null, 10)
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.page).toBe(1)
-      expect(result.value.pageSize).toBe(10)
-    }
+    expect(result.value.page).toBe(1)
+    expect(result.value.pageSize).toBe(10)
   })
 
   it('uses default pageSize when only page provided', () => {
     const result = parsePageValues(5, null)
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.page).toBe(5)
-      expect(result.value.pageSize).toBe(20)
-    }
+    expect(result.value.page).toBe(5)
+    expect(result.value.pageSize).toBe(20)
   })
 
   it('clamps page size to max', () => {
     const result = parsePageValues(1, 999, { defaultPage: 1, defaultPageSize: 20, maxPageSize: 100 })
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.pageSize).toBe(100)
-    }
+    expect(result.value.pageSize).toBe(100)
   })
 
   it('rejects non-integer page', () => {
@@ -323,9 +283,7 @@ describe('parsePageJson', () => {
   it('parses valid page JSON', () => {
     const result = parsePageJson('{"page":3,"pageSize":50}')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.page).toBe(3)
-    }
+    expect(result.value.page).toBe(3)
   })
 
   it('rejects invalid JSON', () => {
@@ -344,11 +302,9 @@ describe('parseFilterQueryString', () => {
   it('parses triplet format name:eq:bolt', () => {
     const result = parseFilterQueryString(['name:eq:bolt'])
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.root.conditions).toHaveLength(1)
-      expect(result.value.root.conditions[0]!.field).toBe('name')
-      expect(result.value.root.conditions[0]!.value).toBe('bolt')
-    }
+    expect(result.value.root.conditions).toHaveLength(1)
+    expect(result.value.root.conditions[0]!.field).toBe('name')
+    expect(result.value.root.conditions[0]!.value).toBe('bolt')
   })
 
   it('rejects triplet with unknown operator', () => {
@@ -378,12 +334,10 @@ describe('parseSortQueryString', () => {
   it('parses multiple sort entries', () => {
     const result = parseSortQueryString(['name', '-age'])
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.clauses).toHaveLength(2)
-      expect(result.value.clauses[0]!.field).toBe('name')
-      expect(result.value.clauses[1]!.field).toBe('age')
-      expect(result.value.clauses[1]!.direction).toBe('Descending')
-    }
+    expect(result.value.clauses).toHaveLength(2)
+    expect(result.value.clauses[0]!.field).toBe('name')
+    expect(result.value.clauses[1]!.field).toBe('age')
+    expect(result.value.clauses[1]!.direction).toBe('Descending')
   })
 
   it('rejects empty field after prefix', () => {
@@ -407,19 +361,15 @@ describe('parseSearchQueryString', () => {
   it('parses plain text search', () => {
     const result = parseSearchQueryString('bolt')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.term.value).toBe('bolt')
-      expect(result.value.mode).toBe('Any')
-    }
+    expect(result.value.term.value).toBe('bolt')
+    expect(result.value.mode).toBe('Any')
   })
 
   it('parses with fields and mode', () => {
     const result = parseSearchQueryString('bolt', 'name,title', 'All', 'true')
     expect(isSuccess(result)).toBe(true)
-    if (isSuccess(result)) {
-      expect(result.value.fields).toEqual(['name', 'title'])
-      expect(result.value.mode).toBe('All')
-      expect(result.value.term.caseSensitive).toBe(true)
-    }
+    expect(result.value.fields).toEqual(['name', 'title'])
+    expect(result.value.mode).toBe('All')
+    expect(result.value.term.caseSensitive).toBe(true)
   })
 })

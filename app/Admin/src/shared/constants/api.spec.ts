@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { API_MODULES, CATALOG, IDENTITY, INVENTORY, LOCATION, ORDERING, PAYMENT, PROFILE, SHIPPING, DASHBOARD } from './api'
+import { API_MODULES, CATALOG, DASHBOARD } from './api'
 
 describe('API_MODULES', () => {
   it('exports all module routes', () => {

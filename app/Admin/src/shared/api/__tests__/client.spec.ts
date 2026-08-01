@@ -2,16 +2,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setBaseUrl, setAuthToken, get, post, put, patch, del, delWithBody, getBlob } from '../client'
 
 const { mockGet, mockPost, mockPut, mockPatch, mockDelete, mockDefaults } = vi.hoisted(() => ({
-  mockGet: vi.fn(),
-  mockPost: vi.fn(),
-  mockPut: vi.fn(),
-  mockPatch: vi.fn(),
-  mockDelete: vi.fn(),
+  mockGet: vi.fn<(...args: unknown[]) => unknown>(),
+  mockPost: vi.fn<(...args: unknown[]) => unknown>(),
+  mockPut: vi.fn<(...args: unknown[]) => unknown>(),
+  mockPatch: vi.fn<(...args: unknown[]) => unknown>(),
+  mockDelete: vi.fn<(...args: unknown[]) => unknown>(),
   mockDefaults: { baseURL: '' },
 }))
 
 vi.mock('../axios', () => ({
-  getApiClient: vi.fn(() => ({
+  getApiClient: vi.fn<(...args: unknown[]) => unknown>(() => ({
     get: mockGet,
     post: mockPost,
     put: mockPut,
@@ -19,8 +19,8 @@ vi.mock('../axios', () => ({
     delete: mockDelete,
     defaults: mockDefaults,
   })),
-  createApiClient: vi.fn(),
-  resetApiClient: vi.fn(),
+  createApiClient: vi.fn<(...args: unknown[]) => unknown>(),
+  resetApiClient: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 beforeEach(() => {
