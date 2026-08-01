@@ -38,4 +38,10 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Warning,
         Message = "Failed to parse Stripe webhook event from payload.")]
     public static partial void ParseFailure(ILogger logger);
+
+    [LoggerMessage(
+        EventId = 5012,
+        Level = LogLevel.Information,
+        Message = "Stripe webhook event ignored (no handler): {EventType}")]
+    public static partial void EventIgnored(ILogger logger, string EventType);
 }

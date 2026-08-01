@@ -1,7 +1,5 @@
 using Hangfire;
 
-using Microsoft.Extensions.Logging;
-
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Services.Provider;
 using Module.Payment.Services.Webhook;
@@ -59,8 +57,10 @@ public sealed partial class ProcessStripeWebhookEventJob
                 await HandleChargeDisputeCreated(stripeEvent, ct);
                 break;
             case GatewayConstants.WebhookEvents.Stripe.PaymentIntentRequiresAction:
+                ProcessStripeWebhookEventJobLoggers.EventIgnored(_logger, stripeEvent.Type);
                 break;
             case GatewayConstants.WebhookEvents.Stripe.PaymentIntentProcessing:
+                ProcessStripeWebhookEventJobLoggers.EventIgnored(_logger, stripeEvent.Type);
                 break;
             case GatewayConstants.WebhookEvents.Stripe.PaymentIntentCanceled:
                 await HandlePaymentIntentCanceled(stripeEvent, ct);
@@ -78,7 +78,10 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
-        // Check: Skip if already completed (idempotency)
+
+        // Guard: Skip duplicate event (idempotency by Stripe event ID)
+        if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
+        // Check: Skip if already completed (idempotency by state)
         if (payment.State == PaymentRecordState.Completed) return;
 
         var result = payment.Complete();
@@ -88,7 +91,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             return;
         }
 
-        await _dbContext.SaveChangesAsync(ct);
+        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+        await SaveWithRollbackAsync(payment, ct);
     }
 
     // Webhook: payment_intent.payment_failed — transition to Failed
@@ -100,6 +104,9 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
+
+        // Guard: Skip duplicate event
+        if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
         if (payment.State is PaymentRecordState.Failed or PaymentRecordState.Void) return;
 
         var result = payment.Fail();
@@ -109,7 +116,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             return;
         }
 
-        await _dbContext.SaveChangesAsync(ct);
+        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+        await SaveWithRollbackAsync(payment, ct);
     }
 
     // Webhook: charge.refunded — increment RefundedAmount
@@ -121,6 +129,9 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == charge.PaymentIntentId, ct);
         if (payment is null) return;
+
+        // Guard: Skip duplicate event
+        if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
         if (payment.State is PaymentRecordState.Void) return;
 
         // Compute: Delta between new refund amount and existing — only apply if positive
@@ -139,7 +150,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             }
         }
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
-        await _dbContext.SaveChangesAsync(ct);
+        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+        await SaveWithRollbackAsync(payment, ct);
     }
 
     // Webhook: charge.dispute.created — transition to Disputed state
@@ -151,6 +163,9 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == dispute.PaymentIntentId, ct);
         if (payment is null) return;
+
+        // Guard: Skip duplicate event
+        if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
         if (payment.State is PaymentRecordState.Disputed) return;
 
         var result = payment.Dispute();
@@ -161,7 +176,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             return;
         }
 
-        await _dbContext.SaveChangesAsync(ct);
+        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+        await SaveWithRollbackAsync(payment, ct);
         _logger.DisputeCreated(dispute.ChargeId, dispute.Reason ?? "unknown");
     }
 
@@ -173,6 +189,9 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
+
+        // Guard: Skip duplicate event
+        if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
         if (payment.State is PaymentRecordState.Void) return;
 
         var result = payment.Void();
@@ -183,6 +202,13 @@ public sealed partial class ProcessStripeWebhookEventJob
             return;
         }
 
+        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+        await SaveWithRollbackAsync(payment, ct);
+    }
+
+    /// <summary>Persists changes. On DB failure, lets exception propagate — Hangfire retries with fresh scoped context.</summary>
+    private async Task SaveWithRollbackAsync(PaymentCapture payment, CancellationToken ct)
+    {
         await _dbContext.SaveChangesAsync(ct);
     }
 }

@@ -22,6 +22,10 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     public string? PaymentStatus { get; set; }
     public decimal RefundedAmount { get; set; }
     public string ProviderKey { get; set; } = string.Empty;
+    /// <summary>Stripe event IDs already processed for this payment — prevents duplicate webhook handling.</summary>
+    public List<string> ProcessedStripeEventIds { get; set; } = [];
+    /// <summary>Optimistic concurrency token — prevents race conditions between admin operations and webhooks.</summary>
+    public uint RowVersion { get; set; }
     #endregion Properties
 
     #region Identifiers

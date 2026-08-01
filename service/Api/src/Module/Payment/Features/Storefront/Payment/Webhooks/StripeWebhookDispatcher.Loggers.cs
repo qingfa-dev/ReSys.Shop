@@ -11,6 +11,6 @@ public static partial class StripeWebhookDispatcherLoggers
     [LoggerMessage(
         EventId = 5011,
         Level = LogLevel.Error,
-        Message = "Stripe event parse failed: {Payload}")]
-    public static partial void EventParseFailed(ILogger logger, Exception ex, string Payload);
+        Message = "Stripe event parse failed: {ErrorMessage}. Payload length: {PayloadLength}")]
+    public static partial void EventParseFailed(ILogger logger, Exception ex, string ErrorMessage, int PayloadLength);
 }

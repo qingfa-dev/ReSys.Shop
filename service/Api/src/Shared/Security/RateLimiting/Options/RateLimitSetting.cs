@@ -17,7 +17,8 @@ public sealed class RateLimitSetting
             [RateLimitSettingConstant.Allowed.Auth] = new RateLimitPolicyConfig { PermitLimit = 1000, WindowSeconds = 60 },
             [RateLimitSettingConstant.Allowed.Register] = new RateLimitPolicyConfig { PermitLimit = 1000, WindowSeconds = 3600 },
             [RateLimitSettingConstant.Allowed.ForgotPassword] = new RateLimitPolicyConfig { PermitLimit = 1000, WindowSeconds = 3600 },
-            [RateLimitSettingConstant.Allowed.Payment] = new RateLimitPolicyConfig { PermitLimit = 1000, WindowSeconds = 60 }
+            [RateLimitSettingConstant.Allowed.Payment] = new RateLimitPolicyConfig { PermitLimit = 1000, WindowSeconds = 60 },
+            [RateLimitSettingConstant.Allowed.Webhook] = new RateLimitPolicyConfig { PermitLimit = 1000, WindowSeconds = 60 }
         }
     };
 }

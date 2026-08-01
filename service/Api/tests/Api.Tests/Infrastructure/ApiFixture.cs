@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Persistence;
+using Module.Inventory.Persistence.Constants;
 using Module.Location.Persistence;
 using Module.Ordering.Persistence;
 using Module.Profile.Persistence;
@@ -27,6 +28,7 @@ public sealed class ApiFixture : IAsyncLifetime
     [
         CatalogSchema.Name,
         IdentitySchema.Name,
+        InventorySchema.Name,
         LocationSchema.Name,
         OrderingSchema.Name,
         ProfileSchema.Name
@@ -168,6 +170,7 @@ public sealed class ApiFixture : IAsyncLifetime
         {
             [CatalogSchema.Name] = new List<Type>(),
             [IdentitySchema.Name] = new List<Type>(),
+            [InventorySchema.Name] = new List<Type>(),
             [LocationSchema.Name] = new List<Type>(),
             [OrderingSchema.Name] = new List<Type>(),
             [ProfileSchema.Name] = new List<Type>(),
@@ -198,6 +201,8 @@ public sealed class ApiFixture : IAsyncLifetime
 
         if (ns.Contains(".Catalog.", StringComparison.OrdinalIgnoreCase))
             return CatalogSchema.Name;
+        if (ns.Contains(".Inventory.", StringComparison.OrdinalIgnoreCase))
+            return InventorySchema.Name;
         if (ns.Contains(".Location.", StringComparison.OrdinalIgnoreCase))
             return LocationSchema.Name;
         if (ns.Contains(".Ordering.", StringComparison.OrdinalIgnoreCase))
