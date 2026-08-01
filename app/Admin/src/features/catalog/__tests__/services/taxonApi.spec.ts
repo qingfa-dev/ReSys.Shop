@@ -69,6 +69,22 @@ describe('TaxonApi.getTree', () => {
   })
 })
 
+describe('TaxonApi.getList', () => {
+  it('calls getPaged with list URL and taxonomyId', async () => {
+    mockGetPaged.mockResolvedValue({
+      items: [],
+      page: 1, pageSize: 20, totalCount: 0, totalPages: 0,
+      isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null,
+    })
+    await TaxonApi.getList('abc-123', { page: 1, pageSize: 10 })
+    expect(mockGetPaged).toHaveBeenCalledWith(
+      'api/catalog/taxons/list?taxonomyId=abc-123',
+      expect.objectContaining({ pageNumber: 1, pageSize: 10 }),
+      expect.any(Object),
+    )
+  })
+})
+
 describe('TaxonApi.createTaxon', () => {
   it('calls POST with request body', async () => {
     const req = {
