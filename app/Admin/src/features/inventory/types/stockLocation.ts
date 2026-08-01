@@ -38,29 +38,29 @@ export interface StockLocationQuery {
 }
 
 export const STOCK_LOCATION_FILTER_FIELDS = [
-  'Active',
-  'Default',
-  'BackorderableDefault',
-  'IsDeleted',
-  'CountryId',
-  'StateId',
+  'active',
+  'default',
+  'backorderableDefault',
+  'isDeleted',
+  'countryId',
+  'stateId',
 ]
 
-export const STOCK_LOCATION_SORT_FIELDS = ['Name', 'Code', 'Position', 'CreatedAtUtc']
+export const STOCK_LOCATION_SORT_FIELDS = ['name', 'code', 'position', 'createdAtUtc']
 
-export const STOCK_LOCATION_SEARCH_FIELDS = ['Name', 'Code', 'City', 'AdminName']
+export const STOCK_LOCATION_SEARCH_FIELDS = ['name', 'code', 'city', 'adminName']
 
 export function toStockLocationQueryParams(query: StockLocationQuery): QueryingParameters {
   const filters: string[] = []
 
   if (query.active === true) {
-    filters.push('Active=true')
+    filters.push('active=true')
   }
   if (query.default === true) {
-    filters.push('Default=true')
+    filters.push('default=true')
   }
   if (query.isDeleted === true) {
-    filters.push('IsDeleted=true')
+    filters.push('isDeleted=true')
   }
 
   let sort: string[] | null = null

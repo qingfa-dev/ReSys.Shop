@@ -52,16 +52,16 @@ describe('StockLocationApi.getStockLocations', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/inventory/stock-locations',
       {
-        filter: 'Active=true',
+        filter: 'active=true',
         search: 'main',
         sort: ['name'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['Active', 'Default', 'BackorderableDefault', 'IsDeleted', 'CountryId', 'StateId'],
-        allowedSortFields: ['Name', 'Code', 'Position', 'CreatedAtUtc'],
-        allowedSearchFields: ['Name', 'Code', 'City', 'AdminName'],
+        allowedFilterFields: ['active', 'default', 'backorderableDefault', 'isDeleted', 'countryId', 'stateId'],
+        allowedSortFields: ['name', 'code', 'position', 'createdAtUtc'],
+        allowedSearchFields: ['name', 'code', 'city', 'adminName'],
       }),
     )
   })

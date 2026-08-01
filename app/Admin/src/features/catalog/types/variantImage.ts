@@ -41,11 +41,11 @@ export interface VariantImageQuery {
   pageSize?: number
 }
 
-export const VARIANT_IMAGE_FILTER_FIELDS = ['Type', 'ContentType', 'DimensionsUnit']
+export const VARIANT_IMAGE_FILTER_FIELDS = ['type', 'contentType', 'dimensionsUnit']
 
-export const VARIANT_IMAGE_SORT_FIELDS = ['Position', 'CreatedAtUtc']
+export const VARIANT_IMAGE_SORT_FIELDS = ['position', 'createdAtUtc']
 
-export const VARIANT_IMAGE_SEARCH_FIELDS = ['FileName', 'Alt']
+export const VARIANT_IMAGE_SEARCH_FIELDS = ['fileName', 'alt']
 
 export function toVariantImageQueryParams(query: VariantImageQuery): QueryingParameters {
   const filters: string[] = []

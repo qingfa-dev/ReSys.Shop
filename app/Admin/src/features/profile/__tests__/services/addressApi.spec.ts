@@ -53,17 +53,17 @@ describe('AddressApi.getAddresses', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/profiles/addresses?userId=u-1',
       {
-        filter: 'AddressType=Shipping,IsDefault=true',
+        filter: 'addressType=Shipping,isDefault=true',
         search: null,
-        searchFields: ['FirstName', 'LastName', 'Address1', 'City', 'CountryName', 'Label', 'Phone'],
+        searchFields: ['firstName', 'lastName', 'address1', 'city', 'countryName', 'label', 'phone'],
         sort: ['-city'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['AddressType', 'CountryCode', 'StateCode', 'IsDefault', 'IsDefaultBilling', 'IsDefaultShipping', 'UserProfileId'],
-        allowedSortFields: ['FirstName', 'City', 'CountryName', 'AddressType'],
-        allowedSearchFields: ['FirstName', 'LastName', 'Address1', 'City', 'CountryName', 'Label', 'Phone'],
+        allowedFilterFields: ['addressType', 'countryCode', 'stateCode', 'isDefault', 'isDefaultBilling', 'isDefaultShipping', 'userProfileId'],
+        allowedSortFields: ['firstName', 'city', 'countryName', 'addressType'],
+        allowedSearchFields: ['firstName', 'lastName', 'address1', 'city', 'countryName', 'label', 'phone'],
       }),
     )
   })

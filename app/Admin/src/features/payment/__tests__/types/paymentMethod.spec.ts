@@ -18,12 +18,12 @@ describe('toPaymentMethodQueryParams', () => {
 
   it('builds filter DSL for active', () => {
     const result = toPaymentMethodQueryParams({ active: true })
-    expect(result.filter).toBe('Active=true')
+    expect(result.filter).toBe('active=true')
   })
 
   it('builds filter DSL for providerKey', () => {
     const result = toPaymentMethodQueryParams({ providerKey: 'stripe' })
-    expect(result.filter).toBe('ProviderKey=stripe')
+    expect(result.filter).toBe('providerKey=stripe')
   })
 
   it('skips empty string providerKey in filters', () => {
@@ -33,7 +33,7 @@ describe('toPaymentMethodQueryParams', () => {
 
   it('builds filter DSL for autoCapture', () => {
     const result = toPaymentMethodQueryParams({ autoCapture: true })
-    expect(result.filter).toBe('AutoCapture=true')
+    expect(result.filter).toBe('autoCapture=true')
   })
 
   it('builds sort ascending', () => {
@@ -57,11 +57,11 @@ describe('toPaymentMethodQueryParams', () => {
 describe('PAYMENT_METHOD_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(PAYMENT_METHOD_FILTER_FIELDS).toEqual([
-      'Active',
-      'ProviderKey',
-      'AutoCapture',
-      'DisplayOn',
-      'IsDeleted',
+      'active',
+      'providerKey',
+      'autoCapture',
+      'displayOn',
+      'isDeleted',
     ])
   })
 })
@@ -69,15 +69,15 @@ describe('PAYMENT_METHOD_FILTER_FIELDS', () => {
 describe('PAYMENT_METHOD_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(PAYMENT_METHOD_SORT_FIELDS).toEqual([
-      'Name',
-      'Position',
-      'CreatedAtUtc',
+      'name',
+      'position',
+      'createdAtUtc',
     ])
   })
 })
 
 describe('PAYMENT_METHOD_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(PAYMENT_METHOD_SEARCH_FIELDS).toEqual(['Name', 'Code', 'Description'])
+    expect(PAYMENT_METHOD_SEARCH_FIELDS).toEqual(['name', 'code', 'description'])
   })
 })

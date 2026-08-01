@@ -58,9 +58,9 @@ export interface StockTransferQuery {
   pageSize?: number
 }
 
-export const STOCK_TRANSFER_FILTER_FIELDS = ['State', 'SourceLocationId', 'DestinationLocationId']
+export const STOCK_TRANSFER_FILTER_FIELDS = ['state', 'sourceLocationId', 'destinationLocationId']
 
-export const STOCK_TRANSFER_SORT_FIELDS = ['Number', 'State', 'CreatedAtUtc']
+export const STOCK_TRANSFER_SORT_FIELDS = ['number', 'state', 'createdAtUtc']
 
 export const STOCK_TRANSFER_SEARCH_FIELDS: string[] = []
 
@@ -68,13 +68,13 @@ export function toStockTransferQueryParams(query: StockTransferQuery): QueryingP
   const filters: string[] = []
 
   if (query.state !== undefined) {
-    filters.push(`State=${query.state}`)
+    filters.push(`state=${query.state}`)
   }
   if (query.sourceLocationId !== undefined && query.sourceLocationId !== '') {
-    filters.push(`SourceLocationId=${query.sourceLocationId}`)
+    filters.push(`sourceLocationId=${query.sourceLocationId}`)
   }
   if (query.destinationLocationId !== undefined && query.destinationLocationId !== '') {
-    filters.push(`DestinationLocationId=${query.destinationLocationId}`)
+    filters.push(`destinationLocationId=${query.destinationLocationId}`)
   }
 
   let sort: string[] | null = null

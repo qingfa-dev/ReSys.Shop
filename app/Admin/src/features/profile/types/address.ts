@@ -36,35 +36,35 @@ export interface AddressQuery {
 }
 
 export const ADDRESS_FILTER_FIELDS = [
-  'AddressType',
-  'CountryCode',
-  'StateCode',
-  'IsDefault',
-  'IsDefaultBilling',
-  'IsDefaultShipping',
-  'UserProfileId',
+  'addressType',
+  'countryCode',
+  'stateCode',
+  'isDefault',
+  'isDefaultBilling',
+  'isDefaultShipping',
+  'userProfileId',
 ]
 
-export const ADDRESS_SORT_FIELDS = ['FirstName', 'City', 'CountryName', 'AddressType']
+export const ADDRESS_SORT_FIELDS = ['firstName', 'city', 'countryName', 'addressType']
 
 export const ADDRESS_SEARCH_FIELDS = [
-  'FirstName',
-  'LastName',
-  'Address1',
-  'City',
-  'CountryName',
-  'Label',
-  'Phone',
+  'firstName',
+  'lastName',
+  'address1',
+  'city',
+  'countryName',
+  'label',
+  'phone',
 ]
 
 export function toAddressQueryParams(query: AddressQuery): QueryingParameters {
   const filters: string[] = []
 
   if (query.addressType !== undefined) {
-    filters.push(`AddressType=${query.addressType}`)
+    filters.push(`addressType=${query.addressType}`)
   }
   if (query.isDefault !== undefined) {
-    filters.push(`IsDefault=${query.isDefault}`)
+    filters.push(`isDefault=${query.isDefault}`)
   }
 
   let sort: string[] | null = null

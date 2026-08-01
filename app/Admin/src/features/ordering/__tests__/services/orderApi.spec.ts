@@ -52,17 +52,17 @@ describe('OrderApi.getOrders', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/ordering/orders',
       {
-        filter: 'Status=Placed,Currency=USD',
+        filter: 'status=Placed,currency=USD',
         search: null,
-        searchFields: ['Number', 'Email'],
+        searchFields: ['number', 'email'],
         sort: ['-createdAtUtc'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['Status', 'CheckoutState', 'Currency', 'UserId', 'StoreId', 'IsDeleted'],
-        allowedSortFields: ['Number', 'Total', 'CompletedAtUtc', 'CreatedAtUtc', 'Status'],
-        allowedSearchFields: ['Number', 'Email'],
+        allowedFilterFields: ['status', 'checkoutState', 'currency', 'userId', 'storeId', 'isDeleted'],
+        allowedSortFields: ['number', 'total', 'completedAtUtc', 'createdAtUtc', 'status'],
+        allowedSearchFields: ['number', 'email'],
       }),
     )
   })
@@ -124,7 +124,7 @@ describe('OrderApi.getLineItems', () => {
       {
         filter: null,
         search: null,
-        searchFields: ['Number', 'Email'],
+        searchFields: ['number', 'email'],
         sort: ['-total'],
         pageNumber: null,
         pageSize: null,

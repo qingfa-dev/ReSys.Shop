@@ -42,34 +42,34 @@ export interface UserQuery {
 }
 
 export const USER_FILTER_FIELDS = [
-  'IsActive',
-  'EmailConfirmed',
-  'PhoneNumberConfirmed',
-  'CreatedAtUtc',
-  'ModifiedAtUtc',
+  'isActive',
+  'emailConfirmed',
+  'phoneNumberConfirmed',
+  'createdAtUtc',
+  'modifiedAtUtc',
 ]
 
 export const USER_SORT_FIELDS = [
-  'UserName',
-  'Email',
-  'CreatedAtUtc',
-  'ModifiedAtUtc',
-  'LastLoginAtUtc',
+  'userName',
+  'email',
+  'createdAtUtc',
+  'modifiedAtUtc',
+  'lastLoginAtUtc',
 ]
 
-export const USER_SEARCH_FIELDS = ['UserName', 'Email', 'FirstName', 'LastName']
+export const USER_SEARCH_FIELDS = ['userName', 'email', 'firstName', 'lastName']
 
 export function toUserQueryParams(query: UserQuery): QueryingParameters {
   const filters: string[] = []
 
   if (query.isActive !== undefined) {
-    filters.push(`IsActive=${query.isActive}`)
+    filters.push(`isActive=${query.isActive}`)
   }
   if (query.emailConfirmed !== undefined) {
-    filters.push(`EmailConfirmed=${query.emailConfirmed}`)
+    filters.push(`emailConfirmed=${query.emailConfirmed}`)
   }
   if (query.phoneNumberConfirmed !== undefined) {
-    filters.push(`PhoneNumberConfirmed=${query.phoneNumberConfirmed}`)
+    filters.push(`phoneNumberConfirmed=${query.phoneNumberConfirmed}`)
   }
 
   let sort: string[] | null = null

@@ -29,11 +29,11 @@ export interface PriceQuery {
   pageSize?: number
 }
 
-export const VARIANT_PRICE_FILTER_FIELDS = ['Currency', 'CountryIso', 'IsDefault', 'PriceListId', 'CompareAtAmount']
+export const VARIANT_PRICE_FILTER_FIELDS = ['currency', 'countryIso', 'isDefault', 'priceListId', 'compareAtAmount']
 
-export const VARIANT_PRICE_SORT_FIELDS = ['Amount', 'Currency', 'CompareAtAmount']
+export const VARIANT_PRICE_SORT_FIELDS = ['amount', 'currency', 'compareAtAmount']
 
-export const VARIANT_PRICE_SEARCH_FIELDS = ['Currency', 'CountryIso']
+export const VARIANT_PRICE_SEARCH_FIELDS = ['currency', 'countryIso']
 
 export function toVariantPriceQueryParams(query: PriceQuery): QueryingParameters {
   const filters: string[] = []

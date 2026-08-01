@@ -49,15 +49,15 @@ describe('StockTransferApi.getStockTransfers', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/inventory/stock-transfers',
       {
-        filter: 'State=InTransit,SourceLocationId=l-1,DestinationLocationId=l-2',
+        filter: 'state=InTransit,sourceLocationId=l-1,destinationLocationId=l-2',
         search: null,
         sort: ['-createdAtUtc'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['State', 'SourceLocationId', 'DestinationLocationId'],
-        allowedSortFields: ['Number', 'State', 'CreatedAtUtc'],
+        allowedFilterFields: ['state', 'sourceLocationId', 'destinationLocationId'],
+        allowedSortFields: ['number', 'state', 'createdAtUtc'],
         allowedSearchFields: [],
       }),
     )

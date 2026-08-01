@@ -50,17 +50,17 @@ describe('ProfileApi.getProfiles', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/profiles/profiles/all',
       {
-        filter: 'Gender=Male,IsActive=true',
+        filter: 'gender=Male,isActive=true',
         search: null,
-        searchFields: ['FirstName', 'LastName', 'Email', 'Bio'],
+        searchFields: ['firstName', 'lastName', 'email', 'bio'],
         sort: ['-firstName'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['Gender', 'IsActive', 'CreatedAtUtc', 'ModifiedAtUtc'],
-        allowedSortFields: ['FirstName', 'LastName', 'CreatedAtUtc', 'ModifiedAtUtc'],
-        allowedSearchFields: ['FirstName', 'LastName', 'Email', 'Bio'],
+        allowedFilterFields: ['gender', 'isActive', 'createdAtUtc', 'modifiedAtUtc'],
+        allowedSortFields: ['firstName', 'lastName', 'createdAtUtc', 'modifiedAtUtc'],
+        allowedSearchFields: ['firstName', 'lastName', 'email', 'bio'],
       }),
     )
   })

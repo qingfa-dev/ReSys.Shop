@@ -27,9 +27,9 @@ export interface StockItemQuery {
   pageSize?: number
 }
 
-export const STOCK_ITEM_FILTER_FIELDS = ['StockLocationId', 'VariantId', 'Backorderable']
+export const STOCK_ITEM_FILTER_FIELDS = ['stockLocationId', 'variantId', 'backorderable']
 
-export const STOCK_ITEM_SORT_FIELDS = ['CountOnHand', 'CreatedAtUtc']
+export const STOCK_ITEM_SORT_FIELDS = ['countOnHand', 'createdAtUtc']
 
 export const STOCK_ITEM_SEARCH_FIELDS: string[] = []
 
@@ -37,13 +37,13 @@ export function toStockItemQueryParams(query: StockItemQuery): QueryingParameter
   const filters: string[] = []
 
   if (query.stockLocationId !== undefined && query.stockLocationId !== '') {
-    filters.push(`StockLocationId=${query.stockLocationId}`)
+    filters.push(`stockLocationId=${query.stockLocationId}`)
   }
   if (query.variantId !== undefined && query.variantId !== '') {
-    filters.push(`VariantId=${query.variantId}`)
+    filters.push(`variantId=${query.variantId}`)
   }
   if (query.backorderable === true) {
-    filters.push('Backorderable=true')
+    filters.push('backorderable=true')
   }
 
   let sort: string[] | null = null

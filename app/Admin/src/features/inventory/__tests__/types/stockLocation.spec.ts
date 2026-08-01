@@ -18,7 +18,7 @@ describe('toStockLocationQueryParams', () => {
 
   it('builds filter DSL for active, default and isDeleted', () => {
     const result = toStockLocationQueryParams({ active: true, default: true, isDeleted: true })
-    expect(result.filter).toBe('Active=true,Default=true,IsDeleted=true')
+    expect(result.filter).toBe('active=true,default=true,isDeleted=true')
   })
 
   it('skips active when false', () => {
@@ -47,12 +47,12 @@ describe('toStockLocationQueryParams', () => {
 describe('STOCK_LOCATION_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_LOCATION_FILTER_FIELDS).toEqual([
-      'Active',
-      'Default',
-      'BackorderableDefault',
-      'IsDeleted',
-      'CountryId',
-      'StateId',
+      'active',
+      'default',
+      'backorderableDefault',
+      'isDeleted',
+      'countryId',
+      'stateId',
     ])
   })
 })
@@ -60,10 +60,10 @@ describe('STOCK_LOCATION_FILTER_FIELDS', () => {
 describe('STOCK_LOCATION_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_LOCATION_SORT_FIELDS).toEqual([
-      'Name',
-      'Code',
-      'Position',
-      'CreatedAtUtc',
+      'name',
+      'code',
+      'position',
+      'createdAtUtc',
     ])
   })
 })
@@ -71,10 +71,10 @@ describe('STOCK_LOCATION_SORT_FIELDS', () => {
 describe('STOCK_LOCATION_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_LOCATION_SEARCH_FIELDS).toEqual([
-      'Name',
-      'Code',
-      'City',
-      'AdminName',
+      'name',
+      'code',
+      'city',
+      'adminName',
     ])
   })
 })

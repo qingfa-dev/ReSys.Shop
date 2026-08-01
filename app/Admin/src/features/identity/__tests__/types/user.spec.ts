@@ -18,17 +18,17 @@ describe('toUserQueryParams', () => {
 
   it('builds filter DSL for isActive', () => {
     const result = toUserQueryParams({ isActive: true })
-    expect(result.filter).toBe('IsActive=true')
+    expect(result.filter).toBe('isActive=true')
   })
 
   it('builds filter DSL for emailConfirmed false', () => {
     const result = toUserQueryParams({ emailConfirmed: false })
-    expect(result.filter).toBe('EmailConfirmed=false')
+    expect(result.filter).toBe('emailConfirmed=false')
   })
 
   it('builds filter DSL for phoneNumberConfirmed', () => {
     const result = toUserQueryParams({ phoneNumberConfirmed: true })
-    expect(result.filter).toBe('PhoneNumberConfirmed=true')
+    expect(result.filter).toBe('phoneNumberConfirmed=true')
   })
 
   it('builds sort ascending', () => {
@@ -52,11 +52,11 @@ describe('toUserQueryParams', () => {
 describe('USER_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(USER_FILTER_FIELDS).toEqual([
-      'IsActive',
-      'EmailConfirmed',
-      'PhoneNumberConfirmed',
-      'CreatedAtUtc',
-      'ModifiedAtUtc',
+      'isActive',
+      'emailConfirmed',
+      'phoneNumberConfirmed',
+      'createdAtUtc',
+      'modifiedAtUtc',
     ])
   })
 })
@@ -64,17 +64,17 @@ describe('USER_FILTER_FIELDS', () => {
 describe('USER_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(USER_SORT_FIELDS).toEqual([
-      'UserName',
-      'Email',
-      'CreatedAtUtc',
-      'ModifiedAtUtc',
-      'LastLoginAtUtc',
+      'userName',
+      'email',
+      'createdAtUtc',
+      'modifiedAtUtc',
+      'lastLoginAtUtc',
     ])
   })
 })
 
 describe('USER_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(USER_SEARCH_FIELDS).toEqual(['UserName', 'Email', 'FirstName', 'LastName'])
+    expect(USER_SEARCH_FIELDS).toEqual(['userName', 'email', 'firstName', 'lastName'])
   })
 })

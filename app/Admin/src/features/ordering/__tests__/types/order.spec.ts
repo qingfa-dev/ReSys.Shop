@@ -18,17 +18,17 @@ describe('toOrderQueryParams', () => {
 
   it('builds filter DSL for status', () => {
     const result = toOrderQueryParams({ status: 'Placed' })
-    expect(result.filter).toBe('Status=Placed')
+    expect(result.filter).toBe('status=Placed')
   })
 
   it('builds filter DSL for checkoutState', () => {
     const result = toOrderQueryParams({ checkoutState: 'Payment' })
-    expect(result.filter).toBe('CheckoutState=Payment')
+    expect(result.filter).toBe('checkoutState=Payment')
   })
 
   it('builds filter DSL for currency', () => {
     const result = toOrderQueryParams({ currency: 'USD' })
-    expect(result.filter).toBe('Currency=USD')
+    expect(result.filter).toBe('currency=USD')
   })
 
   it('skips empty string currency in filters', () => {
@@ -57,12 +57,12 @@ describe('toOrderQueryParams', () => {
 describe('ORDER_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(ORDER_FILTER_FIELDS).toEqual([
-      'Status',
-      'CheckoutState',
-      'Currency',
-      'UserId',
-      'StoreId',
-      'IsDeleted',
+      'status',
+      'checkoutState',
+      'currency',
+      'userId',
+      'storeId',
+      'isDeleted',
     ])
   })
 })
@@ -70,17 +70,17 @@ describe('ORDER_FILTER_FIELDS', () => {
 describe('ORDER_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(ORDER_SORT_FIELDS).toEqual([
-      'Number',
-      'Total',
-      'CompletedAtUtc',
-      'CreatedAtUtc',
-      'Status',
+      'number',
+      'total',
+      'completedAtUtc',
+      'createdAtUtc',
+      'status',
     ])
   })
 })
 
 describe('ORDER_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(ORDER_SEARCH_FIELDS).toEqual(['Number', 'Email'])
+    expect(ORDER_SEARCH_FIELDS).toEqual(['number', 'email'])
   })
 })

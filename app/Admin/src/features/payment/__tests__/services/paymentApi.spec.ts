@@ -48,17 +48,17 @@ describe('PaymentApi.getPayments', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/payment/payments',
       {
-        filter: 'State=Captured,OrderId=o-1',
+        filter: 'state=Captured,orderId=o-1',
         search: null,
-        searchFields: ['Number'],
+        searchFields: ['number'],
         sort: ['-createdAtUtc'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['State', 'PaymentMethodId', 'OrderId'],
-        allowedSortFields: ['Number', 'Amount', 'State', 'CreatedAtUtc'],
-        allowedSearchFields: ['Number'],
+        allowedFilterFields: ['state', 'paymentMethodId', 'orderId'],
+        allowedSortFields: ['number', 'amount', 'state', 'createdAtUtc'],
+        allowedSearchFields: ['number'],
       }),
     )
   })

@@ -73,32 +73,32 @@ export interface OrderQuery {
 }
 
 export const ORDER_FILTER_FIELDS = [
-  'Status',
-  'CheckoutState',
-  'Currency',
-  'UserId',
-  'StoreId',
-  'IsDeleted',
+  'status',
+  'checkoutState',
+  'currency',
+  'userId',
+  'storeId',
+  'isDeleted',
 ]
 
-export const ORDER_SORT_FIELDS = ['Number', 'Total', 'CompletedAtUtc', 'CreatedAtUtc', 'Status']
+export const ORDER_SORT_FIELDS = ['number', 'total', 'completedAtUtc', 'createdAtUtc', 'status']
 
-export const ORDER_SEARCH_FIELDS = ['Number', 'Email']
+export const ORDER_SEARCH_FIELDS = ['number', 'email']
 
 export function toOrderQueryParams(query: OrderQuery): QueryingParameters {
   const filters: string[] = []
 
   if (query.status !== undefined) {
-    filters.push(`Status=${query.status}`)
+    filters.push(`status=${query.status}`)
   }
   if (query.checkoutState !== undefined) {
-    filters.push(`CheckoutState=${query.checkoutState}`)
+    filters.push(`checkoutState=${query.checkoutState}`)
   }
   if (query.currency !== undefined && query.currency !== '') {
-    filters.push(`Currency=${query.currency}`)
+    filters.push(`currency=${query.currency}`)
   }
   if (query.storeId !== undefined && query.storeId !== '') {
-    filters.push(`StoreId=${query.storeId}`)
+    filters.push(`storeId=${query.storeId}`)
   }
 
   let sort: string[] | null = null

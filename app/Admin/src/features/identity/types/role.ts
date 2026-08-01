@@ -33,19 +33,19 @@ export interface RoleQuery {
 }
 
 export const ROLE_FILTER_FIELDS = [
-  'IsSystem',
-  'CreatedAtUtc',
-  'ModifiedAtUtc',
+  'isSystem',
+  'createdAtUtc',
+  'modifiedAtUtc',
 ]
 
 export const ROLE_SORT_FIELDS = [
-  'Name',
-  'IsSystem',
-  'CreatedAtUtc',
-  'ModifiedAtUtc',
+  'name',
+  'isSystem',
+  'createdAtUtc',
+  'modifiedAtUtc',
 ]
 
-export const ROLE_SEARCH_FIELDS = ['Name', 'Description']
+export const ROLE_SEARCH_FIELDS = ['name', 'description']
 
 export function toRoleQueryParams(query: RoleQuery): QueryingParameters {
   const filters: string[] = []

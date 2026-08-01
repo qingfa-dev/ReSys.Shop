@@ -18,7 +18,7 @@ describe('toStockItemQueryParams', () => {
 
   it('builds filter DSL for stockLocationId, variantId and backorderable', () => {
     const result = toStockItemQueryParams({ stockLocationId: 'l-1', variantId: 'v-1', backorderable: true })
-    expect(result.filter).toBe('StockLocationId=l-1,VariantId=v-1,Backorderable=true')
+    expect(result.filter).toBe('stockLocationId=l-1,variantId=v-1,backorderable=true')
   })
 
   it('skips backorderable when false', () => {
@@ -51,9 +51,9 @@ describe('toStockItemQueryParams', () => {
 describe('STOCK_ITEM_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_ITEM_FILTER_FIELDS).toEqual([
-      'StockLocationId',
-      'VariantId',
-      'Backorderable',
+      'stockLocationId',
+      'variantId',
+      'backorderable',
     ])
   })
 })
@@ -61,8 +61,8 @@ describe('STOCK_ITEM_FILTER_FIELDS', () => {
 describe('STOCK_ITEM_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_ITEM_SORT_FIELDS).toEqual([
-      'CountOnHand',
-      'CreatedAtUtc',
+      'countOnHand',
+      'createdAtUtc',
     ])
   })
 })

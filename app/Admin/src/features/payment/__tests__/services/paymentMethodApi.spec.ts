@@ -55,17 +55,17 @@ describe('PaymentMethodApi.getPaymentMethods', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/payment/payment-methods',
       {
-        filter: 'Active=true,ProviderKey=stripe,AutoCapture=true',
+        filter: 'active=true,providerKey=stripe,autoCapture=true',
         search: null,
-        searchFields: ['Name', 'Code', 'Description'],
+        searchFields: ['name', 'code', 'description'],
         sort: ['-name'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['Active', 'ProviderKey', 'AutoCapture', 'DisplayOn', 'IsDeleted'],
-        allowedSortFields: ['Name', 'Position', 'CreatedAtUtc'],
-        allowedSearchFields: ['Name', 'Code', 'Description'],
+        allowedFilterFields: ['active', 'providerKey', 'autoCapture', 'displayOn', 'isDeleted'],
+        allowedSortFields: ['name', 'position', 'createdAtUtc'],
+        allowedSearchFields: ['name', 'code', 'description'],
       }),
     )
   })

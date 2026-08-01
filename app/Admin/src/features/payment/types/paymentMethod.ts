@@ -55,28 +55,28 @@ export interface PaymentMethodQuery {
 }
 
 export const PAYMENT_METHOD_FILTER_FIELDS = [
-  'Active',
-  'ProviderKey',
-  'AutoCapture',
-  'DisplayOn',
-  'IsDeleted',
+  'active',
+  'providerKey',
+  'autoCapture',
+  'displayOn',
+  'isDeleted',
 ]
 
-export const PAYMENT_METHOD_SORT_FIELDS = ['Name', 'Position', 'CreatedAtUtc']
+export const PAYMENT_METHOD_SORT_FIELDS = ['name', 'position', 'createdAtUtc']
 
-export const PAYMENT_METHOD_SEARCH_FIELDS = ['Name', 'Code', 'Description']
+export const PAYMENT_METHOD_SEARCH_FIELDS = ['name', 'code', 'description']
 
 export function toPaymentMethodQueryParams(query: PaymentMethodQuery): QueryingParameters {
   const filters: string[] = []
 
   if (query.active !== undefined) {
-    filters.push(`Active=${query.active}`)
+    filters.push(`active=${query.active}`)
   }
   if (query.providerKey !== undefined && query.providerKey !== '') {
-    filters.push(`ProviderKey=${query.providerKey}`)
+    filters.push(`providerKey=${query.providerKey}`)
   }
   if (query.autoCapture !== undefined) {
-    filters.push(`AutoCapture=${query.autoCapture}`)
+    filters.push(`autoCapture=${query.autoCapture}`)
   }
 
   let sort: string[] | null = null

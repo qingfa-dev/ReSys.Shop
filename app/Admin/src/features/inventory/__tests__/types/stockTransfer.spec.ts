@@ -22,7 +22,7 @@ describe('toStockTransferQueryParams', () => {
       sourceLocationId: 'l-1',
       destinationLocationId: 'l-2',
     })
-    expect(result.filter).toBe('State=InTransit,SourceLocationId=l-1,DestinationLocationId=l-2')
+    expect(result.filter).toBe('state=InTransit,sourceLocationId=l-1,destinationLocationId=l-2')
   })
 
   it('skips empty string values in location filters', () => {
@@ -50,9 +50,9 @@ describe('toStockTransferQueryParams', () => {
 describe('STOCK_TRANSFER_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_TRANSFER_FILTER_FIELDS).toEqual([
-      'State',
-      'SourceLocationId',
-      'DestinationLocationId',
+      'state',
+      'sourceLocationId',
+      'destinationLocationId',
     ])
   })
 })
@@ -60,9 +60,9 @@ describe('STOCK_TRANSFER_FILTER_FIELDS', () => {
 describe('STOCK_TRANSFER_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_TRANSFER_SORT_FIELDS).toEqual([
-      'Number',
-      'State',
-      'CreatedAtUtc',
+      'number',
+      'state',
+      'createdAtUtc',
     ])
   })
 })

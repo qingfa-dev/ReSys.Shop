@@ -18,7 +18,7 @@ describe('toProfileQueryParams', () => {
 
   it('builds filter DSL for gender', () => {
     const result = toProfileQueryParams({ gender: 'Male' })
-    expect(result.filter).toBe('Gender=Male')
+    expect(result.filter).toBe('gender=Male')
   })
 
   it('skips empty string gender in filters', () => {
@@ -28,7 +28,7 @@ describe('toProfileQueryParams', () => {
 
   it('builds filter DSL for isActive', () => {
     const result = toProfileQueryParams({ isActive: true })
-    expect(result.filter).toBe('IsActive=true')
+    expect(result.filter).toBe('isActive=true')
   })
 
   it('builds sort ascending', () => {
@@ -52,10 +52,10 @@ describe('toProfileQueryParams', () => {
 describe('PROFILE_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(PROFILE_FILTER_FIELDS).toEqual([
-      'Gender',
-      'IsActive',
-      'CreatedAtUtc',
-      'ModifiedAtUtc',
+      'gender',
+      'isActive',
+      'createdAtUtc',
+      'modifiedAtUtc',
     ])
   })
 })
@@ -63,16 +63,16 @@ describe('PROFILE_FILTER_FIELDS', () => {
 describe('PROFILE_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(PROFILE_SORT_FIELDS).toEqual([
-      'FirstName',
-      'LastName',
-      'CreatedAtUtc',
-      'ModifiedAtUtc',
+      'firstName',
+      'lastName',
+      'createdAtUtc',
+      'modifiedAtUtc',
     ])
   })
 })
 
 describe('PROFILE_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(PROFILE_SEARCH_FIELDS).toEqual(['FirstName', 'LastName', 'Email', 'Bio'])
+    expect(PROFILE_SEARCH_FIELDS).toEqual(['firstName', 'lastName', 'email', 'bio'])
   })
 })

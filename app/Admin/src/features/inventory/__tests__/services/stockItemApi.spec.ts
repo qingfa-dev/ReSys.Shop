@@ -53,15 +53,15 @@ describe('StockItemApi.getStockItems', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/inventory/stock-items',
       {
-        filter: 'StockLocationId=l-1,VariantId=v-1,Backorderable=true',
+        filter: 'stockLocationId=l-1,variantId=v-1,backorderable=true',
         search: null,
         sort: ['-countOnHand'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['StockLocationId', 'VariantId', 'Backorderable'],
-        allowedSortFields: ['CountOnHand', 'CreatedAtUtc'],
+        allowedFilterFields: ['stockLocationId', 'variantId', 'backorderable'],
+        allowedSortFields: ['countOnHand', 'createdAtUtc'],
         allowedSearchFields: [],
       }),
     )

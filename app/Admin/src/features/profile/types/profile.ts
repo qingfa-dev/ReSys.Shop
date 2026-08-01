@@ -53,29 +53,29 @@ export interface ProfileQuery {
 }
 
 export const PROFILE_FILTER_FIELDS = [
-  'Gender',
-  'IsActive',
-  'CreatedAtUtc',
-  'ModifiedAtUtc',
+  'gender',
+  'isActive',
+  'createdAtUtc',
+  'modifiedAtUtc',
 ]
 
 export const PROFILE_SORT_FIELDS = [
-  'FirstName',
-  'LastName',
-  'CreatedAtUtc',
-  'ModifiedAtUtc',
+  'firstName',
+  'lastName',
+  'createdAtUtc',
+  'modifiedAtUtc',
 ]
 
-export const PROFILE_SEARCH_FIELDS = ['FirstName', 'LastName', 'Email', 'Bio']
+export const PROFILE_SEARCH_FIELDS = ['firstName', 'lastName', 'email', 'bio']
 
 export function toProfileQueryParams(query: ProfileQuery): QueryingParameters {
   const filters: string[] = []
 
   if (query.gender !== undefined && query.gender !== '') {
-    filters.push(`Gender=${query.gender}`)
+    filters.push(`gender=${query.gender}`)
   }
   if (query.isActive !== undefined) {
-    filters.push(`IsActive=${query.isActive}`)
+    filters.push(`isActive=${query.isActive}`)
   }
 
   let sort: string[] | null = null

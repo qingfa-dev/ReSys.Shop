@@ -32,23 +32,23 @@ export interface PaymentQuery {
   pageSize?: number
 }
 
-export const PAYMENT_FILTER_FIELDS = ['State', 'PaymentMethodId', 'OrderId']
+export const PAYMENT_FILTER_FIELDS = ['state', 'paymentMethodId', 'orderId']
 
-export const PAYMENT_SORT_FIELDS = ['Number', 'Amount', 'State', 'CreatedAtUtc']
+export const PAYMENT_SORT_FIELDS = ['number', 'amount', 'state', 'createdAtUtc']
 
-export const PAYMENT_SEARCH_FIELDS = ['Number']
+export const PAYMENT_SEARCH_FIELDS = ['number']
 
 export function toPaymentQueryParams(query: PaymentQuery): QueryingParameters {
   const filters: string[] = []
 
   if (query.state !== undefined && query.state !== '') {
-    filters.push(`State=${query.state}`)
+    filters.push(`state=${query.state}`)
   }
   if (query.paymentMethodId !== undefined && query.paymentMethodId !== '') {
-    filters.push(`PaymentMethodId=${query.paymentMethodId}`)
+    filters.push(`paymentMethodId=${query.paymentMethodId}`)
   }
   if (query.orderId !== undefined && query.orderId !== '') {
-    filters.push(`OrderId=${query.orderId}`)
+    filters.push(`orderId=${query.orderId}`)
   }
 
   let sort: string[] | null = null

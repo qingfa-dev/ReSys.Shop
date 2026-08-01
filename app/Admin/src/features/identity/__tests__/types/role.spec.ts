@@ -47,9 +47,9 @@ describe('toRoleQueryParams', () => {
 describe('ROLE_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(ROLE_FILTER_FIELDS).toEqual([
-      'IsSystem',
-      'CreatedAtUtc',
-      'ModifiedAtUtc',
+      'isSystem',
+      'createdAtUtc',
+      'modifiedAtUtc',
     ])
   })
 })
@@ -57,16 +57,16 @@ describe('ROLE_FILTER_FIELDS', () => {
 describe('ROLE_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(ROLE_SORT_FIELDS).toEqual([
-      'Name',
-      'IsSystem',
-      'CreatedAtUtc',
-      'ModifiedAtUtc',
+      'name',
+      'isSystem',
+      'createdAtUtc',
+      'modifiedAtUtc',
     ])
   })
 })
 
 describe('ROLE_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(ROLE_SEARCH_FIELDS).toEqual(['Name', 'Description'])
+    expect(ROLE_SEARCH_FIELDS).toEqual(['name', 'description'])
   })
 })

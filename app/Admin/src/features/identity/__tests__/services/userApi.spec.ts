@@ -48,11 +48,11 @@ describe('UserApi.getUsers', () => {
 
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/identity/users',
-      { filter: 'IsActive=true', search: null, sort: null, pageNumber: 1, pageSize: 10 },
+      { filter: 'isActive=true', search: null, sort: null, pageNumber: 1, pageSize: 10 },
       expect.objectContaining({
-        allowedFilterFields: ['IsActive', 'EmailConfirmed', 'PhoneNumberConfirmed', 'CreatedAtUtc', 'ModifiedAtUtc'],
-        allowedSortFields: ['UserName', 'Email', 'CreatedAtUtc', 'ModifiedAtUtc', 'LastLoginAtUtc'],
-        allowedSearchFields: ['UserName', 'Email', 'FirstName', 'LastName'],
+        allowedFilterFields: ['isActive', 'emailConfirmed', 'phoneNumberConfirmed', 'createdAtUtc', 'modifiedAtUtc'],
+        allowedSortFields: ['userName', 'email', 'createdAtUtc', 'modifiedAtUtc', 'lastLoginAtUtc'],
+        allowedSearchFields: ['userName', 'email', 'firstName', 'lastName'],
       }),
     )
   })

@@ -50,9 +50,9 @@ describe('RoleApi.getRoles', () => {
       'api/identity/roles',
       { filter: 'name*=Admin', search: null, sort: null, pageNumber: 1, pageSize: 10 },
       expect.objectContaining({
-        allowedFilterFields: ['IsSystem', 'CreatedAtUtc', 'ModifiedAtUtc'],
-        allowedSortFields: ['Name', 'IsSystem', 'CreatedAtUtc', 'ModifiedAtUtc'],
-        allowedSearchFields: ['Name', 'Description'],
+        allowedFilterFields: ['isSystem', 'createdAtUtc', 'modifiedAtUtc'],
+        allowedSortFields: ['name', 'isSystem', 'createdAtUtc', 'modifiedAtUtc'],
+        allowedSearchFields: ['name', 'description'],
       }),
     )
   })
