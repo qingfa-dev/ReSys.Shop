@@ -32,11 +32,11 @@ export interface StockMovementQueryParams extends QueryingParameters {
   stockLocationId: string | null
 }
 
-export const STOCK_MOVEMENT_FILTER_FIELDS = ['StockItemId', 'OriginatorType']
+export const STOCK_MOVEMENT_FILTER_FIELDS = ['stockItemId', 'originatorType']
 
-export const STOCK_MOVEMENT_SORT_FIELDS = ['Quantity', 'CreatedAtUtc']
+export const STOCK_MOVEMENT_SORT_FIELDS = ['quantity', 'createdAtUtc']
 
-export const STOCK_MOVEMENT_SEARCH_FIELDS = ['Reason']
+export const STOCK_MOVEMENT_SEARCH_FIELDS = ['reason']
 
 export function toStockMovementQueryParams(query: StockMovementQuery): StockMovementQueryParams {
   let sort: string[] | null = null

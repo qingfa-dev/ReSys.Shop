@@ -18,7 +18,7 @@ describe('toStockReservationQueryParams', () => {
 
   it('builds filter DSL for variantId, orderId and state', () => {
     const result = toStockReservationQueryParams({ variantId: 'v-1', orderId: 'o-1', state: 'Reserved' })
-    expect(result.filter).toBe('VariantId=v-1,OrderId=o-1,State=Reserved')
+    expect(result.filter).toBe('variantId=v-1,orderId=o-1,state=Reserved')
   })
 
   it('skips empty string values in filters', () => {
@@ -46,9 +46,9 @@ describe('toStockReservationQueryParams', () => {
 describe('STOCK_RESERVATION_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_RESERVATION_FILTER_FIELDS).toEqual([
-      'VariantId',
-      'OrderId',
-      'State',
+      'variantId',
+      'orderId',
+      'state',
     ])
   })
 })
@@ -56,8 +56,8 @@ describe('STOCK_RESERVATION_FILTER_FIELDS', () => {
 describe('STOCK_RESERVATION_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_RESERVATION_SORT_FIELDS).toEqual([
-      'ExpiresAtUtc',
-      'CreatedAtUtc',
+      'expiresAtUtc',
+      'createdAtUtc',
     ])
   })
 })

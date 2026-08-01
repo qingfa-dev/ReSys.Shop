@@ -47,15 +47,15 @@ describe('StockReservationApi.getStockReservations', () => {
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/inventory/stock-reservations',
       {
-        filter: 'State=Reserved',
+        filter: 'state=Reserved',
         search: null,
         sort: ['-createdAtUtc'],
         pageNumber: 1,
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['VariantId', 'OrderId', 'State'],
-        allowedSortFields: ['ExpiresAtUtc', 'CreatedAtUtc'],
+        allowedFilterFields: ['variantId', 'orderId', 'state'],
+        allowedSortFields: ['expiresAtUtc', 'createdAtUtc'],
         allowedSearchFields: [],
       }),
     )

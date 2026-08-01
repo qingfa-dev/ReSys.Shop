@@ -28,9 +28,9 @@ export interface StockReservationQuery {
   pageSize?: number
 }
 
-export const STOCK_RESERVATION_FILTER_FIELDS = ['VariantId', 'OrderId', 'State']
+export const STOCK_RESERVATION_FILTER_FIELDS = ['variantId', 'orderId', 'state']
 
-export const STOCK_RESERVATION_SORT_FIELDS = ['ExpiresAtUtc', 'CreatedAtUtc']
+export const STOCK_RESERVATION_SORT_FIELDS = ['expiresAtUtc', 'createdAtUtc']
 
 export const STOCK_RESERVATION_SEARCH_FIELDS: string[] = []
 
@@ -38,13 +38,13 @@ export function toStockReservationQueryParams(query: StockReservationQuery): Que
   const filters: string[] = []
 
   if (query.variantId !== undefined && query.variantId !== '') {
-    filters.push(`VariantId=${query.variantId}`)
+    filters.push(`variantId=${query.variantId}`)
   }
   if (query.orderId !== undefined && query.orderId !== '') {
-    filters.push(`OrderId=${query.orderId}`)
+    filters.push(`orderId=${query.orderId}`)
   }
   if (query.state !== undefined) {
-    filters.push(`State=${query.state}`)
+    filters.push(`state=${query.state}`)
   }
 
   let sort: string[] | null = null

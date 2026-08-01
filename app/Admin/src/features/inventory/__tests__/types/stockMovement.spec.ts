@@ -54,8 +54,8 @@ describe('toStockMovementQueryParams', () => {
 describe('STOCK_MOVEMENT_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_MOVEMENT_FILTER_FIELDS).toEqual([
-      'StockItemId',
-      'OriginatorType',
+      'stockItemId',
+      'originatorType',
     ])
   })
 })
@@ -63,14 +63,14 @@ describe('STOCK_MOVEMENT_FILTER_FIELDS', () => {
 describe('STOCK_MOVEMENT_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
     expect(STOCK_MOVEMENT_SORT_FIELDS).toEqual([
-      'Quantity',
-      'CreatedAtUtc',
+      'quantity',
+      'createdAtUtc',
     ])
   })
 })
 
 describe('STOCK_MOVEMENT_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(STOCK_MOVEMENT_SEARCH_FIELDS).toEqual(['Reason'])
+    expect(STOCK_MOVEMENT_SEARCH_FIELDS).toEqual(['reason'])
   })
 })

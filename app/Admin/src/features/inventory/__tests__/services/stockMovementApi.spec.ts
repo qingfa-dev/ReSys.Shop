@@ -47,9 +47,9 @@ describe('StockMovementApi.getStockMovements', () => {
       'api/inventory/stock-movements?fromUtc=2026-01-01T08%3A30%3A00Z&toUtc=2026-01-31&variantId=v-1&stockLocationId=l-1',
       expect.objectContaining({ pageNumber: 1, pageSize: 10 }),
       expect.objectContaining({
-        allowedFilterFields: ['StockItemId', 'OriginatorType'],
-        allowedSortFields: ['Quantity', 'CreatedAtUtc'],
-        allowedSearchFields: ['Reason'],
+        allowedFilterFields: ['stockItemId', 'originatorType'],
+        allowedSortFields: ['quantity', 'createdAtUtc'],
+        allowedSearchFields: ['reason'],
       }),
     )
   })
