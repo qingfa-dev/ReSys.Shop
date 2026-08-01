@@ -69,9 +69,23 @@ async function loadStockItem(id: string) {
       backorderable: s.backorderable,
     }
     formLoaded.value = true
+    await ensureCurrentVariantPresent()
   } else {
     handleResult(result)
     router.push('/inventory/stock-items')
+  }
+}
+
+async function ensureCurrentVariantPresent() {
+  if (!form.value.variantId) return
+  const present = variants.value.some((v) => v.id === form.value.variantId)
+  if (present) return
+
+  const result = await VariantApi.getVariant(form.value.variantId)
+  if (result.isSuccess && result.value) {
+    variants.value = [...variants.value, result.value]
+  } else {
+    handleResult(result)
   }
 }
 
