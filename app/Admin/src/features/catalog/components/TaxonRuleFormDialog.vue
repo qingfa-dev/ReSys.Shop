@@ -86,8 +86,8 @@ async function onSave() {
   }
 
   const result = isEdit.value
-    ? await TaxonRuleApi.updateRule(props.taxonId, props.editingRule!.id, request)
-    : await TaxonRuleApi.createRule(props.taxonId, request)
+    ? await TaxonRuleApi.updateRule(props.editingRule!.id, { ...request, taxonId: props.taxonId })
+    : await TaxonRuleApi.createRule({ ...request, taxonId: props.taxonId })
 
   saving.value = false
 
