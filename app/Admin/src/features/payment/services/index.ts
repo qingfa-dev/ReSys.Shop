@@ -1,1 +1,1 @@
-// Barrel exports for payment/services
+export { PaymentMethodApi } from './paymentMethodApi'
