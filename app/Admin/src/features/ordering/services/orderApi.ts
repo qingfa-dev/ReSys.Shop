@@ -1,0 +1,107 @@
+import { getPaged } from '@/shared/api'
+import { get, post, put, del } from '@/shared/api/client'
+import { ORDERING } from '@/shared/constants/api'
+import type { Result, PagedResult } from '@/shared/types'
+import type {
+  OrderRequest,
+  OrderQuery,
+  OrderListItem,
+  OrderDetail,
+  LineItem,
+  AddLineItemRequest,
+  UpdateLineItemRequest,
+  CancelOrderRequest,
+  UpdateOrderAddressRequest,
+  UpdateOrderShippingMethodRequest,
+  UpdateOrderStatusRequest,
+} from '../types/order'
+import {
+  ORDER_FILTER_FIELDS,
+  ORDER_SORT_FIELDS,
+  ORDER_SEARCH_FIELDS,
+  toOrderQueryParams,
+} from '../types/order'
+
+export class OrderApi {
+  private static readonly BASE = `${ORDERING}/orders`
+
+  static getOrders(query: OrderQuery): Promise<PagedResult<OrderListItem>> {
+    return getPaged<OrderListItem>(OrderApi.BASE, toOrderQueryParams(query), {
+      allowedFilterFields: ORDER_FILTER_FIELDS,
+      allowedSortFields: ORDER_SORT_FIELDS,
+      allowedSearchFields: ORDER_SEARCH_FIELDS,
+    })
+  }
+
+  static getOrder(id: string): Promise<Result<OrderDetail>> {
+    return get<Result<OrderDetail>>(`${OrderApi.BASE}/${id}`)
+  }
+
+  static createOrder(request: OrderRequest & { storeId: string }): Promise<Result<OrderDetail>> {
+    return post<Result<OrderDetail>>(OrderApi.BASE, request)
+  }
+
+  static updateOrder(id: string, request: OrderRequest): Promise<Result<OrderDetail>> {
+    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}`, request)
+  }
+
+  static deleteOrder(id: string): Promise<Result<void>> {
+    return del<Result<void>>(`${OrderApi.BASE}/${id}`)
+  }
+
+  static getLineItems(id: string, query: OrderQuery): Promise<PagedResult<LineItem>> {
+    return getPaged<LineItem>(`${OrderApi.BASE}/${id}/line-items`, toOrderQueryParams(query), {
+      allowedFilterFields: ['OrderId', 'VariantId'],
+      allowedSortFields: ['Quantity', 'Price', 'Total', 'CreatedAtUtc'],
+      allowedSearchFields: [],
+    })
+  }
+
+  static getLineItem(id: string, lineItemId: string): Promise<Result<LineItem>> {
+    return get<Result<LineItem>>(`${OrderApi.BASE}/${id}/line-items/${lineItemId}`)
+  }
+
+  static addLineItem(id: string, request: AddLineItemRequest): Promise<Result<OrderDetail>> {
+    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/line-items`, request)
+  }
+
+  static updateLineItem(id: string, lineItemId: string, request: UpdateLineItemRequest): Promise<Result<OrderDetail>> {
+    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/line-items/${lineItemId}`, request)
+  }
+
+  static removeLineItem(id: string, lineItemId: string): Promise<Result<void>> {
+    return del<Result<void>>(`${OrderApi.BASE}/${id}/line-items/${lineItemId}`)
+  }
+
+  static cancelOrder(id: string, request?: CancelOrderRequest): Promise<Result<OrderDetail>> {
+    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/cancel`, request ?? {})
+  }
+
+  static completeOrder(id: string): Promise<Result<OrderDetail>> {
+    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/complete`)
+  }
+
+  static approveOrder(id: string): Promise<Result<OrderDetail>> {
+    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/approve`)
+  }
+
+  static resumeOrder(id: string): Promise<Result<OrderDetail>> {
+    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/resume`)
+  }
+
+  static updateShipAddress(id: string, request: UpdateOrderAddressRequest): Promise<Result<OrderDetail>> {
+    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/ship-address`, request)
+  }
+
+  static updateBillAddress(id: string, request: UpdateOrderAddressRequest): Promise<Result<OrderDetail>> {
+    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/bill-address`, request)
+  }
+
+  static updateShippingMethod(id: string, request: UpdateOrderShippingMethodRequest): Promise<Result<OrderDetail>> {
+    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/shipping-method`, request)
+  }
+
+  static updateStatus(id: string, request: UpdateOrderStatusRequest): Promise<Result<void>> {
+    return put<Result<void>>(`${OrderApi.BASE}/${id}/status`, request)
+  }
+}
