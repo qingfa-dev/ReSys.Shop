@@ -36,6 +36,7 @@ const {
   setPageSize,
   setSearch,
   setSort,
+  setFilter,
   refresh,
 } = usePagedQuery<OptionTypeListItem>('api/catalog/option-types', {
   allowedFilterFields: OPTION_TYPE_FILTER_FIELDS,
@@ -48,6 +49,17 @@ const {
 })
 
 const first = computed(() => tableFirst(page.value, pageSize.value))
+
+const filterable = ref<string | null>(null)
+const filterableOptions = [
+  { label: 'Yes', value: 'true' },
+  { label: 'No', value: 'false' },
+]
+
+function onFilterableChange(value: string | null) {
+  filterable.value = value ?? null
+  setFilter(value ? `filterable=${value}` : '')
+}
 
 function navigateToNew() {
   router.push('/catalog/option-types/new')
@@ -174,6 +186,16 @@ function confirmDelete() {
                 </IconField>
                 <label>Search</label>
               </FloatLabel>
+              <Select
+                :model-value="filterable"
+                :options="filterableOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="All (Filterable)"
+                show-clear
+                class="w-40"
+                @update:model-value="onFilterableChange($event ?? null)"
+              />
               <Button label="Clear" outlined @click="clearSearch" />
             </div>
             <div class="flex items-center gap-2">

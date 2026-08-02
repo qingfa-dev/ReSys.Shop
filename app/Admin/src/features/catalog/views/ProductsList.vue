@@ -36,6 +36,7 @@ const {
   setPageSize,
   setSearch,
   setSort,
+  setFilter,
   refresh,
 } = usePagedQuery<ProductListItem>('api/catalog/products', {
   allowedFilterFields: PRODUCT_FILTER_FIELDS,
@@ -48,6 +49,36 @@ const {
 })
 
 const first = computed(() => (page.value - 1) * pageSize.value)
+
+const department = ref<string | null>(null)
+const season = ref<string | null>(null)
+const status = ref<string | null>(null)
+const departmentOptions = ['Men', 'Women', 'Kids', 'Unisex']
+const seasonOptions = ['Spring', 'Summer', 'Fall', 'Winter']
+const statusOptions = ['Draft', 'Active', 'Archived', 'Discontinued']
+
+function applyFilters() {
+  const clauses: string[] = []
+  if (department.value) clauses.push(`department=${department.value}`)
+  if (season.value) clauses.push(`seasonName=${season.value}`)
+  if (status.value) clauses.push(`status=${status.value}`)
+  setFilter(clauses.join(','))
+}
+
+function onDepartmentChange(value: string | null) {
+  department.value = value ?? null
+  applyFilters()
+}
+
+function onSeasonChange(value: string | null) {
+  season.value = value ?? null
+  applyFilters()
+}
+
+function onStatusChange(value: string | null) {
+  status.value = value ?? null
+  applyFilters()
+}
 
 function navigateToNew() {
   router.push('/catalog/products/new')
@@ -66,11 +97,12 @@ function onSearch(value: string) {
   setSearch(value)
 }
 
-function clearSearch() {
-  searchTerm.value = ''
-  setSearch('')
+function clearFilters() {
+  department.value = null
+  season.value = null
+  status.value = null
+  applyFilters()
 }
-
 function onPage(event: DataTablePageEvent) {
   setPage(event.page + 1)
 }
@@ -212,7 +244,31 @@ function confirmDelete() {
                 </IconField>
                 <label>Search</label>
               </FloatLabel>
-              <Button label="Clear" outlined @click="clearSearch" />
+              <Select
+                :model-value="department"
+                :options="departmentOptions"
+                placeholder="All departments"
+                show-clear
+                class="w-44"
+                @update:model-value="onDepartmentChange($event ?? null)"
+              />
+              <Select
+                :model-value="season"
+                :options="seasonOptions"
+                placeholder="All seasons"
+                show-clear
+                class="w-40"
+                @update:model-value="onSeasonChange($event ?? null)"
+              />
+              <Select
+                :model-value="status"
+                :options="statusOptions"
+                placeholder="All statuses"
+                show-clear
+                class="w-40"
+                @update:model-value="onStatusChange($event ?? null)"
+              />
+              <Button label="Clear" outlined @click="clearFilters" />
             </div>
             <div class="flex items-center gap-2">
               <Button label="New Product" icon="pi pi-plus" severity="primary" @click="navigateToNew" />

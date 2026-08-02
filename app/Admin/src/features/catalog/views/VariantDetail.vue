@@ -21,11 +21,14 @@ import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { VariantApi } from '../services/variantApi'
 import { VariantImageApi } from '../services/variantImageApi'
 import { VariantPriceApi } from '../services/variantPriceApi'
+import { ProductOptionTypeApi } from '../services/productOptionTypeApi'
 import type { PriceRequest } from '../types/variantPrice'
 import type { VariantForm } from '../validations/variant'
 import { variantSchema } from '../validations/variant'
 import type { VariantImage } from '../types/variantImage'
 import type { Price } from '../types/variantPrice'
+import { buildOptionValueGroups, selectedIdsForGroup } from '../utils/optionValueGroups'
+import type { OptionValueGroup } from '../utils/optionValueGroups'
 import type { OptionValueAssignment } from '../types/variant'
 
 const route = useRoute()
@@ -118,6 +121,9 @@ onMounted(() => {
 watch(() => route.params.id, (newId) => {
   if (newId && newId !== 'new') {
     formLoaded.value = false
+    optionValueAssignments.value = []
+    selectedOptionValueIds.value = []
+    productOptionTypeIds.value = []
     initEditMode(newId as string)
   }
 })
@@ -130,7 +136,6 @@ watch(activeTab, (tab) => {
     loadOptionValues()
   }
 })
-
 async function onSubmit(event: FormSubmitEvent) {
   if (!event.valid) return
 
@@ -287,40 +292,47 @@ function confirmDeleteImage(image: VariantImage) {
 const optionValueAssignments = ref<OptionValueAssignment[]>([])
 const selectedOptionValueIds = ref<string[]>([])
 const optionValuesLoading = ref(false)
+const productOptionTypeIds = ref<string[]>([])
 
 async function loadOptionValues() {
   if (!isEdit.value) return
   optionValuesLoading.value = true
-  const result = await VariantApi.getOptionValues(route.params.id as string)
-  if (result.isSuccess) {
-    optionValueAssignments.value = result.items
-    selectedOptionValueIds.value = result.items
+  const [valuesResult, optionTypesResult] = await Promise.all([
+    VariantApi.getOptionValues(route.params.id as string),
+    loadedProductId.value
+      ? ProductOptionTypeApi.getOptionTypes(loadedProductId.value)
+      : Promise.resolve(null),
+  ])
+  if (valuesResult.isSuccess) {
+    optionValueAssignments.value = valuesResult.items
+    selectedOptionValueIds.value = valuesResult.items
       .filter((o) => o.isAssigned)
       .map((o) => o.optionValueId)
   } else {
-    handleResult(result)
+    handleResult(valuesResult)
+  }
+  if (optionTypesResult?.isSuccess) {
+    productOptionTypeIds.value = optionTypesResult.items
+      .filter((o) => o.isAssigned)
+      .map((o) => o.optionTypeId)
   }
   optionValuesLoading.value = false
 }
 
-function toggleOptionValue(optionValueId: string) {
-  const idx = selectedOptionValueIds.value.indexOf(optionValueId)
-  if (idx >= 0) {
-    selectedOptionValueIds.value.splice(idx, 1)
-  } else {
-    selectedOptionValueIds.value.push(optionValueId)
-  }
+function updateGroupSelection(group: OptionValueGroup, ids: string[]) {
+  const otherIds = selectedOptionValueIds.value.filter(
+    (id) => !group.values.some((v) => v.optionValueId === id),
+  )
+  selectedOptionValueIds.value = [...otherIds, ...ids]
 }
 
-const optionValuesByType = computed(() => {
-  const groups = new Map<string, OptionValueAssignment[]>()
-  for (const ov of optionValueAssignments.value) {
-    const key = ov.optionTypeName || ov.optionTypeId
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key)!.push(ov)
-  }
-  return [...groups.entries()]
-})
+const optionValuesByType = computed<OptionValueGroup[]>(() =>
+  buildOptionValueGroups(optionValueAssignments.value, new Set(productOptionTypeIds.value)),
+)
+
+function selectedIdsForGroupView(group: OptionValueGroup): string[] {
+  return selectedIdsForGroup(group, selectedOptionValueIds.value)
+}
 
 const prices = ref<Price[]>([])
 const pricesLoaded = ref(false)
@@ -544,19 +556,20 @@ function confirmRemovePrice(price: Price) {
                 <TabPanel v-if="isEdit" value="4">
                   <div v-if="optionValuesLoading" class="text-center py-4 text-muted-color">Loading option values...</div>
                   <div v-else-if="optionValuesByType.length === 0" class="text-center py-8 text-muted-color">No option types assigned to this product.</div>
-                  <div v-else class="space-y-6">
-                    <div v-for="[typeName, values] in optionValuesByType" :key="typeName">
-                      <div class="font-semibold mb-2">{{ typeName }}</div>
-                      <div class="flex flex-wrap gap-3">
-                        <div v-for="ov in values" :key="ov.optionValueId" class="flex items-center gap-2">
-                          <Checkbox
-                            :model-value="selectedOptionValueIds.includes(ov.optionValueId)"
-                            :input-id="`ov-${ov.optionValueId}`"
-                            @change="toggleOptionValue(ov.optionValueId)"
-                          />
-                          <label :for="`ov-${ov.optionValueId}`">{{ ov.presentation || ov.name }}</label>
-                        </div>
-                      </div>
+                  <div v-else class="flex flex-col gap-6">
+                    <div v-for="group in optionValuesByType" :key="group.optionTypeId">
+                      <div class="font-semibold mb-2">{{ group.optionTypeName }}</div>
+                      <MultiSelect
+                        :model-value="selectedIdsForGroupView(group)"
+                        :options="group.values"
+                        option-label="presentation"
+                        option-value="optionValueId"
+                        display="chip"
+                        filter
+                        placeholder="Select option values..."
+                        class="w-full"
+                        @update:model-value="updateGroupSelection(group, $event ?? [])"
+                      />
                     </div>
                   </div>
                 </TabPanel>

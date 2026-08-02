@@ -12,13 +12,14 @@ import Select from 'primevue/select'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatDate } from '@/shared/utils/date'
 import { useOrderList } from '../composables/useOrderList'
-import type { OrderStatus } from '../types/order'
+import type { OrderStatus, CheckoutState } from '../types/order'
 import { ORDER_SEARCH_FIELDS } from '../types/order'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
 const search = ref('')
 const statusFilter = ref<OrderStatus | null>(null)
+const checkoutStateFilter = ref<CheckoutState | null>(null)
 
 const { items, loading, setFilter, setSearch, refresh } = useOrderList({
   defaultSearchFields: ORDER_SEARCH_FIELDS,
@@ -26,6 +27,7 @@ const { items, loading, setFilter, setSearch, refresh } = useOrderList({
 })
 
 const STATUS_OPTIONS: OrderStatus[] = ['Draft', 'Placed', 'Canceled', 'Expired']
+const CHECKOUT_STATE_OPTIONS: CheckoutState[] = ['Address', 'Delivery', 'Payment', 'Confirm', 'Complete']
 
 const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Draft: 'warn',
@@ -44,9 +46,21 @@ function clearSearch() {
   setSearch('')
 }
 
+function applyFilters() {
+  const clauses: string[] = []
+  if (statusFilter.value) clauses.push(`status=${statusFilter.value}`)
+  if (checkoutStateFilter.value) clauses.push(`checkoutState=${checkoutStateFilter.value}`)
+  setFilter(clauses.join(','))
+}
+
 function onStatusFilterChange(value: OrderStatus | null | undefined) {
   statusFilter.value = value ?? null
-  setFilter(value ? `status=${value}` : '')
+  applyFilters()
+}
+
+function onCheckoutStateFilterChange(value: CheckoutState | null | undefined) {
+  checkoutStateFilter.value = value ?? null
+  applyFilters()
 }
 
 function statusSeverity(status: OrderStatus): string {
@@ -90,8 +104,16 @@ function navigateToDetail(id: string) {
         :options="STATUS_OPTIONS"
         placeholder="All Statuses"
         show-clear
-        class="w-48"
+        class="w-40"
         @change="onStatusFilterChange($event.value)"
+      />
+      <Select
+        :model-value="checkoutStateFilter"
+        :options="CHECKOUT_STATE_OPTIONS"
+        placeholder="All Checkout States"
+        show-clear
+        class="w-48"
+        @change="onCheckoutStateFilterChange($event.value)"
       />
       <div class="flex-1" />
       <Button

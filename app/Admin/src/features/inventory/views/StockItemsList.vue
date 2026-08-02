@@ -14,6 +14,7 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { INVENTORY } from '@/shared/constants/api'
 import { StockItemApi } from '../services/stockItemApi'
+import { useStockLocationStore } from '../stores/stockLocationStore'
 import type { StockItemListItem } from '../types/stockItem'
 import { STOCK_ITEM_FILTER_FIELDS, STOCK_ITEM_SORT_FIELDS, STOCK_ITEM_SEARCH_FIELDS } from '../types/stockItem'
 
@@ -21,10 +22,14 @@ const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
 const { dt, exportCSV } = useDataTableExport()
+const stockLocationStore = useStockLocationStore()
 const search = ref('')
+const selectedLocation = ref<string | null>(null)
 const selectedItems = ref<StockItemListItem[]>([])
 
-const { items, loading, setSearch, refresh } = usePagedQuery<StockItemListItem>(
+stockLocationStore.fetchActive()
+
+const { items, loading, setSearch, setFilter, refresh } = usePagedQuery<StockItemListItem>(
   `${INVENTORY}/stock-items`,
   {
     allowedFilterFields: STOCK_ITEM_FILTER_FIELDS,
@@ -42,6 +47,11 @@ function onSearch(value: string) {
 function clearSearch() {
   search.value = ''
   setSearch('')
+}
+
+function onLocationChange(value: string | null) {
+  selectedLocation.value = value ?? null
+  setFilter(value ? `stockLocationId=${value}` : '')
 }
 
 function navigateToNew() {
@@ -93,6 +103,16 @@ function confirmDelete() {
           @update:model-value="onSearch($event ?? '')"
         />
       </IconField>
+      <Select
+        :model-value="selectedLocation"
+        :options="stockLocationStore.activeStockLocations"
+        option-label="name"
+        option-value="id"
+        placeholder="All locations"
+        show-clear
+        class="w-48"
+        @update:model-value="onLocationChange($event ?? null)"
+      />
       <Button
         v-if="search"
         label="Clear"

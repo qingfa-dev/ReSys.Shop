@@ -23,8 +23,9 @@ export class VariantApi {
     productId: string,
     query: VariantQuery,
   ): Promise<PagedResult<VariantListItem>> {
+    const url = productId ? `${BASE}?productId=${productId}` : BASE
     return getPaged<VariantListItem>(
-      `${BASE}?productId=${productId}`,
+      url,
       toVariantQueryParams(query),
       {
         allowedFilterFields: VARIANT_FILTER_FIELDS,

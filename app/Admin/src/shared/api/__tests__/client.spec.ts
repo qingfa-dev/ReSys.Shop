@@ -56,6 +56,18 @@ describe('HTTP methods', () => {
     expect(mockPost).toHaveBeenCalledWith('/items', undefined, { signal: undefined })
   })
 
+  it('post with FormData clears Content-Type so multipart boundary is set', async () => {
+    mockPost.mockResolvedValue({ data: null })
+    const formData = new FormData()
+    formData.append('file', new Blob(['x'], { type: 'image/png' }), 'a.png')
+    await post('/items', formData)
+    expect(mockPost).toHaveBeenCalledWith(
+      '/items',
+      formData,
+      expect.objectContaining({ headers: { 'Content-Type': undefined }, signal: undefined }),
+    )
+  })
+
   it('put sends body and returns data', async () => {
     mockPut.mockResolvedValue({ data: { updated: true } })
     const result = await put('/items/1', { name: 'updated' })

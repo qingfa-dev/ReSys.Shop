@@ -42,6 +42,21 @@ describe('VariantApi.getVariants', () => {
       expect.objectContaining({ allowedFilterFields: expect.any(Array) }),
     )
   })
+
+  it('omits productId query param when productId is empty', async () => {
+    mockGetPaged.mockResolvedValue({
+      items: [], page: 1, pageSize: 20, totalCount: 0, totalPages: 0,
+      isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null,
+    })
+
+    await VariantApi.getVariants('', { pageSize: 100 })
+
+    expect(mockGetPaged).toHaveBeenCalledWith(
+      'api/catalog/variants',
+      expect.objectContaining({ pageSize: 100 }),
+      expect.objectContaining({ allowedFilterFields: expect.any(Array) }),
+    )
+  })
 })
 
 describe('VariantApi.getVariant', () => {

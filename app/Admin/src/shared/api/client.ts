@@ -19,18 +19,26 @@ export async function get<T>(url: string, signal?: AbortSignal): Promise<T> {
   return response.data
 }
 
+function requestConfig(body?: unknown, signal?: AbortSignal): { signal?: AbortSignal; headers?: { 'Content-Type'?: string } } {
+  const config: { signal?: AbortSignal; headers?: { 'Content-Type'?: string } } = { signal }
+  if (body instanceof FormData) {
+    config.headers = { 'Content-Type': undefined }
+  }
+  return config
+}
+
 export async function post<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().post<T>(url, body, { signal })
+  const response = await getApiClient().post<T>(url, body, requestConfig(body, signal))
   return response.data
 }
 
 export async function put<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().put<T>(url, body, { signal })
+  const response = await getApiClient().put<T>(url, body, requestConfig(body, signal))
   return response.data
 }
 
 export async function patch<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().patch<T>(url, body, { signal })
+  const response = await getApiClient().patch<T>(url, body, requestConfig(body, signal))
   return response.data
 }
 

@@ -12,14 +12,20 @@ import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatDate } from '@/shared/utils/date'
 import { useStockTransferList } from '../composables/useStockTransferList'
+import { useStockLocationStore } from '../stores/stockLocationStore'
 import type { StockTransferState } from '../types/stockTransfer'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
+const stockLocationStore = useStockLocationStore()
 const search = ref('')
 const selectedState = ref<StockTransferState | null>(null)
+const selectedSourceLocation = ref<string | null>(null)
+const selectedDestinationLocation = ref<string | null>(null)
 
 const { items, loading, setFilter, refresh } = useStockTransferList()
+
+stockLocationStore.fetchActive()
 
 const STATE_OPTIONS: { label: string; value: StockTransferState }[] = [
   { label: 'Draft', value: 'Draft' },
@@ -35,9 +41,27 @@ const STATE_SEVERITY: Record<StockTransferState, string> = {
   Canceled: 'danger',
 }
 
+function applyFilters() {
+  const clauses: string[] = []
+  if (selectedState.value) clauses.push(`state=${selectedState.value}`)
+  if (selectedSourceLocation.value) clauses.push(`sourceLocationId=${selectedSourceLocation.value}`)
+  if (selectedDestinationLocation.value) clauses.push(`destinationLocationId=${selectedDestinationLocation.value}`)
+  setFilter(clauses.join(','))
+}
+
 function onStateFilterChange(value: StockTransferState | null) {
   selectedState.value = value
-  setFilter(value ? `state=${value}` : '')
+  applyFilters()
+}
+
+function onSourceLocationChange(value: string | null) {
+  selectedSourceLocation.value = value ?? null
+  applyFilters()
+}
+
+function onDestinationLocationChange(value: string | null) {
+  selectedDestinationLocation.value = value ?? null
+  applyFilters()
 }
 
 function stateSeverity(state: StockTransferState): string {
@@ -72,8 +96,28 @@ function navigateToEdit(id: string) {
         option-value="value"
         placeholder="All States"
         show-clear
-        class="w-48"
+        class="w-40"
         @change="onStateFilterChange($event.value)"
+      />
+      <Select
+        :model-value="selectedSourceLocation"
+        :options="stockLocationStore.activeStockLocations"
+        option-label="name"
+        option-value="id"
+        placeholder="All sources"
+        show-clear
+        class="w-40"
+        @update:model-value="onSourceLocationChange($event ?? null)"
+      />
+      <Select
+        :model-value="selectedDestinationLocation"
+        :options="stockLocationStore.activeStockLocations"
+        option-label="name"
+        option-value="id"
+        placeholder="All destinations"
+        show-clear
+        class="w-44"
+        @update:model-value="onDestinationLocationChange($event ?? null)"
       />
       <div class="flex-1" />
       <Button
