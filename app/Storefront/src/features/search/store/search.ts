@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { SearchResult, SearchFacets, SearchFilters, SearchSuggestion } from '../types'
+import { searchService } from '../services/search.service'
 
 export const useSearchStore = defineStore('search', () => {
     const query = ref<string>('')
@@ -58,6 +59,32 @@ export const useSearchStore = defineStore('search', () => {
         currentPage.value = 1
     }
 
+    async function search(q: string, filters?: Record<string, unknown>) {
+        isLoading.value = true
+        query.value = q
+        try {
+            const result = await searchService.search(q, filters)
+            if (result.isSuccess && result.items) {
+                results.value = result.items as unknown as SearchResult[]
+                total.value = result.totalCount
+                currentPage.value = result.page
+            }
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    async function fetchSuggestions(q: string) {
+        try {
+            const result = await searchService.getSuggestions(q)
+            if (result.isSuccess && result.data) {
+                suggestions.value = result.data as unknown as SearchSuggestion[]
+            }
+        } catch {
+            // Suggestions are non-critical — silently fail
+        }
+    }
+
     return {
         query,
         results,
@@ -77,5 +104,7 @@ export const useSearchStore = defineStore('search', () => {
         clearFilters,
         setPage,
         reset,
+        search,
+        fetchSuggestions,
     }
 })

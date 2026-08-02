@@ -4,7 +4,7 @@ import type { ICartService } from './cart.service.interface'
 import type { Cart } from '../../types'
 import type { Result } from '@/core/models/result'
 import { mapCartResponseToEntity } from '../../mapping'
-import { resultMap, succeed } from '@/core/utils/result-helpers'
+import { resultMap } from '@/core/utils/result-helpers'
 
 const USE_MOCK = true
 
@@ -32,7 +32,8 @@ export class CartService implements ICartService {
   }
 
   async clearCart(): Promise<Result<Cart>> {
-    return succeed({ items: [], subtotal: 0, discount: 0, total: 0, tax: 0, shipping: 0 }, 200)
+    const response = await this.cartRepo.clearCart()
+    return resultMap(response, mapCartResponseToEntity)
   }
 }
 

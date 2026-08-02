@@ -9,8 +9,9 @@ interface RefreshResponse {
   refreshToken: string
 }
 
-export function responseInterceptor<T>(response: { data: T }): T {
-  return response.data
+export function responseInterceptor<T>(response: T): T {
+  // Return response as-is — BaseRepository handles unwrapping via response.data.
+  return response
 }
 
 export async function responseErrorInterceptor(

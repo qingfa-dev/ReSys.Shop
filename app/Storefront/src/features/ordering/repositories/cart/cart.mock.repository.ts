@@ -43,6 +43,11 @@ export class MockCartRepository {
     return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
   }
 
+  async createCart(): Promise<CartSingleResponse> {
+    mockCart = { items: [], subtotal: 0, discount: 0, total: 0, tax: 0, shipping: 0 }
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
+  }
+
   async addItem(productId: string, productName: string, productImage: string, quantity: number, price: number): Promise<CartSingleResponse> {
     const newItem: CartItemResponse = { id: `item-${Date.now()}`, productId, productName, productImage, quantity, price }
     mockCart = { ...mockCart, items: [...mockCart.items, newItem] }
@@ -64,6 +69,27 @@ export class MockCartRepository {
 
   async clearCart(): Promise<CartSingleResponse> {
     mockCart = { items: [], subtotal: 0, discount: 0, total: 0, tax: 0, shipping: 0 }
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
+  }
+
+  async deleteCart(): Promise<CartSingleResponse> {
+    mockCart = { items: [], subtotal: 0, discount: 0, total: 0, tax: 0, shipping: 0 }
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
+  }
+
+  async updateCheckoutDetails(_details: Record<string, unknown>): Promise<CartSingleResponse> {
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
+  }
+
+  async associateCart(): Promise<CartSingleResponse> {
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
+  }
+
+  async validateCart(): Promise<CartSingleResponse> {
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
+  }
+
+  async selectShippingRate(_rateId: string): Promise<CartSingleResponse> {
     return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToCartResponse(mockCart) }
   }
 }

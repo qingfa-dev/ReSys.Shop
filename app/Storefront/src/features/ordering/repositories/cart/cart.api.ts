@@ -8,12 +8,16 @@ export class CartApiRepository extends BaseRepository implements ICartRepository
     return this.get<CartResponse>('/api/storefront/cart')
   }
 
+  async createCart(): Promise<Result<CartResponse>> {
+    return this.post<CartResponse>('/api/storefront/cart')
+  }
+
   async addItem(productId: string, productName: string, productImage: string, quantity: number, price: number): Promise<Result<CartResponse>> {
     return this.post<CartResponse>('/api/storefront/cart/items', { productId, productName, productImage, quantity, price })
   }
 
   async updateItem(itemId: string, quantity: number): Promise<Result<CartResponse>> {
-    return this.patch<CartResponse>(`/api/storefront/cart/items/${itemId}`, { quantity })
+    return this.put<CartResponse>(`/api/storefront/cart/items/${itemId}`, { quantity })
   }
 
   async removeItem(itemId: string): Promise<Result<CartResponse>> {
@@ -21,7 +25,27 @@ export class CartApiRepository extends BaseRepository implements ICartRepository
   }
 
   async clearCart(): Promise<Result<CartResponse>> {
+    return this.post<CartResponse>('/api/storefront/cart/empty')
+  }
+
+  async deleteCart(): Promise<Result<CartResponse>> {
     return this.delete<CartResponse>('/api/storefront/cart')
+  }
+
+  async updateCheckoutDetails(details: Record<string, unknown>): Promise<Result<CartResponse>> {
+    return this.put<CartResponse>('/api/storefront/cart', details)
+  }
+
+  async associateCart(): Promise<Result<CartResponse>> {
+    return this.post<CartResponse>('/api/storefront/cart/associate')
+  }
+
+  async validateCart(): Promise<Result<CartResponse>> {
+    return this.post<CartResponse>('/api/storefront/cart/validate')
+  }
+
+  async selectShippingRate(rateId: string): Promise<Result<CartResponse>> {
+    return this.post<CartResponse>('/api/storefront/cart/shipping-rate', { rateId })
   }
 }
 

@@ -13,7 +13,7 @@ export class ShippingRateApiRepository extends BaseRepository implements IShippi
   }
 
   async calculateCost(rateId: string, distance?: number): Promise<Result<number>> {
-    return this.get<number>(`/api/storefront/shipping/rates/${rateId}/calculate`, distance ? { filter: `distance:${distance}` } : undefined)
+    return this.post<number>('/api/storefront/shipping/calculate', { rateId, ...(distance !== undefined && { distance }) })
   }
 
   async getEstimatedDelivery(rateId: string, destination: string): Promise<Result<string>> {

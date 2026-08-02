@@ -21,7 +21,7 @@ export class ProductApiRepository extends BaseRepository implements IProductRepo
   }
 
   async getProductBySlug(slug: string): Promise<Result<ProductResponse>> {
-    return this.get<ProductResponse>(`/api/storefront/products/slug/${slug}`)
+    return this.get<ProductResponse>(`/api/storefront/products/${slug}`)
   }
 }
 

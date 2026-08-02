@@ -8,8 +8,9 @@ export class SearchApiRepository extends BaseRepository implements ISearchReposi
     return this.getPaged<Product>('/api/storefront/products?search=' + encodeURIComponent(query), undefined, filters as any)
   }
 
-  async getSuggestions(query: string): Promise<Result<string[]>> {
-    return this.get<string[]>('/api/storefront/search/suggestions', { filter: `q:${query}` })
+  async getSuggestions(_query: string): Promise<Result<string[]>> {
+    // TODO: Backend endpoint /api/storefront/search/suggestions does not exist yet.
+    return { isSuccess: false, isFailure: true, statusCode: 501, message: 'Search suggestions endpoint not yet implemented' }
   }
 }
 

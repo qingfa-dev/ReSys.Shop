@@ -5,11 +5,13 @@ import type { IRecommendationsRepository } from './recommendations.repository.in
 
 export class RecommendationsApiRepository extends BaseRepository implements IRecommendationsRepository {
   async getSimilarProducts(productId: string): Promise<Result<Product[]>> {
-    return this.get<Product[]>(`/api/storefront/products/${productId}/similar`)
+    return this.get<Product[]>('/api/storefront/products/similar', { filter: `productId:${productId}` })
   }
 
   async getPersonalizedRecommendations(): Promise<Result<Product[]>> {
-    return this.get<Product[]>('/api/storefront/recommendations/personalized')
+    // TODO: Backend endpoint /api/storefront/recommendations/personalized does not exist yet.
+    // Return a not-implemented result until the backend adds this endpoint.
+    return { isSuccess: false, isFailure: true, statusCode: 501, message: 'Personalized recommendations endpoint not yet implemented' }
   }
 
   async searchByImage(file: File): Promise<Result<Product[]>> {

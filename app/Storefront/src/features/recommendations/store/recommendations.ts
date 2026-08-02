@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { RecommendationSet } from '../types'
+import { recommendationsService } from '../services/recommendations.service'
 
 export const useRecommendationsStore = defineStore('recommendations', () => {
     const recommendations = ref<RecommendationSet[]>([])
@@ -20,12 +21,18 @@ export const useRecommendationsStore = defineStore('recommendations', () => {
         productRecommendations.value = rec
     }
 
-    async function fetchPersonalizedRecommendations(userId: string) {
+    async function fetchPersonalizedRecommendations(_userId: string) {
         isLoading.value = true
         try {
-            // TODO: Call recommendations service
-            // const result = await recommendationsService.getPersonalized(userId)
-            // userRecommendations.value = result
+            const result = await recommendationsService.getPersonalizedRecommendations()
+            if (result.isSuccess && result.data) {
+                userRecommendations.value = {
+                    id: 'personalized',
+                    type: 'personalized' as const,
+                    title: 'Recommended for You',
+                    products: result.data as unknown as RecommendationSet['products'],
+                }
+            }
         } finally {
             isLoading.value = false
         }
@@ -34,9 +41,16 @@ export const useRecommendationsStore = defineStore('recommendations', () => {
     async function fetchProductRecommendations(productId: string) {
         isLoading.value = true
         try {
-            // TODO: Call recommendations service
-            // const result = await recommendationsService.getForProduct(productId)
-            // productRecommendations.value = result
+            const result = await recommendationsService.getSimilarProducts(productId)
+            if (result.isSuccess && result.data) {
+                productRecommendations.value = {
+                    id: `similar-${productId}`,
+                    type: 'visual-similarity' as const,
+                    title: 'Similar Products',
+                    products: result.data as unknown as RecommendationSet['products'],
+                    contextProductId: productId,
+                }
+            }
         } finally {
             isLoading.value = false
         }

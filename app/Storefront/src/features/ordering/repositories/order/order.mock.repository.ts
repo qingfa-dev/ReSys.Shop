@@ -73,6 +73,13 @@ export class MockOrderRepository {
     const billingAddress: AddressResponse = { id: '', firstName: '', lastName: '', address1: '', city: '', state: '', postalCode: '', country: '' }
     return { isSuccess: true, isFailure: false, statusCode: 201, data: { id: `order-${Date.now()}`, orderNumber: `ORD-${Date.now()}`, status: 'pending', items: [], shippingAddress, billingAddress, subtotal: 0, tax: 0, shipping: 0, discount: 0, total: 0, currency: 'USD', createdAt: new Date().toISOString(), updatedAt: '' } }
   }
+
+  async cancelOrder(id: string): Promise<OrderSingleResponse> {
+    const order = getOrderById(id)
+    if (!order) return { isSuccess: false, isFailure: true, statusCode: 404, message: 'Order not found' }
+    const cancelledOrder = { ...order, status: 'cancelled' as const, updatedAt: new Date().toISOString() }
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToOrderResponse(cancelledOrder) }
+  }
 }
 
 export const mockOrderRepository = new MockOrderRepository()
