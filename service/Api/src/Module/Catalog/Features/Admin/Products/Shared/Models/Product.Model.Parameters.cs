@@ -1,14 +1,36 @@
+using Module.Catalog.Domain.Products;
+
 namespace Module.Catalog.Features.Admin.Products.Shared.Models;
 
-public abstract record ProductParameters : ISeoParameters
+public abstract record ProductParameters
 {
-    public string Name { get; init; } = string.Empty;
-    public string Slug { get; init; } = string.Empty;
-    public string? Description { get; init; }
-    public string? MetaTitle { get; init; }
-    public string? MetaDescription { get; init; }
-    public string? MetaKeywords { get; init; }
-    public DateTimeOffset? AvailableOn { get; init; }
-    public DateTimeOffset? DiscontinueOn { get; init; }
-    public bool TrackInventory { get; init; }
+    #region Properties
+    public string Name { get; set; } = string.Empty;
+    public ProductStatus Status { get; init; }
+    public string Description { get; set; } = string.Empty;
+    #endregion Properties
+
+    #region SEO
+    public string Slug { get; set; } = string.Empty;
+    public string? MetaTitle { get; set; }
+    public string? MetaDescription { get; set; }
+    public string? MetaKeywords { get; set; }
+    #endregion SEO
+
+    #region Timestamp
+    public DateTimeOffset? AvailableOn { get; set; }
+    public DateTimeOffset? DiscontinueOn { get; set; }
+    public DateTimeOffset? MakeActiveAt { get; set; }
+    public bool TrackInventory { get; init; } = true;
+    #endregion Timestamp
+
+    #region Fashion
+    public string? StyleCode { get; set; }
+    public string? SeasonName { get; set; }
+    public string? MaterialComposition { get; set; }
+    public string? CareInstructions { get; set; }
+    public string? FitNotes { get; set; }
+    public string? Department { get; set; }
+    public string? GenderTarget { get; set; }
+    #endregion Fashion
 }

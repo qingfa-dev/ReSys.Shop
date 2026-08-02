@@ -35,9 +35,11 @@ public static partial class GetUserRoles
             // Transform: Build response with each role and its assignment status for the user
             var roles = allRoles.Select(role => new Response
             {
+                Id = role.Id,
+                IsSystem = role.IsSystem,
                 Name = role.Name!,
                 Description = role.Description,
-                IsAssigned = userRolesSet.Contains(role.Name!)
+                IsAssigned = userRolesSet.Contains(role.Name!),
             }).OrderBy(r => r.Name).ToList();
 
             var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;

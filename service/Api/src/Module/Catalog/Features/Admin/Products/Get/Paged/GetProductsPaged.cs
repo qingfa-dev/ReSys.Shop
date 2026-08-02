@@ -61,6 +61,8 @@ public static partial class GetProductsPagedList
                 return parsing.Errors;
 
             var pagedResult = await query
+                .Include(x => x.Classifications)
+                .Include(x => x.Classifications).ThenInclude(c => c.Taxon)
                 .OrderByDescending(x => x.CreatedAtUtc)
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToListItem<Response>(), cancellationToken);

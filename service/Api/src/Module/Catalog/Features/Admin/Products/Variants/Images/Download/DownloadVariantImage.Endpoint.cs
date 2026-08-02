@@ -33,7 +33,6 @@ public static partial class DownloadVariantImage
             })
             .WithName(nameof(DownloadVariantImage))
             .WithTags(CatalogFeature.Tags.Variant)
-            .HasPermission(CatalogFeature.Admin.VariantImages.Download.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.Download.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.Download.Description)
             .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")

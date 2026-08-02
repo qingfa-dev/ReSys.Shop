@@ -14,6 +14,14 @@ public static partial class ProductMethod
         string? metaKeywords = null,
         DateTimeOffset? discontinueOn = null,
         DateTimeOffset? makeActiveAt = null,
+        // Fashion
+        string? styleCode = null,
+        string? seasonName = null,
+        string? materialComposition = null,
+        string? careInstructions = null,
+        string? fitNotes = null,
+        string? department = null,
+        string? genderTarget = null,
         Guid? id = null)
     {
         var product = new Product
@@ -30,7 +38,15 @@ public static partial class ProductMethod
             DiscontinueOn = discontinueOn,
             MakeActiveAt = makeActiveAt,
             CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = "System"
+            CreatedBy = "System",
+            // Fashion
+            StyleCode = styleCode,
+            SeasonName = seasonName,
+            MaterialComposition = materialComposition,
+            CareInstructions = careInstructions,
+            FitNotes = fitNotes,
+            Department = department,
+            GenderTarget = genderTarget
         };
 
         return product;
@@ -49,7 +65,14 @@ public static partial class ProductMethod
         string? metaKeywords = null,
         DateTimeOffset? discontinueOn = null,
         DateTimeOffset? makeActiveAt = null,
-        Guid? taxCategoryId = null)
+        // Fashion
+        string? styleCode = null,
+        string? seasonName = null,
+        string? materialComposition = null,
+        string? careInstructions = null,
+        string? fitNotes = null,
+        string? department = null,
+        string? genderTarget = null)
     {
         product.Name = name ?? product.Name;
         product.Slug = slug ?? product.Slug;
@@ -61,6 +84,15 @@ public static partial class ProductMethod
         product.MetaKeywords = metaKeywords ?? product.MetaKeywords;
         product.DiscontinueOn = discontinueOn ?? product.DiscontinueOn;
         product.MakeActiveAt = makeActiveAt ?? product.MakeActiveAt;
+
+        // Fashion
+        product.StyleCode = styleCode ?? product.StyleCode;
+        product.SeasonName = seasonName ?? product.SeasonName;
+        product.MaterialComposition = materialComposition ?? product.MaterialComposition;
+        product.CareInstructions = careInstructions ?? product.CareInstructions;
+        product.FitNotes = fitNotes ?? product.FitNotes;
+        product.Department = department ?? product.Department;
+        product.GenderTarget = genderTarget ?? product.GenderTarget;
 
         return Result.Ok();
     }

@@ -5,7 +5,6 @@ namespace Module.Catalog.Features.Admin.Products.Shared.Models;
 public record ProductDetailResponse : ProductParameters, IResponse
 {
     public Guid Id { get; init; }
-    public ProductStatus Status { get; init; }
     public Guid MasterVariantId { get; init; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public DateTimeOffset? ModifiedAtUtc { get; set; }
@@ -14,9 +13,9 @@ public record ProductDetailResponse : ProductParameters, IResponse
 public record ProductListItemResponse : ProductParameters, IResponse
 {
     public Guid Id { get; init; }
-    public ProductStatus Status { get; init; }
     public Guid MasterVariantId { get; init; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public DateTimeOffset? ModifiedAtUtc { get; set; }
     public int VariantsCount { get; init; }
+    public int ClassificationsCount { get; init; }
 }
