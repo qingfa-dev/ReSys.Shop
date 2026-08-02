@@ -24,7 +24,7 @@ public static partial class GetVariantImageById
                 return result.ToResult();
             })
             .WithName(nameof(GetVariantImageById))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImages.GetById.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.GetById.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.GetById.Description)

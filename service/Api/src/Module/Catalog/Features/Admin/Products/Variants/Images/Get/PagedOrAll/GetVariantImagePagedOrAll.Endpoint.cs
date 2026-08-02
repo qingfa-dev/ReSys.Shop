@@ -1,9 +1,9 @@
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
+namespace Module.Catalog.Features.Admin.Products.Variants.Images.Get.PagedOrAll;
 
-public static partial class ListVariantImages
+public static partial class GetVariantImagePagedOrAll
 {
     /// <summary>
     /// GET endpoint that lists all images for a variant.
@@ -25,8 +25,8 @@ public static partial class ListVariantImages
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
-            .WithName(nameof(ListVariantImages))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithName(nameof(GetVariantImagePagedOrAll))
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImages.GetAll.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.GetAll.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.GetAll.Description)
