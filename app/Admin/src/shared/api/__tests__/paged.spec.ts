@@ -126,6 +126,17 @@ describe('getPaged', () => {
     )
   })
 
+  it('emits no paging params when the param object is empty', async () => {
+    mockGet.mockResolvedValue(okResponse())
+
+    await getPaged<unknown>('/api/variants?productId=x', {})
+
+    expect(mockGet).toHaveBeenCalledWith(
+      '/api/variants?productId=x',
+      undefined,
+    )
+  })
+
   it('passes signal to get', async () => {
     mockGet.mockResolvedValue(okResponse())
     const controller = new AbortController()

@@ -1,5 +1,5 @@
 import type { QueryingParameters } from '@/shared/types/querying'
-import { parseAll, queryingModelToParams } from '@/shared/types/querying'
+import { queryingModelToParams, queryingParamsToModel } from '@/shared/types/querying'
 import type { PagedResult } from '@/shared/types/result'
 import { pagedFailure } from '@/shared/types/result'
 import { get, HttpError } from './client'
@@ -29,7 +29,7 @@ export async function getPaged<T>(
   params: QueryingParameters,
   options?: PagedRequestOptions,
 ): Promise<PagedResult<T>> {
-  const parsed = parseAll(
+  const parsed = queryingParamsToModel(
     params,
     options?.allowedFilterFields ?? null,
     options?.allowedSortFields ?? null,
