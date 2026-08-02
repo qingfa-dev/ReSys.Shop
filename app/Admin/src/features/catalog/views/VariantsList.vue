@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
@@ -7,8 +7,11 @@ import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
 import Message from 'primevue/message'
+import Select from 'primevue/select'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useProductOptions } from '../composables/useProductOptions'
+import { variantsListUrl } from '../utils/variantListUrl'
 import { VariantApi } from '../services/variantApi'
 import type { VariantListItem } from '../types/variant'
 import {
@@ -22,8 +25,32 @@ const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
 
-const productId = computed(() => route.query.productId as string | undefined)
+const productId = ref<string | null>(null)
 const searchTerm = ref('')
+
+function syncFromRoute() {
+  const qp = route.query.productId as string | undefined
+  productId.value = qp ?? null
+  selectedProductId.value = qp ?? null
+}
+
+function onProductChange(id: string | null) {
+  productId.value = id ?? null
+  selectedProductId.value = id ?? null
+  router.replace({
+    query: { ...route.query, productId: id ?? undefined },
+  })
+  setSearch('')
+  refresh()
+}
+
+const {
+  options: productOptions,
+  loading: productOptionsLoading,
+  selectedId: selectedProductId,
+  loadInitial,
+  searchProducts,
+} = useProductOptions()
 
 const {
   items,
@@ -38,7 +65,7 @@ const {
   setSort,
   refresh,
 } = usePagedQuery<VariantListItem>(
-  () => `api/catalog/variants?productId=${productId.value}`,
+  () => variantsListUrl(productId.value),
   {
     allowedFilterFields: VARIANT_FILTER_FIELDS,
     allowedSortFields: VARIANT_SORT_FIELDS,
@@ -53,11 +80,23 @@ const {
 
 const first = computed(() => (page.value - 1) * pageSize.value)
 
-watch(productId, (id) => {
-  if (id) {
-    setSearch('')
-  }
-}, { immediate: true })
+watch(productId, () => {
+  setSearch('')
+  setPage(1)
+})
+
+onMounted(() => {
+  syncFromRoute()
+  loadInitial()
+  refresh()
+})
+
+watch(() => route.query.productId, () => {
+  syncFromRoute()
+  refresh()
+})
+
+const newDisabled = computed(() => !productId.value)
 
 function navigateToNew() {
   if (!productId.value) return
@@ -132,6 +171,7 @@ function refreshPage() {
           <p class="text-muted-color mt-1">Manage product variants</p>
         </div>
         <Button
+          v-if="productId"
           label="Back to Product"
           icon="pi pi-arrow-left"
           severity="secondary"
@@ -142,15 +182,7 @@ function refreshPage() {
     </div>
 
     <div class="flex-1 min-h-0 mt-4">
-      <div v-if="!productId" class="flex items-center justify-center h-full">
-        <div class="text-center text-muted-color">
-          <i class="pi pi-info-circle text-4xl mb-3 block" />
-          <p class="text-lg">Select a product to view its variants.</p>
-          <p class="text-sm mt-1">Navigate from the Products list to manage variants.</p>
-        </div>
-      </div>
-
-      <div v-else-if="error" class="flex items-center justify-center h-full">
+      <div v-if="error" class="flex items-center justify-center h-full">
         <Message severity="error" :closable="false" class="w-full max-w-lg">
           <div class="flex flex-col gap-2">
             <span>{{ error }}</span>
@@ -160,7 +192,6 @@ function refreshPage() {
       </div>
 
       <DataTable
-        v-else
         size="large"
         :value="items"
         :loading="loading"
@@ -193,10 +224,30 @@ function refreshPage() {
                 </IconField>
                 <label>Search</label>
               </FloatLabel>
+              <Select
+                :model-value="selectedProductId"
+                :options="productOptions"
+                option-label="name"
+                option-value="id"
+                placeholder="All products"
+                show-clear
+                filter
+                :loading="productOptionsLoading"
+                class="w-72"
+                @update:model-value="onProductChange"
+                @filter="(e: { value: string }) => searchProducts(e.value)"
+              />
               <Button label="Clear" outlined @click="clearSearch" />
             </div>
             <div class="flex items-center gap-2">
-              <Button label="New Variant" icon="pi pi-plus" severity="primary" @click="navigateToNew" />
+              <Button
+                label="New Variant"
+                icon="pi pi-plus"
+                severity="primary"
+                :disabled="newDisabled"
+                @click="navigateToNew"
+              />
+              <span v-if="newDisabled" class="text-sm text-muted-color">Select a product first</span>
               <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="refreshPage" />
             </div>
           </div>
@@ -231,7 +282,9 @@ function refreshPage() {
           </template>
         </Column>
         <template #empty>
-          <div class="text-center py-8 text-muted-color">No variants found for this product.</div>
+          <div class="text-center py-8 text-muted-color">
+            {{ productId ? 'No variants found for this product.' : 'No variants found.' }}
+          </div>
         </template>
       </DataTable>
     </div>
