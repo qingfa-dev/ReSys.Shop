@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
+import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
+import Message from 'primevue/message'
 
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
@@ -12,6 +14,7 @@ import { useNotify } from '@/shared/composables/useNotify'
 import { OptionTypeApi } from '../services/optionTypeApi'
 import type { OptionTypeListItem } from '../types/optionType'
 import { OPTION_TYPE_FILTER_FIELDS, OPTION_TYPE_SORT_FIELDS } from '../types/optionType'
+import { tableFirst } from '../utils/tablePaging'
 
 const router = useRouter()
 const confirm = useConfirm()
@@ -25,8 +28,14 @@ const allowedSearchFields = ['name', 'presentation']
 const {
   items,
   loading,
+  error,
+  totalCount,
+  page,
   pageSize,
+  setPage,
+  setPageSize,
   setSearch,
+  setSort,
   refresh,
 } = usePagedQuery<OptionTypeListItem>('api/catalog/option-types', {
   allowedFilterFields: OPTION_TYPE_FILTER_FIELDS,
@@ -37,6 +46,8 @@ const {
   defaultSort: ['name'],
   defaultPageSize: 25,
 })
+
+const first = computed(() => tableFirst(page.value, pageSize.value))
 
 function navigateToNew() {
   router.push('/catalog/option-types/new')
@@ -54,6 +65,20 @@ function onSearch(value: string) {
 function clearSearch() {
   searchTerm.value = ''
   setSearch('')
+}
+
+function onPage(event: DataTablePageEvent) {
+  setPage(event.page + 1)
+}
+
+function onRows(rows: number) {
+  setPageSize(rows)
+}
+
+function onSort(event: DataTableSortEvent) {
+  const field = event.sortField
+  if (typeof field !== 'string') return
+  setSort(event.sortOrder === -1 ? [`-${field}`] : [field])
 }
 
 function confirmDelete() {
@@ -104,20 +129,34 @@ function confirmDelete() {
     </div>
 
     <div class="flex-1 min-h-0 mt-4">
-      <DataTable size="large"
+      <div v-if="error" class="flex items-center justify-center h-full">
+        <Message severity="error" :closable="false" class="w-full max-w-lg">
+          <div class="flex flex-col gap-2">
+            <span>{{ error }}</span>
+            <Button label="Reload" icon="pi pi-sync" severity="secondary" size="small" @click="refresh" />
+          </div>
+        </Message>
+      </div>
+
+      <DataTable v-else size="large"
         ref="dt"
         v-model:selection="selectedItems"
         :value="items"
         :loading="loading"
+        :total-records="totalCount"
+        :first="first"
+        :rows="pageSize"
         scrollable
         :paginator="true"
-        :rows="pageSize"
         filter-display="menu"
         data-key="id"
         :global-filter-fields="allowedSearchFields"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rows-per-page-options="[5, 10, 25]"
         current-page-report-template="Showing {first} to {last} of {totalRecords}"
+        @page="onPage"
+        @update:rows="onRows"
+        @sort="onSort"
         :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
       >
         <Column selection-mode="multiple" header-style="width: 3rem" />
