@@ -1,4 +1,3 @@
-import { mockProductRepository } from '../../repositories/product/product.mock.repository'
 import { productApiRepository } from '../../repositories/product/product.api'
 import type { IProductService } from './product.service.interface'
 import type { Product, ProductFilter } from '../../types'
@@ -6,10 +5,8 @@ import type { PagedResult, Result } from '@/core/models/result'
 import { mapResponseToEntity } from '../../mapping'
 import { resultMap, succeed, fail } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class ProductService implements IProductService {
-  private readonly productRepository = USE_MOCK ? mockProductRepository : productApiRepository
+  private readonly productRepository = productApiRepository
 
   async getProducts(filter?: ProductFilter, page = 1, pageSize = 12): Promise<PagedResult<Product>> {
     const paging = { page, pageSize }

@@ -1,14 +1,11 @@
-import { mockCategoryRepository } from '../../repositories/category/category.mock.repository'
 import { categoryApiRepository } from '../../repositories/category/category.api'
 import type { ICategoryService } from './category.service.interface'
 import type { Category } from '../../types'
 import type { Result } from '@/core/models/result'
 import { succeed, fail } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class CategoryService implements ICategoryService {
-  private readonly categoryRepository = USE_MOCK ? mockCategoryRepository : categoryApiRepository
+  private readonly categoryRepository = categoryApiRepository
 
   async getCategories(): Promise<Result<Category[]>> {
     const response = await this.categoryRepository.getAll()
