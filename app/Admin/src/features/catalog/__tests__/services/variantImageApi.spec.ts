@@ -36,7 +36,7 @@ describe('VariantImageApi.listImages', () => {
     await VariantImageApi.listImages('abc-123')
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/catalog/variant-images?variantId=abc-123',
-      expect.objectContaining({ pageNumber: 1, pageSize: 100 }),
+      {},
     )
   })
 })

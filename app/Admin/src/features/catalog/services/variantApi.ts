@@ -63,7 +63,7 @@ export class VariantApi {
   ): Promise<PagedResult<OptionValueAssignment>> {
     return getPaged<OptionValueAssignment>(
       `${CATALOG}/variant-option-values?variantId=${variantId}`,
-      { pageNumber: 1, pageSize: 100 },
+      {},
     )
   }
 

@@ -8,10 +8,7 @@ const BASE = `${CATALOG}/variant-images`
 
 export class VariantImageApi {
   static listImages(variantId: string): Promise<PagedResult<VariantImage>> {
-    return getPaged<VariantImage>(`${BASE}?variantId=${variantId}`, {
-      pageNumber: 1,
-      pageSize: 100,
-    })
+    return getPaged<VariantImage>(`${BASE}?variantId=${variantId}`, {})
   }
 
   static getImage(id: string): Promise<Result<VariantImage>> {

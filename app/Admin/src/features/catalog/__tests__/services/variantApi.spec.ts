@@ -79,7 +79,7 @@ describe('VariantApi.deleteVariant', () => {
 })
 
 describe('VariantApi.getOptionValues', () => {
-  it('calls getPaged with option-values URL', async () => {
+  it('calls getPaged with option-values URL and no paging params', async () => {
     mockGetPaged.mockResolvedValue({
       items: [], page: 1, pageSize: 0, totalCount: 0, totalPages: 0,
       isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null,
@@ -87,7 +87,7 @@ describe('VariantApi.getOptionValues', () => {
     await VariantApi.getOptionValues('abc-123')
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/catalog/variant-option-values?variantId=abc-123',
-      expect.objectContaining({ pageNumber: 1, pageSize: 100 }),
+      {},
     )
   })
 })
