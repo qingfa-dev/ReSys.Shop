@@ -444,7 +444,7 @@ function onCancel() {
 
                 <TabPanel v-if="isEdit" value="4">
                   <div v-if="optionTypesLoading" class="text-center py-8 text-muted-color">Loading option types...</div>
-                  <div v-else-if="unassignedOptionTypes.length === 0 && assignedOptionTypes.length === 0" class="text-center py-8 text-muted-color">
+                  <div v-else-if="optionTypesLoaded && unassignedOptionTypes.length === 0 && assignedOptionTypes.length === 0" class="text-center py-8 text-muted-color">
                     No option types available.
                   </div>
                   <template v-else>
@@ -472,7 +472,7 @@ function onCancel() {
 
                 <TabPanel v-if="isEdit" value="5">
                   <div v-if="classificationsLoading" class="text-center py-8 text-muted-color">Loading classifications...</div>
-                  <div v-else-if="unassignedClassifications.length === 0 && assignedClassifications.length === 0" class="text-center py-8 text-muted-color">
+                  <div v-else-if="classificationsLoaded && unassignedClassifications.length === 0 && assignedClassifications.length === 0" class="text-center py-8 text-muted-color">
                     No classifications available.
                   </div>
                   <template v-else>

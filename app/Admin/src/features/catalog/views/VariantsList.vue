@@ -37,11 +37,10 @@ function syncFromRoute() {
 function onProductChange(id: string | null) {
   productId.value = id ?? null
   selectedProductId.value = id ?? null
+  searchTerm.value = ''
   router.replace({
     query: { ...route.query, productId: id ?? undefined },
   })
-  setSearch('')
-  refresh()
 }
 
 const {
@@ -81,19 +80,20 @@ const {
 const first = computed(() => (page.value - 1) * pageSize.value)
 
 watch(productId, () => {
+  searchTerm.value = ''
   setSearch('')
-  setPage(1)
 })
 
 onMounted(() => {
   syncFromRoute()
   loadInitial()
-  refresh()
+  if (productId.value === null) {
+    setSearch('')
+  }
 })
 
 watch(() => route.query.productId, () => {
   syncFromRoute()
-  refresh()
 })
 
 const newDisabled = computed(() => !productId.value)
@@ -192,6 +192,7 @@ function refreshPage() {
       </div>
 
       <DataTable
+        v-else
         size="large"
         :value="items"
         :loading="loading"
