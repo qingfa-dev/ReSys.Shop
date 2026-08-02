@@ -21,6 +21,7 @@ import { ProductClassificationApi } from '../services/productClassificationApi'
 import type { ClassificationAssignment } from '../types/productClassification'
 import { productSchema, productName, productSlug, productDescription, productMetaTitle, productMetaDescription, productMetaKeywords, productAvailableOn, productDiscontinueOn, productStyleCode, productSeasonName, productMaterialComposition, productCareInstructions, productFitNotes, productDepartment, productGenderTarget } from '../validations/product'
 import type { ProductForm } from '../validations/product'
+import { makeEmptyAssignments } from '../utils/assignmentState'
 
 const route = useRoute()
 const router = useRouter()
@@ -79,10 +80,39 @@ const formLoaded = ref(!isEdit.value)
 const unassignedOptionTypes = ref<OptionTypeAssignment[]>([])
 const assignedOptionTypes = ref<OptionTypeAssignment[]>([])
 const optionTypesLoading = ref(false)
+const optionTypesLoaded = ref(false)
 
 const unassignedClassifications = ref<ClassificationAssignment[]>([])
 const assignedClassifications = ref<ClassificationAssignment[]>([])
 const classificationsLoading = ref(false)
+const classificationsLoaded = ref(false)
+
+const optionTypesModel = computed<OptionTypeAssignment[][]>({
+  get: () => [unassignedOptionTypes.value, assignedOptionTypes.value],
+  set: (value) => {
+    unassignedOptionTypes.value = value[0] ?? []
+    assignedOptionTypes.value = value[1] ?? []
+  },
+})
+
+const classificationsModel = computed<ClassificationAssignment[][]>({
+  get: () => [unassignedClassifications.value, assignedClassifications.value],
+  set: (value) => {
+    unassignedClassifications.value = value[0] ?? []
+    assignedClassifications.value = value[1] ?? []
+  },
+})
+
+function resetAssignments() {
+  const ot = makeEmptyAssignments()
+  const cl = makeEmptyAssignments()
+  unassignedOptionTypes.value = ot.unassigned
+  assignedOptionTypes.value = ot.assigned
+  unassignedClassifications.value = cl.unassigned
+  assignedClassifications.value = cl.assigned
+  optionTypesLoaded.value = false
+  classificationsLoaded.value = false
+}
 
 async function initEditMode(id: string) {
   const result = await ProductApi.getProduct(id)
@@ -108,6 +138,8 @@ async function initEditMode(id: string) {
       status: p.status,
     }
     formLoaded.value = true
+    resetAssignments()
+    activeTab.value = '0'
   } else {
     handleResult(result)
     router.push('/catalog/products')
@@ -129,10 +161,10 @@ watch(() => route.params.id, (newId) => {
 })
 
 watch(activeTab, (tab) => {
-  if (isEdit.value && tab === '4' && unassignedOptionTypes.value.length === 0 && assignedOptionTypes.value.length === 0) {
+  if (isEdit.value && tab === '4' && !optionTypesLoaded.value) {
     loadOptionTypes()
   }
-  if (isEdit.value && tab === '5' && unassignedClassifications.value.length === 0 && assignedClassifications.value.length === 0) {
+  if (isEdit.value && tab === '5' && !classificationsLoaded.value) {
     loadClassifications()
   }
 })
@@ -143,6 +175,7 @@ async function loadOptionTypes() {
   if (result.isSuccess && result.items) {
     unassignedOptionTypes.value = result.items.filter(i => !i.isAssigned)
     assignedOptionTypes.value = result.items.filter(i => i.isAssigned)
+    optionTypesLoaded.value = true
   }
   optionTypesLoading.value = false
 }
@@ -153,6 +186,7 @@ async function loadClassifications() {
   if (result.isSuccess && result.items) {
     unassignedClassifications.value = result.items.filter(i => !i.isAssigned)
     assignedClassifications.value = result.items.filter(i => i.isAssigned)
+    classificationsLoaded.value = true
   }
   classificationsLoading.value = false
 }
@@ -165,6 +199,7 @@ async function saveOptionTypes() {
   const result = await ProductOptionTypeApi.syncOptionTypes({ productId: route.params.id as string, items })
   if (result.isSuccess) {
     notify.success('Option types saved')
+    optionTypesLoaded.value = false
     await loadOptionTypes()
   } else {
     notify.error('Failed to save option types', result.errors?.[0]?.message)
@@ -179,6 +214,7 @@ async function saveClassifications() {
   const result = await ProductClassificationApi.syncClassifications({ productId: route.params.id as string, items })
   if (result.isSuccess) {
     notify.success('Classifications saved')
+    classificationsLoaded.value = false
     await loadClassifications()
   } else {
     notify.error('Failed to save classifications', result.errors?.[0]?.message)
@@ -407,49 +443,59 @@ function onCancel() {
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="4">
-                  <PickList
-                    v-model:target="assignedOptionTypes"
-                    :source="unassignedOptionTypes"
-                    source-header="Available"
-                    target-header="Assigned"
-                    :loading="optionTypesLoading"
-                    list-style="height: 300px"
-                    source-filter-placeholder="Search..."
-                    target-filter-placeholder="Search..."
-                  >
-                    <template #option="slotProps">
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">{{ slotProps.option.name }}</span>
-                        <span class="text-muted-color text-sm">({{ slotProps.option.presentation }})</span>
-                      </div>
-                    </template>
-                  </PickList>
-                  <div class="mt-3">
-                    <Button label="Save Option Types" severity="primary" @click="saveOptionTypes" />
+                  <div v-if="optionTypesLoading" class="text-center py-8 text-muted-color">Loading option types...</div>
+                  <div v-else-if="unassignedOptionTypes.length === 0 && assignedOptionTypes.length === 0" class="text-center py-8 text-muted-color">
+                    No option types available.
                   </div>
+                  <template v-else>
+                    <PickList
+                      v-model="optionTypesModel"
+                      source-header="Available"
+                      target-header="Assigned"
+                      :loading="optionTypesLoading"
+                      list-style="height: 300px"
+                      source-filter-placeholder="Search..."
+                      target-filter-placeholder="Search..."
+                    >
+                      <template #option="slotProps">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium">{{ slotProps.option.name }}</span>
+                          <span class="text-muted-color text-sm">({{ slotProps.option.presentation }})</span>
+                        </div>
+                      </template>
+                    </PickList>
+                    <div class="mt-3">
+                      <Button label="Save Option Types" severity="primary" @click="saveOptionTypes" />
+                    </div>
+                  </template>
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="5">
-                  <PickList
-                    v-model:target="assignedClassifications"
-                    :source="unassignedClassifications"
-                    source-header="Unassigned"
-                    target-header="Assigned"
-                    :loading="classificationsLoading"
-                    list-style="height: 300px"
-                    source-filter-placeholder="Search..."
-                    target-filter-placeholder="Search..."
-                  >
-                    <template #option="slotProps">
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium">{{ slotProps.option.name }}</span>
-                        <span v-if="slotProps.option.prettyName" class="text-muted-color text-sm">({{ slotProps.option.prettyName }})</span>
-                      </div>
-                    </template>
-                  </PickList>
-                  <div class="mt-3">
-                    <Button label="Save Classifications" severity="primary" @click="saveClassifications" />
+                  <div v-if="classificationsLoading" class="text-center py-8 text-muted-color">Loading classifications...</div>
+                  <div v-else-if="unassignedClassifications.length === 0 && assignedClassifications.length === 0" class="text-center py-8 text-muted-color">
+                    No classifications available.
                   </div>
+                  <template v-else>
+                    <PickList
+                      v-model="classificationsModel"
+                      source-header="Unassigned"
+                      target-header="Assigned"
+                      :loading="classificationsLoading"
+                      list-style="height: 300px"
+                      source-filter-placeholder="Search..."
+                      target-filter-placeholder="Search..."
+                    >
+                      <template #option="slotProps">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium">{{ slotProps.option.name }}</span>
+                          <span v-if="slotProps.option.prettyName" class="text-muted-color text-sm">({{ slotProps.option.prettyName }})</span>
+                        </div>
+                      </template>
+                    </PickList>
+                    <div class="mt-3">
+                      <Button label="Save Classifications" severity="primary" @click="saveClassifications" />
+                    </div>
+                  </template>
                 </TabPanel>
               </TabPanels>
             </Tabs>
