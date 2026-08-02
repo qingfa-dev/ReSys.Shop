@@ -47,10 +47,32 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
         foreach (var pj in products)
         {
             var productResult = ProductMethod.Create(
-                name: pj.Name, slug: pj.Slug, description: pj.Description,
-                status: ProductStatus.Active, availableOn: DateTimeOffset.UtcNow,
-                metaTitle: pj.MetaTitle, metaDescription: pj.Description,
-                metaKeywords: pj.MetaKeywords, id: Guid.Parse(pj.Id));
+            #region Properties
+                name: pj.Name,
+                description: pj.Description,
+                status: Enum.TryParse<ProductStatus>(pj.Status, out var parsedStatus) ? parsedStatus : ProductStatus.Active,
+            #endregion Properties
+            #region SEO
+                slug: pj.Slug,
+                metaTitle: pj.MetaTitle,
+                metaDescription: pj.Description,
+                metaKeywords: pj.MetaKeywords,
+            #endregion SEO
+            #region Timestamp
+                availableOn: null,
+                discontinueOn: null,
+                makeActiveAt: null,
+            #endregion Timestamp
+            #region Fashion
+                styleCode: pj.StyleCode,
+                seasonName: pj.SeasonName,
+                materialComposition: pj.MaterialComposition,
+                careInstructions: pj.CareInstructions,
+                fitNotes: pj.FitNotes,
+                department: pj.Department,
+                genderTarget: pj.GenderTarget,
+            #endregion Fashion
+                id: Guid.Parse(pj.Id));
             var product = productResult.Value;
             product.GenderTarget = pj.GenderTarget;
 
@@ -60,6 +82,7 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
             product.SeasonName = pj.SeasonName;
             product.MaterialComposition = pj.MaterialComposition;
             product.CareInstructions = pj.CareInstructions;
+            product.FitNotes = pj.FitNotes;
             product.Department = pj.Department;
 
             Context.Set<Product>().Add(product);
@@ -157,6 +180,7 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
         public string? SeasonName { get; init; }
         public string? MaterialComposition { get; init; }
         public string? CareInstructions { get; init; }
+        public string? FitNotes { get; init; }
         public string? Department { get; init; }
     }
     private record DemoVariantJson

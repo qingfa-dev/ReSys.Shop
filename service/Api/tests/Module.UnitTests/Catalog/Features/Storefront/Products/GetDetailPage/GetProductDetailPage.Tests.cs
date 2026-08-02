@@ -36,7 +36,7 @@ public class GetProductDetailPageTests : IDisposable
     [Fact(DisplayName = "Handler: Should return product detail page when slug exists")]
     public async Task Handle_ShouldReturnSuccess_WhenSlugExists()
     {
-        var product = ProductMethod.Create("Test Product", "test-product", description: "A test product", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Test Product", slug: "test-product", description: "A test product", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
         var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
         variant.Prices.Add(new Price { Amount = 29.99m, Currency = "USD" });

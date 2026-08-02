@@ -288,7 +288,7 @@ public abstract class TaxonRuleEvaluatorTestsBase
 
     protected static Product CreateProduct(string name)
     {
-        return ProductMethod.Create(name, name.ToLower(CultureInfo.InvariantCulture).Replace(" ", "-")).Value;
+        return ProductMethod.Create(name: name, slug: name.ToLower(CultureInfo.InvariantCulture).Replace(" ", "-")).Value;
     }
 
     protected static Taxon CreateTaxon(string name, bool automatic)

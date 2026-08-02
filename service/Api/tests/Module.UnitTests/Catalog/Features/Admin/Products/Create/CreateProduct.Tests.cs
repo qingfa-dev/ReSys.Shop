@@ -71,7 +71,7 @@ public class CreateProductTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when slug is duplicate")]
     public async Task Handle_ShouldReturnFailure_WhenSlugIsDuplicate()
     {
-        var existing = ProductMethod.Create("Existing", "t-shirt", status: ProductStatus.Draft).Value;
+        var existing = ProductMethod.Create(name: "Existing", slug: "t-shirt", status: ProductStatus.Draft).Value;
         _dbContext.Set<Product>().Add(existing);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

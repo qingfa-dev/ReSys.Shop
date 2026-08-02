@@ -17,14 +17,32 @@ public static partial class ProductMapping
     public static Result<Product> MapToDomain<T>(this T request) where T : ProductRequest
     {
         return ProductMethod.Create(
+        #region Properties
             name: request.Name,
             slug: request.Slug,
             description: request.Description,
+            status: request.Status,
+        #endregion Properties
+        #region SEO
             metaTitle: request.MetaTitle,
             metaDescription: request.MetaDescription,
             metaKeywords: request.MetaKeywords,
+        #endregion SEO
+        #region Timestamp
             availableOn: request.AvailableOn,
-            discontinueOn: request.DiscontinueOn);
+            discontinueOn: request.DiscontinueOn,
+            makeActiveAt: request.MakeActiveAt,
+        #endregion Timestamp
+        #region Fashion
+            styleCode: request.StyleCode,
+            seasonName: request.SeasonName,
+            materialComposition: request.MaterialComposition,
+            careInstructions: request.CareInstructions,
+            fitNotes: request.FitNotes,
+            department: request.Department,
+            genderTarget: request.GenderTarget
+        #endregion Fashion
+        );
     }
 
     /// <summary>
@@ -37,13 +55,31 @@ public static partial class ProductMapping
     public static Result MapToDomain<T>(this T request, Product product) where T : ProductRequest
     {
         return product.Update(
+        #region Properties
             name: request.Name,
             slug: request.Slug,
             description: request.Description,
+            status: request.Status,
+        #endregion Properties
+        #region SEO
             metaTitle: request.MetaTitle,
             metaDescription: request.MetaDescription,
             metaKeywords: request.MetaKeywords,
+        #endregion SEO
+        #region Timestamp
             availableOn: request.AvailableOn,
-            discontinueOn: request.DiscontinueOn);
+            discontinueOn: request.DiscontinueOn,
+            makeActiveAt: request.MakeActiveAt,
+        #endregion Timestamp
+        #region Fashion
+            styleCode: request.StyleCode,
+            seasonName: request.SeasonName,
+            materialComposition: request.MaterialComposition,
+            careInstructions: request.CareInstructions,
+            fitNotes: request.FitNotes,
+            department: request.Department,
+            genderTarget: request.GenderTarget
+        #endregion Fashion
+            );
     }
 }

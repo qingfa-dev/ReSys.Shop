@@ -36,7 +36,7 @@ public static partial class GetVariantImagePagedOrAll
             // Filter: Load images scoped to the variant with querying, default-sorted by position
             return await dbContext.Set<VariantImage>()
                 .Where(x => x.VariantId == query.VariantId)
-                .ApplyQuerying(parsing.Value)
+                .ApplyQuerying(parsing.Value, defaultSortClauses: [new SortClause { Field = nameof(VariantImage.Position) }])
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToDetail<Response>(), cancellationToken);
         }
     }

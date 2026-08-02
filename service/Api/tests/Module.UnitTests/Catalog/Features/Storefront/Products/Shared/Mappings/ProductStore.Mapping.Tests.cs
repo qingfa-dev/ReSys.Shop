@@ -111,9 +111,14 @@ public class ProductStoreMappingTests
     private static Product CreateProduct()
     {
         var productResult = ProductMethod.Create(
-            "Test Product", "test-product", "Test Description",
-            ProductStatus.Active, DateTimeOffset.UtcNow,
-            "Meta Title", "Meta Desc", "keywords",
+            name: "Test Product",
+            slug: "test-product",
+            description: "Test Description",
+            status: ProductStatus.Active,
+            availableOn: DateTimeOffset.UtcNow,
+            metaTitle: "Meta Title",
+            metaDescription: "Meta Desc",
+            metaKeywords: "keywords",
             discontinueOn: null, makeActiveAt: null);
         productResult.IsSuccess.Should().BeTrue();
         var product = productResult.Value;
