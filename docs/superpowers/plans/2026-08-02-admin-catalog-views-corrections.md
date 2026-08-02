@@ -19,20 +19,73 @@
 
 ---
 
-### Task 1: Service alignment — remove page-size cap on option values and images
+### Task 1: Full-set paging mechanism + service alignment
+
+> **Plan correction (review-driven):** The original Task 1 told services to pass `{}` to `getPaged` assuming that emits no paging params. It does NOT: `getPaged` calls `parseAll`, whose `parsePageValues(undefined, undefined)` returns `{ page: 1, pageSize: 20, isEmpty: false }` (parsers.ts:455-461), so `queryingModelToParams` emits `page=1&pageSize=20` and the backend truncates to 20 rows. The empty-params short-circuit only exists in `queryingParamsToModel` (mappers.ts:42-44), which `getPaged` never calls. This also means the ProductDetail classification/option-type tabs today load only the first 20 taxons — a likely root cause of the "classification tab broken" report. The corrected mechanism: fix shared `getPaged` so an all-empty param object routes through `queryingParamsToModel`, which short-circuits to `emptyQueryingModel` (`isEmpty: true`) and emits NO `page`/`pageSize`. Backend `PageModelExtensions.FromValues` returns `isEmpty: true` only when `page is null && pageSize is null`, so no paging params ⇒ full set.
 
 **Files:**
+- Modify: `app/Admin/src/shared/api/paged.ts:32-37`
+- Modify: `app/Admin/src/shared/api/__tests__/paged.spec.ts`
 - Modify: `app/Admin/src/features/catalog/services/variantApi.ts:61-68`
 - Modify: `app/Admin/src/features/catalog/services/variantImageApi.ts:10-15`
 - Modify: `app/Admin/src/features/catalog/__tests__/services/variantApi.spec.ts:81-93`
+- Modify: `app/Admin/src/features/catalog/__tests__/services/variantImageApi.spec.ts`
 
 **Interfaces:**
 - Consumes: nothing from earlier tasks.
-- Produces: `VariantApi.getOptionValues(variantId)` and `VariantImageApi.listImages(variantId)` now send no paging params so the backend returns the full set. Later tasks rely on full option-value/image sets.
+- Produces: (a) `getPaged(url, {})` now emits NO query string — the full-set mechanism every later task relies on; (b) `VariantApi.getOptionValues(variantId)` and `VariantImageApi.listImages(variantId)` request the full set. `usePagedQuery` always passes real `pageNumber`/`pageSize`, so it is unaffected.
 
-- [ ] **Step 1: Update the failing service test**
+- [ ] **Step 1: Write the failing test for `getPaged` empty params**
 
-Edit `variantApi.spec.ts` — the `VariantApi.getOptionValues` test currently asserts `{ pageNumber: 1, pageSize: 100 }`. Change the assertion to expect empty query params:
+Add to `app/Admin/src/shared/api/__tests__/paged.spec.ts`:
+
+```ts
+  it('emits no paging params when the param object is empty', async () => {
+    mockGet.mockResolvedValue(okResponse())
+
+    await getPaged<unknown>('/api/variants?productId=x', {})
+
+    expect(mockGet).toHaveBeenCalledWith(
+      '/api/variants?productId=x',
+      undefined,
+    )
+  })
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `cd app/Admin && pnpm exec vitest run src/shared/api/__tests__/paged.spec.ts`
+Expected: FAIL — `getPaged` currently calls `mockGet` with `'/api/variants?productId=x&page=1&pageSize=20'`.
+
+- [ ] **Step 3: Fix shared `getPaged`**
+
+In `app/Admin/src/shared/api/paged.ts`, change the import to include `queryingParamsToModel` and route empty params through it:
+
+```ts
+import { queryingModelToParams, queryingParamsToModel } from '@/shared/types/querying'
+```
+
+Then replace the `parseAll(...)` call inside `getPaged` with `queryingParamsToModel(...)`:
+
+```ts
+  const parsed = queryingParamsToModel(
+    params,
+    options?.allowedFilterFields ?? null,
+    options?.allowedSortFields ?? null,
+    options?.allowedSearchFields ?? null,
+  )
+```
+
+`queryingParamsToModel` short-circuits an all-empty param object to `emptyQueryingModel` (`isEmpty: true`, parsers/mappers handle it), and otherwise delegates to `parseAll` with identical behavior — so every existing caller that passes real params is unchanged.
+
+- [ ] **Step 4: Run paged tests to verify the fix**
+
+Run: `cd app/Admin && pnpm exec vitest run src/shared/api/__tests__/paged.spec.ts`
+Expected: PASS (new empty-params test + all existing paged tests).
+
+- [ ] **Step 5: Update the failing service test**
+
+Edit `variantApi.spec.ts` — the `VariantApi.getOptionValues` test currently asserts `{ pageNumber: 1, pageSize: 100 }`. Change it to assert the empty param object:
 
 ```ts
 describe('VariantApi.getOptionValues', () => {
@@ -44,18 +97,20 @@ describe('VariantApi.getOptionValues', () => {
     await VariantApi.getOptionValues('abc-123')
     expect(mockGetPaged).toHaveBeenCalledWith(
       'api/catalog/variant-option-values?variantId=abc-123',
-      expect.objectContaining({ pageNumber: null, pageSize: null }),
+      {},
     )
   })
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+Also update `variantImageApi.spec.ts` the same way — its `listImages` test currently asserts `{ pageNumber: 1, pageSize: 100 }`; change the expected second argument to `{}`.
+
+- [ ] **Step 6: Run service test to verify it fails**
 
 Run: `cd app/Admin && pnpm exec vitest run src/features/catalog/__tests__/services/variantApi.spec.ts`
-Expected: FAIL — the assertion for `pageNumber`/`pageSize` does not match `{ pageNumber: 1, pageSize: 100 }`.
+Expected: FAIL — assertion for the params argument does not match `{ pageNumber: 1, pageSize: 100 }`.
 
-- [ ] **Step 3: Implement minimal service changes**
+- [ ] **Step 7: Implement minimal service changes**
 
 In `variantApi.ts`, change `getOptionValues` to send empty params:
 
@@ -78,16 +133,16 @@ In `variantImageApi.ts`, change `listImages` to send empty params:
   }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [ ] **Step 8: Run tests to verify they pass**
 
-Run: `cd app/Admin && pnpm exec vitest run src/features/catalog/__tests__/services/variantApi.spec.ts src/features/catalog/__tests__/services/variantImageApi.spec.ts`
+Run: `cd app/Admin && pnpm exec vitest run src/shared/api/__tests__/paged.spec.ts src/features/catalog/__tests__/services/variantApi.spec.ts src/features/catalog/__tests__/services/variantImageApi.spec.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add app/Admin/src/features/catalog/services/variantApi.ts app/Admin/src/features/catalog/services/variantImageApi.ts app/Admin/src/features/catalog/__tests__/services/variantApi.spec.ts
-git commit -m "fix(catalog): return full option-value and image sets to admin"
+git add app/Admin/src/shared/api/paged.ts app/Admin/src/shared/api/__tests__/paged.spec.ts app/Admin/src/features/catalog/services/variantApi.ts app/Admin/src/features/catalog/services/variantImageApi.ts app/Admin/src/features/catalog/__tests__/services/variantApi.spec.ts app/Admin/src/features/catalog/__tests__/services/variantImageApi.spec.ts
+git commit -m "fix(catalog): full-set paging via empty params and aligned variant services"
 ```
 
 ---
@@ -563,8 +618,31 @@ and
 
 - [ ] **Step 6: Fix PickList two-way source binding in template**
 
-1. Option Types tab (`ProductDetail.vue:409-426`): change `:source="unassignedOptionTypes"` to `v-model="unassignedOptionTypes"`.
-2. Classifications tab (`ProductDetail.vue:433-449`): change `:source="unassignedClassifications"` to `v-model="unassignedClassifications"`.
+> **Plan correction (review-driven):** The original Step 6 told the implementer to change `:source="unassignedOptionTypes"` to `v-model="unassignedOptionTypes"` while keeping `v-model:target`. This is infeasible with the installed PrimeVue 5.0.0 PickList: it has NO `source`/`target` props, consumes a single `modelValue: any[][]` (`modelValue[0]` = source, `modelValue[1]` = target), only emits `update:modelValue`, and sets `inheritAttrs: false` — so the pre-existing `:source`/`v-model:target` bindings were inert fallthrough attrs and the component always rendered the default `[[], []]` (the real root cause of the blank-list/snap-back symptom). The verified approach below implements the two-way-binding intent with writable computeds typed `[][]`; use it verbatim.
+
+1. Add writable computed models next to the assignment refs in the script (they map the single PickList `modelValue` array to the two refs that `saveOptionTypes`/`saveClassifications` and the empty-state guards consume):
+
+```ts
+const optionTypesModel = computed<OptionTypeAssignment[][]>({
+  get: () => [unassignedOptionTypes.value, assignedOptionTypes.value],
+  set: (value) => {
+    unassignedOptionTypes.value = value[0] ?? []
+    assignedOptionTypes.value = value[1] ?? []
+  },
+})
+
+const classificationsModel = computed<ClassificationAssignment[][]>({
+  get: () => [unassignedClassifications.value, assignedClassifications.value],
+  set: (value) => {
+    unassignedClassifications.value = value[0] ?? []
+    assignedClassifications.value = value[1] ?? []
+  },
+})
+```
+
+2. Option Types tab (`ProductDetail.vue:409-426`): replace the `v-model:target="assignedOptionTypes"` + `:source="unassignedOptionTypes"` props with `v-model="optionTypesModel"`.
+3. Classifications tab (`ProductDetail.vue:433-449`): replace the `v-model:target="assignedClassifications"` + `:source="unassignedClassifications"` props with `v-model="classificationsModel"`.
+4. Keep the `source-header`/`target-header`/`list-style`/filter-placeholder props unchanged.
 
 - [ ] **Step 7: Add empty states to the tabs**
 
@@ -1018,3 +1096,4 @@ dotnet build service/Api/src/Module
 - **Spec coverage:** ProductsList status button (Task 2), ProductsList paging (Task 2), ProductDetail classification tab (Task 4), ProductDetail option types tab (Task 4), OptionTypesList paging (Task 3), VariantsList product select + show-all (Tasks 5-6), service alignment (Task 1), VariantDetail create flow (verified in Task 6 Step 5 — route still carries `productId`).
 - **No placeholders:** every step contains concrete code.
 - **Type consistency:** `statusAction` returns `{ kind: 'activate' | 'discontinue' | 'none' }`; `tableFirst(page, pageSize)` used consistently; `variantsListUrl(productId)` signature matches the composable's `productId: Ref<string | null>`; `useProductOptions` return shape matches Task 6 consumption (`options/loading/selectedId/loadInitial/searchProducts`).
+- **Plan corrections applied during execution (review-driven):** Task 1's "pass `{}`" mechanism was defective — `getPaged` normalizes `{}` to `page=1&pageSize=20` — fixed by routing empty params through `queryingParamsToModel`. Task 4's PickList Step 6 was infeasible with PrimeVue 5 (no `source`/`target` props; single `modelValue: any[][]`; inert fallthrough attrs) — fixed with writable `[][]` computeds. Both updated in-place; the corresponding spec (`docs/superpowers/specs/2026-08-02-admin-catalog-views-corrections-design.md`) should be reconciled before the next plan references it.
