@@ -32,7 +32,7 @@ public static partial class DownloadVariantImage
                 return Results.File(response.Stream, response.ContentType, response.FileName);
             })
             .WithName(nameof(DownloadVariantImage))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImages.Download.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.Download.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.Download.Description)

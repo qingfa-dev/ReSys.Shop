@@ -18,7 +18,7 @@ public static partial class DeleteOptionValue
                 return result.ToResult();
             })
             .WithName(nameof(DeleteOptionValue))
-            .WithTags(CatalogFeature.Tags.OptionValue)
+            .WithTags(CatalogFeature.Tags.OptionType)
             .HasPermission(CatalogFeature.Admin.OptionValues.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.OptionValues.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.OptionValues.Delete.Description)

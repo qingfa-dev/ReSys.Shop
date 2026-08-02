@@ -15,7 +15,7 @@ import {
 } from '../types/optionValue'
 
 export class OptionValueApi {
-  private static readonly BASE = `${CATALOG}/option-types/option-values`
+  private static readonly BASE = `${CATALOG}/option-values`
 
   static getOptionValues(query: OptionValueQuery): Promise<PagedResult<OptionValueListItem>> {
     return getPaged<OptionValueListItem>(OptionValueApi.BASE, toOptionValueQueryParams(query), {

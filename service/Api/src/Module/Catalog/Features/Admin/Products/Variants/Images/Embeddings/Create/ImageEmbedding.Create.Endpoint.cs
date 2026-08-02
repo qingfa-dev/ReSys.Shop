@@ -28,7 +28,7 @@ public static partial class CreateEmbedding
                 return result.ToResult();
             })
             .WithName(nameof(CreateEmbedding))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImageEmbeddings.Create.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImageEmbeddings.Create.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImageEmbeddings.Create.Description)

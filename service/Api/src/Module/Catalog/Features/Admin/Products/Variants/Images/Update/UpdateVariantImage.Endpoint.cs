@@ -25,7 +25,7 @@ public static partial class UpdateVariantImage
                 return result.ToResult();
             })
             .WithName(nameof(UpdateVariantImage))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImages.Update.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.Update.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.Update.Description)

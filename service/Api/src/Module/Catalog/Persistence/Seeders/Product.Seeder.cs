@@ -98,9 +98,10 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
             foreach (var img in images)
             {
                 var type = img.Type == "Search" ? VariantImageType.Search : VariantImageType.Default;
+                var imageId = Guid.Parse(img.Id);
                 var imgResult = VariantImageMethod.Create(
                     contentType: img.ContentType, fileName: img.FileName,
-                    fileSize: 0, url: string.Empty, storagePath: img.StoragePath,
+                    fileSize: 0, url: $"/api/catalog/variant-images/{imageId}/download", storagePath: img.StoragePath,
                     position: img.Position, alt: img.Alt, type: type,
                     variantId: Guid.Parse(img.VariantId));
                 var image = imgResult.Value;

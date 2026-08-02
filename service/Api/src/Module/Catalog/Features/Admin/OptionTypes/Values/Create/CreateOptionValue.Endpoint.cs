@@ -18,7 +18,7 @@ public static partial class CreateOptionValue
                 return result.ToResult();
             })
             .WithName(nameof(CreateOptionValue))
-            .WithTags(CatalogFeature.Tags.OptionValue)
+            .WithTags(CatalogFeature.Tags.OptionType)
             .HasPermission(CatalogFeature.Admin.OptionValues.Create.Permission)
             .WithSummary(CatalogFeature.Admin.OptionValues.Create.Summary)
             .WithDescription(CatalogFeature.Admin.OptionValues.Create.Description)

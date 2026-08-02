@@ -1,8 +1,7 @@
-
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.GetById;
 
-namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.GetById;
+namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Get.ById;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

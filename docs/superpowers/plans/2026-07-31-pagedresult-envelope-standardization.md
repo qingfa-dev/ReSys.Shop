@@ -755,7 +755,7 @@ using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
+namespace Module.Catalog.Features.Admin.Products.Variants.Images.Get.PagedOrAll;
 
 /// <summary>
 /// Defines the use case for listing images by variant.
@@ -793,7 +793,7 @@ Delete `ListVariantImages.Response.cs` (envelope no longer needed; the item type
 Create `ListVariantImages.Parameters.cs`:
 
 ```csharp
-namespace Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
+namespace Module.Catalog.Features.Admin.Products.Variants.Images.Get.PagedOrAll;
 
 public static partial class ListVariantImages
 {

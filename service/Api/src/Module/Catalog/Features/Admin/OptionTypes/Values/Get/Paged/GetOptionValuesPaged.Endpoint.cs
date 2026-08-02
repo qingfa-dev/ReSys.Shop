@@ -18,7 +18,7 @@ public static partial class GetOptionValuesPaged
                 return result.ToPagedResult();
             })
             .WithName(nameof(GetOptionValuesPaged))
-            .WithTags(CatalogFeature.Tags.OptionValue)
+            .WithTags(CatalogFeature.Tags.OptionType)
             .HasPermission(CatalogFeature.Admin.OptionValues.GetAll.Permission)
             .WithSummary(CatalogFeature.Admin.OptionValues.GetAll.Summary)
             .WithDescription(CatalogFeature.Admin.OptionValues.GetAll.Description)

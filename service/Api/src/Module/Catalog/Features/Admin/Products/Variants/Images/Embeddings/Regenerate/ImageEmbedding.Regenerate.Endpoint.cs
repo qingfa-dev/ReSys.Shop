@@ -30,7 +30,7 @@ public static partial class RegenerateEmbedding
                 return result.ToResult();
             })
             .WithName(nameof(RegenerateEmbedding))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImageEmbeddings.Regenerate.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImageEmbeddings.Regenerate.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImageEmbeddings.Regenerate.Description)

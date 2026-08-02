@@ -94,6 +94,13 @@ public static partial class UploadVariantImage
 
             var image = createResult.Value;
 
+            // Fixup: when storage provider returns no public URI (e.g. local FS),
+            // set the Url to the download endpoint so the frontend can display the image.
+            if (string.IsNullOrEmpty(image.Url))
+            {
+                image.Url = $"/api/catalog/variant-images/{image.Id}/download";
+            }
+
             dbContext.Set<VariantImage>().Add(image);
             await dbContext.SaveChangesAsync(cancellationToken);
 

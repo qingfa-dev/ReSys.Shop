@@ -25,7 +25,7 @@ public static partial class UploadVariantImage
                 return result.ToResult();
             })
             .WithName(nameof(UploadVariantImage))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImages.Upload.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.Upload.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.Upload.Description)

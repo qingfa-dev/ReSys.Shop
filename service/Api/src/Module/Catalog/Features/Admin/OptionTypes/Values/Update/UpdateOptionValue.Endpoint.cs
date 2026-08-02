@@ -19,7 +19,7 @@ public static partial class UpdateOptionValue
                 return result.ToResult();
             })
             .WithName(nameof(UpdateOptionValue))
-            .WithTags(CatalogFeature.Tags.OptionValue)
+            .WithTags(CatalogFeature.Tags.OptionType)
             .HasPermission(CatalogFeature.Admin.OptionValues.Update.Permission)
             .WithSummary(CatalogFeature.Admin.OptionValues.Update.Summary)
             .WithDescription(CatalogFeature.Admin.OptionValues.Update.Description)

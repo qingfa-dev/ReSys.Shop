@@ -24,7 +24,7 @@ public static partial class DeleteVariantImage
                 return result.ToResult();
             })
             .WithName(nameof(DeleteVariantImage))
-            .WithTags(CatalogFeature.Tags.VariantImage)
+            .WithTags(CatalogFeature.Tags.Variant)
             .HasPermission(CatalogFeature.Admin.VariantImages.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.Delete.Description)

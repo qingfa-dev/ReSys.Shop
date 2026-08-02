@@ -18,7 +18,7 @@ public static partial class GetOptionValueById
                 return result.ToResult();
             })
             .WithName(nameof(GetOptionValueById))
-            .WithTags(CatalogFeature.Tags.OptionValue)
+            .WithTags(CatalogFeature.Tags.OptionType)
             .HasPermission(CatalogFeature.Admin.OptionValues.GetById.Permission)
             .WithSummary(CatalogFeature.Admin.OptionValues.GetById.Summary)
             .WithDescription(CatalogFeature.Admin.OptionValues.GetById.Description)
