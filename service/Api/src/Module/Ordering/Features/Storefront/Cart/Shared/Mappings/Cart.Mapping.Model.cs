@@ -26,21 +26,23 @@ public static partial class CartMapping
         };
     }
 
-    public static CartItem MapToCartItem(this LineItem lineItem, string variantName, string sku)
+    public static CartItem MapToCartItem(this LineItem lineItem, CartItemLookup lookup)
     {
         return new CartItem
         {
             Id = lineItem.Id,
             VariantId = lineItem.VariantId,
-            VariantName = variantName,
-            Sku = sku,
+            VariantName = lookup.Sku,
+            Sku = lookup.Sku,
+            ProductName = lookup.ProductName,
+            ProductImageUrl = lookup.ProductImageUrl,
             Quantity = lineItem.Quantity,
             Price = lineItem.Price,
             Total = lineItem.Total,
         };
     }
 
-    public static T MapToDetailWithItems<T>(this Order entity, Dictionary<Guid, string> variantNames)
+    public static T MapToDetailWithItems<T>(this Order entity, IReadOnlyDictionary<Guid, CartItemLookup> itemLookup)
         where T : CartDetailResponse, new()
     {
         var result = entity.MapToDetail<T>();
@@ -48,10 +50,31 @@ public static partial class CartMapping
         {
             Items = entity.LineItems.Select(li =>
             {
-                variantNames.TryGetValue(li.VariantId, out var name);
-                return li.MapToCartItem(name ?? "", name ?? "");
+                itemLookup.TryGetValue(li.VariantId, out var lookup);
+                return li.MapToCartItem(lookup ?? new CartItemLookup());
             }).ToList()
         };
         return result;
     }
+
+    /// <summary>Legacy overload: sku-only enrichment for cart flows that have not yet been extended with product lookup.</summary>
+    public static T MapToDetailWithItems<T>(this Order entity, Dictionary<Guid, string> variantNames)
+        where T : CartDetailResponse, new()
+    {
+        var itemLookup = variantNames.ToDictionary(
+            kv => kv.Key,
+            kv => new CartItemLookup { Sku = kv.Value });
+        return entity.MapToDetailWithItems<T>(itemLookup);
+    }
+}
+
+/// <summary>Enrichment data for a single cart line item, used to render the storefront cart.</summary>
+public sealed record CartItemLookup
+{
+    /// <summary>Variant SKU (also used as the variant display name).</summary>
+    public string Sku { get; init; } = string.Empty;
+    /// <summary>Display name of the parent product.</summary>
+    public string? ProductName { get; init; }
+    /// <summary>Primary image URL of the product.</summary>
+    public string? ProductImageUrl { get; init; }
 }
