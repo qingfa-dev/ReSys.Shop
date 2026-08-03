@@ -1,16 +1,16 @@
 # ReSys.Shop — Agent Guide
 
-ReSys.Shop is an e-commerce platform — a .NET 10 modular monolith with Vue 3 frontends
-and a Python ML sidecar. Agents work across C#, TypeScript, and Python; all service
+ReSys.Shop e-commerce platform — .NET 10 modular monolith with Vue 3 frontends
+and Python ML sidecar. Agents work C#, TypeScript, Python; all service
 components start via Aspire orchestration. See `.harness/` for machine-readable
-domain boundaries, principles, and quality baselines.
+domain boundaries, principles, quality baselines.
 
 ## Non-Negotiable Rules
 
 1. **Result objects, not exceptions** — all domain operations return `Result<T>` or `Result`. Exceptions only for unrecoverable infrastructure failures.
-2. **Modules must not reference each other** — all 9 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Dashboard) live in one `Module` assembly and must not cross-reference. Communication via MediatR `ISender` only. Existing violations (39 `using Module.X.Domain...` references) are being removed.
-3. **Vertical slice feature files** — every C# feature action is a `static partial class` split across files in `Features/{Admin|Storefront}/{Feature}/{Action}/`, each with Handler, Request, Response, Endpoint, Validator. Subdirectory is always `Storefront` (not `Store`). Read-only queries may omit Request/Validator files.
-4. **Warnings-as-errors** — `TreatWarningsAsErrors=true` globally. Any warning fails the build.
+2. **Modules must not reference each other** — all 9 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Dashboard) live in one `Module` assembly and must not cross-reference. Communication via MediatR `ISender` only. Existing violations (39 `using Module.X.Domain...` references) being removed.
+3. **Vertical slice feature files** — every C# feature action is `static partial class` split across files in `Features/{Admin|Storefront}/{Feature}/{Action}/`, each with Handler, Request, Response, Endpoint, Validator. Subdirectory always `Storefront` (not `Store`). Read-only queries may omit Request/Validator files.
+4. **Warnings-as-errors** — `TreatWarningsAsErrors=true` globally. Any warning fails build.
 5. **Forward-only dependency** — `Shared` depends on nothing within `service/`. `Module` depends only on `Shared`. `Api` composes both.
 
 ## Repository Map
@@ -72,10 +72,10 @@ bash scripts/check-cross-module-refs.sh               # Cross-module reference d
 
 ## Known Issues
 
-- Dev JWT secret for non-Development environments is rejected by `JwtSettingsValidator` (commit `770b6a06`); dev secrets live in `dotnet user-secrets` (id `resys.shop.api`), bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`
-- `app/ReSys.Admin/` is a legacy admin SPA (npm, older deps) — use `app/Admin/` (pnpm) instead
-- `ValidateVerticalSliceIsolation` build target is Condition="true" but emits `<Warning>` (not `<Error>`), so cross-module references do not fail the build — see `docs/codebase/CONCERNS.md` for the 39 known violations
-- CI/CD is partial — `.github/workflows/ci.yml` runs build, unit tests, and lint on PR/push for .NET, both Vue SPAs, Embedding service, and Benchmarks. Integration tests (Testcontainers) and deployment are not yet automated.
-- `service/Embedding/Dockerfile` exists for the Python sidecar; no Dockerfiles for .NET API or Vue SPAs (Aspire manages containers for local dev)
+- Dev JWT secret for non-Development environments rejected by `JwtSettingsValidator` (commit `770b6a06`); dev secrets in `dotnet user-secrets` (id `resys.shop.api`), bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`
+- `app/ReSys.Admin/` legacy admin SPA (npm, older deps) — use `app/Admin/` (pnpm) instead
+- `ValidateVerticalSliceIsolation` build target Condition="true" but emits `<Warning>` (not `<Error>`), so cross-module references don't fail build — see `docs/codebase/CONCERNS.md` for 39 known violations
+- CI/CD partial — `.github/workflows/ci.yml` runs build, unit tests, lint on PR/push for .NET, both Vue SPAs, Embedding service, Benchmarks. Integration tests (Testcontainers) and deployment not yet automated
+- `service/Embedding/Dockerfile` exists for Python sidecar; no Dockerfiles for .NET API or Vue SPAs (Aspire manages containers for local dev)
 - `Embedding/build/lib/` contains stale build artifacts — should be gitignored
 - `.harness/domains.yml` LOC counts may drift from actual codebase — re-measure after significant changes

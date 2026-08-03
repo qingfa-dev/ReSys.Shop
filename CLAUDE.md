@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file give guidance to Claude Code (claude.ai/code) when work with code in this repo.
 
 ## Essential Commands
 
@@ -40,7 +40,7 @@ bash scripts/check-cross-module-refs.sh                         # Cross-module n
 
 ## Architecture
 
-**Modular monolith with CQRS vertical slices.** 8 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping) + 1 unregistered proto-module (Dashboard) live in a single `Module` assembly. Each module is organized as `Domain/`, `Features/`, `Persistence/`, `Backgrounds/`, `Services/`.
+**Modular monolith with CQRS vertical slices.** 8 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping) + 1 unregistered proto-module (Dashboard) live in single `Module` assembly. Each module organized as `Domain/`, `Features/`, `Persistence/`, `Backgrounds/`, `Services/`.
 
 **Request pipeline:**
 ```
@@ -48,9 +48,9 @@ HTTP Request → Carter endpoint → FluentValidation → MediatR pipeline (Logg
   → Command/Query Handler → Domain logic + EF Core / external services → Mapster-mapped DTO response
 ```
 
-**Assembly dependency chain** (forward-only): `Api` → `Module` + `Shared` + `Migrations`; `Module` → `Shared`; `Shared` → `ServiceDefaults`. Modules must not reference each other — cross-module communication uses MediatR `ISender.Send(new OtherModule.Command(...))` only. There are ~32 known violations of this rule tracked by `scripts/check-cross-module-refs.sh` (decreasing over time).
+**Assembly dependency chain** (forward-only): `Api` → `Module` + `Shared` + `Migrations`; `Module` → `Shared`; `Shared` → `ServiceDefaults`. Modules must not reference each other — cross-module communication use MediatR `ISender.Send(new OtherModule.Command(...))` only. ~32 known violations tracked by `scripts/check-cross-module-refs.sh` (decreasing over time).
 
-**Every feature** is a `static partial class` split across files in one directory under `Features/{Admin|Storefront}/{Domain}/{Action}/`:
+**Every feature** is `static partial class` split across files in one directory under `Features/{Admin|Storefront}/{Domain}/{Action}/`:
 - `{Action}.cs` — handler (`ICommandHandler` or `IQueryHandler`)
 - `{Action}.Endpoint.cs` — Carter `ICarterModule` route mapping
 - `{Action}.Request.cs` — command/query DTO (some queries use `.Parameters.cs`)
@@ -58,9 +58,9 @@ HTTP Request → Carter endpoint → FluentValidation → MediatR pipeline (Logg
 - `{Action}.Validator.cs` — FluentValidation rules
 - `{Action}.Result.cs` — typed error factories (not all features)
 
-**Result monad, not exceptions.** All domain operations and handlers return `Result<T>` or `Result`. Typed error codes via static factory classes (e.g., `OrderResult.Errors.NotFound(id)` → `"Order.NotFound"`). Endpoints convert `Result<T>` to HTTP responses via `result.ToResult()`. Exceptions are only for unrecoverable infrastructure failures.
+**Result monad, not exceptions.** All domain ops and handlers return `Result<T>` or `Result`. Typed error codes via static factory classes (e.g., `OrderResult.Errors.NotFound(id)` → `"Order.NotFound"`). Endpoints convert `Result<T>` to HTTP responses via `result.ToResult()`. Exceptions only for unrecoverable infrastructure failures.
 
-**Subdirectory convention:** Feature subdirectories use `Storefront` (not `Store`). Some modules (Identity, Location, Profile) still use `Store` — this is being standardized.
+**Subdirectory convention:** Feature subdirectories use `Storefront` (not `Store`). Some modules (Identity, Location, Profile) still use `Store` — being standardized.
 
 ## Key Conventions
 
@@ -68,7 +68,7 @@ HTTP Request → Carter endpoint → FluentValidation → MediatR pipeline (Logg
 - **Files:** PascalCase, one type per file (except partial class features). Test files: `{Feature}Tests.cs`.
 - **Namespaces:** Mirror folder structure. File-scoped namespaces preferred. Using directives outside namespace, System first.
 - **Fields:** `_camelCase` (private instance), `s_camelCase` (private static). No `var` for primitives/built-in types.
-- **Module registration:** Each module has a `{Module}.Extension.cs` with `builder.Add{Module}Module()` pattern, composed in `Program.cs`.
+- **Module registration:** Each module has `{Module}.Extension.cs` with `builder.Add{Module}Module()` pattern, composed in `Program.cs`.
 - **Global usings:** `Shared/GlobalUsings.cs` provides common imports.
 - **InternalsVisibleTo:** Projects expose internals to `{Name}.Tests`, `{Name}.UnitTests`, `{Name}.IntegrationTests`, and `DynamicProxyGenAssembly2` (Moq).
 - **Central Package Management:** All NuGet versions in `Directory.Packages.props`.
@@ -85,7 +85,7 @@ HTTP Request → Carter endpoint → FluentValidation → MediatR pipeline (Logg
 - **Benchmarks:** 60% coverage minimum enforced in CI.
 
 ### Temporal Markers
-Follow `guide/code-commenting/CommentingRules.xml`. Use `TODO`, `FIXME`, `HACK`, `UNDONE` with structured metadata. Markers may include an `// EXCEPTION` comment to opt out of feature-convention checks.
+Follow `guide/code-commenting/CommentingRules.xml`. Use `TODO`, `FIXME`, `HACK`, `UNDONE` with structured metadata. Markers may include `// EXCEPTION` comment to opt out of feature-convention checks.
 
 ## Testing Strategy
 
@@ -96,16 +96,16 @@ Follow `guide/code-commenting/CommentingRules.xml`. Use `TODO`, `FIXME`, `HACK`,
 
 ## Pitfalls & Known Issues
 
-- **`TreatWarningsAsErrors=true`** — any compiler warning fails the build. This includes unused variables and nullable reference warnings. Always run `dotnet build` before committing C# changes.
+- **`TreatWarningsAsErrors=true`** — any compiler warning fails the build. Includes unused variables and nullable reference warnings. Always run `dotnet build` before committing C# changes.
 - **InMemory DB ≠ real PostgreSQL** — InMemory doesn't support pgvector, transaction isolation levels, or sequences. Tests passing with InMemory may fail against real PostgreSQL. Add integration tests for DB-specific features.
-- **Feature subdirectory naming:** Use `Storefront`, not `Store`, for new features. Identity, Location, and Profile still use `Store` — don't replicate this in new code.
+- **Feature subdirectory naming:** Use `Storefront`, not `Store`, for new features. Identity, Location, and Profile still use `Store` — don't replicate in new code.
 - **Cross-module references:** When adding features, communicate across modules via `ISender`, never with direct `using Module.X.Domain...` references. Run `bash scripts/check-cross-module-refs.sh` after changes that touch multiple modules.
-- **Dashboard module:** Exists but is NOT registered in `Program.cs`. Don't add new Dashboard features without registering it first.
-- **Dev secrets:** Live in `dotnet user-secrets` (id: `resys.shop.api`), bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`. Dev JWT secret is rejected for non-Development environments.
-- **Legacy code:** `app/legacy/` directories exist but are deprecated and gitignored. Use `app/Admin/` (pnpm) for all admin UI work.
-- **Stale Embedding artifacts:** `service/Embedding/build/lib/` is not gitignored — don't commit files there.
-- **High-churn areas:** `CreateOrderFromCart.cs` (checkout orchestration) and `StripeWebhook.cs` (payment webhook) see the most change activity. Be especially careful when modifying these — add integration tests.
-- **eslint-plugin-boundaries:** Installed as a dependency in Admin but NOT activated in `eslint.config.ts`. TypeScript feature layer boundaries are unenforced.
+- **Dashboard module:** Exists but NOT registered in `Program.cs`. Don't add new Dashboard features without registering it first.
+- **Dev secrets:** Live in `dotnet user-secrets` (id: `resys.shop.api`), bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`. Dev JWT secret rejected for non-Development environments.
+- **Legacy code:** `app/legacy/` directories exist but deprecated and gitignored. Use `app/Admin/` (pnpm) for all admin UI work.
+- **Stale Embedding artifacts:** `service/Embedding/build/lib/` not gitignored — don't commit files there.
+- **High-churn areas:** `CreateOrderFromCart.cs` (checkout orchestration) and `StripeWebhook.cs` (payment webhook) see most change activity. Be especially careful when modifying — add integration tests.
+- **eslint-plugin-boundaries:** Installed as dependency in Admin but NOT activated in `eslint.config.ts`. TypeScript feature layer boundaries unenforced.
 
 ## Key Documentation Files
 
