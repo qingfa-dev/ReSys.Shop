@@ -13,7 +13,7 @@ public static class PaymentModelMapping
             Id = payment.Id,
             Number = payment.Number,
             Amount = payment.Amount,
-            Currency = string.Empty,
+            Currency = payment.Currency,
             OrderId = payment.OrderId,
             PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString(),
@@ -33,7 +33,7 @@ public static class PaymentModelMapping
         {
             Id = payment.Id,
             Amount = payment.Amount,
-            Currency = string.Empty,
+            Currency = payment.Currency,
             OrderId = payment.OrderId,
             PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString()

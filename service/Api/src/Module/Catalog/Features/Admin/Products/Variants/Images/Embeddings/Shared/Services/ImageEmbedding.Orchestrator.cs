@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 using Module.Catalog.Domain.Products.Variants.Images;
@@ -87,6 +88,14 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
 
     private async Task<Result<EmbeddingDetailResponse>> PersistEmbeddingAsync(Guid variantImageId, string modelName, EmbeddingResponse inferenceResult, CancellationToken ct)
     {
+        var imageStillExists = await _dbContext.Set<VariantImage>()
+            .AnyAsync(x => x.Id == variantImageId, ct);
+        if (!imageStillExists)
+        {
+            Loggers.VariantImageDeletedDuringEmbedding(_logger, variantImageId, modelName);
+            return ImageEmbeddingResult.Errors.VariantImageDeletedDuringEmbedding(variantImageId);
+        }
+
         var existing = await _dbContext.Set<ImageEmbedding>()
             .FirstOrDefaultAsync(e => e.VariantImageId == variantImageId && e.ModelName == modelName, ct);
 
@@ -108,7 +117,15 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
             _dbContext.Set<ImageEmbedding>().Add(embedding);
         }
 
-        await _dbContext.SaveChangesAsync(ct);
+        try
+        {
+            await _dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException ex) when (IsForeignKeyViolation(ex))
+        {
+            Loggers.VariantImageDeletedDuringEmbedding(_logger, variantImageId, modelName);
+            return ImageEmbeddingResult.Errors.VariantImageDeletedDuringEmbedding(variantImageId);
+        }
 
         Loggers.EmbeddingPersisted(_logger, variantImageId, modelName, embedding.Id);
 
@@ -121,5 +138,11 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
             Vector = embedding.Vector.ToArray(),
             Dimensions = embedding.Dimensions
         });
+    }
+
+    private static bool IsForeignKeyViolation(DbUpdateException ex)
+    {
+        return ex.InnerException is Npgsql.PostgresException postgresEx
+            && postgresEx.SqlState == "23503";
     }
 }

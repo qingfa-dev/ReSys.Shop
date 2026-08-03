@@ -39,6 +39,11 @@ public static class ImageEmbeddingResult
         public static Error NotFound(Guid id) => Error.NotFound(
             code: "ImageEmbedding.NotFound",
             message: $"Embedding with ID '{id}' was not found.");
+
+        /// <summary>The variant image was deleted before embedding could be persisted.</summary>
+        public static Error VariantImageDeletedDuringEmbedding(Guid variantImageId) => Error.NotFound(
+            code: "ImageEmbedding.VariantImageDeleted",
+            message: $"Variant image with ID '{variantImageId}' was deleted before embedding could be persisted.");
         #endregion
 
         #region Inference
