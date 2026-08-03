@@ -1279,4 +1279,4 @@ Expected: all pass. Also run the repo-wide admin gate if the executor has it scr
 
 - [ ] **Step 3: Report completion**
 
-Summarize: 19 stores removed (12 dead + 7 replaced), 14 spec files deleted, 5 new composables + 5 new specs, 9 views rewritten, `authStore` the only Pinia store left.
+Summarize: 19 stores removed (12 dead + 7 replaced), 14 spec files deleted, 6 new composables + 6 new specs, 9 views rewritten, `authStore` the only Pinia store left.
