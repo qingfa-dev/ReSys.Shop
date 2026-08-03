@@ -23,6 +23,40 @@ TypeScript cannot handle type information for `.vue` imports by default, so we r
 
 See [Vite Configuration Reference](https://vite.dev/config/).
 
+## Template Section Commenting Standard
+
+Every view template must place a section comment above each major block, using
+the format below. The comment sits on its own line, indented to match its
+block, and stays under 100 characters (F3). Comment only where the WHY matters
+(GUD-005) — never restate what the markup already shows.
+
+```html
+<!-- Section: <Title> — <purpose> -->
+```
+
+These markers live inside `<template>`, not in `<script setup>` (which uses
+single-line `// Label:` inline labels instead). Follow the canonical section
+order for each view type so every view reads consistently:
+
+### List-view section order (PAT-002)
+
+1. `Page Header`
+2. `Scrollable Content`
+3. `Error State`
+4. `Data Table`
+5. `Search & Filters` (table `#header`)
+6. `Table Columns`
+7. `Row Actions`
+8. `Empty State`
+
+### Detail-view section order (PAT-003)
+
+1. `Page Header`
+2. `Content Card`
+3. `Tabs`
+4. `Form Fields`
+5. `Action Footer`
+
 ## Project Setup
 
 ```sh
