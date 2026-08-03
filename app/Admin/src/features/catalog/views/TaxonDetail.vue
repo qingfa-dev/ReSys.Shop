@@ -17,8 +17,8 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
-import { useTaxonomyStore } from '../stores/taxonomyStore'
-import { useTaxonDetailStore } from '../stores/taxonDetailStore'
+import { useTaxonDetail } from '../composables/useTaxonDetail'
+import { useActiveTaxonomies } from '../composables/useActiveTaxonomies'
 import { TaxonApi } from '../services/taxonApi'
 import { TaxonRuleApi } from '../services/taxonRuleApi'
 import { taxonSchema, taxonTaxonomyId, taxonParentId, taxonName, taxonPresentation, taxonSlug, taxonDescription, taxonPosition, taxonMetaTitle, taxonMetaDescription, taxonMetaKeywords, taxonImageUrl, taxonSquareImageUrl, taxonSortOrder, taxonRulesMatchPolicy } from '../validations/taxon'
@@ -32,8 +32,8 @@ const router = useRouter()
 const notify = useNotify()
 const confirm = useConfirm()
 const { handleResult } = useApiErrorHandler()
-const taxonomyStore = useTaxonomyStore()
-const detailStore = useTaxonDetailStore()
+const { items: activeTaxonomies, load: loadActiveTaxonomies } = useActiveTaxonomies()
+const { fetchDetail, fetchRules, rules, rulesLoading } = useTaxonDetail()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Taxon' : 'New Taxon')
@@ -87,7 +87,7 @@ const dialogVisible = ref(false)
 const editingRule = ref<TaxonRuleListItem | null>(null)
 
 async function initEditMode(id: string) {
-  const result = await detailStore.fetchDetail(id)
+  const result = await fetchDetail(id)
   if (result.isSuccess) {
     const t = result.value
     form.value = {
@@ -117,6 +117,7 @@ async function initEditMode(id: string) {
   }
 }
 
+// Call: Catalog service — sibling taxons scoped to the selected taxonomy
 async function loadParents(taxonomyId: string) {
   const result = await TaxonApi.getList(taxonomyId, {})
   if (result.isSuccess) {
@@ -128,11 +129,12 @@ async function loadParents(taxonomyId: string) {
 }
 
 async function loadRules(taxonId: string) {
-  await detailStore.fetchRules(taxonId)
+  await fetchRules(taxonId)
 }
 
 onMounted(async () => {
-  await taxonomyStore.fetchActive()
+  // Await: Taxonomy options needed by the taxonomy Select
+  await loadActiveTaxonomies()
   if (isEdit.value) {
     await initEditMode(route.params.id as string)
   } else if (form.value.taxonomyId) {
@@ -281,7 +283,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                       <div class="flex flex-col gap-4">
                             <FormField v-slot="$field" name="taxonomyId" :resolver="taxonomyIdResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
-                              <Select :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
+                              <Select :options="activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
                               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                             </FormField>
                             <FormField name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
@@ -395,7 +397,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                     </template>
                   </Toolbar>
 
-                  <DataTable size="large" :value="detailStore.rules" :loading="detailStore.rulesLoading" data-key="id">
+                  <DataTable size="large" :value="rules" :loading="rulesLoading" data-key="id">
                     <Column field="type" header="Type" />
                     <Column field="matchPolicy" header="Match Policy" />
                     <Column field="value" header="Value" />
