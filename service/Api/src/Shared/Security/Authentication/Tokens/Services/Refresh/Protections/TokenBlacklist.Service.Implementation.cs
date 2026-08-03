@@ -48,7 +48,7 @@ public sealed partial class TokenBlacklistService(
 
     /// <summary>Adds a JTI to the blacklist with TTL matching the original token expiry plus a safety buffer.</summary>
     // Contract: pre=jti!=null && expiry>UtcNow, post=return.IsSuccess, throws=Exception on cache persistence failure
-    public async Task<Result> BlacklistTokenAsync(string jti, DateTime expiry, CancellationToken ct = default)
+    public async Task<Result> BlacklistTokenAsync(string jti, DateTimeOffset expiry, CancellationToken ct = default)
     {
         // Guard: skip blacklisting for empty JTI — no-op is safe
         if (string.IsNullOrEmpty(jti))

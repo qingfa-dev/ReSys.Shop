@@ -27,11 +27,11 @@ public class SystemDateTimeTests
     public void UtcNow_ShouldReturnCurrentUtcTime()
     {
         var systemDateTime = new SystemDateTime();
-        DateTime before = DateTime.UtcNow;
+        DateTimeOffset before = DateTime.UtcNow;
 
         DateTimeOffset result = systemDateTime.UtcNow;
 
-        DateTime after = DateTime.UtcNow;
+        DateTimeOffset after = DateTime.UtcNow;
         result.Should().BeOnOrAfter(before);
         result.Should().BeOnOrBefore(after);
     }
@@ -50,7 +50,7 @@ public class SystemDateTimeTests
     public void Today_ShouldReturnTodaysDateInUtc()
     {
         var systemDateTime = new SystemDateTime();
-        DateTime expected = DateTime.Today;
+        DateTimeOffset expected = DateTime.Today;
 
         DateTimeOffset result = systemDateTime.Today;
 

@@ -85,7 +85,7 @@ public static partial class UserLoggers
         public static partial void PasswordChanged(ILogger logger,
             Guid UserId,
             string Email,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(
@@ -95,7 +95,7 @@ public static partial class UserLoggers
         public static partial void PasswordResetRequested(ILogger logger,
             Guid UserId,
             string Email,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(
@@ -105,7 +105,7 @@ public static partial class UserLoggers
         public static partial void PasswordReset(ILogger logger,
             Guid UserId,
             string Email,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(
@@ -171,7 +171,7 @@ public static partial class UserLoggers
         public static partial void EmailVerified(ILogger logger,
             Guid UserId,
             string Email,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(
@@ -181,7 +181,7 @@ public static partial class UserLoggers
         public static partial void EmailChangeConfirmed(ILogger logger,
             Guid UserId,
             string Email,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(
@@ -249,7 +249,7 @@ public static partial class UserLoggers
         public static partial void PhoneVerificationCodeSent(ILogger logger,
             Guid UserId,
             string PhoneNumber,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(
@@ -280,7 +280,7 @@ public static partial class UserLoggers
             Guid UserId,
             string OldPhoneNumber,
             string NewPhoneNumber,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(
@@ -290,7 +290,7 @@ public static partial class UserLoggers
         public static partial void PhoneConfirmed(ILogger logger,
             Guid UserId,
             string PhoneNumber,
-            DateTime Timestamp,
+            DateTimeOffset Timestamp,
             string? ActionBy = "System");
 
         [LoggerMessage(

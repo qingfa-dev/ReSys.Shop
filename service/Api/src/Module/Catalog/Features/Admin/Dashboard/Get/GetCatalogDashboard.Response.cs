@@ -18,6 +18,6 @@ public static partial class GetCatalogDashboard
         public Guid Id { get; init; }
         public string Name { get; init; } = default!;
         public string Slug { get; init; } = default!;
-        public DateTime CreatedAtUtc { get; init; }
+        public DateTimeOffset CreatedAtUtc { get; init; }
     }
 }

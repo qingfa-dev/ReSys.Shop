@@ -97,7 +97,7 @@ public partial class RefreshTokenService(
         // Compute: slide expiration forward when enabled and below max-age ceiling to extend valid session
         if (_tokenSecurityOptions.SlidingExpirationEnabled && entity.LastUsedAtUtc.HasValue)
         {
-            DateTime maxAge = DateTime.UtcNow.AddDays(_tokenSecurityOptions.MaxTokenAgeDays);
+            DateTimeOffset maxAge = DateTime.UtcNow.AddDays(_tokenSecurityOptions.MaxTokenAgeDays);
             if (entity.ExpiresAtUtc < maxAge)
             {
                 entity.ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationInDays);

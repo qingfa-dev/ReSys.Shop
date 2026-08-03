@@ -260,7 +260,7 @@ public sealed class FilterExpressionBuilderTests
         result!.Value.Should().BeOfType<DateTimeOffset>();
     }
 
-    [Fact(DisplayName = "ParseConstant: DateTime parses")]
+    [Fact(DisplayName = "ParseConstant: DateTimeOffset parses")]
     public void ParseConstant_DateTime_ShouldParse()
     {
         ConstantExpression? result = FilterExpressionBuilder.ParseConstant("2023-01-01T00:00:00.0000000", typeof(DateTime));
