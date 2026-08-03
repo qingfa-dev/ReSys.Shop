@@ -117,6 +117,12 @@ const protectedRoutes: RouteRecordRaw[] = [
         component: () => import('@/features/profile/views/WishlistsView.vue'),
         meta: { title: 'Wishlists', breadcrumb: 'Wishlists' },
       },
+      {
+        path: 'notifications',
+        name: 'notifications',
+        component: () => import('@/features/notifications/views/NotificationPreferencesView.vue'),
+        meta: { title: 'Notification Preferences', breadcrumb: 'Notifications' },
+      },
     ],
   },
 ]
