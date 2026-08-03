@@ -15,7 +15,7 @@
 - `app/Admin` only. NEVER touch `features/auth/stores/authStore.ts`, `features/auth/stores/index.ts`, or `main.ts` — Pinia stays.
 - Comments on new/rewritten code follow `guide/code-commenting/` v3.0: one label per comment, `Label: Capitalised imperative body`, max 100 chars, WHY not WHAT, no comments on trivial lines (AP-1/AP-3).
 - View behavior must stay identical — only the state source changes.
-- Verify every task with: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint` (fast) and `pnpm run test:unit` where tests are touched.
+- Verify every task with: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint` (fast) and `pnpm run test:unit` where tests are touched. NOTE: `vue-tsc --noEmit` is a false pass — the root `tsconfig.json` is solution-style (`files: []` + references); `vue-tsc --build` is the repo's real typecheck (the `type-check` script).
 - Commit only the files listed in the task. NEVER stage: `app/Storefront`, `app/legacy/sakai-vue`, `service/Api` WIP, or anything outside `app/Admin`.
 - Grep gate (final state): `use\w+Store\(` may only match `authStore` (views, `router/guards.ts`) and `features/auth/stores/__tests__/authStore.spec.ts`.
 
@@ -420,7 +420,7 @@ Expected: all new specs pass (4 files)
 
 - [ ] **Step 5: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -612,7 +612,7 @@ Expected: 2 passed
 
 - [ ] **Step 6: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -634,17 +634,21 @@ git commit -m "feat(catalog): extend useTaxonList with taxonomy scope and add us
 - Delete: `app/Admin/src/features/profile/stores/profileStore.ts`, `app/Admin/src/features/profile/stores/addressStore.ts` + `app/Admin/src/features/profile/stores/index.ts`
 - Delete: `app/Admin/src/features/shipping/stores/shippingRateStore.ts`, `app/Admin/src/features/shipping/stores/shippingMethodStore.ts` + `app/Admin/src/features/shipping/stores/index.ts`
 - Delete specs: `features/identity/__tests__/stores/roleStore.spec.ts`, `features/inventory/__tests__/stores/stockTransferStore.spec.ts`, `features/inventory/__tests__/stores/stockItemStore.spec.ts`, `features/ordering/__tests__/stores/orderStore.spec.ts`, `features/payment/__tests__/stores/paymentMethodStore.spec.ts`, `features/profile/__tests__/stores/profileStore.spec.ts`, `features/profile/__tests__/stores/addressStore.spec.ts`, `features/shipping/__tests__/stores/shippingRateStore.spec.ts`, `features/shipping/__tests__/stores/shippingMethodStore.spec.ts` (all under `app/Admin/src/`)
+- Modify: `app/Admin/src/features/catalog/stores/index.ts` — remove `export { useOptionTypeStore } ...` and `export { useProductStore } ...` (keep taxonomy/taxon/taxonDetail exports)
+- Modify: `app/Admin/src/features/identity/stores/index.ts` — remove `export { useRoleStore } ...` (keep userStore)
+- Modify: `app/Admin/src/features/inventory/stores/index.ts` — remove `export { useStockItemStore } ...` and `export { useStockTransferStore } ...` (keep stockLocationStore)
+- Modify: `app/Admin/src/features/ordering/index.ts`, `app/Admin/src/features/payment/index.ts`, `app/Admin/src/features/profile/index.ts`, `app/Admin/src/features/shipping/index.ts` — remove the `export * from './stores'` line (the barrels are deleted)
 
 **Interfaces:**
 - Consumes: nothing — these stores have zero consumers (verified by design exploration).
-- Produces: nothing. After this task the following `stores/` dirs are gone: ordering, payment, profile, shipping. Catalog/identity/inventory/location barrels keep their still-used exports.
+- Produces: nothing. After this task the following `stores/` dirs are gone: ordering, payment, profile, shipping. Catalog/identity/inventory barrels keep their still-used exports (pruned of the deleted ones).
 
 - [ ] **Step 1: Verify the dead stores have zero consumers**
 
 Run: `cd app/Admin && grep -rn "useProductStore\|useOptionTypeStore\|useRoleStore\|useStockTransferStore\|useStockItemStore\|useStateStore\|useOrderStore\|usePaymentMethodStore\|useProfileStore\|useAddressStore\|useShippingRateStore\|useShippingMethodStore" src --include=*.vue --include=*.ts | grep -v __tests__`
 Expected: no output
 
-- [ ] **Step 2: Delete the files**
+- [ ] **Step 2: Delete the files and prune the barrels**
 
 ```bash
 cd app/Admin
@@ -678,9 +682,20 @@ git rm \
 
 If `git rm` reports a missing file, it did not exist — note it and continue (that matches the spec's "verify during implementation" note).
 
+Then prune the surviving barrels and feature indexes (plan amendment 2026-08-03, approved by human partner):
+
+```bash
+cd app/Admin
+# catalog/stores/index.ts: remove the optionTypeStore and productStore export lines
+# identity/stores/index.ts: remove the roleStore export line
+# inventory/stores/index.ts: remove the stockItemStore and stockTransferStore export lines
+# features/ordering/index.ts, features/payment/index.ts, features/profile/index.ts,
+# features/shipping/index.ts: remove the 'export * from ./stores' line each
+```
+
 - [ ] **Step 3: Verify typecheck**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors (proves nothing imported the deleted stores or barrels)
 
 - [ ] **Step 4: Run the full test suite**
@@ -773,7 +788,7 @@ Expected: no output
 
 - [ ] **Step 3: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -938,7 +953,7 @@ In `app/Admin/src/features/catalog/views/TaxonsList.vue` template:
 
 - [ ] **Step 3: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -989,7 +1004,7 @@ const { fetchDetail, fetchRules, rules, rulesLoading } = useTaxonDetail()
 
 - [ ] **Step 3: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -1045,7 +1060,7 @@ Line 126: `:options="countryStore.activeCountries"` → `:options="activeCountri
 
 - [ ] **Step 5: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -1101,7 +1116,7 @@ Line 165: `:options="stockLocationStore.activeStockLocations"` → `:options="ac
 
 - [ ] **Step 5: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -1166,7 +1181,7 @@ Line 293 (source location Select in the create form): `:options="stockLocationSt
 
 - [ ] **Step 5: Verify and commit**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint`
 Expected: no errors
 
 ```bash
@@ -1185,6 +1200,7 @@ git commit -m "refactor(inventory): rewrite stock transfer views on useActiveSto
 - Delete: `app/Admin/src/features/inventory/stores/stockLocationStore.ts` + `app/Admin/src/features/inventory/stores/index.ts`
 - Delete: `app/Admin/src/features/location/stores/countryStore.ts` + `app/Admin/src/features/location/stores/index.ts`
 - Delete specs: `features/catalog/__tests__/stores/taxonStore.spec.ts`, `features/catalog/__tests__/stores/taxonDetailStore.spec.ts`, `features/dashboard/__tests__/stores/dashboardStore.spec.ts`, `features/identity/__tests__/stores/userStore.spec.ts`, `features/inventory/__tests__/stores/stockLocationStore.spec.ts` (all under `app/Admin/src/`)
+- Modify: `app/Admin/src/features/catalog/index.ts`, `app/Admin/src/features/identity/index.ts`, `app/Admin/src/features/inventory/index.ts`, `app/Admin/src/features/location/index.ts`, `app/Admin/src/features/dashboard/index.ts` — remove the `export * from './stores'` line each (their stores barrels are deleted in this task)
 - Result: only `features/auth/stores/authStore.ts` + `features/auth/stores/index.ts` + `features/auth/stores/__tests__/authStore.spec.ts` remain.
 
 **Interfaces:**
@@ -1219,6 +1235,8 @@ git rm \
   src/features/inventory/__tests__/stores/stockLocationStore.spec.ts
 ```
 
+Then remove the `export * from './stores'` line from `src/features/catalog/index.ts`, `src/features/identity/index.ts`, `src/features/inventory/index.ts`, `src/features/location/index.ts`, and `src/features/dashboard/index.ts` (plan amendment 2026-08-03, approved by human partner — their stores barrels are deleted above).
+
 - [ ] **Step 3: Run the grep gate**
 
 Run: `cd app/Admin && grep -rn "use[A-Za-z]*Store(" src --include=*.vue --include=*.ts`
@@ -1226,7 +1244,7 @@ Expected: only `authStore` occurrences — in `src/features/auth/stores/__tests_
 
 - [ ] **Step 4: Full verification**
 
-Run: `cd app/Admin && pnpm exec vue-tsc --noEmit && pnpm run lint && pnpm run test:unit`
+Run: `cd app/Admin && pnpm exec vue-tsc --build && pnpm run lint && pnpm run test:unit`
 Expected: typecheck clean, lint clean, all tests pass (authStore.spec still present; useActiveList + wrapper + useTaxonDetail specs present)
 
 - [ ] **Step 5: Commit**
