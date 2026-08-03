@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.Sessions.Refresh;
+using Module.Identity.Features.Storefront.Auth.Sessions.Refresh;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.Tokens.Models;

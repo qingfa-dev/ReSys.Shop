@@ -1,4 +1,4 @@
-using Module.Identity.Features.Store.Auth.Register;
+using Module.Identity.Features.Storefront.Auth.Register;
 using Shared.Governance.Conventions;
 
 namespace Module.UnitTests.Identity.Features.Store.Emails.Confirm;

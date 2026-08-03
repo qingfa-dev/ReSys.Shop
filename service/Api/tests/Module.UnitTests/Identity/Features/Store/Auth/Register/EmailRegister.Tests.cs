@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Store.Auth.Register;
+using Module.Identity.Features.Storefront.Auth.Register;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Governance.Conventions;

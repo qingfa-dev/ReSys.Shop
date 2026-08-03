@@ -2,7 +2,7 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Emails.Confirm;
+using Module.Identity.Features.Storefront.Emails.Confirm;
 using Module.UnitTests.Identity.Fixtures;
 using Shared.Application.Contracts.Profile;
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.Login.External.Authenticate;
+using Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
 using Module.Profile.Features.Store.Profiles.Create;
 using Module.UnitTests.Identity.Fixtures;
 

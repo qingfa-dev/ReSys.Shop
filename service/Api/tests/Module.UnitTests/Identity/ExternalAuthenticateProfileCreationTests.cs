@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.Login.External.Authenticate;
+using Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.External.Models;
