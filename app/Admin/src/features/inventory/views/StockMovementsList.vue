@@ -7,7 +7,7 @@ import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
-import { formatDate } from '@/shared/utils/date'
+import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useStockMovementList } from '../composables/useStockMovementList'
 import type { StockMovementListItem } from '../types/stockMovement'
 
@@ -117,7 +117,7 @@ function originatorLabel(item: StockMovementListItem): string {
       </Column>
       <Column field="createdAtUtc" header="Created" :sortable="true">
         <template #body="{ data }">
-          {{ formatDate(data.createdAtUtc) }}
+          {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
       <template #empty>No stock movements found.</template>

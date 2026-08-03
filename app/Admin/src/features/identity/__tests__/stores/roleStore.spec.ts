@@ -38,7 +38,7 @@ describe('useRoleStore', () => {
     mockGetRoles.mockResolvedValue(rolesResult())
     const store = useRoleStore()
     await store.fetchActive()
-    expect(mockGetRoles).toHaveBeenCalledWith({ pageSize: 100, sortBy: 'name', sortDirection: 'asc' })
+    expect(mockGetRoles).toHaveBeenCalledWith({})
     expect(store.activeRoles).toHaveLength(1)
     expect(store.activeRoles[0]?.name).toBe('Admin')
     expect(store.loaded).toBe(true)

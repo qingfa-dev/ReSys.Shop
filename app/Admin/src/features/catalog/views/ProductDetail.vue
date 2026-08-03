@@ -14,6 +14,7 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
+import { fromUtcToDateInput, toUtcIso } from '@/shared/utils/date'
 import { ProductApi } from '../services/productApi'
 import { ProductOptionTypeApi } from '../services/productOptionTypeApi'
 import type { OptionTypeAssignment } from '../types/productOptionType'
@@ -125,8 +126,8 @@ async function initEditMode(id: string) {
       metaTitle: p.metaTitle,
       metaDescription: p.metaDescription,
       metaKeywords: p.metaKeywords,
-      availableOn: p.availableOn,
-      discontinueOn: p.discontinueOn,
+      availableOn: fromUtcToDateInput(p.availableOn),
+      discontinueOn: fromUtcToDateInput(p.discontinueOn),
       trackInventory: p.trackInventory,
       styleCode: p.styleCode,
       seasonName: p.seasonName,
@@ -234,8 +235,8 @@ async function onSubmit(event: FormSubmitEvent) {
     metaTitle: data.metaTitle ?? null,
     metaDescription: data.metaDescription ?? null,
     metaKeywords: data.metaKeywords ?? null,
-    availableOn: data.availableOn ?? null,
-    discontinueOn: data.discontinueOn ?? null,
+    availableOn: toUtcIso(data.availableOn),
+    discontinueOn: toUtcIso(data.discontinueOn),
     trackInventory: data.trackInventory,
     styleCode: data.styleCode ?? null,
     seasonName: data.seasonName ?? null,
@@ -264,8 +265,8 @@ async function onSubmit(event: FormSubmitEvent) {
         metaTitle: created.metaTitle,
         metaDescription: created.metaDescription,
         metaKeywords: created.metaKeywords,
-        availableOn: created.availableOn,
-        discontinueOn: created.discontinueOn,
+        availableOn: fromUtcToDateInput(created.availableOn),
+        discontinueOn: fromUtcToDateInput(created.discontinueOn),
         trackInventory: created.trackInventory,
         styleCode: created.styleCode,
         seasonName: created.seasonName,

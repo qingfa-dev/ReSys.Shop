@@ -58,7 +58,7 @@ public class ExternalAuthenticateProfileCreationTests
             }));
 
         var dateTime = new Mock<ISystemDateTime>();
-        dateTime.Setup(x => x.UtcNow).Returns(DateTimeOffset.UtcNow);
+        dateTime.Setup(x => x.UtcNow).Returns(System.DateTimeOffset.UtcNow);
 
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(x => x.IpAddress).Returns("127.0.0.1");

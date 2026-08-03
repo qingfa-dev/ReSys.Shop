@@ -11,6 +11,7 @@ import Message from 'primevue/message'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
+import { formatDateTimeUtc } from '@/shared/utils/date'
 import { ProductApi } from '../services/productApi'
 import type { ProductListItem } from '../types/product'
 import { PRODUCT_FILTER_FIELDS, PRODUCT_SORT_FIELDS } from '../types/product'
@@ -287,7 +288,11 @@ function confirmDelete() {
         <Column field="department" header="Department" :sortable="true" />
         <Column field="seasonName" header="Season" :sortable="true" />
         <Column field="variantsCount" header="Variants" :sortable="true" body-style="text-align: center" />
-        <Column field="createdAtUtc" header="Created" :sortable="true" />
+        <Column field="createdAtUtc" header="Created" :sortable="true">
+          <template #body="{ data }">
+            {{ formatDateTimeUtc(data.createdAtUtc) }}
+          </template>
+        </Column>
         <Column header="" body-style="text-align: right; width: 12rem">
           <template #body="{ data }">
             <div class="flex justify-end gap-2">

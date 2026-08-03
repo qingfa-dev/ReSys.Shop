@@ -10,7 +10,7 @@ import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
-import { formatDate } from '@/shared/utils/date'
+import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useStockTransferList } from '../composables/useStockTransferList'
 import { useStockLocationStore } from '../stores/stockLocationStore'
 import type { StockTransferState } from '../types/stockTransfer'
@@ -165,7 +165,7 @@ function navigateToEdit(id: string) {
       <Column field="totalItems" header="Items" />
       <Column field="createdAtUtc" header="Created" :sortable="true">
         <template #body="{ data }">
-          {{ formatDate(data.createdAtUtc) }}
+          {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
       <Column header="Actions" header-style="width:5rem">

@@ -12,9 +12,6 @@ export const useCountryStore = defineStore('countries', () => {
 
     const result = await CountryApi.getCountries({
       isActive: true,
-      pageSize: 100,
-      sortBy: 'name',
-      sortDirection: 'asc',
     })
 
     if (result.isSuccess) {

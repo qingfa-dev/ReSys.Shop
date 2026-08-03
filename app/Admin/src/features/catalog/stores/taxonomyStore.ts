@@ -10,11 +10,7 @@ export const useTaxonomyStore = defineStore('taxonomies', () => {
   async function fetchActive(): Promise<void> {
     if (loaded.value) return
 
-    const result = await TaxonomyApi.getTaxonomies({
-      pageSize: 100,
-      sortBy: 'name',
-      sortDirection: 'asc',
-    })
+    const result = await TaxonomyApi.getTaxonomies({})
 
     if (result.isSuccess) {
       activeTaxonomies.value = result.items

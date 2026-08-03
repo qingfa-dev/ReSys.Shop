@@ -214,7 +214,7 @@ public class ProfileValidationTests
         public DateTimeOffset? DateOfBirth { get; set; }
     }
 
-    private static readonly DateTime FixedToday = new(2026, 6, 15, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTimeOffset FixedToday = new(2026, 6, 15, 0, 0, 0, TimeSpan.Zero);
 
     private static Mock<ISystemDateTime> CreateMockDateTime()
     {

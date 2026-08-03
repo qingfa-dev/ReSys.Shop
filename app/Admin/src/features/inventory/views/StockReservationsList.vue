@@ -9,7 +9,7 @@ import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
-import { formatDate } from '@/shared/utils/date'
+import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useStockReservationList } from '../composables/useStockReservationList'
 import type { ReservationState } from '../types/stockReservation'
 
@@ -104,12 +104,12 @@ function stateSeverity(state: ReservationState): string {
       </Column>
       <Column field="expiresAtUtc" header="Expires" :sortable="true">
         <template #body="{ data }">
-          {{ data.expiresAtUtc ? formatDate(data.expiresAtUtc) : '—' }}
+          {{ data.expiresAtUtc ? formatDateTimeUtc(data.expiresAtUtc) : '—' }}
         </template>
       </Column>
       <Column field="createdAtUtc" header="Created" :sortable="true">
         <template #body="{ data }">
-          {{ formatDate(data.createdAtUtc) }}
+          {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
       <template #empty>No stock reservations found.</template>

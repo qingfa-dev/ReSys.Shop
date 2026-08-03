@@ -82,7 +82,7 @@ public static partial class PasswordLogin
                 AccessToken = tokenResult.Value.Token,
                 AccessTokenExpiresIn = tokenResult.Value.ExpiresIn,
                 RefreshToken = refreshResult.Value.Token,
-                RefreshTokenExpiresIn = new DateTimeOffset(refreshResult.Value.ExpiresAt).ToUnixTimeSeconds()
+                RefreshTokenExpiresIn = refreshResult.Value.ExpiresAt.ToUnixTimeSeconds()
             };
         }
 

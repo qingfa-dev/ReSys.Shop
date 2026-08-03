@@ -9,7 +9,7 @@ export const useRoleStore = defineStore('roles', () => {
 
   async function fetchActive(): Promise<void> {
     if (loaded.value) return
-    const result = await RoleApi.getRoles({ pageSize: 100, sortBy: 'name', sortDirection: 'asc' })
+    const result = await RoleApi.getRoles({})
     if (result.isSuccess) {
       activeRoles.value = result.items
       loaded.value = true

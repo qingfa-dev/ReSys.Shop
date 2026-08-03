@@ -323,7 +323,7 @@ function updateGroupSelection(group: OptionValueGroup, ids: string[]) {
   const otherIds = selectedOptionValueIds.value.filter(
     (id) => !group.values.some((v) => v.optionValueId === id),
   )
-  selectedOptionValueIds.value = [...otherIds, ...ids]
+  selectedOptionValueIds.value = [...otherIds, ...ids.slice(-1)]
 }
 
 const optionValuesByType = computed<OptionValueGroup[]>(() =>

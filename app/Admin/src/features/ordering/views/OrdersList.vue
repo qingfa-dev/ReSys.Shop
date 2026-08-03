@@ -10,7 +10,7 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Select from 'primevue/select'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
-import { formatDate } from '@/shared/utils/date'
+import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useOrderList } from '../composables/useOrderList'
 import type { OrderStatus, CheckoutState } from '../types/order'
 import { ORDER_SEARCH_FIELDS } from '../types/order'
@@ -163,7 +163,7 @@ function navigateToDetail(id: string) {
       </Column>
       <Column field="createdAtUtc" header="Created" :sortable="true">
         <template #body="{ data }">
-          {{ formatDate(data.createdAtUtc) }}
+          {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
       <Column header="Actions" header-style="width:5rem">

@@ -139,11 +139,7 @@ export const useTaxonStore = defineStore('taxons', () => {
   async function fetchActive(): Promise<void> {
     if (loaded.value) return
 
-    const result = await TaxonApi.getTaxons({
-      pageSize: 100,
-      sortBy: 'name',
-      sortDirection: 'asc',
-    })
+    const result = await TaxonApi.getTaxons({})
 
     if (result.isSuccess) {
       activeTaxons.value = result.items

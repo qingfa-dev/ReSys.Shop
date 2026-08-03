@@ -10,11 +10,7 @@ export const useOptionTypeStore = defineStore('optionTypes', () => {
   async function fetchActive(): Promise<void> {
     if (loaded.value) return
 
-    const result = await OptionTypeApi.getOptionTypes({
-      pageSize: 100,
-      sortBy: 'name',
-      sortDirection: 'asc',
-    })
+    const result = await OptionTypeApi.getOptionTypes({})
 
     if (result.isSuccess) {
       activeOptionTypes.value = result.items

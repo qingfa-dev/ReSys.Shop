@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Options;
 
@@ -44,6 +45,26 @@ public static partial class SyncVariantOptionValues
                 .Where(x => !requestedIds.Contains(x.OptionValueId))
                 .ToList();
             var toAdd = requestedIds.Except(existingIds).ToList();
+
+            // Enforce: a variant can only have one value per option type across the resulting set
+            var finalOptionValueIds = existingIds.Except(toRemove.Select(x => x.OptionValueId)).Concat(toAdd).ToList();
+            if (finalOptionValueIds.Count > 1)
+            {
+                var optionTypeByValue = await dbContext.Set<OptionValue>()
+                    .Where(x => finalOptionValueIds.Contains(x.Id))
+                    .Select(x => new { x.Id, x.OptionTypeId })
+                    .ToDictionaryAsync(x => x.Id, x => x.OptionTypeId, cancellationToken);
+
+                var finalOptionTypeIds = finalOptionValueIds
+                    .Where(id => optionTypeByValue.ContainsKey(id))
+                    .Select(id => optionTypeByValue[id])
+                    .ToList();
+
+                var ruleResult = OptionValueVariantMethod.ValidateSingleValuePerOptionType(
+                    finalOptionTypeIds, []);
+                if (ruleResult.IsFailure)
+                    return ruleResult.Errors;
+            }
 
             if (toRemove.Count == 0 && toAdd.Count == 0)
                 return Result.Ok();

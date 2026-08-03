@@ -66,7 +66,7 @@ public static partial class RefreshSession
                 AccessToken = tokenResult.Value.Token,
                 AccessTokenExpiresIn = tokenResult.Value.ExpiresIn,
                 RefreshToken = refreshToken.Token,
-                RefreshTokenExpiresIn = new DateTimeOffset(refreshToken.ExpiresAt).ToUnixTimeSeconds()
+                RefreshTokenExpiresIn = refreshToken.ExpiresAt.ToUnixTimeSeconds()
             };
         }
     }

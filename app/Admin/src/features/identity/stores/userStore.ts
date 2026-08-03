@@ -9,7 +9,7 @@ export const useUserStore = defineStore('users', () => {
 
   async function fetchActive(): Promise<void> {
     if (loaded.value) return
-    const result = await UserApi.getUsers({ pageSize: 100, sortBy: 'userName', sortDirection: 'asc' })
+    const result = await UserApi.getUsers({})
     if (result.isSuccess) {
       activeUsers.value = result.items
       loaded.value = true

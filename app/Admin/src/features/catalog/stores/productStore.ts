@@ -12,9 +12,6 @@ export const useProductStore = defineStore('products', () => {
 
     const result = await ProductApi.getProducts({
       status: 'Active',
-      pageSize: 100,
-      sortBy: 'name',
-      sortDirection: 'asc',
     })
 
     if (result.isSuccess) {

@@ -15,6 +15,7 @@ import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
+import type { TreeNode } from 'primevue/treenode'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { useTaxonomyStore } from '../stores/taxonomyStore'
@@ -84,9 +85,18 @@ const form = ref<TaxonForm>({
 const loading = ref(false)
 const formLoaded = ref(!isEdit.value)
 
-const parentOptions = ref<{ label: string; value: string }[]>([])
+const parentTreeNodes = ref<TreeNode[]>([])
 const dialogVisible = ref(false)
 const editingRule = ref<TaxonRuleListItem | null>(null)
+
+const parentSelectionKeys = computed<Record<string, boolean>>(() =>
+  form.value.parentId ? { [form.value.parentId]: true } : {},
+)
+
+function onParentSelect(keys: Record<string, boolean>) {
+  const selected = Object.keys(keys ?? {})[0] ?? null
+  form.value.parentId = selected || null
+}
 
 async function initEditMode(id: string) {
   const result = await detailStore.fetchDetail(id)
@@ -121,15 +131,16 @@ async function initEditMode(id: string) {
 
 async function loadParents(taxonomyId: string) {
   await treeStore.fetchTree(taxonomyId)
-  const flat: { label: string; value: string }[] = [{ label: '(None — root level)', value: '' }]
-  function walk(nodes: TaxonTreeItem[], depth: number) {
-    for (const n of nodes) {
-      flat.push({ label: '  '.repeat(depth) + '|-- ' + n.name, value: n.id })
-      if (n.children?.length) walk(n.children, depth + 1)
-    }
+
+  function buildNodes(nodes: TaxonTreeItem[]): TreeNode[] {
+    return nodes.map((n) => ({
+      key: n.id,
+      label: n.name,
+      children: n.children?.length ? buildNodes(n.children) : undefined,
+    }))
   }
-  walk(treeStore.tree, 1)
-  parentOptions.value = flat
+
+  parentTreeNodes.value = buildNodes(treeStore.tree)
 }
 
 async function loadRules(taxonId: string) {
@@ -291,7 +302,15 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                             </FormField>
                             <FormField name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
-                              <Select :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
+                              <TreeSelect
+                                :model-value="parentSelectionKeys"
+                                :options="parentTreeNodes"
+                                selection-mode="single"
+                                placeholder="(None — root level)"
+                                filter
+                                fluid
+                                @update:model-value="onParentSelect"
+                              />
                             </FormField>
                             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>

@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Options;
 
@@ -35,12 +36,36 @@ public static partial class AssignVariantOptionValues
                 .Select(x => x.OptionValueId)
                 .ToHashSetAsync(cancellationToken);
 
-            var added = 0;
-            foreach (var optionValueId in command.Request.OptionValueIds)
-            {
-                if (existingIds.Contains(optionValueId))
-                    continue;
+            var requestedIds = command.Request.OptionValueIds
+                .Where(id => !existingIds.Contains(id))
+                .ToList();
+            if (requestedIds.Count == 0)
+                return Result.Ok();
 
+            // Load: Option type for each requested and existing option value to enforce one-value-per-option-type
+            var optionTypeByValue = await dbContext.Set<OptionValue>()
+                .Where(x => requestedIds.Contains(x.Id) || existingIds.Contains(x.Id))
+                .Select(x => new { x.Id, x.OptionTypeId })
+                .ToDictionaryAsync(x => x.Id, x => x.OptionTypeId, cancellationToken);
+
+            var existingOptionTypeIds = existingIds
+                .Where(id => optionTypeByValue.ContainsKey(id))
+                .Select(id => optionTypeByValue[id])
+                .ToList();
+
+            var requestedOptionTypeIds = requestedIds
+                .Where(id => optionTypeByValue.ContainsKey(id))
+                .Select(id => optionTypeByValue[id])
+                .ToList();
+
+            var ruleResult = OptionValueVariantMethod.ValidateSingleValuePerOptionType(
+                requestedOptionTypeIds, existingOptionTypeIds);
+            if (ruleResult.IsFailure)
+                return ruleResult.Errors;
+
+            var added = 0;
+            foreach (var optionValueId in requestedIds)
+            {
                 var junctionResult = OptionValueVariantMethod.Create(command.VariantId, optionValueId);
                 if (junctionResult.IsFailure)
                     return junctionResult.Errors;

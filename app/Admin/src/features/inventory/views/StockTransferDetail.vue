@@ -13,7 +13,7 @@ import type { FormSubmitEvent } from '@primevue/forms'
 import { z } from 'zod'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
-import { formatDate } from '@/shared/utils/date'
+import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useStockLocationStore } from '../stores/stockLocationStore'
 import { StockTransferApi } from '../services/stockTransferApi'
 import { VariantApi } from '@/features/catalog/services/variantApi'
@@ -345,11 +345,11 @@ watch(
               </div>
               <div>
                 <div class="text-sm text-muted-color">Created</div>
-                <div class="font-medium">{{ formatDate(detail.createdAtUtc) }}</div>
+                <div class="font-medium">{{ formatDateTimeUtc(detail.createdAtUtc) }}</div>
               </div>
               <div>
                 <div class="text-sm text-muted-color">Modified</div>
-                <div class="font-medium">{{ detail.modifiedAtUtc ? formatDate(detail.modifiedAtUtc) : '—' }}</div>
+                <div class="font-medium">{{ detail.modifiedAtUtc ? formatDateTimeUtc(detail.modifiedAtUtc) : '—' }}</div>
               </div>
             </div>
 

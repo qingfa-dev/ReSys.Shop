@@ -77,7 +77,9 @@ async function loadRoles() {
     allRoles.value = rolesResult.items
   }
   if (assignedResult.isSuccess) {
-    assignedRoleNames.value = assignedResult.items.map((r: UserRoleAssignment) => r.name)
+    assignedRoleNames.value = assignedResult.items
+      .filter((r: UserRoleAssignment) => r.isAssigned)
+      .map((r: UserRoleAssignment) => r.name)
   }
   rolesLoaded.value = true
 }

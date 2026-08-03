@@ -38,7 +38,7 @@ describe('useUserStore', () => {
     mockGetUsers.mockResolvedValue(usersResult())
     const store = useUserStore()
     await store.fetchActive()
-    expect(mockGetUsers).toHaveBeenCalledWith({ pageSize: 100, sortBy: 'userName', sortDirection: 'asc' })
+    expect(mockGetUsers).toHaveBeenCalledWith({})
     expect(store.activeUsers).toHaveLength(1)
     expect(store.activeUsers[0]?.userName).toBe('admin')
     expect(store.loaded).toBe(true)
