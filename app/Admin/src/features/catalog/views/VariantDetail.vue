@@ -137,11 +137,13 @@ watch(activeTab, (tab) => {
   }
 })
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
   const data = event.values as VariantForm
   loading.value = true
 
+  // Transform: Normalise the form into the create/update request payload.
   const request = {
     sku: data.sku,
     position: data.position,
@@ -164,6 +166,7 @@ async function onSubmit(event: FormSubmitEvent) {
         : undefined,
   }
 
+  // Call: Persist the variant, branching between update and create.
   let result
   if (isEdit.value) {
     result = await VariantApi.updateVariant(route.params.id as string, request)
@@ -270,6 +273,7 @@ async function uploadImage(file: File) {
 }
 
 function confirmDeleteImage(image: VariantImage) {
+  // Trigger: Confirm before permanently deleting an image.
   confirm.require({
     message: 'This permanently deletes the image. Continue?',
     header: 'Confirm Delete',
@@ -278,6 +282,7 @@ function confirmDeleteImage(image: VariantImage) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete the image via the API, then reload the gallery.
       const result = await VariantImageApi.deleteImage(image.id)
       if (result.isSuccess) {
         notify.success('Image deleted')
@@ -379,6 +384,7 @@ async function savePrice() {
 }
 
 function confirmRemovePrice(price: Price) {
+  // Trigger: Confirm before removing a price entry.
   confirm.require({
     message: 'Remove this price entry?',
     header: 'Confirm',
@@ -387,6 +393,7 @@ function confirmRemovePrice(price: Price) {
     acceptLabel: 'Remove',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Remove the price entry via the API, then reload the history.
       const result = await VariantPriceApi.removePrice(
         route.params.id as string,
         price.id,
@@ -404,6 +411,7 @@ function confirmRemovePrice(price: Price) {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title plus Save and Cancel actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -416,9 +424,11 @@ function confirmRemovePrice(price: Price) {
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — holds the form and its tabbed field groups -->
       <Card>
         <template #content>
           <Form id="variant-form" :resolver="resolver" :initial-values="form" :key="String(formLoaded)" @submit="onSubmit">
+            <!-- Section: Tabs — general, physical, pricing, and edit-only panels -->
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -429,6 +439,7 @@ function confirmRemovePrice(price: Price) {
               </TabList>
               <TabPanels>
                 <TabPanel value="0">
+                  <!-- Section: General Fields — SKU, position, and master/tracking toggles -->
                   <div class="grid grid-cols-2 gap-4">
                     <FormField v-slot="$field" :resolver="undefined" name="sku" class="flex flex-col gap-1">
                       <label>SKU <span class="text-red-500">*</span></label>
@@ -454,6 +465,7 @@ function confirmRemovePrice(price: Price) {
                 </TabPanel>
 
                 <TabPanel value="1">
+                  <!-- Section: Physical Fields — weight and dimensions with unit selects -->
                   <div class="grid grid-cols-2 gap-4">
                     <div class="flex gap-2 items-end">
                       <FormField v-slot="$field" :resolver="undefined" name="weight" class="flex flex-col gap-1 flex-1">
@@ -492,6 +504,7 @@ function confirmRemovePrice(price: Price) {
                 </TabPanel>
 
                 <TabPanel value="2">
+                  <!-- Section: Pricing Fields — base/cost price and price history -->
                   <div class="grid grid-cols-3 gap-4 mb-6">
                     <FormField v-slot="$field" :resolver="undefined" name="price" class="flex flex-col gap-1">
                       <label>Base Price</label>
@@ -533,6 +546,7 @@ function confirmRemovePrice(price: Price) {
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="3">
+                  <!-- Section: Images — upload button and grid of uploaded images -->
                   <div class="mb-3">
                     <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden" ref="fileInputRef" @change="onFileSelect" />
                     <Button label="Upload Image" icon="pi pi-upload" severity="secondary" :loading="uploadLoading" @click="fileInputRef?.click()" />
@@ -554,6 +568,7 @@ function confirmRemovePrice(price: Price) {
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="4">
+                  <!-- Section: Option Values — one multiselect per assigned option type -->
                   <div v-if="optionValuesLoading" class="text-center py-4 text-muted-color">Loading option values...</div>
                   <div v-else-if="optionValuesByType.length === 0" class="text-center py-8 text-muted-color">No option types assigned to this product.</div>
                   <div v-else class="flex flex-col gap-6">
@@ -580,6 +595,7 @@ function confirmRemovePrice(price: Price) {
       </Card>
     </div>
 
+    <!-- Section: Price Dialog — modal form to add a country-specific price -->
     <Dialog v-model:visible="priceDialogVisible" header="Add Price" :modal="true" :style="{ width: '24rem' }">
       <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-1">

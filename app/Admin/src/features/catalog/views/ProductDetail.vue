@@ -172,6 +172,7 @@ watch(activeTab, (tab) => {
 
 async function loadOptionTypes() {
   optionTypesLoading.value = true
+  // Load: Fetch assignments for the unavailable/assigned PickList panels.
   const result = await ProductOptionTypeApi.getOptionTypes(route.params.id as string)
   if (result.isSuccess && result.items) {
     unassignedOptionTypes.value = result.items.filter(i => !i.isAssigned)
@@ -183,6 +184,7 @@ async function loadOptionTypes() {
 
 async function loadClassifications() {
   classificationsLoading.value = true
+  // Load: Fetch assignments for the unavailable/assigned PickList panels.
   const result = await ProductClassificationApi.getClassifications(route.params.id as string)
   if (result.isSuccess && result.items) {
     unassignedClassifications.value = result.items.filter(i => !i.isAssigned)
@@ -223,11 +225,13 @@ async function saveClassifications() {
 }
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
   const data = event.values as ProductForm
   loading.value = true
 
+  // Transform: Normalise the form into the create/update request payload.
   const request = {
     name: data.name,
     slug: data.slug,
@@ -247,6 +251,7 @@ async function onSubmit(event: FormSubmitEvent) {
     genderTarget: data.genderTarget ?? null,
   }
 
+  // Call: Persist the product, branching between update and create.
   const result = isEdit.value
     ? await ProductApi.updateProduct(route.params.id as string, request)
     : await ProductApi.createProduct(request)
@@ -291,6 +296,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title plus Save and Cancel actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -303,9 +309,11 @@ function onCancel() {
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — holds the form and its tabbed field groups -->
       <Card>
         <template #content>
           <Form id="product-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+            <!-- Section: Tabs — general, SEO, fashion, timing, and edit-only panels -->
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -318,6 +326,7 @@ function onCancel() {
 
               <TabPanels>
                 <TabPanel value="0">
+                  <!-- Section: General Fields — name, slug, description, and status -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-4">
@@ -346,6 +355,7 @@ function onCancel() {
                 </TabPanel>
 
                 <TabPanel value="1">
+                  <!-- Section: SEO Fields — meta title, description, and keywords -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-6">
@@ -373,6 +383,7 @@ function onCancel() {
                 </TabPanel>
 
                 <TabPanel value="2">
+                  <!-- Section: Fashion Fields — style, season, material, and fit attributes -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-6">
@@ -420,6 +431,7 @@ function onCancel() {
                 </TabPanel>
 
                 <TabPanel value="3">
+                  <!-- Section: Availability Fields — scheduling dates and inventory toggle -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-6">
@@ -444,6 +456,7 @@ function onCancel() {
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="4">
+                  <!-- Section: Option Type Assignment — assign via a source/target PickList -->
                   <div v-if="optionTypesLoading" class="text-center py-8 text-muted-color">Loading option types...</div>
                   <div v-else-if="optionTypesLoaded && unassignedOptionTypes.length === 0 && assignedOptionTypes.length === 0" class="text-center py-8 text-muted-color">
                     No option types available.
@@ -472,6 +485,7 @@ function onCancel() {
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="5">
+                  <!-- Section: Classification Assignment — assign taxons via a PickList -->
                   <div v-if="classificationsLoading" class="text-center py-8 text-muted-color">Loading classifications...</div>
                   <div v-else-if="classificationsLoaded && unassignedClassifications.length === 0 && assignedClassifications.length === 0" class="text-center py-8 text-muted-color">
                     No classifications available.

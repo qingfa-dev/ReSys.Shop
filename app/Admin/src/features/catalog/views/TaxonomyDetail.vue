@@ -70,6 +70,7 @@ watch(() => route.params.id, (newId) => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
   saving.value = true
@@ -80,6 +81,7 @@ async function onSubmit(event: FormSubmitEvent) {
     position: data.position,
   }
 
+  // Call: Persist the taxonomy, branching between update and create.
   const result = isEdit.value
     ? await TaxonomyApi.updateTaxonomy(route.params.id as string, request)
     : await TaxonomyApi.createTaxonomy(request)
@@ -113,6 +115,7 @@ function navigateToCreateTaxon() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title plus Save and Cancel actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -125,9 +128,11 @@ function navigateToCreateTaxon() {
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — holds the taxonomy form fields -->
       <Card>
         <template #content>
           <Form id="taxonomy-form" :key="String(formLoaded)" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+              <!-- Section: Form Fields — name, presentation, and position -->
               <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                 <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
                 <InputText fluid />
@@ -148,6 +153,7 @@ function navigateToCreateTaxon() {
         </template>
       </Card>
 
+      <!-- Section: Action Toolbar — edit-mode shortcut to create a taxon -->
       <Toolbar v-if="isEdit" class="mb-4 mt-4">
         <template #start>
           <Button label="Add Taxon" severity="secondary" @click="navigateToCreateTaxon()">

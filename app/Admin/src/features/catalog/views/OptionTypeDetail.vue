@@ -78,6 +78,7 @@ const {
 const valueSearchTerm = ref('')
 
 async function initEditMode(id: string) {
+  // Load: Scope the option-value list before fetching the detail record.
   setValueFilter(`optionTypeId=${id}`)
 
   const result = await OptionTypeApi.getOptionType(id)
@@ -114,6 +115,7 @@ watch(
 )
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
   const data = event.values as OptionTypeForm
@@ -126,6 +128,7 @@ async function onSubmit(event: FormSubmitEvent) {
     filterable: data.filterable,
   }
 
+  // Call: Persist the option type, branching between update and create.
   const result = isEdit.value
     ? await OptionTypeApi.updateOptionType(route.params.id as string, request)
     : await OptionTypeApi.createOptionType(request)
@@ -168,6 +171,7 @@ function onDialogSaved() {
 }
 
 function confirmDeleteValue(value: OptionValueListItem) {
+  // Trigger: Confirm before deleting an option value.
   confirm.require({
     message: `Are you sure you want to delete "${value.name}"?`,
     header: 'Confirm Delete',
@@ -176,6 +180,7 @@ function confirmDeleteValue(value: OptionValueListItem) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete the option value via the API, then refresh.
       const result = await OptionValueApi.deleteOptionValue(value.id)
       if (result.isSuccess) {
         notify.success('Option value deleted', `${value.name} has been removed.`)
@@ -198,6 +203,7 @@ function onValueSearch(value: string) {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title plus Save and Cancel actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -210,9 +216,11 @@ function onValueSearch(value: string) {
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — holds the form and its tabbed field groups -->
       <Card>
         <template #content>
           <Form id="option-type-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+            <!-- Section: Tabs — switches between general fields and option values -->
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -221,6 +229,7 @@ function onValueSearch(value: string) {
 
               <TabPanels>
                 <TabPanel value="0">
+                  <!-- Section: General Fields — name, presentation, position, and filterable -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-4">
@@ -249,6 +258,7 @@ function onValueSearch(value: string) {
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="1">
+                  <!-- Section: Option Values — add, edit, search, and delete value rows -->
                   <Toolbar>
                     <template #start>
                       <Button label="Add Value" severity="secondary" @click="openAddDialog">

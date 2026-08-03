@@ -54,6 +54,7 @@ function onProductChange(id: string | null) {
 
 function onVariantTypeChange(value: string | null) {
   variantType.value = (value as 'master' | 'styles') ?? 'all'
+  // Filter: Scope the query to master or style variants via a server filter.
   setFilter(value === 'master' ? 'isMaster=true' : value === 'styles' ? 'isMaster=false' : '')
 }
 
@@ -99,6 +100,7 @@ const {
   },
 )
 
+// Map: Derive the zero-based PrimeVue row offset for lazy scrolling.
 const first = computed(() => (page.value - 1) * pageSize.value)
 
 watch(productId, () => {
@@ -155,6 +157,7 @@ function onSort(event: DataTableSortEvent) {
 }
 
 function confirmDelete(variant: VariantListItem) {
+  // Trigger: Confirm before deleting the variant.
   confirm.require({
     message: `Are you sure you want to delete variant "${variant.sku}"?`,
     header: 'Confirm Delete',
@@ -163,6 +166,7 @@ function confirmDelete(variant: VariantListItem) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete the variant via the catalog API, then refresh.
       const result = await VariantApi.deleteVariant(variant.id)
       if (result.isSuccess) {
         notify.success('Variant deleted', `${variant.sku} has been removed.`)
@@ -181,6 +185,7 @@ function refreshPage() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title, description, and back-to-product link -->
     <div class="flex-none flex flex-col gap-4">
       <div class="flex justify-between items-start">
         <div>
@@ -198,7 +203,9 @@ function refreshPage() {
       </div>
     </div>
 
+    <!-- Section: Scrollable Content — page body that grows and scrolls -->
     <div class="flex-1 min-h-0 mt-4">
+      <!-- Section: Error State — full-area message with a reload action -->
       <div v-if="error" class="flex items-center justify-center h-full">
         <Message severity="error" :closable="false" class="w-full max-w-lg">
           <div class="flex flex-col gap-2">
@@ -208,6 +215,7 @@ function refreshPage() {
         </Message>
       </div>
 
+      <!-- Section: Data Table — lazy, scrollable variant grid -->
       <DataTable
         v-else
         ref="dt"
@@ -231,6 +239,7 @@ function refreshPage() {
         @sort="onSort"
         :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
       >
+        <!-- Section: Search & Filters — search box, product scope, and variant-type filter -->
         <template #header>
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -284,6 +293,7 @@ function refreshPage() {
             </div>
           </div>
         </template>
+        <!-- Section: Table Columns — variant, price, and master-flag fields -->
         <Column selection-mode="multiple" header-style="width: 3rem" />
         <Column field="isMaster" header="Master" body-style="text-align: center">
           <template #body="{ data }">
@@ -306,6 +316,7 @@ function refreshPage() {
           </template>
         </Column>
         <Column field="pricesCount" header="Prices" body-style="text-align: center" />
+        <!-- Section: Row Actions — edit and delete per row -->
         <Column header="" body-style="text-align: right; width: 6rem">
           <template #body="{ data }">
             <div class="flex justify-end gap-2">
@@ -314,6 +325,7 @@ function refreshPage() {
             </div>
           </template>
         </Column>
+        <!-- Section: Empty State — shown when the query returns no variants -->
         <template #empty>
           <div class="text-center py-8 text-muted-color">
             {{ productId ? 'No variants found for this product.' : 'No variants found.' }}

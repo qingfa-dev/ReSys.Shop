@@ -44,6 +44,7 @@ const {
 })
 
 const { items: activeTaxonomies, load: loadActiveTaxonomies } = useActiveTaxonomies()
+// Map: Derive the zero-based PrimeVue row offset for lazy scrolling.
 const first = computed(() => (page.value - 1) * pageSize.value)
 
 onMounted(async () => {
@@ -52,6 +53,7 @@ onMounted(async () => {
 })
 
 function onTaxonomyChange(id: string | null) {
+  // Filter: Scope the taxon list to the selected taxonomy and reset paging.
   taxonomyId.value = id || null
   setPage(1)
   router.replace({ query: { ...route.query, taxonomyId: taxonomyId.value ?? undefined } })
@@ -96,6 +98,7 @@ function onSort(event: DataTableSortEvent) {
 function confirmDelete() {
   if (selectedItems.value.length === 0) return
 
+  // Trigger: Confirm before bulk-deleting the highlighted taxons.
   confirm.require({
     message: `Are you sure you want to delete ${selectedItems.value.length > 1 ? 'these taxons' : 'this taxon'}?`,
     header: 'Confirm Delete',
@@ -107,6 +110,7 @@ function confirmDelete() {
       const ids = selectedItems.value.map(i => i.id)
       const names = selectedItems.value.map(i => i.name)
       let failed = 0
+      // Call: Delete each taxon, tallying failures for the result toast.
       for (const id of ids) {
         const result = await TaxonApi.deleteTaxon(id)
         if (!result.isSuccess) failed++
@@ -133,6 +137,7 @@ function confirmDelete() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and one-line taxon description -->
     <div class="flex-none flex flex-col gap-4">
       <div>
         <div class="font-semibold text-xl">Taxons</div>
@@ -140,7 +145,9 @@ function confirmDelete() {
       </div>
     </div>
 
+    <!-- Section: Scrollable Content — page body that grows and scrolls -->
     <div class="flex-1 min-h-0 mt-4">
+      <!-- Section: Data Table — lazy, scrollable taxon grid -->
       <DataTable size="large"
         ref="dt"
         v-model:selection="selectedItems"
@@ -163,6 +170,7 @@ function confirmDelete() {
         :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
       >
         <Column selection-mode="multiple" header-style="width: 3rem" />
+        <!-- Section: Search & Filters — search box, taxonomy scope select, and bulk actions -->
         <template #header>
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -196,6 +204,7 @@ function confirmDelete() {
             </div>
           </div>
         </template>
+        <!-- Section: Table Columns — taxon descriptor, hierarchy, and count fields -->
         <Column field="name" header="Name" :sortable="true" />
         <Column field="slug" header="Slug" :sortable="true" />
         <Column field="taxonomyName" header="Taxonomy" />
@@ -204,6 +213,7 @@ function confirmDelete() {
         <Column field="position" header="Position" :sortable="true" />
         <Column field="taxonRuleCount" header="Rules" body-style="text-align: center" />
         <Column field="productCount" header="Products" body-style="text-align: center" />
+        <!-- Section: Row Actions — edit and delete per row -->
         <Column header="" body-style="text-align: right; width: 6rem">
           <template #body="{ data }">
             <div class="flex justify-end gap-2">
@@ -212,6 +222,7 @@ function confirmDelete() {
             </div>
           </template>
         </Column>
+        <!-- Section: Empty State — shown when the query returns no taxons -->
         <template #empty>
           <div class="text-center py-8 text-muted-color">No taxons found.</div>
         </template>

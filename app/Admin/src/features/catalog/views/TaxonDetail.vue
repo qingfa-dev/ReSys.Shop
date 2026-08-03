@@ -151,11 +151,13 @@ watch(() => route.params.id, (newId) => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
   const data = event.values as TaxonForm
   loading.value = true
 
+  // Transform: Normalise the form into the create/update request payload.
   const request = {
     taxonomyId: data.taxonomyId,
     parentId: data.parentId || null,
@@ -175,6 +177,7 @@ async function onSubmit(event: FormSubmitEvent) {
     hideFromNav: data.hideFromNav,
   }
 
+  // Call: Persist the taxon, branching between update and create.
   const result = isEdit.value
     ? await TaxonApi.updateTaxon(route.params.id as string, request)
     : await TaxonApi.createTaxon(request)
@@ -230,6 +233,7 @@ function onRuleSaved() {
 }
 
 function confirmDeleteRule(rule: TaxonRuleListItem) {
+  // Trigger: Confirm before deleting a classification rule.
   confirm.require({
     message: `Are you sure you want to delete this rule?`,
     header: 'Confirm Delete',
@@ -238,6 +242,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete the rule via the API, then reload the rule list.
       const result = await TaxonRuleApi.deleteRule(route.params.id as string, rule.id)
       if (result.isSuccess) {
         notify.success('Rule deleted')
@@ -252,6 +257,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title plus Save and Cancel actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -264,9 +270,11 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — holds the form and its tabbed field groups -->
       <Card>
         <template #content>
           <Form id="taxon-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+            <!-- Section: Tabs — switches between general, settings, SEO, images, and rules -->
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -278,6 +286,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 
               <TabPanels>
                 <TabPanel value="0">
+                  <!-- Section: General Fields — taxonomy, parent, name, and description -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-4">
@@ -321,6 +330,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 </TabPanel>
 
                 <TabPanel value="1">
+                  <!-- Section: Settings Fields — ordering, nav, and classification policy -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-4">
@@ -346,6 +356,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 </TabPanel>
 
                 <TabPanel value="2">
+                  <!-- Section: SEO Fields — meta title, description, and keywords -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-4">
@@ -370,6 +381,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 </TabPanel>
 
                 <TabPanel value="3">
+                  <!-- Section: Image Fields — display and square image URLs -->
                   <Card>
                     <template #content>
                       <div class="flex flex-col gap-4">
@@ -389,6 +401,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 </TabPanel>
 
                 <TabPanel v-if="isEdit" value="4">
+                  <!-- Section: Rules — add, edit, search, and delete classification rules -->
                   <Toolbar>
                     <template #start>
                       <Button label="Add Rule" severity="secondary" @click="openAddRule">
