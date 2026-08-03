@@ -9,4 +9,8 @@ public record EmbeddingDetailResponse
     public float[] Vector { get; init; } = [];
     public int Dimensions { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
+    public string Status { get; init; } = "Completed";
+    public string? Error { get; init; }
+    public string? HangfireJobId { get; init; }
+    public DateTimeOffset? CompletedAtUtc { get; init; }
 }
