@@ -111,6 +111,12 @@ const protectedRoutes: RouteRecordRaw[] = [
         component: () => import('@/features/identity/views/SessionsView.vue'),
         meta: { title: 'Sessions', breadcrumb: 'Sessions' },
       },
+      {
+        path: 'wishlists',
+        name: 'wishlists',
+        component: () => import('@/features/profile/views/WishlistsView.vue'),
+        meta: { title: 'Wishlists', breadcrumb: 'Wishlists' },
+      },
     ],
   },
 ]
