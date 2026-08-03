@@ -99,8 +99,9 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
 
         foreach (var vj in variants)
         {
+            var sku = vj.IsMaster ? $"MASTER-{vj.Sku}" : vj.Sku;
             var variantResult = VariantMethod.Create(
-                productId: Guid.Parse(vj.ProductId), sku: vj.Sku,
+                productId: Guid.Parse(vj.ProductId), sku: sku,
                 isMaster: vj.IsMaster, position: vj.Position,
                 barcode: vj.Barcode, id: Guid.Parse(vj.Id));
             var variant = variantResult.Value;
