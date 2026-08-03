@@ -29,10 +29,14 @@ public static class CatalogExtensions
         builder.Services.AddScoped<IAutoClassificationService, AutoClassificationService>();
         builder.Services.AddSingleton<ITaxonRuleEvaluator, TaxonRuleEvaluator>();
 
-        builder.AddSeeder<CatalogOptionSeeder>();
+        builder.AddSeeder<CatalogOptionTypeSeeder>();
+        builder.AddSeeder<CatalogOptionValueSeeder>();
         builder.AddSeeder<CatalogTaxonomySeeder>();
         builder.AddSeeder<CatalogTaxonSeeder>();
-        builder.AddSeeder<CatalogDemoSeeder>();
+        builder.AddSeeder<CatalogProductSeeder>();
+        builder.AddSeeder<CatalogVariantSeeder>();
+        builder.AddSeeder<CatalogVariantImageSeeder>();
+        builder.AddSeeder<CatalogProductTaxonSeeder>();
         builder.AddSeeder<CatalogEmbeddingSeeder>();
 
         builder.Services.AddScoped<Module.Catalog.Persistence.Seeders.DemoJsonHelper>();

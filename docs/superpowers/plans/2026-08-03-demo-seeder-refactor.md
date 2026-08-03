@@ -714,6 +714,7 @@ def build_taxons_json(
         mc_id = taxon_id(f"cat.{master_cat}")
         mc_lft = lft
         lft += 1
+        mc_slug = make_slug(master_cat)
         for sub_cat in sorted(sub_categories.get(master_cat, set())):
             sc_id = taxon_id(f"cat.{master_cat}.{sub_cat}")
             taxons.append({
@@ -729,7 +730,7 @@ def build_taxons_json(
         taxons.append({
             "id": mc_id, "taxonomy_id": TAXONOMY_CATEGORIES_ID,
             "parent_id": root_cat_id, "name": master_cat,
-            "presentation": master_cat, "slug": make_slug(master_cat),
+            "presentation": master_cat, "slug": mc_slug,
             "depth": 1, "lft": mc_lft, "rgt": mc_rgt, "position": 0,
             **build_taxon_seo(master_cat, "Categories"),
         })
@@ -831,7 +832,7 @@ if __name__ == "__main__":
 
 Notes:
 - `taxon_id(identifier)` reproduces the old `guid("taxon", identifier)` calls exactly (`"categories_root"`, `"cat.{mc}"`, `"cat.{mc}.{sub}"`, `"brand.{b}"`, `"article_type.{at}"`), so IDs stay byte-identical.
-- Taxon slug list order and tree structure are byte-identical to the old `01_extract_taxonomies.py`.
+- Slug allocation order matches the old `01_extract_taxonomies.py`: the master-category slug is allocated FIRST, then its sub-category slugs — so `-2`/`-3` suffix collisions land on the same taxons as before. Taxon slug list, tree structure, and lft/rgt/depth are byte-identical to the old `01_extract_taxonomies.py`.
 
 - [ ] **Step 3: Verify taxon IDs unchanged against old output**
 

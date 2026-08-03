@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from shared import SCRIPTS_DIR, check_overwrite, guid, write_json  # noqa: E402
+from json_io import check_overwrite, write_json  # noqa: E402
+from shared import SCRIPTS_DIR, guid  # noqa: E402
 
 
 def main() -> None:
@@ -19,9 +20,9 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
-    check_overwrite(args.output / "demo_stock_locations.json", args.force)
+    check_overwrite(args.output / "009_demo_stock_locations.json", args.force)
 
-    variants_json = args.output / "demo_variants.json"
+    variants_json = args.output / "006_demo_variants.json"
     if not variants_json.exists():
         print(f"ERROR: {variants_json} not found")
         sys.exit(1)
@@ -95,9 +96,9 @@ def main() -> None:
                 "action": "restock",
             })
 
-    write_json(args.output / "demo_stock_locations.json", locations)
-    write_json(args.output / "demo_stock_items.json", stock_items)
-    write_json(args.output / "demo_stock_movements.json", stock_movements)
+    write_json(args.output / "009_demo_stock_locations.json", locations)
+    write_json(args.output / "010_demo_stock_items.json", stock_items)
+    write_json(args.output / "011_demo_stock_movements.json", stock_movements)
 
     print(f"Written {len(locations)} locations, {len(stock_items)} items, {len(stock_movements)} movements")
 

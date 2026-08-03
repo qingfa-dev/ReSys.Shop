@@ -4,7 +4,7 @@ namespace Module.Catalog.Persistence.Seeders;
 
 public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
-    public override int Order => 135;
+    public override int Order => 137;
 
     public override async Task<Result> SeedAsync(CancellationToken cancellationToken)
     {
@@ -17,7 +17,7 @@ public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context, DemoJs
         if (hasData)
             return Result.Ok();
 
-        var json = jsonHelper.LoadIfExists<DemoEmbeddingJson>("demo_embeddings.json");
+        var json = jsonHelper.LoadIfExists<DemoEmbeddingJson>("012_demo_embeddings.json");
         if (json is null)
             return Result.Ok();
 

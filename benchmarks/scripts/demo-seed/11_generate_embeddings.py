@@ -26,9 +26,9 @@ def main() -> None:
     parser.add_argument("--models", nargs="+", default=DEFAULT_MODEL_SLUGS)
     args = parser.parse_args()
 
-    images_json = args.output / "demo_variant_images.json"
+    images_json = args.output / "007_demo_variant_images.json"
     if not images_json.exists():
-        print(f"ERROR: {images_json} not found; run extract_products.py first")
+        print(f"ERROR: {images_json} not found; run 07_extract_variant_images.py first")
         return
 
     records = json.loads(images_json.read_text())
@@ -76,7 +76,7 @@ def main() -> None:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    (args.output / "demo_embeddings.json").write_text(json.dumps(all_embeddings, indent=2))
+    (args.output / "012_demo_embeddings.json").write_text(json.dumps(all_embeddings, indent=2))
     print(f"\nWritten {len(all_embeddings)} embeddings for {len(search_records)} images x {args.models}")
 
 

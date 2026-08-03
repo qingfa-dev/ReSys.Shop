@@ -14,7 +14,7 @@ public sealed class InventoryStockMovementSeeder(IApplicationDbContext context, 
         if (hasMovements)
             return Result.Ok();
 
-        var json = jsonHelper.LoadIfExists<DemoStockMovementJson>("demo_stock_movements.json");
+        var json = jsonHelper.LoadIfExists<DemoStockMovementJson>("011_demo_stock_movements.json");
         if (json is null)
             return Result.Ok();
 
