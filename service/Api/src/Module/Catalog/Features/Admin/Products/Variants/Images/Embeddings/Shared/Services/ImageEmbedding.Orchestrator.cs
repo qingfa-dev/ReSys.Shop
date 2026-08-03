@@ -140,6 +140,77 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         });
     }
 
+    /// <summary>Runs the embedding generation job for an embedding in the Pending status, persisting the result or failure.</summary>
+    /// <param name="embeddingId">The image embedding identifier.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating whether the job ran; failures are recorded on the embedding entity.</returns>
+    public async Task<Result> RunAsync(Guid embeddingId, CancellationToken ct = default)
+    {
+        var embedding = await _dbContext.Set<ImageEmbedding>()
+            .FirstOrDefaultAsync(e => e.Id == embeddingId, ct);
+        if (embedding is null)
+        {
+            Loggers.RunFailed(_logger, embeddingId, "Embedding not found");
+            return ImageEmbeddingResult.Errors.NotFound(embeddingId);
+        }
+
+        Loggers.RunStarted(_logger, embeddingId, embedding.VariantImageId, embedding.ModelName);
+
+        var markResult = ImageEmbeddingMethod.MarkProcessing(embedding);
+        if (markResult.IsFailure)
+        {
+            Loggers.RunFailed(_logger, embeddingId,
+                $"Status transition failed: {markResult.Errors.First().Message}");
+            return markResult.Errors;
+        }
+        await _dbContext.SaveChangesAsync(ct);
+
+        Loggers.RunProcessing(_logger, embeddingId);
+
+        var image = await _dbContext.Set<VariantImage>()
+            .FirstOrDefaultAsync(x => x.Id == embedding.VariantImageId, ct);
+        if (image is null)
+        {
+            ImageEmbeddingMethod.MarkFailed(embedding, "Image was deleted");
+            await _dbContext.SaveChangesAsync(ct);
+            Loggers.RunFailed(_logger, embeddingId, "Image was deleted");
+            return Result.Ok();
+        }
+
+        if (string.IsNullOrEmpty(image.Url))
+        {
+            ImageEmbeddingMethod.MarkFailed(embedding, "VariantImage has no public URL");
+            await _dbContext.SaveChangesAsync(ct);
+            Loggers.RunFailed(_logger, embeddingId, "No public URL");
+            return Result.Ok();
+        }
+
+        var request = new EmbeddingRequest { ImageUrl = image.Url, Model = embedding.ModelName };
+        var inferenceResult = await _inferenceClient.CreateEmbeddingAsync(request, ct);
+        if (inferenceResult.IsFailure)
+        {
+            var errorMsg = inferenceResult.Errors.First().Message;
+            ImageEmbeddingMethod.MarkFailed(embedding, errorMsg);
+            await _dbContext.SaveChangesAsync(ct);
+            Loggers.RunFailed(_logger, embeddingId, errorMsg);
+            return Result.Ok();
+        }
+
+        var inference = inferenceResult.Value;
+        var completeResult = ImageEmbeddingMethod.MarkCompleted(
+            embedding, inference.Vector.ToArray(), inference.Dimension, inference.ModelVersion);
+        if (completeResult.IsFailure)
+        {
+            Loggers.RunFailed(_logger, embeddingId,
+                $"MarkCompleted failed: {completeResult.Errors.First().Message}");
+            return completeResult.Errors;
+        }
+        await _dbContext.SaveChangesAsync(ct);
+
+        Loggers.RunCompleted(_logger, embeddingId, inference.Dimension);
+        return Result.Ok();
+    }
+
     private static bool IsForeignKeyViolation(DbUpdateException ex)
     {
         return ex.InnerException is Npgsql.PostgresException postgresEx

@@ -7,4 +7,6 @@ public interface IEmbeddingOrchestrator
     Task<Result<EmbeddingDetailResponse>> GenerateAndPersistAsync(Guid variantImageId, string modelName, CancellationToken ct = default);
 
     Task<Result<EmbeddingDetailResponse>> GenerateAndPersistFromBytesAsync(Guid variantImageId, byte[] imageBytes, string contentType, string modelName, CancellationToken ct = default);
+
+    Task<Result> RunAsync(Guid embeddingId, CancellationToken ct = default);
 }
