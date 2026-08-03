@@ -32,6 +32,16 @@ export class CartService implements ICartService {
     const response = await this.cartRepo.clearCart()
     return resultMap(response, mapCartResponseToEntity)
   }
+
+  async updateCheckoutDetails(details: Record<string, unknown>): Promise<Result<Cart>> {
+    const response = await this.cartRepo.updateCheckoutDetails(details)
+    return resultMap(response, mapCartResponseToEntity)
+  }
+
+  async selectShippingRate(shippingMethodId: string): Promise<Result<Cart>> {
+    const response = await this.cartRepo.selectShippingRate(shippingMethodId)
+    return resultMap(response, mapCartResponseToEntity)
+  }
 }
 
 export const cartService = new CartService()

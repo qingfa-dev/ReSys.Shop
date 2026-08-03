@@ -7,4 +7,6 @@ export interface ICartService {
   updateCartItem(itemId: string, quantity: number): Promise<Result<Cart>>
   removeCartItem(itemId: string): Promise<Result<Cart>>
   clearCart(): Promise<Result<Cart>>
+  updateCheckoutDetails(details: Record<string, unknown>): Promise<Result<Cart>>
+  selectShippingRate(shippingMethodId: string): Promise<Result<Cart>>
 }
