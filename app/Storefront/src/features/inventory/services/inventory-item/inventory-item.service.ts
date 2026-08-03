@@ -1,5 +1,4 @@
 import { inventoryItemApiRepository } from '../../repositories/inventory-item/inventory-item.api'
-import { mockInventoryItemRepository } from '../../repositories/inventory-item/inventory-item.mock.repository'
 import type { IInventoryItemService } from './inventory-item.service.interface'
 import type { InventoryItem } from '../../types'
 import type { Reservation } from '../../repositories/inventory-item/inventory-item.repository.interface'
@@ -7,10 +6,8 @@ import type { Result } from '@/core/models/result'
 import { toInventoryItem } from '../../mapping'
 import { resultMap } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class InventoryItemService implements IInventoryItemService {
-  private readonly inventoryItemRepository = USE_MOCK ? mockInventoryItemRepository : inventoryItemApiRepository
+  private readonly inventoryItemRepository = inventoryItemApiRepository
 
   async getInventory(productId: string): Promise<Result<InventoryItem>> {
     const response = await this.inventoryItemRepository.getById(productId)

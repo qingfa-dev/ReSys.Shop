@@ -1,5 +1,4 @@
 import { profileApiRepository } from '../repositories/profile.api'
-import { mockProfileRepository } from '../repositories/profile.mock.repository'
 import type { IProfileService } from './profile.service.interface'
 import type { Profile } from '../types/entity'
 import type { UpdateProfileRequest } from '../types/request'
@@ -8,10 +7,8 @@ import type { Result } from '@/core/models/result'
 import { mapResponseToEntity } from '../mapping'
 import { resultMap } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class ProfileService implements IProfileService {
-  private readonly profileRepository = USE_MOCK ? mockProfileRepository : profileApiRepository
+  private readonly profileRepository = profileApiRepository
 
   async getProfile(userId: string): Promise<Result<Profile>> {
     const response = await this.profileRepository.getProfile(userId)

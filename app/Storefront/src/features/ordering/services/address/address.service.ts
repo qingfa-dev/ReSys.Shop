@@ -1,15 +1,12 @@
 import { addressApiRepository } from '../../repositories/address/address.api'
-import { mockAddressRepository } from '../../repositories/address/address.mock.repository'
 import type { IAddressService } from './address.service.interface'
 import type { Address } from '../../types'
 import type { Result } from '@/core/models/result'
 import { mapAddressResponseToEntity } from '../../mapping'
 import { resultMap, succeed, fail } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class AddressService implements IAddressService {
-  private addressRepo = USE_MOCK ? mockAddressRepository : addressApiRepository
+  private addressRepo = addressApiRepository
 
   async getAddresses(): Promise<Result<Address[]>> {
     const response = await this.addressRepo.getAll()
