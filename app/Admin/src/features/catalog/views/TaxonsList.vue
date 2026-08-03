@@ -8,42 +8,57 @@ import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { useNotify } from '@/shared/composables/useNotify'
 import { TaxonApi } from '../services/taxonApi'
-import { useTaxonStore } from '../stores/taxonStore'
-import { useTaxonomyStore } from '../stores/taxonomyStore'
+import { useTaxonList } from '../composables/useTaxonList'
+import { useActiveTaxonomies } from '../composables/useActiveTaxonomies'
 import type { TaxonListItem } from '../types/taxon'
 
 const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
-const taxonStore = useTaxonStore()
-const taxonomyStore = useTaxonomyStore()
 
 const { dt, exportCSV } = useDataTableExport()
 const selectedItems = ref<TaxonListItem[]>([])
 const searchTerm = ref('')
 const allowedSearchFields = ['name', 'slug']
+// Initialize: Taxonomy scope from the route query; null means all taxonomies
+const taxonomyId = ref<string | null>((route.query.taxonomyId as string) || null)
 
-const items = taxonStore.items
-const loading = taxonStore.loading
-const totalCount = taxonStore.totalCount
-const first = computed(() => (taxonStore.page - 1) * taxonStore.pageSize)
+const {
+  items,
+  loading,
+  totalCount,
+  page,
+  pageSize,
+  setSearch,
+  setPage,
+  setPageSize,
+  setSort,
+  fetch: fetchTaxons,
+  refresh,
+} = useTaxonList(taxonomyId, {
+  defaultSort: ['position'],
+  defaultSearchFields: allowedSearchFields,
+  defaultSearchMode: 'any',
+  immediate: false,
+})
+
+const { items: activeTaxonomies, load: loadActiveTaxonomies } = useActiveTaxonomies()
+const first = computed(() => (page.value - 1) * pageSize.value)
 
 onMounted(async () => {
-  await taxonomyStore.fetchActive()
-  const taxonomyId = route.query.taxonomyId as string | undefined
-  await taxonStore.setSelectedTaxonomy(taxonomyId ?? null)
+  // Await: Taxonomy options and the first taxon page load in parallel
+  await Promise.all([loadActiveTaxonomies(), fetchTaxons()])
 })
 
 function onTaxonomyChange(id: string | null) {
-  const taxonomyId = id || null
-  taxonStore.setSelectedTaxonomy(taxonomyId)
-  router.replace({ query: { ...route.query, taxonomyId: taxonomyId ?? undefined } })
+  taxonomyId.value = id || null
+  fetchTaxons()
+  router.replace({ query: { ...route.query, taxonomyId: taxonomyId.value ?? undefined } })
 }
 
 function navigateToNew() {
-  const taxonomyId = taxonStore.selectedTaxonomyId
-  const query = taxonomyId ? `?taxonomyId=${taxonomyId}` : ''
+  const query = taxonomyId.value ? `?taxonomyId=${taxonomyId.value}` : ''
   router.push(`/catalog/taxons/new${query}`)
 }
 
@@ -53,26 +68,26 @@ function navigateToEdit(id: string) {
 
 function onSearch(value: string) {
   searchTerm.value = value
-  taxonStore.setSearch(value)
+  setSearch(value)
 }
 
 function clearSearch() {
   searchTerm.value = ''
-  taxonStore.setSearch('')
+  setSearch('')
 }
 
 function onPage(event: DataTablePageEvent) {
-  taxonStore.setPage(event.page + 1)
+  setPage(event.page + 1)
 }
 
 function onRows(rows: number) {
-  taxonStore.setPageSize(rows)
+  setPageSize(rows)
 }
 
 function onSort(event: DataTableSortEvent) {
   const field = event.sortField
   if (typeof field !== 'string') return
-  taxonStore.setSort(event.sortOrder === -1 ? [`-${field}`] : [field])
+  setSort(event.sortOrder === -1 ? [`-${field}`] : [field])
 }
 
 function confirmDelete() {
@@ -94,7 +109,7 @@ function confirmDelete() {
         if (!result.isSuccess) failed++
       }
       selectedItems.value = []
-      taxonStore.refresh()
+      refresh()
       if (failed === 0) {
         notify.success(
           ids.length > 1 ? 'Taxons deleted' : 'Taxon deleted',
@@ -130,7 +145,7 @@ function confirmDelete() {
         :loading="loading"
         :total-records="totalCount"
         :first="first"
-        :rows="taxonStore.pageSize"
+        :rows="pageSize"
         scrollable
         :paginator="true"
         filter-display="menu"
@@ -160,8 +175,8 @@ function confirmDelete() {
                 <label>Search</label>
               </FloatLabel>
               <Select
-                :model-value="taxonStore.selectedTaxonomyId"
-                :options="taxonomyStore.activeTaxonomies"
+                :model-value="taxonomyId"
+                :options="activeTaxonomies"
                 option-label="name"
                 option-value="id"
                 placeholder="All taxonomies"
@@ -173,7 +188,7 @@ function confirmDelete() {
             </div>
             <div class="flex items-center gap-2">
               <Button label="New Taxon" icon="pi pi-plus" severity="primary" @click="navigateToNew" />
-              <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="taxonStore.refresh" />
+              <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="refresh" />
               <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV" />
             </div>
           </div>
