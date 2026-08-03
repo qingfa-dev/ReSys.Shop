@@ -1,6 +1,8 @@
 export { useOptionTypeList } from './useOptionTypeList'
 export { useOptionValueList } from './useOptionValueList'
 export { useTaxonList } from './useTaxonList'
+export { useTaxonDetail } from './useTaxonDetail'
+export type { UseTaxonDetailState } from './useTaxonDetail'
 export { useTaxonRuleList } from './useTaxonRuleList'
 export { useProductList } from './useProductList'
 export { useVariantList } from './useVariantList'
