@@ -214,11 +214,8 @@ function onPageChange(event: { page: number }) {
   goToPage(event.page + 1);
 }
 
-async function handleAddToCart(product: Product, colorId?: string, sizeId?: string) {
-  const image = getProductImage(product);
-  const selectedOptions = [colorId, sizeId].filter(Boolean).join(" / ");
-  const variantLabel = selectedOptions ? ` (${selectedOptions})` : "";
-  await addToCartStore(product.id, product.name + variantLabel, image, 1, product.price);
+async function handleAddToCart(product: Product, _colorId?: string, _sizeId?: string) {
+  await addToCartStore(product.variants?.[0]?.id ?? product.id, 1);
 }
 
 function handleAddToWishlist(_product: Product) {}

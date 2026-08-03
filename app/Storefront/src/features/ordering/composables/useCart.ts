@@ -15,8 +15,8 @@ export function useCart() {
     await cartStore.fetchCart()
   }
 
-  async function addToCart(productId: string, productName: string, productImage: string, quantity = 1, price: number) {
-    await cartStore.addItem(productId, productName, productImage, quantity, price)
+  async function addToCart(variantId: string, quantity = 1) {
+    await cartStore.addItem(variantId, quantity)
   }
 
   async function updateQuantity(itemId: string, quantity: number) {

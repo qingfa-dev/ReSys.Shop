@@ -1,26 +1,27 @@
 import type { Result, PagedResult } from '@/core/models/result'
 
 export interface CartItemResponse {
-  id: string
-  productId: string
-  productName: string
-  productImage: string
-  variantId?: string
+  variantId: string
   variantName?: string
+  sku?: string
+  productName?: string
+  productImage?: string | null
   quantity: number
   price: number
-  compareAtPrice?: number
+  compareAtPrice?: number | null
 }
 
 export interface CartResponse {
   id: string
   items: CartItemResponse[]
-  subtotal: number
-  tax: number
-  shipping: number
-  discount: number
+  itemTotal: number      // backend field — maps to subtotal
   total: number
   currency: string
+  itemCount: number
+  checkoutState: string
+  tax?: number
+  shipping?: number
+  discount?: number
 }
 
 export interface OrderItemResponse {

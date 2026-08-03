@@ -49,11 +49,11 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function addItem(productId: string, productName: string, productImage: string, quantity = 1, price: number) {
+  async function addItem(variantId: string, quantity = 1) {
     loading.value = true
     error.value = null
     try {
-      const result = await cartService.addToCart(productId, productName, productImage, quantity, price)
+      const result = await cartService.addToCart(variantId, quantity)
       if (result.isSuccess && result.data) {
         cart.value = result.data
       } else {

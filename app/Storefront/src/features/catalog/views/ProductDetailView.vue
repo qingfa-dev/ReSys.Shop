@@ -241,17 +241,9 @@ const reviewStats = computed(() => {
 async function handleAddToCart() {
   if (!canAddToCart.value || !product.value) return;
 
-  const colorName = product.value.colors?.find((c) => c.id === selectedColorId.value)?.name;
-  const sizeName = product.value.sizes?.find((s) => s.id === selectedSizeId.value)?.name;
-  const variantLabel = [colorName, sizeName].filter(Boolean).join(" / ");
-
-  const image = productImages.value[0]?.url || "";
   await addToCart(
-    product.value.id,
-    variantLabel ? `${product.value.name} (${variantLabel})` : product.value.name,
-    image,
+    product.value.variants?.[0]?.id ?? product.value.id,
     quantity.value,
-    product.value.price,
   );
 }
 

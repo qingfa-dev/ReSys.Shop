@@ -198,30 +198,22 @@ export const CartItemFields = {
 } as const
 
 export const CartItemSchema = z.object({
-  id: ORDER_FIELDS.id.Required,
-  productId: ORDER_FIELDS.productId.Required,
-  productName: ORDER_FIELDS.productName.Required,
-  productImage: ORDER_FIELDS.productImage.Required,
-  variantId: ORDER_FIELDS.variantId.Optional,
-  variantName: ORDER_FIELDS.variantName.Optional,
-  quantity: ORDER_FIELDS.quantity.Required,
-  price: ORDER_FIELDS.price.Required,
-  compareAtPrice: ORDER_FIELDS.price.Optional,
+  id: z.string().optional(),              // cart item id (backend may not return one)
+  productId: z.string().optional(),       // retained for the storefront cart link (backend supplies it via variant.productId)
+  variantId: z.string().uuid(),
+  variantName: z.string().optional(),
+  sku: z.string().optional(),
+  productName: z.string().optional(),      // Task 2b enrichment
+  productImage: z.string().nullable().optional(), // Task 2b enrichment
+  quantity: z.number().int().positive(),
+  price: z.number().min(0),
+  compareAtPrice: z.number().min(0).nullable().optional(),
 })
 
 export type CartItem = z.infer<typeof CartItemSchema>
 
 export const CheckoutSchema = z.object({
-  items: z.array(z.object({
-    productId: ORDER_FIELDS.productId.Required,
-    variantId: ORDER_FIELDS.variantId.Optional,
-    quantity: ORDER_FIELDS.quantity.Required,
-  })),
-  shippingAddressId: ORDER_FIELDS.id.Required,
-  billingAddressId: ORDER_FIELDS.id.Optional,
-  shippingMethodId: ORDER_FIELDS.id.Required,
-  paymentMethodId: ORDER_FIELDS.id.Required,
-  couponCode: z.string().optional(),
+  paymentIntentId: z.string().min(1, 'Payment intent id is required'),
 })
 
 export type CheckoutRequest = z.infer<typeof CheckoutSchema>

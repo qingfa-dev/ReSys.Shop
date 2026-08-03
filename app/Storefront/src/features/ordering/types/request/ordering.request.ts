@@ -1,6 +1,5 @@
 export interface AddToCartRequest {
-  productId: string
-  variantId?: string
+  variantId: string
   quantity: number
 }
 
@@ -9,12 +8,7 @@ export interface UpdateCartItemRequest {
 }
 
 export interface CheckoutRequest {
-  items: { productId: string; variantId?: string; quantity: number }[]
-  shippingAddressId: string
-  billingAddressId?: string
-  shippingMethodId: string
-  paymentMethodId: string
-  couponCode?: string
+  paymentIntentId: string
 }
 
 export interface ApplyCouponRequest {

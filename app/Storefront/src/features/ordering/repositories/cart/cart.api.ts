@@ -12,8 +12,8 @@ export class CartApiRepository extends BaseRepository implements ICartRepository
     return this.post<CartResponse>('/api/storefront/cart')
   }
 
-  async addItem(productId: string, productName: string, productImage: string, quantity: number, price: number): Promise<Result<CartResponse>> {
-    return this.post<CartResponse>('/api/storefront/cart/items', { productId, productName, productImage, quantity, price })
+  async addItem(variantId: string, quantity: number): Promise<Result<CartResponse>> {
+    return this.post<CartResponse>('/api/storefront/cart/items', { variantId, quantity })
   }
 
   async updateItem(itemId: string, quantity: number): Promise<Result<CartResponse>> {
@@ -44,8 +44,8 @@ export class CartApiRepository extends BaseRepository implements ICartRepository
     return this.post<CartResponse>('/api/storefront/cart/validate')
   }
 
-  async selectShippingRate(rateId: string): Promise<Result<CartResponse>> {
-    return this.post<CartResponse>('/api/storefront/cart/shipping-rate', { rateId })
+  async selectShippingRate(shippingMethodId: string): Promise<Result<CartResponse>> {
+    return this.post<CartResponse>('/api/storefront/cart/shipping-rate', { shippingMethodId })
   }
 }
 

@@ -59,10 +59,10 @@ async function handleApplyCoupon(code: string) {
       <div class="cart-items">
         <CartItem
           v-for="item in items"
-          :key="item.id"
+          :key="item.id ?? item.variantId"
           :item="item"
-          @update-quantity="(qty) => handleQuantityChange(item.id, qty)"
-          @remove="handleRemoveItem(item.id)"
+          @update-quantity="(qty) => handleQuantityChange(item.id ?? '', qty)"
+          @remove="handleRemoveItem(item.id ?? '')"
         />
       </div>
 

@@ -34,10 +34,10 @@ export function mapCartResponseToEntity(response: CartResponse): CartEntity {
   return {
     id: response.id,
     items: response.items.map(mapCartItemResponseToEntity),
-    subtotal: response.subtotal,
-    tax: response.tax,
-    shipping: response.shipping,
-    discount: response.discount,
+    subtotal: response.itemTotal,   // backend itemTotal
+    tax: response.tax ?? 0,
+    shipping: response.shipping ?? 0,
+    discount: response.discount ?? 0,
     total: response.total,
     currency: response.currency,
   }
@@ -45,15 +45,15 @@ export function mapCartResponseToEntity(response: CartResponse): CartEntity {
 
 export function mapCartItemResponseToEntity(response: CartItemResponse): CartItemEntity {
   return {
-    id: response.id,
-    productId: response.productId,
-    productName: response.productName,
-    productImage: response.productImage,
+    id: response.variantId,          // cart item id is not reliable; use variantId as stable key
+    productId: response.variantId,
+    productName: response.productName ?? response.variantName ?? '',
+    productImage: response.productImage ?? null,
     variantId: response.variantId,
-    variantName: response.variantName,
+    variantName: response.variantName ?? '',
     quantity: response.quantity,
     price: response.price,
-    compareAtPrice: response.compareAtPrice,
+    compareAtPrice: response.compareAtPrice ?? null,
   }
 }
 

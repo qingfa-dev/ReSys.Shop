@@ -71,20 +71,9 @@ async function handlePlaceOrder() {
   orderError.value = null;
 
   try {
-    // Create address ID (in real app, would create address via API)
-    const addressId = uuidv4();
-
-    // Prepare checkout request
-    const checkoutRequest = {
-      items: (cartStore.cart?.items  ?? []).map((item: any) => ({
-        productId: item.productId,
-        variantId: item.id,
-        quantity: item.quantity,
-      })),
-      shippingAddressId: addressId,
-      shippingMethodId: shippingMethod.value,
-      paymentMethodId: paymentMethod.value,
-    };
+    // Prepare checkout request — the full checkout flow is rewritten in a
+    // later task. paymentIntentId is produced by the Stripe integration.
+    const checkoutRequest = { paymentIntentId: '' };
 
     // Call checkout
     const order = await orderStore.checkout(checkoutRequest);

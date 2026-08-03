@@ -4,7 +4,7 @@ import type { CartResponse, ShippingMethodResponse } from '../../types/response'
 export interface ICartRepository {
   getCart(): Promise<Result<CartResponse>>
   createCart(): Promise<Result<CartResponse>>
-  addItem(productId: string, productName: string, productImage: string, quantity: number, price: number): Promise<Result<CartResponse>>
+  addItem(variantId: string, quantity: number): Promise<Result<CartResponse>>
   updateItem(itemId: string, quantity: number): Promise<Result<CartResponse>>
   removeItem(itemId: string): Promise<Result<CartResponse>>
   clearCart(): Promise<Result<CartResponse>>
@@ -12,5 +12,5 @@ export interface ICartRepository {
   updateCheckoutDetails(details: Record<string, unknown>): Promise<Result<CartResponse>>
   associateCart(): Promise<Result<CartResponse>>
   validateCart(): Promise<Result<CartResponse>>
-  selectShippingRate(rateId: string): Promise<Result<CartResponse>>
+  selectShippingRate(shippingMethodId: string): Promise<Result<CartResponse>>
 }

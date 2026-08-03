@@ -1,15 +1,12 @@
 import { orderApiRepository } from '../../repositories/order/order.api'
-import { mockOrderRepository } from '../../repositories/order/order.mock.repository'
 import type { IOrderService } from './order.service.interface'
 import type { Order, CheckoutRequest } from '../../types'
 import type { Result, PagedResult } from '@/core/models/result'
 import { mapOrderResponseToEntity } from '../../mapping'
 import { resultMap } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class OrderService implements IOrderService {
-  private orderRepo = USE_MOCK ? mockOrderRepository : orderApiRepository
+  private orderRepo = orderApiRepository
 
   async getOrders(params?: { page?: number; pageSize?: number }): Promise<PagedResult<Order>> {
     const response = await this.orderRepo.getAll({ paging: params ? { page: params.page ?? 1, pageSize: params.pageSize ?? 10 } : undefined })
