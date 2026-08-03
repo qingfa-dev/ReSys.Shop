@@ -16,6 +16,7 @@ const uploadedImage = ref<string | null>(null)   // data: URL for <img> preview
 const selectedFile = ref<File | null>(null)       // raw File for upload
 const isSearching = ref(false)
 const errorMessage = ref<string | null>(null)
+const searchCompleted = ref(false)
 
 // The backend search response is typed as Product[], but the embedding
 // similarity score is not part of the Product schema — surface it as optional.
@@ -28,7 +29,7 @@ const showEmptyState = computed(() => !uploadedImage.value && !isSearching.value
 const showUpload = computed(() => uploadedImage.value && !isSearching.value && results.value.length === 0 && !errorMessage.value)
 const showLoading = computed(() => isSearching.value)
 const hasResults = computed(() => results.value.length > 0 && !isSearching.value)
-const showEmptyResults = computed(() => uploadedImage.value && !isSearching.value && results.value.length === 0 && errorMessage.value)
+const showEmptyResults = computed(() => searchCompleted.value && !isSearching.value && results.value.length === 0)
 
 // Client-side validation before any network request
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -47,6 +48,7 @@ function validateFile(file: File): string | null {
 function handleFile(file: File) {
   errorMessage.value = null
   results.value = []
+  searchCompleted.value = false
   const err = validateFile(file)
   if (err) { errorMessage.value = err; return }
   selectedFile.value = file
@@ -77,8 +79,10 @@ async function handleSearch() {
   const result = await recommendationsService.searchByImage(selectedFile.value)
   isSearching.value = false
   if (result.isSuccess && result.data) {
+    searchCompleted.value = true
     results.value = result.data
   } else {
+    searchCompleted.value = false
     errorMessage.value = result.message || 'Search failed. Please try again.'
   }
 }
@@ -88,6 +92,7 @@ function clearImage() {
   selectedFile.value = null
   results.value = []
   errorMessage.value = null
+  searchCompleted.value = false
 }
 
 function handleProductClick(productId: string) {
