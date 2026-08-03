@@ -8,7 +8,7 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
-import { useStockLocationStore } from '../stores/stockLocationStore'
+import { useActiveStockLocations } from '../composables/useActiveStockLocations'
 import { VariantApi } from '@/features/catalog/services/variantApi'
 import type { VariantListItem } from '@/features/catalog/types/variant'
 import { StockItemApi } from '../services/stockItemApi'
@@ -24,7 +24,7 @@ const route = useRoute()
 const router = useRouter()
 const notify = useNotify()
 const { handleResult } = useApiErrorHandler()
-const stockLocationStore = useStockLocationStore()
+const { items: activeStockLocations, load: loadActiveStockLocations } = useActiveStockLocations()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => (isEdit.value ? 'Edit Stock Item' : 'New Stock Item'))
@@ -90,7 +90,8 @@ async function ensureCurrentVariantPresent() {
 }
 
 onMounted(async () => {
-  stockLocationStore.fetchActive()
+  // Await: Stock location options for the form Select
+  loadActiveStockLocations()
   await loadVariants()
 
   if (isEdit.value) {
@@ -162,7 +163,7 @@ function onCancel() {
           <Form id="stock-item-form" :key="String(formLoaded)" :resolver="stockItemResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
             <FormField v-slot="$field" name="stockLocationId" :resolver="stockLocationIdResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Stock Location <span class="text-red-500">*</span></label>
-              <Select :options="stockLocationStore.activeStockLocations" option-label="name" option-value="id" placeholder="Select a stock location" fluid />
+              <Select :options="activeStockLocations" option-label="name" option-value="id" placeholder="Select a stock location" fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
             <FormField v-slot="$field" name="variantId" :resolver="variantIdResolver" class="flex flex-col gap-1">

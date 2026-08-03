@@ -14,7 +14,7 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { INVENTORY } from '@/shared/constants/api'
 import { StockItemApi } from '../services/stockItemApi'
-import { useStockLocationStore } from '../stores/stockLocationStore'
+import { useActiveStockLocations } from '../composables/useActiveStockLocations'
 import type { StockItemListItem } from '../types/stockItem'
 import { STOCK_ITEM_FILTER_FIELDS, STOCK_ITEM_SORT_FIELDS, STOCK_ITEM_SEARCH_FIELDS } from '../types/stockItem'
 
@@ -22,12 +22,12 @@ const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
 const { dt, exportCSV } = useDataTableExport()
-const stockLocationStore = useStockLocationStore()
+const { items: activeStockLocations, load: loadActiveStockLocations } = useActiveStockLocations()
 const search = ref('')
 const selectedLocation = ref<string | null>(null)
 const selectedItems = ref<StockItemListItem[]>([])
 
-stockLocationStore.fetchActive()
+loadActiveStockLocations()
 
 const { items, loading, setSearch, setFilter, refresh } = usePagedQuery<StockItemListItem>(
   `${INVENTORY}/stock-items`,
@@ -105,7 +105,7 @@ function confirmDelete() {
       </IconField>
       <Select
         :model-value="selectedLocation"
-        :options="stockLocationStore.activeStockLocations"
+        :options="activeStockLocations"
         option-label="name"
         option-value="id"
         placeholder="All locations"
