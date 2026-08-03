@@ -1,8 +1,8 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Optiontypes.Values.Get.Paged;
+namespace Module.Catalog.Features.Admin.Optiontypes.Values.Get.PagedOrAll;
 
-public static partial class GetOptionValuesPaged
+public static partial class GetOptionValuePagedOrAll
 {
     public class Endpoint : ICarterModule
     {
@@ -17,7 +17,7 @@ public static partial class GetOptionValuesPaged
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
-            .WithName(nameof(GetOptionValuesPaged))
+            .WithName(nameof(GetOptionValuePagedOrAll))
             .WithTags(CatalogFeature.Tags.OptionType)
             .HasPermission(CatalogFeature.Admin.OptionValues.GetAll.Permission)
             .WithSummary(CatalogFeature.Admin.OptionValues.GetAll.Summary)

@@ -1,8 +1,8 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Get.Paged;
+namespace Module.Catalog.Features.Admin.Taxonomies.Get.PagedOrAll;
 
-public static partial class GetTaxonomiesPaged
+public static partial class GetTaxonomiesPagedOrAll
 {
     /// <summary>Maps the paged taxonomy listing route.</summary>
     public class Endpoint : ICarterModule
@@ -19,7 +19,7 @@ public static partial class GetTaxonomiesPaged
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
-            .WithName(nameof(GetTaxonomiesPaged))
+            .WithName(nameof(GetTaxonomiesPagedOrAll))
             .WithTags(CatalogFeature.Tags.Taxonomy)
             .HasPermission(CatalogFeature.Admin.Taxonomies.GetAll.Permission)
             .WithSummary(CatalogFeature.Admin.Taxonomies.GetAll.Summary)

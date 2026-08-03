@@ -1,12 +1,12 @@
 using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Optiontypes.Values.Get.Paged;
+namespace Module.Catalog.Features.Admin.Optiontypes.Values.Get.PagedOrAll;
 
 /// <summary>
 /// Defines the use case for retrieving a paged or full list of option values.
 /// </summary>
-public static partial class GetOptionValuesPaged
+public static partial class GetOptionValuePagedOrAll
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
@@ -30,10 +30,7 @@ public static partial class GetOptionValuesPaged
 
             // Load: Retrieve option values, apply filtering/sorting, and project to paged result
             if (parametersResult.IsFailure)
-            {
-                // Apply paged query logic
                 return parametersResult.Errors;
-            }
 
             // Compute: Retrieve option values, apply filtering/sorting, and project to paged result
             var pagedResult = await dbContext.Set<OptionValue>()

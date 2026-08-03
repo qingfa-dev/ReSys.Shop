@@ -1,12 +1,12 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Get.Paged;
+namespace Module.Catalog.Features.Admin.Taxonomies.Get.PagedOrAll;
 
 /// <summary>
 /// Defines the use case for retrieving a paged or full list of taxonomies.
 /// </summary>
-public static partial class GetTaxonomiesPaged
+public static partial class GetTaxonomiesPagedOrAll
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
@@ -34,6 +34,7 @@ public static partial class GetTaxonomiesPaged
 
             // Filter: Apply dynamic filtering, sorting, and searching
             var pagedResult = await dbContext.Set<Taxonomy>()
+                .Include(x => x.Taxons)
                 .AsNoTracking()
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToListItem<Response>(), cancellationToken);
