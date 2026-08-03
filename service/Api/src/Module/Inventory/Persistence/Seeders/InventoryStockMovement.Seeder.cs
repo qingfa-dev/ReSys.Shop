@@ -37,7 +37,7 @@ public sealed class InventoryStockMovementSeeder(IApplicationDbContext context, 
             if (result.IsSuccess)
                 Context.Set<StockMovement>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

@@ -23,7 +23,7 @@ public sealed class CatalogOptionTypeSeeder(IApplicationDbContext context, DemoJ
                 id: Guid.Parse(t.Id));
             Context.Set<OptionType>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

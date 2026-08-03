@@ -30,7 +30,7 @@ public sealed class StockLocationSeeder(IApplicationDbContext context, DemoJsonH
                 position: loc.Position, id: Guid.Parse(loc.Id));
             Context.Set<StockLocation>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

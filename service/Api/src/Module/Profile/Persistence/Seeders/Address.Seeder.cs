@@ -60,7 +60,7 @@ public sealed class AddressSeeder(IApplicationDbContext context) : AbstractDataS
             Context.Set<Address>().Add(addressResult.Value);
         }
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

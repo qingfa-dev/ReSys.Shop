@@ -22,7 +22,7 @@ public sealed class ShippingMethodSeeder(IApplicationDbContext context) : Abstra
         foreach (var result in methods)
             Context.Set<ShippingMethod>().Add(result.Value);
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

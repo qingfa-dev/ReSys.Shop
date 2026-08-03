@@ -23,7 +23,7 @@ public sealed class CatalogProductTaxonSeeder(IApplicationDbContext context, Dem
             if (result.IsSuccess)
                 Context.Set<Classification>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

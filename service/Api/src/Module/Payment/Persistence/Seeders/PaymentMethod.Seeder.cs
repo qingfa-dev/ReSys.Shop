@@ -31,7 +31,7 @@ public sealed class PaymentMethodSeeder(IApplicationDbContext context) : Abstrac
         foreach (var result in methods)
             Context.Set<PaymentMethod>().Add(result.Value);
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 }

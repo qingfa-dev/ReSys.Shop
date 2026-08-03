@@ -46,7 +46,7 @@ public sealed class PaymentSeeder(IApplicationDbContext context) : AbstractDataS
             Context.Set<PaymentEntity>().Add(payment);
         }
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

@@ -32,7 +32,7 @@ public sealed class CatalogVariantImageSeeder(IApplicationDbContext context, Dem
             image.Height = img.Height;
             Context.Set<VariantImage>().Add(image);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

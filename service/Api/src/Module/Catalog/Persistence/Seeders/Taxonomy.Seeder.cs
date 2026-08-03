@@ -23,7 +23,7 @@ public sealed class CatalogTaxonomySeeder(IApplicationDbContext context, DemoJso
                 position: t.Position, id: Guid.Parse(t.Id));
             Context.Set<Taxonomy>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

@@ -30,7 +30,7 @@ public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context, DemoJs
                 vectorData: e.Vector);
             Context.Set<ImageEmbedding>().Add(embedding);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

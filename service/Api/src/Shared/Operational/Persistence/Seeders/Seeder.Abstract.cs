@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
+using Shared.Application.Models.Errors;
 using Shared.Operational.Persistence.Data;
 
 namespace Shared.Operational.Persistence.Seeders;
@@ -33,5 +34,50 @@ public abstract class AbstractDataSeeder(IApplicationDbContext context) : IDataS
 
         // Check: Verify if any records exist for the specified entity type
         return await Context.Set<TEntity>().AnyAsync(cancellationToken);
+    }
+
+    protected async Task<Result> SaveChangesWithIdempotencyAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (TryGetPostgresConstraint(ex, out var constraintName, out var sqlState))
+        {
+            if (Context is DbContext efContext)
+            {
+                efContext.ChangeTracker.Clear();
+            }
+
+            const string code = "Seeder.IntegrityViolation";
+            var message = sqlState switch
+            {
+                "23505" => $"Duplicate key violates unique constraint '{constraintName}'.",
+                "23503" => $"Foreign key violation on constraint '{constraintName}'.",
+                _ => $"Database integrity violation ({sqlState}) on constraint '{constraintName}'."
+            };
+            return Result.Failure(Error.Conflict(code, message));
+        }
+
+        return Result.Ok();
+    }
+
+    private static bool TryGetPostgresConstraint(DbUpdateException ex, out string? constraintName, out string? sqlState)
+    {
+        constraintName = null;
+        sqlState = null;
+        if (ex.InnerException is not Npgsql.PostgresException postgresEx)
+        {
+            return false;
+        }
+
+        if (postgresEx.SqlState != "23505" && postgresEx.SqlState != "23503")
+        {
+            return false;
+        }
+
+        sqlState = postgresEx.SqlState;
+        constraintName = postgresEx.ConstraintName;
+        return true;
     }
 }

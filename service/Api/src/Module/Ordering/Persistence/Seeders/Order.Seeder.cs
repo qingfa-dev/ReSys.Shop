@@ -48,7 +48,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         await CreateOrder(user1, "USER1", "U1", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
         await CreateOrder(user2, "USER2", "U2", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

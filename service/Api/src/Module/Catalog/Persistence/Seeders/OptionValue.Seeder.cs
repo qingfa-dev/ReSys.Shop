@@ -22,7 +22,7 @@ public sealed class CatalogOptionValueSeeder(IApplicationDbContext context, Demo
                 name: v.Name, presentation: v.Presentation, position: v.Position);
             Context.Set<OptionValue>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 
