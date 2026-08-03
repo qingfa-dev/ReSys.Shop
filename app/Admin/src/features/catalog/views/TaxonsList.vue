@@ -53,7 +53,7 @@ onMounted(async () => {
 
 function onTaxonomyChange(id: string | null) {
   taxonomyId.value = id || null
-  fetchTaxons()
+  setPage(1)
   router.replace({ query: { ...route.query, taxonomyId: taxonomyId.value ?? undefined } })
 }
 
