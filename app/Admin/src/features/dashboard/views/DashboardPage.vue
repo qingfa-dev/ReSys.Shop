@@ -53,10 +53,12 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — Store-overview title and subtitle -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Dashboard</h1>
       <p class="text-muted-color">Overview of your store at a glance</p>
     </div>
+    <!-- Section: KPI Cards — Clickable stat cards linking to each module -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card
         v-for="metric in metrics"
