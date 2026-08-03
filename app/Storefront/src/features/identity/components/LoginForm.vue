@@ -95,7 +95,7 @@ async function onFormSubmit(event: any) {
         </FormField>
         <span>Remember me</span>
       </label>
-      <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+      <router-link to="/forgot-password" class="forgot-link">Forgot password?</router-link>
     </div>
 
     <Button

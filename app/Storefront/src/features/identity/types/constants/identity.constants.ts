@@ -4,6 +4,7 @@ export const IDENTITY_ENDPOINTS = {
   LOGOUT: '/api/store/identity/auth/logout',
   REFRESH: '/api/store/identity/auth/sessions/refresh',
   FORGOT_PASSWORD: '/api/store/identity/passwords/forgot',
+  RESET_PASSWORD: '/api/store/identity/passwords/reset',
   CHANGE_PASSWORD: '/api/store/identity/passwords/change',
 } as const
 

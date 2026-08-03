@@ -40,6 +40,12 @@ const publicRoutes: RouteRecordRaw[] = [
     meta: { title: 'Create Account', guest: true },
   },
   {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: () => import('@/features/identity/views/ForgotPasswordView.vue'),
+    meta: { title: 'Forgot Password', guest: true },
+  },
+  {
     path: '/terms',
     name: 'terms',
     component: () => import('@/features/identity/views/TermsView.vue'),
