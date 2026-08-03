@@ -119,6 +119,7 @@ function orderActions(status: OrderStatus | undefined): OrderAction[] {
 const actions = computed(() => orderActions(order.value?.status))
 
 function runAction(action: OrderAction) {
+  // Trigger: Confirm before flushing the order to its next status.
   confirm.require({
     message: action.confirmMessage,
     header: `Confirm ${action.label}`,
@@ -197,6 +198,7 @@ onMounted(loadOrder)
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — back control, order title, and status actions -->
     <div class="flex-none flex flex-wrap items-center gap-3 mb-4">
       <Button icon="pi pi-arrow-left" severity="secondary" text rounded @click="router.push('/ordering/orders')" />
       <h1 class="text-2xl font-semibold">Order #{{ order?.number }}</h1>
@@ -215,7 +217,9 @@ onMounted(loadOrder)
       </template>
     </div>
 
+    <!-- Section: Content Card — tabbed order overview, items, and payments -->
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Tabs — switch between overview, items, and payments -->
       <Tabs v-model:value="activeTab" :disabled="loading">
         <TabList>
           <Tab value="0">Overview</Tab>
@@ -224,6 +228,7 @@ onMounted(loadOrder)
         </TabList>
         <TabPanels>
           <TabPanel value="0">
+            <!-- Section: Overview — key order totals and timestamps -->
             <Card>
               <template #content>
                 <div v-if="order" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -294,6 +299,7 @@ onMounted(loadOrder)
           </TabPanel>
 
           <TabPanel value="1">
+            <!-- Section: Line Items — the ordered variants with prices -->
             <Card>
               <template #content>
                 <DataTable :value="items" :loading="itemsLoading" scrollable data-key="id" striped-rows>
@@ -315,6 +321,7 @@ onMounted(loadOrder)
           </TabPanel>
 
           <TabPanel value="2">
+            <!-- Section: Payments — recorded transactions for the order -->
             <Card>
               <template #content>
                 <DataTable :value="payments" :loading="paymentsLoading" scrollable data-key="id" striped-rows>

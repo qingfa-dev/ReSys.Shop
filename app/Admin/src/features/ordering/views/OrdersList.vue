@@ -47,6 +47,7 @@ function clearSearch() {
 }
 
 function applyFilters() {
+  // Filter: Combine status and checkout-state clauses for the server request.
   const clauses: string[] = []
   if (statusFilter.value) clauses.push(`status=${statusFilter.value}`)
   if (checkoutStateFilter.value) clauses.push(`checkoutState=${checkoutStateFilter.value}`)
@@ -78,11 +79,13 @@ function navigateToDetail(id: string) {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Orders</h1>
       <p class="text-muted-color">View and manage customer orders</p>
     </div>
 
+    <!-- Section: Search & Filters — search box and status/checkout-state selects -->
     <div class="flex items-center gap-3 mb-4 flex-wrap">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -130,6 +133,7 @@ function navigateToDetail(id: string) {
       />
     </div>
 
+    <!-- Section: Data Table — order grid with inline status and totals -->
     <DataTable
       ref="dt"
       :value="items"
@@ -140,6 +144,7 @@ function navigateToDetail(id: string) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — order identity, status, and totals -->
       <Column field="number" header="Order #" :sortable="true" />
       <Column field="email" header="Customer">
         <template #body="{ data }">
@@ -166,11 +171,13 @@ function navigateToDetail(id: string) {
           {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
+      <!-- Section: Row Actions — view order detail -->
       <Column header="Actions" header-style="width:5rem">
         <template #body="{ data }">
           <Button icon="pi pi-eye" severity="secondary" text rounded @click="navigateToDetail(data.id)" />
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no orders match -->
       <template #empty>No orders found.</template>
     </DataTable>
   </div>
