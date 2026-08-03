@@ -53,7 +53,7 @@ const submitting = ref(false)
 const { paymentMethod, loading, error, fetchPaymentMethod } = usePaymentMethodDetail()
 
 async function initEditMode(id: string) {
-  // Load: Fetch the method and map it into the editable form on edit.
+  // Load: Fetch the method's values to seed the editable form.
   const result = await fetchPaymentMethod(id)
   if (!result.isSuccess) {
     handleResult(result)
