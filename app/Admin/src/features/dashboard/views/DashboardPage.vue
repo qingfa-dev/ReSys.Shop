@@ -1,39 +1,40 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import Card from 'primevue/card'
-import { useDashboardStore } from '../stores/dashboardStore'
-import { useUserStore } from '@/features/identity/stores/userStore'
 import { useRouter } from 'vue-router'
+import { useDashboard } from '../composables/useDashboard'
+import { useActiveUsers } from '@/features/identity/composables/useActiveUsers'
 
 const router = useRouter()
-const dashboardStore = useDashboardStore()
-const userStore = useUserStore()
+const { summary, fetchDashboard } = useDashboard()
+const { items: activeUsers, load: loadActiveUsers } = useActiveUsers()
 
 const metrics = computed(() => [
   {
     label: 'Total Products',
-    value: dashboardStore.summary?.catalog.totalProducts ?? 0,
+    // Compute: Default to zero until the dashboard summary arrives
+    value: summary.value?.catalog.totalProducts ?? 0,
     icon: 'pi pi-box',
     color: 'border-t-blue-500',
     link: '/catalog/products',
   },
   {
     label: 'Orders Today',
-    value: dashboardStore.summary?.sales.orderCount ?? 0,
+    value: summary.value?.sales.orderCount ?? 0,
     icon: 'pi pi-shopping-cart',
     color: 'border-t-green-500',
     link: '/ordering/orders',
   },
   {
     label: 'Registered Users',
-    value: userStore.activeUsers.length,
+    value: activeUsers.value.length,
     icon: 'pi pi-users',
     color: 'border-t-purple-500',
     link: '/identity/users',
   },
   {
     label: 'Low Stock Items',
-    value: dashboardStore.summary?.inventory.lowStockCount ?? 0,
+    value: summary.value?.inventory.lowStockCount ?? 0,
     icon: 'pi pi-exclamation-triangle',
     color: 'border-t-orange-500',
     link: '/inventory/stock-items',
@@ -45,8 +46,8 @@ function navigateTo(path: string) {
 }
 
 onMounted(async () => {
-  await dashboardStore.fetchDashboard()
-  await userStore.fetchActive()
+  // Await: Summary and user count load in parallel on first paint
+  await Promise.all([fetchDashboard(), loadActiveUsers()])
 })
 </script>
 
