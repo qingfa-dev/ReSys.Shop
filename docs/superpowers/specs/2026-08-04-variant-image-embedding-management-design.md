@@ -56,7 +56,9 @@ Add to `ImageEmbeddingMethod.cs`:
 | `MarkProcessing()` | Sets `Status = Processing` |
 | `MarkCompleted(vector, dims, modelVersion)` | Sets Vector, Dimensions, ModelVersion, `Status = Completed`, `CompletedAtUtc = now` |
 | `MarkFailed(error)` | Sets `Error`, `Status = Failed` |
-| `Create(variantImageId, modelName, modelVersion, vectorData)` | Revised to default `Status = Pending` (empty vector) |
+| `MarkPending()` | Sets `Status = Pending`, clears `HangfireJobId` + `Error` |
+| `Create(variantImageId, modelName, modelVersion, vectorData)` | Creates with `Status = Completed` (existing behaviour — used when the job finishes) |
+| `CreatePending(variantImageId, modelName, modelVersion)` | Creates with `Status = Pending`, empty vector, no data — used when enqueuing the job |
 
 All methods return `Result` or `Result<ImageEmbedding>` — no exceptions.
 
@@ -86,7 +88,7 @@ No synchronous inference call remains.
 Handler behaviour:
 1. Load existing row by variantImageId. If none (was deleted), create a new
    Pending row.
-2. Transition to Pending (`MarkPending` if we add it, or reset via internal).
+2. Call `MarkPending()` to reset status, clear Error and HangfireJobId.
 3. Enqueue Hangfire job → store `HangfireJobId` + save → `200 OK`.
 
 ### 5. New vertical slice: `DeleteEmbedding`
