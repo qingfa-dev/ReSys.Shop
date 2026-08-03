@@ -35,6 +35,11 @@ public static class ImageEmbeddingResult
         #endregion
 
         #region Business
+        /// <summary>An embedding with a pending or processing status already exists.</summary>
+        public static Error Conflict(Guid variantImageId) => Error.Conflict(
+            code: "ImageEmbedding.Conflict",
+            message: $"An embedding with a pending or processing status already exists for variant image '{variantImageId}'.");
+
         /// <summary>Embedding was not found by ID.</summary>
         public static Error NotFound(Guid id) => Error.NotFound(
             code: "ImageEmbedding.NotFound",
@@ -44,6 +49,14 @@ public static class ImageEmbeddingResult
         public static Error VariantImageDeletedDuringEmbedding(Guid variantImageId) => Error.NotFound(
             code: "ImageEmbedding.VariantImageDeleted",
             message: $"Variant image with ID '{variantImageId}' was deleted before embedding could be persisted.");
+        #endregion
+
+        #region Lifecycle
+        /// <summary>The embedding cannot be transitioned between the given statuses.</summary>
+        public static Error InvalidStatusTransition(Guid embeddingId, EmbeddingStatus from, EmbeddingStatus to)
+            => Error.Validation(
+                code: "ImageEmbedding.InvalidStatusTransition",
+                message: $"Cannot transition embedding '{embeddingId}' from {from} to {to}.");
         #endregion
 
         #region Inference
