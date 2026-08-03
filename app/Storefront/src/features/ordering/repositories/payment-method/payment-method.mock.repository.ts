@@ -2,9 +2,9 @@ import type { PaymentMethodResponse } from '../../types/response'
 
 export class MockPaymentMethodRepository {
   private methods: PaymentMethodResponse[] = [
-    { id: 'pm-1', type: 'credit_card', name: 'Credit Card', last4: '4242', brand: 'Visa' },
-    { id: 'pm-2', type: 'credit_card', name: 'Credit Card', last4: '5555', brand: 'Mastercard' },
-    { id: 'pm-3', type: 'paypal', name: 'PayPal' },
+    { id: 'pm-1', name: 'Credit Card', code: 'card', description: 'Pay with your credit card', providerKey: 'stripe_card' },
+    { id: 'pm-2', name: 'Credit Card', code: 'card', description: 'Pay with your credit card', providerKey: 'stripe_card' },
+    { id: 'pm-3', name: 'PayPal', code: 'paypal', description: 'Pay with PayPal', providerKey: 'paypal' },
   ]
 
   async getAll(): Promise<{ isSuccess: boolean; isFailure: boolean; statusCode: number; data?: PaymentMethodResponse[] }> {

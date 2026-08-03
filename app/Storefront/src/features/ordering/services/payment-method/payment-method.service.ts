@@ -8,18 +8,17 @@ export class PaymentMethodService implements IPaymentMethodService {
   private paymentRepo = paymentMethodApiRepository
 
   async getPaymentMethods(): Promise<Result<PaymentMethod[]>> {
-    const response = await this.paymentRepo.getAll() as Result<PaymentMethod[]>
+    const response = await this.paymentRepo.getAll()
     if (response.isFailure) {
       return fail(response.message ?? 'Failed to get payment methods', response.statusCode, response.errors)
     }
     return succeed(response.data!.map(pm => ({
       id: pm.id,
       name: pm.name,
-      type: pm.type as 'card' | 'paypal' | 'bank',
-      last4: pm.lastFour ?? '',
-      brand: pm.name,
-      expiryMonth: 0,
-      expiryYear: 0,
+      type: pm.providerKey,          // backend has no type enum — providerKey carries the method kind
+      description: pm.description,
+      providerKey: pm.providerKey,
+      code: pm.code,
     })), response.statusCode)
   }
 }

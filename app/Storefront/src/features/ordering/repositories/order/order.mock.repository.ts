@@ -69,8 +69,8 @@ export class MockOrderRepository {
   }
 
   async checkout(_request: CheckoutRequest): Promise<OrderSingleResponse> {
-    const shippingAddress: AddressResponse = { id: '', firstName: '', lastName: '', address1: '', city: '', state: '', postalCode: '', country: '' }
-    const billingAddress: AddressResponse = { id: '', firstName: '', lastName: '', address1: '', city: '', state: '', postalCode: '', country: '' }
+    const shippingAddress: AddressResponse = { id: '', firstName: '', address1: '', city: '' }
+    const billingAddress: AddressResponse = { id: '', firstName: '', address1: '', city: '' }
     return { isSuccess: true, isFailure: false, statusCode: 201, data: { id: `order-${Date.now()}`, orderNumber: `ORD-${Date.now()}`, status: 'pending', items: [], shippingAddress, billingAddress, subtotal: 0, tax: 0, shipping: 0, discount: 0, total: 0, currency: 'USD', createdAt: new Date().toISOString(), updatedAt: '' } }
   }
 

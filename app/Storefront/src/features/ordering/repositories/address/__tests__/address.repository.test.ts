@@ -18,7 +18,7 @@ describe('AddressRepository', () => {
 
   describe('create', () => {
     it('should create address', async () => {
-      const result = await mockAddressRepository.create({ firstName: 'Test', lastName: 'User', address1: '123 St', city: 'City', state: 'ST', postalCode: '12345', country: 'US' })
+      const result = await mockAddressRepository.create({ firstName: 'Test', lastName: 'User', address1: '123 St', city: 'City', stateProvince: 'ST', zipCode: '12345', countryName: 'US' })
       expect(result.isSuccess).toBe(true)
     })
   })

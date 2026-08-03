@@ -2,8 +2,8 @@ import type { AddressResponse, AddressSingleResponse, AddressListResponse } from
 
 export class MockAddressRepository {
   private addresses: AddressResponse[] = [
-    { id: 'addr-1', firstName: 'John', lastName: 'Doe', address1: '123 Main St', city: 'New York', state: 'NY', postalCode: '10001', country: 'US', phone: '555-1234', isDefault: true },
-    { id: 'addr-2', firstName: 'Jane', lastName: 'Smith', address1: '456 Oak Ave', city: 'Los Angeles', state: 'CA', postalCode: '90001', country: 'US', phone: '555-5678', isDefault: false },
+    { id: 'addr-1', firstName: 'John', lastName: 'Doe', address1: '123 Main St', city: 'New York', stateProvince: 'NY', zipCode: '10001', countryName: 'United States', countryCode: 'US', phone: '555-1234', isDefault: true },
+    { id: 'addr-2', firstName: 'Jane', lastName: 'Smith', address1: '456 Oak Ave', city: 'Los Angeles', stateProvince: 'CA', zipCode: '90001', countryName: 'United States', countryCode: 'US', phone: '555-5678', isDefault: false },
   ]
 
   async getAll(): Promise<AddressListResponse> {

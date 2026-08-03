@@ -8,16 +8,15 @@ export class ShippingMethodService implements IShippingMethodService {
   private shippingRepo = shippingMethodApiRepository
 
   async getShippingMethods(): Promise<Result<ShippingMethod[]>> {
-    const response = await this.shippingRepo.getAll() as Result<ShippingMethod[]>
+    const response = await this.shippingRepo.getAll()
     if (response.isFailure) {
       return fail(response.message ?? 'Failed to get shipping methods', response.statusCode, response.errors)
     }
     return succeed(response.data!.map(sm => ({
-      id: sm.id,
-      name: sm.name,
-      description: sm.carrier ?? 'Standard shipping',
-      price: sm.price,
-      estimatedDays: sm.estimatedDays ?? 3,
+      ...sm,
+      price: 0,                    // backend returns no price — 0 unless a rate is applied
+      estimatedDays: undefined,
+      carrier: undefined,
     })), response.statusCode)
   }
 }

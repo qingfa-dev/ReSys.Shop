@@ -1,6 +1,6 @@
 import type { OrderEntity, CartEntity, CartItemEntity, AddressEntity } from '../types/entity'
 import type { OrderResponse, CartResponse, CartItemResponse, AddressResponse } from '../types/response'
-import type { OrderSchemaType, CartItemSchemaType } from '../types/schemas'
+import type { OrderSchemaType } from '../types/schemas'
 
 export function mapOrderResponseToEntity(response: OrderResponse): OrderEntity {
   return {
@@ -61,14 +61,15 @@ export function mapAddressResponseToEntity(response: AddressResponse): AddressEn
   return {
     id: response.id,
     firstName: response.firstName,
-    lastName: response.lastName,
+    lastName: response.lastName ?? '',
     address1: response.address1,
-    address2: response.address2,
+    address2: response.address2 ?? '',
     city: response.city,
-    state: response.state,
-    postalCode: response.postalCode,
-    country: response.country,
-    phone: response.phone,
+    state: response.stateProvince ?? '',
+    postalCode: response.zipCode ?? '',
+    country: response.countryName ?? '',
+    countryCode: response.countryCode ?? '',
+    phone: response.phone ?? '',
     isDefault: response.isDefault,
   }
 }

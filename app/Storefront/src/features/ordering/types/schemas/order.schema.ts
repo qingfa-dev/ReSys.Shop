@@ -152,15 +152,17 @@ export const AddressFields = {
 export const AddressSchema = z.object({
   id: ORDER_FIELDS.id.Required,
   firstName: ORDER_FIELDS.firstName.Required,
-  lastName: ORDER_FIELDS.lastName.Required,
+  lastName: ORDER_FIELDS.lastName.Optional,
   address1: ORDER_FIELDS.address1.Required,
   address2: ORDER_FIELDS.address2.Optional,
   city: ORDER_FIELDS.city.Required,
-  state: ORDER_FIELDS.state.Required,
-  postalCode: ORDER_FIELDS.postalCode.Required,
-  country: ORDER_FIELDS.country.Required,
+  state: ORDER_FIELDS.state.Optional,           // map from backend stateProvince
+  postalCode: ORDER_FIELDS.postalCode.Optional, // map from backend zipCode
+  country: ORDER_FIELDS.country.Optional,       // map from backend countryName
+  countryCode: z.string().optional(),           // map from backend countryCode
   phone: ORDER_FIELDS.phone.Optional,
   isDefault: ORDER_FIELDS.isDefault.Optional,
+  label: z.string().optional(),                 // map from backend label
 })
 
 export type Address = z.infer<typeof AddressSchema>
@@ -224,7 +226,11 @@ export type OrderStatus = z.infer<typeof OrderStatusSchema>
 export const ShippingMethodSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1),
-  price: z.number().min(0),
+  adminName: z.string().optional(),
+  code: z.string().optional(),
+  calculatorType: z.string().optional(),
+  position: z.number().int().optional(),
+  price: z.number().min(0).optional(),          // 0 unless a rate is applied
   estimatedDays: z.number().int().positive().optional(),
   carrier: z.string().optional(),
 })
@@ -234,7 +240,10 @@ export type ShippingMethod = z.infer<typeof ShippingMethodSchema>
 export const PaymentMethodSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1),
-  type: z.enum(['card', 'paypal', 'bank']),
+  type: z.string().optional(),      // relaxed from z.enum(['card','paypal','bank']) — backend has no type enum
+  description: z.string().optional(),
+  providerKey: z.string().optional(),
+  code: z.string().optional(),
   lastFour: z.string().optional(),
   isDefault: z.boolean().optional(),
 })

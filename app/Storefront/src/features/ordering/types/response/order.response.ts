@@ -54,34 +54,38 @@ export interface OrderResponse {
 
 export interface AddressResponse {
   id: string
+  userId?: string
+  addressType?: string
   firstName: string
-  lastName: string
+  lastName?: string
   address1: string
   address2?: string
   city: string
-  state: string
-  postalCode: string
-  country: string
+  zipCode?: string
   phone?: string
+  label?: string
   isDefault?: boolean
+  countryName?: string
+  stateProvince?: string
+  countryCode?: string
+  stateCode?: string
 }
 
 export interface ShippingMethodResponse {
   id: string
   name: string
-  description: string
-  price: number
-  estimatedDays: number
+  adminName?: string
+  code?: string
+  calculatorType?: string
+  position?: number
 }
 
 export interface PaymentMethodResponse {
   id: string
   name: string
-  type: string
-  last4?: string
-  brand?: string
-  expiryMonth?: number
-  expiryYear?: number
+  code?: string
+  description?: string
+  providerKey?: string
 }
 
 export type CartSingleResponse = Result<CartResponse>
