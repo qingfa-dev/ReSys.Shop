@@ -9,6 +9,5 @@ public static partial class UpdateUser
     /// </summary>
     public record Request : UserRequest
     {
-        public required Guid Id { get; init; }
     }
 }

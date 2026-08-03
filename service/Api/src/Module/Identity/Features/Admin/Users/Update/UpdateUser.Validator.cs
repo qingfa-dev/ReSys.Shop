@@ -15,9 +15,6 @@ public static partial class UpdateUser
         /// </summary>
         public Validator()
         {
-            // Validate: Ensure the user ID is not empty.
-            RuleFor(x => x.Id).NotEmpty().WithErrorCode(UserResult.Failure.IdRequired.Code);
-
             // Apply: Core field validation rules (Email, Username, Names).
             RuleFor(x => x.Email).ApplyUserEmailRules();
             RuleFor(x => x.UserName).ApplyUsernameRules();

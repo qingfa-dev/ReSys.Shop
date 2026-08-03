@@ -9,11 +9,11 @@ public static partial class DeleteUser
         {
             // Map: DELETE /api/admin/users/{id} — delete a user
             app.MapDelete(IdentityFeature.Admin.Users.Delete.Route, async (
-                Guid id,
+                [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(new Request { Id = id });
+                var command = new Command(id);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
