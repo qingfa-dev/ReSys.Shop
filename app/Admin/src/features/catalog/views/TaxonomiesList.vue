@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
+import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
@@ -23,8 +24,13 @@ const allowedSearchFields = ['name', 'presentation']
 const {
   items,
   loading,
+  totalCount,
+  page,
   pageSize,
   setSearch,
+  setPage,
+  setPageSize,
+  setSort,
   refresh,
 } = usePagedQuery<TaxonomyListItem>('api/catalog/taxonomies', {
   allowedFilterFields: TAXONOMY_FILTER_FIELDS,
@@ -35,6 +41,22 @@ const {
   defaultSort: ['name'],
   defaultPageSize: 25,
 })
+
+const first = computed(() => (page.value - 1) * pageSize.value)
+
+function onPage(event: DataTablePageEvent) {
+  setPage(event.page + 1)
+}
+
+function onRows(rows: number) {
+  setPageSize(rows)
+}
+
+function onSort(event: DataTableSortEvent) {
+  const field = event.sortField
+  if (typeof field !== 'string') return
+  setSort(event.sortOrder === -1 ? [`-${field}`] : [field])
+}
 
 function navigateToNew() {
   router.push('/catalog/taxonomies/new')
@@ -111,15 +133,20 @@ function confirmDelete() {
         v-model:selection="selectedItems"
         :value="items"
         :loading="loading"
+        :total-records="totalCount"
+        :first="first"
+        :rows="pageSize"
         scrollable
         :paginator="true"
-        :rows="pageSize"
-        filter-display="menu"
+        lazy
         data-key="id"
         :global-filter-fields="allowedSearchFields"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rows-per-page-options="[5, 10, 25]"
         current-page-report-template="Showing {first} to {last} of {totalRecords}"
+        @page="onPage"
+        @update:rows="onRows"
+        @sort="onSort"
         :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
       >
         <Column selection-mode="multiple" header-style="width: 3rem" />
@@ -146,7 +173,7 @@ function confirmDelete() {
             </div>
           </div>
         </template>
-        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
+        <Column field="name" header="Name" :sortable="true" />
         <Column field="presentation" header="Presentation" :sortable="true" />
         <Column field="position" header="Position" :sortable="true" />
         <Column field="taxonsCount" header="Taxons" :sortable="true" />

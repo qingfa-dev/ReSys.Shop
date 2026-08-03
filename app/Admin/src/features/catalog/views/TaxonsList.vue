@@ -73,7 +73,10 @@ function onSearch(value: string) {
 
 function clearSearch() {
   searchTerm.value = ''
+  taxonomyId.value = null
+  setPage(1)
   setSearch('')
+  router.replace({ query: { ...route.query, taxonomyId: undefined } })
 }
 
 function onPage(event: DataTablePageEvent) {
@@ -148,7 +151,7 @@ function confirmDelete() {
         :rows="pageSize"
         scrollable
         :paginator="true"
-        filter-display="menu"
+        lazy
         data-key="id"
         :global-filter-fields="allowedSearchFields"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -193,7 +196,7 @@ function confirmDelete() {
             </div>
           </div>
         </template>
-        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
+        <Column field="name" header="Name" :sortable="true" />
         <Column field="slug" header="Slug" :sortable="true" />
         <Column field="taxonomyName" header="Taxonomy" />
         <Column field="parentName" header="Parent" />

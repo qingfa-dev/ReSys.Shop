@@ -9,6 +9,7 @@ import Tag from 'primevue/tag'
 import Message from 'primevue/message'
 import Select from 'primevue/select'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
+import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useProductOptions } from '../composables/useProductOptions'
 import { variantsListUrl } from '../utils/variantListUrl'
@@ -24,6 +25,14 @@ const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
+const { dt, exportCSV } = useDataTableExport()
+
+const selectedItems = ref<VariantListItem[]>([])
+const variantType = ref<'all' | 'master' | 'styles'>('all')
+const variantTypeOptions = [
+  { label: 'Master', value: 'master' },
+  { label: 'Styles', value: 'styles' },
+]
 
 const productId = ref<string | null>(null)
 const searchTerm = ref('')
@@ -41,6 +50,18 @@ function onProductChange(id: string | null) {
   router.replace({
     query: { ...route.query, productId: id ?? undefined },
   })
+}
+
+function onVariantTypeChange(value: string | null) {
+  variantType.value = (value as 'master' | 'styles') ?? 'all'
+  setFilter(value === 'master' ? 'isMaster=true' : value === 'styles' ? 'isMaster=false' : '')
+}
+
+function clearFilters() {
+  variantType.value = 'all'
+  setFilter('')
+  searchTerm.value = ''
+  setSearch('')
 }
 
 const {
@@ -61,6 +82,7 @@ const {
   setPage,
   setPageSize,
   setSearch,
+  setFilter,
   setSort,
   refresh,
 } = usePagedQuery<VariantListItem>(
@@ -116,11 +138,6 @@ function navigateToProduct() {
 function onSearch(value: string) {
   searchTerm.value = value
   setSearch(value)
-}
-
-function clearSearch() {
-  searchTerm.value = ''
-  setSearch('')
 }
 
 function onPage(event: DataTablePageEvent) {
@@ -193,7 +210,9 @@ function refreshPage() {
 
       <DataTable
         v-else
+        ref="dt"
         size="large"
+        v-model:selection="selectedItems"
         :value="items"
         :loading="loading"
         :total-records="totalCount"
@@ -201,6 +220,7 @@ function refreshPage() {
         :rows="pageSize"
         scrollable
         :paginator="true"
+        lazy
         data-key="id"
         :global-filter-fields="VARIANT_SEARCH_FIELDS"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -238,7 +258,17 @@ function refreshPage() {
                 @update:model-value="onProductChange"
                 @filter="(e: { value: string }) => searchProducts(e.value)"
               />
-              <Button label="Clear" outlined @click="clearSearch" />
+              <Select
+                :model-value="variantType === 'all' ? null : variantType"
+                :options="variantTypeOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="All variant types"
+                show-clear
+                class="w-44"
+                @update:model-value="onVariantTypeChange($event ?? null)"
+              />
+              <Button label="Clear" outlined @click="clearFilters" />
             </div>
             <div class="flex items-center gap-2">
               <Button
@@ -250,9 +280,11 @@ function refreshPage() {
               />
               <span v-if="newDisabled" class="text-sm text-muted-color">Select a product first</span>
               <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="refreshPage" />
+              <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV" />
             </div>
           </div>
         </template>
+        <Column selection-mode="multiple" header-style="width: 3rem" />
         <Column field="isMaster" header="Master" body-style="text-align: center">
           <template #body="{ data }">
             <Tag v-if="data.isMaster" value="Master" severity="info" />

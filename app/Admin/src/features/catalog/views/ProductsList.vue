@@ -102,7 +102,9 @@ function clearFilters() {
   department.value = null
   season.value = null
   status.value = null
+  searchTerm.value = ''
   applyFilters()
+  setSearch('')
 }
 function onPage(event: DataTablePageEvent) {
   setPage(event.page + 1)
@@ -219,7 +221,7 @@ function confirmDelete() {
         :rows="pageSize"
         scrollable
         :paginator="true"
-        filter-display="menu"
+        lazy
         data-key="id"
         :global-filter-fields="allowedSearchFields"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -278,9 +280,9 @@ function confirmDelete() {
             </div>
           </div>
         </template>
-        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
+        <Column field="name" header="Name" :sortable="true" />
         <Column field="slug" header="Slug" :sortable="true" />
-        <Column field="status" header="Status" :sortable="true" :filter="true" filter-field="status" body-style="text-align: center">
+        <Column field="status" header="Status" :sortable="true" body-style="text-align: center">
           <template #body="{ data }">
             <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : data.status === 'Draft' ? 'info' : 'danger'" />
           </template>

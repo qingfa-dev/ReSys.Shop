@@ -76,6 +76,8 @@ function onSearch(value: string) {
 
 function clearSearch() {
   searchTerm.value = ''
+  filterable.value = null
+  setFilter('')
   setSearch('')
 }
 
@@ -160,7 +162,7 @@ function confirmDelete() {
         :rows="pageSize"
         scrollable
         :paginator="true"
-        filter-display="menu"
+        lazy
         data-key="id"
         :global-filter-fields="allowedSearchFields"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -205,7 +207,7 @@ function confirmDelete() {
             </div>
           </div>
         </template>
-        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
+        <Column field="name" header="Name" :sortable="true" />
         <Column field="presentation" header="Presentation" :sortable="true" />
         <Column field="position" header="Position" :sortable="true" />
         <Column field="filterable" header="Filterable" :sortable="true" body-style="text-align: center">
