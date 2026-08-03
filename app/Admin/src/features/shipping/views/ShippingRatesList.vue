@@ -45,6 +45,7 @@ function navigateToEdit(id: string) {
 }
 
 function confirmDelete(item: ShippingRateListItem) {
+  // Trigger: Confirm before deleting the shipping rate.
   confirm.require({
     message: `Delete shipping rate "${item.name}"? This action cannot be undone.`,
     header: 'Confirm Delete',
@@ -67,11 +68,13 @@ function confirmDelete(item: ShippingRateListItem) {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Shipping Rates</h1>
       <p class="text-muted-color">Manage shipping rates</p>
     </div>
 
+    <!-- Section: Search & Filters — search box and list-level actions -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -108,6 +111,7 @@ function confirmDelete(item: ShippingRateListItem) {
       />
     </div>
 
+    <!-- Section: Data Table — shipping rate grid -->
     <DataTable
       ref="dt"
       :value="items"
@@ -118,6 +122,7 @@ function confirmDelete(item: ShippingRateListItem) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — rate identity and pricing fields -->
       <Column field="name" header="Name" :sortable="true" />
       <Column field="shippingMethodId" header="Shipping Method ID" :sortable="true" />
       <Column field="cost" header="Cost" :sortable="true">
@@ -143,6 +148,7 @@ function confirmDelete(item: ShippingRateListItem) {
           {{ data.deliveryRange || '—' }}
         </template>
       </Column>
+      <!-- Section: Row Actions — edit and delete per rate -->
       <Column header="Actions" header-style="width:8rem">
         <template #body="{ data }">
           <Button icon="pi pi-pencil" severity="secondary" text rounded @click="navigateToEdit(data.id)" />
@@ -155,6 +161,7 @@ function confirmDelete(item: ShippingRateListItem) {
           />
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no rates match -->
       <template #empty>No shipping rates found.</template>
     </DataTable>
   </div>

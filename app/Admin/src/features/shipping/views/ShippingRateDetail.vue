@@ -62,6 +62,7 @@ const shippingMethods = ref<ShippingMethodListItem[]>([])
 const { shippingRate, loading, error, fetchShippingRate } = useShippingRateDetail()
 
 async function loadShippingMethods() {
+  // Call: Fetch shipping methods for the rate's method Select.
   const result = await ShippingMethodApi.getShippingMethods({ pageSize: 100 })
   if (result.isSuccess) {
     shippingMethods.value = result.items
@@ -71,6 +72,7 @@ async function loadShippingMethods() {
 }
 
 async function initEditMode(id: string) {
+  // Load: Fetch the rate to seed the editable form.
   const result = await fetchShippingRate(id)
   if (!result.isSuccess) {
     handleResult(result)
@@ -137,6 +139,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and save/cancel controls -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -148,8 +151,10 @@ function onCancel() {
       </div>
     </div>
 
+    <!-- Section: Content Card — scrolling area with loading, error, and form states -->
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
+        <!-- Section: Form Fields — method, pricing, and weight-range inputs -->
         <template #content>
           <div v-if="loading" class="flex items-center gap-2 text-muted-color">
             <i class="pi pi-spin pi-spinner" />
