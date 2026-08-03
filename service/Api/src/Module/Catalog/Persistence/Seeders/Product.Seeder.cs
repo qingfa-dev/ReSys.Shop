@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Options;
@@ -62,7 +63,7 @@ public sealed class CatalogProductSeeder(IApplicationDbContext context, DemoJson
                 Context.Set<ProductOptionType>().Add(ProductOptionTypeMethod.Create(product.Id, sizeTypeId.Value, 1).Value);
             }
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

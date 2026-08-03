@@ -20,9 +20,28 @@ public sealed class CatalogVariantSeeder(IApplicationDbContext context, DemoJson
 
         var optionValues = await Context.Set<OptionValue>().ToListAsync(cancellationToken);
 
+        var usedSkus = new HashSet<string>(StringComparer.Ordinal);
+        var existingSkus = await Context.Set<Variant>()
+            .Select(v => v.Sku)
+            .Where(s => s != null)
+            .Cast<string>()
+            .ToListAsync(cancellationToken);
+        foreach (var existing in existingSkus)
+        {
+            usedSkus.Add(existing);
+        }
+
         foreach (var vj in json)
         {
             var sku = vj.IsMaster ? $"MASTER-{vj.Sku}" : vj.Sku;
+            var original = sku;
+            var suffix = 2;
+            while (!usedSkus.Add(sku))
+            {
+                sku = $"{original}-{suffix}";
+                suffix++;
+            }
+
             var variantResult = VariantMethod.Create(
                 productId: Guid.Parse(vj.ProductId), sku: sku,
                 isMaster: vj.IsMaster, position: vj.Position,
@@ -56,7 +75,7 @@ public sealed class CatalogVariantSeeder(IApplicationDbContext context, DemoJson
                 Context.Set<OptionValueVariant>().Add(OptionValueVariantMethod.Create(variant.Id, match.Id).Value);
             }
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

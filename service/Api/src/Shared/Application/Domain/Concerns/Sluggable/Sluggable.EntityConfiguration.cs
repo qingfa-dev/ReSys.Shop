@@ -10,8 +10,5 @@ public static class SluggableConfiguration
         builder.Property(m => m.Slug)
             .IsRequired()
             .HasMaxLength(SluggableConstant.Constraints.MaxSlugLength);
-
-        builder.HasIndex(m => m.Slug)
-            .IsUnique();
     }
 }

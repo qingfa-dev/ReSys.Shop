@@ -16,15 +16,29 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context, DemoJsonHe
         if (json is null)
             return Result.Ok();
 
-        var usedSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var existingSlugs = await Context.Set<Taxon>()
-            .Select(t => t.Slug)
+        var usedSlugsByTaxonomy = new Dictionary<Guid, HashSet<string>>();
+        var existingPairs = await Context.Set<Taxon>()
+            .Select(t => new { t.TaxonomyId, t.Slug })
             .ToListAsync(cancellationToken);
-        foreach (var s in existingSlugs)
-            usedSlugs.Add(s);
+        foreach (var pair in existingPairs)
+        {
+            if (!usedSlugsByTaxonomy.TryGetValue(pair.TaxonomyId, out var set))
+            {
+                set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                usedSlugsByTaxonomy[pair.TaxonomyId] = set;
+            }
+            set.Add(pair.Slug);
+        }
 
         foreach (var item in json)
         {
+            var taxonomyId = Guid.Parse(item.TaxonomyId);
+            if (!usedSlugsByTaxonomy.TryGetValue(taxonomyId, out var usedSlugs))
+            {
+                usedSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                usedSlugsByTaxonomy[taxonomyId] = usedSlugs;
+            }
+
             var slug = item.Slug;
             var original = slug;
             int suffix = 2;
@@ -57,7 +71,8 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context, DemoJsonHe
             Context.Set<Taxon>().Add(taxon);
         }
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
+
         return Result.Ok();
     }
 
