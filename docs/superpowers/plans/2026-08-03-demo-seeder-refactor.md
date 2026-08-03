@@ -1832,9 +1832,10 @@ uv run python 06_extract_variants.py --dataset ../../data/raw/fashion-product-im
 uv run python 07_extract_variant_images.py --dataset ../../data/raw/fashion-product-images --output output --force
 uv run python 08_extract_product_taxons.py --dataset ../../data/raw/fashion-product-images --output output --force
 uv run python 09_extract_stock.py --output output --force
+cp output/demo_embeddings.json output/012_demo_embeddings.json
 uv run python 12_verify_output.py --output output --count 1000
 ```
-Expected: verify PASSES (images/embeddings steps are intentionally skipped here — they need the existing files, which remain valid).
+Expected: verify PASSES (images/embeddings steps are intentionally skipped here — the existing embeddings file is copied so the verify gate can pass; it is fully replaced in Task 7).
 
 ```bash
 git add benchmarks/scripts/demo-seed/
