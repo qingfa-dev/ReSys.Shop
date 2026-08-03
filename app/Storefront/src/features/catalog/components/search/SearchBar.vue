@@ -53,6 +53,8 @@ function handleSearch() {
 
 <template>
   <div class="search-bar">
+    <!-- MVP: dropped — backend /api/storefront/search/suggestions returns 501 -->
+    <div v-if="false">
     <AutoComplete
       v-model="selectedItem"
       v-model:searchQuery="searchQuery"
@@ -79,6 +81,7 @@ function handleSearch() {
         <div class="no-results">No products found</div>
       </template>
     </AutoComplete>
+    </div>
   </div>
 </template>
 

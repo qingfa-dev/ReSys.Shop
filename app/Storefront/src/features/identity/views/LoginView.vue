@@ -16,11 +16,14 @@ import LoginForm from '@/features/identity/components/LoginForm.vue'
         <p>Don't have an account? <a href="/register">Create one</a></p>
       </div>
 
-      <div class="social-login">
-        <p>Or continue with</p>
-        <div class="social-buttons">
-          <Button label="Google" icon="pi pi-google" severity="secondary" outlined />
-          <Button label="Facebook" icon="pi pi-facebook" severity="secondary" outlined />
+      <!-- MVP: dropped — no frontend or backend implementation for external OAuth -->
+      <div v-if="false">
+        <div class="social-login">
+          <p>Or continue with</p>
+          <div class="social-buttons">
+            <Button label="Google" icon="pi pi-google" severity="secondary" outlined />
+            <Button label="Facebook" icon="pi pi-facebook" severity="secondary" outlined />
+          </div>
         </div>
       </div>
     </div>

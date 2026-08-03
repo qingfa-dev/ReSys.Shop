@@ -26,18 +26,18 @@ const defaultFooterLinks: FooterLinkGroup[] = [
   {
     title: 'Support',
     links: [
-      { label: 'Contact', path: '/contact' },
-      { label: 'FAQ', path: '/faq' },
-      { label: 'Shipping', path: '/shipping' },
-      { label: 'Returns', path: '/returns' },
+      { label: 'Contact', path: '#' },
+      { label: 'FAQ', path: '#' },
+      { label: 'Shipping', path: '#' },
+      { label: 'Returns', path: '#' },
     ],
   },
   {
     title: 'Company',
     links: [
-      { label: 'About Us', path: '/about' },
-      { label: 'Careers', path: '/careers' },
-      { label: 'Blog', path: '/blog' },
+      { label: 'About Us', path: '#' },
+      { label: 'Careers', path: '#' },
+      { label: 'Blog', path: '#' },
     ],
   },
 ]
@@ -69,17 +69,22 @@ function getQueryString(path: string): string | undefined {
         
         <div v-for="group in footerLinkGroups" :key="group.title" class="footer-links">
           <h4>{{ group.title }}</h4>
-          <RouterLink 
-            v-for="link in group.links" 
-            :key="link.path + link.queryString"
-            :to="link.path + (link.queryString ? '?' + link.queryString : '')"
-          >
-            {{ link.label }}
-          </RouterLink>
+          <template v-for="link in group.links" :key="link.path + link.queryString">
+            <a v-if="link.path === '#'" href="#">{{ link.label }}</a>
+            <RouterLink
+              v-else
+              :to="link.path + (link.queryString ? '?' + link.queryString : '')"
+            >
+              {{ link.label }}
+            </RouterLink>
+          </template>
         </div>
         
         <div class="footer-newsletter">
-          <NewsletterForm />
+          <!-- MVP: dropped — no backend for newsletter -->
+          <div v-if="false">
+            <NewsletterForm />
+          </div>
         </div>
       </div>
       

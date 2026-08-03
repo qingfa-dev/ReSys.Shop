@@ -373,6 +373,8 @@ function openSizeGuide() {
         </div>
       </div>
 
+      <!-- MVP: dropped — no storefront API for reviews -->
+      <div v-if="false">
       <div class="reviews-section">
         <div class="reviews-header">
           <h2>Customer Reviews</h2>
@@ -424,6 +426,7 @@ function openSizeGuide() {
 
         <ReviewList :reviews="mockReviews" />
       </div>
+      </div>
 
       <ProductRecommendations
         :similar-products="similarProducts"
@@ -452,6 +455,8 @@ function openSizeGuide() {
       </table>
     </Dialog>
 
+    <!-- MVP: dropped — no storefront API for reviews -->
+    <div v-if="false">
     <Dialog
       v-model:visible="showWriteReview"
       header="Write a Review"
@@ -507,6 +512,7 @@ function openSizeGuide() {
         </div>
       </div>
     </Dialog>
+    </div>
   </div>
 </template>
 
