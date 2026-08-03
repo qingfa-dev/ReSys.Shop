@@ -1,8 +1,6 @@
 """Shared constants and helpers for demo-seed ETL scripts."""
 from __future__ import annotations
 
-import json
-import sys
 from pathlib import Path
 from uuid import NAMESPACE_DNS, uuid5
 
@@ -41,15 +39,3 @@ ARTICLE_PRICE_MAP: dict[str, float] = {
 
 def guid(entity_type: str, name: str) -> str:
     return str(uuid5(SEED_NAMESPACE, f"{entity_type}.{name}"))
-
-
-def check_overwrite(path: Path, force: bool) -> None:
-    """Exit if output file exists and --force not set."""
-    if path.exists() and not force:
-        print(f"Output already exists: {path}")
-        print("Use --force to overwrite.")
-        sys.exit(1)
-
-
-def write_json(path: Path, data: object) -> None:
-    path.write_text(json.dumps(data, indent=2))

@@ -11,6 +11,7 @@ from PIL import Image
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from json_io import write_json  # noqa: E402
 from shared import MODEL_INPUT_SIZES, SCRIPTS_DIR  # noqa: E402
 
 
@@ -53,9 +54,9 @@ def main() -> None:
     search_size = parse_size(args.search_size)
     print(f"Display size: {display_size}px | Search size: {search_size}px")
 
-    images_json = args.output / "demo_variant_images.json"
+    images_json = args.output / "007_demo_variant_images.json"
     if not images_json.exists():
-        print(f"ERROR: {images_json} not found; run extract_products.py first")
+        print(f"ERROR: {images_json} not found; run 07_extract_variant_images.py first")
         sys.exit(1)
 
     image_records = json.loads(images_json.read_text())
@@ -74,6 +75,7 @@ def main() -> None:
 
     medium_imgs = [r for r in unique if "images/medium/" in r["storage_path"]]
     print(f"\n--- Processing {len(medium_imgs)} display images at {display_size}px ---")
+    dims_by_storage: dict[str, tuple[int, int, int]] = {}
     for rec in tqdm(medium_imgs, desc="Display"):
         src = source_dir / rec["file_name"]
         if not src.exists():
@@ -83,6 +85,8 @@ def main() -> None:
         dst = args.output / rec["storage_path"]
         if resize_image(src, dst, display_size):
             ok += 1
+            with Image.open(dst) as img:
+                dims_by_storage[rec["storage_path"]] = (img.width, img.height, dst.stat().st_size)
         else:
             fail += 1
 
@@ -97,10 +101,18 @@ def main() -> None:
         dst = args.output / rec["storage_path"]
         if resize_image(src, dst, search_size):
             ok += 1
+            with Image.open(dst) as img:
+                dims_by_storage[rec["storage_path"]] = (img.width, img.height, dst.stat().st_size)
         else:
             fail += 1
 
-    print(f"Done: {ok} images processed, {fail} failures")
+    if dims_by_storage:
+        for rec in image_records:
+            dims = dims_by_storage.get(rec["storage_path"])
+            if dims is not None:
+                rec["width"], rec["height"], rec["file_size"] = dims
+        write_json(images_json, image_records)
+        print(f"Backfilled width/height/file_size into {len(dims_by_storage)} unique images in {images_json}")
 
 
 if __name__ == "__main__":

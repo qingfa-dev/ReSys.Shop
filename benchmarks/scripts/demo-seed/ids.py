@@ -14,7 +14,7 @@ def product_id(name: str) -> str:
 
 def master_variant_id(product_name: str) -> str:
     # STABLE: must remain guid("variant", f"{product_name}.0") so existing
-    # images/ and demo_embeddings.json stay valid across regenerations.
+    # images/ and 012_demo_embeddings.json stay valid across regenerations.
     return guid("variant", f"{product_name}.0")
 
 
