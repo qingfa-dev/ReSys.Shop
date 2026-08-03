@@ -7,6 +7,7 @@ import { useCartStore, useOrderStore } from '@/features/ordering/store'
 import OrderSummary from '@/features/ordering/components/OrderSummary.vue'
 import { cartService } from '@/features/ordering/services/cart/cart.service'
 import { paymentIntentService } from '@/features/payment/services/payment-intent/payment-intent.service'
+import { addressService } from '@/features/locations/services/address/address.service'
 import type { CartEntity } from '@/features/ordering/types/entity'
 
 const router = useRouter()
@@ -29,10 +30,35 @@ const selectedPaymentMethodId = ref<string | null>(null)
 
 // New address inline form
 const showNewAddressForm = ref(false)
+const isCreatingAddress = ref(false)
 const newAddress = ref({
-  firstName: '', phone: '', address1: '', city: '',
-  stateProvince: '', zipCode: '', countryName: 'Vietnam',
+  firstName: '', lastName: '', phone: '', address1: '', address2: '',
+  city: '', state: '', postalCode: '', country: 'Vietnam',
 })
+
+async function handleCreateAddress() {
+  const addr = newAddress.value
+  if (!addr.firstName || !addr.address1 || !addr.city) return
+  isCreatingAddress.value = true
+  const result = await addressService.createAddress({
+    firstName: addr.firstName,
+    lastName: addr.lastName,
+    address1: addr.address1,
+    address2: addr.address2 || undefined,
+    city: addr.city,
+    state: addr.state,
+    postalCode: addr.postalCode,
+    country: addr.country,
+    phone: addr.phone || undefined,
+    isDefault: orderStore.addresses.length === 0,
+  } as any)
+  isCreatingAddress.value = false
+  if (result.isSuccess && result.data) {
+    await orderStore.fetchCheckoutData()
+    selectedAddressId.value = result.data.id
+    showNewAddressForm.value = false
+  }
+}
 
 // Computed: can proceed from each step
 const canProceedFromAddress = computed(() =>
@@ -166,17 +192,25 @@ function formatPrice(price: number): string {
         </div>
       </div>
       <Button label="+ Add New Address" class="p-button-text" @click="showNewAddressForm = !showNewAddressForm" />
-      <!-- MVP: dropped — inline address creation simplified for demo -->
       <div v-if="showNewAddressForm" class="new-address-form">
         <div class="form-row">
-          <InputText v-model="newAddress.firstName" placeholder="Full Name" />
+          <InputText v-model="newAddress.firstName" placeholder="First Name" />
+          <InputText v-model="newAddress.lastName" placeholder="Last Name" />
           <InputText v-model="newAddress.phone" placeholder="Phone" />
         </div>
         <InputText v-model="newAddress.address1" placeholder="Street Address" class="full-width" />
+        <InputText v-model="newAddress.address2" placeholder="Apt, Suite, etc." class="full-width" />
         <div class="form-row">
           <InputText v-model="newAddress.city" placeholder="City" />
-          <InputText v-model="newAddress.stateProvince" placeholder="State/Province" />
-          <InputText v-model="newAddress.zipCode" placeholder="ZIP/Postal Code" />
+          <InputText v-model="newAddress.state" placeholder="State/Province" />
+          <InputText v-model="newAddress.postalCode" placeholder="ZIP/Postal Code" />
+        </div>
+        <InputText v-model="newAddress.country" placeholder="Country" class="full-width" />
+        <div class="form-actions">
+          <Button label="Cancel" class="p-button-text" @click="showNewAddressForm = false" />
+          <Button label="Save Address" icon="pi pi-check" :loading="isCreatingAddress"
+                  :disabled="!newAddress.firstName || !newAddress.address1 || !newAddress.city"
+                  @click="handleCreateAddress" />
         </div>
       </div>
       <div class="step-actions">
@@ -428,6 +462,13 @@ function formatPrice(price: number): string {
   }
 
   .full-width { width: 100%; margin-bottom: 0.75rem; }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
 }
 
 // Summary
