@@ -35,7 +35,6 @@ export type {
   TaxonRequest,
   TaxonListItem,
   TaxonDetail,
-  TaxonTreeItem,
   TaxonQuery,
 } from './taxon'
 export {

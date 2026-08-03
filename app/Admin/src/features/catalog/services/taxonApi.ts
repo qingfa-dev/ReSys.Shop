@@ -6,7 +6,6 @@ import type {
   TaxonRequest,
   TaxonListItem,
   TaxonDetail,
-  TaxonTreeItem,
   TaxonQuery,
 } from '../types/taxon'
 import {
@@ -27,13 +26,6 @@ export class TaxonApi {
 
   static getTaxon(id: string): Promise<Result<TaxonDetail>> {
     return get<Result<TaxonDetail>>(`${TaxonApi.BASE}/${id}`)
-  }
-
-  static getTree(taxonomyId: string): Promise<PagedResult<TaxonTreeItem>> {
-    return getPaged<TaxonTreeItem>(`${TaxonApi.BASE}/tree?taxonomyId=${taxonomyId}`, toTaxonQueryParams({ taxonomyId }), {
-      allowedFilterFields: TAXON_FILTER_FIELDS,
-      allowedSortFields: TAXON_SORT_FIELDS,
-    })
   }
 
   static getList(taxonomyId: string, query: TaxonQuery): Promise<PagedResult<TaxonListItem>> {

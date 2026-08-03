@@ -3,31 +3,25 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
-import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
 import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
-import type { TreeNode } from 'primevue/treenode'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { useNotify } from '@/shared/composables/useNotify'
 import { TaxonApi } from '../services/taxonApi'
 import { useTaxonStore } from '../stores/taxonStore'
-import { useTaxonTreeStore } from '../stores/taxonTreeStore'
 import { useTaxonomyStore } from '../stores/taxonomyStore'
-import type { TaxonListItem, TaxonTreeItem } from '../types/taxon'
+import type { TaxonListItem } from '../types/taxon'
 
 const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
 const taxonStore = useTaxonStore()
-const taxonTreeStore = useTaxonTreeStore()
 const taxonomyStore = useTaxonomyStore()
 
 const { dt, exportCSV } = useDataTableExport()
 const selectedItems = ref<TaxonListItem[]>([])
 const searchTerm = ref('')
-const treeFilter = ref('')
-const viewMode = ref<'table' | 'tree'>('table')
 const allowedSearchFields = ['name', 'slug']
 
 const items = taxonStore.items
@@ -35,39 +29,11 @@ const loading = taxonStore.loading
 const totalCount = taxonStore.totalCount
 const first = computed(() => (taxonStore.page - 1) * taxonStore.pageSize)
 
-function addTreeNodeKeys(nodes: TaxonTreeItem[]): TreeNode[] {
-  return nodes.map(n => ({
-    ...n,
-    key: n.id,
-    children: n.children ? addTreeNodeKeys(n.children) : [],
-  }))
-}
-
-const treeData = computed(() => addTreeNodeKeys(taxonTreeStore.tree))
-const treeLoading = taxonTreeStore.treeLoading
-
 onMounted(async () => {
   await taxonomyStore.fetchActive()
   const taxonomyId = route.query.taxonomyId as string | undefined
   await taxonStore.setSelectedTaxonomy(taxonomyId ?? null)
 })
-
-async function loadTree() {
-  const taxonomyId = taxonStore.selectedTaxonomyId
-  if (!taxonomyId) return
-  await taxonTreeStore.fetchTree(taxonomyId)
-}
-
-function toggleViewMode() {
-  if (viewMode.value === 'table') {
-    viewMode.value = 'tree'
-    if (taxonTreeStore.tree.length === 0 && taxonStore.selectedTaxonomyId) {
-      loadTree()
-    }
-  } else {
-    viewMode.value = 'table'
-  }
-}
 
 function onTaxonomyChange(id: string | null) {
   const taxonomyId = id || null
@@ -93,10 +59,6 @@ function onSearch(value: string) {
 function clearSearch() {
   searchTerm.value = ''
   taxonStore.setSearch('')
-}
-
-function filterTree(name: string) {
-  treeFilter.value = name ? name.toLowerCase() : ''
 }
 
 function onPage(event: DataTablePageEvent) {
@@ -133,7 +95,6 @@ function confirmDelete() {
       }
       selectedItems.value = []
       taxonStore.refresh()
-      if (viewMode.value === 'tree') loadTree()
       if (failed === 0) {
         notify.success(
           ids.length > 1 ? 'Taxons deleted' : 'Taxon deleted',
@@ -163,7 +124,6 @@ function confirmDelete() {
 
     <div class="flex-1 min-h-0 mt-4">
       <DataTable size="large"
-        v-if="viewMode === 'table'"
         ref="dt"
         v-model:selection="selectedItems"
         :value="items"
@@ -214,13 +174,7 @@ function confirmDelete() {
             <div class="flex items-center gap-2">
               <Button label="New Taxon" icon="pi pi-plus" severity="primary" @click="navigateToNew" />
               <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="taxonStore.refresh" />
-              <Button
-                :label="viewMode === 'table' ? 'Tree' : 'Table'"
-                severity="secondary"
-                :icon="viewMode === 'table' ? 'pi pi-sitemap' : 'pi pi-list'"
-                @click="toggleViewMode"
-              />
-              <Button v-if="viewMode === 'table'" label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV" />
+              <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV" />
             </div>
           </div>
         </template>
@@ -244,42 +198,6 @@ function confirmDelete() {
           <div class="text-center py-8 text-muted-color">No taxons found.</div>
         </template>
       </DataTable>
-
-      <div v-if="viewMode === 'tree'" class="h-full overflow-auto">
-        <div class="flex justify-between items-center mb-3">
-          <IconField>
-            <InputIcon><i class="pi pi-search" /></InputIcon>
-            <InputText
-              v-model="treeFilter"
-              placeholder="Filter tree..."
-              @update:model-value="filterTree($event ?? '')"
-            />
-          </IconField>
-        </div>
-
-        <TreeTable
-          :value="treeData"
-          :loading="treeLoading"
-          v-model:filter-value="treeFilter"
-        >
-          <Column field="name" header="Name" :expander="true" />
-          <Column field="slug" header="Slug" />
-          <Column field="position" header="Position" />
-          <Column field="taxonRuleCount" header="Rules" />
-          <Column field="productCount" header="Products" />
-          <Column header="" body-style="text-align: right; width: 6rem">
-            <template #body="{ node }">
-              <div class="flex justify-end gap-2">
-                <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(node.data.id)" />
-                <Button icon="pi pi-trash" severity="secondary" text rounded aria-label="Delete" @click="selectedItems = [node.data]; confirmDelete()" />
-              </div>
-            </template>
-          </Column>
-          <template #empty>
-            <div class="text-center py-8 text-muted-color">No taxons in tree.</div>
-          </template>
-        </TreeTable>
-      </div>
     </div>
   </div>
 </template>

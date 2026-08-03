@@ -1,6 +1,5 @@
 export { useOptionTypeStore } from './optionTypeStore'
 export { useProductStore } from './productStore'
 export { useTaxonomyStore } from './taxonomyStore'
-export { useTaxonTreeStore } from './taxonTreeStore'
 export { useTaxonDetailStore } from './taxonDetailStore'
 export { useTaxonStore } from './taxonStore'

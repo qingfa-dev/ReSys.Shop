@@ -15,18 +15,16 @@ import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
-import type { TreeNode } from 'primevue/treenode'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { useTaxonomyStore } from '../stores/taxonomyStore'
 import { useTaxonDetailStore } from '../stores/taxonDetailStore'
-import { useTaxonTreeStore } from '../stores/taxonTreeStore'
 import { TaxonApi } from '../services/taxonApi'
 import { TaxonRuleApi } from '../services/taxonRuleApi'
 import { taxonSchema, taxonTaxonomyId, taxonParentId, taxonName, taxonPresentation, taxonSlug, taxonDescription, taxonPosition, taxonMetaTitle, taxonMetaDescription, taxonMetaKeywords, taxonImageUrl, taxonSquareImageUrl, taxonSortOrder, taxonRulesMatchPolicy } from '../validations/taxon'
 import type { TaxonForm } from '../validations/taxon'
 import type { TaxonRuleListItem } from '../types/taxonRule'
-import { TAXON_SORT_ORDERS, TAXON_MATCH_POLICIES, type TaxonTreeItem } from '../types/taxon'
+import { TAXON_SORT_ORDERS, TAXON_MATCH_POLICIES } from '../types/taxon'
 import TaxonRuleFormDialog from '../components/TaxonRuleFormDialog.vue'
 
 const route = useRoute()
@@ -36,7 +34,6 @@ const confirm = useConfirm()
 const { handleResult } = useApiErrorHandler()
 const taxonomyStore = useTaxonomyStore()
 const detailStore = useTaxonDetailStore()
-const treeStore = useTaxonTreeStore()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Taxon' : 'New Taxon')
@@ -85,18 +82,9 @@ const form = ref<TaxonForm>({
 const loading = ref(false)
 const formLoaded = ref(!isEdit.value)
 
-const parentTreeNodes = ref<TreeNode[]>([])
+const parentOptions = ref<{ label: string; value: string }[]>([])
 const dialogVisible = ref(false)
 const editingRule = ref<TaxonRuleListItem | null>(null)
-
-const parentSelectionKeys = computed<Record<string, boolean>>(() =>
-  form.value.parentId ? { [form.value.parentId]: true } : {},
-)
-
-function onParentSelect(keys: Record<string, boolean>) {
-  const selected = Object.keys(keys ?? {})[0] ?? null
-  form.value.parentId = selected || null
-}
 
 async function initEditMode(id: string) {
   const result = await detailStore.fetchDetail(id)
@@ -130,17 +118,13 @@ async function initEditMode(id: string) {
 }
 
 async function loadParents(taxonomyId: string) {
-  await treeStore.fetchTree(taxonomyId)
-
-  function buildNodes(nodes: TaxonTreeItem[]): TreeNode[] {
-    return nodes.map((n) => ({
-      key: n.id,
-      label: n.name,
-      children: n.children?.length ? buildNodes(n.children) : undefined,
-    }))
+  const result = await TaxonApi.getList(taxonomyId, {})
+  if (result.isSuccess) {
+    parentOptions.value = [
+      { label: '(None — root level)', value: '' },
+      ...result.items.map((t) => ({ label: t.name, value: t.id })),
+    ]
   }
-
-  parentTreeNodes.value = buildNodes(treeStore.tree)
 }
 
 async function loadRules(taxonId: string) {
@@ -302,15 +286,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                             </FormField>
                             <FormField name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
-                              <TreeSelect
-                                :model-value="parentSelectionKeys"
-                                :options="parentTreeNodes"
-                                selection-mode="single"
-                                placeholder="(None — root level)"
-                                filter
-                                fluid
-                                @update:model-value="onParentSelect"
-                              />
+                              <Select :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
                             </FormField>
                             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>

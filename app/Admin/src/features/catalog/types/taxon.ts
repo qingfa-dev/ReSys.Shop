@@ -37,10 +37,6 @@ export interface TaxonListItem extends TaxonRequest {
 
 export type TaxonDetail = TaxonListItem
 
-export interface TaxonTreeItem extends TaxonListItem {
-  children: TaxonTreeItem[]
-}
-
 export interface TaxonQuery {
   taxonomyId?: string
   name?: string

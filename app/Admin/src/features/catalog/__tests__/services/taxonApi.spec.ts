@@ -54,22 +54,6 @@ describe('TaxonApi.getTaxon', () => {
   })
 })
 
-describe('TaxonApi.getTree', () => {
-  it('calls getPaged with tree URL and taxonomyId', async () => {
-    mockGetPaged.mockResolvedValue({
-      items: [{ id: 'n1', name: 'Root', children: [] }],
-      page: 1, pageSize: 20, totalCount: 1, totalPages: 1,
-      isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null,
-    })
-    await TaxonApi.getTree('abc-123')
-    expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/taxons/tree?taxonomyId=abc-123',
-      expect.objectContaining({ filter: 'taxonomyId=abc-123' }),
-      expect.any(Object),
-    )
-  })
-})
-
 describe('TaxonApi.getList', () => {
   it('calls getPaged with list URL and taxonomyId', async () => {
     mockGetPaged.mockResolvedValue({
