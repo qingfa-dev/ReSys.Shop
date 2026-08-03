@@ -109,6 +109,7 @@ def main() -> None:
         ("product.master_variant_id -> variant.id", [p for p in products if p.get("master_variant_id") and p["master_variant_id"] not in variant_ids]),
         ("assignment option_value_name -> option_value.name", [o for v in variants for o in v.get("option_values", []) if o["option_value_name"].lower() not in {n.lower() for n in option_value_names}]),
         ("embedding -> search image only", [e for e in embeddings if e["variant_image_id"] not in search_image_ids]),
+        ("every search image has an embedding", [i for i in images if i.get("type") == "Search" and i["id"] not in {e["variant_image_id"] for e in embeddings}]),
     ]
     for label, bad in checks_fk:
         if bad:
