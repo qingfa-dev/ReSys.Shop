@@ -64,7 +64,7 @@ const submitting = ref(false)
 const { address, loading, error, fetchAddress } = useAddressDetail()
 
 async function initEditMode(id: string) {
-  // Load: Fetch the address and map it into the editable form.
+  // Load: Fetch the address to seed the editable form.
   const result = await fetchAddress(form.value.userId, id)
   if (!result.isSuccess) {
     handleResult(result)

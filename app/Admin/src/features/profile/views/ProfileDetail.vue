@@ -53,7 +53,7 @@ const addressesLoaded = ref(false)
 const addressesLoading = ref(false)
 
 async function initEditMode(userId: string) {
-  // Load: Fetch the profile and map it into the editable form.
+  // Load: Fetch the profile to seed the editable form.
   const result = await fetchProfile(userId)
   if (!result.isSuccess) {
     handleResult(result)
