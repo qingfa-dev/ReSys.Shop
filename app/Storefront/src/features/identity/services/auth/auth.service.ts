@@ -1,15 +1,12 @@
 import { authApiRepository } from '../../repositories/auth/auth.api'
-import { mockAuthRepository } from '../../repositories/auth/auth.mock.repository'
 import type { IAuthService, AuthResponse } from './auth.service.interface'
 import type { LoginRequest, RegisterRequest } from '../../types'
 import type { Result } from '@/core/models/result'
 import { mapAuthResponseToEntity } from '../../mapping'
 import { resultMap, succeed, fail } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class AuthService implements IAuthService {
-  private readonly authRepository = USE_MOCK ? mockAuthRepository : authApiRepository
+  private readonly authRepository = authApiRepository
 
   async login(credentials: LoginRequest): Promise<Result<AuthResponse>> {
     const response = await this.authRepository.login(credentials)
