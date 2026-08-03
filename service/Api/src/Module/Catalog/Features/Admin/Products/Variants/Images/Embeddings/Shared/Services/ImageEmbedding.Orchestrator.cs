@@ -160,7 +160,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         if (markResult.IsFailure)
         {
             Loggers.RunFailed(_logger, embeddingId,
-                $"Status transition failed: {markResult.Errors.First().Message}");
+                $"Status transition failed: {markResult.Errors.FirstOrDefault().Message ?? "Unknown error"}");
             return markResult.Errors;
         }
         await _dbContext.SaveChangesAsync(ct);
@@ -189,7 +189,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         var inferenceResult = await _inferenceClient.CreateEmbeddingAsync(request, ct);
         if (inferenceResult.IsFailure)
         {
-            var errorMsg = inferenceResult.Errors.First().Message;
+            var errorMsg = inferenceResult.Errors.FirstOrDefault().Message ?? "Unknown inference error";
             ImageEmbeddingMethod.MarkFailed(embedding, errorMsg);
             await _dbContext.SaveChangesAsync(ct);
             Loggers.RunFailed(_logger, embeddingId, errorMsg);
@@ -202,7 +202,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         if (completeResult.IsFailure)
         {
             Loggers.RunFailed(_logger, embeddingId,
-                $"MarkCompleted failed: {completeResult.Errors.First().Message}");
+                $"MarkCompleted failed: {completeResult.Errors.FirstOrDefault().Message ?? "Unknown error"}");
             return completeResult.Errors;
         }
         await _dbContext.SaveChangesAsync(ct);

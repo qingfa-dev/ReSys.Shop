@@ -55,6 +55,8 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
         updated!.Status.Should().Be(EmbeddingStatus.Completed);
         updated.Dimensions.Should().Be(2);
         updated.CompletedAtUtc.Should().NotBeNull();
+        updated.Vector.Should().NotBeNull();
+        updated.Vector.ToArray().Should().Equal(0.1f, 0.2f);
     }
 
     [Fact(DisplayName = "RunAsync: Should mark Failed on inference failure")]
@@ -72,7 +74,8 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
             It.IsAny<EmbeddingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ImageEmbeddingResult.Errors.RequestTimeout);
 
-        await _orchestrator.RunAsync(embedding.Id, TestContext.Current.CancellationToken);
+        var result = await _orchestrator.RunAsync(embedding.Id, TestContext.Current.CancellationToken);
+        result.IsSuccess.Should().BeTrue();
 
         var updated = await _dbContext.Set<ImageEmbedding>().FindAsync(embedding.Id);
         updated!.Status.Should().Be(EmbeddingStatus.Failed);
@@ -86,7 +89,8 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
         _dbContext.Set<ImageEmbedding>().Add(embedding);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        await _orchestrator.RunAsync(embedding.Id, TestContext.Current.CancellationToken);
+        var result = await _orchestrator.RunAsync(embedding.Id, TestContext.Current.CancellationToken);
+        result.IsSuccess.Should().BeTrue();
 
         var updated = await _dbContext.Set<ImageEmbedding>().FindAsync(embedding.Id);
         updated!.Status.Should().Be(EmbeddingStatus.Failed);
