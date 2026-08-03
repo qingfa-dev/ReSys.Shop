@@ -53,6 +53,7 @@ const submitting = ref(false)
 const { paymentMethod, loading, error, fetchPaymentMethod } = usePaymentMethodDetail()
 
 async function initEditMode(id: string) {
+  // Load: Fetch the method and map it into the editable form on edit.
   const result = await fetchPaymentMethod(id)
   if (!result.isSuccess) {
     handleResult(result)
@@ -84,6 +85,7 @@ async function onSubmit(event: FormSubmitEvent) {
   if (!event.valid) return
 
   submitting.value = true
+  // Map: Shape the resolved method form into the create/update request.
   const data = event.values as PaymentMethodForm
   const request: PaymentMethodRequest = {
     name: data.name,
@@ -122,6 +124,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and save/cancel controls -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -133,8 +136,10 @@ function onCancel() {
       </div>
     </div>
 
+    <!-- Section: Content Card — scrolling area with loading, error, and form states -->
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
+        <!-- Section: Form Fields — method identity, display, and capture settings -->
         <template #content>
           <div v-if="loading" class="flex items-center gap-2 text-muted-color">
             <i class="pi pi-spin pi-spinner" />

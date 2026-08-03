@@ -32,11 +32,13 @@ function clearSearch() {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Payments</h1>
       <p class="text-muted-color">System-managed payment records</p>
     </div>
 
+    <!-- Section: Search & Filters — search box and list-level actions -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -68,6 +70,7 @@ function clearSearch() {
       />
     </div>
 
+    <!-- Section: Data Table — read-only payment record grid -->
     <DataTable
       ref="dt"
       :value="items"
@@ -78,6 +81,7 @@ function clearSearch() {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — payment identity, amount, and state fields -->
       <Column field="id" header="Payment ID" />
       <Column field="amount" header="Amount" :sortable="true">
         <template #body="{ data }">
@@ -96,6 +100,7 @@ function clearSearch() {
           {{ data.paymentStatus ?? '—' }}
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no payments match -->
       <template #empty>No payments found.</template>
     </DataTable>
   </div>
