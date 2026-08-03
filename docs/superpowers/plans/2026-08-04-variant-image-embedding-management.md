@@ -503,7 +503,6 @@ using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Models;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
-using Shared.Persistence;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
 
@@ -707,7 +706,6 @@ Create `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Varia
 using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Get;
-using Shared.Persistence;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Get;
 
@@ -776,7 +774,6 @@ Create `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/E
 using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Models;
-using Shared.Persistence;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Get;
 
@@ -892,7 +889,6 @@ using Moq;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Create;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
-using Shared.Persistence;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Create;
 
@@ -1033,7 +1029,6 @@ Add these usings (after existing):
 using Hangfire;
 using Hangfire.States;
 using Microsoft.EntityFrameworkCore;
-using Shared.Persistence;
 ```
 
 Also remove the old synchronous `orchestrator.GenerateAndPersistAsync` call — the new handler doesn't call it directly; it only enqueues.
@@ -1090,7 +1085,6 @@ using Moq;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Regenerate;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
-using Shared.Persistence;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Regenerate;
 
@@ -1245,7 +1239,6 @@ Add usings:
 using Hangfire;
 using Hangfire.States;
 using Microsoft.EntityFrameworkCore;
-using Shared.Persistence;
 ```
 
 - [ ] **Step 4: Verify tests pass**
@@ -1268,13 +1261,16 @@ git commit -m "feat: convert RegenerateEmbedding to Hangfire job with MarkPendin
 
 ### Task 10: DeleteEmbedding feature (new vertical slice)
 
+> Follows the `DeleteVariantImage` house pattern (ICommand<Response> with Message) — user ruling 2026-08-04.
+
 **Files:**
 - Create: `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Delete/DeleteEmbedding.cs`
+- Create: `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Delete/DeleteEmbedding.Response.cs`
 - Create: `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Delete/DeleteEmbedding.Endpoint.cs`
 - Create: `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Delete/DeleteEmbedding.Tests.cs`
 
 **Interfaces:**
-- Produces: `DELETE /api/catalog/variant-image-embeddings/{variantImageId:guid}` → 200 (deleted) or 404.
+- Produces: `DELETE /api/catalog/variant-image-embeddings/{variantImageId:guid}` → 200 + `Response.Message` (`ImageEmbeddingResult.Success.Deleted(id)`) or 404.
 
 - [ ] **Step 1: Write failing test**
 
@@ -1284,7 +1280,6 @@ Create `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Varia
 using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
-using Shared.Persistence;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
 
@@ -1307,7 +1302,7 @@ public class DeleteEmbeddingTests : IDisposable
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
 
-    [Fact(DisplayName = "Handle: Removes embedding and returns 200")]
+    [Fact(DisplayName = "Handle: Removes embedding and returns 200 with message")]
     public async Task Handle_ShouldDeleteAndReturn200()
     {
         var variantImageId = Guid.NewGuid();
@@ -1319,6 +1314,7 @@ public class DeleteEmbeddingTests : IDisposable
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
+        result.Value.Message.Should().Contain("deleted");
 
         var deleted = await _dbContext.Set<ImageEmbedding>()
             .FirstOrDefaultAsync(e => e.VariantImageId == variantImageId);
@@ -1337,25 +1333,24 @@ public class DeleteEmbeddingTests : IDisposable
 }
 ```
 
-- [ ] **Step 2: Write DeleteEmbedding handler**
+- [ ] **Step 2: Write DeleteEmbedding handler + Response**
 
 Create `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Delete/DeleteEmbedding.cs`:
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
-using Shared.Persistence;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
 
 public static partial class DeleteEmbedding
 {
-    public sealed record Command(Guid VariantImageId) : ICommand<Unit>;
+    public sealed record Command(Guid VariantImageId) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext)
-        : ICommandHandler<Command, Unit>
+        : ICommandHandler<Command, Response>
     {
-        public async Task<Result<Unit>> Handle(
+        public async Task<Result<Response>> Handle(
             Command command, CancellationToken cancellationToken)
         {
             var embedding = await dbContext.Set<ImageEmbedding>()
@@ -1367,8 +1362,23 @@ public static partial class DeleteEmbedding
             dbContext.Set<ImageEmbedding>().Remove(embedding);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<Unit>.Ok(Unit.Value);
+            return Result<Response>.Ok(new Response { Message = ImageEmbeddingResult.Success.Deleted(embedding.Id) });
         }
+    }
+}
+```
+
+Create `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Delete/DeleteEmbedding.Response.cs`:
+
+```csharp
+namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
+
+public static partial class DeleteEmbedding
+{
+    // EXCEPTION: minimal confirmation response — no domain entity
+    public sealed record Response
+    {
+        public string Message { get; init; } = default!;
     }
 }
 ```
@@ -1400,7 +1410,7 @@ public static partial class DeleteEmbedding
             .HasPermission(CatalogFeature.Admin.VariantImageEmbeddings.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImageEmbeddings.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImageEmbeddings.Delete.Description)
-            .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<Result<DeleteEmbedding.Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
