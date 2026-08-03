@@ -53,7 +53,7 @@ onMounted(async () => {
 })
 
 function onTaxonomyChange(id: string | null) {
-  // Filter: Scope the taxon list to the selected taxonomy and reset paging.
+  // Filter: Scope the taxon list to the selected taxonomy.
   taxonomyId.value = id || null
   setPage(1)
   router.replace({ query: { ...route.query, taxonomyId: taxonomyId.value ?? undefined } })
