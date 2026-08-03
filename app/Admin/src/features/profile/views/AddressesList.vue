@@ -89,16 +89,19 @@ function confirmDelete(data: AddressResponse) {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Addresses</h1>
       <p class="text-muted-color">Manage user addresses</p>
     </div>
 
+    <!-- Section: Error State — warn when no user is selected -->
     <Message v-if="!initialUserId" severity="warn" variant="simple">
       No user is currently selected. Open this page with a userId query parameter or sign in to view addresses.
     </Message>
 
     <template v-else>
+      <!-- Section: Search & Filters — search box and list-level actions -->
       <div class="flex items-center gap-3 mb-4">
         <IconField>
           <InputIcon class="pi pi-search" />
@@ -135,6 +138,7 @@ function confirmDelete(data: AddressResponse) {
         />
       </div>
 
+      <!-- Section: Data Table — address grid -->
       <DataTable
         ref="dt"
         :value="items"
@@ -145,6 +149,7 @@ function confirmDelete(data: AddressResponse) {
         :rows-per-page-options="[10, 20, 50]"
         data-key="id"
       >
+        <!-- Section: Table Columns — address identity and default flag fields -->
         <Column field="addressType" header="Type" :sortable="true" />
         <Column field="firstName" header="First Name" :sortable="true" />
         <Column field="city" header="City" :sortable="true" />
@@ -155,12 +160,14 @@ function confirmDelete(data: AddressResponse) {
             <Tag :value="data.isDefault ? 'Yes' : 'No'" :severity="data.isDefault ? 'success' : 'secondary'" />
           </template>
         </Column>
+        <!-- Section: Row Actions — edit and delete per address -->
         <Column header="Actions" header-style="width:8rem">
           <template #body="{ data }">
             <Button icon="pi pi-pencil" severity="secondary" text rounded aria-label="Edit" @click="navigateToEdit(data)" />
             <Button icon="pi pi-trash" severity="danger" text rounded aria-label="Delete" @click="confirmDelete(data)" />
           </template>
         </Column>
+        <!-- Section: Empty State — shown when no addresses match -->
         <template #empty>No addresses found.</template>
       </DataTable>
     </template>

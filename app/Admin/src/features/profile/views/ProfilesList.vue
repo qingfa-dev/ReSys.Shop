@@ -36,11 +36,13 @@ function navigateToDetail(id: string) {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Profiles</h1>
       <p class="text-muted-color">View customer profiles</p>
     </div>
 
+    <!-- Section: Search & Filters — search box and list-level actions -->
     <div class="flex items-center gap-3 mb-4 flex-wrap">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -72,6 +74,7 @@ function navigateToDetail(id: string) {
       />
     </div>
 
+    <!-- Section: Data Table — read-only customer profile grid -->
     <DataTable
       ref="dt"
       :value="items"
@@ -82,6 +85,7 @@ function navigateToDetail(id: string) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — profile identity and contact fields -->
       <Column field="fullName" header="Name" />
       <Column field="firstName" header="First Name" :sortable="true" />
       <Column field="lastName" header="Last Name" :sortable="true" />
@@ -91,11 +95,13 @@ function navigateToDetail(id: string) {
           {{ data.phoneNumber ?? '—' }}
         </template>
       </Column>
+      <!-- Section: Row Actions — view profile detail -->
       <Column header="Actions" header-style="width:5rem">
         <template #body="{ data }">
           <Button icon="pi pi-eye" severity="secondary" text rounded @click="navigateToDetail(data.userId)" />
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no profiles match -->
       <template #empty>No profiles found.</template>
     </DataTable>
   </div>

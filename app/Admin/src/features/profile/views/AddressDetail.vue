@@ -64,6 +64,7 @@ const submitting = ref(false)
 const { address, loading, error, fetchAddress } = useAddressDetail()
 
 async function initEditMode(id: string) {
+  // Load: Fetch the address and map it into the editable form.
   const result = await fetchAddress(form.value.userId, id)
   if (!result.isSuccess) {
     handleResult(result)
@@ -135,6 +136,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and save/cancel controls -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -146,8 +148,10 @@ function onCancel() {
       </div>
     </div>
 
+    <!-- Section: Content Card — scrolling area with loading, error, and form states -->
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
+        <!-- Section: Form Fields — address identity, location, and default flag inputs -->
         <template #content>
           <div v-if="loading" class="flex items-center gap-2 text-muted-color">
             <i class="pi pi-spin pi-spinner" />

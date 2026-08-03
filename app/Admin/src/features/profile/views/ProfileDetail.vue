@@ -53,6 +53,7 @@ const addressesLoaded = ref(false)
 const addressesLoading = ref(false)
 
 async function initEditMode(userId: string) {
+  // Load: Fetch the profile and map it into the editable form.
   const result = await fetchProfile(userId)
   if (!result.isSuccess) {
     handleResult(result)
@@ -77,6 +78,7 @@ async function initEditMode(userId: string) {
 }
 
 async function loadAddresses() {
+  // Load: Fetch the user's addresses lazily when the tab opens.
   if (addressesLoaded.value) return
   addressesLoading.value = true
   const userId = route.params.id as string
@@ -159,6 +161,7 @@ watch(activeTab, (tab) => {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and save/cancel controls -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">Profile Detail</div>
@@ -170,7 +173,9 @@ watch(activeTab, (tab) => {
       </div>
     </div>
 
+    <!-- Section: Content Card — tabbed profile form and addresses -->
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Tabs — switch between profile fields and addresses -->
       <Form id="profile-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
         <Tabs v-model:value="activeTab">
           <TabList>
@@ -179,6 +184,7 @@ watch(activeTab, (tab) => {
           </TabList>
           <TabPanels>
             <TabPanel value="0">
+              <!-- Section: Form Fields — profile identity and contact inputs -->
               <Card>
                 <template #content>
                   <div class="flex flex-col gap-4">
@@ -222,6 +228,7 @@ watch(activeTab, (tab) => {
             </TabPanel>
 
             <TabPanel value="1">
+              <!-- Section: Addresses — the user's saved addresses -->
               <Card>
                 <template #content>
                   <div class="flex justify-between items-center mb-4">
