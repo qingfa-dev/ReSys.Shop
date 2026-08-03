@@ -57,6 +57,30 @@ order for each view type so every view reads consistently:
 4. `Form Fields`
 5. `Action Footer`
 
+## View Code-Commenting Rules
+
+`<script setup>` logic uses single-line `//` labels. Before writing a label,
+traverse the Label Decision Tree (CAT-1..CAT-10) in the standard (GUD-001) and
+pick the correct category — do not invent labels. Format each script comment as
+a capitalised imperative sentence on its own line (GUD-002):
+
+```ts
+// Label: Capitalised imperative sentence.
+```
+
+Per view operation, use the mapping below (under 100 characters, F3):
+
+- validate / guard → `Validate:`
+- computed / derived value → `Compute:` (or `Transform:` when converting shape)
+- API call → `Call:` (or `Load:` for fetch-on-mount data)
+- confirm / flush / status change → `Trigger:` / `Handle:`
+- data mapping → `Map:`
+
+The template section markers (above) stay inside `<template>`; these script
+labels live in `<script setup>` only. Never use multi-line `/* ... */` blocks in
+script — single-line `//` labels only, to avoid warnings-as-errors lint
+failures.
+
 ## Project Setup
 
 ```sh
