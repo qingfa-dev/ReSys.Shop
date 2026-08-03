@@ -3,12 +3,14 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { useNavigation } from "@/app/composables";
 import { usePreferencesStore, useUIStore } from "@/app/stores";
+import { useCartStore } from "@/features/ordering/store";
 import MobileNav from "./MobileNav.vue";
 import NotificationBell from "@/features/notifications/components/NotificationBell.vue";
 import SearchOverlay from "@/features/search/components/SearchOverlay.vue";
 
 const preferencesStore = usePreferencesStore();
 const uiStore = useUIStore();
+const cartStore = useCartStore();
 const router = useRouter();
 const { navLinks, isActive } = useNavigation();
 
@@ -82,7 +84,7 @@ onUnmounted(() => {
 
         <RouterLink to="/cart" class="action-btn cart-btn" aria-label="Cart">
           <i class="pi pi-shopping-cart"></i>
-          <span class="cart-badge">0</span>
+          <span v-if="cartStore.itemCount > 0" class="cart-badge">{{ cartStore.itemCount }}</span>
         </RouterLink>
 
         <RouterLink to="/account" class="action-btn user-btn" aria-label="Account">
