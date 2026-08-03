@@ -28,6 +28,10 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
 
         builder.Property(x => x.Dimensions)
             .IsRequired();
+
+        builder.Property(x => x.Status)
+            .IsRequired()
+            .HasDefaultValue(EmbeddingStatus.Completed);
         #endregion
 
         #region Indexes
