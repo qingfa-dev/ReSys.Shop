@@ -11,14 +11,14 @@ import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { StateApi } from '../services/stateApi'
-import { useCountryStore } from '../stores/countryStore'
+import { useActiveCountries } from '../composables/useActiveCountries'
 import type { StateListItem } from '../types/state'
 import { STATE_FILTER_FIELDS, STATE_SORT_FIELDS } from '../types/state'
 
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
-const countryStore = useCountryStore()
+const { items: activeCountries, load: loadActiveCountries } = useActiveCountries()
 
 const { dt, exportCSV } = useDataTableExport()
 const selectedCountryId = ref<string | null>(null)
@@ -37,7 +37,8 @@ const { items, loading, pageSize, setSearch, setFilter, refresh } =
   })
 
 onMounted(() => {
-  countryStore.fetchActive()
+  // Await: Country options for the country filter Select
+  loadActiveCountries()
 })
 
 function navigateToNew() {
@@ -150,7 +151,7 @@ function confirmDelete() {
               <label class="text-sm text-muted-color whitespace-nowrap ml-2">Country:</label>
               <Select
                 v-model="selectedCountryId"
-                :options="countryStore.activeCountries"
+                :options="activeCountries"
                 option-label="name"
                 option-value="id"
                 placeholder="All Countries"

@@ -9,7 +9,7 @@ import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { StateApi } from '../services/stateApi'
-import { useCountryStore } from '../stores/countryStore'
+import { useActiveCountries } from '../composables/useActiveCountries'
 import { stateSchema, stateName, stateAbbreviation, stateCountryId } from '../validations/state'
 import type { StateForm } from '../validations/state'
 
@@ -17,7 +17,7 @@ const route = useRoute()
 const router = useRouter()
 const notify = useNotify()
 const { handleResult } = useApiErrorHandler()
-const countryStore = useCountryStore()
+const { items: activeCountries, load: loadActiveCountries } = useActiveCountries()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => (isEdit.value ? 'Edit State' : 'New State'))
@@ -42,7 +42,8 @@ const loading = ref(false)
 const formLoaded = ref(!isEdit.value)
 
 onMounted(async () => {
-  countryStore.fetchActive()
+  // Await: Country options for the country field Select
+  loadActiveCountries()
 
   if (isEdit.value) {
     const result = await StateApi.getState(route.params.id as string)
@@ -123,7 +124,7 @@ function onCancel() {
               </FormField>
               <FormField v-slot="$field" name="countryId" :resolver="countryIdResolver" class="flex flex-col gap-1">
                 <label class="text-surface-900 dark:text-surface-0 font-medium">Country <span class="text-red-500">*</span></label>
-                <Select :options="countryStore.activeCountries" option-label="name" option-value="id" placeholder="Select a country" fluid />
+                <Select :options="activeCountries" option-label="name" option-value="id" placeholder="Select a country" fluid />
                 <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
               </FormField>
               <FormField name="isActive" class="flex flex-col gap-1">
