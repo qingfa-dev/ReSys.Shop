@@ -9,6 +9,7 @@ export interface PaymentIntent {
   currency: string
   status: 'pending' | 'processing' | 'succeeded' | 'failed'
   clientSecret?: string
+  responseCode?: string | null
 }
 
 export interface Transaction {

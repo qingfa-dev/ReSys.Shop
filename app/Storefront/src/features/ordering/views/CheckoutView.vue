@@ -99,6 +99,8 @@ async function handlePlaceOrder() {
     })
     // Select: apply the shipping rate to the cart
     await cartService.selectShippingRate(selectedShippingMethodId.value)
+    // Refresh: pull the updated cart with server-side shipping total
+    await cartStore.fetchCart()
 
     // Payment: create an intent against the draft cart/order id
     const intentResult = await paymentIntentService.createPaymentIntent({
@@ -112,7 +114,7 @@ async function handlePlaceOrder() {
     }
 
     // Place: finalize the order with the payment intent id
-    await orderStore.checkout({ paymentIntentId: intentResult.data.id })
+    await orderStore.checkout({ paymentIntentId: intentResult.data.responseCode ?? intentResult.data.id })
     currentStep.value = 5
   } catch (error) {
     orderError.value = error instanceof Error ? error.message : 'Failed to place order'

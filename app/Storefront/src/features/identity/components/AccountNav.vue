@@ -6,7 +6,10 @@ defineProps<{
 const defaultItems = [
   { to: '/account/orders', icon: 'pi pi-box', label: 'My Orders' },
   { to: '/account/addresses', icon: 'pi pi-map-marker', label: 'Addresses' },
-  { to: '/account/settings', icon: 'pi pi-cog', label: 'Settings' },
+  { to: '/account/wishlists', icon: 'pi pi-heart', label: 'Wishlists' },
+  { to: '/account/notifications', icon: 'pi pi-bell', label: 'Notifications' },
+  { to: '/account/sessions', icon: 'pi pi-shield', label: 'Sessions' },
+  { to: '/account/profile', icon: 'pi pi-cog', label: 'Profile' },
 ]
 
 const navItems = defaultItems

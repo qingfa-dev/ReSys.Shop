@@ -14,8 +14,13 @@ export const PaymentIntentFields = {
 } as const
 
 export const PaymentIntentSchema = z.object({
-  ...PaymentIntentFields.Required,
-  ...PaymentIntentFields.Optional,
+  id: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  status: z.enum(['pending', 'processing', 'succeeded', 'failed']),
+  clientSecret: z.string().optional(),
+  metadata: z.record(z.string()).optional(),
+  responseCode: z.string().nullable().optional(),
 })
 
 export type PaymentIntentSchemaType = z.infer<typeof PaymentIntentSchema>

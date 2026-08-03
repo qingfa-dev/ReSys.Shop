@@ -7,6 +7,7 @@ export function toPaymentIntent(schema: PaymentIntentSchemaType): PaymentIntent 
     currency: schema.currency,
     status: schema.status,
     clientSecret: schema.clientSecret,
+    responseCode: schema.responseCode,
   }
 }
 
