@@ -1,18 +1,15 @@
 import { paymentIntentApiRepository } from '../../repositories/payment-intent/payment-intent.api'
-import { mockPaymentIntentRepository } from '../../repositories/payment-intent/payment-intent.mock.repository'
-import type { IPaymentIntentService } from './payment-intent.service.interface'
+import type { IPaymentIntentService, CreatePaymentIntentParams } from './payment-intent.service.interface'
 import type { PaymentIntent } from '../../types'
 import type { Result } from '@/core/models/result'
 import { toPaymentIntent } from '../../mapping'
 import { resultMap } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class PaymentIntentService implements IPaymentIntentService {
-  private readonly paymentIntentRepository = USE_MOCK ? mockPaymentIntentRepository : paymentIntentApiRepository
+  private readonly paymentIntentRepository = paymentIntentApiRepository
 
-  async createPaymentIntent(amount: number, currency: string): Promise<Result<PaymentIntent>> {
-    const response = await this.paymentIntentRepository.create(amount, currency)
+  async createPaymentIntent(params: CreatePaymentIntentParams): Promise<Result<PaymentIntent>> {
+    const response = await this.paymentIntentRepository.create(params)
     return resultMap(response, toPaymentIntent)
   }
 

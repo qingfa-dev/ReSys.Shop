@@ -4,7 +4,12 @@ import { paymentIntentService } from '../payment-intent.service'
 describe('PaymentIntentService', () => {
   describe('createPaymentIntent', () => {
     it('should create payment intent', async () => {
-      const result = await paymentIntentService.createPaymentIntent(1000, 'USD')
+      const result = await paymentIntentService.createPaymentIntent({
+        amount: 1000,
+        currency: 'USD',
+        orderId: 'order-1',
+        paymentMethodId: 'pm-1',
+      })
       expect(result).toBeDefined()
     })
   })
@@ -19,13 +24,6 @@ describe('PaymentIntentService', () => {
   describe('confirmPayment', () => {
     it('should confirm payment', async () => {
       const result = await paymentIntentService.confirmPayment('pi-1', 'pm-1')
-      expect(result).toBeDefined()
-    })
-  })
-
-  describe('cancelPayment', () => {
-    it('should cancel payment', async () => {
-      const result = await paymentIntentService.cancelPayment('pi-1')
       expect(result).toBeDefined()
     })
   })

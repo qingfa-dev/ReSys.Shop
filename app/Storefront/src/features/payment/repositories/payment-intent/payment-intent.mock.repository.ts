@@ -1,5 +1,6 @@
 import type { PaymentIntentResponse } from '../../types/response'
 import type { IPaymentIntentRepository } from './payment-intent.repository.interface'
+import type { CreatePaymentIntentParams } from '../../services/payment-intent/payment-intent.service.interface'
 import type { Result } from '@/core/models/result'
 
 let mockPaymentIntents: PaymentIntentResponse[] = []
@@ -9,11 +10,11 @@ export class MockPaymentIntentRepository implements IPaymentIntentRepository {
     mockPaymentIntents = []
   }
 
-  async create(amount: number, currency = 'USD'): Promise<Result<PaymentIntentResponse>> {
+  async create(params: CreatePaymentIntentParams): Promise<Result<PaymentIntentResponse>> {
     const intent: PaymentIntentResponse = {
       id: `pi-${Date.now()}`,
-      amount,
-      currency,
+      amount: params.amount,
+      currency: params.currency,
       status: 'pending',
     }
     mockPaymentIntents.push(intent)

@@ -1,14 +1,11 @@
 import { shippingMethodApiRepository } from '../../repositories/shipping-method/shipping-method.api'
-import { mockShippingMethodRepository } from '../../repositories/shipping-method/shipping-method.mock.repository'
 import type { IShippingMethodService } from './shipping-method.service.interface'
 import type { ShippingMethod } from '../../types'
 import type { Result } from '@/core/models/result'
 import { succeed, fail } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class ShippingMethodService implements IShippingMethodService {
-  private shippingRepo = USE_MOCK ? mockShippingMethodRepository : shippingMethodApiRepository
+  private shippingRepo = shippingMethodApiRepository
 
   async getShippingMethods(): Promise<Result<ShippingMethod[]>> {
     const response = await this.shippingRepo.getAll() as Result<ShippingMethod[]>

@@ -1,14 +1,11 @@
 import { paymentMethodApiRepository } from '../../repositories/payment-method/payment-method.api'
-import { mockPaymentMethodRepository } from '../../repositories/payment-method/payment-method.mock.repository'
 import type { IPaymentMethodService } from './payment-method.service.interface'
 import type { PaymentMethod } from '../../types'
 import type { Result } from '@/core/models/result'
 import { succeed, fail } from '@/core/utils/result-helpers'
 
-const USE_MOCK = true
-
 export class PaymentMethodService implements IPaymentMethodService {
-  private paymentRepo = USE_MOCK ? mockPaymentMethodRepository : paymentMethodApiRepository
+  private paymentRepo = paymentMethodApiRepository
 
   async getPaymentMethods(): Promise<Result<PaymentMethod[]>> {
     const response = await this.paymentRepo.getAll() as Result<PaymentMethod[]>
