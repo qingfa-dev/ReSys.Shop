@@ -49,6 +49,7 @@ async function initEditMode(id: string) {
 }
 
 async function loadPermissions() {
+  // Check: Fetch permission categories only once per role instance.
   if (permissionsLoaded.value) return
   const result = await RoleApi.getPermissions(route.params.id as string)
   if (result.isSuccess) {
@@ -60,10 +61,12 @@ async function loadPermissions() {
 }
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
   loading.value = true
   const data = event.values as RoleForm
   const request: RoleRequest = { name: data.name, description: data.description || null }
+  // Call: Persist the role, branching between update and create.
   const result = isEdit.value
     ? await RoleApi.updateRole(route.params.id as string, request)
     : await RoleApi.createRole(request)
@@ -81,6 +84,7 @@ async function onSubmit(event: FormSubmitEvent) {
 async function togglePermission(perm: PermissionItem) {
   const id = route.params.id as string
   if (perm.isAssigned) {
+    // Call: Revoke the permission when it is currently assigned.
     const result = await RoleApi.revokePermissions(id, [perm.identifier])
     if (result.isSuccess) {
       perm.isAssigned = false
@@ -88,6 +92,7 @@ async function togglePermission(perm: PermissionItem) {
       handleResult(result)
     }
   } else {
+    // Call: Assign the permission when it is currently unassigned.
     const result = await RoleApi.assignPermissions(id, [perm.identifier])
     if (result.isSuccess) {
       perm.isAssigned = true
@@ -119,12 +124,14 @@ watch(activeTab, (tab) => {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — back navigation and dynamic edit/create title -->
     <div class="flex items-center gap-4 mb-6">
       <Button icon="pi pi-arrow-left" severity="secondary" text rounded @click="router.push('/identity/roles')" />
       <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
     </div>
 
     <Form id="role-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+      <!-- Section: Tabs — profile fields and edit-mode permission matrix -->
       <Tabs v-model:value="activeTab">
         <TabList>
           <Tab value="0">Profile</Tab>
@@ -132,9 +139,11 @@ watch(activeTab, (tab) => {
         </TabList>
         <TabPanels>
           <TabPanel value="0">
+            <!-- Section: Content Card — holds the role name and description -->
             <Card>
               <template #content>
                 <div class="flex flex-col gap-4">
+                  <!-- Section: Form Fields — role name and description -->
                   <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
                     <label>Name <span class="text-red-500">*</span></label>
                     <InputText fluid />
@@ -150,6 +159,7 @@ watch(activeTab, (tab) => {
             </Card>
           </TabPanel>
           <TabPanel v-if="isEdit" value="1">
+            <!-- Section: Form Fields — permission toggles grouped by category -->
             <Card v-for="category in permissionCategories" :key="category.category" class="mb-4">
               <template #content>
                 <h3 class="text-lg font-semibold mb-1">{{ category.category }}</h3>
@@ -178,6 +188,7 @@ watch(activeTab, (tab) => {
       </Tabs>
     </Form>
 
+    <!-- Section: Action Footer — Save and Cancel actions for the role form -->
     <div class="flex gap-3 mt-4">
       <Button label="Save" icon="pi pi-check" form="role-form" type="submit" :loading="loading" />
       <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="router.push('/identity/roles')" />

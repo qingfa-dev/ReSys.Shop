@@ -54,6 +54,7 @@ function navigateToEdit(id: string) {
 
 function confirmDelete() {
   const names = selectedItems.value.map((u) => u.email).join(', ')
+  // Trigger: Confirm before deleting the highlighted users.
   confirm.require({
     message: `Delete ${names}? This action cannot be undone.`,
     header: 'Confirm Delete',
@@ -62,6 +63,7 @@ function confirmDelete() {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete each selected user, notifying per-item outcome.
       for (const item of selectedItems.value) {
         const result = await UserApi.deleteUser(item.id)
         if (result.isSuccess) {
@@ -79,11 +81,13 @@ function confirmDelete() {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Users</h1>
       <p class="text-muted-color">Manage registered users</p>
     </div>
 
+    <!-- Section: Search & Filters — search box, clear, and bulk action buttons -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -120,6 +124,7 @@ function confirmDelete() {
       />
     </div>
 
+    <!-- Section: Data Table — lazy, selectable user grid -->
     <DataTable
       ref="dt"
       v-model:selection="selectedItems"
@@ -131,6 +136,7 @@ function confirmDelete() {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — identity fields with an email-confirmed tag -->
       <Column selection-mode="multiple" header-style="width:3rem" />
       <Column field="email" header="Email" :sortable="true" />
       <Column field="userName" header="Username" :sortable="true" />
@@ -142,6 +148,7 @@ function confirmDelete() {
           <Tag :value="data.emailConfirmed ? 'Yes' : 'No'" :severity="data.emailConfirmed ? 'success' : 'warn'" />
         </template>
       </Column>
+      <!-- Section: Row Actions — edit and delete per user -->
       <Column header="Actions" header-style="width:8rem">
         <template #body="{ data }">
           <Button icon="pi pi-pencil" severity="secondary" text rounded @click="navigateToEdit(data.id)" />
@@ -154,6 +161,7 @@ function confirmDelete() {
           />
         </template>
       </Column>
+      <!-- Section: Empty State — shown when the query returns no users -->
       <template #empty>No users found.</template>
     </DataTable>
   </div>

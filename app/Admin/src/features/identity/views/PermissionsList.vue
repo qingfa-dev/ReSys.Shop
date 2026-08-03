@@ -36,11 +36,13 @@ function clearSearch() {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Permissions</h1>
       <p class="text-muted-color">System permissions reference</p>
     </div>
 
+    <!-- Section: Search & Filters — search box, clear, reload and export actions -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -52,6 +54,7 @@ function clearSearch() {
       <Button label="Export" icon="pi pi-download" severity="secondary" @click="exportCSV" />
     </div>
 
+    <!-- Section: Data Table — scrollable grid of reference permissions -->
     <DataTable
       ref="dt"
       :value="items"
@@ -61,9 +64,11 @@ function clearSearch() {
       :rows="50"
       data-key="name"
     >
+      <!-- Section: Table Columns — permission identity and descriptive fields -->
       <Column field="name" header="Name" :sortable="true" />
       <Column field="category" header="Category" :sortable="true" />
       <Column field="description" header="Description" />
+      <!-- Section: Empty State — shown when the query returns no permissions -->
       <template #empty>No permissions found.</template>
     </DataTable>
   </div>

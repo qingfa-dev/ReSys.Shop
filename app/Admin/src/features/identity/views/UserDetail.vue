@@ -68,6 +68,7 @@ async function initEditMode(id: string) {
 }
 
 async function loadRoles() {
+  // Check: Fetch roles once; below fetch runs in parallel on first visit.
   if (rolesLoaded.value) return
   const [rolesResult, assignedResult] = await Promise.all([
     RoleApi.getRoles({ pageSize: 100 }),
@@ -85,6 +86,7 @@ async function loadRoles() {
 }
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
   loading.value = true
   const data = event.values as UserForm
@@ -97,6 +99,7 @@ async function onSubmit(event: FormSubmitEvent) {
     emailConfirmed: data.emailConfirmed,
     phoneNumberConfirmed: data.phoneNumberConfirmed,
   }
+  // Call: Persist the user, branching between update and create.
   const result = isEdit.value
     ? await UserApi.updateUser(route.params.id as string, request)
     : await UserApi.createUser(request)
@@ -117,6 +120,7 @@ function isRoleAssigned(roleName: string): boolean {
 
 async function toggleRole(roleName: string) {
   if (isRoleAssigned(roleName)) {
+    // Call: Revoke the role when it is currently assigned.
     const result = await UserApi.revokeRoles(route.params.id as string, [roleName])
     if (result.isSuccess) {
       assignedRoleNames.value = assignedRoleNames.value.filter((n) => n !== roleName)
@@ -125,6 +129,7 @@ async function toggleRole(roleName: string) {
       handleResult(result)
     }
   } else {
+    // Call: Assign the role when it is currently unassigned.
     const result = await UserApi.assignRoles(route.params.id as string, [roleName])
     if (result.isSuccess) {
       assignedRoleNames.value = [...assignedRoleNames.value, roleName]
@@ -163,11 +168,13 @@ watch(activeTab, (tab) => {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — back navigation and dynamic edit/create title -->
     <div class="flex items-center gap-4 mb-6">
       <Button icon="pi pi-arrow-left" severity="secondary" text rounded @click="router.push('/identity/users')" />
       <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
     </div>
 
+    <!-- Section: Content Card — form container for the user and roles -->
     <Form
       id="user-form"
       :key="String(formLoaded)"
@@ -175,6 +182,7 @@ watch(activeTab, (tab) => {
       :initial-values="form"
       @submit="onSubmit"
     >
+      <!-- Section: Tabs — user profile fields and edit-mode role assignment -->
       <Tabs v-model:value="activeTab">
         <TabList>
           <Tab value="0">Profile</Tab>
@@ -182,6 +190,7 @@ watch(activeTab, (tab) => {
         </TabList>
         <TabPanels>
           <TabPanel value="0">
+            <!-- Section: Form Fields — user identity and contact fields -->
             <Card>
               <template #content>
                 <div class="flex flex-col gap-4">
@@ -229,6 +238,7 @@ watch(activeTab, (tab) => {
             </Card>
           </TabPanel>
           <TabPanel v-if="isEdit" value="1">
+            <!-- Section: Form Fields — role assignment checkboxes -->
             <Card>
               <template #content>
                 <div class="flex flex-col gap-2">
@@ -256,6 +266,7 @@ watch(activeTab, (tab) => {
       </Tabs>
     </Form>
 
+    <!-- Section: Action Footer — Save and Cancel actions for the user form -->
     <div class="flex gap-3 mt-4">
       <Button label="Save" icon="pi pi-check" form="user-form" type="submit" :loading="loading" />
       <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="router.push('/identity/users')" />

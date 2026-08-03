@@ -53,6 +53,7 @@ function navigateToEdit(id: string) {
 
 function confirmDelete() {
   const names = selectedItems.value.map((r) => r.name).join(', ')
+  // Trigger: Confirm before deleting the highlighted roles.
   confirm.require({
     message: `Delete role${selectedItems.value.length > 1 ? 's' : ''} "${names}"? This action cannot be undone.`,
     header: 'Confirm Delete',
@@ -61,6 +62,7 @@ function confirmDelete() {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete each selected role, notifying per-item outcome.
       for (const item of selectedItems.value) {
         const result = await RoleApi.deleteRole(item.id)
         if (result.isSuccess) {
@@ -78,11 +80,13 @@ function confirmDelete() {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Roles</h1>
       <p class="text-muted-color">Manage role definitions</p>
     </div>
 
+    <!-- Section: Search & Filters — search box, clear, and bulk action buttons -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -95,6 +99,7 @@ function confirmDelete() {
       <Button label="Export" icon="pi pi-download" severity="secondary" @click="exportCSV" />
     </div>
 
+    <!-- Section: Data Table — lazy, selectable role grid -->
     <DataTable
       ref="dt"
       v-model:selection="selectedItems"
@@ -106,14 +111,17 @@ function confirmDelete() {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — role name framed by row selection -->
       <Column selection-mode="multiple" header-style="width:3rem" />
       <Column field="name" header="Name" :sortable="true" />
+      <!-- Section: Row Actions — edit and delete per role -->
       <Column header="Actions" header-style="width:8rem">
         <template #body="{ data }">
           <Button icon="pi pi-pencil" severity="secondary" text rounded @click="navigateToEdit(data.id)" />
           <Button icon="pi pi-trash" severity="danger" text rounded @click="selectedItems = [data]; confirmDelete()" />
         </template>
       </Column>
+      <!-- Section: Empty State — shown when the query returns no roles -->
       <template #empty>No roles found.</template>
     </DataTable>
   </div>
