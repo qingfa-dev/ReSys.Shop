@@ -25,6 +25,7 @@ const selectedDestinationLocation = ref<string | null>(null)
 
 const { items, loading, setFilter, refresh } = useStockTransferList()
 
+// Load: Fetch stock locations once for the filter dropdowns.
 loadActiveStockLocations()
 
 const STATE_OPTIONS: { label: string; value: StockTransferState }[] = [
@@ -42,6 +43,7 @@ const STATE_SEVERITY: Record<StockTransferState, string> = {
 }
 
 function applyFilters() {
+  // Filter: Combine the selected state, source, and destination clauses.
   const clauses: string[] = []
   if (selectedState.value) clauses.push(`state=${selectedState.value}`)
   if (selectedSourceLocation.value) clauses.push(`sourceLocationId=${selectedSourceLocation.value}`)
@@ -79,11 +81,13 @@ function navigateToEdit(id: string) {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Stock Transfers</h1>
       <p class="text-muted-color">Transfer stock between locations</p>
     </div>
 
+    <!-- Section: Search & Filters — search, state, and location filters -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -139,6 +143,7 @@ function navigateToEdit(id: string) {
       />
     </div>
 
+    <!-- Section: Data Table — scrollable transfer grid -->
     <DataTable
       ref="dt"
       :value="items"
@@ -149,6 +154,7 @@ function navigateToEdit(id: string) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — transfer descriptor and state fields -->
       <Column field="number" header="Number" :sortable="true" />
       <Column field="reference" header="Reference">
         <template #body="{ data }">
@@ -168,11 +174,13 @@ function navigateToEdit(id: string) {
           {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
+      <!-- Section: Row Actions — edit per transfer -->
       <Column header="Actions" header-style="width:5rem">
         <template #body="{ data }">
           <Button icon="pi pi-pencil" severity="secondary" text rounded @click="navigateToEdit(data.id)" />
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no stock transfers match -->
       <template #empty>No stock transfers found.</template>
     </DataTable>
   </div>

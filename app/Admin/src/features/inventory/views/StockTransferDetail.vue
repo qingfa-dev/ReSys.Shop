@@ -87,8 +87,10 @@ function removeItem(index: number) {
 }
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
+  // Validate: Reject line items that fail the transfer items schema.
   const parsed = stockTransferItems.safeParse(items.value)
   if (!parsed.success) {
     itemsError.value = parsed.error.issues[0]?.message ?? 'Invalid transfer items.'
@@ -103,6 +105,7 @@ async function onSubmit(event: FormSubmitEvent) {
   }
 
   loading.value = true
+  // Call: Persist the new transfer with its validated line items.
   const result = await StockTransferApi.createStockTransfer({
     sourceLocationId: data.sourceLocationId,
     destinationLocationId: data.destinationLocationId,
@@ -129,6 +132,7 @@ const actionLoading = ref(false)
 
 async function loadDetail(id: string) {
   detailLoading.value = true
+  // Load: Fetch the transfer's detail and its item variants.
   const result = await StockTransferApi.getStockTransfer(id)
   detailLoading.value = false
   if (result.isSuccess) {
@@ -141,6 +145,7 @@ async function loadDetail(id: string) {
 }
 
 async function ensureVariantsPresent(variantIds: string[]) {
+  // Load: Fetch variants omitted by the 100-row dropdown so names render.
   for (const variantId of variantIds) {
     if (variants.value.some((v) => v.id === variantId)) continue
     const result = await VariantApi.getVariant(variantId)
@@ -172,6 +177,7 @@ function variantSku(variantId: string): string {
 
 function confirmSend() {
   if (!detail.value) return
+  // Trigger: Confirm before sending the transfer into transit.
   confirm.require({
     message: 'Send this stock transfer? It will be marked as In Transit.',
     header: 'Confirm Send',
@@ -181,6 +187,7 @@ function confirmSend() {
     accept: async () => {
       const id = route.params.id as string
       actionLoading.value = true
+      // Call: Flush the transfer to In Transit via the transfer API.
       const result = await StockTransferApi.transferStockTransfer(id)
       actionLoading.value = false
       if (result.isSuccess) {
@@ -196,6 +203,7 @@ function confirmSend() {
 function confirmReceive() {
   const d = detail.value
   if (!d) return
+  // Trigger: Confirm before receiving the full transfer quantity.
   confirm.require({
     message: 'Receive all quantities for this stock transfer?',
     header: 'Confirm Receive',
@@ -205,6 +213,7 @@ function confirmReceive() {
     accept: async () => {
       const id = route.params.id as string
       actionLoading.value = true
+      // Call: Receive all quantities via the transfer API, then update local state.
       const result = await StockTransferApi.receiveStockTransfer(id, {
         items: d.items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
       })
@@ -222,6 +231,7 @@ function confirmReceive() {
 
 function confirmCancel() {
   if (!detail.value) return
+  // Trigger: Confirm before canceling the transfer.
   confirm.require({
     message: 'Cancel this stock transfer?',
     header: 'Confirm Cancel',
@@ -232,6 +242,7 @@ function confirmCancel() {
     accept: async () => {
       const id = route.params.id as string
       actionLoading.value = true
+      // Call: Cancel the transfer and reflect the Canceled state locally.
       const result = await StockTransferApi.cancelStockTransfer(id)
       actionLoading.value = false
       if (result.isSuccess) {
@@ -266,6 +277,7 @@ watch(
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title plus create or state-management actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -286,9 +298,11 @@ watch(
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — create form, detail readout, or loading fallback -->
       <Card v-if="isCreate">
         <template #content>
           <Form id="stock-transfer-form" :resolver="resolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+            <!-- Section: Form Fields — source, destination, and reference fields -->
             <FormField v-slot="$field" name="sourceLocationId" :resolver="sourceResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Source Location <span class="text-red-500">*</span></label>
               <Select :options="activeStockLocations" option-label="name" option-value="id" placeholder="Select a source location" fluid />
@@ -305,6 +319,7 @@ watch(
             </FormField>
           </Form>
 
+          <!-- Section: Transfer Line Items — add and manage item rows -->
           <div class="mt-6 flex flex-col gap-3">
             <div class="flex items-center justify-between">
               <span class="font-medium text-surface-900 dark:text-surface-0">Items <span class="text-red-500">*</span></span>
@@ -322,6 +337,7 @@ watch(
 
       <Card v-else-if="detail">
         <template #content>
+          <!-- Section: Detail Readout — read-only transfer summary and items -->
           <div class="flex flex-col gap-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>

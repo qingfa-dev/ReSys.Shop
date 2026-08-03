@@ -113,12 +113,14 @@ watch(
 )
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
   loading.value = true
   const data = event.values as StockLocationForm
   const request = buildRequest(data)
 
+  // Call: Persist the location, branching between update and create.
   const result = isEdit.value
     ? await StockLocationApi.updateStockLocation(route.params.id as string, request)
     : await StockLocationApi.createStockLocation(request)
@@ -144,6 +146,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title with Save and Cancel actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -156,9 +159,11 @@ function onCancel() {
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — form container for location details -->
       <Card>
         <template #content>
           <Form id="stock-location-form" :key="String(formLoaded)" :resolver="stockLocationResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+            <!-- Section: Form Fields — identity, contact, and position fields -->
             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />

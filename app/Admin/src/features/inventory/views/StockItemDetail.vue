@@ -78,6 +78,7 @@ async function loadStockItem(id: string) {
 
 async function ensureCurrentVariantPresent() {
   if (!form.value.variantId) return
+  // Load: Fetch the variant when the 100-row dropdown omits the current one.
   const present = variants.value.some((v) => v.id === form.value.variantId)
   if (present) return
 
@@ -110,6 +111,7 @@ watch(
 )
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
 
   loading.value = true
@@ -121,6 +123,7 @@ async function onSubmit(event: FormSubmitEvent) {
     backorderable: data.backorderable,
   }
 
+  // Call: Persist the stock item, branching between update and create.
   const result = isEdit.value
     ? await StockItemApi.updateStockItem(route.params.id as string, request)
     : await StockItemApi.createStockItem(request)
@@ -146,6 +149,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title with Save and Cancel actions -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -158,9 +162,11 @@ function onCancel() {
     </div>
 
     <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — form container for stock item details -->
       <Card>
         <template #content>
           <Form id="stock-item-form" :key="String(formLoaded)" :resolver="stockItemResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
+            <!-- Section: Form Fields — location, variant, and quantity fields -->
             <FormField v-slot="$field" name="stockLocationId" :resolver="stockLocationIdResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Stock Location <span class="text-red-500">*</span></label>
               <Select :options="activeStockLocations" option-label="name" option-value="id" placeholder="Select a stock location" fluid />

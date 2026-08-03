@@ -54,6 +54,7 @@ function confirmDelete() {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete each selected location, notifying per-item outcome.
       for (const item of selectedItems.value) {
         const result = await StockLocationApi.deleteStockLocation(item.id)
         if (result.isSuccess) {
@@ -71,11 +72,13 @@ function confirmDelete() {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Stock Locations</h1>
       <p class="text-muted-color">Manage stock locations</p>
     </div>
 
+    <!-- Section: Search & Filters — search box and bulk action buttons -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -112,6 +115,7 @@ function confirmDelete() {
       />
     </div>
 
+    <!-- Section: Data Table — scrollable stock location grid -->
     <DataTable
       ref="dt"
       v-model:selection="selectedItems"
@@ -123,6 +127,7 @@ function confirmDelete() {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — identity, contact, and status fields -->
       <Column selection-mode="multiple" header-style="width:3rem" />
       <Column field="name" header="Name" :sortable="true" />
       <Column field="code" header="Code" :sortable="true" />
@@ -137,6 +142,7 @@ function confirmDelete() {
           <Tag :value="data.default ? 'Yes' : 'No'" :severity="data.default ? 'success' : 'warn'" />
         </template>
       </Column>
+      <!-- Section: Row Actions — edit and delete per location -->
       <Column header="Actions" header-style="width:8rem">
         <template #body="{ data }">
           <Button icon="pi pi-pencil" severity="secondary" text rounded @click="navigateToEdit(data.id)" />
@@ -149,6 +155,7 @@ function confirmDelete() {
           />
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no stock locations match -->
       <template #empty>No stock locations found.</template>
     </DataTable>
   </div>

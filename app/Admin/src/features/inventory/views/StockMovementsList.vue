@@ -47,11 +47,13 @@ function originatorLabel(item: StockMovementListItem): string {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Stock Movements</h1>
       <p class="text-muted-color">Audit log of stock quantity changes</p>
     </div>
 
+    <!-- Section: Search & Filters — search box, reload, and export actions -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -83,6 +85,7 @@ function originatorLabel(item: StockMovementListItem): string {
       />
     </div>
 
+    <!-- Section: Data Table — read-only audit grid of stock changes -->
     <DataTable
       ref="dt"
       :value="items"
@@ -93,6 +96,7 @@ function originatorLabel(item: StockMovementListItem): string {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — movement, quantity, and originator fields -->
       <Column field="stockItemId" header="Stock Item (ID)" />
       <Column field="action" header="Action">
         <template #body="{ data }">
@@ -120,6 +124,7 @@ function originatorLabel(item: StockMovementListItem): string {
           {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no stock movements match -->
       <template #empty>No stock movements found.</template>
     </DataTable>
   </div>

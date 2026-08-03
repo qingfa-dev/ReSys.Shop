@@ -35,6 +35,7 @@ const STATE_SEVERITY: Record<ReservationState, string> = {
 
 function onStateFilterChange(value: ReservationState | null) {
   selectedState.value = value
+  // Filter: Restrict the list to the selected reservation state.
   setFilter(value ? `state=${value}` : '')
 }
 
@@ -45,11 +46,13 @@ function stateSeverity(state: ReservationState): string {
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="mb-6">
       <h1 class="text-2xl font-semibold mb-1">Stock Reservations</h1>
       <p class="text-muted-color">System-managed stock reservations</p>
     </div>
 
+    <!-- Section: Search & Filters — search, state filter, reload, and export -->
     <div class="flex items-center gap-3 mb-4">
       <IconField>
         <InputIcon class="pi pi-search" />
@@ -80,6 +83,7 @@ function stateSeverity(state: ReservationState): string {
       />
     </div>
 
+    <!-- Section: Data Table — read-only grid of stock reservations -->
     <DataTable
       ref="dt"
       :value="items"
@@ -90,6 +94,7 @@ function stateSeverity(state: ReservationState): string {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <!-- Section: Table Columns — order, quantity, state, and expiry fields -->
       <Column field="variantId" header="Variant ID" />
       <Column field="orderId" header="Order ID">
         <template #body="{ data }">
@@ -112,6 +117,7 @@ function stateSeverity(state: ReservationState): string {
           {{ formatDateTimeUtc(data.createdAtUtc) }}
         </template>
       </Column>
+      <!-- Section: Empty State — shown when no stock reservations match -->
       <template #empty>No stock reservations found.</template>
     </DataTable>
   </div>
