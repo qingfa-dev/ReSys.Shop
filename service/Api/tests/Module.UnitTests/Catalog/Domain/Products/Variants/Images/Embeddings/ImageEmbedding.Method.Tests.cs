@@ -24,4 +24,18 @@ public class ImageEmbeddingMethodTests
         result.ModelVersion.Should().Be(modelVersion);
         result.Dimensions.Should().Be(vectorData.Length);
     }
+
+    [Fact(DisplayName = "Create: Should set Status to Completed by default")]
+    public void Create_ShouldSetStatusToCompleted()
+    {
+        var variantImageId = Guid.NewGuid();
+        var vectorData = new float[] { 0.1f, 0.2f, 0.3f };
+
+        var result = ImageEmbeddingMethod.Create(variantImageId, "resnet50", "v1", vectorData);
+
+        result.Status.Should().Be(EmbeddingStatus.Completed);
+        result.Error.Should().BeNull();
+        result.HangfireJobId.Should().BeNull();
+        result.CompletedAtUtc.Should().BeNull();
+    }
 }

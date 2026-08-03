@@ -19,6 +19,18 @@ public sealed partial class ImageEmbedding : Entity
     /// </summary>
     public Vector Vector { get; set; } = new(Array.Empty<float>());
     public int Dimensions { get; set; }
+
+    /// <summary>Current processing status of the embedding.</summary>
+    public EmbeddingStatus Status { get; set; } = EmbeddingStatus.Completed;
+
+    /// <summary>Error message when Status is Failed.</summary>
+    public string? Error { get; set; }
+
+    /// <summary>Hangfire job identifier for correlation and status polling.</summary>
+    public string? HangfireJobId { get; set; }
+
+    /// <summary>Timestamp when the embedding completed (UTC).</summary>
+    public DateTimeOffset? CompletedAtUtc { get; set; }
     #endregion Properties
 
     #region Relationships
