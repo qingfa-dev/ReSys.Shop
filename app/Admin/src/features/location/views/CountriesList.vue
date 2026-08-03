@@ -199,6 +199,7 @@ function confirmDelete() {
             </div>
           </template>
         </Column>
+        <!-- Section: Empty State — shown when no countries match -->
         <template #empty>
           <div class="text-center py-8 text-muted-color">No countries found.</div>
         </template>

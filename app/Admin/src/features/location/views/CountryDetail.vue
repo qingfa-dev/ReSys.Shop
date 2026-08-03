@@ -74,7 +74,7 @@ async function onSubmit(event: FormSubmitEvent) {
     isActive: data.isActive,
   }
 
-  // Call: Create or update; branching saves one round trip on edit.
+  // Call: Create or update the country record.
   const result = isEdit.value
     ? await CountryApi.updateCountry(route.params.id as string, request)
     : await CountryApi.createCountry(request)
