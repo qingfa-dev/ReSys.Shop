@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
+import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Select from 'primevue/select'
 import Tag from 'primevue/tag'
@@ -25,7 +26,19 @@ const selectedCountryId = ref<string | null>(null)
 const selectedItems = ref<StateListItem[]>([])
 const searchTerm = ref('')
 
-const { items, loading, pageSize, setSearch, setFilter, refresh } =
+const {
+  items,
+  loading,
+  totalCount,
+  page,
+  pageSize,
+  setSearch,
+  setPage,
+  setPageSize,
+  setSort,
+  setFilter,
+  refresh,
+} =
   usePagedQuery<StateListItem>('api/locations/states', {
     allowedFilterFields: STATE_FILTER_FIELDS,
     allowedSortFields: STATE_SORT_FIELDS,
@@ -35,6 +48,22 @@ const { items, loading, pageSize, setSearch, setFilter, refresh } =
     defaultSort: ['name'],
     defaultPageSize: 20,
   })
+
+const first = computed(() => (page.value - 1) * pageSize.value)
+
+function onPage(event: DataTablePageEvent) {
+  setPage(event.page + 1)
+}
+
+function onRows(rows: number) {
+  setPageSize(rows)
+}
+
+function onSort(event: DataTableSortEvent) {
+  const field = event.sortField
+  if (typeof field !== 'string') return
+  setSort(event.sortOrder === -1 ? [`-${field}`] : [field])
+}
 
 onMounted(() => {
   // Await: Country options for the country filter Select
@@ -56,6 +85,8 @@ function onSearch(value: string) {
 
 function clearSearch() {
   searchTerm.value = ''
+  selectedCountryId.value = null
+  setFilter('')
   setSearch('')
 }
 
@@ -121,15 +152,20 @@ function confirmDelete() {
         v-model:selection="selectedItems"
         :value="items"
         :loading="loading"
+        :total-records="totalCount"
+        :first="first"
+        :rows="pageSize"
         scrollable
         :paginator="true"
-        :rows="pageSize"
-        filter-display="menu"
+        lazy
         data-key="id"
         :global-filter-fields="STATE_FILTER_FIELDS"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rows-per-page-options="[5, 10, 25]"
         current-page-report-template="Showing {first} to {last} of {totalRecords}"
+        @page="onPage"
+        @update:rows="onRows"
+        @sort="onSort"
         :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
       >
         <Column selection-mode="multiple" header-style="width: 3rem" />
@@ -167,10 +203,10 @@ function confirmDelete() {
             </div>
           </div>
         </template>
-        <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />
-        <Column field="abbreviation" header="Abbreviation" :sortable="true" :filter="true" filter-field="abbreviation" />
-        <Column field="countryName" header="Country" :sortable="true" :filter="true" filter-field="countryName" />
-        <Column field="isActive" header="Active" :sortable="true" :filter="true" filter-field="isActive" body-style="text-align: center">
+        <Column field="name" header="Name" :sortable="true" />
+        <Column field="abbreviation" header="Abbreviation" :sortable="true" />
+        <Column field="countryName" header="Country" :sortable="true" />
+        <Column field="isActive" header="Active" :sortable="true" body-style="text-align: center">
           <template #body="{ data }">
             <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'danger'" />
           </template>

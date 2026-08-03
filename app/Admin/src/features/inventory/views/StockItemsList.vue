@@ -46,6 +46,8 @@ function onSearch(value: string) {
 
 function clearSearch() {
   search.value = ''
+  selectedLocation.value = null
+  setFilter('')
   setSearch('')
 }
 
