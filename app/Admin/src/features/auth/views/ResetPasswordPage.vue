@@ -28,6 +28,7 @@ const formError = ref<string | null>(null)
 const mask = ref(true)
 
 onMounted(() => {
+  // Transform: Pre-fill the disabled fields from the emailed reset-link query params.
   const q = route.query as Record<string, string>
   form.value = {
     email: q.email ?? '',
@@ -38,11 +39,13 @@ onMounted(() => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
   isSubmitting.value = true
   formError.value = null
   try {
     const data = event.values as { email: string; userId: string; token: string; newPassword: string }
+    // Call: Persist the new password via the reset-password API.
     const result = await resetPassword({
       email: data.email,
       userId: data.userId,
@@ -64,6 +67,7 @@ async function onSubmit(event: FormSubmitEvent) {
 </script>
 
 <template>
+  <!-- Section: Reset Form — email, user ID, token, and new password fields with validation -->
   <Form :resolver="resetResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
     <FormField name="email" class="flex flex-col gap-1">
       <label class="text-surface-900 dark:text-surface-0 font-medium">Email</label>
@@ -95,6 +99,7 @@ async function onSubmit(event: FormSubmitEvent) {
       <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
     </FormField>
 
+    <!-- Section: Submit Action — reset-password button with inline error display -->
     <Message v-if="formError" severity="error" :closable="false">{{ formError }}</Message>
 
     <Button type="submit" label="Reset Password" fluid size="large" :loading="isSubmitting" />

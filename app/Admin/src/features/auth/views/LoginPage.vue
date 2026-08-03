@@ -22,8 +22,10 @@ const isLoading = computed(() => store.status === 'loading')
 const mask = ref(true)
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
   if (!event.valid) return
   const data = event.values as { credential: string; password: string }
+  // Call: Delegate the login request to the auth store, which owns auth state.
   await store.login(data.credential, data.password)
   if (store.isAuthenticated) {
     router.replace('/')
@@ -35,6 +37,7 @@ async function onSubmit(event: FormSubmitEvent) {
 
 <template>
   <div>
+    <!-- Section: Login Form — credential & password fields with inline validation -->
     <Form :resolver="loginResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
       <FormField v-slot="$field" name="credential" class="flex flex-col gap-1">
         <FloatLabel variant="on">
@@ -56,6 +59,7 @@ async function onSubmit(event: FormSubmitEvent) {
         </FloatLabel>
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
       </FormField>
+      <!-- Section: Form Actions — remember me toggle, forgot-password link, and submit -->
       <div class="flex items-center justify-between mt-2 mb-8 gap-8">
         <div class="flex items-center">
           <Checkbox inputId="rememberme1" binary class="mr-2" />
