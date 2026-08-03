@@ -26,9 +26,11 @@ def build_taxons_json(
     article_types: set[str],
 ) -> list[dict]:
     taxons: list[dict] = []
-    used_slugs: set[str] = {"categories", "brands", "article-types"}
+    cat_slugs: set[str] = {"categories"}
+    brand_slugs: set[str] = {"brands"}
+    at_slugs: set[str] = {"article-types"}
 
-    def make_slug(name: str) -> str:
+    def make_slug(name: str, used_slugs: set[str]) -> str:
         slug = name.lower().replace(" ", "-").replace("&", "and").replace(",", "")
         original = slug
         i = 2
@@ -38,11 +40,6 @@ def build_taxons_json(
         used_slugs.add(slug)
         return slug
 
-    def enrich(name: str, taxonomy_name: str) -> dict:
-        seo = build_taxon_seo(name, taxonomy_name)
-        seo["slug"] = make_slug(name)
-        return seo
-
     lft = 1
     root_cat_id = taxon_id("categories_root")
     lft += 1
@@ -51,13 +48,13 @@ def build_taxons_json(
         mc_id = taxon_id(f"cat.{master_cat}")
         mc_lft = lft
         lft += 1
-        mc_slug = make_slug(master_cat)
+        mc_slug = make_slug(master_cat, cat_slugs)
         for sub_cat in sorted(sub_categories.get(master_cat, set())):
             sc_id = taxon_id(f"cat.{master_cat}.{sub_cat}")
             taxons.append({
                 "id": sc_id, "taxonomy_id": TAXONOMY_CATEGORIES_ID,
                 "parent_id": mc_id, "name": sub_cat,
-                "presentation": sub_cat, "slug": make_slug(sub_cat),
+                "presentation": sub_cat, "slug": make_slug(sub_cat, cat_slugs),
                 "depth": 2, "lft": lft, "rgt": lft + 1, "position": 0,
                 **build_taxon_seo(sub_cat, "Categories"),
             })
@@ -88,7 +85,7 @@ def build_taxons_json(
         taxons.append({
             "id": b_id, "taxonomy_id": TAXONOMY_BRANDS_ID,
             "parent_id": root_brand_id, "name": brand,
-            "presentation": brand, "slug": make_slug(brand),
+            "presentation": brand, "slug": make_slug(brand, brand_slugs),
             "depth": 1, "lft": brand_lft, "rgt": brand_lft + 1, "position": 0,
             **build_taxon_seo(brand, "Brands"),
         })
@@ -107,7 +104,7 @@ def build_taxons_json(
         taxons.append({
             "id": at_id, "taxonomy_id": TAXONOMY_ARTICLE_TYPES_ID,
             "parent_id": root_at_id, "name": atype,
-            "presentation": atype, "slug": make_slug(atype),
+            "presentation": atype, "slug": make_slug(atype, at_slugs),
             "depth": 1, "lft": at_lft, "rgt": at_lft + 1, "position": 0,
             **build_taxon_seo(atype, "Article Types"),
         })

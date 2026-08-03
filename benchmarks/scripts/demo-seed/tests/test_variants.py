@@ -2,9 +2,31 @@ from variants import derive_sku, generate_variants
 
 
 def test_derive_sku_indexed():
-    assert derive_sku("Navy Blue Dress", 3) == "NAVY-BLUE-DRESS-003"
-    assert derive_sku("R&B Tee", 10) == "RANDB-TEE-010"
-    assert derive_sku("Jacket 'Deluxe'", 0) == "JACKET-DELUXE-000"
+    import re
+    pattern = re.compile(r"^[A-Z0-9-]{1,16}-[0-9A-F]{4}-\d{3}$")
+    assert pattern.match(derive_sku("Navy Blue Dress", 3))
+    assert pattern.match(derive_sku("R&B Tee", 10))
+    assert pattern.match(derive_sku("Jacket 'Deluxe'", 0))
+
+
+def test_derive_sku_deterministic():
+    assert derive_sku("Navy Blue Dress", 3) == derive_sku("Navy Blue Dress", 3)
+
+
+def test_derive_sku_disambiguates_same_prefix_products():
+    long_prefix = "Peter England Men"
+    a = derive_sku(long_prefix + " PA Trousers", 0)
+    b = derive_sku(long_prefix + " PA Jacket", 0)
+    assert a != b
+
+
+def test_derive_sku_keeps_apostrophe_free_and_amp_as_and():
+    # apostrophe removed, & spelled AND: required by DB slug format constraint.
+    sku_with_apostrophe = derive_sku("Jacket 'Deluxe'", 0)
+    sku_with_amp = derive_sku("R&B Tee", 0)
+    assert "'" not in sku_with_apostrophe
+    assert "&" not in sku_with_amp
+    assert "AND" in sku_with_amp
 
 
 def test_master_is_first_combo_and_child_combo_not_repeated():

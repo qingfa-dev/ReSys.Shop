@@ -1,6 +1,7 @@
 export function formatCurrency(value: number | null | undefined, currency = 'USD', locale = 'en-US'): string {
   if (value === null || value === undefined) return '$0.00'
-  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value)
+  const safe = currency?.trim() || 'USD'
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: safe }).format(value)
 }
 
 export function parseCurrency(value: string): number {

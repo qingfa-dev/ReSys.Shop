@@ -174,6 +174,7 @@ def main() -> None:
     for label, key, data_list in [
         ("Products", "id", products),
         ("Variants", "id", variants),
+        ("Variants", "sku", variants),
         ("VariantImages", "id", images),
         ("Taxons", "id", taxons),
         ("StockItems", "id", stock_items),

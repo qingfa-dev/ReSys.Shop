@@ -21,6 +21,14 @@ describe('formatCurrency', () => {
   it('supports custom currency and locale', () => {
     expect(formatCurrency(1234.5, 'EUR', 'de-DE')).toBe('1.234,50\xa0€')
   })
+
+  it('falls back to USD for empty currency string', () => {
+    expect(formatCurrency(99.99, '')).toBe('$99.99')
+  })
+
+  it('falls back to USD for whitespace-only currency', () => {
+    expect(formatCurrency(99.99, '   ')).toBe('$99.99')
+  })
 })
 
 describe('parseCurrency', () => {

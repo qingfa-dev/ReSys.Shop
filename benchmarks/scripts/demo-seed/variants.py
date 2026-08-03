@@ -1,6 +1,7 @@
 """Variant combination generator: one value per option type, capped."""
 from __future__ import annotations
 
+import hashlib
 import sys
 from pathlib import Path
 
@@ -45,5 +46,14 @@ def generate_variants(
 
 
 def derive_sku(base: str, variant_index: int) -> str:
-    safe = base.upper().replace(" ", "-").replace("'", "").replace("&", "AND")[:20]
-    return f"{safe}-{variant_index:03d}"
+    """Build a deterministic SKU that is unique across products.
+
+    The previous DeriveFormula truncated ``base`` to 20 chars, which caused
+    distinct products sharing that prefix (e.g. ``"Peter England Men …"``
+    and ``"Peter England Men …"``) to collide. We now append a 4-hex digest
+    of the full ``base`` so the SKU stays unique for distinct product names
+    while remaining deterministic for the same input.
+    """
+    safe = base.upper().replace(" ", "-").replace("'", "").replace("&", "AND")[:16]
+    digest = hashlib.sha256(base.encode("utf-8")).hexdigest()[:4].upper()
+    return f"{safe}-{digest}-{variant_index:03d}"
