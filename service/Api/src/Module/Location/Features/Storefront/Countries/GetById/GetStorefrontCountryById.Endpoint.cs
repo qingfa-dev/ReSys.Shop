@@ -1,6 +1,6 @@
 using Module.Location.Features.Shared;
 
-namespace Module.Location.Features.Store.Countries.GetById;
+namespace Module.Location.Features.Storefront.Countries.GetById;
 
 public static partial class GetStorefrontCountryById
 {

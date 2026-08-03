@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Get.PagedOrAll;
 
 public static partial class GetVariantsPagedOrAll
 {
-    public sealed record Response : VariantDetailResponse;
+    public sealed record Response : VariantListItemResponse;
 }

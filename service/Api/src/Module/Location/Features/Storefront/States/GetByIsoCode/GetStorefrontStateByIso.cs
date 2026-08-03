@@ -1,7 +1,7 @@
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
-namespace Module.Location.Features.Store.States.GetByIsoCode;
+namespace Module.Location.Features.Storefront.States.GetByIsoCode;
 
 /// <summary>Retrieves a state by abbreviation for the storefront.</summary>
 public static partial class GetStorefrontStateByIso

@@ -1,6 +1,6 @@
 using Module.Location.Features.Admin.States.Shared.Models;
 
-namespace Module.Location.Features.Store.States.GetByIsoCode;
+namespace Module.Location.Features.Storefront.States.GetByIsoCode;
 
 public static partial class GetStorefrontStateByIso
 {

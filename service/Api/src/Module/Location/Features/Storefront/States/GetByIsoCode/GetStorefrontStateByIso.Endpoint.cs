@@ -1,16 +1,16 @@
 using Module.Location.Features.Shared;
 
-namespace Module.Location.Features.Store.Countries.GetByIsoCode;
+namespace Module.Location.Features.Storefront.States.GetByIsoCode;
 
-public static partial class GetStorefrontCountryByIso
+public static partial class GetStorefrontStateByIso
 {
-    /// <summary>Storefront: get country by ISO code.</summary>
+    /// <summary>Storefront: get state by ISO code.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET {route}/{isoCode} → country by ISO for storefront
-            app.MapGet(pattern: LocationFeature.Storefront.Countries.GetByIso.Route, handler: async (
+            // Map: GET {route}/{isoCode} → state by ISO for storefront
+            app.MapGet(pattern: LocationFeature.Storefront.States.GetByIso.Route, handler: async (
                 [FromRoute] string isoCode,
                 ISender sender,
                 CancellationToken ct) =>
@@ -19,10 +19,10 @@ public static partial class GetStorefrontCountryByIso
                 var result = await sender.Send(request: query, cancellationToken: ct);
                 return result.ToResult();
             })
-            .WithName(nameof(GetStorefrontCountryByIso))
-            .WithTags(tags: LocationFeature.Storefront.Countries.Tags)
-            .WithSummary(summary: LocationFeature.Storefront.Countries.GetByIso.Summary)
-            .WithDescription(description: LocationFeature.Storefront.Countries.GetByIso.Description)
+            .WithName(nameof(GetStorefrontStateByIso))
+            .WithTags(tags: LocationFeature.Storefront.States.Tags)
+            .WithSummary(summary: LocationFeature.Storefront.States.GetByIso.Summary)
+            .WithDescription(description: LocationFeature.Storefront.States.GetByIso.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(statusCode: StatusCodes.Status400BadRequest)
             .Produces<Result>(statusCode: StatusCodes.Status404NotFound);

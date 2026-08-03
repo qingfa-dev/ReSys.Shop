@@ -1,6 +1,6 @@
 using Module.Location.Features.Shared;
 
-namespace Module.Location.Features.Store.States.GetById;
+namespace Module.Location.Features.Storefront.States.GetById;
 
 public static partial class GetStorefrontStateById
 {

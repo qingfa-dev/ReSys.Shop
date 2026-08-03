@@ -3,7 +3,7 @@ using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
 
-namespace Module.Location.Features.Store.Countries.GetPagedOrAll;
+namespace Module.Location.Features.Storefront.Countries.GetPagedOrAll;
 
 /// <summary>Retrieves paged countries for the storefront with filtering and sorting.</summary>
 public static partial class GetStorefrontCountryPagedOrAll

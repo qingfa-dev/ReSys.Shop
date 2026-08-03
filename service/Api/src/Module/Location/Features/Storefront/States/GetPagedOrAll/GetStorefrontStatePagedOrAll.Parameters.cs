@@ -1,4 +1,4 @@
-namespace Module.Location.Features.Store.States.GetPagedOrAll;
+namespace Module.Location.Features.Storefront.States.GetPagedOrAll;
 
 public static partial class GetStorefrontStatePagedOrAll
 {

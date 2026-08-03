@@ -37,8 +37,8 @@ public static partial class GetVariantsPagedOrAll
                     .ThenInclude(ovv => ovv.OptionValue)
                 .Include(x => x.VariantImages)
                 .Where(x => !x.IsDeleted && (query.Parameters.ProductId == null || x.ProductId == query.Parameters.ProductId))
-                .ApplyQuerying(parsing.Value, defaultSortClauses: [new SortClause { Field = nameof(Variant.Position) }])
-                .ToPagedOrAllAsync(parsing.Value, x => x.MapToDetail<Response>(), cancellationToken);
+                .ApplyQuerying(parsing.Value)
+                .ToPagedOrAllAsync(parsing.Value, x => x.MapToListItem<Response>(), cancellationToken);
         }
     }
 }

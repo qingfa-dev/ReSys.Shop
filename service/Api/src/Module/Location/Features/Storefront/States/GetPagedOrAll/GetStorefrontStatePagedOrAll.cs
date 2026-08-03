@@ -3,7 +3,7 @@ using Module.Location.Features.Admin.States.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
 
-namespace Module.Location.Features.Store.States.GetPagedOrAll;
+namespace Module.Location.Features.Storefront.States.GetPagedOrAll;
 
 /// <summary>Retrieves paged states for the storefront with filtering and sorting.</summary>
 public static partial class GetStorefrontStatePagedOrAll

@@ -1,6 +1,6 @@
 using Module.Location.Features.Admin.Countries.Shared.Models;
 
-namespace Module.Location.Features.Store.Countries.GetByIsoCode;
+namespace Module.Location.Features.Storefront.Countries.GetByIsoCode;
 
 public static partial class GetStorefrontCountryByIso
 {

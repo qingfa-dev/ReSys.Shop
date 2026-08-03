@@ -1,6 +1,6 @@
 using Module.Location.Features.Admin.States.Shared.Models;
 
-namespace Module.Location.Features.Store.States.GetPagedOrAll;
+namespace Module.Location.Features.Storefront.States.GetPagedOrAll;
 
 public static partial class GetStorefrontStatePagedOrAll
 {

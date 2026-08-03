@@ -1,7 +1,7 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
-namespace Module.Location.Features.Store.Countries.GetById;
+namespace Module.Location.Features.Storefront.Countries.GetById;
 
 /// <summary>Retrieves a country by identifier for the storefront.</summary>
 public static partial class GetStorefrontCountryById

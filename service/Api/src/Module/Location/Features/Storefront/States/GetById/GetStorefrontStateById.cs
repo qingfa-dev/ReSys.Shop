@@ -1,7 +1,7 @@
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
-namespace Module.Location.Features.Store.States.GetById;
+namespace Module.Location.Features.Storefront.States.GetById;
 
 /// <summary>Retrieves a state by identifier for the storefront.</summary>
 public static partial class GetStorefrontStateById

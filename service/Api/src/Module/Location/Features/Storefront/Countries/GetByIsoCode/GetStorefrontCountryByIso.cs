@@ -1,7 +1,7 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
-namespace Module.Location.Features.Store.Countries.GetByIsoCode;
+namespace Module.Location.Features.Storefront.Countries.GetByIsoCode;
 
 /// <summary>Retrieves a country by ISO code for the storefront.</summary>
 public static partial class GetStorefrontCountryByIso
