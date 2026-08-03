@@ -1,172 +1,115 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import Button from "primevue/button";
-import Card from "primevue/card";
-import InputText from "primevue/inputtext";
-import type { RecommendedProduct, RecommendationSet } from "../types";
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import Button from 'primevue/button'
+import Card from 'primevue/card'
+import ProgressBar from 'primevue/progressbar'
+import Skeleton from 'primevue/skeleton'
+import { recommendationsService } from '../services/recommendations.service'
+import type { Product } from '@/features/catalog/types'
 
-const router = useRouter();
+const router = useRouter()
 
-const isDragging = ref(false);
-const uploadedImage = ref<string | null>(null);
-const searchQuery = ref("");
+// Reactive state
+const isDragging = ref(false)
+const uploadedImage = ref<string | null>(null)   // data: URL for <img> preview
+const selectedFile = ref<File | null>(null)       // raw File for upload
+const isSearching = ref(false)
+const errorMessage = ref<string | null>(null)
 
-const mockSimilarProducts: RecommendedProduct[] = [
-  {
-    id: "1",
-    name: "Classic Cotton T-Shirt",
-    brand: "ReSys",
-    price: 29.99,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300",
-    score: 0.95,
-    reason: "Visually similar",
-    badge: "trending",
-  },
-  {
-    id: "2",
-    name: "Slim Fit Jeans",
-    brand: "ReSys",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=300",
-    score: 0.88,
-    reason: "Similar style",
-  },
-  {
-    id: "3",
-    name: "Wool Blend Coat",
-    brand: "ReSys",
-    price: 199.99,
-    image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=300",
-    score: 0.82,
-    reason: "Similar color",
-    badge: "new",
-  },
-  {
-    id: "4",
-    name: "Leather Handbag",
-    brand: "ReSys",
-    price: 149.99,
-    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300",
-    score: 0.78,
-    reason: "Similar material",
-  },
-  {
-    id: "5",
-    name: "Running Sneakers",
-    brand: "ReSys",
-    price: 119.99,
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300",
-    score: 0.75,
-    reason: "Similar category",
-  },
-  {
-    id: "6",
-    name: "Summer Dress",
-    brand: "ReSys",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=300",
-    score: 0.72,
-    reason: "Similar style",
-  },
-];
+// The backend search response is typed as Product[], but the embedding
+// similarity score is not part of the Product schema — surface it as optional.
+type SearchResultProduct = Product & { similarityScore?: number }
 
-const mockYouMayLike: RecommendedProduct[] = [
-  {
-    id: "7",
-    name: "Linen Blend Shirt",
-    brand: "ReSys",
-    price: 59.99,
-    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=300",
-    score: 0.91,
-    reason: "Based on your preferences",
-    badge: "new",
-  },
-  {
-    id: "8",
-    name: "Tailored Trousers",
-    brand: "ReSys",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=300",
-    score: 0.87,
-    reason: "Popular in your area",
-  },
-  {
-    id: "9",
-    name: "Silk Scarf",
-    brand: "ReSys",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300",
-    score: 0.84,
-    reason: "Frequently bought together",
-  },
-  {
-    id: "10",
-    name: "Canvas Backpack",
-    brand: "ReSys",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300",
-    score: 0.81,
-    reason: "Trending now",
-  },
-];
+const results = ref<SearchResultProduct[]>([])
 
-const hasResults = computed(() => uploadedImage.value !== null);
+// Computed state flags
+const showEmptyState = computed(() => !uploadedImage.value && !isSearching.value)
+const showUpload = computed(() => uploadedImage.value && !isSearching.value && results.value.length === 0 && !errorMessage.value)
+const showLoading = computed(() => isSearching.value)
+const hasResults = computed(() => results.value.length > 0 && !isSearching.value)
+const showEmptyResults = computed(() => uploadedImage.value && !isSearching.value && results.value.length === 0 && errorMessage.value)
 
-function handleDragOver(event: DragEvent) {
-  event.preventDefault();
-  isDragging.value = true;
-}
+// Client-side validation before any network request
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
 
-function handleDragLeave() {
-  isDragging.value = false;
-}
-
-function handleDrop(event: DragEvent) {
-  event.preventDefault();
-  isDragging.value = false;
-  
-  const files = event.dataTransfer?.files;
-  if (files && files.length > 0) {
-    handleFile(files[0]!);
+function validateFile(file: File): string | null {
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return 'Please select a JPEG, PNG, or WebP image.'
   }
-}
-
-function handleFileInput(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const files = target.files;
-  if (files && files.length > 0) {
-    handleFile(files[0]!);
+  if (file.size > MAX_SIZE) {
+    return 'Image must be under 10 MB.'
   }
+  return null
 }
 
 function handleFile(file: File) {
-  if (!file.type.startsWith("image/")) {
-    return;
-  }
+  errorMessage.value = null
+  results.value = []
+  const err = validateFile(file)
+  if (err) { errorMessage.value = err; return }
+  selectedFile.value = file
+  const reader = new FileReader()
+  reader.onload = (e) => { uploadedImage.value = e.target?.result as string }
+  reader.readAsDataURL(file)
+}
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    uploadedImage.value = e.target?.result as string;
-  };
-  reader.readAsDataURL(file);
+// Drag-and-drop handlers
+function handleDragOver(e: DragEvent) { e.preventDefault(); isDragging.value = true }
+function handleDragLeave() { isDragging.value = false }
+function handleDrop(e: DragEvent) {
+  e.preventDefault(); isDragging.value = false
+  const files = e.dataTransfer?.files
+  if (files?.length) handleFile(files[0]!)
+}
+function handleFileInput(e: Event) {
+  const target = e.target as HTMLInputElement
+  const files = target.files
+  if (files?.length) handleFile(files[0]!)
+}
+
+// CBIR search
+async function handleSearch() {
+  if (!selectedFile.value) return
+  isSearching.value = true
+  errorMessage.value = null
+  const result = await recommendationsService.searchByImage(selectedFile.value)
+  isSearching.value = false
+  if (result.isSuccess && result.data) {
+    results.value = result.data
+  } else {
+    errorMessage.value = result.message || 'Search failed. Please try again.'
+  }
 }
 
 function clearImage() {
-  uploadedImage.value = null;
+  uploadedImage.value = null
+  selectedFile.value = null
+  results.value = []
+  errorMessage.value = null
 }
 
 function handleProductClick(productId: string) {
-  router.push(`/product/${productId}`);
+  router.push(`/products/${productId}`)
 }
 
-function handleSearch() {
-  if (searchQuery.value.trim()) {
-    router.push({
-      path: "/shop",
-      query: { q: searchQuery.value.trim() },
-    });
-  }
+// Formatting helpers
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
+}
+
+function scoreClass(score: number): string {
+  if (score >= 0.9) return 'high'
+  if (score >= 0.8) return 'medium'
+  return 'low'
+}
+
+// Product schema stores images as an array of URL strings or { url, alt } objects.
+function productThumbnail(product: Product): string {
+  const firstImage = product.images?.[0]
+  if (!firstImage) return ''
+  return typeof firstImage === 'string' ? firstImage : firstImage.url || ''
 }
 </script>
 
@@ -174,113 +117,96 @@ function handleSearch() {
   <div class="recommendations-view">
     <div class="page-header">
       <h1>Image Search & Recommendations</h1>
-      <p>Upload an image to find similar products or discover items you may like</p>
+      <p>Upload an image to find visually similar products</p>
     </div>
 
-    <div class="search-section">
-      <div class="search-box">
-        <i class="pi pi-search"></i>
-        <InputText
-          v-model="searchQuery"
-          placeholder="Search for products..."
-          @keyup.enter="handleSearch"
-        />
-      </div>
-    </div>
-
-    <div class="upload-section">
+    <!-- State 1: Empty — drop zone -->
+    <div v-if="showEmptyState" class="upload-section">
       <div
         class="drop-zone"
-        :class="{ dragging: isDragging, 'has-image': uploadedImage }"
+        :class="{ dragging: isDragging }"
         @dragover="handleDragOver"
         @dragleave="handleDragLeave"
         @drop="handleDrop"
       >
-        <template v-if="!uploadedImage">
-          <div class="drop-content">
-            <i class="pi pi-cloud-upload"></i>
-            <h3>Drag & drop an image here</h3>
-            <p>or</p>
-            <label class="upload-btn">
-              <Button label="Choose File" icon="pi pi-folder-open" />
-              <input type="file" accept="image/*" @change="handleFileInput" hidden />
-            </label>
-            <span class="supported-formats">Supported: JPG, PNG, GIF, WebP</span>
-          </div>
-        </template>
-        
-        <template v-else>
-          <div class="preview-container">
-            <img :src="uploadedImage" alt="Uploaded image" class="preview-image" />
-            <button class="clear-btn" @click="clearImage" aria-label="Clear image">
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-        </template>
-      </div>
-    </div>
-
-    <div v-if="hasResults" class="results-section">
-      <div class="similar-products">
-        <h2>Similar Products</h2>
-        <p class="section-subtitle">Products visually similar to your image</p>
-        <div class="products-grid">
-          <Card
-            v-for="product in mockSimilarProducts"
-            :key="product.id"
-            class="product-card"
-            @click="handleProductClick(product.id)"
-          >
-            <template #content>
-              <div class="product-image">
-                <img :src="product.image" :alt="product.name" />
-                <span v-if="product.badge" class="badge" :class="product.badge">
-                  {{ product.badge }}
-                </span>
-              </div>
-              <div class="product-info">
-                <span class="brand">{{ product.brand }}</span>
-                <h4 class="name">{{ product.name }}</h4>
-                <span class="price">${{ product.price.toFixed(2) }}</span>
-                <span class="score">{{ Math.round(product.score * 100) }}% match</span>
-              </div>
-            </template>
-          </Card>
+        <div class="drop-content">
+          <i class="pi pi-cloud-upload"></i>
+          <h3>Drag & drop an image here</h3>
+          <p>or</p>
+          <label class="upload-btn">
+            <Button label="Choose an image" icon="pi pi-folder-open" />
+            <input type="file" accept="image/jpeg,image/png,image/webp" @change="handleFileInput" hidden />
+          </label>
+          <span class="supported-formats">JPEG, PNG, or WebP up to 10 MB</span>
         </div>
       </div>
+      <p v-if="errorMessage" class="error-message"><i class="pi pi-exclamation-circle"></i> {{ errorMessage }}</p>
+    </div>
 
-      <div class="you-may-like">
-        <h2>You May Also Like</h2>
-        <p class="section-subtitle">Based on your browsing history</p>
-        <div class="products-grid">
-          <Card
-            v-for="product in mockYouMayLike"
-            :key="product.id"
-            class="product-card"
-            @click="handleProductClick(product.id)"
-          >
-            <template #content>
-              <div class="product-image">
-                <img :src="product.image" :alt="product.name" />
-                <span v-if="product.badge" class="badge" :class="product.badge">
-                  {{ product.badge }}
-                </span>
-              </div>
-              <div class="product-info">
-                <span class="brand">{{ product.brand }}</span>
-                <h4 class="name">{{ product.name }}</h4>
-                <span class="price">${{ product.price.toFixed(2) }}</span>
-              </div>
-            </template>
-          </Card>
+    <!-- State 2: Upload — image preview + Search button -->
+    <div v-if="showUpload" class="upload-section">
+      <div class="preview-container">
+        <img :src="uploadedImage!" alt="Uploaded image" class="preview-image" />
+        <p class="file-info">{{ selectedFile?.name }} ({{ ((selectedFile?.size ?? 0) / 1024).toFixed(1) }} KB)</p>
+        <div class="preview-actions">
+          <Button label="Search Similar Products" icon="pi pi-search" @click="handleSearch" />
+          <Button label="Change image" icon="pi pi-refresh" class="p-button-outlined" @click="clearImage" />
         </div>
       </div>
     </div>
 
-    <div v-else class="empty-state">
-      <i class="pi pi-image"></i>
-      <h3>Try uploading an image</h3>
-      <p>Upload a product image to find similar items or browse recommendations</p>
+    <!-- State 3: Loading — skeleton grid -->
+    <div v-if="showLoading" class="loading-section">
+      <ProgressBar mode="indeterminate" />
+      <div class="skeleton-grid">
+        <Skeleton v-for="i in 8" :key="i" width="100%" height="320px" />
+      </div>
+    </div>
+
+    <!-- State 4a: Results — product grid with similarity sidebar -->
+    <div v-if="hasResults" class="results-layout">
+      <aside class="query-sidebar">
+        <img :src="uploadedImage!" alt="Query image" class="query-thumb" />
+        <Button label="New Search" icon="pi pi-refresh" class="p-button-outlined" @click="clearImage" />
+      </aside>
+      <div class="results-grid">
+        <Card
+          v-for="product in results"
+          :key="product.id"
+          class="product-card"
+          @click="handleProductClick(product.id)"
+        >
+          <template #content>
+            <div class="product-image">
+              <img :src="productThumbnail(product)" :alt="product.name" />
+              <span
+                v-if="product.similarityScore !== undefined"
+                class="similarity-badge"
+                :class="scoreClass(product.similarityScore)"
+              >
+                {{ Math.round(product.similarityScore * 100) }}% match
+              </span>
+            </div>
+            <div class="product-info">
+              <h4 class="name">{{ product.name }}</h4>
+              <span class="price">{{ formatPrice(product.price) }}</span>
+            </div>
+          </template>
+        </Card>
+      </div>
+    </div>
+
+    <!-- State 4b: Empty results -->
+    <div v-if="showEmptyResults" class="empty-results">
+      <i class="pi pi-search-minus"></i>
+      <h3>No similar products found</h3>
+      <p>We couldn't find products visually similar to your image. Try a different image or browse the catalog.</p>
+      <Button label="Try Again" icon="pi pi-refresh" @click="clearImage" />
+    </div>
+
+    <!-- MVP: dropped — backend /api/storefront/recommendations/personalized returns 501 -->
+    <div v-if="false">
+      <!-- You May Also Like section removed -->
     </div>
   </div>
 </template>
@@ -602,5 +528,105 @@ function handleSearch() {
     max-width: 200px;
     max-height: 200px;
   }
+}
+</style>
+
+<style scoped lang="scss">
+// New: Loading state
+.loading-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// New: Results layout with sidebar
+.results-layout {
+  display: flex;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.query-sidebar {
+  flex: 0 0 240px;
+  text-align: center;
+
+  .query-thumb {
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    border: 2px solid var(--color-primary);
+  }
+}
+
+.results-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+// New: Similarity badge
+.similarity-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: white;
+
+  &.high   { background: #22c55e; }   // >= 90%
+  &.medium { background: #f59e0b; }   // >= 80%
+  &.low    { background: #6b7280; }   // < 80%
+}
+
+// New: Empty results state
+.empty-results {
+  text-align: center;
+  padding: 4rem 2rem;
+
+  i { font-size: 4rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  h3 { font-family: var(--font-display); font-size: var(--font-size-xl); margin-bottom: 0.5rem; }
+  p { max-width: 480px; margin: 0 auto 1.5rem; color: var(--color-text-secondary); }
+}
+
+// New: Error message
+.error-message {
+  color: var(--color-danger);
+  text-align: center;
+  margin-top: 0.75rem;
+
+  i { margin-right: 0.25rem; }
+}
+
+// New: File info in preview
+.file-info {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0.5rem 0 1rem;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
 }
 </style>
