@@ -42,3 +42,8 @@ def generate_variants(
         }
         for i, (color, size) in enumerate(selected)
     ]
+
+
+def derive_sku(base: str, variant_index: int) -> str:
+    safe = base.upper().replace(" ", "-").replace("'", "").replace("&", "AND")[:20]
+    return f"{safe}-{variant_index:03d}"

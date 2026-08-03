@@ -1,4 +1,10 @@
-from variants import generate_variants
+from variants import derive_sku, generate_variants
+
+
+def test_derive_sku_indexed():
+    assert derive_sku("Navy Blue Dress", 3) == "NAVY-BLUE-DRESS-003"
+    assert derive_sku("R&B Tee", 10) == "RANDB-TEE-010"
+    assert derive_sku("Jacket 'Deluxe'", 0) == "JACKET-DELUXE-000"
 
 
 def test_master_is_first_combo_and_child_combo_not_repeated():

@@ -92,3 +92,15 @@ def unique_colors(rows: list[dict]) -> list[str]:
         if color and color not in colors:
             colors.append(color)
     return colors
+
+
+def sizes_for_colors(dataset_path: Path, group_rows: list[dict]) -> dict[str, list[str]]:
+    """Map each unique color of a product group to its sorted size list."""
+    by_color: dict[str, list[str]] = {}
+    for row in group_rows:
+        color = row.get("baseColour", "").strip()
+        if not color or color in by_color:
+            continue
+        style_json = load_style_json(dataset_path, row.get("id", "").strip())
+        by_color[color] = extract_sizes(style_json)
+    return by_color
