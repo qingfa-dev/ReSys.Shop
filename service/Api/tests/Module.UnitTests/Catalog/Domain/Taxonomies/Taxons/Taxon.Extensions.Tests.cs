@@ -109,6 +109,93 @@ public class TaxonExtensionsTests
         taxon.MarkedForRegenerateTaxonProducts.Should().BeTrue();
     }
 
+    [Fact(DisplayName = "Create: Should honor explicit slug and not regenerate from name")]
+    public void Create_WithExplicitDistinctSlug_ShouldHonorSlugAndNotRegenerateFromName()
+    {
+        var taxonomyId = Guid.NewGuid();
+        var id = Guid.NewGuid();
+
+        var result = TaxonMethod.Create(
+            taxonomyId: taxonomyId,
+            parentId: null,
+            name: "Foo Bar",
+            presentation: "Foo Bar",
+            description: null,
+            position: 0,
+            slug: "custom-disambiguated-slug",
+            metaTitle: null,
+            metaDescription: null,
+            metaKeywords: null,
+            automatic: false,
+            rulesMatchPolicy: null,
+            sortOrder: null,
+            hideFromNav: false,
+            imageUrl: null,
+            squareImageUrl: null,
+            id: id);
+
+        var taxon = result.Value;
+
+        result.IsSuccess.Should().BeTrue();
+        taxon.Slug.Should().Be("custom-disambiguated-slug");
+        taxon.Slug.Should().NotBe("foo-bar");
+    }
+
+    [Fact(DisplayName = "Create: Should slugify from name when slug is empty")]
+    public void Create_WithEmptySlug_ShouldSlugifyFromName()
+    {
+        var taxonomyId = Guid.NewGuid();
+
+        var result = TaxonMethod.Create(
+            taxonomyId: taxonomyId,
+            parentId: null,
+            name: "Foo Bar",
+            presentation: "Foo Bar",
+            description: null,
+            position: 0,
+            slug: "",
+            metaTitle: null,
+            metaDescription: null,
+            metaKeywords: null,
+            automatic: false,
+            rulesMatchPolicy: null,
+            sortOrder: null,
+            hideFromNav: false,
+            imageUrl: null,
+            squareImageUrl: null);
+
+        var taxon = result.Value;
+
+        result.IsSuccess.Should().BeTrue();
+        taxon.Slug.Should().Be("foo-bar");
+    }
+
+    [Fact(DisplayName = "Update: With explicit slug should preserve explicit slug over name-based slugification")]
+    public void Update_WithExplicitSlug_ShouldPreserveExplicitSlug()
+    {
+        var taxon = CreateSampleTaxon();
+
+        taxon.Update(
+            parentId: null,
+            name: "Different Name",
+            presentation: null,
+            description: null,
+            position: null,
+            slug: "preserved-explicit-slug",
+            metaTitle: null,
+            metaDescription: null,
+            metaKeywords: null,
+            automatic: null,
+            rulesMatchPolicy: null,
+            sortOrder: null,
+            hideFromNav: null,
+            imageUrl: null,
+            squareImageUrl: null);
+
+        taxon.Slug.Should().Be("preserved-explicit-slug");
+        taxon.Slug.Should().NotBe("different-name");
+    }
+
     [Fact(DisplayName = "Update: With parent change should update parent")]
     public void Update_WithParentChange_ShouldUpdateParent()
     {
