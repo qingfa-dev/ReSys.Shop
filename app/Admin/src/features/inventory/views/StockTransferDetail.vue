@@ -14,7 +14,7 @@ import { z } from 'zod'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { formatDateTimeUtc } from '@/shared/utils/date'
-import { useStockLocationStore } from '../stores/stockLocationStore'
+import { useActiveStockLocations } from '../composables/useActiveStockLocations'
 import { StockTransferApi } from '../services/stockTransferApi'
 import { VariantApi } from '@/features/catalog/services/variantApi'
 import type { VariantListItem } from '@/features/catalog/types/variant'
@@ -34,7 +34,7 @@ const router = useRouter()
 const notify = useNotify()
 const confirm = useConfirm()
 const { handleResult } = useApiErrorHandler()
-const stockLocationStore = useStockLocationStore()
+const { items: activeStockLocations, load: loadActiveStockLocations } = useActiveStockLocations()
 
 const isCreate = computed(() => route.params.id === 'new')
 const pageTitle = computed(() => (isCreate.value ? 'New Stock Transfer' : 'Stock Transfer Detail'))
@@ -162,7 +162,8 @@ function stateSeverity(state: StockTransferState): string {
 }
 
 function locationName(locationId: string): string {
-  return stockLocationStore.activeStockLocations.find((l) => l.id === locationId)?.name ?? locationId
+  // Filter: Resolve the location name from the active locations list; fall back to the raw ID
+  return activeStockLocations.value.find((l) => l.id === locationId)?.name ?? locationId
 }
 
 function variantSku(variantId: string): string {
@@ -244,7 +245,7 @@ function confirmCancel() {
 }
 
 onMounted(async () => {
-  stockLocationStore.fetchActive()
+  loadActiveStockLocations()
   await loadVariants()
 
   if (!isCreate.value) {
@@ -290,12 +291,12 @@ watch(
           <Form id="stock-transfer-form" :resolver="resolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
             <FormField v-slot="$field" name="sourceLocationId" :resolver="sourceResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Source Location <span class="text-red-500">*</span></label>
-              <Select :options="stockLocationStore.activeStockLocations" option-label="name" option-value="id" placeholder="Select a source location" fluid />
+              <Select :options="activeStockLocations" option-label="name" option-value="id" placeholder="Select a source location" fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
             <FormField v-slot="$field" name="destinationLocationId" :resolver="destinationResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Destination Location <span class="text-red-500">*</span></label>
-              <Select :options="stockLocationStore.activeStockLocations" option-label="name" option-value="id" placeholder="Select a destination location" fluid />
+              <Select :options="activeStockLocations" option-label="name" option-value="id" placeholder="Select a destination location" fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
             <FormField name="reference" class="flex flex-col gap-1">

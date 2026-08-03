@@ -12,12 +12,12 @@ import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useStockTransferList } from '../composables/useStockTransferList'
-import { useStockLocationStore } from '../stores/stockLocationStore'
+import { useActiveStockLocations } from '../composables/useActiveStockLocations'
 import type { StockTransferState } from '../types/stockTransfer'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
-const stockLocationStore = useStockLocationStore()
+const { items: activeStockLocations, load: loadActiveStockLocations } = useActiveStockLocations()
 const search = ref('')
 const selectedState = ref<StockTransferState | null>(null)
 const selectedSourceLocation = ref<string | null>(null)
@@ -25,7 +25,7 @@ const selectedDestinationLocation = ref<string | null>(null)
 
 const { items, loading, setFilter, refresh } = useStockTransferList()
 
-stockLocationStore.fetchActive()
+loadActiveStockLocations()
 
 const STATE_OPTIONS: { label: string; value: StockTransferState }[] = [
   { label: 'Draft', value: 'Draft' },
@@ -101,7 +101,7 @@ function navigateToEdit(id: string) {
       />
       <Select
         :model-value="selectedSourceLocation"
-        :options="stockLocationStore.activeStockLocations"
+        :options="activeStockLocations"
         option-label="name"
         option-value="id"
         placeholder="All sources"
@@ -111,7 +111,7 @@ function navigateToEdit(id: string) {
       />
       <Select
         :model-value="selectedDestinationLocation"
-        :options="stockLocationStore.activeStockLocations"
+        :options="activeStockLocations"
         option-label="name"
         option-value="id"
         placeholder="All destinations"
