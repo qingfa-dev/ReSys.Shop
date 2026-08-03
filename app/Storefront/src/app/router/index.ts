@@ -105,6 +105,12 @@ const protectedRoutes: RouteRecordRaw[] = [
         component: () => import('@/features/profile/views/ProfileView.vue'),
         meta: { title: 'Profile', breadcrumb: 'Profile' },
       },
+      {
+        path: 'sessions',
+        name: 'sessions',
+        component: () => import('@/features/identity/views/SessionsView.vue'),
+        meta: { title: 'Sessions', breadcrumb: 'Sessions' },
+      },
     ],
   },
 ]
