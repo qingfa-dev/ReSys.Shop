@@ -42,6 +42,7 @@ const {
   defaultPageSize: 20,
 })
 
+// Map: Derive the zero-based PrimeVue row offset for lazy scrolling.
 const first = computed(() => (page.value - 1) * pageSize.value)
 
 function onPage(event: DataTablePageEvent) {
@@ -79,6 +80,7 @@ function clearSearch() {
 function confirmDelete() {
   if (selectedItems.value.length === 0) return
 
+  // Trigger: Confirm before bulk-deleting the highlighted countries.
   confirm.require({
     message: `Are you sure you want to delete ${selectedItems.value.length > 1 ? 'these countries' : 'this country'}?`,
     header: 'Confirm Delete',
@@ -87,6 +89,7 @@ function confirmDelete() {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete each selected country, tallying failures for the toast.
       const ids = selectedItems.value.map(i => i.id)
       const names = selectedItems.value.map(i => i.name)
       let failed = 0
@@ -116,6 +119,7 @@ function confirmDelete() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and one-line description -->
     <div class="flex-none flex flex-col gap-4">
       <div>
         <div class="font-semibold text-xl">Countries</div>
@@ -123,7 +127,9 @@ function confirmDelete() {
       </div>
     </div>
 
+    <!-- Section: Scrollable Content — page body that grows and scrolls -->
     <div class="flex-1 min-h-0 mt-4">
+      <!-- Section: Data Table — lazy, selectable country grid -->
       <DataTable size="large"
         ref="dt"
         v-model:selection="selectedItems"
@@ -146,6 +152,7 @@ function confirmDelete() {
         :pt="{ wrapper: { class: 'h-full' }, tableContainer: { class: 'h-full' } }"
       >
         <Column selection-mode="multiple" header-style="width: 3rem" />
+        <!-- Section: Search & Filters — search box and bulk action buttons -->
         <template #header>
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -169,6 +176,7 @@ function confirmDelete() {
             </div>
           </div>
         </template>
+        <!-- Section: Table Columns — country identity and status fields -->
         <Column field="name" header="Name" :sortable="true" />
         <Column field="isoCode" header="ISO Code" :sortable="true" />
         <Column field="callingCode" header="Calling Code" :sortable="true" />
@@ -182,6 +190,7 @@ function confirmDelete() {
             <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'danger'" />
           </template>
         </Column>
+        <!-- Section: Row Actions — edit and delete per country -->
         <Column header="" body-style="text-align: right; width: 6rem">
           <template #body="{ data }">
             <div class="flex justify-end gap-2">

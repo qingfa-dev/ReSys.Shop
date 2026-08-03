@@ -64,6 +64,7 @@ async function onSubmit(event: FormSubmitEvent) {
   if (!event.valid) return
 
   loading.value = true
+  // Map: Shape the resolved form values into the create/update request.
   const data = event.values as CountryForm
   const request = {
     name: data.name,
@@ -73,6 +74,7 @@ async function onSubmit(event: FormSubmitEvent) {
     isActive: data.isActive,
   }
 
+  // Call: Create or update; branching saves one round trip on edit.
   const result = isEdit.value
     ? await CountryApi.updateCountry(route.params.id as string, request)
     : await CountryApi.createCountry(request)
@@ -94,6 +96,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and save/cancel controls -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -105,8 +108,10 @@ function onCancel() {
       </div>
     </div>
 
+    <!-- Section: Content Card — scrolling area hosting the country form -->
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
+        <!-- Section: Form Fields — country identity, state, and activation inputs -->
         <template #content>
           <Form id="country-form" :key="String(formLoaded)" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">

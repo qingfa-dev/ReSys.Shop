@@ -75,6 +75,7 @@ async function onSubmit(event: FormSubmitEvent) {
     isActive: data.isActive,
   }
 
+  // Call: Create or update; branching saves one round trip on edit.
   const result = isEdit.value
     ? await StateApi.updateState(route.params.id as string, request)
     : await StateApi.createState(request)
@@ -96,6 +97,7 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — title and save/cancel controls -->
     <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
@@ -107,8 +109,10 @@ function onCancel() {
       </div>
     </div>
 
+    <!-- Section: Content Card — scrolling area hosting the state form -->
     <div class="flex-1 min-h-0 overflow-auto">
       <Card>
+        <!-- Section: Form Fields — state identity, country, and activation inputs -->
         <template #content>
           <Form id="state-form" :key="String(formLoaded)" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
               <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
