@@ -35,6 +35,7 @@ public static partial class CreateEmbedding
             .Produces<Result<EmbeddingDetailResponse>>(StatusCodes.Status201Created)
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound)
+            .Produces<Result>(StatusCodes.Status409Conflict)
             .Produces<Result>(StatusCodes.Status422UnprocessableEntity);
         }
     }
