@@ -1,1 +1,0 @@
-export { useStockLocationStore } from './stockLocationStore'
