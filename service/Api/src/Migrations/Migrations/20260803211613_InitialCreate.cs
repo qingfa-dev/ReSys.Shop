@@ -511,6 +511,8 @@ namespace Api.Migrations.Migrations
                     payment_status = table.Column<string>(type: "text", nullable: true),
                     refunded_amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     provider_key = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    processed_stripe_event_ids = table.Column<string>(type: "jsonb", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     payment_method_id = table.Column<Guid>(type: "uuid", nullable: true),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     source_id = table.Column<Guid>(type: "uuid", nullable: true),
@@ -1582,17 +1584,11 @@ namespace Api.Migrations.Migrations
                 column: "parent_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_taxa_slug",
+                name: "ix_taxa_taxonomy_slug",
                 schema: "catalog",
                 table: "taxa",
-                column: "slug",
+                columns: new[] { "taxonomy_id", "slug" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_taxa_taxonomy_id",
-                schema: "catalog",
-                table: "taxa",
-                column: "taxonomy_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_taxon_rules_taxon_id",

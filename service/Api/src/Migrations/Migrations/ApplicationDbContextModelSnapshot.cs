@@ -996,12 +996,9 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("ParentId")
                         .HasDatabaseName("ix_taxa_parent_id");
 
-                    b.HasIndex("Slug")
+                    b.HasIndex("TaxonomyId", "Slug")
                         .IsUnique()
-                        .HasDatabaseName("ix_taxa_slug");
-
-                    b.HasIndex("TaxonomyId")
-                        .HasDatabaseName("ix_taxa_taxonomy_id");
+                        .HasDatabaseName("ix_taxa_taxonomy_slug");
 
                     b.ToTable("taxa", "catalog");
                 });

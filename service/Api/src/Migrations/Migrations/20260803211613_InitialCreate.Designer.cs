@@ -14,8 +14,8 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260802212237_AddProcessedStripeEventIdsToPaymentCaptures")]
-    partial class AddProcessedStripeEventIdsToPaymentCaptures
+    [Migration("20260803211613_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -999,12 +999,9 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("ParentId")
                         .HasDatabaseName("ix_taxa_parent_id");
 
-                    b.HasIndex("Slug")
+                    b.HasIndex("TaxonomyId", "Slug")
                         .IsUnique()
-                        .HasDatabaseName("ix_taxa_slug");
-
-                    b.HasIndex("TaxonomyId")
-                        .HasDatabaseName("ix_taxa_taxonomy_id");
+                        .HasDatabaseName("ix_taxa_taxonomy_slug");
 
                     b.ToTable("taxa", "catalog");
                 });
