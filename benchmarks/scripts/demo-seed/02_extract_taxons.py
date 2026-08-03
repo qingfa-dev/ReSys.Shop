@@ -51,6 +51,7 @@ def build_taxons_json(
         mc_id = taxon_id(f"cat.{master_cat}")
         mc_lft = lft
         lft += 1
+        mc_slug = make_slug(master_cat)
         for sub_cat in sorted(sub_categories.get(master_cat, set())):
             sc_id = taxon_id(f"cat.{master_cat}.{sub_cat}")
             taxons.append({
@@ -66,7 +67,7 @@ def build_taxons_json(
         taxons.append({
             "id": mc_id, "taxonomy_id": TAXONOMY_CATEGORIES_ID,
             "parent_id": root_cat_id, "name": master_cat,
-            "presentation": master_cat, "slug": make_slug(master_cat),
+            "presentation": master_cat, "slug": mc_slug,
             "depth": 1, "lft": mc_lft, "rgt": mc_rgt, "position": 0,
             **build_taxon_seo(master_cat, "Categories"),
         })
