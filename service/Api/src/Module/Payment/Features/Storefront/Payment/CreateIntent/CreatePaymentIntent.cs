@@ -14,7 +14,7 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 /// <summary>Creates a payment intent for checkout.</summary>
 public static partial class CreatePaymentIntent
 {
-    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null) : ICommand<Response>;
+    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null, string? PaymentMethodToken = null, string? ReturnUrl = null) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -50,7 +50,11 @@ public static partial class CreatePaymentIntent
             var createResult = Domain.PaymentCaptures.PaymentCaptureMethod.Create(
                 amount: order.Total,
                 paymentMethodId: (Guid)paymentMethod.Id,
-                orderId: order.Id);
+                orderId: order.Id,
+                sourceId: command.PaymentMethodToken,
+                sourceType: command.PaymentMethodToken is null
+                    ? null
+                    : GatewayConstants.SourceTypes.PaymentMethod);
             if (createResult.IsFailure) return createResult.Errors;
 
             var payment = createResult.Value;
@@ -72,6 +76,7 @@ public static partial class CreatePaymentIntent
                 PaymentId = payment.Number,
                 IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
                 StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
+                SuccessUrl = command.ReturnUrl,
             };
 
             // Call: Gateway process (authorize or purchase depending on AutoCapture)
