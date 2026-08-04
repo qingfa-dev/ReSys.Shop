@@ -1,4 +1,4 @@
-namespace Module.Location.Features.Admin.Countries.Shared.Models;
+namespace Module.Location.Features.Shared.Countries.Models;
 
 public abstract record class CountryParameters : IActivatableParameters
 {

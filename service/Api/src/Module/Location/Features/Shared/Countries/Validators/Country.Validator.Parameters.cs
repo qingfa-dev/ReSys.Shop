@@ -1,6 +1,6 @@
-using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Shared.Countries.Models;
 
-namespace Module.Location.Features.Admin.Countries.Shared.Validators;
+namespace Module.Location.Features.Shared.Countries.Validators;
 
 public static partial class CountryValidator
 {

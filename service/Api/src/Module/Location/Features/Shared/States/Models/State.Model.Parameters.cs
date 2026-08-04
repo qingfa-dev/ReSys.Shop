@@ -1,4 +1,4 @@
-namespace Module.Location.Features.Admin.States.Shared.Models;
+namespace Module.Location.Features.Shared.States.Models;
 
 public abstract record StateParameters : IActivatableParameters
 {

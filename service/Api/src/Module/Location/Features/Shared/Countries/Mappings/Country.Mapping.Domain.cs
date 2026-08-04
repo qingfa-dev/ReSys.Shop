@@ -1,9 +1,9 @@
 using Module.Location.Domain.Countries;
-using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Shared.Countries.Models;
 
 using Shared.Application.Domain.Concerns.Auditable;
 
-namespace Module.Location.Features.Admin.Countries.Shared.Mappings;
+namespace Module.Location.Features.Shared.Countries.Mappings;
 
 public static partial class CountryMapping
 {

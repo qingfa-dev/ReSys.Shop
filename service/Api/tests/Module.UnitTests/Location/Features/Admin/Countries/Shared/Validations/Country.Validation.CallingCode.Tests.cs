@@ -1,5 +1,5 @@
 using Module.Location.Domain.Countries;
-using Module.Location.Features.Admin.Countries.Shared.Validators;
+using Module.Location.Features.Shared.Countries.Validators;
 
 namespace Module.UnitTests.Location.Features.Admin.Countries.Shared.Validations;
 

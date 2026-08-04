@@ -1,4 +1,4 @@
-using Module.Location.Features.Admin.States.Shared.Models;
+using Module.Location.Features.Shared.States.Models;
 
 namespace Module.Location.Features.Storefront.States.GetPagedOrAll;
 

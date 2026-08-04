@@ -1,5 +1,5 @@
 using Module.Location.Domain.Countries;
-using Module.Location.Features.Admin.Countries.Shared.Mappings;
+using Module.Location.Features.Shared.Countries.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
 

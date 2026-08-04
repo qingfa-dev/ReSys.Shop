@@ -1,6 +1,6 @@
 using Module.Location.Domain.States;
 
-namespace Module.Location.Features.Admin.States.Shared.Validators;
+namespace Module.Location.Features.Shared.States.Validators;
 
 public static partial class StateValidator
 {
