@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useCartStore } from '../stores/cartStore'
 import { useCheckoutStore } from '../stores/checkoutStore'
 import { getPaymentMethods } from '@/features/payment/services/paymentApi'
@@ -48,6 +48,7 @@ async function createIntent(): Promise<void> {
   processing.value = false
   if (secret) {
     clientSecret.value = secret
+    await nextTick()
     if (cardContainer.value && payment.stripePromise.value) {
       await payment.mount(secret, cardContainer.value)
     }

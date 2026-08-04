@@ -63,10 +63,8 @@ export const ENDPOINTS = {
   // GET (status) and POST (reserve) share the same route on the backend.
   cartReserveStatus: `${API_STOREFRONT}/cart/reserve`,
 
-  // Profile
-  // NOTE: the backend store profile routes live under api/store/profiles/profiles
-  // (the plan's bare api/store/profiles would 404). Set-default uses PUT address.
-  profiles: `${API_STORE}/profiles/profiles`,
+  // Profile — backend route: api/store/profiles (ProfileFeature.Storefront.Profiles)
+  profiles: `${API_STORE}/profiles`,
   addresses: `${API_STORE}/profiles/addresses`,
   addressById: (id: string) => `${API_STORE}/profiles/addresses/${id}`,
   wishlists: `${API_STORE}/profiles/wishlists`,
