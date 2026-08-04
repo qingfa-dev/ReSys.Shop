@@ -1,24 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import MobileNav from '@/app/components/layout/MobileNav.vue'
 import ThemeToggle from '@/app/components/ThemeToggle.vue'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useSearch } from '@/features/catalog/composables/useSearch'
 
-const router = useRouter()
 const auth = useAuthStore()
 const cart = useCartStore()
+const search = useSearch()
 
-const searchQuery = ref('')
 const mobileMenuOpen = ref(false)
-
-// Trigger: Execute keyword search
-function onSearch(): void {
-  if (searchQuery.value.trim()) {
-    router.push({ path: '/shop', query: { search: searchQuery.value } })
-  }
-}
 </script>
 <template>
   <!-- Section: Header Bar -->
@@ -30,20 +22,20 @@ function onSearch(): void {
           ReSys.Shop
         </router-link>
 
-        <!-- Section: Search Bar (desktop) -->
-        <form class="hidden md:flex flex-1 max-w-lg" @submit.prevent="onSearch">
-          <span class="p-input-icon-left w-full">
-            <i class="pi pi-search" />
-            <InputText
-              v-model="searchQuery"
-              placeholder="Search products..."
-              class="w-full"
-            />
-          </span>
-        </form>
-
         <!-- Section: Header Actions -->
         <div class="flex items-center gap-3">
+          <!-- Section: Search Trigger -->
+          <button
+            class="hidden md:flex p-2 text-stone-500 hover:text-teal-700 transition-colors"
+            aria-label="Search products"
+            @click="search.open()"
+          >
+            <i class="pi pi-search text-xl" />
+          </button>
+
+          <!-- Section: Theme Toggle -->
+          <ThemeToggle />
+
           <!-- Cart Icon -->
           <router-link
             to="/cart"
@@ -57,9 +49,6 @@ function onSearch(): void {
             {{ cart.itemCount }}
           </span>
         </router-link>
-
-        <!-- Section: Theme Toggle -->
-        <ThemeToggle />
 
         <!-- Section: User Menu / Sign In -->
         <template v-if="auth.isAuthenticated">
