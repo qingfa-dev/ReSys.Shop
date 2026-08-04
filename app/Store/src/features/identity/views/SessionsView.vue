@@ -58,6 +58,8 @@ async function revokeCurrent(): Promise<void> {
     notify.success('Logged out', 'This device has been signed out.')
     await store.logout()
     router.replace('/login')
+  } catch {
+    notify.error('Logout failed', 'Unable to log out of this device.')
   } finally {
     revokeCurrentLoading.value = false
   }
@@ -82,6 +84,8 @@ function requestLogoutAll(): void {
         notify.success('Logged out', 'All devices have been signed out.')
         await store.logout()
         router.replace('/login')
+      } catch {
+        notify.error('Logout failed', 'Unable to log out of all devices.')
       } finally {
         revokeAllLoading.value = false
       }
