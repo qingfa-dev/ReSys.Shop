@@ -126,7 +126,7 @@ The API uses the standard .NET configuration pipeline (`appsettings.json` + envi
 │   └── Embedding/         # Python FastAPI ML sidecar (Fashion-CLIP)
 ├── app/
 │   ├── Admin/             # Vue 3 admin SPA (PrimeVue + Tailwind CSS)
-│   └── Store/             # Vue 3 storefront SPA (Nuxt UI + Tailwind CSS)
+│   └── Store/             # Vue 3 storefront SPA (PrimeVue 5 + Tailwind CSS)
 ├── infra/Aspire/          # .NET Aspire orchestration (AppHost + ServiceDefaults)
 ├── ApiTests/              # HTTP test files (.http)
 ├── docs/codebase/         # Architecture, stack, conventions, concerns
@@ -148,7 +148,7 @@ The API uses the standard .NET configuration pipeline (`appsettings.json` + envi
 | **Payments** | Stripe.net (planned), BogusGateway (dev) |
 | **Observability** | OpenTelemetry (traces, metrics, logs), health checks |
 | **Admin SPA** | Vue 3, PrimeVue 4, Pinia, Tailwind CSS 4, Vite 8 |
-| **Store SPA** | Vue 3, Nuxt UI 4, Pinia, Tailwind CSS 4, Vite 8 |
+| **Store SPA** | Vue 3, PrimeVue 5 (Aura), Pinia, Tailwind CSS 4, Vite 8 |
 | **ML sidecar** | Python 3.14, FastAPI, PyTorch, open-clip-torch |
 | **Orchestration** | .NET Aspire 13.4 |
 | **Testing** | xUnit v3, Testcontainers, Respawn, Vitest, pytest |
