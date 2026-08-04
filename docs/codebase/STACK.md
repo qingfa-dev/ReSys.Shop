@@ -63,7 +63,7 @@
 | Dependency | Version | Role in system | Evidence |
 |------------|---------|----------------|----------|
 | Vue | ^3.5.38 | UI framework | `app/Store/package.json` |
-| Nuxt UI | ^4.0.0 | UI component library | `app/Store/package.json` |
+| PrimeVue | ^5.0.0 | UI component library | `app/Store/package.json` |
 | Tailwind CSS | ^4.3.2 | Utility CSS framework | `app/Store/package.json` |
 | Pinia | ^3.0.4 | State management | `app/Store/package.json` |
 | Vue Router | ^5.1.0 | Client-side routing | `app/Store/package.json` |

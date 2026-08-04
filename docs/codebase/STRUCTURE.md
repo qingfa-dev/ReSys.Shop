@@ -14,7 +14,7 @@
 | `service/Api/tests/` | 4 test projects: Module.UnitTests, Shared.UnitTests, Api.Tests (integration), Api.SmokeTests (.http) | `ReSys.Shop.slnx` |
 | `service/Embedding/` | Python FastAPI ML sidecar (Fashion-CLIP, ONNX) | `pyproject.toml` |
 | `app/Admin/` | Vue 3 Admin SPA (PrimeVue + Sakai theme) | `package.json` |
-| `app/Store/` | Vue 3 Storefront SPA (Nuxt UI) | `package.json` |
+| `app/Store/` | Vue 3 Storefront SPA (PrimeVue 5) | `package.json` |
 | `app/legacy/ReSys.Admin/` | Legacy admin SPA (deprecated, use app/Admin) | Directory exists, gitignored |
 | `infra/Aspire/` | .NET Aspire orchestration (AppHost + ServiceDefaults) | `ReSys.AppHost.csproj` |
 | `benchmarks/` | Python fashion image retrieval benchmarks (11 models) | `pyproject.toml` |

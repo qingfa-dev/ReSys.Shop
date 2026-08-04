@@ -19,7 +19,7 @@ cd app/Admin && pnpm install && pnpm run dev                    # Dev server (po
 cd app/Admin && pnpm run lint                                   # Oxlint + ESLint
 cd app/Admin && pnpm run test:unit                              # Vitest unit tests
 
-# Store SPA (Vue 3 + Nuxt UI)
+# Store SPA (Vue 3 + PrimeVue 5)
 cd app/Store && pnpm install && pnpm run dev                    # Dev server (port 5174)
 cd app/Store && pnpm run lint && pnpm run test:unit
 
@@ -75,7 +75,7 @@ HTTP Request → Carter endpoint → FluentValidation → MediatR pipeline (Logg
 
 ### TypeScript (Vue SPAs)
 - **Admin:** PrimeVue + Sakai theme + Tailwind CSS 4. Path alias `@/` → `./src/`. Form validation with Vee-Validate + Zod. Auto-imports via `unplugin-auto-import`.
-- **Store:** Nuxt UI + Tailwind CSS 4. Same path alias pattern.
+- **Store:** PrimeVue 5 + Aura theme + Tailwind CSS 4. Same path alias pattern.
 - **Linting:** Dual linter — Oxlint + ESLint. Formatting via Oxfmt (no Prettier). `noUncheckedIndexedAccess: true` in both SPAs.
 - **Tests:** Vitest + jsdom, tests co-located in `src/**/__tests__/`.
 
