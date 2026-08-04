@@ -13,6 +13,7 @@ import type { PermissionMetadata } from '../types/permission'
 
 const { dt, exportCSV } = useDataTableExport()
 const search = ref('')
+const selectedItems = ref<PermissionMetadata[]>([])
 
 const { items, loading, setSearch, refresh } = usePagedQuery<PermissionMetadata>(
   `${IDENTITY}/permissions`,
@@ -59,11 +60,13 @@ function clearSearch() {
       ref="dt"
       :value="items"
       :loading="loading"
+      v-model:selection="selectedItems"
       scrollable
       paginator
       :rows="50"
       data-key="name"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — permission identity and descriptive fields -->
       <Column field="name" header="Name" :sortable="true" />
       <Column field="category" header="Category" :sortable="true" />

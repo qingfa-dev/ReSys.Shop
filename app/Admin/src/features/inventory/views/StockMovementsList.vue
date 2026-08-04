@@ -13,6 +13,7 @@ import type { StockMovementListItem } from '../types/stockMovement'
 
 const { dt, exportCSV } = useDataTableExport()
 const search = ref('')
+const selectedItems = ref<StockMovementListItem[]>([])
 
 const { items, loading, setSearch, refresh } = useStockMovementList({
   defaultSearchFields: ['reason'],
@@ -90,12 +91,14 @@ function originatorLabel(item: StockMovementListItem): string {
       ref="dt"
       :value="items"
       :loading="loading"
+      v-model:selection="selectedItems"
       scrollable
       paginator
       :rows="20"
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — movement, quantity, and originator fields -->
       <Column field="stockItemId" header="Stock Item (ID)" />
       <Column field="action" header="Action">

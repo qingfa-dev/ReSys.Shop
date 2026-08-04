@@ -12,10 +12,12 @@ import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useStockReservationList } from '../composables/useStockReservationList'
 import type { ReservationState } from '../types/stockReservation'
+import type { StockReservationListItem } from '../types/stockReservation'
 
 const { dt, exportCSV } = useDataTableExport()
 const search = ref('')
 const selectedState = ref<ReservationState | null>(null)
+const selectedItems = ref<StockReservationListItem[]>([])
 
 const { items, loading, setFilter, refresh } = useStockReservationList()
 
@@ -88,12 +90,14 @@ function stateSeverity(state: ReservationState): string {
       ref="dt"
       :value="items"
       :loading="loading"
+      v-model:selection="selectedItems"
       scrollable
       paginator
       :rows="20"
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — order, quantity, state, and expiry fields -->
       <Column field="variantId" header="Variant ID" />
       <Column field="orderId" header="Order ID">

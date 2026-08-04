@@ -10,9 +10,11 @@ import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatCurrency } from '@/shared/utils/currency'
 import { usePaymentList } from '../composables/usePaymentList'
+import type { PaymentListItem } from '../types/payment'
 import { PAYMENT_SEARCH_FIELDS } from '../types/payment'
 
 const { dt, exportCSV } = useDataTableExport()
+const selectedItems = ref<PaymentListItem[]>([])
 const search = ref('')
 
 const { items, loading, setSearch, refresh } = usePaymentList({
@@ -73,6 +75,7 @@ function clearSearch() {
     <!-- Section: Data Table — read-only payment record grid -->
     <DataTable
       ref="dt"
+      v-model:selection="selectedItems"
       :value="items"
       :loading="loading"
       scrollable
@@ -81,6 +84,7 @@ function clearSearch() {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — payment identity, amount, and state fields -->
       <Column field="id" header="Payment ID" />
       <Column field="amount" header="Amount" :sortable="true">

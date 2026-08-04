@@ -9,10 +9,12 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { useProfileList } from '../composables/useProfileList'
+import type { ProfileListItem } from '../types/profile'
 import { PROFILE_SEARCH_FIELDS } from '../types/profile'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
+const selectedItems = ref<ProfileListItem[]>([])
 const search = ref('')
 
 const { items, loading, setSearch, refresh } = useProfileList({
@@ -77,6 +79,7 @@ function navigateToDetail(id: string) {
     <!-- Section: Data Table — read-only customer profile grid -->
     <DataTable
       ref="dt"
+      v-model:selection="selectedItems"
       :value="items"
       :loading="loading"
       scrollable
@@ -85,6 +88,7 @@ function navigateToDetail(id: string) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — profile identity and contact fields -->
       <Column field="fullName" header="Name" />
       <Column field="firstName" header="First Name" :sortable="true" />
