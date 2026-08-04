@@ -64,7 +64,7 @@ public class ExternalAuthenticateProfileCreationTests
         currentUser.Setup(x => x.IpAddress).Returns("127.0.0.1");
 
         var mediator = new Mock<IMediator>();
-        mediator.Setup(x => x.Send(It.IsAny<Module.Profile.Features.Store.Profiles.Create.CreateProfile.Command>(), It.IsAny<CancellationToken>()))
+        mediator.Setup(x => x.Send(It.IsAny<Module.Profile.Features.Storefront.Profiles.Create.CreateProfile.Command>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("profile creation failed"));
 
         var handler = new ExternalAuthenticate.CommandHandler(

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profiles.Create;
+using Module.Profile.Features.Storefront.Profiles.Create;
 
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
