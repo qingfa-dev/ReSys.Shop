@@ -1,0 +1,4 @@
+{
+  "plugins": ["oxfmt"],
+  "ignorePatterns": ["dist", "node_modules", "components.d.ts"]
+}
