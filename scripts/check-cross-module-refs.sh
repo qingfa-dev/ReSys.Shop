@@ -15,7 +15,7 @@ NC='\033[0m'
 
 # Expected baseline: 32 violations as of 2026-07-24.
 # Reduce this number as violations are removed. Set to 0 when fully clean.
-EXPECTED_BASELINE=28
+EXPECTED_BASELINE=27
 FAIL=0
 
 MODULES=(

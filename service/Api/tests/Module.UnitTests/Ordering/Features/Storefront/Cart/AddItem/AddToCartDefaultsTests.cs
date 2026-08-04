@@ -1,10 +1,10 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
 
+using Shared.Application.Contracts.Inventory;
 using Shared.Application.Systems.SystemInfos;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
@@ -37,10 +37,10 @@ public class AddToCartDefaultsTests : IDisposable
         _senderMock = new Mock<ISender>();
         _senderMock
             .Setup(x => x.Send(
-                It.IsAny<IRequest<Result<ReserveCartStock.Response>>>(),
+                It.IsAny<IRequest<Result<ReserveCartStockResponse>>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(
-                new ReserveCartStock.Response()));
+            .ReturnsAsync(Result<ReserveCartStockResponse>.Ok(
+                new ReserveCartStockResponse()));
 
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserName).Returns("customer");

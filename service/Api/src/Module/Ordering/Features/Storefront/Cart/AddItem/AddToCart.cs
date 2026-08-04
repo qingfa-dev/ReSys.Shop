@@ -1,9 +1,8 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 
+using Shared.Application.Contracts.Inventory;
 using Shared.Application.Systems.SystemInfos;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
@@ -66,35 +65,19 @@ public static partial class AddToCart
                 dbContext.Set<Order>().Add(cart);
             }
 
-            // Reserve: Find the best location with stock and reserve via Inventory module.
-            var primaryLocation = await dbContext.Set<StockItem>()
-                .Include(si => si.StockLocation)
-                .Where(si => si.VariantId == request.VariantId && si.CountOnHand > 0 && si.StockLocation != null && si.StockLocation.Active)
-                .OrderByDescending(si => si.CountOnHand)
-                .FirstOrDefaultAsync(cancellationToken);
+            // Reserve: Delegate stock check + location picking to Inventory module via Shared contract.
+            const int CartReservationTtlMinutes = 30;
+            var reserveResult = await sender.Send(
+                new ReserveCartStockCommand
+                {
+                    CartId = cart.Id,
+                    LineItems = [new ReserveLineItem { VariantId = request.VariantId, Quantity = request.Quantity }],
+                    TtlMinutes = CartReservationTtlMinutes
+                },
+                cancellationToken);
 
-            if (primaryLocation is not null)
-            {
-                var cartToken = currentUser.IsAuthenticated
-                    ? currentUser.UserId ?? string.Empty
-                    : currentUser.SessionId ?? string.Empty;
-
-                const int CartReservationTtlMinutes = 30;
-                var reserveResult = await sender.Send(
-                    new ReserveCartStock.Command(
-                        new ReserveCartStock.Request
-                        {
-                            VariantId = request.VariantId,
-                            Quantity = request.Quantity,
-                            StockLocationId = primaryLocation.StockLocationId,
-                            TtlMinutes = CartReservationTtlMinutes,
-                            CartToken = cartToken
-                        }),
-                    cancellationToken);
-
-                if (reserveResult.IsFailure)
-                    return reserveResult.Errors;
-            }
+            if (reserveResult.IsFailure)
+                return reserveResult.Errors;
 
             // Merge: Variant already in cart — add to existing line item quantity.
             var existingLine = cart.LineItems.FirstOrDefault(li => li.VariantId == request.VariantId);
