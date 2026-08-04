@@ -25,7 +25,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
         builder.Property(x => x.RefundedAmount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
         builder.Property(x => x.PaymentMethodId);
         builder.Property(x => x.OrderId);
-        builder.Property(x => x.SourceId);
+        builder.Property(x => x.SourceId).HasMaxLength(200);
         builder.Property(x => x.SourceType).HasMaxLength(PaymentConstant.Constraints.MaxSourceTypeLength);
         builder.Property(x => x.ProviderKey).IsRequired().HasMaxLength(PaymentMethodConstant.Constraints.MaxProviderKeyLength);
         builder.Property(x => x.ProcessedStripeEventIds).HasColumnType("jsonb");

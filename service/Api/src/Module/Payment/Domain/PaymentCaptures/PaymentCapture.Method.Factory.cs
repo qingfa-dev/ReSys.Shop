@@ -8,7 +8,7 @@ public static partial class PaymentCaptureMethod
         decimal amount,
         Guid paymentMethodId,
         Guid orderId,
-        Guid? sourceId = null,
+        string? sourceId = null,
         string? sourceType = null)
     {
         if (amount <= 0)
