@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
+namespace Module.Catalog.Features.Admin.Taxons.Delete;
 
 public static partial class DeleteTaxon
 {
@@ -8,21 +8,20 @@ public static partial class DeleteTaxon
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(CatalogFeature.Admin.Taxonomies.Taxons.Delete.Route, async (
-                [FromRoute] Guid taxonomyId,
+            app.MapDelete(CatalogFeature.Admin.Taxons.Delete.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(taxonomyId, id);
+                var command = new Command(id);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
             .WithName(nameof(DeleteTaxon))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.Delete.Permission)
-            .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.Delete.Summary)
-            .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.Delete.Description)
+            .HasPermission(CatalogFeature.Admin.Taxons.Delete.Permission)
+            .WithSummary(CatalogFeature.Admin.Taxons.Delete.Summary)
+            .WithDescription(CatalogFeature.Admin.Taxons.Delete.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound)
             .Produces<Result>(StatusCodes.Status409Conflict);

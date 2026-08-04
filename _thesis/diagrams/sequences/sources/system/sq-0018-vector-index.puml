@@ -1,0 +1,46 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0018: Vector Index Maintenance
+autonumber
+
+actor "System\nScheduler" as Cron <<Trigger>>
+participant "Maintenance\nService" as Svc <<Worker>>
+database "PostgreSQL\n(pgvector)" as DB <<Vector Store>>
+
+Cron -> Svc: Trigger IndexMaintenance()
+activate Svc
+    
+    ' ─── Step 1: Health Check ────────────────────────────────
+    Svc -> DB: Check Index Fragmentation\n(pg_stat_user_indexes)
+    activate DB
+    DB --> Svc: Fragmentation %
+    deactivate DB
+    
+    alt High Fragmentation (>30%)
+        ' ─── Step 2: Reindex ─────────────────────────────────
+        Svc -> DB: REINDEX INDEX CONCURRENTLY vector_idx
+        activate DB
+        note right of DB
+            Rebuild HNSW Graph
+            Non-blocking (Concurrent)
+        end note
+        DB --> Svc: Success
+        deactivate DB
+    end
+    
+    ' ─── Step 3: Vacuum ──────────────────────────────────────
+    Svc -> DB: VACUUM (ANALYZE) product_images
+    activate DB
+    note right of DB
+        Update Statistics
+        Free Dead Tuples
+    end note
+    DB --> Svc: Success
+    deactivate DB
+
+    Svc -> Svc: Log Results
+    Svc --> Cron: Done
+deactivate Svc
+
+@enduml

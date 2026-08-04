@@ -1,0 +1,282 @@
+[
+  {
+    "model_name": "FashionCLIP",
+    "model_slug": "fashionclip",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.9251,
+        "precision@5": 0.9519,
+        "precision@10": 0.9442,
+        "precision@20": 0.9335,
+        "recall@5": 0.0261,
+        "recall@10": 0.0461,
+        "recall@20": 0.0803
+      },
+      {
+        "fold": 1,
+        "map": 0.9292,
+        "precision@5": 0.9623,
+        "precision@10": 0.9513,
+        "precision@20": 0.938,
+        "recall@5": 0.0268,
+        "recall@10": 0.047,
+        "recall@20": 0.0782
+      },
+      {
+        "fold": 2,
+        "map": 0.9383,
+        "precision@5": 0.9604,
+        "precision@10": 0.9524,
+        "precision@20": 0.9406,
+        "recall@5": 0.031,
+        "recall@10": 0.0518,
+        "recall@20": 0.0846
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.9309,
+        "std": 0.0068,
+        "ci_95": [
+          0.9251,
+          0.9383
+        ]
+      },
+      "precision@5": {
+        "mean": 0.9582,
+        "std": 0.0055
+      },
+      "precision@10": {
+        "mean": 0.9493,
+        "std": 0.0045
+      },
+      "precision@20": {
+        "mean": 0.9374,
+        "std": 0.0036
+      },
+      "recall@5": {
+        "mean": 0.028,
+        "std": 0.0027
+      },
+      "recall@10": {
+        "mean": 0.0483,
+        "std": 0.0031
+      },
+      "recall@20": {
+        "mean": 0.081,
+        "std": 0.0033
+      }
+    }
+  },
+  {
+    "model_name": "ResNet-50",
+    "model_slug": "resnet-50",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.8904,
+        "precision@5": 0.9325,
+        "precision@10": 0.9222,
+        "precision@20": 0.9089,
+        "recall@5": 0.023,
+        "recall@10": 0.0414,
+        "recall@20": 0.0705
+      },
+      {
+        "fold": 1,
+        "map": 0.8939,
+        "precision@5": 0.9359,
+        "precision@10": 0.9267,
+        "precision@20": 0.9108,
+        "recall@5": 0.0242,
+        "recall@10": 0.041,
+        "recall@20": 0.0692
+      },
+      {
+        "fold": 2,
+        "map": 0.8727,
+        "precision@5": 0.9298,
+        "precision@10": 0.912,
+        "precision@20": 0.8908,
+        "recall@5": 0.0351,
+        "recall@10": 0.0587,
+        "recall@20": 0.1
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.8857,
+        "std": 0.0114,
+        "ci_95": [
+          0.8727,
+          0.8939
+        ]
+      },
+      "precision@5": {
+        "mean": 0.9327,
+        "std": 0.0031
+      },
+      "precision@10": {
+        "mean": 0.9203,
+        "std": 0.0075
+      },
+      "precision@20": {
+        "mean": 0.9035,
+        "std": 0.011
+      },
+      "recall@5": {
+        "mean": 0.0274,
+        "std": 0.0067
+      },
+      "recall@10": {
+        "mean": 0.047,
+        "std": 0.0101
+      },
+      "recall@20": {
+        "mean": 0.0799,
+        "std": 0.0174
+      }
+    }
+  },
+  {
+    "model_name": "EfficientNet-B0",
+    "model_slug": "efficientnet-b0",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.8854,
+        "precision@5": 0.9293,
+        "precision@10": 0.9197,
+        "precision@20": 0.9067,
+        "recall@5": 0.0234,
+        "recall@10": 0.042,
+        "recall@20": 0.0736
+      },
+      {
+        "fold": 1,
+        "map": 0.8871,
+        "precision@5": 0.9329,
+        "precision@10": 0.9229,
+        "precision@20": 0.9071,
+        "recall@5": 0.024,
+        "recall@10": 0.0417,
+        "recall@20": 0.07
+      },
+      {
+        "fold": 2,
+        "map": 0.8959,
+        "precision@5": 0.9398,
+        "precision@10": 0.9261,
+        "precision@20": 0.9092,
+        "recall@5": 0.0272,
+        "recall@10": 0.0442,
+        "recall@20": 0.0723
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.8895,
+        "std": 0.0056,
+        "ci_95": [
+          0.8854,
+          0.8959
+        ]
+      },
+      "precision@5": {
+        "mean": 0.934,
+        "std": 0.0053
+      },
+      "precision@10": {
+        "mean": 0.9229,
+        "std": 0.0032
+      },
+      "precision@20": {
+        "mean": 0.9077,
+        "std": 0.0013
+      },
+      "recall@5": {
+        "mean": 0.0249,
+        "std": 0.002
+      },
+      "recall@10": {
+        "mean": 0.0426,
+        "std": 0.0014
+      },
+      "recall@20": {
+        "mean": 0.072,
+        "std": 0.0018
+      }
+    }
+  },
+  {
+    "model_name": "CLIP-generic",
+    "model_slug": "clip-generic",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.9052,
+        "precision@5": 0.9379,
+        "precision@10": 0.9315,
+        "precision@20": 0.9202,
+        "recall@5": 0.0243,
+        "recall@10": 0.0438,
+        "recall@20": 0.0749
+      },
+      {
+        "fold": 1,
+        "map": 0.9092,
+        "precision@5": 0.9441,
+        "precision@10": 0.937,
+        "precision@20": 0.9241,
+        "recall@5": 0.0258,
+        "recall@10": 0.0451,
+        "recall@20": 0.0756
+      },
+      {
+        "fold": 2,
+        "map": 0.9201,
+        "precision@5": 0.9499,
+        "precision@10": 0.9407,
+        "precision@20": 0.9274,
+        "recall@5": 0.0292,
+        "recall@10": 0.0489,
+        "recall@20": 0.0798
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.9115,
+        "std": 0.0077,
+        "ci_95": [
+          0.9052,
+          0.9201
+        ]
+      },
+      "precision@5": {
+        "mean": 0.944,
+        "std": 0.006
+      },
+      "precision@10": {
+        "mean": 0.9364,
+        "std": 0.0046
+      },
+      "precision@20": {
+        "mean": 0.9239,
+        "std": 0.0036
+      },
+      "recall@5": {
+        "mean": 0.0264,
+        "std": 0.0025
+      },
+      "recall@10": {
+        "mean": 0.0459,
+        "std": 0.0027
+      },
+      "recall@20": {
+        "mean": 0.0768,
+        "std": 0.0027
+      }
+    }
+  }
+]

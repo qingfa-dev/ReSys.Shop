@@ -46,8 +46,8 @@
 #### TypeScript (Vue SPAs)
 - **Formatter**: Oxfmt (`oxfmt src/`) — no Prettier config
 - **Linter**: Dual linter — ESLint (`eslint . --fix --cache`) + Oxlint (`oxlint . --fix`)
-- **ESLint plugins**: `eslint-plugin-vue`, `eslint-config-prettier` (disables formatting rules), `eslint-plugin-boundaries` (Admin only, layer enforcement)
-- **Admin module boundaries enforced**: shared cannot import features/app; features cannot import other features or app; app can import shared and features
+- **ESLint plugins**: `eslint-plugin-vue`, `eslint-config-prettier` (disables formatting rules). `eslint-plugin-boundaries` is installed as a dependency in Admin but **not imported** in `eslint.config.ts` — boundary rules are not actively enforced.
+- **Admin module boundaries enforced**: shared cannot import features/app; features cannot import other features or app; app can import shared and features — **these rules are aspirational, not active**. No boundaries config file exists and the plugin is dead code in the ESLint config.
 - **TypeScript strictness**: `noUncheckedIndexedAccess: true` in both SPAs
 - **Run commands**: `cd app/Admin && pnpm run lint` / `cd app/Store && pnpm run lint`
 

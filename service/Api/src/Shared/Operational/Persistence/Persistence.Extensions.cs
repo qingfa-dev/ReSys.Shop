@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using Shared.Operational.Persistence.Data;
 using Shared.Operational.Persistence.Interceptors;
@@ -80,9 +81,12 @@ public static class PersistenceExtensions
             // Initialize: Apply snake_case naming convention for PostgreSQL compatibility
             options.UseSnakeCaseNamingConvention();
 
-            // Log: Enable sensitive data and detailed error reporting in development environments
-            options.EnableSensitiveDataLogging();
-            options.EnableDetailedErrors();
+            // Log: Enable sensitive data and detailed error reporting in development environments only
+            if (builder.Environment.IsDevelopment())
+            {
+                options.EnableSensitiveDataLogging();
+                options.EnableDetailedErrors();
+            }
 
             // Suppress: Ignore non-critical EF Core warnings for startup compatibility
             options.ConfigureWarnings(warnings =>
@@ -160,9 +164,12 @@ public static class PersistenceExtensions
             // Initialize: Apply snake_case naming convention
             options.UseSnakeCaseNamingConvention();
 
-            // Log: Enable diagnostic logging and error details
-            options.EnableSensitiveDataLogging();
-            options.EnableDetailedErrors();
+            // Log: Enable diagnostic logging and error details in development environments only
+            if (builder.Environment.IsDevelopment())
+            {
+                options.EnableSensitiveDataLogging();
+                options.EnableDetailedErrors();
+            }
 
             // Suppress: Ignore specific non-critical EF Core warnings
             options.ConfigureWarnings(warnings =>

@@ -1,14 +1,8 @@
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Get;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 
 public static partial class GetProductClassifications
 {
-    // EXCEPTION: collection wrapper — inner ClassificationItem inherits from ClassificationItemResponse
-    public sealed record Response
-    {
-        public List<ClassificationItem> Items { get; init; } = [];
-
-        public sealed record ClassificationItem : ClassificationItemResponse;
-    }
+    public sealed record Response : ClassificationItemResponse;
 }

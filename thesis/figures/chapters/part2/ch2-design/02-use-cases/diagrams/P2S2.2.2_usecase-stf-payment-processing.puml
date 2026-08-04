@@ -1,0 +1,78 @@
+@startuml usecase-stf-payment-processing
+
+left to right direction
+
+skinparam shadowing false
+skinparam dpi 180
+
+<style>
+
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
+}
+
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case: UC-STR-PAY\nPayment Processing
+
+actor "Customer" as Customer
+actor "Payment Gateway" as Gateway <<system>>
+
+rectangle "ReSys.Shop\nStorefront Applications" {
+
+  usecase "Create Payment Intent\nUC-STR-PAY-INTENT" as UC_INTENT
+
+  usecase "Confirm Payment\nUC-STR-PAY-CONFIRM" as UC_CONFIRM
+
+}
+
+Customer --> UC_INTENT
+Customer --> UC_CONFIRM
+
+UC_INTENT --> Gateway : <<communicates>>
+UC_CONFIRM --> Gateway : <<communicates>>
+
+@enduml

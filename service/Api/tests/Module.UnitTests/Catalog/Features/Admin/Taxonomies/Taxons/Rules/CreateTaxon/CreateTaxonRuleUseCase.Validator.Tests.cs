@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Create;
+using Module.Catalog.Features.Admin.Taxons.Rules.Create;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.CreateTaxon;
 
@@ -13,7 +13,7 @@ public class CreateTaxonRuleValidatorTests
     [Fact(DisplayName = "Validator: Should pass for valid request")]
     public void Validator_ShouldPass_WhenValid()
     {
-        var command = new CreateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new CreateTaxonRule.Request
+        var command = new CreateTaxonRule.Command(Guid.NewGuid(), new CreateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",
@@ -28,7 +28,7 @@ public class CreateTaxonRuleValidatorTests
     [Fact(DisplayName = "Validator: Should fail when Request is null")]
     public void Validator_ShouldFail_WhenRequestNull()
     {
-        var command = new CreateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), null!);
+        var command = new CreateTaxonRule.Command(Guid.NewGuid(), null!);
 
         var result = _validator.TestValidate(command);
 
@@ -41,7 +41,7 @@ public class CreateTaxonRuleValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenTypeInvalid(string? type)
     {
-        var command = new CreateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new CreateTaxonRule.Request
+        var command = new CreateTaxonRule.Command(Guid.NewGuid(), new CreateTaxonRule.Request
         {
             Type = type!,
             MatchPolicy = "is_equal_to",
@@ -59,7 +59,7 @@ public class CreateTaxonRuleValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenMatchPolicyInvalid(string? policy)
     {
-        var command = new CreateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new CreateTaxonRule.Request
+        var command = new CreateTaxonRule.Command(Guid.NewGuid(), new CreateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = policy!,
@@ -77,7 +77,7 @@ public class CreateTaxonRuleValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenValueInvalid(string? value)
     {
-        var command = new CreateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new CreateTaxonRule.Request
+        var command = new CreateTaxonRule.Command(Guid.NewGuid(), new CreateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",
@@ -94,7 +94,7 @@ public class CreateTaxonRuleValidatorTests
     {
         var longValue = new string('a', TaxonRuleConstant.Constraints.ValueMaxLength + 1);
 
-        var command = new CreateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new CreateTaxonRule.Request
+        var command = new CreateTaxonRule.Command(Guid.NewGuid(), new CreateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",
@@ -106,25 +106,10 @@ public class CreateTaxonRuleValidatorTests
         result.ShouldHaveValidationErrorFor("Request.Value");
     }
 
-    [Fact(DisplayName = "Validator: Should fail when TaxonomyId is empty")]
-    public void Validator_ShouldFail_WhenTaxonomyIdEmpty()
-    {
-        var command = new CreateTaxonRule.Command(Guid.Empty, Guid.NewGuid(), new CreateTaxonRule.Request
-        {
-            Type = "product_name",
-            MatchPolicy = "is_equal_to",
-            Value = "test"
-        });
-
-        var result = _validator.TestValidate(command);
-
-        result.ShouldHaveValidationErrorFor(x => x.TaxonomyId);
-    }
-
     [Fact(DisplayName = "Validator: Should fail when TaxonId is empty")]
     public void Validator_ShouldFail_WhenTaxonIdEmpty()
     {
-        var command = new CreateTaxonRule.Command(Guid.NewGuid(), Guid.Empty, new CreateTaxonRule.Request
+        var command = new CreateTaxonRule.Command(Guid.Empty, new CreateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",

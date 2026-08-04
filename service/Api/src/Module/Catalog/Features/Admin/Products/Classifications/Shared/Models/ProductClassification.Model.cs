@@ -1,4 +1,4 @@
-namespace Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Models;
 
 public abstract record ProductClassificationParameters
 {

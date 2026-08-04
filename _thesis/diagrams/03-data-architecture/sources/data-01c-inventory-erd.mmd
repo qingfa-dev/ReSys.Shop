@@ -1,0 +1,37 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'fontFamily': 'arial'}}}%%
+erDiagram
+    stock_items {
+        uuid id PK
+        uuid variant_id FK
+        uuid stock_location_id FK
+        string sku
+        int count_on_hand
+        int count_reserved
+    }
+    
+    stock_locations {
+        uuid id PK
+        string name
+        string code
+        boolean is_active
+    }
+    
+    stock_movements {
+        uuid id PK
+        uuid stock_item_id FK
+        int quantity
+        enum type
+    }
+    
+    stock_transfers {
+        uuid id PK
+        uuid source_location_id FK
+        uuid dest_location_id FK
+        int quantity
+        enum status
+    }
+
+    stock_locations ||--o{ stock_items : "stores"
+    stock_locations ||--o{ stock_transfers : "source"
+    stock_locations ||--o{ stock_transfers : "dest"
+    stock_items ||--o{ stock_movements : "history"

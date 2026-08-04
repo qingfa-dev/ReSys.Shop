@@ -36,6 +36,10 @@ while IFS= read -r line; do
   if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
   # Allowed: multiple Guid Ids (e.g. Guid TaxonomyId, Guid Id, Request)
   if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*(\s*,\s*[a-zA-Z]+\s+\w*Id\s*)*(,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*)?\)$'; then continue; fi
+  # Allowed: wrapping Request plus Parameters (e.g. Request Request, Parameters Parameters)
+  if echo "$params" | rg -q '^\(\s*(Querying)?Request\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
+  # Allowed: single string param plus Parameters (e.g. string CartToken, Parameters Parameters)
+  if echo "$params" | rg -q '^\(\s*string\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
   real_violations+="$line"$'\n'
 done < <(echo "$all" | no_exception)
 

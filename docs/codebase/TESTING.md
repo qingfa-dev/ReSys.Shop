@@ -54,7 +54,7 @@ cd benchmarks && uv run pytest --cov=benchmark --cov-fail-under=60  # Coverage (
 | Unit (.NET) | Yes | Module and Shared feature handlers, domain logic | Uses EF Core InMemory DB (not mocking), Moq for external interfaces (ICurrentUser, INotificationService, IPaymentGatewayActionProvider) |
 | Unit (Vue) | Yes | Vue components, composables, stores | Vitest + jsdom + @vue/test-utils |
 | Unit (Python) | Yes | Embedding service models/schemas, benchmark logic | Pytest with standard fixtures |
-| Integration (.NET) | Yes | API endpoints with real PostgreSQL/Redis | `Api.Tests` project uses Testcontainers (PostgreSQL 4.12.0, Redis 4.12.0) + Respawn (7.0.0) for DB reset |
+| Integration (.NET) | Yes | API endpoints with real PostgreSQL/Redis | `Api.Tests` project uses Testcontainers (PostgreSql) + Respawn (7.0.0) for DB reset. Redis is NOT tested via Testcontainers in Api.Tests csproj. |
 | Integration (Python) | Yes | Benchmark integration tests with pgvector | `benchmarks/src/tests/integration/` — excluded from CI unit run |
 | Integration (Python Embedding) | Yes | Full FastAPI stack | Marked with `@pytest.mark.integration` |
 | E2E | No | — | `ApiTests/` contains 49 `.http` files for manual endpoint testing but no automated E2E tests |
@@ -71,7 +71,7 @@ cd benchmarks && uv run pytest --cov=benchmark --cov-fail-under=60  # Coverage (
   - `.NET unit tests`: Fresh InMemory DB per test class (constructor creates new DB). `IDisposable` disposes context.
   - `.NET integration tests (`Api.Tests`)`: Testcontainers spin up real PostgreSQL/Redis per test run; Respawn resets DB state between tests
   - Vue tests: `jsdom` environment provides clean DOM per test
-- **Common failure mode**: Cross-module dependencies in unit tests mean tests for one module may fail due to issues in another module's configuration (e.g., Payment tests requiring Order domain assembly for EF Core configuration)
+- **Common failure mode**: Cross-module dependencies in unit tests mean tests for one module may fail due to issues in another module's configuration (e.g., Payment tests requiring Order domain assembly for EF Core configuration). Tests use `[Trait("Category", "Unit")]`, `[Trait("Module", "Ordering")]`, `[Trait("Feature", "CreateOrderFromCart")]` for filtering.
 
 ### 5) Coverage and Quality Signals
 

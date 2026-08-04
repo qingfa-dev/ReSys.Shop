@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
 

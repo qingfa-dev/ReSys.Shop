@@ -8,15 +8,15 @@ public static partial class ListPricesByVariant
 
     /// <summary>
     /// GET endpoint that lists prices for a variant with pagination.
-    /// Route: api/catalog/products/variants/{variantId:guid}/prices
+    /// Route: api/catalog/variant-prices
     /// Permission: Products.Variants.List
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Admin.Products.Variants.Prices.List.Route, async (
-                Guid variantId,
+            app.MapGet(CatalogFeature.Admin.VariantPrices.List.Route, async (
+                [FromQuery] Guid variantId,
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -27,9 +27,9 @@ public static partial class ListPricesByVariant
             })
             .WithName(nameof(ListPricesByVariant))
             .WithTags(CatalogFeature.Tags.Variant)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Prices.List.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Prices.List.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Prices.List.Description)
+            .HasPermission(CatalogFeature.Admin.VariantPrices.List.Permission)
+            .WithSummary(CatalogFeature.Admin.VariantPrices.List.Summary)
+            .WithDescription(CatalogFeature.Admin.VariantPrices.List.Description)
             .Produces<PagedResult<Response>>();
         }
     }

@@ -42,7 +42,7 @@ public sealed class UserProfileSeeder(IApplicationDbContext context) : AbstractD
 
         Context.Set<UserProfile>().AddRange(profiles);
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

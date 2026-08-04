@@ -9,8 +9,8 @@ namespace Module.UnitTests.Shipping.Features.Storefront.Shipping.Methods;
 public class GetShippingMethodsHandlerTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ILogger<GetShippingMethods.QueryHandler>> _loggerMock;
-    private readonly GetShippingMethods.QueryHandler _handler;
+    private readonly Mock<ILogger<GetShippingMethods.PagedQueryHandler>> _loggerMock;
+    private readonly GetShippingMethods.PagedQueryHandler _handler;
 
     public GetShippingMethodsHandlerTests()
     {
@@ -20,8 +20,8 @@ public class GetShippingMethodsHandlerTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(ShippingMethod).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _loggerMock = new Mock<ILogger<GetShippingMethods.QueryHandler>>();
-        _handler = new GetShippingMethods.QueryHandler(_dbContext, _loggerMock.Object);
+        _loggerMock = new Mock<ILogger<GetShippingMethods.PagedQueryHandler>>();
+        _handler = new GetShippingMethods.PagedQueryHandler(_dbContext, _loggerMock.Object);
     }
 
     public void Dispose()
@@ -47,12 +47,12 @@ public class GetShippingMethodsHandlerTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetShippingMethods.Query(),
+            new GetShippingMethods.Query(new GetShippingMethods.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Methods.Should().HaveCount(2);
-        result.Value.Methods.Should().AllSatisfy(m => m.Name.Should().BeOneOf("Standard", "Express"));
+        result.Items.Should().HaveCount(2);
+        result.Items.Should().AllSatisfy(m => m.Name.Should().BeOneOf("Standard", "Express"));
     }
 
     [Fact(DisplayName = "Handler: Should return empty when no available methods")]
@@ -65,10 +65,35 @@ public class GetShippingMethodsHandlerTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetShippingMethods.Query(),
+            new GetShippingMethods.Query(new GetShippingMethods.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Methods.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "Handler: Should page methods when parameters supplied")]
+    public async Task Handle_ShouldPage_WhenParametersSupplied()
+    {
+        var method1 = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        method1.AvailableToUsers = true;
+        method1.IsDeleted = false;
+        var method2 = ShippingMethodExtensions.Create("Express", "flat_rate").Value;
+        method2.AvailableToUsers = true;
+        method2.IsDeleted = false;
+        var method3 = ShippingMethodExtensions.Create("Next Day", "flat_rate").Value;
+        method3.AvailableToUsers = true;
+        method3.IsDeleted = false;
+
+        _dbContext.Set<ShippingMethod>().AddRange(method1, method2, method3);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new GetShippingMethods.Query(new GetShippingMethods.Parameters { PageSize = 2 }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+        result.TotalCount.Should().Be(3);
     }
 }

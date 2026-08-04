@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Mappings;
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
+using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Mappings;
+using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Mappings;
 

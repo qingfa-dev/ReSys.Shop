@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.Sessions.Get;
+using Module.Identity.Features.Storefront.Auth.Sessions.Get;
 using Module.Profile.Domain;
 using Module.UnitTests.Identity.Fixtures;
 
@@ -116,6 +116,8 @@ public class GetSessionTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().Be(user.Id);
+        result.Value.Email.Should().Be(user.Email);
+        result.Value.UserName.Should().Be(user.UserName);
         result.Value.Roles.Should().BeEquivalentTo(roles);
         result.Value.Permissions.Should().BeEquivalentTo(permissions);
     }
@@ -150,6 +152,8 @@ public class GetSessionTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().Be(user.Id);
+        result.Value.Email.Should().Be(user.Email);
+        result.Value.UserName.Should().Be(user.UserName);
         result.Value.Roles.Should().BeEquivalentTo(roles);
         result.Value.Permissions.Should().BeEmpty();
     }

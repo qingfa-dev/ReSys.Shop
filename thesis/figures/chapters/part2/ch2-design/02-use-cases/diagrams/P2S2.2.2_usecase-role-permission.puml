@@ -1,0 +1,83 @@
+@startuml usecase-role-permission
+
+left to right direction
+
+skinparam shadowing false
+skinparam dpi 180
+
+<style>
+
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
+}
+
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case: UC-ADM-ROL\nRole and Permission Governance
+
+actor "Administrator" as Admin
+
+rectangle "ReSys.Shop\nAdministration Portal" {
+
+  usecase "Manage Roles and Permissions\nUC-ADM-ROL" as UC_MAIN
+
+  usecase "Manage Roles\nUC-ADM-ROL-ROLE" as UC_ROLES
+
+  usecase "Assign User Roles\nUC-ADM-ROL-ASSIGN" as UC_ASSIGN
+
+  usecase "Grant Direct Permissions\nUC-ADM-ROL-GRANT" as UC_GRANT
+
+  usecase "View Permissions Catalogue\nUC-ADM-ROL-CATALOG" as UC_CATALOG
+
+}
+
+Admin --> UC_MAIN
+Admin --> UC_ROLES
+Admin --> UC_ASSIGN
+Admin --> UC_GRANT
+Admin --> UC_CATALOG
+
+@enduml

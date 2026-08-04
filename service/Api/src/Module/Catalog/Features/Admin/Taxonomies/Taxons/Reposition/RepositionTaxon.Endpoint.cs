@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
+namespace Module.Catalog.Features.Admin.Taxons.Reposition;
 
 public static partial class RepositionTaxon
 {
@@ -8,22 +8,21 @@ public static partial class RepositionTaxon
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(CatalogFeature.Admin.Taxonomies.Taxons.Reposition.Route, async (
-                [FromRoute] Guid taxonomyId,
+            app.MapPost(CatalogFeature.Admin.Taxons.Reposition.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(taxonomyId, id, request);
+                var command = new Command(id, request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
             .WithName(nameof(RepositionTaxon))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.Reposition.Permission)
-            .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.Reposition.Summary)
-            .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.Reposition.Description)
+            .HasPermission(CatalogFeature.Admin.Taxons.Reposition.Permission)
+            .WithSummary(CatalogFeature.Admin.Taxons.Reposition.Summary)
+            .WithDescription(CatalogFeature.Admin.Taxons.Reposition.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);

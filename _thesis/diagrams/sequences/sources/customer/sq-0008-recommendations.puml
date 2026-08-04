@@ -1,0 +1,51 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0008: Product Recommendations
+autonumber
+
+actor "Customer" as User <<Browser>>
+participant "Storefront" as Frontend <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+participant "ML Service" as ML <<Core Research>>
+database "PostgreSQL\n(pgvector)" as DB <<Vector Store>>
+
+User -> Frontend: View Product Details(ID: 101)
+activate Frontend
+    Frontend -> API: GET /api/products/101
+    activate API
+    API --> Frontend: Product Details
+    deactivate API
+    
+    ' ─── Recommendation Flow ────────────────────────────────
+    Frontend -> API: GET /api/recommendations/similar/101
+    activate API
+        
+        API -> DB: GetProductEmbedding(101)
+        activate DB
+        DB --> API: Vector [512]
+        deactivate DB
+        
+        alt Cached Results
+            API -> DB: Check Cache(101)
+            DB --> API: CachedItems
+        else Cache Miss
+            API -> DB: Vector Search (HNSW)\nWHERE category = current.category
+            activate DB
+            note right of DB
+                Cosine Similarity Search
+                Filter by Category/Stock
+            end note
+            DB --> API: SimilarProductIDs
+            deactivate DB
+            
+            API -> DB: Fetch Details & Cache
+        end
+        
+        API --> Frontend: RecommendationList
+    deactivate API
+    
+    Frontend --> User: Show "You May Also Like"
+deactivate Frontend
+
+@enduml

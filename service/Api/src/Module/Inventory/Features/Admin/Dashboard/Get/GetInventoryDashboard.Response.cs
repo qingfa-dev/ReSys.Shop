@@ -19,6 +19,6 @@ public static partial class GetInventoryDashboard
         public int Quantity { get; init; }
         public string? Action { get; init; }
         public string? Reason { get; init; }
-        public DateTime CreatedAtUtc { get; init; }
+        public DateTimeOffset CreatedAtUtc { get; init; }
     }
 }

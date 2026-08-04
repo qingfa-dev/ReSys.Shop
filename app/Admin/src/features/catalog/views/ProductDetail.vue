@@ -1,0 +1,526 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import Tabs from 'primevue/tabs'
+import TabList from 'primevue/tablist'
+import Tab from 'primevue/tab'
+import TabPanels from 'primevue/tabpanels'
+import TabPanel from 'primevue/tabpanel'
+import PickList from 'primevue/picklist'
+import Card from 'primevue/card'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
+import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
+import { fromUtcToDateInput, toUtcIso } from '@/shared/utils/date'
+import { ProductApi } from '../services/productApi'
+import { ProductOptionTypeApi } from '../services/productOptionTypeApi'
+import type { OptionTypeAssignment } from '../types/productOptionType'
+import { ProductClassificationApi } from '../services/productClassificationApi'
+import type { ClassificationAssignment } from '../types/productClassification'
+import { productSchema, productName, productSlug, productDescription, productMetaTitle, productMetaDescription, productMetaKeywords, productAvailableOn, productDiscontinueOn, productStyleCode, productSeasonName, productMaterialComposition, productCareInstructions, productFitNotes, productDepartment, productGenderTarget } from '../validations/product'
+import type { ProductForm } from '../validations/product'
+import { makeEmptyAssignments } from '../utils/assignmentState'
+
+const route = useRoute()
+const router = useRouter()
+const notify = useNotify()
+const { handleResult } = useApiErrorHandler()
+
+const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
+const pageTitle = computed(() => isEdit.value ? 'Edit Product' : 'New Product')
+const pageDescription = computed(() =>
+  isEdit.value
+    ? 'Edit the details of the product.'
+    : 'Create a new product by filling out the form below.',
+)
+const activeTab = ref('0')
+
+const resolver = zodResolver(productSchema)
+const nameResolver = zodResolver(productName)
+const slugResolver = zodResolver(productSlug)
+const descriptionResolver = zodResolver(productDescription)
+const metaTitleResolver = zodResolver(productMetaTitle)
+const metaDescriptionResolver = zodResolver(productMetaDescription)
+const metaKeywordsResolver = zodResolver(productMetaKeywords)
+const availableOnResolver = zodResolver(productAvailableOn)
+const discontinueOnResolver = zodResolver(productDiscontinueOn)
+const styleCodeResolver = zodResolver(productStyleCode)
+const seasonNameResolver = zodResolver(productSeasonName)
+const materialCompositionResolver = zodResolver(productMaterialComposition)
+const careInstructionsResolver = zodResolver(productCareInstructions)
+const fitNotesResolver = zodResolver(productFitNotes)
+const departmentResolver = zodResolver(productDepartment)
+const genderTargetResolver = zodResolver(productGenderTarget)
+
+const form = ref<ProductForm & { status?: string }>({
+  name: '',
+  slug: '',
+  description: null,
+  metaTitle: null,
+  metaDescription: null,
+  metaKeywords: null,
+  availableOn: null,
+  discontinueOn: null,
+  trackInventory: true,
+  styleCode: null,
+  seasonName: null,
+  materialComposition: null,
+  careInstructions: null,
+  fitNotes: null,
+  department: null,
+  genderTarget: null,
+  status: 'Draft',
+})
+
+const loading = ref(false)
+const formLoaded = ref(!isEdit.value)
+
+const unassignedOptionTypes = ref<OptionTypeAssignment[]>([])
+const assignedOptionTypes = ref<OptionTypeAssignment[]>([])
+const optionTypesLoading = ref(false)
+const optionTypesLoaded = ref(false)
+
+const unassignedClassifications = ref<ClassificationAssignment[]>([])
+const assignedClassifications = ref<ClassificationAssignment[]>([])
+const classificationsLoading = ref(false)
+const classificationsLoaded = ref(false)
+
+const optionTypesModel = computed<OptionTypeAssignment[][]>({
+  get: () => [unassignedOptionTypes.value, assignedOptionTypes.value],
+  set: (value) => {
+    unassignedOptionTypes.value = value[0] ?? []
+    assignedOptionTypes.value = value[1] ?? []
+  },
+})
+
+const classificationsModel = computed<ClassificationAssignment[][]>({
+  get: () => [unassignedClassifications.value, assignedClassifications.value],
+  set: (value) => {
+    unassignedClassifications.value = value[0] ?? []
+    assignedClassifications.value = value[1] ?? []
+  },
+})
+
+function resetAssignments() {
+  const ot = makeEmptyAssignments()
+  const cl = makeEmptyAssignments()
+  unassignedOptionTypes.value = ot.unassigned
+  assignedOptionTypes.value = ot.assigned
+  unassignedClassifications.value = cl.unassigned
+  assignedClassifications.value = cl.assigned
+  optionTypesLoaded.value = false
+  classificationsLoaded.value = false
+}
+
+async function initEditMode(id: string) {
+  // Load: Fetch the product to seed the edit form.
+  const result = await ProductApi.getProduct(id)
+  if (result.isSuccess) {
+    const p = result.value
+    form.value = {
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      metaTitle: p.metaTitle,
+      metaDescription: p.metaDescription,
+      metaKeywords: p.metaKeywords,
+      availableOn: fromUtcToDateInput(p.availableOn),
+      discontinueOn: fromUtcToDateInput(p.discontinueOn),
+      trackInventory: p.trackInventory,
+      styleCode: p.styleCode,
+      seasonName: p.seasonName,
+      materialComposition: p.materialComposition,
+      careInstructions: p.careInstructions,
+      fitNotes: p.fitNotes,
+      department: p.department,
+      genderTarget: p.genderTarget,
+      status: p.status,
+    }
+    formLoaded.value = true
+    resetAssignments()
+    activeTab.value = '0'
+  } else {
+    handleResult(result)
+    router.push('/catalog/products')
+  }
+}
+
+onMounted(() => {
+  if (isEdit.value) {
+    initEditMode(route.params.id as string)
+  }
+})
+
+watch(() => route.params.id, (newId) => {
+  if (newId && newId !== 'new') {
+    initEditMode(newId as string).then(() => {
+      formLoaded.value = true
+    })
+  }
+})
+
+watch(activeTab, (tab) => {
+  if (isEdit.value && tab === '4' && !optionTypesLoaded.value) {
+    loadOptionTypes()
+  }
+  if (isEdit.value && tab === '5' && !classificationsLoaded.value) {
+    loadClassifications()
+  }
+})
+
+async function loadOptionTypes() {
+  optionTypesLoading.value = true
+  // Load: Fetch assignments for the unavailable/assigned PickList panels.
+  const result = await ProductOptionTypeApi.getOptionTypes(route.params.id as string)
+  if (result.isSuccess && result.items) {
+    unassignedOptionTypes.value = result.items.filter(i => !i.isAssigned)
+    assignedOptionTypes.value = result.items.filter(i => i.isAssigned)
+    optionTypesLoaded.value = true
+  }
+  optionTypesLoading.value = false
+}
+
+async function loadClassifications() {
+  classificationsLoading.value = true
+  // Load: Fetch assignments for the unavailable/assigned PickList panels.
+  const result = await ProductClassificationApi.getClassifications(route.params.id as string)
+  if (result.isSuccess && result.items) {
+    unassignedClassifications.value = result.items.filter(i => !i.isAssigned)
+    assignedClassifications.value = result.items.filter(i => i.isAssigned)
+    classificationsLoaded.value = true
+  }
+  classificationsLoading.value = false
+}
+
+async function saveOptionTypes() {
+  // Call: Persist the reordered option-type assignments.
+  const items = assignedOptionTypes.value.map((a, i) => ({
+    optionTypeId: a.optionTypeId,
+    position: i,
+  }))
+  const result = await ProductOptionTypeApi.syncOptionTypes({ productId: route.params.id as string, items })
+  if (result.isSuccess) {
+    notify.success('Option types saved')
+    optionTypesLoaded.value = false
+    await loadOptionTypes()
+  } else {
+    notify.error('Failed to save option types', result.errors?.[0]?.message)
+  }
+}
+
+async function saveClassifications() {
+  // Call: Persist the reordered taxon classifications.
+  const items = assignedClassifications.value.map((a, i) => ({
+    taxonId: a.taxonId,
+    position: i,
+  }))
+  const result = await ProductClassificationApi.syncClassifications({ productId: route.params.id as string, items })
+  if (result.isSuccess) {
+    notify.success('Classifications saved')
+    classificationsLoaded.value = false
+    await loadClassifications()
+  } else {
+    notify.error('Failed to save classifications', result.errors?.[0]?.message)
+  }
+}
+
+async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Return early when zod form validation fails.
+  if (!event.valid) return
+
+  const data = event.values as ProductForm
+  loading.value = true
+
+  // Transform: Normalise the form into the create/update request payload.
+  const request = {
+    name: data.name,
+    slug: data.slug,
+    description: data.description ?? null,
+    metaTitle: data.metaTitle ?? null,
+    metaDescription: data.metaDescription ?? null,
+    metaKeywords: data.metaKeywords ?? null,
+    availableOn: toUtcIso(data.availableOn),
+    discontinueOn: toUtcIso(data.discontinueOn),
+    trackInventory: data.trackInventory,
+    styleCode: data.styleCode ?? null,
+    seasonName: data.seasonName ?? null,
+    materialComposition: data.materialComposition ?? null,
+    careInstructions: data.careInstructions ?? null,
+    fitNotes: data.fitNotes ?? null,
+    department: data.department ?? null,
+    genderTarget: data.genderTarget ?? null,
+  }
+
+  // Call: Persist the product, branching between update and create.
+  const result = isEdit.value
+    ? await ProductApi.updateProduct(route.params.id as string, request)
+    : await ProductApi.createProduct(request)
+
+  loading.value = false
+
+  if (result.isSuccess) {
+    notify.success(isEdit.value ? 'Product updated' : 'Product created')
+    if (!isEdit.value && result.value) {
+      const created = result.value
+      form.value = {
+        ...form.value,
+        name: created.name,
+        slug: created.slug,
+        description: created.description,
+        metaTitle: created.metaTitle,
+        metaDescription: created.metaDescription,
+        metaKeywords: created.metaKeywords,
+        availableOn: fromUtcToDateInput(created.availableOn),
+        discontinueOn: fromUtcToDateInput(created.discontinueOn),
+        trackInventory: created.trackInventory,
+        styleCode: created.styleCode,
+        seasonName: created.seasonName,
+        materialComposition: created.materialComposition,
+        careInstructions: created.careInstructions,
+        fitNotes: created.fitNotes,
+        department: created.department,
+        genderTarget: created.genderTarget,
+        status: created.status,
+      }
+      router.replace(`/catalog/products/${created.id}`)
+    }
+  } else {
+    handleResult(result)
+  }
+}
+
+function onCancel() {
+  router.push('/catalog/products')
+}
+</script>
+
+<template>
+  <div class="flex flex-col h-full p-4">
+    <!-- Section: Page Header — dynamic title plus Save and Cancel actions -->
+    <div class="flex-none flex justify-between items-start gap-4 mb-4">
+      <div>
+        <div class="font-semibold text-xl">{{ pageTitle }}</div>
+        <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" form="product-form" />
+        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </div>
+    </div>
+
+    <div class="flex-1 min-h-0 overflow-auto">
+      <!-- Section: Content Card — holds the form and its tabbed field groups -->
+      <Card>
+        <template #content>
+          <Form id="product-form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+            <!-- Section: Tabs — general, SEO, fashion, timing, and edit-only panels -->
+            <Tabs v-model:value="activeTab">
+              <TabList>
+                <Tab value="0">General</Tab>
+                <Tab value="1">SEO</Tab>
+                <Tab value="2">Fashion</Tab>
+                <Tab value="3">Timing</Tab>
+                <Tab v-if="isEdit" value="4">Option Types</Tab>
+                <Tab v-if="isEdit" value="5">Classifications</Tab>
+              </TabList>
+
+              <TabPanels>
+                <TabPanel value="0">
+                  <!-- Section: General Fields — name, slug, description, and status -->
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="slug" :resolver="slugResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="description" :resolver="descriptionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
+                              <Textarea fluid rows="4" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-if="isEdit" name="status" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Status</label>
+                              <Select :options="['Draft', 'Active', 'Archived']" fluid />
+                            </FormField>
+                          </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="1">
+                  <!-- Section: SEO Fields — meta title, description, and keywords -->
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Search Engine Optimization</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="metaDescription" :resolver="metaDescriptionResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
+                              <Textarea fluid rows="3" />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="metaKeywords" :resolver="metaKeywordsResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="2">
+                  <!-- Section: Fashion Fields — style, season, material, and fit attributes -->
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Fashion Attributes</div>
+                          <div class="grid grid-cols-2 gap-4">
+                            <FormField v-slot="$field" name="styleCode" :resolver="styleCodeResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Style Code</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="seasonName" :resolver="seasonNameResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Season</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="department" :resolver="departmentResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Department</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                            <FormField v-slot="$field" name="genderTarget" :resolver="genderTargetResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Gender Target</label>
+                              <InputText fluid />
+                              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                            </FormField>
+                          </div>
+                          <FormField v-slot="$field" name="materialComposition" :resolver="materialCompositionResolver" class="flex flex-col gap-1">
+                            <label class="text-surface-900 dark:text-surface-0 font-medium">Material Composition</label>
+                            <Textarea fluid rows="2" />
+                            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                          </FormField>
+                          <FormField v-slot="$field" name="careInstructions" :resolver="careInstructionsResolver" class="flex flex-col gap-1">
+                            <label class="text-surface-900 dark:text-surface-0 font-medium">Care Instructions</label>
+                            <Textarea fluid rows="2" />
+                            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                          </FormField>
+                          <FormField v-slot="$field" name="fitNotes" :resolver="fitNotesResolver" class="flex flex-col gap-1">
+                            <label class="text-surface-900 dark:text-surface-0 font-medium">Fit Notes</label>
+                            <Textarea fluid rows="2" />
+                            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                          </FormField>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel value="3">
+                  <!-- Section: Availability Fields — scheduling dates and inventory toggle -->
+                  <Card>
+                    <template #content>
+                      <div class="flex flex-col gap-6">
+                        <div class="font-semibold text-xl">Availability</div>
+                          <div class="flex flex-col gap-4">
+                            <FormField name="availableOn" :resolver="availableOnResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
+                              <InputText fluid type="date" />
+                            </FormField>
+                            <FormField name="discontinueOn" :resolver="discontinueOnResolver" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
+                              <InputText fluid type="date" />
+                            </FormField>
+                            <FormField name="trackInventory" class="flex flex-col gap-1">
+                              <label class="text-surface-900 dark:text-surface-0 font-medium">Track Inventory</label>
+                              <ToggleSwitch />
+                            </FormField>
+                          </div>
+                      </div>
+                    </template>
+                  </Card>
+                </TabPanel>
+
+                <TabPanel v-if="isEdit" value="4">
+                  <!-- Section: Option Type Assignment — assign via a source/target PickList -->
+                  <div v-if="optionTypesLoading" class="text-center py-8 text-muted-color">Loading option types...</div>
+                  <div v-else-if="optionTypesLoaded && unassignedOptionTypes.length === 0 && assignedOptionTypes.length === 0" class="text-center py-8 text-muted-color">
+                    No option types available.
+                  </div>
+                  <template v-else>
+                    <PickList
+                      v-model="optionTypesModel"
+                      source-header="Available"
+                      target-header="Assigned"
+                      :loading="optionTypesLoading"
+                      list-style="height: 300px"
+                      source-filter-placeholder="Search..."
+                      target-filter-placeholder="Search..."
+                    >
+                      <template #option="slotProps">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium">{{ slotProps.option.name }}</span>
+                          <span class="text-muted-color text-sm">({{ slotProps.option.presentation }})</span>
+                        </div>
+                      </template>
+                    </PickList>
+                    <div class="mt-3">
+                      <Button label="Save Option Types" severity="primary" @click="saveOptionTypes" />
+                    </div>
+                  </template>
+                </TabPanel>
+
+                <TabPanel v-if="isEdit" value="5">
+                  <!-- Section: Classification Assignment — assign taxons via a PickList -->
+                  <div v-if="classificationsLoading" class="text-center py-8 text-muted-color">Loading classifications...</div>
+                  <div v-else-if="classificationsLoaded && unassignedClassifications.length === 0 && assignedClassifications.length === 0" class="text-center py-8 text-muted-color">
+                    No classifications available.
+                  </div>
+                  <template v-else>
+                    <PickList
+                      v-model="classificationsModel"
+                      source-header="Unassigned"
+                      target-header="Assigned"
+                      :loading="classificationsLoading"
+                      list-style="height: 300px"
+                      source-filter-placeholder="Search..."
+                      target-filter-placeholder="Search..."
+                    >
+                      <template #option="slotProps">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium">{{ slotProps.option.name }}</span>
+                          <span v-if="slotProps.option.prettyName" class="text-muted-color text-sm">({{ slotProps.option.prettyName }})</span>
+                        </div>
+                      </template>
+                    </PickList>
+                    <div class="mt-3">
+                      <Button label="Save Classifications" severity="primary" @click="saveClassifications" />
+                    </div>
+                  </template>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+
+          </Form>
+        </template>
+      </Card>
+    </div>
+  </div>
+</template>

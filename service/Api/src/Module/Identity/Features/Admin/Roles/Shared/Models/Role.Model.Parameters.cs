@@ -1,8 +1,7 @@
 namespace Module.Identity.Features.Admin.Roles.Shared.Models;
 
-public abstract record RoleParameter : INamedParameters
+public abstract record RoleParameter
 {
     public string Name { get; init; } = string.Empty;
     public string? Description { get; init; }
-    public string? Presentation { get; init; }
 }

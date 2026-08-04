@@ -69,7 +69,7 @@ public class ProductMappingTests
     [Fact(DisplayName = "MapToDomain (Update): Should preserve fields when request values are null")]
     public void MapToDomain_Update_ShouldPreserveOtherFields()
     {
-        var entity = ProductMethod.Create("Original", "original-slug", description: "Original desc", status: ProductStatus.Active).Value;
+        var entity = ProductMethod.Create(name: "Original", slug: "original-slug", description: "Original desc", status: ProductStatus.Active).Value;
 
         var request = new ProductRequest
         {
@@ -89,7 +89,7 @@ public class ProductMappingTests
     [Fact(DisplayName = "MapToDetail: Should map Product entity to ProductDetailResponse")]
     public void MapToDetail_ShouldMapEntityToResponse()
     {
-        var entity = ProductMethod.Create("T-Shirt", "t-shirt", description: "A shirt", status: ProductStatus.Active).Value;
+        var entity = ProductMethod.Create(name: "T-Shirt", slug: "t-shirt", description: "A shirt", status: ProductStatus.Active).Value;
         entity.MasterVariantId = Guid.NewGuid();
         entity.CreatedAtUtc = DateTimeOffset.UtcNow;
 

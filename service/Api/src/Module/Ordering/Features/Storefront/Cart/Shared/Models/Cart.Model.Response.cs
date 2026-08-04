@@ -11,6 +11,10 @@ public record CartItem : Response
     public string VariantName { get; init; } = string.Empty;
     /// <summary>Stock-keeping unit code for the variant.</summary>
     public string Sku { get; init; } = string.Empty;
+    /// <summary>Display name of the product (from the product entity).</summary>
+    public string? ProductName { get; init; }
+    /// <summary>Primary image URL of the product.</summary>
+    public string? ProductImageUrl { get; init; }
     /// <summary>Number of units in this line item.</summary>
     public int Quantity { get; init; }
     /// <summary>Unit price at the time of addition.</summary>

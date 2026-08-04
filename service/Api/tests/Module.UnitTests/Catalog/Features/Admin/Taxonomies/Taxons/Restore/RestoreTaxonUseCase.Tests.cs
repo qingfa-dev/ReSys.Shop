@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
 
@@ -55,7 +55,7 @@ public class RestoreTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new RestoreTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RestoreTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -65,15 +65,6 @@ public class RestoreTaxonTests : IDisposable
         _hierarchyServiceMock.Verify(x => x.RebuildHierarchyAsync(taxonomy.Id, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonomyNotFound()
-    {
-        var result = await _handler.Handle(new RestoreTaxon.Command(Guid.NewGuid(), Guid.NewGuid()), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonomyResult.Errors.NotFound.Code);
-    }
-
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
     public async Task Handle_ShouldReturnFailure_WhenNotFound()
     {
@@ -81,7 +72,7 @@ public class RestoreTaxonTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new RestoreTaxon.Command(taxonomy.Id, Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RestoreTaxon.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -98,7 +89,7 @@ public class RestoreTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new RestoreTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RestoreTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 

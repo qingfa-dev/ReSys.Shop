@@ -62,14 +62,14 @@ public class PaymentMappingTests
         response.ClientSecret.Should().Be("secret_123");
     }
 
-    [Fact(DisplayName = "ToDetail: Should set Currency to empty string")]
-    public void ToDetail_ShouldSetCurrencyToEmpty()
+    [Fact(DisplayName = "ToDetail: Should map Currency from entity")]
+    public void ToDetail_ShouldMapCurrency()
     {
         var payment = CreatePayment();
 
         var response = payment.MapToDetail<PaymentDetailResponse>();
 
-        response.Currency.Should().BeEmpty();
+        response.Currency.Should().Be(payment.Currency);
     }
 
     [Fact(DisplayName = "ToListItem: Should map entity to list item response")]

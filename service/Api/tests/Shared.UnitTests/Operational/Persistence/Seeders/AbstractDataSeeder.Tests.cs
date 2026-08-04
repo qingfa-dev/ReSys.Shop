@@ -2,6 +2,9 @@ using System.Data;
 
 using Microsoft.EntityFrameworkCore;
 
+using Npgsql;
+
+using Shared.Application.Models.Errors;
 using Shared.Operational.Persistence.Data;
 using Shared.Operational.Persistence.Seeders;
 using Shared.Operational.Persistence.Transactions;
@@ -23,6 +26,9 @@ public class AbstractDataSeederTests
         {
             return Task.FromResult(Result.Ok());
         }
+
+        public Task<Result> ExposedSaveChangesWithIdempotencyAsync(CancellationToken cancellationToken)
+            => SaveChangesWithIdempotencyAsync(cancellationToken);
     }
 
     private sealed class TestEntity
@@ -114,5 +120,85 @@ public class AbstractDataSeederTests
         Task<Boolean> task = (Task<Boolean>)method!.MakeGenericMethod(typeof(TEntity))
             .Invoke(seeder, [cancellationToken])!;
         return await task;
+    }
+
+    private static DbUpdateException BuildDbUpdateException(String sqlState, String constraintName)
+    {
+        var postgresEx = new PostgresException(
+            messageText: "duplicate key value violates unique constraint",
+            severity: "ERROR",
+            invariantSeverity: "ERROR",
+            sqlState: sqlState,
+            constraintName: constraintName);
+        return new DbUpdateException("An error occurred while saving the entity changes.", postgresEx);
+    }
+
+    private sealed class ThrowingContext : IApplicationDbContext
+    {
+        public Boolean SupportsTransactions => false;
+
+        public Task<IDatabaseTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IDatabaseTransaction>(new NoOpTransaction());
+
+        public DbSet<TEntity> Set<TEntity>() where TEntity : class =>
+            throw new NotImplementedException();
+
+        public Task<Int32> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+    }
+
+    private sealed class ThrowingContextMockFactory
+    {
+        public static Mock<IApplicationDbContext> Create(DbUpdateException toThrow)
+        {
+            Mock<IApplicationDbContext> mock = new();
+            mock.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ThrowsAsync(toThrow);
+            return mock;
+        }
+    }
+
+    [Fact(DisplayName = "SaveChangesWithIdempotencyAsync should surface duplicate-key violations as Result.Failure")]
+    public async Task SaveChangesWithIdempotencyAsync_OnDuplicateKey_ShouldReturnFailure()
+    {
+        var ex = BuildDbUpdateException("23505", "ix_taxa_taxonomy_slug");
+        Mock<IApplicationDbContext> contextMock = ThrowingContextMockFactory.Create(ex);
+        TestSeeder seeder = new(contextMock.Object);
+
+        Result result = await seeder.ExposedSaveChangesWithIdempotencyAsync(TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Errors.Should().NotBeNullOrEmpty();
+        result.Errors[0].Code.Should().Be("Seeder.IntegrityViolation");
+        result.Errors[0].Message.Should().Contain("ix_taxa_taxonomy_slug");
+        result.Errors[0].Message.Should().Contain("Duplicate key");
+    }
+
+    [Fact(DisplayName = "SaveChangesWithIdempotencyAsync should surface foreign-key violations as Result.Failure")]
+    public async Task SaveChangesWithIdempotencyAsync_OnForeignKeyViolation_ShouldReturnFailure()
+    {
+        var ex = BuildDbUpdateException("23503", "fk_classifications_taxon_taxon_id");
+        Mock<IApplicationDbContext> contextMock = ThrowingContextMockFactory.Create(ex);
+        TestSeeder seeder = new(contextMock.Object);
+
+        Result result = await seeder.ExposedSaveChangesWithIdempotencyAsync(TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Errors[0].Code.Should().Be("Seeder.IntegrityViolation");
+        result.Errors[0].Message.Should().Contain("fk_classifications_taxon_taxon_id");
+        result.Errors[0].Message.Should().Contain("Foreign key");
+    }
+
+    [Fact(DisplayName = "SaveChangesWithIdempotencyAsync should return Ok on successful save")]
+    public async Task SaveChangesWithIdempotencyAsync_OnSuccess_ShouldReturnOk()
+    {
+        Mock<IApplicationDbContext> contextMock = new();
+        contextMock.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        TestSeeder seeder = new(contextMock.Object);
+
+        Result result = await seeder.ExposedSaveChangesWithIdempotencyAsync(TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
     }
 }

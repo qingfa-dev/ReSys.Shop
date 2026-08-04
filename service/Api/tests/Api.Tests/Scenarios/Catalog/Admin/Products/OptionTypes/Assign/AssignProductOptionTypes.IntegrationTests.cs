@@ -43,11 +43,12 @@ public sealed class AssignProductOptionTypesIntegrationTests(ApiFixture fixture)
 
         var assignRequest = new
         {
+            productId = product!.Id,
             items = new[] { new { optionTypeId = optionType!.Id, position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/option-types/assign", assignRequest);
+            "/api/catalog/product-option-types/assign", assignRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -60,11 +61,12 @@ public sealed class AssignProductOptionTypesIntegrationTests(ApiFixture fixture)
         Guid nonexistentId = Guid.NewGuid();
         var assignRequest = new
         {
+            productId = nonexistentId,
             items = new[] { new { optionTypeId = Guid.NewGuid(), position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{nonexistentId}/option-types/assign", assignRequest);
+            "/api/catalog/product-option-types/assign", assignRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

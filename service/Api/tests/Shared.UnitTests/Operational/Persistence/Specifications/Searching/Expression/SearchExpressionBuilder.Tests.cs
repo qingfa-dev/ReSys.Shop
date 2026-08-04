@@ -12,6 +12,7 @@ public sealed class SearchExpressionBuilderTests
 {
     private sealed class TestEntity
     {
+        public Guid Id { get; set; }
         public String Name { get; set; } = String.Empty;
         public String Description { get; set; } = String.Empty;
         public String Category { get; set; } = String.Empty;
@@ -139,6 +140,41 @@ public sealed class SearchExpressionBuilderTests
     {
         TestEntity entity = new() { Name = "Nothing", Description = "hello", Category = "world" };
         SearchModel model = new(new SearchTerm { Value = "hello" }, ["Name", "Description", "Category"]);
+
+        Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
+
+        Evaluate(lambda, entity).Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Build: Non-string fields are converted to string and searched")]
+    public void Build_NonStringFields_ShouldConvertToStringAndSearch()
+    {
+        Guid id = Guid.NewGuid();
+        string idString = id.ToString().ToLowerInvariant();
+        TestEntity entity = new() { Id = id, Name = "nothing" };
+        SearchModel model = new(new SearchTerm { Value = idString[..8] }, ["Id"]);
+
+        Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
+
+        Evaluate(lambda, entity).Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Build: Non-string fields don't match wrong term")]
+    public void Build_NonStringFields_ShouldNotMatchWrongTerm()
+    {
+        TestEntity entity = new() { Id = Guid.NewGuid() };
+        SearchModel model = new(new SearchTerm { Value = "nonexistent" }, ["Id"]);
+
+        Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
+
+        Evaluate(lambda, entity).Should().BeFalse();
+    }
+
+    [Fact(DisplayName = "Build: Mixed string and non-string fields in Any mode")]
+    public void Build_MixedStringAndNonStringFields_ShouldSearchBoth()
+    {
+        TestEntity entity = new() { Id = Guid.NewGuid(), Name = "hello world" };
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Id", "Name"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 

@@ -1,17 +1,17 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
+namespace Module.Catalog.Features.Admin.Taxons.Delete;
 
 /// <summary>
 /// Defines the use case for deleting (soft-deleting) a taxon.
 /// </summary>
 public static partial class DeleteTaxon
 {
-    public sealed record Command(Guid TaxonomyId, Guid Id) : ICommand;
+    public sealed record Command(Guid Id) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -29,22 +29,18 @@ public static partial class DeleteTaxon
         // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var id = command.Id;
-
-            // Validate: Parent taxonomy must exist
-            var taxonomyExists = await dbContext.Set<Taxonomy>()
-                .AnyAsync(x => x.Id == taxonomyId, cancellationToken);
-            if (!taxonomyExists)
-                return TaxonomyResult.Errors.NotFound;
 
             // Load: Fetch taxon with children to validate deletion eligibility
             var entity = await dbContext.Set<Taxon>()
+                .Include(x => x.Taxonomy)
                 .Include(x => x.Children)
-                .FirstOrDefaultAsync(x => x.Id == id && x.TaxonomyId == taxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+            // Validate: Taxon must exist
             if (entity is null)
                 return TaxonResult.Errors.NotFound;
-
+            
             // Enforce: Cannot delete taxon with active children — orphans the hierarchy
             if (entity.Children.Count != 0)
                 return TaxonResult.Errors.HasChildren;

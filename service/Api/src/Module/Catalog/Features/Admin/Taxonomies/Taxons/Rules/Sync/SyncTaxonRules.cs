@@ -1,41 +1,38 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
+namespace Module.Catalog.Features.Admin.Taxons.Rules.Sync;
 
 /// <summary>
 /// Defines the use case for synchronizing taxon rules.
 /// </summary>
 public static partial class SyncTaxonRules
 {
-    public sealed record Command(Guid TaxonomyId, Guid TaxonId, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid TaxonId, Request Request) : IPagedQuery<Response>;
 
-    public sealed class CommandHandler(
+    public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,
         IAutoClassificationService autoClassificationService,
-        ILogger<CommandHandler> logger)
-        : ICommandHandler<Command, Response>
+        ILogger<PagedQueryHandler> logger)
+        : IPagedQueryHandler<Command, Response>
     {
         /// <summary>
         /// Synchronises taxon rules — creates, updates, and removes rules to match the
         /// incoming set, then triggers auto-classification if the taxon is automatic.
         /// </summary>
-        /// <param name="command">The command containing taxonomy ID, taxon ID, and rule set.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
-        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.TaxonId!=Guid.Empty, post=result.Rules!=null, throws=DbUpdateException
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.TaxonId!=Guid.Empty, post=result!=null, throws=DbUpdateException
+        public async Task<PagedResult<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var taxonId = command.TaxonId;
             var request = command.Request;
 
             // Validate: Parent taxon must exist
             var taxon = await dbContext.Set<Taxon>()
-                .FirstOrDefaultAsync(x => x.Id == taxonId && x.TaxonomyId == taxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == taxonId, cancellationToken);
             if (taxon is null)
                 return TaxonResult.Errors.NotFound;
 
@@ -96,8 +93,8 @@ public static partial class SyncTaxonRules
                 .OrderBy(x => x.Type)
                 .ToListAsync(cancellationToken);
 
-            var mapped = updatedRules.Select(r => r.MapToListItem<TaxonRuleItem>()).ToList();
-            return new Response { Rules = mapped };
+            var mapped = updatedRules.Select(r => r.MapToListItem<Response>()).ToList();
+            return PagedResult<Response>.Create(mapped, 1, Math.Max(1, mapped.Count), mapped.Count);
         }
     }
 }

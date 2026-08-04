@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
+namespace Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
 
 public static partial class TaxonMapping
 {
@@ -13,6 +13,9 @@ public static partial class TaxonMapping
             Id = entity.Id,
             #region Relationships
             ParentId = entity.ParentId,
+            ParentName = entity.Parent?.Name,
+            TaxonomyId = entity.TaxonomyId,
+            TaxonomyName = entity.Taxonomy?.Name,
             #endregion
             #region Properties
             Name = entity.Name,
@@ -67,6 +70,8 @@ public static partial class TaxonMapping
             #region Relationships
             ParentId = entity.ParentId,
             ParentName = entity.Parent?.Name,
+            TaxonomyId = entity.TaxonomyId,
+            TaxonomyName = entity.Taxonomy?.Name,
             #endregion
             #region Properties
             Name = entity.Name,

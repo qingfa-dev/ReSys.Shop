@@ -111,5 +111,11 @@ public class TaxonConfiguration : IEntityTypeConfiguration<Taxon>
             .HasForeignKey(r => r.TaxonId)
             .OnDelete(DeleteBehavior.Cascade);
         #endregion
+
+        #region Indexes
+        builder.HasIndex(x => new { x.TaxonomyId, x.Slug })
+            .IsUnique()
+            .HasDatabaseName("ix_taxa_taxonomy_slug");
+        #endregion
     }
 }

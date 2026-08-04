@@ -33,9 +33,9 @@ public class ProductMethodTests
         string slug,
         string description)
     {
-        var product = ProductMethod.Create("Old Name", "old-slug", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Old Name", slug: "old-slug", status: ProductStatus.Active).Value;
         var availableOn = DateTimeOffset.UtcNow.AddDays(1);
-        var result = product.Update(name, slug, description, status: null, availableOn: availableOn);
+        var result = product.Update(name: name, slug: slug, description: description, status: null, availableOn: availableOn);
 
         result.IsSuccess.Should().BeTrue();
         product.Name.Should().Be(name);
@@ -70,7 +70,7 @@ public class ProductMethodTests
     [InlineData("New Name Only")]
     public void Update_WithSomeNullParams_ShouldPreserveExisting(string newName)
     {
-        var product = ProductMethod.Create("Old Name", "old-slug", description: "Old description", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Old Name", slug: "old-slug", description: "Old description", status: ProductStatus.Active).Value;
         var result = product.Update(name: newName);
 
         result.IsSuccess.Should().BeTrue();

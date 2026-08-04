@@ -1,0 +1,142 @@
+@startuml use-case-overview
+left to right direction
+
+<style>
+  root {
+    FontName "Times New Roman"
+    FontSize 20
+    Shadowing 0
+  }
+  actor {
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontColor #000000
+    FontStyle bold
+    FontSize 26
+  }
+  usecase {
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontColor #000000
+    FontSize 20
+  }
+  package {
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontStyle bold
+    FontSize 24
+  }
+  rectangle {
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 2
+    FontStyle bold
+    FontSize 26
+  }
+  arrow {
+    LineColor #000000
+    LineThickness 1.5
+    FontSize 14
+  }
+</style>
+
+actor "Administrator" as Admin
+actor "Customer" as Customer
+actor "System\n(Background)" as SysActor
+
+rectangle "ReSys.Shop" {
+
+  package "Catalog" {
+    usecase "Manage Products\n[UC-ADM-PROD]" as UC_ADM_PROD
+    usecase "Manage Variants\n[UC-ADM-VAR]" as UC_ADM_VAR
+    usecase "Manage Images\nand Embeddings\n[UC-ADM-IMG]" as UC_ADM_IMG
+    usecase "Manage Taxonomies\nand Classification\n[UC-ADM-TAX]" as UC_ADM_TAX
+    usecase "Manage Option\nTypes\n[UC-ADM-OPT]" as UC_ADM_OPT
+    usecase "Browse and Search\nCatalog\n[UC-STR-BRW]" as UC_STR_BRW
+    usecase "Visual Search\n[UC-STR-SRC]" as UC_STR_SRC
+  }
+
+  package "Ordering" {
+    usecase "Manage Orders\n[UC-ADM-ORD]" as UC_ADM_ORD
+    usecase "Manage Order\nDetails\n[UC-ADM-ORD-ITEMS]" as UC_ADM_ORD_ITEMS
+    usecase "Manage Cart\n[UC-STR-CRT]" as UC_STR_CRT
+    usecase "Checkout\n[UC-STR-CHK]" as UC_STR_CHK
+    usecase "Order History\n[UC-STR-OHI]" as UC_STR_OHI
+  }
+
+  package "Payment" {
+    usecase "Manage Payments\n[UC-ADM-PAY]" as UC_ADM_PAY
+    usecase "Manage Payment\nMethods\n[UC-ADM-PAY-METHOD]" as UC_ADM_PAY_METHOD
+    usecase "Payment\nProcessing\n[UC-STR-PAY]" as UC_STR_PAY
+  }
+
+  package "Inventory" {
+    usecase "Manage Stock\n[UC-ADM-STK]" as UC_ADM_STK
+    usecase "Manage Stock\nLocations\n[UC-ADM-LOC]" as UC_ADM_LOC
+  }
+
+  package "Identity" {
+    usecase "Manage Users\n[UC-ADM-USR]" as UC_ADM_USR
+    usecase "Manage Roles\nand Permissions\n[UC-ADM-ROL]" as UC_ADM_ROL
+    usecase "Authentication\n[UC-STR-AUT]" as UC_STR_AUT
+    usecase "Session\nManagement\n[UC-STR-SES]" as UC_STR_SES
+  }
+
+  package "Shipping" {
+    usecase "Manage Shipping\n[UC-ADM-SHP]" as UC_ADM_SHP
+  }
+
+  package "Location" {
+    usecase "Manage Reference\nData\n[UC-ADM-REF]" as UC_ADM_REF
+  }
+
+  package "Profile" {
+    usecase "Profile\nManagement\n[UC-STR-PRF]" as UC_STR_PRF
+  }
+
+  package "System Services" {
+    usecase "Embedding\nOperations\n[UC-SYS-EMB]" as UC_SYS_EMB
+    usecase "System\nMaintenance\n[UC-SYS-MNT]" as UC_SYS_MNT
+  }
+}
+
+Admin --> UC_ADM_PROD
+Admin --> UC_ADM_VAR
+Admin --> UC_ADM_IMG
+Admin --> UC_ADM_TAX
+Admin --> UC_ADM_OPT
+Admin --> UC_ADM_ORD
+Admin --> UC_ADM_ORD_ITEMS
+Admin --> UC_ADM_PAY
+Admin --> UC_ADM_PAY_METHOD
+Admin --> UC_ADM_STK
+Admin --> UC_ADM_LOC
+Admin --> UC_ADM_USR
+Admin --> UC_ADM_ROL
+Admin --> UC_ADM_SHP
+Admin --> UC_ADM_REF
+
+Customer --> UC_STR_BRW
+Customer --> UC_STR_SRC
+Customer --> UC_STR_CRT
+Customer --> UC_STR_CHK
+Customer --> UC_STR_OHI
+Customer --> UC_STR_PAY
+Customer --> UC_STR_AUT
+Customer --> UC_STR_SES
+Customer --> UC_STR_PRF
+
+SysActor --> UC_SYS_EMB
+SysActor --> UC_SYS_MNT
+
+UC_STR_CHK ..> UC_STR_PAY : <<include>>
+UC_STR_CHK ..> UC_STR_AUT : <<include>>
+UC_STR_SRC ..> UC_SYS_EMB : <<include>>
+UC_ADM_IMG ..> UC_SYS_EMB : <<include>>
+UC_ADM_ORD ..> UC_STR_PAY : <<include>>
+UC_STR_OHI ..> UC_STR_AUT : <<include>>
+
+@enduml

@@ -1,0 +1,113 @@
+#let info = (
+  en: (
+    student: (
+      name: "Nguyen Thanh Phat",
+      id: "B2005853",
+      class: "DI20V7F1 (K46)",
+      major: "INFORMATION TECHNOLOGY",
+      program: "High-Quality Program",
+    ),
+    advisor: (
+      name: "Dr. Tran Cong An",
+    ),
+    thesis: (
+      title: [BUILDING A FASHION E-COMMERCE APPLICATION WITH IMAGE-BASED PRODUCT SEARCH AND MODEL BENCHMARKING],
+      short_title: "FASHION E-COMMERCE WITH CBIR & MODEL BENCHMARKING",
+      date: "December 2025",
+      location: "Can Tho",
+      degree: "BACHELOR OF ENGINEERING",
+    ),
+    keywords: (
+      "e-commerce", "visual search", "deep learning",
+      "modular architecture", "computer vision", "benchmarking",
+    ),
+    committee: (
+      chairman: "Dr. Pham The Phi",
+      reviewer: "Dr. Thai Minh Tuan",
+      advisor: "Dr. Tran Cong An",
+    ),
+    defense_date: "December 24, 2025",
+    abbreviations: (
+      ("CBIR", "Content-Based Image Retrieval"),
+      ("CTU", "Can Tho University"),
+      ("API", "Application Programming Interface"),
+      ("CNN", "Convolutional Neural Network"),
+      ("ViT", "Vision Transformer"),
+      ("CLIP", "Contrastive Language-Image Pre-training"),
+      ("HNSW", "Hierarchical Navigable Small World"),
+      ("ANN", "Approximate Nearest Neighbor"),
+      ("mAP", "Mean Average Precision"),
+      ("nDCG", "Normalized Discounted Cumulative Gain"),
+      ("t-SNE", "t-distributed Stochastic Neighbor Embedding"),
+      ("SPA", "Single Page Application"),
+      ("VSA", "Vertical Slice Architecture"),
+      ("DSR", "Design Science Research"),
+      ("EF Core", "Entity Framework Core"),
+      ("SQL", "Structured Query Language"),
+    ),
+  ),
+  vi: (
+    student: (
+      name: "Nguyễn Thanh Phát",
+      id: "B2005853",
+      class: "DI20V7F1 (K46)",
+      major: "Công nghệ Thông tin",
+      program: "Chất lượng cao",
+    ),
+    advisor: (
+      name: "TS. Trần Công Án",
+    ),
+    thesis: (
+      title: [PHÁT TRIỂN ỨNG DỤNG \ THƯƠNG MẠI ĐIỆN TỬ BÁN THỜI TRANG \ TÍCH HỢP TÌM KIẾM SẢN PHẨM BẰNG HÌNH ẢNH \ VÀ ĐÁNH GIÁ HIỆU NĂNG MÔ HÌNH],
+      short_title: "TMĐT THỜI TRANG VỚI CBIR & ĐÁNH GIÁ MÔ HÌNH",
+      date: "Tháng 12 năm 2025",
+      location: "Cần Thơ",
+      degree: "KỸ SƯ",
+    ),
+    keywords: (
+      "thương mại điện tử", "tìm kiếm hình ảnh", "học sâu",
+      "kiến trúc module", "thị giác máy tính", "đánh giá hiệu năng",
+    ),
+    committee: (
+      chairman: "TS. Phạm Thế Phi",
+      reviewer: "TS. Thái Minh Tuấn",
+      advisor: "TS. Trần Công Án",
+    ),
+    defense_date: "24 tháng 12 năm 2025",
+    abbreviations: (
+      ("CBIR", "Truy xuất hình ảnh dựa trên nội dung"),
+      ("CTU", "Trường Đại học Cần Thơ"),
+      ("API", "Giao diện lập trình ứng dụng"),
+      ("CNN", "Mạng nơ-ron tích chập"),
+      ("ViT", "Vision Transformer"),
+      ("CLIP", "Contrastive Language-Image Pre-training"),
+      ("HNSW", "Thuật toán thế giới nhỏ phân cấp có thể định hướng"),
+      ("ANN", "Tìm kiếm lân cận gần đúng"),
+      ("mAP", "Độ chính xác trung bình"),
+      ("nDCG", "Độ lợi tích lũy chiết khấu chuẩn hóa"),
+      ("t-SNE", "Phép nhúng lân cận ngẫu nhiên phân phối t"),
+      ("SPA", "Ứng dụng trang đơn"),
+      ("VSA", "Kiến trúc phân lớp dọc"),
+      ("DSR", "Nghiên cứu khoa học thiết kế"),
+      ("EF Core", "Entity Framework Core"),
+      ("SQL", "Ngôn ngữ truy vấn cấu trúc"),
+    ),
+  ),
+)
+
+#let settings = (
+  primary_lang: "en",
+  border_color: rgb(0, 51, 153),
+  format: (
+    font: "Times New Roman",
+    font_size: 13pt,
+    margins: (
+      left: 4cm,
+      right: 2.5cm,
+      top: 2.5cm,
+      bottom: 2.5cm,
+    ),
+    paragraph_indent: 1cm,
+    line_spacing: 1.2,
+  ),
+)

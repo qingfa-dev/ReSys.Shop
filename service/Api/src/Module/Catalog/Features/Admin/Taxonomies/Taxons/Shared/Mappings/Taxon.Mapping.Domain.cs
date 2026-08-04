@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
+namespace Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
 
 public static partial class TaxonMapping
 {

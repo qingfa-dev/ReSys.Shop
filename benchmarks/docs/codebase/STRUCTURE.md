@@ -17,7 +17,7 @@
 | `src/benchmark/reporting/` | Report generators: JSON, CSV, Markdown, Typst, pipeline Typst, matplotlib charts | `src/benchmark/reporting/__init__.py` |
 | `src/benchmark/utils/` | Shared utilities: logging, device resolution, timing, random seed | `src/benchmark/utils/logging.py` |
 | `src/tests/` | Test suite (datasets, evaluation, metrics, models, reporting, retrieval, cli, integration, utils) | `pyproject.toml:L52` |
-| `scripts/` | Standalone scripts: dataset download, preprocessing, enrich, benchmark, report, clean, demo-seed | `scripts/download_dataset.py`, `scripts/enrich_dataset.py` |
+| `scripts/` | Standalone scripts: dataset download, preprocessing, enrich, benchmark, report, clean, demo-seed | `scripts/01_download_dataset.py`, `scripts/05_enrich_dataset.py` |
 | `configs/` | YAML configuration files (benchmark, datasets, hardware, metrics, per-model) | `configs/benchmark.yaml` |
 | `data/` | Datasets, embedding cache, splits (gitignored except `.gitkeep`) | `data/cache/.gitkeep` |
 | `infra/` | PostgreSQL Podman/Docker configs + init scripts | `infra/postgres/init.sql` |

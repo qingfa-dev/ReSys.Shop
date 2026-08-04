@@ -1,0 +1,143 @@
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
+
+beforeAll(() => {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  })
+})
+import { mount, flushPromises } from '@vue/test-utils'
+import { nextTick } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia, setActivePinia } from 'pinia'
+import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
+import { ROUTE } from '../../routes'
+import ProductListPage from '../ProductListPage.vue'
+
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'catalog.products.titles.list': 'Products',
+        'catalog.products.descriptions.list': 'Manage your product catalog, pricing and stock.',
+        'catalog.products.placeholders.search': 'Search by name or SKU...',
+        'catalog.products.actions.new': 'New Product',
+        'catalog.products.messages.empty_list': 'No products found matching your criteria.',
+        'catalog.products.messages.delete_success': 'Product removed successfully.',
+      }
+      return map[key] ?? key
+    },
+  }),
+}))
+
+const mockGetProducts = vi.fn<(...args: unknown[]) => unknown>()
+const mockDeleteProduct = vi.fn<(...args: unknown[]) => unknown>()
+
+vi.mock('../../api', () => ({
+  ProductApi: {
+    getMany: (...args: unknown[]) => mockGetProducts(...args),
+    delete: (...args: unknown[]) => mockDeleteProduct(...args),
+  },
+}))
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: { template: '<div />' } },
+    { path: '/catalog/products', name: ROUTE.PRODUCTS.LIST, component: { template: '<div />' } },
+    { path: '/catalog/products/new', name: ROUTE.PRODUCTS.CREATE, component: { template: '<div />' } },
+    { path: '/catalog/products/:id', name: ROUTE.PRODUCTS.VIEW, component: { template: '<div />' } },
+    { path: '/catalog/products/:id/edit', name: ROUTE.PRODUCTS.EDIT, component: { template: '<div />' } },
+  ],
+})
+
+function createTestPlugins() {
+  return [PrimeVue, ConfirmationService, ToastService, router]
+}
+
+describe('ProductListPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    setActivePinia(createPinia())
+  })
+
+  it('renders page header', async () => {
+    mockGetProducts.mockResolvedValue({
+      isSuccess: true,
+      items: [],
+      page: 1, pageSize: 20, totalCount: 0,
+    })
+    const wrapper = mount(ProductListPage, {
+      global: { plugins: createTestPlugins() },
+    })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Products')
+  })
+
+  it('displays empty state when no products', async () => {
+    mockGetProducts.mockResolvedValue({
+      isSuccess: true,
+      items: [],
+      page: 1, pageSize: 20, totalCount: 0,
+    })
+    const wrapper = mount(ProductListPage, {
+      global: { plugins: createTestPlugins() },
+    })
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('No products found matching your criteria.')
+  })
+
+  it('displays products in table when data exists', async () => {
+    mockGetProducts.mockResolvedValue({
+      isSuccess: true,
+      items: [
+        { id: '1', name: 'Test Product', slug: 'test', status: 'Draft', department: null, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
+      ],
+      page: 1, pageSize: 20, totalCount: 1,
+    })
+    const wrapper = mount(ProductListPage, {
+      global: { plugins: createTestPlugins() },
+    })
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Test Product')
+  })
+
+  it('displays error state on API failure', async () => {
+    mockGetProducts.mockResolvedValue({
+      isSuccess: false,
+      message: 'Server error', statusCode: 500, errors: [{ code: 'ERR', message: 'Server error' }],
+    })
+    const wrapper = mount(ProductListPage, {
+      global: { plugins: createTestPlugins() },
+    })
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Server error')
+  })
+
+  it('has a create button', async () => {
+    mockGetProducts.mockResolvedValue({
+      isSuccess: true,
+      items: [],
+      page: 1, pageSize: 20, totalCount: 0,
+    })
+    const wrapper = mount(ProductListPage, {
+      global: { plugins: createTestPlugins() },
+    })
+    await flushPromises()
+    expect(wrapper.text()).toContain('New Product')
+  })
+})

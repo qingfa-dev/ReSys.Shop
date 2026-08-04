@@ -67,7 +67,7 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
         try { return EventUtility.ParseEvent(payload); }
         catch (StripeException ex)
         {
-            StripeWebhookDispatcherLoggers.EventParseFailed(_logger, ex, payload);
+            StripeWebhookDispatcherLoggers.EventParseFailed(_logger, ex, ex.Message, payload.Length);
             return null;
         }
     }

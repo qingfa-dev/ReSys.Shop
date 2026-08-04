@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Validators;
+namespace Module.Catalog.Features.Admin.Taxons.Shared.Validators;
 
 public static class TaxonValidator
 {
@@ -9,6 +9,10 @@ public static class TaxonValidator
     {
         public ParametersValidator()
         {
+            #region Relationship
+            RuleFor(x => x.TaxonomyId)
+                .ApplyTaxonomyIdRules();
+            #endregion
             #region Properties
             RuleFor(x => x.Name).ApplyNameRules();
             RuleFor(x => x.Presentation).ApplyPresentationRules();

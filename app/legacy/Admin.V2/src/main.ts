@@ -1,0 +1,25 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+import { setupPrimeVue } from '@/app/plugins/primevue'
+import { createI18nPlugin } from '@/shared/localization'
+import { createDirectivesPlugin } from '@/shared/directives'
+import { useAuthStore } from '@/features/auth'
+
+import './assets/styles/tailwind.css'
+import './assets/styles/main.scss'
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+setupPrimeVue(app)
+app.use(createI18nPlugin())
+app.use(createDirectivesPlugin())
+
+const authStore = useAuthStore()
+authStore.initialize()
+
+app.mount('#app')

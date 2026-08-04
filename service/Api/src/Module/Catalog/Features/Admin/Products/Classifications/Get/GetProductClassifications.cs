@@ -1,29 +1,26 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Get;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 
 /// <summary>
 /// Defines the use case for retrieving product classifications with assigned state.
 /// </summary>
 public static partial class GetProductClassifications
 {
-    public sealed record Query(Guid Id) : IQuery<Response>;
+    public sealed record Query(Guid Id, Parameters Parameters) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(
+    /// <summary>
+    /// Retrieves all taxons for a product with their assigned state and position for the classification tree view.
+    /// </summary>
+    public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext)
-        : IQueryHandler<Query, Response>
+        : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>
-        /// Retrieves all taxons for a product with their assigned state and position for the classification tree view.
-        /// </summary>
-        /// <param name="request">The query containing the product ID.</param>
-        /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success result with the product classification tree.</returns>
         // Contract: pre=request.Id!=Guid.Empty, post=result!=null
-        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Check: Product exists before retrieving classifications
             var productExists = await dbContext.Set<Product>()
@@ -47,12 +44,15 @@ public static partial class GetProductClassifications
             var items = allTaxons.Select(t =>
             {
                 var isAssigned = assignedPositions.ContainsKey(t.Id);
-                return t.MapToListItem<Response.ClassificationItem>(
+                return t.MapToListItem<Response>(
                     isAssigned,
                     isAssigned ? assignedPositions[t.Id] : 0);
-            }).ToList();
+            }).OrderBy(i => i.Position).ToList();
 
-            return new Response { Items = items };
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+            return pageModel.IsEmpty
+                ? PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count)
+                : items.ToPagedResult(pageModel);
         }
     }
 }

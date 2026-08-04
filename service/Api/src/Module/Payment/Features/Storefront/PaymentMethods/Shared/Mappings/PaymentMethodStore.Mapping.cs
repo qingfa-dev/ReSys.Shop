@@ -15,7 +15,6 @@ public static class PaymentMethodStoreMapping
             Code = method.Code,
             Description = method.Description,
             ProviderKey = method.ProviderKey,
-            Settings = method.Settings,
             Preferences = method.Preferences,
             Active = method.Active,
             AutoCapture = method.AutoCapture,

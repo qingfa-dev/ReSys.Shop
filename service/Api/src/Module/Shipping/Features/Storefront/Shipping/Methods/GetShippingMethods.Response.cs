@@ -2,14 +2,8 @@ namespace Module.Shipping.Features.Storefront.Shipping.Methods;
 
 public static partial class GetShippingMethods
 {
-    // EXCEPTION: wraps list of DTOs — collection wrapper, not a single shipping method entity
-    // EXCEPTION: collection wrapper — inner ShippingMethodDto is the domain DTO
-public sealed record Response
-{
-    public List<ShippingMethodDto> Methods { get; init; } = default!;
-}
-
-    public sealed record ShippingMethodDto
+    // EXCEPTION: DTO mapped from domain ShippingMethod entities — no single shipping method entity
+    public sealed record Response
     {
         public Guid Id { get; init; }
         public string Name { get; init; } = default!;

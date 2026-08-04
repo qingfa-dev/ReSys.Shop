@@ -1,0 +1,29 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0002: Checkout Process
+
+actor "Customer" as Customer
+
+rectangle "Storefront App" {
+    usecase "Checkout" as UC2
+    usecase "Enter Address" as Address
+    usecase "Select Payment" as Payment
+    usecase "Confirm Order" as Confirm
+    usecase "Login / Register" as Auth
+}
+
+rectangle "System Boundaries" {
+    usecase "Validate Stock" as Stock <<System>>
+    usecase "Process Payment" as Stripe <<System>>
+}
+
+Customer --> UC2
+UC2 ..> Address : <<include>>
+UC2 ..> Payment : <<include>>
+UC2 ..> Confirm : <<include>>
+
+UC2 .> Auth : <<include>>
+UC2 <.. Stock : <<include>>
+Payment <.. Stripe : <<include>>
+
+@enduml

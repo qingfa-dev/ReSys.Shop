@@ -48,7 +48,7 @@ public static partial class GetDashboard
         public Guid Id { get; init; }
         public string Name { get; init; } = default!;
         public string Slug { get; init; } = default!;
-        public DateTime CreatedAtUtc { get; init; }
+        public DateTimeOffset CreatedAtUtc { get; init; }
     }
 
     public sealed record ActivityItemData
@@ -58,6 +58,6 @@ public static partial class GetDashboard
         public string Title { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime Timestamp { get; init; }
+        public DateTimeOffset Timestamp { get; init; }
     }
 }

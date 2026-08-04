@@ -7,7 +7,9 @@ from embedding.schemas.inferences import (
     EmbeddingRequest,
     EmbeddingResponse,
     InferenceResults,
+    ModelExportReport,
     ModelMetadata,
+    OnnxExportResponse,
 )
 from embedding.schemas.registries import RegistryResults
 from embedding.schemas.results import Error, ErrorType, Result, ValueResult
@@ -23,4 +25,6 @@ __all__ = [
     "EmbeddingRequest",
     "EmbeddingResponse",
     "ModelMetadata",
+    "ModelExportReport",
+    "OnnxExportResponse",
 ]

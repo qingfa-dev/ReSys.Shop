@@ -5,6 +5,8 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 /// </summary>
 public record UploadImageRequest : VariantImageParameters
 {
+    /// <summary>Foreign key to the parent variant.</summary>
+    public Guid VariantId { get; init; }
     /// <summary>The image file. Accepted formats: JPEG, PNG, GIF, WebP. Max size: 10 MB.</summary>
     public IFormFile File { get; init; } = null!;
 }

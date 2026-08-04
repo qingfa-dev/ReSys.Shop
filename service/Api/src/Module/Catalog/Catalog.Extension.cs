@@ -2,10 +2,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Storefront.Products.Shared.Services;
 using Module.Catalog.Persistence.Seeders;
 
 namespace Module.Catalog;
@@ -28,13 +29,18 @@ public static class CatalogExtensions
         builder.Services.AddScoped<IAutoClassificationService, AutoClassificationService>();
         builder.Services.AddSingleton<ITaxonRuleEvaluator, TaxonRuleEvaluator>();
 
-        builder.AddSeeder<CatalogOptionSeeder>();
+        builder.AddSeeder<CatalogOptionTypeSeeder>();
+        builder.AddSeeder<CatalogOptionValueSeeder>();
         builder.AddSeeder<CatalogTaxonomySeeder>();
         builder.AddSeeder<CatalogTaxonSeeder>();
-        builder.AddSeeder<CatalogDemoSeeder>();
+        builder.AddSeeder<CatalogProductSeeder>();
+        builder.AddSeeder<CatalogVariantSeeder>();
+        builder.AddSeeder<CatalogVariantImageSeeder>();
+        builder.AddSeeder<CatalogProductTaxonSeeder>();
         builder.AddSeeder<CatalogEmbeddingSeeder>();
 
         builder.Services.AddScoped<Module.Catalog.Persistence.Seeders.DemoJsonHelper>();
+        builder.Services.AddVectorSearchService();
 
         return builder;
     }

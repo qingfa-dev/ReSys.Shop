@@ -164,6 +164,7 @@ class ErrorCodeConstants:
     IMAGE_INPUT_ERROR: str = "Image.InputError"
     REGISTRY_ERROR: str = "Registry.Error"
     REQUEST_VALIDATION_ERROR: str = "Request.ValidationError"
+    EXPORT_IN_PROGRESS: str = "Export.InProgress"
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,53 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0003: Hybrid Keyword Search
+autonumber
+
+actor "Customer" as User <<Searcher>>
+participant "Storefront" as Frontend <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+database "PostgreSQL\n(Full Text)" as DB <<Text Search>>
+participant "ML Service" as ML <<Embedding Model>>
+database "PostgreSQL\n(pgvector)" as VecDB <<Vector Store>>
+
+User -> Frontend: Enter Search Query "Red Dress"
+activate Frontend
+    Frontend -> API: GET /api/search?q=Red+Dress
+    activate API
+        
+        par
+            ' ─── Path A: Keyword Search ──────────────────────
+            API -> DB: Full Text Search (tsvector)
+            activate DB
+            DB --> API: KeywordResults [IDs]
+            deactivate DB
+            
+        else
+            ' ─── Path B: Semantic Search ─────────────────────
+            API -> ML: EmbedQuery("Red Dress")
+            activate ML
+            ML --> API: Vector [512]
+            deactivate ML
+            
+            API -> VecDB: Vector Search (HNSW)
+            activate VecDB
+            VecDB --> API: SemanticResults [IDs]
+            deactivate VecDB
+        end
+        
+        ' ─── Step 3: Reranking ───────────────────────────────
+        API -> API: Rerank & Merge Results\n(Reciprocal Rank Fusion)
+        
+        API -> DB: Fetch Product Details(MergedIDs)
+        activate DB
+        DB --> API: ProductDTOs
+        deactivate DB
+        
+        API --> Frontend: SearchResults
+    deactivate API
+    
+    Frontend --> User: Display Hybrid Results
+deactivate Frontend
+
+@enduml

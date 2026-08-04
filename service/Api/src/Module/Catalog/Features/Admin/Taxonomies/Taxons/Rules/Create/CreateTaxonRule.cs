@@ -1,17 +1,17 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Create;
+namespace Module.Catalog.Features.Admin.Taxons.Rules.Create;
 
 /// <summary>
 /// Defines the use case for creating a new taxon rule.
 /// </summary>
 public static partial class CreateTaxonRule
 {
-    public sealed record Command(Guid TaxonomyId, Guid TaxonId, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid TaxonId, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -28,13 +28,12 @@ public static partial class CreateTaxonRule
         // Contract: pre=command.TaxonomyId!=Guid.Empty && command.TaxonId!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var taxonId = command.TaxonId;
             var request = command.Request;
 
             // Validate: Parent taxon must exist
             var taxon = await dbContext.Set<Taxon>()
-                .FirstOrDefaultAsync(x => x.Id == taxonId && x.TaxonomyId == taxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == taxonId, cancellationToken);
             if (taxon is null)
                 return TaxonResult.Errors.NotFound;
 

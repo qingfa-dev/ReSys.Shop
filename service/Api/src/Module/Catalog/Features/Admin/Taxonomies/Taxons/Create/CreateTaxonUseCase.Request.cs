@@ -1,6 +1,6 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
+namespace Module.Catalog.Features.Admin.Taxons.Create;
 
 public static partial class CreateTaxon
 {

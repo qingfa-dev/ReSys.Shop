@@ -15,7 +15,7 @@ public sealed class UpdateVariantImageIntegrationTests(ApiFixture fixture) : Cat
         var request = new { alt = "Updated Alt", position = 1 };
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Put,
-            $"/api/catalog/variants/images/{nonexistentId}")
+            $"/api/catalog/variant-images/{nonexistentId}")
         {
             Content = JsonContent.Create(request)
         };

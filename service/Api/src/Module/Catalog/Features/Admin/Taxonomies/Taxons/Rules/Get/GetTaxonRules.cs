@@ -1,45 +1,41 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Mappings;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Mappings;
+namespace Module.Catalog.Features.Admin.Taxons.Rules.Get;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Get;
-
-/// <summary>
-/// Defines the use case for retrieving taxon rules.
-/// </summary>
 public static partial class GetTaxonRules
 {
-    public sealed record Query(Guid TaxonomyId, Guid TaxonId) : IQuery<List<Response>>;
+    public record Parameters : QueryingParameters;
 
-    public sealed class QueryHandler(
-        IApplicationDbContext dbContext)
-        : IQueryHandler<Query, List<Response>>
+    public sealed record Query(Guid TaxonId, Parameters Parameters) : IPagedQuery<Response>;
+
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
+        : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>
-        /// Retrieves all rules for a specific taxon ordered by rule type.
-        /// </summary>
-        /// <param name="query">The query containing the taxonomy ID and taxon ID.</param>
-        /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success result with the list of taxon rule details.</returns>
-        // Contract: pre=query!=null, post=result!=null
-        public async Task<Result<List<Response>>> Handle(Query query, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
-            // Check: Parent taxon must exist before retrieving its rules
             var taxonExists = await dbContext.Set<Taxon>()
-                .AnyAsync(x => x.Id == query.TaxonId && x.TaxonomyId == query.TaxonomyId, cancellationToken);
+                .AnyAsync(x => x.Id == query.TaxonId, cancellationToken);
             if (!taxonExists)
                 return TaxonResult.Errors.NotFound;
 
-            // Load: Fetch all rules for the taxon ordered by rule type
-            var rules = await dbContext.Set<TaxonRule>()
+            var parameters = query.Parameters;
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Type", "MatchPolicy", "Value" },
+                allowedSearchFields: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Value" },
+                allowedSortFields: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Type", "MatchPolicy", "Value" });
+            if (parsing.IsFailure)
+                return parsing.Errors;
+
+            var pagedResult = await dbContext.Set<TaxonRule>()
+                .AsNoTracking()
                 .Where(x => x.TaxonId == query.TaxonId)
                 .OrderBy(x => x.Type)
-                .ToListAsync(cancellationToken);
+                .ApplyQuerying(parsing.Value)
+                .ToPagedOrAllAsync(parsing.Value, x => x.MapToDetail<Response>(), cancellationToken);
 
-            // Map: Transform each rule entity to detail response DTO
-            var mapped = rules.Select(r => r.MapToDetail<Response>()).ToList();
-            return mapped;
+            return pagedResult;
         }
     }
 }

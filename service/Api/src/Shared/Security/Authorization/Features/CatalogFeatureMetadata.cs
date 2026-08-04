@@ -32,21 +32,49 @@ public static class CatalogFeatureMetadata
     public static class Variants
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.List);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Variants, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Detail);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Variants, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Create);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Variants, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Update);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Variants, PermissionContext.Actions.Update);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Delete);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Variants, PermissionContext.Actions.Delete);
         public static readonly PermissionMetadata Manage = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Manage);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Variants, PermissionContext.Actions.Manage);
         public static readonly PermissionMetadata ManagePrice = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.ManagePrice);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Variants, PermissionContext.Actions.ManagePrice);
 
         public static IReadOnlyList<PermissionMetadata> All => [List, Read, Create, Update, Delete, Manage, ManagePrice];
+    }
+
+    public static class VariantOptionValues
+    {
+        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantOptionValues, PermissionContext.Actions.List);
+        public static readonly PermissionMetadata Manage = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantOptionValues, PermissionContext.Actions.Manage);
+
+        public static IReadOnlyList<PermissionMetadata> All => [List, Manage];
+    }
+
+    public static class VariantImages
+    {
+        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantImages, PermissionContext.Actions.List);
+        public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantImages, PermissionContext.Actions.Detail);
+        public static readonly PermissionMetadata Upload = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantImages, PermissionContext.Actions.Create);
+        public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantImages, PermissionContext.Actions.Update);
+        public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantImages, PermissionContext.Actions.Delete);
+        public static readonly PermissionMetadata ManageEmbeddings = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.VariantImages, PermissionContext.Actions.ManageAssets);
+
+        public static IReadOnlyList<PermissionMetadata> All => [List, Read, Upload, Update, Delete, ManageEmbeddings];
     }
 
     public static class Taxonomies
@@ -105,35 +133,28 @@ public static class CatalogFeatureMetadata
         public static IReadOnlyList<PermissionMetadata> All => [List, Read, Create, Update, Delete];
     }
 
-      public static class OptionTypesOptionValues
+    public static class OptionValues
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.List);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypeValues, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Detail);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypeValues, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Create);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypeValues, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Update);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypeValues, PermissionContext.Actions.Update);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Delete);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypeValues, PermissionContext.Actions.Delete);
 
         public static IReadOnlyList<PermissionMetadata> All => [List, Read, Create, Update, Delete];
     }
 
-
     public static class ProductsOptionTypes
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin,
-            PermissionContext.Categories.Catalog,
-            PermissionContext.Resources.ProductsOptionTypes,
-            PermissionContext.Actions.Detail);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsOptionTypes, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Assign = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin,
-            PermissionContext.Categories.Catalog,
-            PermissionContext.Resources.ProductsOptionTypes,
-            PermissionContext.Actions.Assign);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsOptionTypes, PermissionContext.Actions.Assign);
         public static readonly PermissionMetadata Revoke = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsOptionTypes, PermissionContext.Actions.Revoke);
         public static readonly PermissionMetadata Sync = PermissionMetadataMethod.For(
@@ -156,46 +177,17 @@ public static class CatalogFeatureMetadata
         public static IReadOnlyList<PermissionMetadata> All => [Read, Assign, Revoke, Sync];
     }
 
-    public static class VariantOptionValues
-    {
-        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsOptionValues, PermissionContext.Actions.List);
-        public static readonly PermissionMetadata Manage = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsOptionValues, PermissionContext.Actions.Manage);
-
-        public static IReadOnlyList<PermissionMetadata> All => [List, Manage];
-    }
-
-    public static class VariantImages
-    {
-        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.List);
-        public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Detail);
-        public static readonly PermissionMetadata Upload = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Create);
-        public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Update);
-        public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Delete);
-
-        public static readonly PermissionMetadata ManageEmbeddings = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.ManageAssets);
-
-        public static IReadOnlyList<PermissionMetadata> All => [List, Read, Upload, Update, Delete, ManageEmbeddings];
-    }
-
     public static IReadOnlyList<PermissionMetadata> All =>
     [
         .. Products.All,
         .. Variants.All,
+        .. VariantOptionValues.All,
+        .. VariantImages.All,
         .. Taxonomies.All,
         .. Taxons.All,
         .. OptionTypes.All,
-        .. OptionTypesOptionValues.All,
+        .. OptionValues.All,
         .. ProductsOptionTypes.All,
         .. ProductsClassifications.All,
-        .. VariantOptionValues.All,
-        .. VariantImages.All,
     ];
 }

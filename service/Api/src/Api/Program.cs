@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 using Module.Catalog;
 using Module.Identity;
@@ -24,6 +25,12 @@ using Shared.Security;
 Assembly[] additionalAssemblies = [typeof(Module.IModuleMarker).Assembly];
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+// Configure: Serialize all enums as their string names across every API response
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // Configure: Add service defaults for Observability, Resilience, and Service Discovery
 builder.AddServiceDefaults();

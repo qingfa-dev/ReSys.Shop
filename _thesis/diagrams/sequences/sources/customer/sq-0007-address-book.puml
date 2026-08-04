@@ -1,0 +1,49 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0007: Manage Address Book
+autonumber
+
+actor "Customer" as User <<Identity>>
+participant "Storefront" as Frontend <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+
+' ─── Create Address ──────────────────────────────────────────
+User -> Frontend: Add New Address
+activate Frontend
+    Frontend -> API: POST /api/customers/addresses
+    activate API
+        API -> API: Validate Format
+        
+        API -> DB: Insert Address
+        activate DB
+        DB --> API: AddressID
+        deactivate DB
+        
+        API --> Frontend: Success
+    deactivate API
+    Frontend --> User: Address Added
+deactivate Frontend
+
+' ─── Set Default ─────────────────────────────────────────────
+User -> Frontend: Set as Default
+activate Frontend
+    Frontend -> API: PUT /api/customers/addresses/{id}/default
+    activate API
+        API -> DB: Update Default Flags (Transaction)
+        activate DB
+        note right of DB
+            UPDATE addresses SET is_default = false
+            WHERE customer_id = @cid;
+            UPDATE addresses SET is_default = true
+            WHERE id = @id;
+        end note
+        DB --> API: Success
+        deactivate DB
+        API --> Frontend: Updated
+    deactivate API
+    Frontend --> User: Default Updated
+deactivate Frontend
+
+@enduml

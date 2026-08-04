@@ -1,9 +1,9 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
+namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
 
 /// <summary>
 /// Pure, stateless evaluation of a product against a taxon's rule set.

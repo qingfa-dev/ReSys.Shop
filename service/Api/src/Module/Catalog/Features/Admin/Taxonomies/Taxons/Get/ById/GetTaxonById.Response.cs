@@ -1,6 +1,6 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.ById;
+namespace Module.Catalog.Features.Admin.Taxons.Get.ById;
 
 public static partial class GetTaxonById
 {

@@ -9,21 +9,21 @@ public static partial class GetRelatedProducts
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /api/storefront/products/{id}/related — taxon-based related product listing
-            app.MapGet(CatalogFeature.Storefront.Products.Get.Related.Route, async (
-                [FromRoute] Guid id,
+            // Map: GET /api/storefront/products/related?productId= — taxon-based related product listing
+            app.MapGet(CatalogFeature.Storefront.Products.Related.Route, async (
+                [FromQuery] Guid productId,
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(id, parameters);
+                var query = new Query(productId, parameters);
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
             .WithName(nameof(GetRelatedProducts))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Products.Get.Related.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.Get.Related.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Related.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Related.Description)
             .Produces<PagedResult<Response>>();
         }
     }

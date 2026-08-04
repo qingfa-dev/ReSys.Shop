@@ -6,7 +6,7 @@ public static partial class DownloadVariantImage
 {
     /// <summary>
     /// GET endpoint that streams the binary content of a variant image file.
-    /// Route: api/catalog/products/variants/images/{id:guid}/download
+    /// Route: api/catalog/variant-images/{id:guid}/download
     /// Permission: Products.VariantImageMethod.View
     /// Returns: Binary file stream (not JSON)
     /// </summary>
@@ -14,7 +14,7 @@ public static partial class DownloadVariantImage
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Admin.Products.Variants.Images.Download.Route, async (
+            app.MapGet(CatalogFeature.Admin.VariantImages.Download.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
@@ -32,10 +32,9 @@ public static partial class DownloadVariantImage
                 return Results.File(response.Stream, response.ContentType, response.FileName);
             })
             .WithName(nameof(DownloadVariantImage))
-            .WithTags(CatalogFeature.Tags.VariantImage)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Images.Download.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Images.Download.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Images.Download.Description)
+            .WithTags(CatalogFeature.Tags.Variant)
+            .WithSummary(CatalogFeature.Admin.VariantImages.Download.Summary)
+            .WithDescription(CatalogFeature.Admin.VariantImages.Download.Description)
             .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

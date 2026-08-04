@@ -1,9 +1,9 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
+namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
 
 /// <summary>
 /// Orchestrates automatic product ↔ taxon classification by evaluating rule sets against products in batches.

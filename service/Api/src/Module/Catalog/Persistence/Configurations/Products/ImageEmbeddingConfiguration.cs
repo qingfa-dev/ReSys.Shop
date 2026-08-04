@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
+using Shared.Operational.Persistence.Configurations.Vectors;
+
 namespace Module.Catalog.Persistence.Configurations.Products;
 
 public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbedding>
@@ -14,7 +16,7 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
 
         #region Properties
         builder.Property(x => x.Vector)
-            .IsRequired();
+            .HasColumnType("vector(512)");
 
         builder.Property(x => x.ModelName)
             .IsRequired()
@@ -25,6 +27,17 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
 
         builder.Property(x => x.Dimensions)
             .IsRequired();
+
+        builder.Property(x => x.Status)
+            .IsRequired()
+            .HasDefaultValue(EmbeddingStatus.Completed);
+        #endregion
+
+        #region Indexes
+        builder.ConfigureIVFFlatIndex(
+            x => x.Vector,
+            lists: 100,
+            indexName: "ix_product_image_embeddings_vector_ivfflat");
         #endregion
 
         #region Relationships

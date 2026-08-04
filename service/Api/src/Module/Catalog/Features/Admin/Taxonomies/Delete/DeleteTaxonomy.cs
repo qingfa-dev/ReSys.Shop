@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
+using Module.Catalog.Features.Admin.Taxons.Delete;
 
 namespace Module.Catalog.Features.Admin.Taxonomies.Delete;
 
@@ -18,7 +18,7 @@ public static partial class DeleteTaxonomy
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Deletes a taxonomy after ensuring no active child taxons remain.
+        /// Deletes a taxonomy after ensuring no active child taxon remain.
         /// </summary>
         /// <param name="command">The command containing the taxonomy ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -26,14 +26,14 @@ public static partial class DeleteTaxonomy
         // Contract: pre=command.Id!=Guid.Empty, post=result.IsSuccess, throws=DbUpdateException
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Load: Fetch taxonomy with associated taxons to evaluate deletion eligibility
+            // Load: Fetch taxonomy with associated taxon to evaluate deletion eligibility
             var entity = await dbContext.Set<Taxonomy>()
                 .Include(x => x.Taxons)
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
             if (entity is null)
                 return TaxonomyResult.Errors.NotFound;
 
-            // Enforce: Prevent deletion when non-root taxons or root with children still exist
+            // Enforce: Prevent deletion when non-root taxon or root with children still exist
             var nonRootTaxonsCount = entity.Taxons.Count(x => x.ParentId != null);
             var rootTaxon = entity.Taxons.FirstOrDefault(x => x.ParentId == null);
 
@@ -54,7 +54,7 @@ public static partial class DeleteTaxonomy
                 .FirstOrDefaultAsync(x => x.TaxonomyId == entity.Id && x.ParentId == null, cancellationToken);
             if (root != null)
             {
-                await sender.Send(new DeleteTaxon.Command(entity.Id, root.Id), cancellationToken);
+                await sender.Send(new DeleteTaxon.Command(root.Id), cancellationToken);
             }
 
             return Result.Ok(TaxonomyResult.Success.Deleted);

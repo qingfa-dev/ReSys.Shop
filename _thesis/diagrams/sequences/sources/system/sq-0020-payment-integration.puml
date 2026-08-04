@@ -1,0 +1,56 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0020: Payment Integration (Stripe PaymentIntent)
+autonumber
+
+actor "Customer" as User <<Payer>>
+participant "Storefront" as Frontend <<UI Layer>>
+participant "Stripe.js" as SDK <<Client Lib>>
+participant "API Gateway" as API <<Orchestrator>>
+participant "Stripe API" as Stripe <<External Service>>
+queue "Message Bus" as Bus <<Message Broker>>
+
+' ─── Step 1: Intent Creation ─────────────────────────────────
+User -> Frontend: Click "Pay Now"
+activate Frontend
+    Frontend -> API: POST /api/payments/intent\n{orderId, amount}
+    activate API
+        API -> Stripe: PaymentIntent.Create(Amount, Currency)\nMetadata: OrderId
+        activate Stripe
+            Stripe --> API: PaymentIntent (ClientSecret)
+        deactivate Stripe
+        API --> Frontend: ClientSecret
+    deactivate API
+
+    ' ─── Step 2: Client Confirmation ─────────────────────────
+    Frontend -> SDK: confirmCardPayment(ClientSecret, CardData)
+    activate SDK
+        SDK -> Stripe: Confirm Transaction
+        activate Stripe
+            Stripe --> SDK: Payment Succeeded
+        deactivate Stripe
+        SDK --> Frontend: Success
+    deactivate SDK
+    
+    Frontend --> User: Show "Order Placed"
+deactivate Frontend
+
+' ─── Step 3: Webhook Verification ────────────────────────────
+Stripe -> API: POST /webhooks/stripe\n(Event: payment_intent.succeeded)
+activate API
+    API -> API: Connect VerifySignature(Secret)
+    
+    API -> Bus: Publish(ExternalPaymentCaptured)
+    activate Bus
+        note right of Bus
+            Updates Order Status
+            Triggers Inventory Commit
+        end note
+    Bus --> API: Ack
+    deactivate Bus
+    
+    API --> Stripe: 200 OK
+deactivate API
+
+@enduml

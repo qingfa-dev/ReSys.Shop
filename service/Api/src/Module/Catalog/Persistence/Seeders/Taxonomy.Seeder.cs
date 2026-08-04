@@ -12,7 +12,7 @@ public sealed class CatalogTaxonomySeeder(IApplicationDbContext context, DemoJso
         if (hasTaxonomies)
             return Result.Ok();
 
-        var json = jsonHelper.LoadIfExists<DemoTaxonomyJson>("demo_taxonomies.json");
+        var json = jsonHelper.LoadIfExists<DemoTaxonomyJson>("001_demo_taxonomies.json");
         if (json is null)
             return Result.Ok();
 
@@ -23,7 +23,7 @@ public sealed class CatalogTaxonomySeeder(IApplicationDbContext context, DemoJso
                 position: t.Position, id: Guid.Parse(t.Id));
             Context.Set<Taxonomy>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

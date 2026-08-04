@@ -35,7 +35,7 @@ public sealed class StateSeeder(IApplicationDbContext context) : AbstractDataSee
 
         Context.Set<State>().AddRange(entities: [.. usStates, .. vnProvinces]);
 
-        await Context.SaveChangesAsync(cancellationToken: cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

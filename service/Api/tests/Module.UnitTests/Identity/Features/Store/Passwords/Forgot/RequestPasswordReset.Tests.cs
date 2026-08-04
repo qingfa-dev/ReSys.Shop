@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Store.Passwords.Forgot;
+using Module.Identity.Features.Storefront.Passwords.Forgot;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
@@ -26,9 +26,12 @@ public class RequestPasswordResetTests
         _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
         _notificationServiceMock = new Mock<INotificationService>();
 
+        var dateTime = new Mock<ISystemDateTime>();
+        dateTime.Setup(x => x.UtcNow).Returns(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero));
+
         _handler = new RequestPasswordReset.CommandHandler(
             _userManagerMock.Object,
-            Mock.Of<ISystemDateTime>(),
+            dateTime.Object,
             _notificationServiceMock.Object,
             Options.Create(new NotificationSetting { ApplicationUrl = "https://example.com" }),
             Mock.Of<ILogger<RequestPasswordReset.CommandHandler>>());

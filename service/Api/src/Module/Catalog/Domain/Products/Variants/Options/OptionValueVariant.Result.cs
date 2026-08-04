@@ -44,6 +44,11 @@ public static class OptionValueVariantResult
         public static Error AlreadyExists => Error.Conflict(
             code: "OptionValueVariant.AlreadyExists",
             message: "This variant is already associated with this option value.");
+
+        /// <summary>A variant can only have one value per option type.</summary>
+        public static Error MultipleValuesPerOptionType => Error.Conflict(
+            code: "OptionValueVariant.MultipleValuesPerOptionType",
+            message: "A variant can only have one value per option type.");
         #endregion
     }
 }

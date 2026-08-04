@@ -1,0 +1,77 @@
+@startuml usecase-reference-data
+
+left to right direction
+
+skinparam shadowing false
+skinparam dpi 180
+
+<style>
+
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
+}
+
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case: UC-ADM-REF\nReference Data Management
+
+actor "Administrator" as Admin
+
+rectangle "ReSys.Shop\nAdministration Portal" {
+
+  usecase "Manage Reference Data\nUC-ADM-REF" as UC_MAIN
+
+  usecase "Manage Countries\nUC-ADM-REF-COUNTRY" as UC_COUNTRY
+
+  usecase "Manage States\nUC-ADM-REF-STATE" as UC_STATE
+
+}
+
+Admin --> UC_MAIN
+Admin --> UC_COUNTRY
+Admin --> UC_STATE
+
+@enduml

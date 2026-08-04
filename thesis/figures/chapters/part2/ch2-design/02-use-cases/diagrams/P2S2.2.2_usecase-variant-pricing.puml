@@ -1,0 +1,68 @@
+@startuml usecase-variant-pricing
+left to right direction
+
+<style>
+  root {
+    FontName "Arial"
+    FontSize 14
+    Shadowing 0
+  }
+  actor {
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontColor #000000
+    FontStyle bold
+    FontSize 14
+  }
+  usecase {
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontColor #000000
+    FontSize 12
+  }
+  rectangle {
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 2
+    FontStyle bold
+    FontSize 16
+  }
+  arrow {
+    LineColor #000000
+    LineThickness 1.5
+    FontSize 11
+  }
+</style>
+
+title Use Case Detail: UC-ADM-VAR (Variant and Pricing Management)
+
+' === ACTORS ===
+actor "Administrator" as Admin
+
+' === SYSTEM BOUNDARY ===
+rectangle "ReSys.Shop - Catalog Subsystem" {
+
+  usecase "Manage Product Variants\n(UC-ADM-VAR)" as UC_MAIN
+  usecase "Add Product Variant\n(UC-ADM-VAR-ADD)" as UC_ADD
+  usecase "Configure Option Values\n(UC-ADM-VAR-OPT)" as UC_OPT
+  usecase "Configure Base Pricing\n(UC-ADM-VAR-PRC)" as UC_PRC
+  usecase "Configure Promotional & Regional Rules\n(UC-ADM-VAR-DISC)" as UC_RULES
+
+}
+
+' === ACTOR INTERACTION ===
+Admin --> UC_MAIN
+
+' === GENERALIZATION RELATIONSHIPS ===
+' Child use cases specialize the master management boundary
+UC_MAIN <|-- UC_ADD
+UC_MAIN <|-- UC_OPT
+UC_MAIN <|-- UC_PRC
+
+' === EXTENSION RELATIONSHIPS ===
+' Price adjustments/promotional rules optionally extend base pricing
+UC_RULES ..> UC_PRC : <<extend>>
+
+@enduml

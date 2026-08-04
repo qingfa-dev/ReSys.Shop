@@ -87,7 +87,7 @@ def enrich(
     import sys
 
     cmd = [
-        sys.executable, str(Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "enrich_dataset.py"),
+        sys.executable, str(Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "_05_enrich_dataset.py"),
         "--json-styles", str(json_styles),
         "--csv", str(csv),
         "--output", str(output),

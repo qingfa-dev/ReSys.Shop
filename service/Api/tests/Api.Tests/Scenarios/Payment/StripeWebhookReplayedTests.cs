@@ -34,7 +34,7 @@ public sealed class StripeWebhookReplayedTests(ApiFixture fixture) : PaymentInte
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             await db.Database.ExecuteSqlRawAsync(
-                @"INSERT INTO payment.payment_method (
+                @"INSERT INTO payment.payment_methods (
                     id, name, provider_key, active, auto_capture, display_on, position,
                     preferences, settings, created_at_utc, is_deleted, webhook_enabled
                   ) VALUES (

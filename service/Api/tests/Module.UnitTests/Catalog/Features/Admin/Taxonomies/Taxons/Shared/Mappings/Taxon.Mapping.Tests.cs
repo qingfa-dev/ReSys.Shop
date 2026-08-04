@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
 
@@ -89,6 +89,8 @@ public class TaxonMappingTests
         response.Name.Should().Be(taxon.Name);
         response.ParentId.Should().Be(parent.Id);
         response.ParentName.Should().Be(parent.Name);
+        response.TaxonomyId.Should().Be(taxon.TaxonomyId);
+        response.TaxonomyName.Should().Be(taxon.Taxonomy?.Name);
     }
 
     [Fact(DisplayName = "MapToTreeItem: Should map Taxon entity to TaxonTreeItem with children")]

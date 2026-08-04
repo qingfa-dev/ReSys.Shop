@@ -1,0 +1,26 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0001: Browse Products
+
+actor "Customer" as Customer
+actor "Guest" as Guest
+
+rectangle "Storefront App" {
+    usecase "Browse Products" as UC1
+    usecase "Filter by Category" as Filter
+    usecase "View Product Details" as Detail
+    usecase "Select Variant" as Variant
+}
+
+Customer --> UC1
+Guest --> UC1
+
+UC1 ..> Filter : <<include>>
+UC1 ..> Detail : <<extend>>
+Detail ..> Variant : <<include>>
+
+note right of UC1
+  Core flow for discovery
+end note
+
+@enduml

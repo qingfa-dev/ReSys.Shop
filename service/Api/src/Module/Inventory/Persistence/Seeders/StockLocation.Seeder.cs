@@ -13,7 +13,7 @@ public sealed class StockLocationSeeder(IApplicationDbContext context, DemoJsonH
         if (hasStockLocations)
             return Result.Ok();
 
-        var json = jsonHelper.LoadIfExists<DemoStockLocationJson>("demo_stock_locations.json");
+        var json = jsonHelper.LoadIfExists<DemoStockLocationJson>("009_demo_stock_locations.json");
         if (json is null)
             return Result.Ok();
 
@@ -30,7 +30,7 @@ public sealed class StockLocationSeeder(IApplicationDbContext context, DemoJsonH
                 position: loc.Position, id: Guid.Parse(loc.Id));
             Context.Set<StockLocation>().Add(result.Value);
         }
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
         return Result.Ok();
     }
 

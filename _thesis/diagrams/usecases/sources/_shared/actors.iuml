@@ -1,0 +1,25 @@
+@startuml
+
+' ═══════════════════════════════════════════════════════════
+' Shared Actor Definitions for ReSys.Shop Use Case Diagrams
+' ═══════════════════════════════════════════════════════════
+
+' ─── Primary Actors (Human) ──────────────────────────────────
+
+actor "Customer" as Customer
+actor "Guest" as Guest  
+actor "Administrator" as Admin
+
+' ─── Secondary Actors (External Systems) ─────────────────────
+
+actor "Payment\nGateway" as PaymentGW << System >>
+actor "Shipping\nProvider" as ShippingSys << System >>
+actor "Email\nService" as EmailSys << System >>
+actor "ML Service\n(Python)" as MLService << System >>
+
+' ─── Actor Generalizations ───────────────────────────────────
+
+' Customer inherits from Guest (authenticated user)
+Guest <|-- Customer
+
+@enduml

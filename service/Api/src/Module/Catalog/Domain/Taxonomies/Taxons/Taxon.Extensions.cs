@@ -107,7 +107,10 @@ public static class TaxonMethod
         };
 
         ParameterizableBehavior.ApplyNormalization(taxon);
-        SluggableBehavior.ApplySlugging(taxon, name);
+        if (string.IsNullOrWhiteSpace(slug))
+        {
+            SluggableBehavior.ApplySlugging(taxon, name);
+        }
 
         if (taxon.Automatic)
         {
@@ -204,7 +207,10 @@ public static class TaxonMethod
         #endregion
 
         ParameterizableBehavior.ApplyNormalization(taxon);
-        SluggableBehavior.ApplySlugging(taxon, taxon.Name);
+        if (string.IsNullOrWhiteSpace(slug))
+        {
+            SluggableBehavior.ApplySlugging(taxon, taxon.Name);
+        }
 
         // Assign: Record audit timestamp on modification
         AuditableBehavior.Touch(taxon);

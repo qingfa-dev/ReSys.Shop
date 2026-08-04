@@ -33,7 +33,7 @@ public class GetProductByIdTests : IDisposable
     [Fact(DisplayName = "Handler: Should return product with all relations")]
     public async Task Handle_ShouldReturnSuccess_WhenProductExists()
     {
-        var product = ProductMethod.Create("Product", "product", description: "Desc", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", description: "Desc", status: ProductStatus.Active).Value;
         var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
         product.Variants.Add(variant);
         product.MasterVariantId = variant.Id;

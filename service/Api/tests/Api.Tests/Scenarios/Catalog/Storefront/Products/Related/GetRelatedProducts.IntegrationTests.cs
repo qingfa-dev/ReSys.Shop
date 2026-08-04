@@ -27,7 +27,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{productId}/related");
+            $"/api/storefront/products/related?productId={productId}");
         PagedResult<JsonElement> result = await response.ReadAsPagedResultAsync<JsonElement>();
 
         result.IsSuccess.Should().BeTrue();
@@ -54,7 +54,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
             taxonomyId = taxonomyId
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomyId}/taxons", createTaxonRequest);
+            "/api/catalog/taxons", createTaxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue();
         string taxonId = createTaxonResult.DeserializeValue<IdResponse>()!.Id;
@@ -81,14 +81,20 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
         createProduct2Result.IsSuccess.Should().BeTrue();
         string product2Id = createProduct2Result.DeserializeValue<IdResponse>()!.Id;
 
-        var assignRequest = new
+        var assignRequest1 = new
         {
+            productId = product1Id,
+            items = new[] { new { taxonId, position = 0 } }
+        };
+        var assignRequest2 = new
+        {
+            productId = product2Id,
             items = new[] { new { taxonId, position = 0 } }
         };
         await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product1Id}/classifications/assign", assignRequest);
+            "/api/catalog/product-classifications/assign", assignRequest1);
         await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product2Id}/classifications/assign", assignRequest);
+            "/api/catalog/product-classifications/assign", assignRequest2);
 
         using var activateRequest1 = new System.Net.Http.HttpRequestMessage(
             System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{product1Id}/activate");
@@ -103,7 +109,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
         await Client.SendAsync(activateRequest2);
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{product1Id}/related");
+            $"/api/storefront/products/related?productId={product1Id}");
         PagedResult<JsonElement> result = await response.ReadAsPagedResultAsync<JsonElement>();
 
         result.IsSuccess.Should().BeTrue();

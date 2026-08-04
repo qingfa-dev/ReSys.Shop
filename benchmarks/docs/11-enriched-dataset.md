@@ -78,5 +78,5 @@ Result files:
 
 The enrichment script extracts `articleAttributes.Pattern` by default.
 To add Sleeve Length, Fabric, or Fit in the future, modify
-`scripts/enrich_dataset.py::extract_pattern()` to also extract those keys.
+`scripts/05_enrich_dataset.py::extract_pattern()` to also extract those keys.
 Each new attribute adds a new `label_<attr>` field to the split JSON.

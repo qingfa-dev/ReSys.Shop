@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from scripts.enrich_dataset import extract_pattern
+from scripts._05_enrich_dataset import extract_pattern
 
 
 def test_extract_pattern_solid():
@@ -34,7 +34,7 @@ def test_enrich_integration(tmp_path: Path):
 
     out_dir = tmp_path / "enriched"
     result = subprocess.run([
-        "uv", "run", "python", "scripts/enrich_dataset.py",
+        "uv", "run", "python", "scripts/_05_enrich_dataset.py",
         "--json-styles", str(json_dir),
         "--csv", str(csv_path),
         "--output", str(out_dir),

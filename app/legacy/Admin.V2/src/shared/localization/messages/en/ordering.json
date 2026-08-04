@@ -1,0 +1,112 @@
+{
+  "dashboard": {
+    "title": "Orders Dashboard",
+    "subtitle": "Overview of orders, revenue, and pending fulfillment",
+    "total_orders": "Total Orders",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "total_revenue": "Total Revenue",
+    "today_revenue": "Today's Revenue",
+    "recent_orders": "Recent Orders",
+    "no_recent_orders": "No recent orders",
+    "messages": {
+      "load_failed": "Failed to load dashboard data"
+    }
+  },
+  "orders": {
+    "titles": {
+      "list": "Orders",
+      "create": "Create Order",
+      "view": "Order Details",
+      "edit": "Edit Order",
+      "basic_info": "Order Information"
+    },
+    "descriptions": {
+      "list": "Manage customer orders, statuses, and fulfillment.",
+      "general": "Order details and status management."
+    },
+    "labels": {
+      "customer_id": "Customer ID",
+      "notes": "Notes",
+      "status": "Status",
+      "customer": "Customer",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "shipping": "Shipping",
+      "total": "Total",
+      "order_number": "Order #",
+      "date": "Date"
+    },
+    "actions": {
+      "create": "New Order",
+      "edit": "Edit",
+      "approve": "Approve",
+      "complete": "Complete",
+      "cancel_action": "Cancel",
+      "resume": "Resume",
+      "save_create": "Create Order",
+      "save_edit": "Save Changes",
+      "cancel": "Cancel"
+    },
+    "table": {
+      "search_placeholder": "Search orders...",
+      "order_number": "Order #",
+      "customer": "Customer",
+      "status": "Status",
+      "total": "Total",
+      "date": "Date",
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "messages": {
+      "load_failed": "Failed to load order",
+      "create_success": "Order created",
+      "update_success": "Order updated",
+      "approve_success": "Order approved",
+      "complete_success": "Order completed",
+      "cancel_success": "Order cancelled",
+      "resume_success": "Order resumed",
+      "save_failed": "Save failed",
+      "delete_success": "Order deleted",
+      "delete_failed": "Failed to delete",
+      "empty_list": "No orders found",
+      "empty_description": "Create your first order."
+    }
+  },
+  "fulfillment": {
+    "title": "Fulfillment Queue",
+    "subtitle": "Review and complete approved orders for shipment",
+    "empty_title": "All caught up",
+    "empty_description": "No orders require fulfillment at this time.",
+    "complete_success": "Order completed",
+    "complete_failed": "Failed to complete order",
+    "load_failed": "Failed to load fulfillment queue",
+    "view": "View",
+    "complete": "Complete",
+    "table": {
+      "order_number": "Order #",
+      "customer": "Customer",
+      "status": "Status",
+      "total": "Total"
+    }
+  },
+  "workflow": {
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "processing": "Processing",
+      "completed": "Completed",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    },
+    "confirm": {
+      "cancel": "this order"
+    },
+    "terminal_note": "Order is {status} — no actions available.",
+    "confirm_order": "Confirm Order",
+    "mark_complete": "Mark Complete",
+    "cancel_order": "Cancel Order"
+  }
+}

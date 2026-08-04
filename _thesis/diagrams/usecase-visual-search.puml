@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+left to right direction
+
+actor "Customer" as Customer
+
+rectangle "Visual Search Feature" {
+  usecase "Perform Visual Search" as UC1
+  usecase "Upload Search Image" as UC2
+  usecase "Generate Embedding" as UC3
+  usecase "Query Vector Database" as UC4
+  usecase "Display Results" as UC5
+  usecase "Refine Search" as UC6
+  
+  ' Mandatory includes
+  UC1 ..> UC2 : <<include>>
+  UC1 ..> UC3 : <<include>>
+  UC1 ..> UC4 : <<include>>
+  UC1 ..> UC5 : <<include>>
+  
+  ' Optional extension
+  UC1 ..> UC6 : <<extend>>
+}
+
+Customer --> UC1
+
+note right of UC3
+  Uses Fashion-CLIP model
+  to generate 512-dim vector
+end note
+
+note right of UC4
+  pgvector HNSW index
+  for fast similarity search
+end note
+
+@enduml

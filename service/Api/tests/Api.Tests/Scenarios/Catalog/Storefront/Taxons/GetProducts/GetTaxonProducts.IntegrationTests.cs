@@ -33,7 +33,7 @@ public sealed class GetTaxonProductsIntegrationTests(ApiFixture fixture) : Catal
             taxonomyId = taxonomyId
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomyId}/taxons", createTaxonRequest);
+            "/api/catalog/taxons", createTaxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue();
         string taxonId = createTaxonResult.DeserializeValue<IdResponse>()!.Id;
@@ -51,10 +51,11 @@ public sealed class GetTaxonProductsIntegrationTests(ApiFixture fixture) : Catal
 
         var assignRequest = new
         {
+            productId,
             items = new[] { new { taxonId, position = 0 } }
         };
         await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{productId}/classifications/assign", assignRequest);
+            "/api/catalog/product-classifications/assign", assignRequest);
 
         using var activateRequest = new System.Net.Http.HttpRequestMessage(
             System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{productId}/activate");
@@ -64,7 +65,7 @@ public sealed class GetTaxonProductsIntegrationTests(ApiFixture fixture) : Catal
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/taxons/{taxonId}/products");
+            $"/api/storefront/taxons/products?taxonId={taxonId}");
         PagedResult<JsonElement> result = await response.ReadAsPagedResultAsync<JsonElement>();
 
         result.IsSuccess.Should().BeTrue();
@@ -77,7 +78,7 @@ public sealed class GetTaxonProductsIntegrationTests(ApiFixture fixture) : Catal
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/taxons/{nonexistentId}/products");
+            $"/api/storefront/taxons/products?taxonId={nonexistentId}");
         PagedResult<JsonElement> result = await response.ReadAsPagedResultAsync<JsonElement>();
 
         result.IsSuccess.Should().BeTrue();

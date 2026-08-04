@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.Login.External.Authenticate;
+using Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.External.Models;
@@ -58,7 +58,7 @@ public class ExternalAuthenticateProfileCreationTests
             }));
 
         var dateTime = new Mock<ISystemDateTime>();
-        dateTime.Setup(x => x.UtcNow).Returns(DateTimeOffset.UtcNow);
+        dateTime.Setup(x => x.UtcNow).Returns(System.DateTimeOffset.UtcNow);
 
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(x => x.IpAddress).Returns("127.0.0.1");

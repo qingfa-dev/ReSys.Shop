@@ -1,0 +1,59 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '28px', 'fontFamily': 'Arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef mainNode fill:#ffffff,stroke:#333333,stroke-width:2.5px
+    classDef backboneNode fill:#f8f9fa,stroke:#444444,stroke-width:1.5px
+    classDef trainNode fill:#ffffff,stroke:#666666,stroke-width:1.5px,stroke-dasharray: 4 2
+    classDef outputNode fill:#f4f4f4,stroke:#222222,stroke-width:2px
+
+    %% DUAL FASHION INPUT STAGE
+    subgraph Inputs ["E-Commerce & Fashion Inputs"]
+        direction LR
+        I["Catalog Product Image<br/>(224 x 224 x 3, White BG)"]:::mainNode
+        T["Fashion Query / Metadata<br/>('stripes 80s styled t-shirt')"]:::mainNode
+    end
+
+    %% DUAL FASHION ENCODER BACKBONES
+    subgraph Encoders ["Fashion-CLIP Dual Encoders (ViT-B/32)"]
+        direction TB
+
+        %% VISION BACKBONE
+        subgraph VisionEnc ["Fashion Vision Encoder (ViT-B/32)"]
+            direction LR
+            V_Patch["Patching & Position Embedding<br/>(32x32 Patches → 49 + 1 CLS Token)"]:::backboneNode --> V_Stack["ViT Encoder Stack (x12 Layers)<br/>• 12 Heads, d = 768"]:::backboneNode
+        end
+
+        %% TEXT BACKBONE
+        subgraph TextEnc ["Fashion Text Encoder"]
+            direction LR
+            T_Tok["BPE Tokenizer & Position Embedding<br/>(Category + Brand + Attributes)"]:::backboneNode --> T_Stack["Text Encoder Stack (x12 Layers)<br/>• 8 Heads, d = 512"]:::backboneNode
+        end
+    end
+
+    I ==> V_Patch
+    T ==> T_Tok
+
+    %% FINE-TUNING SUBSYSTEM
+    subgraph PT["Fashion Domain Contrastive Fine-Tuning"]
+        direction LR
+        F["800K+ Farfetch Product Pairs"]:::trainNode --> G["Domain InfoNCE Loss<br/>(Attribute & Category Alignment)"]:::trainNode
+    end
+    PT -. "Domain Fine-Tuning" .-> Encoders
+
+    %% PROJECTION & RETRIEVAL STAGE
+    subgraph OutputPipeline ["Shared Fashion Multimodal Space (d = 512)"]
+        direction LR
+        
+        %% Image Branch
+        V_Stack --> V_Ext["Extract CLS Token Vector"]:::outputNode
+        V_Ext --> V_Proj["Linear Projection<br/>(768 → 512-dim)"]:::backboneNode
+        V_Proj --> V_Norm["L2 Vector Normalization<br/>(||v_img||₂ = 1)"]:::backboneNode
+
+        %% Text Branch
+        T_Stack --> T_Ext["Extract EOS Token Vector"]:::outputNode
+        T_Ext --> T_Proj["Linear Projection<br/>(512 → 512-dim)"]:::backboneNode
+        T_Proj --> T_Norm["L2 Vector Normalization<br/>(||v_text||₂ = 1)"]:::backboneNode
+
+        %% Cosine Matching / Vector Search
+        V_Norm --> CosineSim["K-NN Cosine Search / Dot Product<br/>(Fashion Catalog Retrieval & Zero-Shot Tagging)"]:::outputNode
+        T_Norm --> CosineSim
+    end

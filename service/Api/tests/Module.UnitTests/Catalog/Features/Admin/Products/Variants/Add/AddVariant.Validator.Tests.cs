@@ -13,7 +13,7 @@ public class AddVariantValidatorTests
     [Fact(DisplayName = "Validator: Should fail when Request is null")]
     public void Validator_WhenRequestIsNull_ShouldHaveError()
     {
-        var command = new AddVariant.Command(Guid.NewGuid(), null!);
+        var command = new AddVariant.Command(null!);
 
         var result = _validator.TestValidate(command);
 
@@ -23,7 +23,7 @@ public class AddVariantValidatorTests
     [Fact(DisplayName = "Validator: Should fail when Sku is empty")]
     public void Validator_WhenSkuIsEmpty_ShouldHaveError()
     {
-        var command = new AddVariant.Command(Guid.NewGuid(), new AddVariant.Request { Sku = "" });
+        var command = new AddVariant.Command(new AddVariant.Request { Sku = "", ProductId = Guid.NewGuid() });
 
         var result = _validator.TestValidate(command);
 
@@ -33,7 +33,7 @@ public class AddVariantValidatorTests
     [Fact(DisplayName = "Validator: Should pass with valid request")]
     public void Validator_WhenValid_ShouldPass()
     {
-        var command = new AddVariant.Command(Guid.NewGuid(), new AddVariant.Request { Sku = "SKU-001" });
+        var command = new AddVariant.Command(new AddVariant.Request { Sku = "SKU-001", ProductId = Guid.NewGuid() });
 
         var result = _validator.TestValidate(command);
 

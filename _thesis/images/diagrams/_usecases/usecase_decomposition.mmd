@@ -1,0 +1,32 @@
+usecaseDiagram
+    actor "Customer" as C
+    actor "Administrator" as A
+
+    package "Storefront (ReSys.Shop)" {
+        usecase "Visual Search (Image Upload)" as UC1
+        usecase "View Recommendations" as UC2
+        usecase "Add to Cart" as UC3
+        usecase "Checkout (Place Order)" as UC4
+    }
+
+    package "Admin Panel (ReSys.Admin)" {
+        usecase "Manage Products" as UC5
+        usecase "Order Fulfillment" as UC6
+        usecase "Inventory Audit" as UC7
+        usecase "View Analytics" as UC8
+        usecase "Manage Users" as UC9
+    }
+
+    C --> UC1
+    C --> UC2
+    C --> UC3
+    C --> UC4
+
+    A --> UC5
+    A --> UC6
+    A --> UC7
+    A --> UC8
+    A --> UC9
+
+    UC1 ..> UC2 : <<include>> (Vector Search)
+    UC6 ..> UC7 : <<include>> (Stock Update)

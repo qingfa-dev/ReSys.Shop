@@ -19,7 +19,7 @@ public static partial class GetOrderingDashboard
         public string Number { get; init; } = default!;
         public decimal Total { get; init; }
         public string Status { get; init; } = default!;
-        public DateTime CreatedAtUtc { get; init; }
+        public DateTimeOffset CreatedAtUtc { get; init; }
     }
 
     public sealed record OrderStatusBreakdownData

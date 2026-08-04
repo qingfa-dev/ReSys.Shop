@@ -1,6 +1,6 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
+namespace Module.Catalog.Features.Admin.Taxons.Update;
 
 public static partial class UpdateTaxon
 {

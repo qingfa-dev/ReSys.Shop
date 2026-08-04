@@ -1,0 +1,11 @@
+@use '../tokens' as *;
+
+.layout-breadcrumb {
+  display: flex;
+  align-items: center;
+  height: $breadcrumb-height;
+  padding: 0 $breadcrumb-padding-x;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}

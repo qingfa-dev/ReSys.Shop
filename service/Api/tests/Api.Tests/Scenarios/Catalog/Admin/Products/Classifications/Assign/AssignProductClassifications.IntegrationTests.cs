@@ -46,7 +46,7 @@ public sealed class AssignProductClassificationsIntegrationTests(ApiFixture fixt
             taxonomyId = taxonomy!.Id
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy.Id}/taxons", createTaxonRequest);
+            "/api/catalog/taxons", createTaxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue();
         var taxon = createTaxonResult.DeserializeValue<IdResponse>();
@@ -54,11 +54,12 @@ public sealed class AssignProductClassificationsIntegrationTests(ApiFixture fixt
 
         var assignRequest = new
         {
+            productId = product!.Id,
             items = new[] { new { taxonId = taxon!.Id, position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/classifications/assign", assignRequest);
+            "/api/catalog/product-classifications/assign", assignRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -71,11 +72,12 @@ public sealed class AssignProductClassificationsIntegrationTests(ApiFixture fixt
         Guid nonexistentId = Guid.NewGuid();
         var assignRequest = new
         {
+            productId = nonexistentId,
             items = new[] { new { taxonId = Guid.NewGuid(), position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{nonexistentId}/classifications/assign", assignRequest);
+            "/api/catalog/product-classifications/assign", assignRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

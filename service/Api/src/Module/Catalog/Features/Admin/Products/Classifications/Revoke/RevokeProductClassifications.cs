@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Revoke;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Revoke;
 
 /// <summary>
 /// Defines the use case for revoking classifications from a product.

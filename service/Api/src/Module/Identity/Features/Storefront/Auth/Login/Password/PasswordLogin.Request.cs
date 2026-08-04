@@ -1,0 +1,9 @@
+using Module.Identity.Features.Storefront.Shared.Models;
+
+namespace Module.Identity.Features.Storefront.Auth.Login.Password;
+
+public static partial class PasswordLogin
+{
+    // Request
+    public record Request : BasePasswordLoginRequest;
+}

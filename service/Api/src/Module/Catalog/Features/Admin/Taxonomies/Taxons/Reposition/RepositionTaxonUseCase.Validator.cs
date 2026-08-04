@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
+namespace Module.Catalog.Features.Admin.Taxons.Reposition;
 
 public static partial class RepositionTaxon
 {
@@ -8,7 +8,6 @@ public static partial class RepositionTaxon
     {
         public Validator()
         {
-            RuleFor(x => x.TaxonomyId).ApplyTaxonomyIdRules();
             RuleFor(x => x.Request).NotNull();
             When(x => x.Request is not null, () =>
             {

@@ -6,28 +6,27 @@ public static partial class AddVariant
 {
     /// <summary>
     /// POST endpoint that adds a new variant to a product.
-    /// Route: api/catalog/products/{productId:guid}/variants
+    /// Route: api/catalog/variants
     /// Permission: Products.Variants.Create
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(CatalogFeature.Admin.Products.Variants.Add.Route, async (
-                [FromRoute] Guid productId,
+            app.MapPost(CatalogFeature.Admin.Variants.Add.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(productId, request);
+                var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
             .WithName(nameof(AddVariant))
             .WithTags(CatalogFeature.Tags.Variant)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Add.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Add.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Add.Description)
+            .HasPermission(CatalogFeature.Admin.Variants.Add.Permission)
+            .WithSummary(CatalogFeature.Admin.Variants.Add.Summary)
+            .WithDescription(CatalogFeature.Admin.Variants.Add.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound)

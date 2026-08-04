@@ -10,7 +10,7 @@ public static partial class GetAllTaxons
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/taxons — paged listing of all taxons for a taxonomy
-            app.MapGet(CatalogFeature.Storefront.Taxons.Get.All.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Taxons.All.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class GetAllTaxons
             })
             .WithName(nameof(GetAllTaxons))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .WithSummary(CatalogFeature.Storefront.Taxons.Get.All.Summary)
-            .WithDescription(CatalogFeature.Storefront.Taxons.Get.All.Description)
+            .WithSummary(CatalogFeature.Storefront.Taxons.All.Summary)
+            .WithDescription(CatalogFeature.Storefront.Taxons.All.Description)
             .Produces<PagedResult<Response>>();
         }
     }

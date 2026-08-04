@@ -50,7 +50,6 @@ public class DeleteUserTests : IDisposable
         // Arrange
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
-        var request = new DeleteUser.Request { Id = userId };
 
         var user = new User { Id = userId, Email = "test@example.com", UserName = "testuser" };
 
@@ -58,7 +57,7 @@ public class DeleteUserTests : IDisposable
         _userManagerMock.Setup(m => m.DeleteAsync(user)).ReturnsAsync(IdentityResult.Success);
 
         // Act
-        var result = await handler.Handle(new DeleteUser.Command(request), TestContext.Current.CancellationToken);
+        var result = await handler.Handle(new DeleteUser.Command(userId), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -72,11 +71,10 @@ public class DeleteUserTests : IDisposable
         // Arrange
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
-        var request = new DeleteUser.Request { Id = userId };
         _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync((User?)null);
 
         // Act
-        var result = await handler.Handle(new DeleteUser.Command(request), TestContext.Current.CancellationToken);
+        var result = await handler.Handle(new DeleteUser.Command(userId), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -96,8 +94,7 @@ public class DeleteUserTests : IDisposable
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Fail" }));
 
         // Act
-        var result = await handler.Handle(new DeleteUser.Command(new DeleteUser.Request { Id = userId }),
-            TestContext.Current.CancellationToken);
+        var result = await handler.Handle(new DeleteUser.Command(userId), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -115,8 +112,7 @@ public class DeleteUserTests : IDisposable
         _userManagerMock.Setup(m => m.DeleteAsync(user)).ReturnsAsync(IdentityResult.Success);
 
         // Act
-        var result = await handler.Handle(new DeleteUser.Command(new DeleteUser.Request { Id = userId }),
-            TestContext.Current.CancellationToken);
+        var result = await handler.Handle(new DeleteUser.Command(userId), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

@@ -15,13 +15,13 @@ public class GetUserRolesTests
 {
     private readonly Mock<UserManager<User>> _userManagerMock;
     private readonly Mock<RoleManager<Role>> _roleManagerMock;
-    private readonly GetUserRoles.QueryHandler _handler;
+    private readonly GetUserRoles.PagedQueryHandler _handler;
 
     public GetUserRolesTests()
     {
         _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
         _roleManagerMock = IdentityMocks.CreateRoleManagerMock<Role>();
-        _handler = new GetUserRoles.QueryHandler(_userManagerMock.Object, _roleManagerMock.Object);
+        _handler = new GetUserRoles.PagedQueryHandler(_userManagerMock.Object, _roleManagerMock.Object);
     }
 
     [Fact(DisplayName = "Handler: Should return NotFound when user is not found")]
@@ -31,13 +31,13 @@ public class GetUserRolesTests
         _userManagerMock.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
 
-        var query = new GetUserRoles.Query(Guid.NewGuid());
+        var query = new GetUserRoles.Query(Guid.NewGuid(), new GetUserRoles.Parameters());
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.IsFailure.Should().BeTrue();
+        result.IsSuccess.Should().BeFalse();
         result.Errors[0].Code.Should().Be(UserResult.Failure.NotFound.Code);
     }
 
@@ -62,15 +62,15 @@ public class GetUserRolesTests
 
         _userManagerMock.Setup(x => x.GetRolesAsync(user)).ReturnsAsync(["Admin"]);
 
-        var query = new GetUserRoles.Query(user.Id);
+        var query = new GetUserRoles.Query(user.Id, new GetUserRoles.Parameters());
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Roles.Should().HaveCount(2);
-        result.Value.Roles.Should().ContainSingle(r => r.Name == "Admin" && r.IsAssigned);
-        result.Value.Roles.Should().ContainSingle(r => r.Name == "User" && !r.IsAssigned);
+        result.Items.Should().HaveCount(2);
+        result.Items.Should().ContainSingle(r => r.Name == "Admin" && r.IsAssigned);
+        result.Items.Should().ContainSingle(r => r.Name == "User" && !r.IsAssigned);
     }
 }

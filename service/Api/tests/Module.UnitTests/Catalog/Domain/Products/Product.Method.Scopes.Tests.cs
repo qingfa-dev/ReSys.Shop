@@ -36,7 +36,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "IsArchived: Should return true when Archived")]
     public void IsArchived_WhenArchived_ShouldReturnTrue()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Archived).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Archived).Value;
 
         product.IsArchived().Should().BeTrue();
     }
@@ -44,7 +44,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "IsPurchasable: Should return true when variants exist and not deleted")]
     public void IsPurchasable_WithActiveVariants_ShouldReturnTrue()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Active).Value;
         product.Variants.Add(VariantMethod.Create(product.Id, "V", isMaster: false).Value);
 
         product.IsPurchasable().Should().BeTrue();
@@ -53,7 +53,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "IsPurchasable: Should return false when no variants")]
     public void IsPurchasable_WithoutVariants_ShouldReturnFalse()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Active).Value;
 
         product.IsPurchasable().Should().BeFalse();
     }
@@ -61,7 +61,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "IsInStock: Should return true when any variant not deleted")]
     public void IsInStock_WithNonDeletedVariants_ShouldReturnTrue()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Active).Value;
         product.Variants.Add(VariantMethod.Create(product.Id, "V").Value);
 
         product.IsInStock().Should().BeTrue();
@@ -70,7 +70,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "IsInStock: Should return false when no variants")]
     public void IsInStock_WithoutVariants_ShouldReturnFalse()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Active).Value;
 
         product.IsInStock().Should().BeFalse();
     }
@@ -78,7 +78,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "IsBackorderable: Should return true when any variant has tracking disabled")]
     public void IsBackorderable_WithTrackInventoryFalse_ShouldReturnTrue()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Active).Value;
         var variant = VariantMethod.Create(product.Id, "V", isMaster: false).Value;
         variant.TrackInventory = false;
         product.Variants.Add(variant);
@@ -89,7 +89,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "ResolveStatus: Should return Archived when deleted")]
     public void ResolveStatus_WhenDeleted_ShouldReturnArchived()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Active).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Active).Value;
         product.Delete("admin");
 
         var result = product.ResolveStatus();
@@ -100,7 +100,7 @@ public class ProductMethodScopesTests
     [Fact(DisplayName = "ResolveStatus: Should return actual status when not deleted")]
     public void ResolveStatus_WhenNotDeleted_ShouldReturnActualStatus()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Draft).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Draft).Value;
 
         var result = product.ResolveStatus();
 

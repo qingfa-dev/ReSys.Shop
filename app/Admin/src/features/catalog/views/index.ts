@@ -1,0 +1,11 @@
+// Boundary: views barrel — re-export only; do not add view logic here
+export { default as ProductsList } from './ProductsList.vue'
+export { default as ProductDetail } from './ProductDetail.vue'
+export { default as TaxonomiesList } from './TaxonomiesList.vue'
+export { default as TaxonomyDetail } from './TaxonomyDetail.vue'
+export { default as TaxonsList } from './TaxonsList.vue'
+export { default as OptionTypesList } from './OptionTypesList.vue'
+export { default as OptionTypeDetail } from './OptionTypeDetail.vue'
+export { default as TaxonDetail } from './TaxonDetail.vue'
+export { default as VariantsList } from './VariantsList.vue'
+export { default as VariantDetail } from './VariantDetail.vue'

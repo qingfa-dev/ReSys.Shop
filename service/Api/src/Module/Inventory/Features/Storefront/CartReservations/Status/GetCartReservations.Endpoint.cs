@@ -11,6 +11,7 @@ public static partial class GetCartReservations
         {
             // Map: GET /inventory/cart/reservations — gets cart stock reservations
             app.MapGet(InventoryFeature.Storefront.CartReservations.Status.Route, async (
+                [AsParameters] Parameters parameters,
                 HttpContext httpContext,
                 ISender sender,
                 CancellationToken ct) =>
@@ -19,15 +20,15 @@ public static partial class GetCartReservations
                     ?? httpContext.User.FindFirst("cart_token")?.Value
                     ?? string.Empty;
 
-                var query = new Query(cartToken);
+                var query = new Query(cartToken, parameters);
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetCartReservations))
             .WithTags(InventoryFeature.Tags.StockReservation)
             .WithSummary(InventoryFeature.Storefront.CartReservations.Status.Summary)
             .WithDescription(InventoryFeature.Storefront.CartReservations.Status.Description)
-            .Produces<Result<List<Response>>>();
+            .Produces<PagedResult<Response>>();
         }
     }
 }

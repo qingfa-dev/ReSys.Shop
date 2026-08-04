@@ -57,7 +57,7 @@ Dependencies installed:
 
 ```bash
 # Download Fashion Product Images Small (~44K images, ~4 GB)
-uv run scripts/download_dataset.py --dataset fashion-product-images-small
+uv run scripts/01_download_dataset.py --dataset fashion-product-images-small
 ```
 
 Expected: `data/raw/fashion-product-images-small/` with:

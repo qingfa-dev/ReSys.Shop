@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Restore;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Restore;
 
@@ -85,7 +85,7 @@ public class RestoreTaxonomyTests : IDisposable
         persisted!.IsDeleted.Should().BeFalse();
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RestoreTaxon.Command>(c => c.TaxonomyId == entity.Id && c.Id == root.Id),
+            It.Is<RestoreTaxon.Command>(c => c.Id == root.Id),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

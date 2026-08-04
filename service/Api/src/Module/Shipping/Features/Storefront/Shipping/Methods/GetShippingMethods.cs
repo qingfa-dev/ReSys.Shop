@@ -4,16 +4,13 @@ namespace Module.Shipping.Features.Storefront.Shipping.Methods;
 /// <summary>Retrieves all shipping methods available to storefront users.</summary>
 public static partial class GetShippingMethods
 {
-    public sealed record Query : IQuery<Response>;
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(IApplicationDbContext dbContext, ILogger<QueryHandler> logger)
-        : IQueryHandler<Query, Response>
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext, ILogger<PagedQueryHandler> logger)
+        : IPagedQueryHandler<Query, Response>
     {
         /// <summary>Loads active, non-deleted shipping methods and returns them as a list.</summary>
-        /// <param name="request">The empty query.</param>
-        /// <param name="cancellationToken">Propagates cancellation signal.</param>
-        /// <returns>A result containing the list of available shipping methods.</returns>
-        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=none, post=list of available shipping methods returned
             _ = logger;
@@ -25,18 +22,20 @@ public static partial class GetShippingMethods
 
             // Map: Return list of available shipping methods.
             // EXCEPTION: no domain entity — maps from domain ShippingMethod entities to DTOs
-            return new Response
+            var items = methods.Select(m => new Response
             {
-                Methods = methods.Select(m => new ShippingMethodDto
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    AdminName = m.AdminName,
-                    Code = m.Code,
-                    CalculatorType = m.CalculatorType,
-                    Position = m.Position
-                }).ToList()
-            };
+                Id = m.Id,
+                Name = m.Name,
+                AdminName = m.AdminName,
+                Code = m.Code,
+                CalculatorType = m.CalculatorType,
+                Position = m.Position
+            }).OrderBy(m => m.Position).ToList();
+
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+            return pageModel.IsEmpty
+                ? PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count)
+                : items.ToPagedResult(pageModel);
         }
     }
 }

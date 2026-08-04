@@ -97,7 +97,7 @@ public sealed class TokenBlacklistServiceTests
     {
         // Arrange
         TokenBlacklistService service = new(new Mock<ICacheService>().Object, _logger);
-        DateTime expiry = DateTime.UtcNow.AddHours(1);
+        DateTimeOffset expiry = DateTime.UtcNow.AddHours(1);
 
         // Act
         Result result = await service.BlacklistTokenAsync(string.Empty, expiry);
@@ -111,7 +111,7 @@ public sealed class TokenBlacklistServiceTests
     {
         // Arrange
         TokenBlacklistService service = new(new Mock<ICacheService>().Object, _logger);
-        DateTime pastExpiry = DateTime.UtcNow.AddHours(-1);
+        DateTimeOffset pastExpiry = DateTime.UtcNow.AddHours(-1);
 
         // Act
         Result result = await service.BlacklistTokenAsync("expired-jti", pastExpiry);
@@ -133,7 +133,7 @@ public sealed class TokenBlacklistServiceTests
     {
         // Arrange
         TokenBlacklistService service = new(_cacheMock.Object, _logger);
-        DateTime futureExpiry = DateTime.UtcNow.AddHours(2);
+        DateTimeOffset futureExpiry = DateTime.UtcNow.AddHours(2);
 
         _cacheMock
             .Setup(c => c.SetAsync(
@@ -173,7 +173,7 @@ public sealed class TokenBlacklistServiceTests
             .ThrowsAsync(new InvalidOperationException("Cache unavailable"));
 
         TokenBlacklistService service = new(_cacheMock.Object, _logger);
-        DateTime futureExpiry = DateTime.UtcNow.AddHours(2);
+        DateTimeOffset futureExpiry = DateTime.UtcNow.AddHours(2);
 
         // Act
         Result result = await service.BlacklistTokenAsync("failing-jti", futureExpiry);

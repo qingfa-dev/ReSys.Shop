@@ -1,0 +1,85 @@
+@startuml usecase-admin-payment-processing
+
+left to right direction
+
+skinparam shadowing false
+skinparam dpi 180
+
+<style>
+
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
+}
+
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case: UC-ADM-PAY\nPayment Processing
+
+actor "Administrator" as Admin
+actor "Payment Gateway" as Gateway <<system>>
+
+rectangle "ReSys.Shop\nAdministration Portal" {
+
+  usecase "Capture Payment\nUC-ADM-PAY-01" as UC_CAPTURE
+
+  usecase "Refund Payment\nUC-ADM-PAY-02" as UC_REFUND
+
+  usecase "Void Payment\nUC-ADM-PAY-03" as UC_VOID
+
+  usecase "View Payments\nUC-ADM-PAY-04" as UC_VIEW
+
+}
+
+Admin --> UC_CAPTURE
+Admin --> UC_REFUND
+Admin --> UC_VOID
+Admin --> UC_VIEW
+
+UC_CAPTURE --> Gateway : <<communicates>>
+UC_REFUND --> Gateway : <<communicates>>
+UC_VOID --> Gateway : <<communicates>>
+
+@enduml

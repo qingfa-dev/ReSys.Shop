@@ -6,28 +6,28 @@ public static partial class RemoveVariantPrice
 {
     /// <summary>
     /// DELETE endpoint that removes (soft-deletes) a price for a variant.
-    /// Route: api/catalog/products/variants/{variantId:guid}/prices/{priceId:guid}
+    /// Route: api/catalog/variant-prices/{priceId:guid}
     /// Permission: Products.Variants.ManagePrice
     /// </summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(CatalogFeature.Admin.Products.Variants.Prices.Remove.Route, async (
-                [FromRoute] Guid variantId,
+            app.MapDelete(CatalogFeature.Admin.VariantPrices.Remove.Route, async (
                 [FromRoute] Guid priceId,
+                [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(variantId, priceId);
+                var command = new Command(request.VariantId, priceId);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
             .WithName(nameof(RemoveVariantPrice))
             .WithTags(CatalogFeature.Tags.Variant)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Prices.Remove.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Prices.Remove.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Prices.Remove.Description)
+            .HasPermission(CatalogFeature.Admin.VariantPrices.Remove.Permission)
+            .WithSummary(CatalogFeature.Admin.VariantPrices.Remove.Summary)
+            .WithDescription(CatalogFeature.Admin.VariantPrices.Remove.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound)
             .Produces<Result>(StatusCodes.Status409Conflict);

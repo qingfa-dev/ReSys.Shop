@@ -1,0 +1,58 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0012: Inventory Management
+autonumber
+
+actor "Ops Staff" as Admin <<Ops Staff>>
+participant "Admin Portal" as Portal <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+
+' ─── View Stock ──────────────────────────────────────────────
+Admin -> Portal: View Inventory (SKU-123)
+activate Portal
+    Portal -> API: GET /api/inventory/SKU-123
+    activate API
+        API -> DB: Query StockItems + InventoryUnits
+        activate DB
+            note right of DB
+                Aggregates:
+                - Physical OnHand (StockItem)
+                - Allocated/Reserved (InventoryUnit)
+            end note
+        DB --> API: InventorySummary
+        deactivate DB
+        API --> Portal: PDF/JSON Report
+    deactivate API
+    Portal --> Admin: Show Stock Levels
+deactivate Portal
+
+' ─── Adjust Stock ────────────────────────────────────────────
+Admin -> Portal: Adjust Stock (+10)
+activate Portal
+    Portal -> API: POST /api/inventory/adjust
+    activate API
+        
+        API -> DB: Get StockItem
+        activate DB
+        DB --> API: Item
+        deactivate DB
+        
+        API -> API: StockItem.AdjustQuantity(10)
+        
+        API -> DB: Save & Audit Log
+        activate DB
+            note right of DB
+                INSERT INTO InventoryAudit
+                (UserId, Reason, Old, New)
+            end note
+        DB --> API: Success
+        deactivate DB
+        
+        API --> Portal: 200 OK
+    deactivate API
+    Portal --> Admin: Updated
+deactivate Portal
+
+@enduml

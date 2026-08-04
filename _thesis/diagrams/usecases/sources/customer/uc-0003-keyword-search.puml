@@ -1,0 +1,28 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0003: Keyword Search
+
+actor "Customer" as Customer
+actor "Guest" as Guest
+
+rectangle "Storefront App" {
+    usecase "Keyword Search" as Search
+    usecase "View Results" as View
+    usecase "Filter Results" as Filter
+}
+
+rectangle "System" {
+    usecase "Full-Text Search" as Text <<Core>>
+    usecase "Semantic Reranking" as ML <<Core>>
+}
+
+Customer --> Search
+Guest --> Search
+
+Search ..> View : <<include>>
+View <.. Filter : <<extend>>
+
+Search <.. Text : <<include>>
+Search <.. ML : <<extend>>
+
+@enduml

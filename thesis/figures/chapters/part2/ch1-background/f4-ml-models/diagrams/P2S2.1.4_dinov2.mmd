@@ -1,0 +1,30 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'fontFamily': 'Arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef mainNode fill:#ffffff,stroke:#333333,stroke-width:2.5px
+    classDef backboneNode fill:#f8f9fa,stroke:#444444,stroke-width:1.5px
+    classDef trainNode fill:#ffffff,stroke:#666666,stroke-width:1.5px,stroke-dasharray: 4 2
+    classDef outputNode fill:#f4f4f4,stroke:#222222,stroke-width:2px
+
+    %% INPUT & EMBEDDING STAGE
+    A["Input Image<br/>(224 x 224 x 3)"]:::mainNode --> B["Patch + Register Embedding<br/>(14x14 Patching → 196 Patches + 1 CLS + 4 REG Tokens)"]:::backboneNode
+
+    %% ENCODER BACKBONE STAGE
+    subgraph Backbone["DINOv2 Vision Transformer Backbone (ViT-B/14)"]
+        direction LR
+        B --> EncBlock["Encoder Stack (x12 Layers)<br/>• Multi-Head Self-Attention (12 Heads)<br/>• SwiGLU / MLP Feed-Forward Block<br/>• Nested Layer Normalization"]:::backboneNode
+    end
+
+    %% PRE-TRAINING SUBSYSTEM (SSL DINOv2)
+    subgraph PT["DINOv2 Self-Supervised Learning Engine"]
+        direction LR
+        F["LVD-142M Unlabeled Dataset"]:::trainNode --> G["Multi-Task Loss<br/>(Image DINO + Patch iBOT + KoLeo Reg)"]:::trainNode
+    end
+    PT -. "Self-Supervised Pre-training" .-> Backbone
+
+    %% RIGHT-SIDE AGGREGATION, PROJECTION & SEARCH STAGE
+    subgraph OutputPipeline ["Feature Extraction & Retrieval Pipeline"]
+        direction LR
+        EncBlock --> CLS["Extract Final CLS Token<br/>(Global Feature d = 768)"]:::outputNode
+        CLS --> Norm["L2 Vector Normalization<br/>(||v||₂ = 1)"]:::backboneNode
+        Norm --> D["K-NN Cosine Similarity Search<br/>(Dense Visual Index & Retrieval)"]:::outputNode
+    end

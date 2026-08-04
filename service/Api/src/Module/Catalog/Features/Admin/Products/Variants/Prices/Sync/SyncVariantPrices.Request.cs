@@ -6,6 +6,7 @@ public static partial class SyncVariantPrices
 {
     public sealed record Request
     {
+        public Guid VariantId { get; init; }
         public List<SyncPriceItem> Prices { get; init; } = [];
     }
 

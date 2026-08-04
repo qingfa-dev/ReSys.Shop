@@ -1,0 +1,26 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0013: Analytics
+autonumber
+
+actor "Admin" as Admin <<Business Owner>>
+participant "Reporting\nService" as Svc <<Data Aggregator>>
+database "PostgreSQL\n(Read Replica)" as DB <<Data Warehouse>>
+
+Admin -> Svc: Get Sales Report(DateRange)
+activate Svc
+    Svc -> DB: Aggregate Orders\n(Group By Date, Sum Total)
+    activate DB
+    DB --> Svc: DailySales[]
+    deactivate DB
+    
+    Svc -> DB: Count New Customers
+    activate DB
+    DB --> Svc: CustomerCount
+    deactivate DB
+    
+    Svc --> Admin: Dashboard DTO
+deactivate Svc
+
+@enduml

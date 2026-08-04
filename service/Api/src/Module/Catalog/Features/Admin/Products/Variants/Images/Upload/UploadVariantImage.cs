@@ -3,6 +3,7 @@ using Hangfire.States;
 
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 
@@ -94,19 +95,44 @@ public static partial class UploadVariantImage
 
             var image = createResult.Value;
 
+            // Demote: Enforce one Default and one Search per variant; demote the prior holder
+            if (imageType is VariantImageType.Default or VariantImageType.Search)
+            {
+                var siblings = await dbContext.Set<VariantImage>()
+                    .Where(x => x.VariantId == variantId && x.Type == imageType)
+                    .ToListAsync(cancellationToken);
+                foreach (var sibling in siblings)
+                {
+                    sibling.Type = VariantImageType.Thumbnail;
+                }
+            }
+
+            // Fixup: when storage provider returns no public URI (e.g. local FS),
+            // set the Url to the download endpoint so the frontend can display the image.
+            if (string.IsNullOrEmpty(image.Url))
+            {
+                image.Url = $"/api/catalog/variant-images/{image.Id}/download";
+            }
+
             dbContext.Set<VariantImage>().Add(image);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record image creation event for observability
             VariantImageLoggers.Created(logger, Id: image.Id, VariantId: image.VariantId ?? Guid.Empty, FileName: image.FileName, ActionBy: currentUser.UserName);
 
-            // Enqueue: Trigger background embedding generation for search-type images
+            // Enqueue: Create Pending embedding row and enqueue background job for status tracking
             if (imageType == VariantImageType.Search)
             {
                 var modelName = VariantImageConstant.Defaults.DefaultEmbeddingModel;
-                backgroundJobClient?.Create<IEmbeddingOrchestrator>(
-                    orchestrator => orchestrator.GenerateAndPersistAsync(image.Id, modelName, CancellationToken.None),
+                var pendingEmbedding = ImageEmbeddingMethod.CreatePending(image.Id, modelName, "1.0");
+                dbContext.Set<ImageEmbedding>().Add(pendingEmbedding);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                var jobId = backgroundJobClient?.Create<IEmbeddingOrchestrator>(
+                    orchestrator => orchestrator.RunAsync(pendingEmbedding.Id, CancellationToken.None),
                     new EnqueuedState());
+                pendingEmbedding.HangfireJobId = jobId;
+                await dbContext.SaveChangesAsync(cancellationToken);
             }
 
             // Map: Return created image as detail DTO with 201 response

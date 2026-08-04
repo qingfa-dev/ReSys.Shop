@@ -10,7 +10,7 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Add;
 /// </summary>
 public static partial class AddVariant
 {
-    public sealed record Command(Guid ProductId, Request Request) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     /// <summary>
     /// Adds a new variant to a product. Supports option-value assignment
@@ -35,7 +35,8 @@ public static partial class AddVariant
         // Contract: pre=command.ProductId!=Guid.Empty, post=variant.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var (productId, request) = command;
+            var request = command.Request;
+            var productId = request.ProductId;
 
             // Check: Parent product must exist before adding variant
             var productExists = await dbContext.Set<Product>()

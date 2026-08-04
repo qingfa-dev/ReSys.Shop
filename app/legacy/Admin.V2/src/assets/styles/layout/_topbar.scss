@@ -1,0 +1,95 @@
+@use '../tokens' as *;
+
+.layout-topbar {
+  position: fixed;
+  height: $topbar-height;
+  z-index: $z-topbar;
+  left: 0;
+  top: 0;
+  width: 100%;
+  padding: 0 $topbar-padding-x;
+  background-color: var(--color-surface);
+  transition: left $duration-fast;
+  display: flex;
+  align-items: center;
+
+  .layout-topbar-logo-container {
+    width: $sidebar-width;
+    display: flex;
+    align-items: center;
+  }
+
+  .layout-topbar-logo {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--text-2xl);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    font-weight: var(--font-medium);
+    gap: 0.5rem;
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  .layout-topbar-action {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    width: $topbar-action-size;
+    height: $topbar-action-size;
+    border: none;
+    background: none;
+    color: var(--color-text);
+    transition: background-color $duration-fast;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--color-surface-hover);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    i {
+      font-size: 1.25rem;
+    }
+
+    span {
+      font-size: var(--text-base-rem);
+      display: none;
+    }
+  }
+
+  .layout-topbar-action-highlight {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+  }
+
+  .layout-menu-button {
+    margin-right: 0.5rem;
+  }
+
+  .layout-topbar-menu-button {
+    display: none;
+  }
+
+  .layout-topbar-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 1rem;
+  }
+
+  .layout-topbar-menu-content {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .layout-config-menu {
+    display: flex;
+    gap: 1rem;
+  }
+}

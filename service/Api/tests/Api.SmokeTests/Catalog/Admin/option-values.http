@@ -11,14 +11,15 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Create option value – success
-# POST /api/catalog/option-types/{optionTypeId}/values
+# POST /api/catalog/option-values (OptionTypeId in body)
 # Expected: 201 Created with location header
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values
+POST {{baseUrl}}/api/catalog/option-values
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "optionTypeId": "{{existingOptionTypeId}}",
   "name": "Small",
   "displayName": "S",
   "position": 1
@@ -26,14 +27,15 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Create option value – duplicate within type
-# POST /api/catalog/option-types/{optionTypeId}/values
+# POST /api/catalog/option-values (OptionTypeId in body)
 # Expected: 409 Conflict – name already exists for this option type
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values
+POST {{baseUrl}}/api/catalog/option-values
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "optionTypeId": "{{existingOptionTypeId}}",
   "name": "Small",
   "displayName": "S",
   "position": 2
@@ -41,56 +43,58 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Create option value – validation error
-# POST /api/catalog/option-types/{optionTypeId}/values
+# POST /api/catalog/option-values (OptionTypeId in body)
 # Expected: 400 Bad Request – name is required
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values
+POST {{baseUrl}}/api/catalog/option-values
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "optionTypeId": "{{existingOptionTypeId}}",
   "name": "",
   "displayName": "",
   "position": 0
 }
 
 ### ---------------------------------------------------------------------------
-### 4. List option values by type (paged)
-# GET /api/catalog/option-types/{optionTypeId}/values
+### 4. List option values (paged)
+# GET /api/catalog/option-values
 # Expected: 200 OK – paged list of option values
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values?page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/catalog/option-values?page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Get option value by ID – success
-# GET /api/catalog/option-types/{optionTypeId}/values/{id}
+# GET /api/catalog/option-values/{id}
 # Expected: 200 OK – single option value
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values/{{existingOptionValueId}}
+GET {{baseUrl}}/api/catalog/option-values/{{existingOptionValueId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Get option value by ID – not found
-# GET /api/catalog/option-types/{optionTypeId}/values/{id}
+# GET /api/catalog/option-values/{id}
 # Expected: 404 Not Found
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values/{{nonExistentId}}
+GET {{baseUrl}}/api/catalog/option-values/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 7. Update option value – success
-# PUT /api/catalog/option-types/{optionTypeId}/values/{id}
+# PUT /api/catalog/option-values/{id} (OptionTypeId in body)
 # Expected: 200 OK – updated option value
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values/{{existingOptionValueId}}
+PUT {{baseUrl}}/api/catalog/option-values/{{existingOptionValueId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "optionTypeId": "{{existingOptionTypeId}}",
   "name": "Small",
   "displayName": "S (Small)",
   "position": 1
@@ -98,9 +102,9 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 8. Delete option value – success
-# DELETE /api/catalog/option-types/{optionTypeId}/values/{id}
+# DELETE /api/catalog/option-values/{id}
 # Expected: 200 OK (or 204 No Content)
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}/values/{{existingOptionValueId}}
+DELETE {{baseUrl}}/api/catalog/option-values/{{existingOptionValueId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}

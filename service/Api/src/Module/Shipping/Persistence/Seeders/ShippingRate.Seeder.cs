@@ -30,7 +30,7 @@ public sealed class ShippingRateSeeder(IApplicationDbContext context) : Abstract
         foreach (var result in rates)
             Context.Set<ShippingRate>().Add(result.Value);
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

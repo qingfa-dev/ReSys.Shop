@@ -16,7 +16,7 @@
 | ClamAV | Malware scan | File upload malware scanning (optional) | Network (host:port) | Low | `Directory.Packages.props` (nClam 7.0.0), `appsettings.json` |
 | Facebook OAuth | Auth API | External login provider (disabled by default) | Client ID + Secret | Low | `appsettings.json` |
 | Microsoft OAuth | Auth API | External login provider (disabled by default) | Client ID + Secret | Low | `appsettings.json` |
-| Bogus (test gateway) | Payment simulation | Development/test payment processing | [ASK USER] | Low | `appsettings.Development.json` |
+| Bogus (test gateway) | Payment simulation | Development/test payment processing (unused; real payment via Stripe) | None | Low | `appsettings.Development.json` |
 | Python Embedding Service | HTTP API | Image embedding generation (Fashion-CLIP via FastAPI) | None (internal service) | Medium | Aspire `AppHost.cs`, `Directory.Packages.props` (Aspire.Hosting.Python) |
 | OpenTelemetry Collector | Observability | Distributed tracing + metrics export | OTLP endpoint (`OTEL_EXPORTER_OTLP_ENDPOINT`) | Low | `ServiceDefaults/Extensions.cs`, `Directory.Packages.props` |
 
@@ -33,9 +33,11 @@
 - **Credential sources**:
   - Development: `dotnet user-secrets` (id: `resys.shop.api`) — bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`
   - Production (expected): Environment variables (e.g., `Authentication__Jwt__Secret`, `ConnectionStrings__DefaultConnection`)
-  - No `.env.example` or `.env.template` exists; `appsettings.json` serves as config template with empty placeholder values
-- **Hardcoding checks**: `appsettings.Development.json` contains a hardcoded PostgreSQL connection string (`Host=localhost;Database=resys_shop;Username=postgres;Password=postgres`) — acceptable for local dev only
+  - Template files: `service/Api/src/Api/.env.template` (C# API), `service/Embedding/.env.template` (Python) — both use `REPLACE_ME_*` or empty placeholders
+  - `appsettings.json` serves as config template with empty placeholder values
+- **Hardcoding checks**: `appsettings.Development.json` no longer contains hardcoded credentials (redirects to dotnet user-secrets via `setup-dev-secrets.sh`). Testing configs (`appsettings.Testing.json`, `Api.Tests/appsettings.Testing.json`) use well-known test-only values (`integration-test-secret-key-32-chars!!`).
 - **Rotation or lifecycle notes**: JWT token rotation is enabled (`TokenSecurity.RotationEnabled = true`), reuse detection enabled, max token age 30 days. No automated secret rotation mechanism detected.
+- **Dockerfile**: `service/Embedding/Dockerfile` exists (multi-stage, non-root user, tini-based) for Python sidecar production deployment — contrary to AGENTS.md claim of "no Dockerfiles".
 
 ### 4) Reliability and Failure Behavior
 

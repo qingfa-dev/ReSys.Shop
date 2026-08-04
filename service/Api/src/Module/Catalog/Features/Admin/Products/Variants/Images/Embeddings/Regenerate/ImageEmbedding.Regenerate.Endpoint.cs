@@ -10,8 +10,7 @@ public static partial class RegenerateEmbedding
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Regenerate.Route, async (
-                [FromRoute] Guid id,
+            app.MapPut(CatalogFeature.Admin.VariantImageEmbeddings.Regenerate.Route, async (
                 [FromBody] Request? request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -23,7 +22,7 @@ public static partial class RegenerateEmbedding
 
                 var command = new Command(new Request
                 {
-                    VariantImageId = id,
+                    VariantImageId = request?.VariantImageId ?? Guid.Empty,
                     ModelName = modelName,
                     ModelVersion = modelVersion
                 });
@@ -31,10 +30,10 @@ public static partial class RegenerateEmbedding
                 return result.ToResult();
             })
             .WithName(nameof(RegenerateEmbedding))
-            .WithTags(CatalogFeature.Tags.VariantImage)
-            .HasPermission(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Regenerate.Permission)
-            .WithSummary(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Regenerate.Summary)
-            .WithDescription(CatalogFeature.Admin.Products.Variants.Images.Embeddings.Regenerate.Description)
+            .WithTags(CatalogFeature.Tags.Variant)
+            .HasPermission(CatalogFeature.Admin.VariantImageEmbeddings.Regenerate.Permission)
+            .WithSummary(CatalogFeature.Admin.VariantImageEmbeddings.Regenerate.Summary)
+            .WithDescription(CatalogFeature.Admin.VariantImageEmbeddings.Regenerate.Description)
             .Produces<Result<EmbeddingDetailResponse>>(StatusCodes.Status200OK)
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound)

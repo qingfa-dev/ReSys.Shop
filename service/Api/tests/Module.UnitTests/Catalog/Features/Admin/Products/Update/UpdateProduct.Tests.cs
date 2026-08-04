@@ -45,7 +45,7 @@ public class UpdateProductTests : IDisposable
     [Fact(DisplayName = "Handler: Should update product and dispatch UpdateVariant for master variant")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var product = ProductMethod.Create("Original", "original", status: ProductStatus.Draft).Value;
+        var product = ProductMethod.Create(name: "Original", slug: "original", status: ProductStatus.Draft).Value;
         var masterVariant = VariantMethod.Create(product.Id, "original-master", isMaster: true).Value;
         product.Variants.Add(masterVariant);
         _dbContext.Set<Product>().Add(product);
@@ -58,7 +58,6 @@ public class UpdateProductTests : IDisposable
             Name = "Updated",
             Slug = "updated",
             Description = "Updated description",
-            Price = 29.99m,
         };
 
         var result = await _handler.Handle(new UpdateProduct.Command(product.Id, request), TestContext.Current.CancellationToken);
@@ -92,12 +91,12 @@ public class UpdateProductTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when slug conflicts with another product")]
     public async Task Handle_ShouldReturnFailure_WhenSlugIsDuplicate()
     {
-        var product = ProductMethod.Create("Original", "original", status: ProductStatus.Draft).Value;
+        var product = ProductMethod.Create(name: "Original", slug: "original", status: ProductStatus.Draft).Value;
         var masterVariant = VariantMethod.Create(product.Id, "original-master", isMaster: true).Value;
         product.Variants.Add(masterVariant);
         _dbContext.Set<Product>().Add(product);
 
-        var other = ProductMethod.Create("Other", "existing-slug", status: ProductStatus.Draft).Value;
+        var other = ProductMethod.Create(name: "Other", slug: "existing-slug", status: ProductStatus.Draft).Value;
         _dbContext.Set<Product>().Add(other);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         product.MasterVariantId = masterVariant.Id;
@@ -116,7 +115,7 @@ public class UpdateProductTests : IDisposable
     [Fact(DisplayName = "Handler: Should dispatch UpdateVariant with variant fields")]
     public async Task Handle_ShouldUpdateMasterVariant_WhenVariantFieldsProvided()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Draft).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Draft).Value;
         var masterVariant = VariantMethod.Create(product.Id, "product-master", isMaster: true).Value;
         product.Variants.Add(masterVariant);
         _dbContext.Set<Product>().Add(product);
@@ -128,11 +127,7 @@ public class UpdateProductTests : IDisposable
         {
             Name = "Updated",
             Slug = "updated",
-            Price = 49.99m,
-            CostPrice = 20m,
-            CostCurrency = "USD",
-            Weight = 2.5m,
-            WeightUnit = "kg",
+
         };
 
         await _handler.Handle(new UpdateProduct.Command(product.Id, request), TestContext.Current.CancellationToken);
@@ -140,18 +135,14 @@ public class UpdateProductTests : IDisposable
         _senderMock.Verify(x => x.Send(
             It.Is<UpdateVariant.Command>(c =>
                 c.Id == masterVariant.Id &&
-                c.Request.Price == 49.99m &&
-                c.Request.CostPrice == 20m &&
-                c.Request.CostCurrency == "USD" &&
-                c.Request.Weight == 2.5m &&
-                c.Request.WeightUnit == "kg"),
+                c.Request.Sku == "updated-master"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact(DisplayName = "Handler: Should not dispatch UpdateVariant when no master variant exists")]
     public async Task Handle_ShouldNotDispatchUpdateVariant_WhenNoMasterVariant()
     {
-        var product = ProductMethod.Create("Product", "product", status: ProductStatus.Draft).Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product", status: ProductStatus.Draft).Value;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

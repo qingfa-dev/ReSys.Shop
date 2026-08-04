@@ -44,24 +44,24 @@ Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Get taxon products – success
-# GET /api/storefront/taxons/{id}/products
+# GET /api/storefront/taxons/products?taxonId=
 # Expected: 200 OK – products in this taxon
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/storefront/taxons/{{existingTaxonId}}/products
+GET {{baseUrl}}/api/storefront/taxons/products?taxonId={{existingTaxonId}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Get taxon products – empty
-# GET /api/storefront/taxons/{id}/products
+# GET /api/storefront/taxons/products?taxonId=
 # Expected: 200 OK – empty product list (taxon has no products)
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/storefront/taxons/{{nonExistentId}}/products
+GET {{baseUrl}}/api/storefront/taxons/products?taxonId={{nonExistentId}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 7. Get taxon products with pagination
-# GET /api/storefront/taxons/{id}/products?page={page}&pageSize={pageSize}
+# GET /api/storefront/taxons/products?taxonId=&page={page}&pageSize={pageSize}
 # Expected: 200 OK – paginated product list
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/storefront/taxons/{{existingTaxonId}}/products?page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/storefront/taxons/products?taxonId={{existingTaxonId}}&page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}

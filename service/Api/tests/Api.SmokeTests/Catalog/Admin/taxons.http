@@ -11,14 +11,15 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Create root taxon – success
-# POST /api/catalog/taxonomies/{taxonomyId}/taxons
+# POST /api/catalog/taxons (TaxonomyId in body)
 # Expected: 201 Created with location header
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons
+POST {{baseUrl}}/api/catalog/taxons
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "taxonomyId": "{{existingTaxonomyId}}",
   "name": "Clothing",
   "slug": "clothing",
   "description": "All clothing items",
@@ -27,14 +28,15 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Create child taxon – success
-# POST /api/catalog/taxonomies/{taxonomyId}/taxons
+# POST /api/catalog/taxons (TaxonomyId in body)
 # Expected: 201 Created – child under Clothing
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons
+POST {{baseUrl}}/api/catalog/taxons
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "taxonomyId": "{{existingTaxonomyId}}",
   "name": "T-Shirts",
   "slug": "t-shirts",
   "description": "All t-shirt products",
@@ -44,14 +46,15 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Create taxon – duplicate name within parent
-# POST /api/catalog/taxonomies/{taxonomyId}/taxons
+# POST /api/catalog/taxons (TaxonomyId in body)
 # Expected: 409 Conflict – name already exists under this parent
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons
+POST {{baseUrl}}/api/catalog/taxons
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "taxonomyId": "{{existingTaxonomyId}}",
   "name": "Clothing",
   "slug": "clothing-duplicate",
   "description": "Duplicate root taxon",
@@ -60,14 +63,15 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Update taxon – success
-# PUT /api/catalog/taxonomies/{taxonomyId}/taxons/{id}
+# PUT /api/catalog/taxons/{id} (TaxonomyId in body)
 # Expected: 200 OK – updated taxon
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}
+PUT {{baseUrl}}/api/catalog/taxons/{{existingTaxonId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 {
+  "taxonomyId": "{{existingTaxonomyId}}",
   "name": "Clothing & Apparel",
   "slug": "clothing-apparel",
   "description": "Updated description for clothing"
@@ -75,10 +79,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Reposition taxon – success
-# POST /api/catalog/taxonomies/{taxonomyId}/taxons/{id}/reposition
+# POST /api/catalog/taxons/{id}/reposition
 # Expected: 200 OK – taxon position updated
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}/reposition
+POST {{baseUrl}}/api/catalog/taxons/{{existingTaxonId}}/reposition
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -88,26 +92,26 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Delete taxon – success
-# DELETE /api/catalog/taxonomies/{taxonomyId}/taxons/{id}
+# DELETE /api/catalog/taxons/{id}
 # Expected: 200 OK – taxon soft-deleted
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}
+DELETE {{baseUrl}}/api/catalog/taxons/{{existingTaxonId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 7. Restore taxon – success
-# PATCH /api/catalog/taxonomies/{taxonomyId}/taxons/{id}/restore
+# PATCH /api/catalog/taxons/{id}/restore
 # Expected: 200 OK – taxon restored
 # ---------------------------------------------------------------------------
-PATCH {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}/restore
+PATCH {{baseUrl}}/api/catalog/taxons/{{existingTaxonId}}/restore
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 8. No authentication – 401
-# GET /api/catalog/taxonomies/{taxonomyId}/taxons
+# GET /api/catalog/taxons
 # Expected: 401 Unauthorized – missing or invalid token
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons
+GET {{baseUrl}}/api/catalog/taxons
 Content-Type: {{contentType}}

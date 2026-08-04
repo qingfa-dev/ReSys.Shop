@@ -145,7 +145,7 @@ public sealed partial class TokenTheftDetector(
         List<RefreshToken> activeTokens = await refreshTokenStore.GetActiveByUserIdAsync(userId, ct);
 
         // Update: revoke each active token to invalidate all sessions
-        DateTime now = DateTime.UtcNow;
+        DateTimeOffset now = DateTime.UtcNow;
         foreach (RefreshToken token in activeTokens)
         {
             token.RevokedAtUtc = now;

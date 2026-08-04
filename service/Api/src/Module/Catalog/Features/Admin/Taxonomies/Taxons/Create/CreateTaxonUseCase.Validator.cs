@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Validators;
+using Module.Catalog.Features.Admin.Taxons.Shared.Validators;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
+namespace Module.Catalog.Features.Admin.Taxons.Create;
 
 public static partial class CreateTaxon
 {
@@ -9,9 +9,6 @@ public static partial class CreateTaxon
     {
         public Validator()
         {
-            RuleFor(x => x.TaxonomyId)
-                .ApplyTaxonomyIdRules();
-
             RuleFor(x => x.Request)
                 .ApplyTaxonomyParametersRules();
         }

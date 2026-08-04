@@ -31,10 +31,11 @@ public sealed class GetAllOptionTypesIntegrationTests(ApiFixture fixture) : Cata
         var createValueRequest = new
         {
             name = "Red",
-            presentation = "Red"
+            presentation = "Red",
+            optionTypeId = optionTypeId
         };
         HttpResponseMessage createValueResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values", createValueRequest);
+            "/api/catalog/option-values", createValueRequest);
         createValueResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync("/api/storefront/option-types");

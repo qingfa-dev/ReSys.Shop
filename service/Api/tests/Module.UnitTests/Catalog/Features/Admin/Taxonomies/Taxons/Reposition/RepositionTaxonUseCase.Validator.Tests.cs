@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
+using Module.Catalog.Features.Admin.Taxons.Reposition;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
 
@@ -14,7 +14,6 @@ public class RepositionTaxonValidatorTests
     {
         var command = new RepositionTaxon.Command(
             Guid.NewGuid(), 
-            Guid.NewGuid(), 
             new RepositionTaxon.Request { Position = 5 });
 
         var result = _validator.TestValidate(command);
@@ -25,7 +24,7 @@ public class RepositionTaxonValidatorTests
     [Fact(DisplayName = "Validator: Should fail when request is null")]
     public void Validator_ShouldFail_WhenRequestNull()
     {
-        var command = new RepositionTaxon.Command(Guid.NewGuid(), Guid.NewGuid(), null!);
+        var command = new RepositionTaxon.Command(Guid.NewGuid(), null!);
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Request);
     }
@@ -36,26 +35,11 @@ public class RepositionTaxonValidatorTests
     {
         var command = new RepositionTaxon.Command(
             Guid.NewGuid(), 
-            Guid.NewGuid(), 
             new RepositionTaxon.Request { Position = position });
         
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor("Request.Position");
     }
 
-    [Theory(DisplayName = "Validator: Should fail for empty IDs")]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    public void Validator_ShouldFail_WhenIdsEmpty(bool emptyTaxonomyId, bool emptyId)
-    {
-        var command = new RepositionTaxon.Command(
-            emptyTaxonomyId ? Guid.Empty : Guid.NewGuid(),
-            emptyId ? Guid.Empty : Guid.NewGuid(),
-            new RepositionTaxon.Request { Position = 0 });
-        
-        var result = _validator.TestValidate(command);
-        
-        if (emptyTaxonomyId) result.ShouldHaveValidationErrorFor(x => x.TaxonomyId);
-        // Id is not explicitly validated in the provided snippet but usually is.
-    }
+    
 }

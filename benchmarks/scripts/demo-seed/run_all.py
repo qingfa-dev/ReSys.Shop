@@ -37,14 +37,20 @@ def main() -> None:
     force_args = ["--force"] if args.force else []
 
     steps = [
-        ("01_extract_taxonomies.py", ["--dataset", str(args.dataset), "--output", str(args.output)] + force_args),
-        ("02_extract_products.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count),
-                                    "--display-size", args.display_size, "--search-size", args.search_size] + force_args),
-        ("03_process_images.py", ["--dataset", str(args.dataset), "--output", str(args.output),
+        ("01_extract_taxonomies.py", ["--output", str(args.output)] + force_args),
+        ("02_extract_taxons.py", ["--dataset", str(args.dataset), "--output", str(args.output)] + force_args),
+        ("03_extract_option_types.py", ["--output", str(args.output)] + force_args),
+        ("04_extract_option_values.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count)] + force_args),
+        ("05_extract_products.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count)] + force_args),
+        ("06_extract_variants.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count)] + force_args),
+        ("07_extract_variant_images.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count),
+                                          "--display-size", args.display_size, "--search-size", args.search_size] + force_args),
+        ("08_extract_product_taxons.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count)] + force_args),
+        ("09_extract_stock.py", ["--output", str(args.output)] + force_args),
+        ("10_process_images.py", ["--dataset", str(args.dataset), "--output", str(args.output),
                                   "--display-size", args.display_size, "--search-size", args.search_size]),
-        ("04_generate_embeddings.py", ["--output", str(args.output)]),
-        ("05_extract_stock.py", ["--output", str(args.output)] + force_args),
-        ("06_verify_output.py", ["--output", str(args.output), "--count", str(args.count)]),
+        ("11_generate_embeddings.py", ["--output", str(args.output)]),
+        ("12_verify_output.py", ["--output", str(args.output), "--count", str(args.count)]),
     ]
 
     for script_name, script_args in steps:
@@ -57,7 +63,7 @@ def main() -> None:
         print(f"\n{'=' * 60}\n  DEPLOY: copying images to storage\n{'=' * 60}")
         src = args.output / "images"
         if not src.exists():
-            print(f"ERROR: {src} not found; images must be generated first (step 03)")
+            print(f"ERROR: {src} not found; images must be generated first (step 10)")
             sys.exit(1)
         shutil.copytree(src, args.storage / "images", dirs_exist_ok=True)
         print(f"Deployed images to {args.storage / 'images'}")

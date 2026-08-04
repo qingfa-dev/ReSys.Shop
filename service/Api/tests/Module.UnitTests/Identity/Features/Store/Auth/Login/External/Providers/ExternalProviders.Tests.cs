@@ -1,4 +1,4 @@
-using Module.Identity.Features.Store.Auth.Login.External.Providers;
+using Module.Identity.Features.Storefront.Auth.Login.External.Providers;
 
 using Shared.Security.Authentication.External.Models;
 using Shared.Security.Authentication.External.Providers;

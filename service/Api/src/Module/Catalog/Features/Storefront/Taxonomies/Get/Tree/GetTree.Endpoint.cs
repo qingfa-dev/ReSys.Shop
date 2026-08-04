@@ -10,7 +10,7 @@ public static partial class GetTree
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/taxonomies/{id}/tree — hierarchical taxonomy tree for navigation
-            app.MapGet(CatalogFeature.Storefront.Taxonomies.Get.Tree.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Taxonomies.Tree.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class GetTree
             })
             .WithName(nameof(GetTree))
             .WithTags(CatalogFeature.Tags.Taxonomy)
-            .WithSummary(CatalogFeature.Storefront.Taxonomies.Get.Tree.Summary)
-            .WithDescription(CatalogFeature.Storefront.Taxonomies.Get.Tree.Description)
+            .WithSummary(CatalogFeature.Storefront.Taxonomies.Tree.Summary)
+            .WithDescription(CatalogFeature.Storefront.Taxonomies.Tree.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

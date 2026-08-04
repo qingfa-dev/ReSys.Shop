@@ -20,7 +20,7 @@ public interface ITokenBlacklistService
     /// <param name="expiry">The expiration time of the token.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A result indicating success or error.</returns>
-    Task<Result> BlacklistTokenAsync(string jti, DateTime expiry, CancellationToken ct = default);
+    Task<Result> BlacklistTokenAsync(string jti, DateTimeOffset expiry, CancellationToken ct = default);
 
     /// <summary>
     /// Cleans up expired entries from the blacklist.

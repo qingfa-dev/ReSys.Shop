@@ -1,0 +1,28 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0005: Manage Cart
+
+actor "Customer" as Customer
+actor "Guest" as Guest
+
+rectangle "Storefront App" {
+    usecase "Add to Cart" as Add
+    usecase "Remove Item" as Remove
+    usecase "Update Quantity" as Update
+    usecase "View Cart" as View
+}
+
+rectangle "System" {
+    usecase "Check Stock" as Stock <<System>>
+    usecase "Calculate Totals" as Calc <<System>>
+}
+
+Customer --> View
+View <.. Add : <<extend>>
+View <.. Remove : <<extend>>
+View <.. Update : <<extend>>
+
+Add ..> Stock : <<include>>
+View ..> Calc : <<include>>
+
+@enduml

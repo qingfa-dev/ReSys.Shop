@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products.Classifications;
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
+using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Shared.Validations;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Validations;
 
 public sealed class ProductClassificationAssignmentItemValidator
     : AbstractValidator<ProductClassificationAssignmentItem>

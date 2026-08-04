@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Payment.Features.Admin.Payments.Shared.Mappings;
 
 using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
@@ -54,7 +56,29 @@ public static partial class RefundPayment
             if (refundResult.IsFailure)
                 return refundResult.Errors;
 
-            await dbContext.SaveChangesAsync(cancellationToken);
+            // Persist: Retry on concurrency conflict with webhook (max 3 attempts)
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                try
+                {
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                    break;
+                }
+                catch (DbUpdateConcurrencyException) when (attempt < 2)
+                {
+                    // Reload: Re-query payment from DB and re-validate refund eligibility
+                    payment = await dbContext.Set<PaymentCapture>()
+                        .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
+                    if (payment is null)
+                        return PaymentCaptureResult.Failure.NotFound;
+                    if (!payment.CanRefund(refundAmount))
+                        return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
+                    // Retry: Gateway already called, only need to persist domain state
+                    var retryResult = payment.Refund(refundAmount);
+                    if (retryResult.IsFailure)
+                        return Result<Response>.Failure(retryResult.Errors[0]);
+                }
+            }
 
             // Map: Payment → response DTO
             var response = payment.MapToDetail<Response>();

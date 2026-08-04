@@ -1,51 +1,21 @@
 """Integration tests for the pgvector retrieval backend.
 
-Requirements
-------------
-- A PostgreSQL instance with pgvector and the schema from init.sql applied.
-- ``BENCHMARK_PG_DSN`` environment variable set.
-- ``psycopg[binary]`` and ``pgvector`` Python packages installed.
-
-All tests are skipped automatically when these prerequisites are absent.
+A pgvector container is auto-managed via Testcontainers (see conftest.py).
+Requires a running Docker/Podman daemon and the ``testcontainers[postgres]``
+package, installed automatically with ``uv sync --extra dev``.
 """
 from __future__ import annotations
-
-import os
 
 import numpy as np
 import pytest
 
-# ── skip guard ────────────────────────────────────────────────────────────────
-
-def _pg_dsn() -> str | None:
-    return os.environ.get("BENCHMARK_PG_DSN")
-
-
-def _psycopg_available() -> bool:
-    try:
-        import pgvector  # noqa: F401
-        import psycopg  # noqa: F401
-        return True
-    except ImportError:
-        return False
-
-
-pytestmark = pytest.mark.integration
-
-
 # ── fixtures ──────────────────────────────────────────────────────────────────
 
 @pytest.fixture(scope="module")
-def retriever():
-    """Return a connected PgvectorRetriever, or skip if prereqs are missing."""
-    dsn = _pg_dsn()
-    if not dsn:
-        pytest.skip("BENCHMARK_PG_DSN not set — skipping pgvector integration tests")
-    if not _psycopg_available():
-        pytest.skip("psycopg or pgvector not installed")
-
+def retriever(pg_dsn: str):
+    """Return a connected PgvectorRetriever against the Testcontainer."""
     from benchmark.retrieval.pgvector import PgvectorRetriever
-    r = PgvectorRetriever(conn_string=dsn)
+    r = PgvectorRetriever(conn_string=pg_dsn)
     r.connect()
     yield r
     r.close()
@@ -299,9 +269,6 @@ def test_record_run(retriever) -> None:
 
 def test_operations_require_connection() -> None:
     """Methods must raise RuntimeError if connect() was never called."""
-    if not _psycopg_available():
-        pytest.skip("psycopg not installed")
-
     from benchmark.retrieval.pgvector import PgvectorRetriever
     r = PgvectorRetriever("postgresql://dummy/dummy")
     with pytest.raises(RuntimeError, match="Not connected"):

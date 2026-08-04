@@ -1,0 +1,19 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0017: Stock Reservation
+
+rectangle "System Process" {
+    usecase "Reserve Items" as Reserve
+    usecase "Release Expired" as Release
+}
+
+rectangle "Components" {
+    usecase "Inventory Unit" as Unit <<System>>
+    usecase "DB Transaction" as Tx <<System>>
+}
+
+Reserve ..> Unit : <<include>>
+Reserve ..> Tx : <<include>>
+Release ..> Unit : <<include>>
+
+@enduml

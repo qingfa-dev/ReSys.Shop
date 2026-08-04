@@ -1,4 +1,4 @@
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Shared.Models;
+namespace Module.Catalog.Features.Admin.Taxons.Rules.Shared.Models;
 
 public record TaxonRuleDetailResponse : TaxonRuleParameter, IResponse
 {

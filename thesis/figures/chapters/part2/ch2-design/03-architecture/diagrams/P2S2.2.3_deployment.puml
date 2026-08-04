@@ -1,0 +1,125 @@
+@startuml deployment
+top to bottom direction
+
+skinparam backgroundColor #FFFFFF
+skinparam nodesep 65
+skinparam ranksep 65
+skinparam shadowing false
+
+<style>
+  root {
+    FontName "Arial"
+    FontSize 14
+  }
+  node {
+    BackGroundColor #F8F9FA
+    LineColor #333333
+    LineThickness 1.5
+    FontColor #111111
+    FontStyle bold
+    FontSize 15
+  }
+  artifact {
+    BackGroundColor #FFFFFF
+    LineColor #555555
+    LineThickness 1.0
+    FontColor #222222
+    FontSize 13
+  }
+  actor {
+    BackGroundColor #FFFFFF
+    LineColor #111111
+    LineThickness 2
+    FontSize 15
+  }
+  cloud {
+    BackGroundColor #F0F4F8
+    LineColor #1E3A8A
+    LineThickness 1.5
+    FontSize 16
+    FontStyle bold
+  }
+  arrow {
+    LineColor #444444
+    LineThickness 1.5
+    FontSize 12
+  }
+</style>
+
+title <font size=22><b>ReSys.Shop — Enterprise Production Deployment Architecture</b></font>\n
+
+' ==========================================
+' TIER 1: CLIENT TIER
+' ==========================================
+actor "End User / Admin" as User
+
+node "Client Desktop / Mobile" as ClientDevice <<device>> #FAFAFA {
+  node "Web Browser Engine" as Browser <<executionEnvironment>> #FFFFFF {
+    artifact "Storefront App\n<<Vue 3 SPA>>" as StoreSPA
+    artifact "Admin Portal\n<<Vue 3 SPA>>" as AdminSPA
+  }
+}
+
+User --> ClientDevice
+
+' ==========================================
+' TIER 2: CDN & INGRESS GATEWAY
+' ==========================================
+node "Aspire Ingress & Delivery Tier" as IngressTier #EFF6FF {
+  node "Global CDN / Static Host" as CDN #FFFFFF {
+    artifact "Single Page Application\nStatic Bundle Assets" as StaticAssets
+  }
+  node "Ingress Proxy / Router" as Router #FFFFFF {
+    artifact "TLS Termination &\nRoute Load Balancer" as LB
+  }
+}
+
+Browser --> CDN : <<HTTPS / Port 443>>
+Browser --> Router : <<HTTPS / API Traffic>>
+
+' ==========================================
+' TIER 3: APPLICATION SERVICES CONTAINER TIER
+' ==========================================
+node "Docker Container Runtime Cluster" as AppCluster #F0FDF4 {
+  
+  node "Application Microservices" as AppServices #FFFFFF {
+    artifact "API Engine Replicas (x2)\n<<.NET 10 Modular Monolith>>" as ApiApp
+    artifact "Vector Search Inference\n<<Python 3.12 / FastAPI / PyTorch>>" as EmbApp
+  }
+  
+  ' Inter-container service link
+  ApiApp --> EmbApp : <<HTTP / Port 8000 (Internal)>>
+}
+
+Router --> ApiApp : <<HTTP Internal Dispatch>>
+
+' ==========================================
+' TIER 4: PERSISTENT DATA TIER
+' ==========================================
+node "Data Storage Cluster" as DataCluster #FEF2F2 {
+  
+  node "Database Systems" as DBServices #FFFFFF {
+    artifact "PostgreSQL 17 Database\n<<Primary + Replica | pgvector>>" as MainDB
+    artifact "Redis 7 Cluster\n<<Distributed Cache & Jobs>>" as CacheDB
+  }
+}
+
+ApiApp --> MainDB : <<TCP / Port 5432>>
+ApiApp --> CacheDB : <<TCP / Port 6379>>
+
+' ==========================================
+' TIER 5: EXTERNAL INTEGRATIONS
+' ==========================================
+cloud "External Managed Cloud APIs" as CloudServices {
+  node "Stripe Payments" as Stripe #FFFFFF
+  node "SendGrid Email" as SendGrid #FFFFFF
+  node "S3 Storage" as S3 #FFFFFF
+  node "Google Identity" as Google #FFFFFF
+}
+
+ApiApp --> Stripe : <<HTTPS API>>
+ApiApp --> SendGrid : <<HTTPS / SMTP>>
+ApiApp --> S3 : <<HTTPS SDK>>
+ApiApp --> Google : <<OAuth 2.0>>
+
+@enduml

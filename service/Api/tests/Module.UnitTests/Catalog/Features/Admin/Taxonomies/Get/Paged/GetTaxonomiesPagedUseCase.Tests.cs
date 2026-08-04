@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Features.Admin.Taxonomies.Get.Paged;
+using Module.Catalog.Features.Admin.Taxonomies.Get.PagedOrAll;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Get.Paged;
 
@@ -9,7 +9,7 @@ namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Get.Paged;
 public class GetTaxonomiesPagedTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetTaxonomiesPaged.PagedQueryHandler _handler;
+    private readonly GetTaxonomiesPagedOrAll.PagedQueryHandler _handler;
 
     public GetTaxonomiesPagedTests()
     {
@@ -20,7 +20,7 @@ public class GetTaxonomiesPagedTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Taxonomy).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetTaxonomiesPaged.PagedQueryHandler(_dbContext);
+        _handler = new GetTaxonomiesPagedOrAll.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -40,14 +40,14 @@ public class GetTaxonomiesPagedTests : IDisposable
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetTaxonomiesPaged.Parameters
+        var parameters = new GetTaxonomiesPagedOrAll.Parameters
         {
             PageNumber = 1,
             PageSize = 2
         };
 
         // Act
-        var result = await _handler.Handle(new GetTaxonomiesPaged.Query(parameters), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonomiesPagedOrAll.Query(parameters), TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().NotBeNull();
@@ -65,14 +65,14 @@ public class GetTaxonomiesPagedTests : IDisposable
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetTaxonomiesPaged.Parameters
+        var parameters = new GetTaxonomiesPagedOrAll.Parameters
         {
             Search = "Apple",
             SearchFields = [ nameof(Taxonomy.Name) ]
         };
 
         // Act
-        var result = await _handler.Handle(new GetTaxonomiesPaged.Query(parameters), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonomiesPagedOrAll.Query(parameters), TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().ContainSingle();
@@ -90,13 +90,13 @@ public class GetTaxonomiesPagedTests : IDisposable
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetTaxonomiesPaged.Parameters
+        var parameters = new GetTaxonomiesPagedOrAll.Parameters
         {
             Sort = [ "Name" ]
         };
 
         // Act
-        var result = await _handler.Handle(new GetTaxonomiesPaged.Query(parameters), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonomiesPagedOrAll.Query(parameters), TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Select(x => x.Name).Should().ContainInOrder("a", "b", "c");
@@ -105,13 +105,13 @@ public class GetTaxonomiesPagedTests : IDisposable
     [Fact(DisplayName = "Handler: Should return empty result when no taxonomies exist")]
     public async Task Handle_ShouldReturnEmpty_WhenNoTaxonomies()
     {
-        var parameters = new GetTaxonomiesPaged.Parameters
+        var parameters = new GetTaxonomiesPagedOrAll.Parameters
         {
             PageNumber = 1,
             PageSize = 10
         };
 
-        var result = await _handler.Handle(new GetTaxonomiesPaged.Query(parameters), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonomiesPagedOrAll.Query(parameters), TestContext.Current.CancellationToken);
 
         result.Should().NotBeNull();
         result.Items.Should().BeEmpty();
@@ -129,7 +129,7 @@ public class GetTaxonomiesPagedTests : IDisposable
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetTaxonomiesPaged.Parameters
+        var parameters = new GetTaxonomiesPagedOrAll.Parameters
         {
             Search = "a",
             SearchFields = [nameof(Taxonomy.Name)],
@@ -138,7 +138,7 @@ public class GetTaxonomiesPagedTests : IDisposable
             PageSize = 10
         };
 
-        var result = await _handler.Handle(new GetTaxonomiesPaged.Query(parameters), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonomiesPagedOrAll.Query(parameters), TestContext.Current.CancellationToken);
 
         result.Should().NotBeNull();
         result.Items.Should().HaveCount(4);
@@ -156,13 +156,13 @@ public class GetTaxonomiesPagedTests : IDisposable
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetTaxonomiesPaged.Parameters
+        var parameters = new GetTaxonomiesPagedOrAll.Parameters
         {
             PageNumber = 1,
             PageSize = 100
         };
 
-        var result = await _handler.Handle(new GetTaxonomiesPaged.Query(parameters), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonomiesPagedOrAll.Query(parameters), TestContext.Current.CancellationToken);
 
         result.Items.Should().HaveCount(3);
         result.TotalCount.Should().Be(3);

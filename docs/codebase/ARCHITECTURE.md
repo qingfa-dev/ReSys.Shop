@@ -7,7 +7,7 @@
 - **Primary style**: Vertical slice architecture (feature-organized) within a modular monolith
 - **Why this classification**: Every business operation is a self-contained `static partial class` in `Features/{Admin|Storefront}/{Domain}/{Action}/` split across 4-6 files (Handler, Endpoint, Request, Response, Validator). No layers (controllers/services/repos) exist — each feature contains its own handler, validation, and endpoint routing in a single directory.
 - **Primary constraints**:
-  1. Modules must not reference each other (enforced by `ValidateVerticalSliceIsolation` build target in `Directory.Build.targets`)
+  1. Modules must not reference each other (intended; enforced by `ValidateVerticalSliceIsolation` build target in `Directory.Build.targets` which emits warnings only). In practice, 39 cross-module `using Module.X.Domain...` references exist across 7 of 8 modules — the target does not fail the build.
   2. All domain operations return `Result<T>` or `Result` — exceptions only for unrecoverable infrastructure failures
   3. Features are `static partial class` split across files — all related code for one action lives in one directory
   4. Warnings-as-errors globally (`TreatWarningsAsErrors=true` in `Directory.Build.props`)
@@ -69,10 +69,13 @@ HTTP Request → Carter Endpoint → FluentValidation → MediatR Pipeline → H
 
 ### 5) Known Architectural Risks
 
-- **E-commerce transaction complexity in a monolith**: The `CreateOrderFromCart` handler orchestrates payment verification, stock deduction, inventory reservation, order placement, notification, and event publishing in a single transaction (`service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs:92-118`). This couples Payment, Inventory, Ordering, and Notification concerns in one handler.
-- **Module isolation can leak via domain types**: While modules don't reference each other via DI, domain types (e.g., `Variant`, `StockItem`, `PaymentCapture`) from different modules are used directly in cross-module handlers via `ISender`, meaning type coupling still exists at the data contract level.
+- **Module isolation is not enforced at build time**: 39 direct cross-module `using` statements exist across 7 of 8 modules (Ordering references Catalog, Inventory, Payment, Shipping, Profile). The `ValidateVerticalSliceIsolation` build target only emits `<Warning>` (not `<Error>`), so the build passes. This contradicts the stated "modules must not reference each other" principle.
+- **Intent vs. reality gap on module isolation**: While modules don't reference each other via DI, domain types (e.g., `Variant`, `StockItem`, `PaymentCapture`) from different modules are used directly in cross-module handlers via `ISender`, meaning type coupling still exists at the data contract level.
 - **No API gateway in production**: YARP is referenced in packages but [TODO] — no evidence of production gateway configuration. Aspire manages local dev orchestration only.
 - **Embedding service is a synchronous dependency**: The .NET API calls the Python Embedding service over HTTP during request handling — a failure in the ML sidecar blocks API responses. No circuit breaker observed in the embedding call path.
+- **Duplicate middleware**: `UseRateLimiter()` is called twice in Program.cs — once in `UseSecurity()` and once explicitly at line 62. Harmless but indicative of drift.
+- **Dashboard module exists but is unregistered**: 9 feature files exist under `Module/Dashboard/` but `builder.AddDashboardModule()` is not called in `Program.cs`. 9th module in an 8-module architecture.
+- **Profile module missing endpoint**: `CreateProfile` feature has no `.Endpoint.cs` file.
 
 ### 6) Evidence
 

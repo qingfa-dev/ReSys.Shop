@@ -1,0 +1,90 @@
+[
+  {
+    "model": "FashionCLIP",
+    "dataset": "fashion-product-small-5k-split",
+    "map": 0.9051,
+    "precision": {
+      "@1": 0.9479,
+      "@5": 0.9332,
+      "@10": 0.9249
+    },
+    "recall": {
+      "@1": 0.0038,
+      "@5": 0.0171,
+      "@10": 0.0319
+    },
+    "ndcg": {
+      "@1": 0.9479,
+      "@5": 0.9366,
+      "@10": 0.9299
+    },
+    "latency_ms": {},
+    "throughput_per_sec": 0.0
+  },
+  {
+    "model": "EfficientNet-B0",
+    "dataset": "fashion-product-small-5k-split",
+    "map": 0.853,
+    "precision": {
+      "@1": 0.9181,
+      "@5": 0.8963,
+      "@10": 0.8825
+    },
+    "recall": {
+      "@1": 0.0034,
+      "@5": 0.0157,
+      "@10": 0.0284
+    },
+    "ndcg": {
+      "@1": 0.9181,
+      "@5": 0.9011,
+      "@10": 0.89
+    },
+    "latency_ms": {},
+    "throughput_per_sec": 0.0
+  },
+  {
+    "model": "DINOv2 ViT-S/14",
+    "dataset": "fashion-product-small-5k-split",
+    "map": 0.8853,
+    "precision": {
+      "@1": 0.9353,
+      "@5": 0.9194,
+      "@10": 0.908
+    },
+    "recall": {
+      "@1": 0.0036,
+      "@5": 0.0169,
+      "@10": 0.031
+    },
+    "ndcg": {
+      "@1": 0.9353,
+      "@5": 0.923,
+      "@10": 0.914
+    },
+    "latency_ms": {},
+    "throughput_per_sec": 0.0
+  },
+  {
+    "model": "CLIP ViT-B/16",
+    "dataset": "fashion-product-small-5k-split",
+    "map": 0.8699,
+    "precision": {
+      "@1": 0.9241,
+      "@5": 0.9083,
+      "@10": 0.8973
+    },
+    "recall": {
+      "@1": 0.0035,
+      "@5": 0.0157,
+      "@10": 0.0291
+    },
+    "ndcg": {
+      "@1": 0.9241,
+      "@5": 0.9119,
+      "@10": 0.9032
+    },
+    "latency_ms": {},
+    "throughput_per_sec": 0.0
+  }
+]

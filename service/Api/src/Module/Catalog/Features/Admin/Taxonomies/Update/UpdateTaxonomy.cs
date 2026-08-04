@@ -1,9 +1,9 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
+using Module.Catalog.Features.Admin.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Update;
 
 using Shared.Application.Domain.Concerns.Parameterizable;
 
@@ -22,7 +22,7 @@ public static partial class UpdateTaxonomy
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Updates a taxonomy and synchronises its root taxon (create, restore, or rename).
+        /// Updates a taxonomy and synchronizes its root taxon (create, restore, or rename).
         /// </summary>
         /// <param name="command">The command containing the taxonomy ID and update payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -65,16 +65,17 @@ public static partial class UpdateTaxonomy
                     Name = entity.Name,
                     Presentation = entity.Presentation,
                     Slug = entity.Name.ToLowerInvariant(),
-                    Position = 0
+                    Position = 0,
+                    TaxonomyId = entity.Id
                 };
-                await sender.Send(new CreateTaxon.Command(entity.Id, createRequest), cancellationToken);
+                await sender.Send(new CreateTaxon.Command(createRequest), cancellationToken);
             }
             else
             {
                 if (rootTaxon.IsDeleted)
                 {
                     // Trigger: Restore soft-deleted root taxon before applying updates
-                    await sender.Send(new RestoreTaxon.Command(entity.Id, rootTaxon.Id), cancellationToken);
+                    await sender.Send(new RestoreTaxon.Command(rootTaxon.Id), cancellationToken);
                 }
 
                 // Trigger: Sync root taxon with updated taxonomy name and presentation
@@ -85,7 +86,7 @@ public static partial class UpdateTaxonomy
                     Slug = entity.Name.ToLowerInvariant(),
                     Position = rootTaxon.Position
                 };
-                await sender.Send(new UpdateTaxon.Command(entity.Id, rootTaxon.Id, updateRequest), cancellationToken);
+                await sender.Send(new UpdateTaxon.Command(rootTaxon.Id, updateRequest), cancellationToken);
             }
 
             // Map: Convert the updated entity to a detailed response DTO.

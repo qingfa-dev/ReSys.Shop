@@ -27,13 +27,14 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
 
         var request = new
         {
+            productId = product!.Id,
             sku = "TEST-001",
             isMaster = false,
             price = 29.99m
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants", request);
+            "/api/catalog/variants", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -66,12 +67,13 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
 
         var request = new
         {
+            productId = product!.Id,
             isMaster = false,
             price = 19.99m
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants", request);
+            "/api/catalog/variants", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -83,12 +85,13 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
     {
         var request = new
         {
+            productId = Guid.NewGuid(),
             sku = "UNAUTH-SKU",
             isMaster = false
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/products/00000000-0000-0000-0000-000000000000/variants", request);
+            "/api/catalog/variants", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

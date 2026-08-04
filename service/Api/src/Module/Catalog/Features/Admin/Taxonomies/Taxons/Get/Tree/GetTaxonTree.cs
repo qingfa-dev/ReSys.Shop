@@ -1,43 +1,50 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.Tree;
+namespace Module.Catalog.Features.Admin.Taxons.Get.Tree;
 
 public static partial class GetTaxonTree
 {
-    public sealed record Query(Guid TaxonomyId) : IQuery<Response>;
+    public record Parameters : QueryingParameters
+    {
+        public Guid TaxonomyId { get; init; }
+    }
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
-    /// <summary>Handler for getting the taxon tree.</summary>
+    /// <summary>Handler for getting the taxon tree for a taxonomy.</summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
-        : IQueryHandler<Query, Response>
+        : IPagedQueryHandler<Query, Response>
     {
         /// <summary>Gets the taxon tree for a taxonomy.</summary>
-        public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
+        public async Task<PagedResult<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
-            // Check: Taxonomy must exist before loading its tree
-            var taxonomyExists = await dbContext.Set<Taxonomy>()
-                .AnyAsync(x => x.Id == query.TaxonomyId, cancellationToken);
-            if (!taxonomyExists)
-                return TaxonomyResult.Errors.NotFound;
-
-            // Load: Fetch taxonomy with active taxons ordered by nested set position
             var entity = await dbContext.Set<Taxonomy>()
-                .Include(x => x.Taxons.Where(t => !t.IsDeleted)
-                    .OrderBy(t => t.Lft))
-                .FirstOrDefaultAsync(x => x.Id == query.TaxonomyId, cancellationToken);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == query.Parameters.TaxonomyId, cancellationToken);
 
             if (entity is null)
                 return TaxonomyResult.Errors.NotFound;
 
-            // Transform: Flatten root-level taxons into hierarchical tree items
-            var tree = entity.Taxons
-                .Where(t => t.ParentId is null)
-                .Select(t => t.MapToTreeItem<TaxonTreeItem>())
-                .ToList();
+            var parsedParameters = query.Parameters.ParseAll(
+                allowedFilterFields: TaxonConstant.Query.AllowedFilterFields,
+                allowedSearchFields: TaxonConstant.Query.AllowedSearchFields,
+                allowedSortFields: TaxonConstant.Query.AllowedSortFields);
+            if (parsedParameters.IsFailure)
+                return parsedParameters.Errors;
 
-            return Result<Response>.Ok(new Response { Tree = tree });
+            var tree = await dbContext.Set<Taxon>()
+                .Include(t => t.Taxonomy)
+                .Include(t => t.TaxonRules)
+                .Include(t => t.Classifications)
+                .Include(t => t.Children)
+                .AsNoTracking()
+                .Where(t => t.TaxonomyId == query.Parameters.TaxonomyId)
+                .ApplyQuerying(parsedParameters.Value)
+                .ToPagedOrAllAsync(parsedParameters.Value, x => x.MapToTreeItem<Response>(), cancellationToken);
+
+            return tree;
         }
     }
 }

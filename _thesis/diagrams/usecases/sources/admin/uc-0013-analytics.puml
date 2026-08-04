@@ -1,0 +1,28 @@
+@startuml
+!include ../_shared/styles.iuml
+
+left to right direction
+
+actor Admin
+
+rectangle "ReSys.Shop Admin Portal" {
+  usecase "View Sales\nAnalytics" as UC0013
+  usecase "View Revenue\nMetrics" as UC0013_Revenue
+  usecase "View Order\nStatistics" as UC0013_Orders
+  usecase "View Top\nProducts" as UC0013_Products
+  usecase "View Customer\nInsights" as UC0013_Customers
+  usecase "Export\nReports" as UC0013_Export
+  usecase "Set Date\nRange" as UC0013_Filter
+  
+  UC0013 ..> UC0013_Revenue : <<include>>
+  UC0013 ..> UC0013_Orders : <<include>>
+  UC0013 ..> UC0013_Products : <<include>>
+  
+  UC0013 <.. UC0013_Customers : <<extend>>
+  UC0013 <.. UC0013_Export : <<extend>>
+  
+  UC0013 ..> UC0013_Filter : <<include>>
+}
+
+Admin --> UC0013
+@enduml

@@ -32,7 +32,6 @@ public class UpdateUserTests
         var userId = Guid.NewGuid();
         var request = new UpdateUser.Request
         {
-            Id = userId,
             Email = "updated@example.com",
             UserName = "updateduser",
             FirstName = "Updated",
@@ -66,7 +65,7 @@ public class UpdateUserTests
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
         var user = new User { Id = userId, ModifiedAtUtc = null };
-        var request = new UpdateUser.Request { Id = userId, Email = "new@test.com" };
+        var request = new UpdateUser.Request { Email = "new@test.com" };
 
         _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(m => m.FindByEmailAsync(request.Email)).ReturnsAsync((User?)null);
@@ -86,7 +85,7 @@ public class UpdateUserTests
         // Arrange
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
-        var request = new UpdateUser.Request { Id = userId, Email = "existing@example.com" };
+        var request = new UpdateUser.Request { Email = "existing@example.com" };
 
         var user = new User { Id = userId };
         var otherUser = new User { Id = Guid.NewGuid(), Email = "existing@example.com" };
@@ -108,7 +107,7 @@ public class UpdateUserTests
         // Arrange
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
-        var request = new UpdateUser.Request { Id = userId, UserName = "existinguser" };
+        var request = new UpdateUser.Request { UserName = "existinguser" };
 
         var user = new User { Id = userId };
         var otherUser = new User { Id = Guid.NewGuid(), UserName = "existinguser" };
@@ -131,7 +130,7 @@ public class UpdateUserTests
         // Arrange
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
-        var request = new UpdateUser.Request { Id = userId };
+        var request = new UpdateUser.Request();
         _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync((User?)null);
 
         // Act
@@ -148,7 +147,7 @@ public class UpdateUserTests
         // Arrange
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
-        var request = new UpdateUser.Request { Id = userId };
+        var request = new UpdateUser.Request();
         var user = new User { Id = userId };
 
         _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
@@ -168,7 +167,7 @@ public class UpdateUserTests
         // Arrange
         var handler = CreateCommandHandler();
         var userId = Guid.NewGuid();
-        var request = new UpdateUser.Request { Id = userId, Email = "new@test.com" };
+        var request = new UpdateUser.Request { Email = "new@test.com" };
         var user = new User { Id = userId };
 
         _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync(user);

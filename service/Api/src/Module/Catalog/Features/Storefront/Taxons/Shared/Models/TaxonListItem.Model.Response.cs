@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 namespace Module.Catalog.Features.Storefront.Taxons.Shared.Models;
 

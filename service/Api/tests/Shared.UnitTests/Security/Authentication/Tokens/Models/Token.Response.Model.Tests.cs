@@ -42,8 +42,8 @@ public sealed class TokenResponseModelTests
         Guid id = Guid.NewGuid();
         string token = "refresh-token-value";
         Guid userId = Guid.NewGuid();
-        DateTime createdAt = DateTime.UtcNow.AddDays(-1);
-        DateTime expiresAt = DateTime.UtcNow.AddDays(7);
+        DateTimeOffset createdAt = DateTime.UtcNow.AddDays(-1);
+        DateTimeOffset expiresAt = DateTime.UtcNow.AddDays(7);
         DateTime? revokedAt = null;
         string? revokedReason = null;
         string? replacedByToken = null;
@@ -107,7 +107,7 @@ public sealed class TokenResponseModelTests
         // Arrange
         Guid id = Guid.NewGuid();
         Guid userId = Guid.NewGuid();
-        DateTime now = DateTime.UtcNow;
+        DateTimeOffset now = DateTime.UtcNow;
 
         RefreshTokenResponseModel model1 = new()
         {

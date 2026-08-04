@@ -30,7 +30,7 @@ public static partial class CreateOrderFromCart
         INotificationService notificationService)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>TTL in minutes for stock reservations. Set to 30 days by default. Overridable in tests.</summary>
+        /// <summary>TTL in minutes for stock reservations. Set to 30 minutes by default. Overridable in tests.</summary>
         internal int StockReservationExpiryMinutes { get; init; } = 30;
         /// <summary>Validates checkout prerequisites, verifies payment, deducts stock, reserves inventory, places the order, publishes an event, and sends a notification.</summary>
         /// <param name="command">The command containing checkout request with optional payment intent ID.</param>

@@ -119,6 +119,18 @@ public static partial class DatabaseInitializer
         public static partial void LogSchemasDropped(ILogger logger);
 
         [LoggerMessage(
+            EventId = 270,
+            Level = LogLevel.Information,
+            Message = "Ensuring pgvector extension exists...")]
+        public static partial void LogVectorExtensionEnsured(ILogger logger);
+
+        [LoggerMessage(
+            EventId = 271,
+            Level = LogLevel.Warning,
+            Message = "Failed to ensure pgvector extension: {Message}")]
+        public static partial void LogVectorExtensionFailed(ILogger logger, string message);
+
+        [LoggerMessage(
             EventId = 265,
             Level = LogLevel.Information,
             Message = "Migrations skipped (runMigrations=false).")]

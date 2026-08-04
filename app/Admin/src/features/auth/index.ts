@@ -1,5 +1,10 @@
-export { useAuthStore } from './store/auth.store'
-export { authService } from './api/auth.api'
-export { createLoginSchema } from './schemas/login.schema'
-export type { LoginParameters } from './schemas/login.schema'
-export type { LoginRequest } from './types/login.request.type'
+// Feature: auth
+// Barrel re-exports
+export * from './components'
+export * from './composables'
+export * from './routes'
+export * from './stores'
+export * from './types'
+export * from './validations'
+export * from './services'
+export * from './views'

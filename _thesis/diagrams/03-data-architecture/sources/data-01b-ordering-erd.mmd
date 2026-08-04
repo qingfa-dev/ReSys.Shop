@@ -1,0 +1,59 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '20px', 'fontFamily': 'arial'}}}%%
+erDiagram
+    orders {
+        uuid id PK
+        string number
+        enum state
+        bigint total_cents
+        string user_id FK
+        uuid ship_address_id FK
+        uuid bill_address_id FK
+        timestamp created_at
+    }
+    
+    line_items {
+        uuid id PK
+        uuid order_id FK
+        uuid variant_id FK
+        int quantity
+        bigint price_cents
+    }
+    
+    payments {
+        uuid id PK
+        uuid order_id FK
+        bigint amount_cents
+        enum state
+    }
+    
+    shipments {
+        uuid id PK
+        uuid order_id FK
+        string tracking_number
+        enum state
+    }
+    
+    inventory_units {
+        uuid id PK
+        uuid variant_id FK
+        uuid line_item_id FK
+        uuid stock_item_id FK
+        uuid order_id FK
+        uuid shipment_id FK
+        enum state
+    }
+    
+    order_histories {
+        uuid id PK
+        uuid order_id FK
+        string event
+        timestamp occurred_at
+    }
+
+    orders ||--o{ line_items : "contains"
+    orders ||--o{ payments : "has"
+    orders ||--o{ shipments : "has"
+    orders ||--o{ inventory_units : "reserves"
+    orders ||--o{ order_histories : "tracks"
+    shipments ||--o{ inventory_units : "includes"
+    line_items ||--o{ inventory_units : "fulfilled_by"

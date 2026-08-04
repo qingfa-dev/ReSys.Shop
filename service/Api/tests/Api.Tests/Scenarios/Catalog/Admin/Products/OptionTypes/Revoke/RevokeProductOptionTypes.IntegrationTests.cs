@@ -43,19 +43,21 @@ public sealed class RevokeProductOptionTypesIntegrationTests(ApiFixture fixture)
 
         var assignRequest = new
         {
+            productId = product!.Id,
             items = new[] { new { optionTypeId = optionType!.Id, position = 0 } }
         };
         HttpResponseMessage assignResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/option-types/assign", assignRequest);
+            "/api/catalog/product-option-types/assign", assignRequest);
         assignResponse.IsSuccessStatusCode.Should().BeTrue();
 
         var revokeRequest = new
         {
+            productId = product.Id,
             items = new[] { new { optionTypeId = optionType.Id, position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product.Id}/option-types/revoke", revokeRequest);
+            "/api/catalog/product-option-types/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -68,11 +70,12 @@ public sealed class RevokeProductOptionTypesIntegrationTests(ApiFixture fixture)
         Guid nonexistentId = Guid.NewGuid();
         var revokeRequest = new
         {
+            productId = nonexistentId,
             items = new[] { new { optionTypeId = Guid.NewGuid(), position = 0 } }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{nonexistentId}/option-types/revoke", revokeRequest);
+            "/api/catalog/product-option-types/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

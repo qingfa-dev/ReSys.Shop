@@ -25,7 +25,7 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -35,16 +35,17 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
 
         var setPriceRequest = new
         {
+            variantId = variant!.Id,
             amount = 24.99m,
             currency = "USD"
         };
 
         HttpResponseMessage setResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}/prices", setPriceRequest);
+            "/api/catalog/variant-prices", setPriceRequest);
         setResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{variant.Id}/prices");
+            $"/api/catalog/variant-prices?variantId={variant.Id}");
         var result = await response.ReadAsPagedResultAsync<PriceResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -79,7 +80,7 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -88,7 +89,7 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
         variant.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}/prices");
+            $"/api/catalog/variant-prices?variantId={variant!.Id}");
         var result = await response.ReadAsPagedResultAsync<PriceResponse>();
 
         result.IsSuccess.Should().BeTrue();

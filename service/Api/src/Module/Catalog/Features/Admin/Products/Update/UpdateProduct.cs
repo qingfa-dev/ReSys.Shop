@@ -62,17 +62,8 @@ public static partial class UpdateProduct
             {
                 var variantRequest = new UpdateVariant.Request
                 {
-                    Sku = request.Sku ?? $"{entity.Slug}-master",
-                    TrackInventory = request.TrackInventory ?? masterVariant.TrackInventory,
-                    Price = request.Price ?? masterVariant.Price,
-                    CostPrice = request.CostPrice ?? masterVariant.CostPrice,
-                    CostCurrency = request.CostCurrency ?? masterVariant.CostCurrency,
-                    Weight = request.Weight ?? masterVariant.Weight,
-                    WeightUnit = request.WeightUnit ?? masterVariant.WeightUnit?.ToString(),
-                    Height = request.Height ?? masterVariant.Height,
-                    Width = request.Width ?? masterVariant.Width,
-                    Depth = request.Depth ?? masterVariant.Depth,
-                    DimensionsUnit = request.DimensionsUnit ?? masterVariant.DimensionsUnit?.ToString(),
+                    Sku = $"{entity.Slug}-master",
+                    TrackInventory = masterVariant.TrackInventory,
                 };
 
                 var variantResult = await sender.Send(

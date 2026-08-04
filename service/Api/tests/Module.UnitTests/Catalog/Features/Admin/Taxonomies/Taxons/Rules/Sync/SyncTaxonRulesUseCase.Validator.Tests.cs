@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
+using Module.Catalog.Features.Admin.Taxons.Rules.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
 
@@ -13,7 +13,7 @@ public class SyncTaxonRulesValidatorTests
     [Fact(DisplayName = "Validator: Should pass for valid request with rules")]
     public void Validator_ShouldPass_WhenValid()
     {
-        var command = new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request
+        var command = new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request
         {
             Rules =
             [
@@ -34,7 +34,7 @@ public class SyncTaxonRulesValidatorTests
     [Fact(DisplayName = "Validator: Should fail when Rules is null")]
     public void Validator_ShouldFail_WhenRulesNull()
     {
-        var command = new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request
+        var command = new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request
         {
             Rules = null!
         });
@@ -47,7 +47,7 @@ public class SyncTaxonRulesValidatorTests
     [Fact(DisplayName = "Validator: Should pass for empty Rules list")]
     public void Validator_ShouldPass_WhenRulesEmpty()
     {
-        var command = new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request
+        var command = new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request
         {
             Rules = []
         });
@@ -63,7 +63,7 @@ public class SyncTaxonRulesValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenTypeInvalid(string? type)
     {
-        var command = new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request
+        var command = new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request
         {
             Rules =
             [
@@ -87,7 +87,7 @@ public class SyncTaxonRulesValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenMatchPolicyInvalid(string? policy)
     {
-        var command = new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request
+        var command = new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request
         {
             Rules =
             [
@@ -111,7 +111,7 @@ public class SyncTaxonRulesValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenValueInvalid(string? value)
     {
-        var command = new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request
+        var command = new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request
         {
             Rules =
             [
@@ -134,7 +134,7 @@ public class SyncTaxonRulesValidatorTests
     {
         var longValue = new string('a', TaxonRuleConstant.Constraints.ValueMaxLength + 1);
 
-        var command = new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request
+        var command = new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request
         {
             Rules =
             [

@@ -1,0 +1,44 @@
+sequenceDiagram
+    actor User
+    participant Frontend as Vue.js Frontend
+    participant API as .NET API<br/>(Carter + MediatR)
+    participant ML as Python ML Service<br/>(FastAPI)
+    participant DB as PostgreSQL<br/>+ pgvector
+    
+    User->>Frontend: Upload search image
+    activate Frontend
+    Frontend->>Frontend: Validate image<br/>(size, format)
+    
+    Frontend->>API: POST /api/search/visual<br/>{image: base64}
+    activate API
+    
+    API->>API: Validate request
+    API->>ML: gRPC: GenerateEmbedding(image)
+    activate ML
+    
+    ML->>ML: Load Fashion-CLIP<br/>(lazy loading)
+    ML->>ML: Preprocess image<br/>(resize 224×224, normalize)
+    ML->>ML: Forward pass through<br/>ViT-B/16 encoder
+    ML->>ML: Extract 512-dim vector
+    
+    ML-->>API: EmbeddingResult<br/>{vector: float[], time: 67.7ms}
+    deactivate ML
+    
+    API->>DB: SELECT id, name, price, image_url<br/>FROM products p<br/>JOIN image_embeddings e<br/>ON p.id = e.product_id<br/>WHERE e.model = 'fashion-clip'<br/>ORDER BY e.vector <=> $1<br/>LIMIT 10
+    activate DB
+    
+    DB->>DB: HNSW index search<br/>(m=16, ef_search=40)
+    DB->>DB: Calculate cosine distances
+    
+    DB-->>API: Top 10 products<br/>{id, name, price, similarity}
+    deactivate DB
+    
+    API->>API: Map to DTOs
+    API-->>Frontend: SearchResults<br/>{products: [], totalTime: 280ms}
+    deactivate API
+    
+    Frontend->>Frontend: Render product grid
+    Frontend-->>User: Display 10 similar products
+    deactivate Frontend
+    
+    Note over User,DB: Total latency: ~280ms<br/>Embedding: 67.7ms | DB Query: <10ms | Network: ~200ms

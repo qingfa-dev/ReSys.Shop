@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
+using Module.Catalog.Features.Admin.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Update;
 using Module.Catalog.Features.Admin.Taxonomies.Update;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Update;
@@ -159,12 +159,11 @@ public class UpdateTaxonomyTests : IDisposable
             It.IsAny<CancellationToken>()), Times.Never);
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RestoreTaxon.Command>(c => c.TaxonomyId == entity.Id && c.Id == root.Id),
+            It.Is<RestoreTaxon.Command>(c => c.Id == root.Id),
             It.IsAny<CancellationToken>()), Times.Once);
 
         _senderMock.Verify(x => x.Send(
             It.Is<UpdateTaxon.Command>(c =>
-                c.TaxonomyId == entity.Id &&
                 c.Request.Name == "updated" &&
                 c.Request.Presentation == "Updated Display" &&
                 c.Request.Slug == "updated"),
@@ -205,7 +204,6 @@ public class UpdateTaxonomyTests : IDisposable
 
         _senderMock.Verify(x => x.Send(
             It.Is<UpdateTaxon.Command>(c =>
-                c.TaxonomyId == entity.Id &&
                 c.Request.Name == "updated" &&
                 c.Request.Presentation == "Updated" &&
                 c.Request.Slug == "updated"),

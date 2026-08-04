@@ -1,0 +1,6 @@
+export { StockLocationApi } from './stock-location.api'
+export { StockItemApi } from './stock-item.api'
+export { StockTransferApi } from './stock-transfer.api'
+export { StockReservationApi } from './stock-reservation.api'
+export { StockMovementApi } from './stock-movement.api'
+export { InventoryDashboardApi } from './inventory-dashboard.api'

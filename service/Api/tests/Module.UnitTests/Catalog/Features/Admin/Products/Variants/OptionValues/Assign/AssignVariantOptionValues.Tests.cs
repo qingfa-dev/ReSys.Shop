@@ -1,6 +1,8 @@
+using Module.Catalog.Domain.OptionTypes;
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Options;
-using Module.Catalog.Features.Admin.Products.Variants.OptionValues.Assign;
+using Module.Catalog.Features.Admin.Products.Variants.Values.Assign;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.OptionValues.Assign;
 
@@ -77,8 +79,58 @@ public class AssignVariantOptionValuesTests : IDisposable
         var request = new AssignVariantOptionValues.Request { OptionValueIds = [Guid.NewGuid()] };
 
         var result = await _handler.Handle(new AssignVariantOptionValues.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
-
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(VariantResult.Errors.NotFound(Guid.Empty).Code);
+    }
+
+    [Fact(DisplayName = "Handler: Should reject two option values from the same option type")]
+    public async Task Handle_ShouldRejectMultipleValuesPerOptionType()
+    {
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var optionType = new OptionType { Name = "Size", Presentation = "Size" };
+        var optionValueA = new OptionValue { Name = "S", Presentation = "S", OptionTypeId = optionType.Id };
+        var optionValueB = new OptionValue { Name = "L", Presentation = "L", OptionTypeId = optionType.Id };
+        _dbContext.Set<Variant>().Add(variant);
+        _dbContext.Set<OptionType>().Add(optionType);
+        _dbContext.Set<OptionValue>().AddRange(optionValueA, optionValueB);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new AssignVariantOptionValues.Request
+        {
+            OptionValueIds = [optionValueA.Id, optionValueB.Id]
+        };
+
+        var result = await _handler.Handle(new AssignVariantOptionValues.Command(variant.Id, request), TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be(OptionValueVariantResult.Errors.MultipleValuesPerOptionType.Code);
+    }
+
+    [Fact(DisplayName = "Handler: Should allow one value per option type from different types")]
+    public async Task Handle_ShouldAllowOneValuePerDistinctOptionType()
+    {
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var sizeType = new OptionType { Name = "Size", Presentation = "Size" };
+        var colorType = new OptionType { Name = "Color", Presentation = "Color" };
+        var sizeValue = new OptionValue { Name = "L", Presentation = "L", OptionTypeId = sizeType.Id };
+        var colorValue = new OptionValue { Name = "Red", Presentation = "Red", OptionTypeId = colorType.Id };
+        _dbContext.Set<Variant>().Add(variant);
+        _dbContext.Set<OptionType>().AddRange(sizeType, colorType);
+        _dbContext.Set<OptionValue>().AddRange(sizeValue, colorValue);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new AssignVariantOptionValues.Request
+        {
+            OptionValueIds = [sizeValue.Id, colorValue.Id]
+        };
+
+        var result = await _handler.Handle(new AssignVariantOptionValues.Command(variant.Id, request), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+
+        var junctions = await _dbContext.Set<OptionValueVariant>()
+            .Where(x => x.VariantId == variant.Id)
+            .ToListAsync(TestContext.Current.CancellationToken);
+        junctions.Should().HaveCount(2);
     }
 }

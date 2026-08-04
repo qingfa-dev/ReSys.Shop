@@ -1,5 +1,13 @@
 namespace Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
+public enum EmbeddingStatus
+{
+    Pending,
+    Processing,
+    Completed,
+    Failed
+}
+
 public static class ImageEmbeddingConstant
 {
     public static class Constraints

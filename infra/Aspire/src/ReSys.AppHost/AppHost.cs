@@ -38,7 +38,7 @@ builder.AddViteApp(Application.Admin, "../../../../app/Admin")
 #pragma warning restore ASPIRECERTIFICATES001
 
 #pragma warning disable ASPIRECERTIFICATES001
-builder.AddViteApp(Application.Store, "../../../../app/Store")
+builder.AddViteApp(Application.Store, "../../../../app/Storefront")
     .WithPnpm()
     .WithReference(api)
     .WithHttpsEndpoint(port: 5174, env: "PORT")

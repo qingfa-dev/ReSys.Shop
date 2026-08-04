@@ -44,6 +44,18 @@ public static partial class UpdateVariantImage
                 ? parsedType
                 : image.Type;
 
+            // Demote: Enforce one Default and one Search per variant; demote the prior holder
+            if (imageType is VariantImageType.Default or VariantImageType.Search && image.VariantId.HasValue)
+            {
+                var siblings = await dbContext.Set<VariantImage>()
+                    .Where(x => x.VariantId == image.VariantId && x.Id != image.Id && x.Type == imageType)
+                    .ToListAsync(cancellationToken);
+                foreach (var sibling in siblings)
+                {
+                    sibling.Type = VariantImageType.Thumbnail;
+                }
+            }
+
             // Update: Apply alt text, position, and type changes to the entity
             var updateResult = image.UpdateDetails(
                 position: request.Position,

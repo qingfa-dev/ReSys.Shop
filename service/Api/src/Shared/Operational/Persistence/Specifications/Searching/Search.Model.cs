@@ -127,7 +127,11 @@ public sealed partial class SearchModel
     /// <c>[Entity]Constant.Query.SearchableFields</c>.
     /// </param>
     public IReadOnlyList<string> ResolveFields(IReadOnlyList<string> defaultFields)
-        => Fields.Count > 0 ? Fields : defaultFields;
+    {
+        if (Fields.Count > 0) return Fields;
+        if (defaultFields.Count > 0) return defaultFields;
+        return AllowedFields?.ToList().AsReadOnly() ?? [];
+    }
 
     #endregion Derived Views
 

@@ -100,4 +100,56 @@ public class UpdateVariantImageTests : IDisposable
         result.Value.Alt.Should().Be("Original alt");
         result.Value.Type.Should().Be("Default");
     }
+
+    [Fact(DisplayName = "Handler: Should demote the prior Default image when setting a new Default")]
+    public async Task Handle_ShouldDemotePriorDefault_WhenSettingNewDefault()
+    {
+        var variantId = Guid.NewGuid();
+        var existing = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
+            url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
+            position: 0, type: VariantImageType.Default, variantId: variantId).Value;
+        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "new.jpg", 1024,
+            url: "https://cdn.test.com/new.jpg", storagePath: "u/new.jpg",
+            position: 1, type: VariantImageType.Gallery, variantId: variantId).Value;
+        _dbContext.Set<VariantImage>().AddRange(existing, image);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new UpdateVariantImage.Request { Type = "Default" };
+        var result = await _handler.Handle(
+            new UpdateVariantImage.Command(image.Id, request),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Type.Should().Be("Default");
+
+        var demoted = await _dbContext.Set<VariantImage>()
+            .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);
+        demoted.Type.Should().Be(VariantImageType.Thumbnail);
+    }
+
+    [Fact(DisplayName = "Handler: Should demote the prior Search image when setting a new Search")]
+    public async Task Handle_ShouldDemotePriorSearch_WhenSettingNewSearch()
+    {
+        var variantId = Guid.NewGuid();
+        var existing = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
+            url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
+            position: 0, type: VariantImageType.Search, variantId: variantId).Value;
+        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "new.jpg", 1024,
+            url: "https://cdn.test.com/new.jpg", storagePath: "u/new.jpg",
+            position: 1, type: VariantImageType.Gallery, variantId: variantId).Value;
+        _dbContext.Set<VariantImage>().AddRange(existing, image);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new UpdateVariantImage.Request { Type = "Search" };
+        var result = await _handler.Handle(
+            new UpdateVariantImage.Command(image.Id, request),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Type.Should().Be("Search");
+
+        var demoted = await _dbContext.Set<VariantImage>()
+            .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);
+        demoted.Type.Should().Be(VariantImageType.Thumbnail);
+    }
 }

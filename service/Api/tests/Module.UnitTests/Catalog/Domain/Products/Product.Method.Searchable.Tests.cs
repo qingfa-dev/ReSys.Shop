@@ -11,7 +11,7 @@ public class ProductMethodSearchableTests
     [Fact(DisplayName = "SearchIndexText: Should combine name, description, slug")]
     public void SearchIndexText_ShouldCombineFields()
     {
-        var product = ProductMethod.Create("Product Name", "product-slug", description: "Product description").Value;
+        var product = ProductMethod.Create(name: "Product Name", slug: "product-slug", description: "Product description").Value;
 
         var result = product.SearchIndexText();
 
@@ -21,7 +21,7 @@ public class ProductMethodSearchableTests
     [Fact(DisplayName = "SearchIndexText: Should include meta keywords and description when present")]
     public void SearchIndexText_WithMetaFields_ShouldIncludeThem()
     {
-        var product = ProductMethod.Create("Product", "product-slug", description: "desc", metaKeywords: "keyword1 keyword2", metaDescription: "meta desc").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product-slug", description: "desc", metaKeywords: "keyword1 keyword2", metaDescription: "meta desc").Value;
 
         var result = product.SearchIndexText();
 
@@ -32,7 +32,7 @@ public class ProductMethodSearchableTests
     [Fact(DisplayName = "SearchTokens: Should produce distinct lowercase tokens")]
     public void SearchTokens_ShouldProduceDistinctLowerTokens()
     {
-        var product = ProductMethod.Create("Hello World", "hello-world", description: "Hello World").Value;
+        var product = ProductMethod.Create(name: "Hello World", slug: "hello-world", description: "Hello World").Value;
 
         var result = product.SearchTokens();
 
@@ -44,7 +44,7 @@ public class ProductMethodSearchableTests
     [Fact(DisplayName = "MatchesSearchQuery: Should return true when query matches name")]
     public void MatchesSearchQuery_WhenMatchesName_ShouldReturnTrue()
     {
-        var product = ProductMethod.Create("Blue T-Shirt", "blue-t-shirt", description: "A blue shirt").Value;
+        var product = ProductMethod.Create(name: "Blue T-Shirt", slug: "blue-t-shirt", description: "A blue shirt").Value;
 
         var result = product.MatchesSearchQuery("blue");
 
@@ -54,7 +54,7 @@ public class ProductMethodSearchableTests
     [Fact(DisplayName = "MatchesSearchQuery: Should return true when query is empty")]
     public void MatchesSearchQuery_WhenEmpty_ShouldReturnTrue()
     {
-        var product = ProductMethod.Create("Product", "product").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product").Value;
 
         var result = product.MatchesSearchQuery("");
 

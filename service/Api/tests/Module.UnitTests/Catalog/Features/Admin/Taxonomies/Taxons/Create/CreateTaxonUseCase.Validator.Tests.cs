@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Create;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Create;
 
@@ -12,11 +12,12 @@ public class CreateTaxonValidatorTests
     [Fact(DisplayName = "Validator: Should pass for valid request")]
     public void Validator_ShouldPass_WhenValid()
     {
-        var command = new CreateTaxon.Command(Guid.NewGuid(), new CreateTaxon.Request
+        var command = new CreateTaxon.Command(new CreateTaxon.Request
         {
             Name = "Shirts",
             Slug = "shirts",
-            Position = 0
+            Position = 0,
+            TaxonomyId = Guid.NewGuid(),
         });
 
         var result = _validator.TestValidate(command);
@@ -30,10 +31,11 @@ public class CreateTaxonValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenNameInvalid(string? name)
     {
-        var command = new CreateTaxon.Command(Guid.NewGuid(), new CreateTaxon.Request 
+        var command = new CreateTaxon.Command(new CreateTaxon.Request 
         { 
             Name = name!,
-            Slug = "shirts"
+            Slug = "shirts",
+            TaxonomyId = Guid.NewGuid(),
         });
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor("Request.Name");
@@ -47,10 +49,11 @@ public class CreateTaxonValidatorTests
     [InlineData("Uppercase")]
     public void Validator_ShouldFail_WhenSlugInvalid(string slug)
     {
-        var command = new CreateTaxon.Command(Guid.NewGuid(), new CreateTaxon.Request 
+        var command = new CreateTaxon.Command( new CreateTaxon.Request 
         { 
             Name = "Shirts",
-            Slug = slug 
+            Slug = slug,
+            TaxonomyId = Guid.NewGuid(),
         });
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor("Request.Slug");
@@ -59,8 +62,8 @@ public class CreateTaxonValidatorTests
     [Fact(DisplayName = "Validator: Should fail when TaxonomyId is empty")]
     public void Validator_ShouldFail_WhenTaxonomyIdEmpty()
     {
-        var command = new CreateTaxon.Command(Guid.Empty, new CreateTaxon.Request());
+        var command = new CreateTaxon.Command(new CreateTaxon.Request());
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.TaxonomyId);
+        result.ShouldHaveValidationErrorFor(x => x.Request.TaxonomyId);
     }
 }

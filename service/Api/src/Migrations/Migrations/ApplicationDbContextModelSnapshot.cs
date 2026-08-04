@@ -358,9 +358,21 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at_utc");
+
                     b.Property<int>("Dimensions")
                         .HasColumnType("integer")
                         .HasColumnName("dimensions");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<string>("HangfireJobId")
+                        .HasColumnType("text")
+                        .HasColumnName("hangfire_job_id");
 
                     b.Property<string>("ModelName")
                         .IsRequired()
@@ -374,13 +386,19 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("model_version");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Completed")
+                        .HasColumnName("status");
+
                     b.Property<Guid>("VariantImageId")
                         .HasColumnType("uuid")
                         .HasColumnName("variant_image_id");
 
                     b.Property<Vector>("Vector")
-                        .IsRequired()
-                        .HasColumnType("vector")
+                        .HasColumnType("vector(512)")
                         .HasColumnName("vector");
 
                     b.HasKey("Id")
@@ -388,6 +406,13 @@ namespace Api.Migrations.Migrations
 
                     b.HasIndex("VariantImageId")
                         .HasDatabaseName("ix_product_image_embeddings_variant_image_id");
+
+                    b.HasIndex("Vector")
+                        .HasDatabaseName("ix_product_image_embeddings_vector_ivfflat")
+                        .HasAnnotation("Npgsql:StorageParameter:lists", 100);
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Vector"), "ivfflat");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Vector"), new[] { "vector_cosine_ops" });
 
                     b.ToTable("product_image_embeddings", "catalog");
                 });
@@ -989,12 +1014,9 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("ParentId")
                         .HasDatabaseName("ix_taxa_parent_id");
 
-                    b.HasIndex("Slug")
+                    b.HasIndex("TaxonomyId", "Slug")
                         .IsUnique()
-                        .HasDatabaseName("ix_taxa_slug");
-
-                    b.HasIndex("TaxonomyId")
-                        .HasDatabaseName("ix_taxa_taxonomy_id");
+                        .HasDatabaseName("ix_taxa_taxonomy_slug");
 
                     b.ToTable("taxa", "catalog");
                 });
@@ -2010,6 +2032,11 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("payment_status");
 
+                    b.PrimitiveCollection<string>("ProcessedStripeEventIds")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("processed_stripe_event_ids");
+
                     b.Property<string>("ProviderKey")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -2025,6 +2052,12 @@ namespace Api.Migrations.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("response_code");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<Guid?>("SourceId")
                         .HasColumnType("uuid")
@@ -2053,7 +2086,7 @@ namespace Api.Migrations.Migrations
 
                     b.HasIndex("ResponseCode")
                         .HasDatabaseName("ix_payment_captures_response_code")
-                        .HasFilter("\"response_code\" IS NOT NULL");
+                        .HasFilter("response_code IS NOT NULL");
 
                     b.ToTable("payment_captures", "payment");
                 });

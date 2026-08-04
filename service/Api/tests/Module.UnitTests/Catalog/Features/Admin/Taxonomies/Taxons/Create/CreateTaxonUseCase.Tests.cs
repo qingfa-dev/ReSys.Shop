@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Create;
 
@@ -11,9 +11,7 @@ namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Create;
 public class CreateTaxonTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ITaxonHierarchyService> _hierarchyServiceMock;
-    private readonly Mock<ILogger<CreateTaxon.CommandHandler>> _loggerMock;
     private readonly CreateTaxon.CommandHandler _handler;
 
     public CreateTaxonTests()
@@ -25,16 +23,16 @@ public class CreateTaxonTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Taxon).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _currentUserMock = new Mock<ICurrentUser>();
-        _currentUserMock.Setup(x => x.UserName).Returns("admin");
+        Mock<ICurrentUser> currentUserMock = new();
+        currentUserMock.Setup(x => x.UserName).Returns("admin");
 
         _hierarchyServiceMock = new Mock<ITaxonHierarchyService>();
         _hierarchyServiceMock.Setup(x => x.RebuildHierarchyAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
-        _loggerMock = new Mock<ILogger<CreateTaxon.CommandHandler>>();
+        Mock<ILogger<CreateTaxon.CommandHandler>> loggerMock = new();
 
-        _handler = new CreateTaxon.CommandHandler(_dbContext, _hierarchyServiceMock.Object, _loggerMock.Object);
+        _handler = new CreateTaxon.CommandHandler(_dbContext, _hierarchyServiceMock.Object, loggerMock.Object);
     }
 
     public void Dispose()
@@ -54,10 +52,11 @@ public class CreateTaxonTests : IDisposable
         {
             Name = "Shirts",
             Slug = "shirts",
-            Position = 0
+            Position = 0,
+            TaxonomyId = taxonomy.Id,
         };
 
-        var result = await _handler.Handle(new CreateTaxon.Command(taxonomy.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateTaxon.Command(request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be("shirts");
@@ -72,7 +71,7 @@ public class CreateTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonomyNotFound()
     {
-        var result = await _handler.Handle(new CreateTaxon.Command(Guid.NewGuid(), new CreateTaxon.Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateTaxon.Command(new CreateTaxon.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonomyResult.Errors.NotFound.Code);
@@ -90,10 +89,11 @@ public class CreateTaxonTests : IDisposable
         var request = new CreateTaxon.Request
         {
             Name = "Shirts",
-            ParentId = Guid.NewGuid()
+            ParentId = Guid.NewGuid(),
+            TaxonomyId = taxonomy.Id,
         };
 
-        var result = await _handler.Handle(new CreateTaxon.Command(taxonomy.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateTaxon.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.InvalidParent.Code);
@@ -113,10 +113,11 @@ public class CreateTaxonTests : IDisposable
         var request = new CreateTaxon.Request
         {
             Name = "Shirts",
-            ParentId = otherRoot.Id
+            ParentId = otherRoot.Id,
+            TaxonomyId = taxonomy.Id,
         };
 
-        var result = await _handler.Handle(new CreateTaxon.Command(taxonomy.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateTaxon.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.ParentTaxonomyMismatch.Code);
@@ -136,10 +137,11 @@ public class CreateTaxonTests : IDisposable
         var request = new CreateTaxon.Request
         {
             Name = "Shirts",
-            ParentId = parent.Id
+            ParentId = parent.Id,
+            TaxonomyId = taxonomy.Id,
         };
 
-        var result = await _handler.Handle(new CreateTaxon.Command(taxonomy.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateTaxon.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.DuplicateName.Code);
@@ -161,10 +163,11 @@ public class CreateTaxonTests : IDisposable
             Presentation = "T-Shirts",
             Slug = "t-shirts",
             ParentId = parent.Id,
-            Position = 1
+            Position = 1,
+            TaxonomyId = taxonomy.Id,
         };
 
-        var result = await _handler.Handle(new CreateTaxon.Command(taxonomy.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateTaxon.Command(request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 

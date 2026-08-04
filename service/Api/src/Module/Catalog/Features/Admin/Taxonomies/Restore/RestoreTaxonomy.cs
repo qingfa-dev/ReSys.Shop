@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Restore;
 
 namespace Module.Catalog.Features.Admin.Taxonomies.Restore;
 
@@ -48,13 +48,13 @@ public static partial class RestoreTaxonomy
                 .FirstOrDefaultAsync(x => x.TaxonomyId == entity.Id && x.ParentId == null, cancellationToken);
             if (rootTaxon != null)
             {
-                await sender.Send(new RestoreTaxon.Command(entity.Id, rootTaxon.Id), cancellationToken);
+                await sender.Send(new RestoreTaxon.Command(rootTaxon.Id), cancellationToken);
             }
 
             // Trigger: Cascade restore to all child taxons
             foreach (var taxon in entity.Taxons.Where(t => t.IsDeleted))
             {
-                await sender.Send(new RestoreTaxon.Command(entity.Id, taxon.Id), cancellationToken);
+                await sender.Send(new RestoreTaxon.Command(taxon.Id), cancellationToken);
             }
 
             return Result.Ok(TaxonomyResult.Success.Restored);

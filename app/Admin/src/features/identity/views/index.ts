@@ -1,0 +1,6 @@
+// Boundary: views barrel — re-export only; do not add view logic here
+export { default as UsersList } from './UsersList.vue'
+export { default as UserDetail } from './UserDetail.vue'
+export { default as RolesList } from './RolesList.vue'
+export { default as RoleDetail } from './RoleDetail.vue'
+export { default as PermissionsList } from './PermissionsList.vue'

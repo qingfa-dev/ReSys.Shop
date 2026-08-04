@@ -192,18 +192,6 @@ public class EntityModelConfigurationTests
 
             property.GetMaxLength().Should().Be(SluggableConstant.Constraints.MaxSlugLength);
         }
-
-        [Fact]
-        public void ShouldAddUniqueIndexOnSlug()
-        {
-            IModel model = BuildModelWithConfiguration([typeof(TestSluggableEntity)]);
-            IEntityType entityType = model.FindEntityType(typeof(TestSluggableEntity))!;
-
-            IReadOnlyIndex? index = entityType.GetIndexes()
-                .FirstOrDefault(i => i.IsUnique && i.Properties.Any(p => p.Name == nameof(ISluggable.Slug)));
-
-            index.Should().NotBeNull();
-        }
     }
 
     public class CombinedConfiguration
@@ -226,11 +214,6 @@ public class EntityModelConfigurationTests
 
             // SoftDeletable: query filter applied
             entityType.GetDeclaredQueryFilters().Should().NotBeEmpty();
-
-            // Sluggable: Slug has unique index
-            IReadOnlyIndex? slugIndex = entityType.GetIndexes()
-                .FirstOrDefault(i => i.IsUnique && i.Properties.Any(p => p.Name == nameof(ISluggable.Slug)));
-            slugIndex.Should().NotBeNull();
         }
     }
 }

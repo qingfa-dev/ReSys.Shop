@@ -1,0 +1,82 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0002: Multi-step Checkout Flow
+autonumber
+
+actor "Customer" as User <<Buyer>>
+participant "Storefront\n(Vue.js)" as Frontend <<UI Layer>>
+participant "API Gateway\n(.NET 10)" as API <<Orchestrator>>
+database "PostgreSQL\n(Core DB)" as DB <<Persistence>>
+participant "Payment\nGateway" as Stripe <<External Service>>
+queue "Message Bus\n(RabbitMQ)" as Bus <<Message Broker>>
+
+' ─── Step 1: Initiation ──────────────────────────────────────
+User -> Frontend: Click "Place Order"
+activate Frontend
+    Frontend -> API: POST /api/orders\n(CartId, AddressId, PaymentToken)
+    activate API
+        
+        ' ─── Step 2: Allocation (Deep Domain) ────────────────
+        API -> DB: Load Order & Units
+        activate DB
+        DB --> API: Order Aggregate
+        deactivate DB
+        
+        API -> DB: AllocateStock(Order)
+        activate DB
+            note right of DB
+                **Atomic Allocation**
+                (See SQ-0017)
+                1. Start Transaction
+                2. Reserve Stock (Pending)
+                3. Commit Transaction
+            end note
+        DB --> API: Allocation Success
+        deactivate DB
+        
+        ' ─── Step 3: Payment Processing ──────────────────────
+        ' Payment is OUTSIDE the DB Transaction to avoid blocking lines
+        API -> Stripe: Charge(Token, Amount)
+        activate Stripe
+        
+        alt Payment Success
+            Stripe --> API: PaymentSuccess(TxId)
+        else Payment Failed
+            Stripe --> API: Failure
+            activate DB
+            API -> DB: ReleaseStock(Order)
+            note right of DB
+                 **Compensating Transaction**
+                 Revert Pending Stock
+            end note
+            deactivate DB
+            API --> Frontend: Error("Payment Failed")
+            deactivate API
+            Frontend --> User: Show Error
+        end
+        deactivate Stripe
+        
+        ' ─── Step 4: Finalize Order ──────────────────────────
+        API -> DB: FinalizeOrder(Order)
+        activate DB
+            note right of DB
+                State -> Complete
+                InventoryUnits -> Committed
+            end note
+        DB --> API: Success
+        deactivate DB
+        
+        ' ─── Step 5: Async Notification ──────────────────────
+        API -> Bus: Publish(OrderCreatedEvent)
+        activate Bus
+            Bus --> API: Ack
+        deactivate Bus
+        
+        API --> Frontend: OrderConfirmation(OrderId)
+    deactivate API
+    
+    Frontend --> User: Show "Thank You" Page
+deactivate Frontend
+
+@enduml

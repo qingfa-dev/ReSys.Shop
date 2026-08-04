@@ -12,8 +12,7 @@ public static partial class DeleteUser
     /// <summary>
     /// Represents the command to delete an existing user.
     /// </summary>
-    /// <param name="Request">The request containing the identifier of the user to delete.</param>
-    public sealed record Command(Request Request) : ICommand;
+    public sealed record Command(Guid Id) : ICommand;
 
     /// <summary>
     /// Handles the <see cref="Command"/> to delete an existing user and their profile.
@@ -35,18 +34,18 @@ public static partial class DeleteUser
         /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the deletion.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            var request = command.Request;
+            var userId = command.Id;
 
             // Validate: Ensure the caller identity is valid before proceeding
             if (!Guid.TryParse(currentUser.UserId, out var currentUserId))
                 return UserResult.Failure.Unauthorized;
 
             // Guard: Prevent an admin from deleting their own account
-            if (request.Id == currentUserId)
+            if (userId == currentUserId)
                 return UserResult.Failure.SelfDelete;
 
             // Load: Retrieve the user to verify they exist before deletion
-            var user = await userManager.FindByIdAsync(request.Id.ToString());
+            var user = await userManager.FindByIdAsync(userId.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 

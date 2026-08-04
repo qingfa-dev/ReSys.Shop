@@ -38,7 +38,10 @@
              Condition="'@(ForbiddenRef)' != ''" />
   </Target>
 
-  <!-- 4. VERTICAL SLICE ISOLATION: Prevent modules from referencing each other -->
+  <!-- 4. VERTICAL SLICE ISOLATION: Prevent modules from referencing each other.
+       NOTE: This checks csproj ProjectReferences only. All 9 modules share one Module.csproj
+       assembly, so cross-module `using Module.X.Domain...` statements are NOT detected here.
+       Use `bash scripts/check-cross-module-refs.sh` to detect namespace-level violations. -->
   <Target Name="ValidateVerticalSliceIsolation"
           BeforeTargets="BeforeBuild;ResolveProjectReferences"
           Condition="true">

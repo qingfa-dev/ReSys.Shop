@@ -58,11 +58,12 @@ public static partial class CreateProduct
                 Sku = $"{product.Slug}-master",
                 IsMaster = true,
                 TrackInventory = request.TrackInventory,
+                ProductId = product.Id
             };
 
             // Call: Create master variant via AddVariant command — establishes master-variant link
             var addVariantResult = await sender.Send(
-                new AddVariant.Command(product.Id, variantRequest), cancellationToken);
+                new AddVariant.Command(variantRequest), cancellationToken);
 
             if (addVariantResult.IsFailure)
                 return addVariantResult.Errors;
