@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
 using Module.UnitTests.Identity.Fixtures;
 
+using Shared.Application.Contracts.Profile;
 using Shared.Security.Authentication.External.Models;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
@@ -63,8 +64,8 @@ public class ExternalAuthenticateProfileCreationTests
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(x => x.IpAddress).Returns("127.0.0.1");
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(x => x.Send(It.IsAny<Module.Profile.Features.Storefront.Profiles.Create.CreateProfile.Command>(), It.IsAny<CancellationToken>()))
+        var sender = new Mock<ISender>();
+        sender.Setup(x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("profile creation failed"));
 
         var handler = new ExternalAuthenticate.CommandHandler(
@@ -75,7 +76,7 @@ public class ExternalAuthenticateProfileCreationTests
             dateTime.Object,
             currentUser.Object,
             new Mock<ILogger<ExternalAuthenticate.CommandHandler>>().Object,
-            mediator.Object);
+            sender.Object);
 
         var result = await handler.Handle(
             new ExternalAuthenticate.Command(new ExternalAuthenticate.Request { Provider = "google", IdToken = "tok" }),

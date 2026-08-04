@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Profile.Domain;
-using Module.Profile.Features.Storefront.Profiles.Create;
-
+using Shared.Application.Contracts.Profile;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
@@ -27,7 +25,7 @@ public static partial class ExternalAuthenticate
         ISystemDateTime dateTime,
         ICurrentUser currentUser,
         ILogger<CommandHandler> logger,
-        IMediator mediator)
+        ISender sender)
         : ICommandHandler<Command, Response>
     {
         // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
@@ -159,26 +157,29 @@ public static partial class ExternalAuthenticate
         {
             try
             {
-                var profileResult = await mediator.Send(new CreateProfile.Command(user.Id, new CreateProfile.Request
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName ?? string.Empty,
-                    Email = user.Email!
-                }), cancellationToken);
+                var profileResult = await sender.Send(
+                    new CreateUserProfileCommand
+                    {
+                        UserId = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName ?? string.Empty,
+                        Email = user.Email!
+                    },
+                    cancellationToken);
 
                 if (profileResult.IsFailure)
                 {
-                    UserProfileLoggers.Management.ProfileCreationFailed(
+                    UserLoggers.Profiles.ProfileCreationFailed(
                         logger, user.Id, string.Join("; ", profileResult.Errors.Select(e => $"{e.Code}: {e.Message}")));
                     return Result.Failure(UserResult.Failure.ProfileCreationFailed);
                 }
 
-                UserProfileLoggers.Management.ProfileCreated(logger, user.Id, profileResult.Value.Id);
+                UserLoggers.Profiles.ProfileCreated(logger, user.Id, profileResult.Value.ProfileId);
                 return Result.Ok();
             }
             catch (Exception ex)
             {
-                UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, ex.Message);
+                UserLoggers.Profiles.ProfileCreationFailed(logger, user.Id, ex.Message);
                 return Result.Unexpected(
                     exception: ex,
                     errors: [UserResult.Failure.ProfileCreationFailed]);
