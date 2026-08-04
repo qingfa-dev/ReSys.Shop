@@ -100,6 +100,7 @@ async function onSubmit(event: FormSubmitEvent) {
     autoCapture: data.autoCapture,
   }
 
+  // Call: Create or update the payment method record.
   const result = isEdit.value
     ? await PaymentMethodApi.updatePaymentMethod(route.params.id as string, request)
     : await PaymentMethodApi.createPaymentMethod(request)
