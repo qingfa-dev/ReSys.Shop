@@ -16,7 +16,7 @@ import {
 } from '../types/profile'
 
 export class ProfileApi {
-  private static readonly BASE = `${PROFILE}/profiles`
+  private static readonly BASE = `${PROFILE}`
 
   static getProfiles(query: ProfileQuery): Promise<PagedResult<ProfileListItem>> {
     return getPaged<ProfileListItem>(`${ProfileApi.BASE}/all`, toProfileQueryParams(query), {
