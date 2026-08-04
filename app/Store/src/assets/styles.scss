@@ -1,5 +1,75 @@
-// Storefront Aura theme overrides — defined in Phase 7 polish
+// Storefront Aura theme overrides — Phase 7 design-token pass (§9.1 palette)
+//
+// Variable names verified against @primeuix/themes v3 (Aura preset). Aura emits
+// one CSS custom property per semantic token as `--p-{dotted-path→kebab}`,
+// e.g. semantic `primary.color` → `--p-primary-color`.
+//
+// The brief's literal `--p-surface-ground` / `--p-surface-card` are legacy
+// PrimeVue v4 tokens and do NOT exist in Aura 3 (the `surface` namespace is a
+// `0–950` scale only). They are mapped below to the real tokens/values the
+// components actually read (card → `--p-content-background`, page ground →
+// `body` background). See .superpowers/sdd/.../task-7.1-report.md for the full
+// mapping table.
+:root {
+  // --- §9.1 semantic tokens that exist verbatim in Aura 3 ---
+  --p-primary-color: #111827;          // §9.1 primary = gray-900
+  --p-text-color: #111827;             // §9.1 text = gray-900
+  --p-text-muted-color: #6b7280;       // §9.1 text-muted = gray-500
+  --p-content-border-color: #e5e7eb;   // §9.1 content-border = gray-200
+
+  // --- Primary hover/active states (button hover/active read these, not
+  //     --p-primary-color) — keeps the monochrome palette on interaction ---
+  --p-primary-hover-color: #374151;    // gray-700
+  --p-primary-active-color: #1f2937;   // gray-800
+  --p-primary-contrast-color: #ffffff; // white text on gray-900
+
+  // --- Primary scale → gray (outlined/text buttons, highlight, focus rings
+  //     read --p-primary-{50..950} directly) ---
+  --p-primary-50: #f9fafb;
+  --p-primary-100: #f3f4f6;
+  --p-primary-200: #e5e7eb;
+  --p-primary-300: #d1d5db;
+  --p-primary-400: #9ca3af;
+  --p-primary-500: #6b7280;
+  --p-primary-600: #4b5563;
+  --p-primary-700: #374151;
+  --p-primary-800: #1f2937;
+  --p-primary-900: #111827;
+  --p-primary-950: #030712;
+
+  // --- Surface scale → gray (Aura default is slate-tinted). Drives secondary
+  //     buttons, menus, form fields, overlays and hover backgrounds ---
+  --p-surface-0: #ffffff;
+  --p-surface-50: #f9fafb;             // §9.1 surface-ground = gray-50
+  --p-surface-100: #f3f4f6;
+  --p-surface-200: #e5e7eb;
+  --p-surface-300: #d1d5db;
+  --p-surface-400: #9ca3af;
+  --p-surface-500: #6b7280;
+  --p-surface-600: #4b5563;
+  --p-surface-700: #374151;
+  --p-surface-800: #1f2937;
+  --p-surface-900: #111827;
+  --p-surface-950: #030712;
+
+  // --- Card surface: Card reads --p-card-background → {content.background} ---
+  --p-content-background: #ffffff;      // §9.1 surface-card = white
+
+  // --- Legacy PrimeVue v4 aliases (kept so the brief's literal names resolve
+  //     for app code / documentation; harmless in Aura 3) ---
+  --p-surface-ground: #f9fafb;
+  --p-surface-card: #ffffff;
+}
+
+// Base typography + page ground. §9.1: Inter/system-ui stack, base 16px,
+// page background gray-50 (there is no Aura token that paints <body>).
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background: var(--p-surface-ground, #f9fafb);
+  color: var(--p-text-color, #111827);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
