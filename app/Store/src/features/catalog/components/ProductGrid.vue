@@ -8,7 +8,7 @@ defineProps<{
   loading: boolean
   error: string | null
 }>()
-const emit = defineEmits<{ addToCart: [id: string]; reload: [] }>()
+const emit = defineEmits<{ addToCart: [variantId: string]; reload: [] }>()
 </script>
 <template>
   <!-- Section: Product Grid -->

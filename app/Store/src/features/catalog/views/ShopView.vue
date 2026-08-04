@@ -3,7 +3,9 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useCatalogStore } from '../stores/catalogStore'
-import { getTaxonomyTree } from '../services/taxonApi'
+import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useNotify } from '@/shared/composables/useNotify'
+import { getTaxonomyTree, getTaxons, CATEGORIES_TAXONOMY_ID } from '../services/taxonApi'
 import { getOptionTypes } from '../services/optionTypeApi'
 import { ENDPOINTS } from '@/shared/constants/api'
 import ProductGrid from '../components/ProductGrid.vue'
@@ -15,6 +17,8 @@ import type { StoreOptionTypeResponse } from '../types/optionType'
 
 const route = useRoute()
 const catalog = useCatalogStore()
+const cart = useCartStore()
+const notify = useNotify()
 
 // Map: Build paged query URL from catalogStore filter state
 const query = usePagedQuery<StoreProductListItemResponse>(
@@ -52,6 +56,33 @@ const sortOptions = [
   { label: 'Price: High-Low', value: '-Variants.Prices.Amount' },
 ]
 
+// Load: Category taxonomy tree. The storefront has no taxonomy-list endpoint (only GetTree by
+// id), so we use the seeded Categories taxonomy id; if that fails, derive a taxonomy id from
+// the flat taxon list (each taxon carries its taxonomyId) as a fallback.
+async function loadCategoryTree(): Promise<StoreTaxonomyTreeResponse | null> {
+  const treeResult = await getTaxonomyTree(CATEGORIES_TAXONOMY_ID)
+  if (treeResult.isSuccess) return treeResult.value
+
+  const taxonsResult = await getTaxons({ pageNumber: 1, pageSize: 1 })
+  const fallbackId = taxonsResult.isSuccess ? taxonsResult.items[0]?.taxonomyId : undefined
+  if (fallbackId) {
+    const retry = await getTaxonomyTree(fallbackId)
+    if (retry.isSuccess) return retry.value
+  }
+  return null
+}
+
+// Trigger: Quick-add the master variant of a product card to the cart.
+async function quickAdd(variantId: string): Promise<void> {
+  if (!variantId) {
+    notify.warn('Unavailable', 'This product has no purchasable variant')
+    return
+  }
+  const ok = await cart.addItem(variantId, 1)
+  if (ok) notify.success('Added to cart')
+  else notify.error('Could not add', cart.error ?? undefined)
+}
+
 // Trigger: Load taxonomy, option filters, and initial products on mount
 onMounted(async () => {
   // Sync: Initialize search query from the URL
@@ -59,12 +90,12 @@ onMounted(async () => {
   if (typeof searchParam === 'string') catalog.setSearch(searchParam)
 
   // Load: Fetch taxonomy tree and option types in parallel
-  const [treeResult, otResult] = await Promise.all([
-    getTaxonomyTree('00000000-0000-0000-0000-000000000001'), // TODO: wire real taxonomy id
+  const [tree, otResult] = await Promise.all([
+    loadCategoryTree(),
     getOptionTypes({ pageNumber: 1, pageSize: 50 }),
   ])
-  if (treeResult.isSuccess) taxonomyTree.value = treeResult.value
-  else treeError.value = treeResult.message ?? 'Categories are unavailable.'
+  if (tree) taxonomyTree.value = tree
+  else treeError.value = 'Categories are unavailable.'
   if (otResult.isSuccess) optionTypes.value = otResult.items
   treeLoading.value = false
   filtersLoading.value = false
@@ -128,7 +159,7 @@ watch(() => route.query.search, (val) => {
           :loading="loading"
           :error="error"
           @reload="refresh"
-          @add-to-cart="(id) => { /* wired in Phase 4 */ }"
+          @add-to-cart="quickAdd"
         />
 
         <!-- Section: Pagination -->

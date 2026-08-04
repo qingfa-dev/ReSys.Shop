@@ -4,6 +4,13 @@ import { STORAGE_KEYS } from '@/shared/constants/storage'
 import type { CartLineItem, CartResponse } from '../types/cart'
 import * as cartApi from '../services/cartApi'
 
+/** Guid.Empty — the backend returns this id when no cart exists yet. */
+const EMPTY_GUID = '00000000-0000-0000-0000-000000000000'
+
+function isRealCartId(id: string | null): id is string {
+  return !!id && id !== EMPTY_GUID
+}
+
 export const useCartStore = defineStore('cart', () => {
   const id = ref<string | null>(null)
   const items = ref<CartLineItem[]>([])
@@ -12,7 +19,7 @@ export const useCartStore = defineStore('cart', () => {
   const error = ref<string | null>(null)
 
   const itemCount = computed(() => items.value.reduce((sum, i) => sum + i.quantity, 0))
-  const subtotal = computed(() => items.value.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0))
+  const subtotal = computed(() => items.value.reduce((sum, i) => sum + i.total, 0))
 
   function getCartToken(): string {
     let token = localStorage.getItem(STORAGE_KEYS.CART_TOKEN)
@@ -68,7 +75,14 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function associate(): Promise<void> {
-    const result = await cartApi.associateCart()
+    // Resolve the guest cart id if we haven't captured it yet (e.g. no prior fetch).
+    if (!isRealCartId(id.value)) {
+      await fetchCart()
+    }
+    // Nothing to merge — no guest cart for this session.
+    const cartId = id.value
+    if (!isRealCartId(cartId)) return
+    const result = await cartApi.associateCart(cartId)
     if (result.isSuccess) applyCart(result.value)
   }
 

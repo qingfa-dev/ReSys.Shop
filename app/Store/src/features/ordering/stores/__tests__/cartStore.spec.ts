@@ -18,31 +18,32 @@ vi.mock('@/features/ordering/services/cartApi', () => ({
 }))
 
 const baseItem: CartLineItem = {
-  lineItemId: 'li-1',
+  id: 'li-1',
   variantId: 'v-1',
-  productId: 'p-1',
-  productName: 'Hex Bolt',
-  productSlug: 'hex-bolt',
+  variantName: 'SKU-1',
   sku: 'SKU-1',
+  productName: 'Hex Bolt',
+  productImageUrl: null,
   quantity: 2,
-  unitPrice: 50000,
-  currency: 'VND',
-  thumbnailUrl: null,
-  optionDescription: null,
-  maxQuantity: 10,
+  price: 50000,
+  total: 100000,
 }
 
 function item(overrides: Partial<CartLineItem>): CartLineItem {
-  return { ...baseItem, ...overrides }
+  const merged = { ...baseItem, ...overrides }
+  // Keep total consistent with price × quantity so subtotal assertions stay coherent.
+  return { ...merged, total: merged.price * merged.quantity }
 }
 
 function cart(overrides: Partial<CartResponse>): CartResponse {
   return {
     id: 'cart-1',
-    items: [baseItem],
-    itemCount: 2,
-    subtotal: 100000,
+    itemTotal: 100000,
+    total: 100000,
     currency: 'VND',
+    itemCount: 2,
+    checkoutState: 'address',
+    items: [baseItem],
     ...overrides,
   }
 }
@@ -79,14 +80,14 @@ describe('cartStore', () => {
     expect(store.loading).toBe(false)
   })
 
-  it('computes subtotal as the sum of unitPrice * quantity', async () => {
+  it('computes subtotal as the sum of line totals', async () => {
     const store = useCartStore()
     mockedCartApi.getCart.mockResolvedValue(
       ok(
         cart({
           items: [
-            item({ lineItemId: 'a', quantity: 1, unitPrice: 10000 }),
-            item({ lineItemId: 'b', quantity: 3, unitPrice: 20000 }),
+            item({ id: 'a', quantity: 1, price: 10000 }),
+            item({ id: 'b', quantity: 3, price: 20000 }),
           ],
         }),
       ),
@@ -103,8 +104,8 @@ describe('cartStore', () => {
       ok(
         cart({
           items: [
-            item({ lineItemId: 'a', quantity: 2 }),
-            item({ lineItemId: 'b', quantity: 5 }),
+            item({ id: 'a', quantity: 2 }),
+            item({ id: 'b', quantity: 5 }),
           ],
         }),
       ),
@@ -117,7 +118,7 @@ describe('cartStore', () => {
 
   it('addItem calls the api with the request and applies the returned cart on success', async () => {
     const store = useCartStore()
-    const updated = cart({ items: [item({ quantity: 3 })], itemCount: 3, subtotal: 150000 })
+    const updated = cart({ items: [item({ quantity: 3 })], itemCount: 3, itemTotal: 150000, total: 150000 })
     mockedCartApi.addItem.mockResolvedValue(ok(updated))
 
     const success = await store.addItem('v-1', 1)
@@ -144,7 +145,7 @@ describe('cartStore', () => {
   it('updateQuantity calls the api and applies the returned cart', async () => {
     const store = useCartStore()
     mockedCartApi.updateItem.mockResolvedValue(
-      ok(cart({ items: [item({ quantity: 4 })], itemCount: 4, subtotal: 200000 })),
+      ok(cart({ items: [item({ quantity: 4 })], itemCount: 4, itemTotal: 200000, total: 200000 })),
     )
 
     const success = await store.updateQuantity('li-1', 4)
@@ -170,7 +171,7 @@ describe('cartStore', () => {
   it('removeItem calls the api and applies the returned cart', async () => {
     const store = useCartStore()
     mockedCartApi.removeItem.mockResolvedValue(
-      ok(cart({ items: [], itemCount: 0, subtotal: 0 })),
+      ok(cart({ items: [], itemCount: 0, itemTotal: 0, total: 0 })),
     )
 
     const success = await store.removeItem('li-1')
@@ -192,5 +193,33 @@ describe('cartStore', () => {
 
     expect(success).toBe(false)
     expect(store.error).toBe('Cannot remove')
+  })
+
+  it('associate sends the guest cart id and applies the merged cart on success', async () => {
+    const store = useCartStore()
+    store.id = 'guest-cart-1'
+    const merged = cart({ id: 'user-cart-1', items: [item({ quantity: 3 })], itemCount: 3, itemTotal: 150000, total: 150000 })
+    mockedCartApi.associateCart.mockResolvedValue(ok(merged))
+
+    await store.associate()
+
+    expect(mockedCartApi.associateCart).toHaveBeenCalledTimes(1)
+    expect(mockedCartApi.associateCart).toHaveBeenCalledWith('guest-cart-1')
+    expect(store.id).toBe('user-cart-1')
+    expect(store.items).toEqual([item({ quantity: 3 })])
+  })
+
+  it('associate skips cleanly when there is no guest cart id', async () => {
+    const store = useCartStore()
+    store.id = null
+    // fetchCart is called to try to resolve a guest cart; it finds none.
+    mockedCartApi.getCart.mockResolvedValue(
+      ok(cart({ id: '00000000-0000-0000-0000-000000000000', items: [], itemCount: 0, itemTotal: 0, total: 0 })),
+    )
+
+    await store.associate()
+
+    expect(mockedCartApi.associateCart).not.toHaveBeenCalled()
+    expect(store.error).toBeNull()
   })
 })

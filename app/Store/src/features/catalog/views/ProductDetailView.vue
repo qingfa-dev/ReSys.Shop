@@ -2,16 +2,21 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProductBySlug, getSimilarProducts } from '../services/productApi'
+import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useNotify } from '@/shared/composables/useNotify'
 import ProductGallery from '../components/ProductGallery.vue'
 import ProductOptions from '../components/ProductOptions.vue'
 import SimilarProductsRow from '../components/SimilarProductsRow.vue'
 import type { StoreProductDetailResponse, StoreProductListItemResponse } from '../types/product'
 
 const route = useRoute()
+const cart = useCartStore()
+const notify = useNotify()
 const product = ref<StoreProductDetailResponse | null>(null)
 const similar = ref<StoreProductListItemResponse[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+const adding = ref(false)
 const selectedVariantId = ref<string | null>(null)
 const quantity = ref(1)
 
@@ -31,6 +36,19 @@ async function loadProduct(slug: string): Promise<void> {
     error.value = result.message ?? 'Product not found'
   }
   loading.value = false
+}
+
+// Trigger: Add the selected variant to the cart.
+async function addToCart(): Promise<void> {
+  if (!product.value || !selectedVariantId.value) {
+    notify.error('Add to cart failed', 'Select a variant first')
+    return
+  }
+  adding.value = true
+  const ok = await cart.addItem(selectedVariantId.value, quantity.value)
+  adding.value = false
+  if (ok) notify.success('Added to cart', product.value.name)
+  else notify.error('Add to cart failed', cart.error ?? undefined)
 }
 
 watch(() => route.params.slug, (slug) => {
@@ -106,7 +124,7 @@ watch(() => route.params.slug, (slug) => {
           <!-- Section: Quantity + Add to Cart -->
           <div class="flex items-center gap-4">
             <InputNumber v-model="quantity" :min="1" :max="99" class="w-24" />
-            <Button label="Add to Cart" icon="pi pi-shopping-cart" class="flex-1" />
+            <Button label="Add to Cart" icon="pi pi-shopping-cart" class="flex-1" :loading="adding" @click="addToCart" />
           </div>
 
           <!-- Section: Expandable Details -->

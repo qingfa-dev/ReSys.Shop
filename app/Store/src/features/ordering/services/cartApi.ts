@@ -23,6 +23,8 @@ export function emptyCart(): Promise<Result<null>> {
   return post<Result<null>>(ENDPOINTS.cartEmpty)
 }
 
-export function associateCart(): Promise<Result<CartResponse>> {
-  return post<Result<CartResponse>>(ENDPOINTS.cartAssociate)
+export function associateCart(guestOrderId: string): Promise<Result<CartResponse>> {
+  // Backend AssociateCartWithUser requires [FromBody] { guestOrderId } — the cart id is
+  // the draft order id returned by CartResponse.id.
+  return post<Result<CartResponse>>(ENDPOINTS.cartAssociate, { guestOrderId })
 }

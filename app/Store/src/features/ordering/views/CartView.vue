@@ -23,7 +23,7 @@ onMounted(() => cart.fetchCart())
       <div class="flex-1">
         <CartItem
           v-for="item in cart.items"
-          :key="item.lineItemId"
+          :key="item.id"
           :item="item"
           @update-quantity="(id, qty) => cart.updateQuantity(id, qty)"
           @remove="(id) => cart.removeItem(id)"

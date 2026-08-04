@@ -3,7 +3,8 @@ import type { StoreProductListItemResponse } from '../types/product'
 import { formatVnd } from '@/shared/utils/currency'
 
 const props = defineProps<{ product: StoreProductListItemResponse }>()
-const emit = defineEmits<{ addToCart: [productId: string] }>()
+// The backend cart add endpoint requires a VARIANT id, not a product id — emit the master variant id.
+const emit = defineEmits<{ addToCart: [variantId: string] }>()
 
 // Map: Format price for display
 function displayPrice(): string {
@@ -31,7 +32,7 @@ function displayPrice(): string {
           icon="pi pi-plus"
           size="small"
           class="w-full"
-          @click.prevent="emit('addToCart', product.id)"
+          @click.prevent="emit('addToCart', product.masterVariantId)"
         />
       </div>
     </router-link>

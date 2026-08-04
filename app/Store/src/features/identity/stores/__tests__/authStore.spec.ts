@@ -58,26 +58,25 @@ const sessionUser: SessionUser = {
 }
 
 const cartItem: CartLineItem = {
-  lineItemId: 'li-1',
+  id: 'li-1',
   variantId: 'v-1',
-  productId: 'p-1',
-  productName: 'Hex Bolt',
-  productSlug: 'hex-bolt',
+  variantName: 'SKU-1',
   sku: 'SKU-1',
+  productName: 'Hex Bolt',
+  productImageUrl: null,
   quantity: 2,
-  unitPrice: 50000,
-  currency: 'VND',
-  thumbnailUrl: null,
-  optionDescription: null,
-  maxQuantity: 10,
+  price: 50000,
+  total: 100000,
 }
 
 const cartResponse: CartResponse = {
   id: 'cart-1',
-  items: [cartItem],
-  itemCount: 2,
-  subtotal: 100000,
+  itemTotal: 100000,
+  total: 100000,
   currency: 'VND',
+  itemCount: 2,
+  checkoutState: 'address',
+  items: [cartItem],
 }
 
 describe('authStore', () => {
@@ -87,6 +86,10 @@ describe('authStore', () => {
   })
 
   it('login success sets authenticated, hydrates user, and merges the cart', async () => {
+    // Simulate a guest cart id captured before login (e.g. from an earlier add-to-cart).
+    const cart = useCartStore()
+    cart.id = 'guest-cart-1'
+
     const store = useAuthStore()
     mockedAuthApi.login.mockResolvedValue(ok(tokenPair))
     mockedAuthApi.getSession.mockResolvedValue(ok(sessionUser))
@@ -112,7 +115,6 @@ describe('authStore', () => {
     expect(mockedCartApi.getCart).toHaveBeenCalledTimes(1)
 
     // The merged cart must actually hydrate the cart store (not just fire calls).
-    const cart = useCartStore()
     expect(cart.id).toBe('cart-1')
     expect(cart.items).toEqual([cartItem])
     expect(cart.currency).toBe('VND')
