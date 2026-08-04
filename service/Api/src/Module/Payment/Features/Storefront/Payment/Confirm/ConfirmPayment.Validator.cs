@@ -7,6 +7,7 @@ public static partial class ConfirmPayment
         public Validator()
         {
             RuleFor(x => x.PaymentId).NotEmpty();
+            // PaymentMethodId is optional — captured for audit, not required for confirm
         }
     }
 }

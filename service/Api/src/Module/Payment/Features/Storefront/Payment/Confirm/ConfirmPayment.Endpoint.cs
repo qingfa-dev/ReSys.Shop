@@ -12,10 +12,11 @@ public static partial class ConfirmPayment
             // Map: POST api/storefront/payment/confirm/{paymentId} — confirm payment after gateway
             app.MapPost(PaymentFeature.Storefront.Payment.Confirm.Route, async (
                 [FromRoute] Guid paymentId,
+                [FromBody] ConfirmPaymentRequest request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(paymentId);
+                var command = new Command(paymentId, request.PaymentMethodId);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
