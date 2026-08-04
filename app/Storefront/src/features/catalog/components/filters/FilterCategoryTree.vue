@@ -10,36 +10,36 @@ interface Category {
 
 interface Props {
   categories?: Category[]
-  selectedSlug?: string | null
+  selectedId?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   categories: () => [],
-  selectedSlug: null,
+  selectedId: null,
 })
 
 const emit = defineEmits<{
-  (e: 'select', slug: string | null): void
+  (e: 'select', id: string | null): void
 }>()
 
 const expandedCategories = ref<Set<string>>(new Set())
 
 const hasChildren = (cat: Category) => cat.children && cat.children.length > 0
 
-function toggleExpand(slug: string) {
-  if (expandedCategories.value.has(slug)) {
-    expandedCategories.value.delete(slug)
+function toggleExpand(id: string) {
+  if (expandedCategories.value.has(id)) {
+    expandedCategories.value.delete(id)
   } else {
-    expandedCategories.value.add(slug)
+    expandedCategories.value.add(id)
   }
 }
 
-function selectCategory(slug: string | null) {
-  emit('select', slug)
+function selectCategory(id: string | null) {
+  emit('select', id)
 }
 
-function isExpanded(slug: string) {
-  return expandedCategories.value.has(slug)
+function isExpanded(id: string) {
+  return expandedCategories.value.has(id)
 }
 </script>
 
@@ -47,7 +47,7 @@ function isExpanded(slug: string) {
   <div class="filter-category-tree">
     <div 
       class="category-item root"
-      :class="{ active: selectedSlug === null }"
+      :class="{ active: selectedId === null }"
       @click="selectCategory(null)"
     >
       <span class="category-name">All Categories</span>
@@ -61,22 +61,22 @@ function isExpanded(slug: string) {
       <div 
         class="category-item"
         :class="{ 
-          active: selectedSlug === category.slug,
+          active: selectedId === category.id,
           expandable: hasChildren(category)
         }"
       >
         <button 
           v-if="hasChildren(category)"
           class="expand-btn"
-          :class="{ expanded: isExpanded(category.slug) }"
-          @click.stop="toggleExpand(category.slug)"
+          :class="{ expanded: isExpanded(category.id) }"
+          @click.stop="toggleExpand(category.id)"
         >
           <i class="pi pi-chevron-right"></i>
         </button>
         
         <span 
           class="category-name" 
-          @click="selectCategory(category.slug)"
+          @click="selectCategory(category.id)"
         >
           {{ category.name }}
         </span>
@@ -86,13 +86,13 @@ function isExpanded(slug: string) {
         </span>
       </div>
       
-      <div v-if="isExpanded(category.slug)" class="children">
+      <div v-if="isExpanded(category.id)" class="children">
         <div
           v-for="child in category.children"
           :key="child.id"
           class="category-item child"
-          :class="{ active: selectedSlug === child.slug }"
-          @click="selectCategory(child.slug)"
+          :class="{ active: selectedId === child.id }"
+          @click="selectCategory(child.id)"
         >
           <span class="category-name">{{ child.name }}</span>
         </div>

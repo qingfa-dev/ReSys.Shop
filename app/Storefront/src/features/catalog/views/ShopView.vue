@@ -13,7 +13,7 @@ import SearchBar from "../components/search/SearchBar.vue";
 import ShopFilters from "../components/search/ShopFilters.vue";
 import ProductCard from "../components/product/ProductCard.vue";
 import { optionTypeApiRepository } from "../repositories/option-type/option-type.api";
-import type { Product, ProductImage } from "../types";
+import type { Product, ProductImage, ProductFilter } from "../types";
 import type { StoreOptionTypeResponse } from "../types/response";
 
 function getProductImage(product: Product): string {
@@ -31,6 +31,8 @@ const {
   loading,
   error,
   pagination,
+  filter,
+  setFilter,
   loadProducts,
   loadCategories,
   categories,
@@ -38,7 +40,6 @@ const {
   sortBy,
   setTaxon,
   setPriceRange,
-  setOptionValues,
   clearFilters,
   goToPage,
 } = useCatalog();
@@ -168,18 +169,29 @@ function handleSearch(query: string) {
 
 function handleFilterChange(filters: any) {
   const { category, priceMin, priceMax, optionValues } = filters;
+  const next: ProductFilter = { ...filter.value };
 
   if (category) {
-    setTaxon(category);
-  }
-  if (priceMin !== undefined || priceMax !== undefined) {
-    setPriceRange(priceMin ?? 0, priceMax ?? 999999);
-  }
-  if (optionValues && optionValues.length > 0) {
-    setOptionValues(optionValues);
+    next.taxonId = [category];
+  } else {
+    delete next.taxonId;
   }
 
-  loadProducts();
+  if (priceMin !== null && priceMax !== null) {
+    next.priceMin = priceMin;
+    next.priceMax = priceMax;
+  } else {
+    delete next.priceMin;
+    delete next.priceMax;
+  }
+
+  if (optionValues && optionValues.length > 0) {
+    next.optionTypeId = optionValues;
+  } else {
+    delete next.optionTypeId;
+  }
+
+  setFilter(next);
 }
 
 function handleClearFilters() {
@@ -231,9 +243,9 @@ function handleProductClick(product: Product) {
         <div class="toolbar-filters">
           <Select
             v-model="selectedCategory"
-            :options="[{ name: 'All', slug: '' }, ...categories]"
+            :options="[{ name: 'All', id: null }, ...categories]"
             optionLabel="name"
-            optionValue="slug"
+            optionValue="id"
             placeholder="Category"
             class="toolbar-select"
           />

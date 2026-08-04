@@ -7,27 +7,31 @@ export class ProductApiRepository extends BaseRepository implements IProductRepo
   protected readonly endpoint = '/api/storefront/products'
 
   async getAll(filter?: Record<string, any>): Promise<PagedResult<ProductResponse>> {
-    const searchParams = new URLSearchParams()
+    try {
+      const searchParams = new URLSearchParams()
 
-    if (filter) {
-      for (const [key, value] of Object.entries(filter)) {
-        if (value === undefined || value === null) continue
-        if (Array.isArray(value)) {
-          for (const item of value) {
-            searchParams.append(key, String(item))
+      if (filter) {
+        for (const [key, value] of Object.entries(filter)) {
+          if (value === undefined || value === null) continue
+          if (Array.isArray(value)) {
+            for (const item of value) {
+              searchParams.append(key, String(item))
+            }
+          } else {
+            searchParams.append(key, String(value))
           }
-        } else {
-          searchParams.append(key, String(value))
         }
       }
+
+      const queryString = searchParams.toString()
+      const response = await this.client.get<PagedResult<ProductResponse>>(
+        `${this.endpoint}${queryString ? `?${queryString}` : ''}`
+      )
+
+      return response.data
+    } catch (error) {
+      return this.handlePagedError(error)
     }
-
-    const queryString = searchParams.toString()
-    const response = await this.client.get<PagedResult<ProductResponse>>(
-      `${this.endpoint}${queryString ? `?${queryString}` : ''}`
-    )
-
-    return response.data
   }
 
   getById<T = ProductResponse>(id: string): Promise<Result<T>> {

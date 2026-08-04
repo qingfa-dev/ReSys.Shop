@@ -55,8 +55,8 @@ function handlePriceRangeChange(range: { min: number; max: number }) {
   emitFilterChange()
 }
 
-function handleCategorySelect(slug: string | null) {
-  selectedCategory.value = slug
+function handleCategorySelect(id: string | null) {
+  selectedCategory.value = id
   emitFilterChange()
 }
 
@@ -101,7 +101,7 @@ function clearAllFilters() {
         <h4>Category</h4>
         <FilterCategoryTree
           :categories="categories"
-          :selected-slug="selectedCategory"
+          :selected-id="selectedCategory"
           @select="handleCategorySelect"
         />
       </div>

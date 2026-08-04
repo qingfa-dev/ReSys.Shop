@@ -49,17 +49,14 @@ export function useCatalog() {
 
   function setTaxon(taxonId: string) {
     productStore.setFilter({ ...productStore.filter, taxonId: [taxonId] })
-    productStore.fetchProducts()
   }
 
   function setPriceRange(min: number, max: number) {
     productStore.setFilter({ ...productStore.filter, priceMin: min, priceMax: max })
-    productStore.fetchProducts()
   }
 
   function setOptionValues(optionValueIds: string[]) {
     productStore.setFilter({ ...productStore.filter, optionTypeId: optionValueIds })
-    productStore.fetchProducts()
   }
 
   function clearFilters() {
@@ -80,6 +77,7 @@ export function useCatalog() {
     currentProduct,
     pagination,
     filter,
+    setFilter: productStore.setFilter,
     loadProducts,
     loadProduct,
     loadCategories,
