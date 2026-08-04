@@ -12,44 +12,15 @@ import { useCart } from "@/features/ordering/composables/useCart";
 import SearchBar from "../components/search/SearchBar.vue";
 import ShopFilters from "../components/search/ShopFilters.vue";
 import ProductCard from "../components/product/ProductCard.vue";
-import type { Product, ProductColor, ProductSize, ProductImage } from "../types";
+import { optionTypeApiRepository } from "../repositories/option-type/option-type.api";
+import type { Product, ProductImage } from "../types";
+import type { StoreOptionTypeResponse } from "../types/response";
 
 function getProductImage(product: Product): string {
   const firstImage = product.images?.[0];
   if (!firstImage) return "";
   if (typeof firstImage === "string") return firstImage;
   return firstImage.url || "";
-}
-
-const mockColors: ProductColor[] = [
-  { id: "col-black", name: "Black", hex: "#1a1a1a" },
-  { id: "col-white", name: "White", hex: "#ffffff" },
-  { id: "col-navy", name: "Navy", hex: "#1e3a5f" },
-  { id: "col-gray", name: "Gray", hex: "#6b7280" },
-  { id: "col-red", name: "Red", hex: "#dc2626" },
-];
-
-const mockSizes: ProductSize[] = [
-  { id: "sz-xs", name: "XS", stock: 10 },
-  { id: "sz-s", name: "S", stock: 15 },
-  { id: "sz-m", name: "M", stock: 20 },
-  { id: "sz-l", name: "L", stock: 15 },
-  { id: "sz-xl", name: "XL", stock: 8 },
-];
-
-const mockBrands = [
-  { name: "ReSyShop Originals", slug: "resyshop-originals" },
-  { name: "Premium Basics", slug: "premium-basics" },
-  { name: "Urban Style", slug: "urban-style" },
-  { name: "Eco Wear", slug: "eco-wear" },
-];
-
-function getProductColors(product: Product): ProductColor[] {
-  return mockColors.slice(0, 3 + Math.floor(Math.random() * 3));
-}
-
-function getProductSizes(product: Product): ProductSize[] {
-  return mockSizes.slice(0, 3 + Math.floor(Math.random() * 3));
 }
 
 const router = useRouter();
@@ -65,14 +36,15 @@ const {
   categories,
   search,
   sortBy,
-  filterByCategory,
-  filterByPrice,
-  filterBySize,
-  filterByColor,
-  filterByBrand,
+  setTaxon,
+  setPriceRange,
+  setOptionValues,
   clearFilters,
   goToPage,
 } = useCatalog();
+
+const optionTypes = ref<StoreOptionTypeResponse[]>([]);
+const loadingFacets = ref(false);
 
 const { addToCart: addToCartStore } = useCart();
 
@@ -130,12 +102,25 @@ function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): T {
 
 const debouncedPriceFilter = debounce(() => {
   if (priceMin.value !== null || priceMax.value !== null) {
-    filterByPrice(priceMin.value || 0, priceMax.value || 999999);
+    setPriceRange(priceMin.value || 0, priceMax.value || 999999);
   }
 }, 300);
 
+async function loadFacetData() {
+  loadingFacets.value = true;
+  try {
+    const result = await optionTypeApiRepository.getFilterable();
+    if (result.isSuccess) {
+      optionTypes.value = result.items;
+    }
+  } finally {
+    loadingFacets.value = false;
+  }
+}
+
 onMounted(async () => {
   await loadCategories();
+  await loadFacetData();
   if (searchQuery.value) {
     search(searchQuery.value);
   } else {
@@ -166,7 +151,7 @@ watch(selectedSort, (sort) => {
 
 watch(selectedCategory, (category) => {
   if (category) {
-    filterByCategory(category);
+    setTaxon(category);
   } else {
     clearFilters();
   }
@@ -182,23 +167,18 @@ function handleSearch(query: string) {
 }
 
 function handleFilterChange(filters: any) {
-  if (filters.category) {
-    selectedCategory.value = filters.category;
+  const { category, priceMin, priceMax, optionValues } = filters;
+
+  if (category) {
+    setTaxon(category);
   }
-  if (filters.priceMin !== null || filters.priceMax !== null) {
-    priceMin.value = filters.priceMin;
-    priceMax.value = filters.priceMax;
-    filterByPrice(filters.priceMin || 0, filters.priceMax || 999999);
+  if (priceMin !== undefined || priceMax !== undefined) {
+    setPriceRange(priceMin ?? 0, priceMax ?? 999999);
   }
-  if (filters.sizes.length > 0) {
-    filters.sizes.forEach((size: string) => filterBySize(size));
+  if (optionValues && optionValues.length > 0) {
+    setOptionValues(optionValues);
   }
-  if (filters.colors.length > 0) {
-    filters.colors.forEach((color: string) => filterByColor(color));
-  }
-  if (filters.brands.length > 0) {
-    filters.brands.forEach((brand: string) => filterByBrand(brand));
-  }
+
   loadProducts();
 }
 
@@ -290,9 +270,7 @@ function handleProductClick(product: Product) {
       <ShopFilters
         v-if="!isMobile && showFilters"
         :categories="categories"
-        :colors="mockColors"
-        :sizes="mockSizes"
-        :brands="mockBrands"
+        :option-types="optionTypes"
         @filter-change="handleFilterChange"
         @clear="handleClearFilters"
       />
@@ -305,9 +283,7 @@ function handleProductClick(product: Product) {
       >
         <ShopFilters
           :categories="categories"
-          :colors="mockColors"
-          :sizes="mockSizes"
-          :brands="mockBrands"
+          :option-types="optionTypes"
           @filter-change="
             (filters) => {
               handleFilterChange(filters);
@@ -339,8 +315,6 @@ function handleProductClick(product: Product) {
               :product="product"
               :variant="viewMode"
               :show-actions="true"
-              :colors="getProductColors(product)"
-              :sizes="getProductSizes(product)"
               @add-to-cart="handleAddToCart"
               @add-to-wishlist="handleAddToWishlist"
               @click="handleProductClick"
