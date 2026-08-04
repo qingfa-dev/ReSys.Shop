@@ -95,6 +95,18 @@ public static partial class UploadVariantImage
 
             var image = createResult.Value;
 
+            // Demote: Enforce one Default and one Search per variant; demote the prior holder
+            if (imageType is VariantImageType.Default or VariantImageType.Search)
+            {
+                var siblings = await dbContext.Set<VariantImage>()
+                    .Where(x => x.VariantId == variantId && x.Type == imageType)
+                    .ToListAsync(cancellationToken);
+                foreach (var sibling in siblings)
+                {
+                    sibling.Type = VariantImageType.Thumbnail;
+                }
+            }
+
             // Fixup: when storage provider returns no public URI (e.g. local FS),
             // set the Url to the download endpoint so the frontend can display the image.
             if (string.IsNullOrEmpty(image.Url))
