@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
@@ -11,8 +11,10 @@ import EyeSlash from '@primeicons/vue/eye-slash'
 import { useNotify } from '@/shared/composables/useNotify'
 import { loginSchema } from '../validations/auth'
 import { useAuthStore } from '../stores/authStore'
+import { resolvePostLoginRedirect } from '@/shared/utils/postLoginRedirect'
 
 const router = useRouter()
+const route = useRoute()
 const store = useAuthStore()
 const notify = useNotify()
 
@@ -28,7 +30,8 @@ async function onSubmit(event: FormSubmitEvent) {
   // Call: Delegate the login request to the auth store, which owns auth state.
   await store.login(data.credential, data.password)
   if (store.isAuthenticated) {
-    router.replace('/')
+    // Redirect: Resume the protected page the user originally requested
+    router.replace(resolvePostLoginRedirect(route.query.redirect))
   } else if (store.error) {
     notify.error('Login failed', store.error)
   }

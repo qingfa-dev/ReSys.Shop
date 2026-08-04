@@ -4,6 +4,7 @@ export * from './debounce';
 export * from './download';
 export * from './number';
 export * from './object';
+export * from './postLoginRedirect';
 export * from './regex';
 export * from './storage';
 export * from './string';
