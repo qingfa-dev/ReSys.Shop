@@ -3,12 +3,11 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MobileNav from '@/app/components/layout/MobileNav.vue'
 import { useAuthStore } from '@/features/identity/stores/authStore'
-// TODO(task-4.1): re-enable cartStore wiring once the full cart store exists.
-// import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useCartStore } from '@/features/ordering/stores/cartStore'
 
 const router = useRouter()
 const auth = useAuthStore()
-// const cart = useCartStore()
+const cart = useCartStore()
 
 const searchQuery = ref('')
 const mobileMenuOpen = ref(false)
@@ -50,14 +49,12 @@ function onSearch(): void {
             class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <i class="pi pi-shopping-cart text-xl" />
-          <!-- TODO(task-4.1): re-enable cart item count badge when full cart store exists.
           <span
             v-if="cart.itemCount > 0"
             class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
           >
             {{ cart.itemCount }}
           </span>
-          -->
         </router-link>
 
         <!-- Section: User Menu / Sign In -->
