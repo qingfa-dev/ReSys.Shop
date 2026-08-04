@@ -17,4 +17,8 @@ export interface EmbeddingDetailResponse {
   vector: number[]
   dimensions: number
   createdAtUtc: string
+  status: 'Pending' | 'Processing' | 'Completed' | 'Failed'
+  error?: string
+  hangfireJobId?: string
+  completedAtUtc?: string
 }
