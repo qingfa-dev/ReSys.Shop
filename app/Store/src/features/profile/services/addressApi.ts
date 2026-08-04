@@ -1,4 +1,4 @@
-import { get, post, put, del, getPaged } from '@/shared/api'
+import { post, put, del, getPaged } from '@/shared/api'
 import { ENDPOINTS } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types/result'
 import type { Address, AddressInput, DeletedAddress } from '../types/address'
@@ -6,10 +6,6 @@ import type { Address, AddressInput, DeletedAddress } from '../types/address'
 // GET api/store/profiles/addresses — PagedResult envelope; no paging params → all rows.
 export function getAddresses(): Promise<PagedResult<Address>> {
   return getPaged<Address>(ENDPOINTS.addresses, {})
-}
-
-export function getAddress(id: string): Promise<Result<Address>> {
-  return get<Result<Address>>(ENDPOINTS.addressById(id))
 }
 
 // POST api/store/profiles/addresses — 201 with the created address.

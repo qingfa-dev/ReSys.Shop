@@ -36,13 +36,20 @@ function toAddressInput(a: Address): AddressInput {
 async function loadAddresses(): Promise<void> {
   loading.value = true
   error.value = null
-  const result = await addressApi.getAddresses()
-  loading.value = false
-  if (result.isSuccess) {
-    addresses.value = result.items
-  } else {
+  try {
+    const result = await addressApi.getAddresses()
+    if (result.isSuccess) {
+      addresses.value = result.items
+    } else {
+      addresses.value = []
+      error.value = result.message ?? result.errors[0]?.message ?? 'Unable to load addresses.'
+    }
+  } catch {
+    // The error interceptor throws HttpError on network failures / non-Result 5xx.
     addresses.value = []
-    error.value = result.message ?? result.errors[0]?.message ?? 'Unable to load addresses.'
+    error.value = 'Unable to load addresses.'
+  } finally {
+    loading.value = false
   }
 }
 
@@ -63,27 +70,38 @@ function cancelForm(): void {
 
 async function onFormSubmit(payload: AddressInput): Promise<void> {
   saving.value = true
-  const result = editing.value
-    ? await addressApi.updateAddress(editing.value.id, payload)
-    : await addressApi.createAddress(payload)
-  saving.value = false
-  if (result.isSuccess) {
-    notify.success(editing.value ? 'Address updated' : 'Address added', 'Your address has been saved.')
-    showForm.value = false
-    editing.value = null
-    await loadAddresses()
-  } else {
-    notify.error('Save failed', result.message ?? 'Unable to save the address.')
+  error.value = null
+  try {
+    const result = editing.value
+      ? await addressApi.updateAddress(editing.value.id, payload)
+      : await addressApi.createAddress(payload)
+    if (result.isSuccess) {
+      notify.success(editing.value ? 'Address updated' : 'Address added', 'Your address has been saved.')
+      showForm.value = false
+      editing.value = null
+      await loadAddresses()
+    } else {
+      error.value = result.message ?? 'Unable to save the address.'
+    }
+  } catch {
+    error.value = 'Unable to save the address.'
+  } finally {
+    saving.value = false
   }
 }
 
 async function onDelete(id: string): Promise<void> {
-  const result = await addressApi.deleteAddress(id)
-  if (result.isSuccess) {
-    notify.success('Address deleted', 'The address was removed.')
-    await loadAddresses()
-  } else {
-    notify.error('Delete failed', result.message ?? 'Unable to delete the address.')
+  error.value = null
+  try {
+    const result = await addressApi.deleteAddress(id)
+    if (result.isSuccess) {
+      notify.success('Address deleted', 'The address was removed.')
+      await loadAddresses()
+    } else {
+      error.value = result.message ?? 'Unable to delete the address.'
+    }
+  } catch {
+    error.value = 'Unable to delete the address.'
   }
 }
 
@@ -92,12 +110,20 @@ async function onDelete(id: string): Promise<void> {
 async function onSetDefault(id: string): Promise<void> {
   const target = addresses.value.find((a) => a.id === id)
   if (!target) return
-  const result = await addressApi.updateAddress(id, { ...toAddressInput(target), isDefault: true })
-  if (result.isSuccess) {
-    notify.success('Default set', 'This address is now the default.')
-    await loadAddresses()
-  } else {
-    notify.error('Update failed', result.message ?? 'Unable to set the default address.')
+  saving.value = true
+  error.value = null
+  try {
+    const result = await addressApi.updateAddress(id, { ...toAddressInput(target), isDefault: true })
+    if (result.isSuccess) {
+      notify.success('Default set', 'This address is now the default.')
+      await loadAddresses()
+    } else {
+      error.value = result.message ?? 'Unable to set the default address.'
+    }
+  } catch {
+    error.value = 'Unable to set the default address.'
+  } finally {
+    saving.value = false
   }
 }
 
@@ -148,6 +174,7 @@ onMounted(loadAddresses)
           v-for="address in addresses"
           :key="address.id"
           :address="address"
+          :busy="saving"
           @edit="startEdit"
           @delete="onDelete"
           @set-default="onSetDefault"

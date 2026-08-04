@@ -9,9 +9,11 @@ import type {
   AddWishlistItemRequest,
 } from '../types/wishlist'
 
-// GET api/store/profiles/wishlists — PagedResult envelope; no paging params → all rows.
+// GET api/store/profiles/wishlists — PagedResult envelope. Unlike the addresses handler
+// (ToPagedOrAllAsync), GetWishlists applies Skip/Take with pageSize ?? 10, so an explicit
+// page size is required to load the full list (the view has no paging UI).
 export function getWishlists(): Promise<PagedResult<WishlistListItem>> {
-  return getPaged<WishlistListItem>(ENDPOINTS.wishlists, {})
+  return getPaged<WishlistListItem>(ENDPOINTS.wishlists, { pageSize: 100 })
 }
 
 export function getWishlist(id: string): Promise<Result<WishlistDetail>> {

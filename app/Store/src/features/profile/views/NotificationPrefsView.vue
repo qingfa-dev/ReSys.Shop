@@ -15,29 +15,40 @@ const error = ref<string | null>(null)
 async function loadPrefs(): Promise<void> {
   loading.value = true
   error.value = null
-  const result = await notificationApi.getNotificationPreferences()
-  loading.value = false
-  if (result.isSuccess) {
-    prefs.value = result.value
-  } else {
-    error.value = result.message ?? result.errors[0]?.message ?? 'Unable to load notification preferences.'
+  try {
+    const result = await notificationApi.getNotificationPreferences()
+    if (result.isSuccess) {
+      prefs.value = result.value
+    } else {
+      error.value = result.message ?? result.errors[0]?.message ?? 'Unable to load notification preferences.'
+    }
+  } catch {
+    error.value = 'Unable to load notification preferences.'
+  } finally {
+    loading.value = false
   }
 }
 
 async function onToggle(key: keyof NotificationPreferences, value: boolean): Promise<void> {
   const previous = prefs.value[key]
-  // Optimistic update; revert if the backend rejects it.
+  // Optimistic update; revert if the backend rejects it or the request throws.
   prefs.value = { ...prefs.value, [key]: value }
   saving.value = true
   error.value = null
-  const result = await notificationApi.updateNotificationPreferences(prefs.value)
-  saving.value = false
-  if (result.isSuccess) {
-    prefs.value = result.value
-    notify.success('Preferences saved', 'Your notification settings have been updated.')
-  } else {
+  try {
+    const result = await notificationApi.updateNotificationPreferences(prefs.value)
+    if (result.isSuccess) {
+      prefs.value = result.value
+      notify.success('Preferences saved', 'Your notification settings have been updated.')
+    } else {
+      prefs.value = { ...prefs.value, [key]: previous }
+      notify.error('Save failed', result.message ?? 'Unable to save your notification preferences.')
+    }
+  } catch {
     prefs.value = { ...prefs.value, [key]: previous }
-    notify.error('Save failed', result.message ?? 'Unable to save your notification preferences.')
+    notify.error('Save failed', 'Unable to save your notification preferences.')
+  } finally {
+    saving.value = false
   }
 }
 

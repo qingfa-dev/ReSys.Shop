@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import type { Address, AddressType } from '../types/address'
 
-const props = defineProps<{ address: Address }>()
+const props = defineProps<{ address: Address; busy?: boolean }>()
 const emit = defineEmits<{
   edit: [address: Address]
   delete: [id: string]
@@ -17,13 +18,14 @@ const typeLabels: Record<AddressType, string> = {
   Other: 'Other',
 }
 
-function fullName(): string {
-  return [props.address.firstName, props.address.lastName].filter(Boolean).join(' ')
-}
+// Computed once per render instead of recomputing cityLine() on every interpolation.
+const fullName = computed(() =>
+  [props.address.firstName, props.address.lastName].filter(Boolean).join(' '),
+)
 
-function cityLine(): string {
-  return [props.address.city, props.address.stateProvince, props.address.zipCode].filter(Boolean).join(', ')
-}
+const cityLine = computed(() =>
+  [props.address.city, props.address.stateProvince, props.address.zipCode].filter(Boolean).join(', '),
+)
 
 function requestDelete(): void {
   confirm.require({
@@ -63,6 +65,7 @@ function requestDelete(): void {
           outlined
           size="small"
           icon="pi pi-star"
+          :disabled="busy"
           @click="emit('setDefault', address.id)"
         />
         <Button
@@ -71,6 +74,7 @@ function requestDelete(): void {
           outlined
           size="small"
           icon="pi pi-pencil"
+          :disabled="busy"
           @click="emit('edit', address)"
         />
         <Button
@@ -79,18 +83,19 @@ function requestDelete(): void {
           outlined
           size="small"
           icon="pi pi-trash"
+          :disabled="busy"
           @click="requestDelete"
         />
       </div>
     </div>
 
     <div class="mt-4">
-      <p class="font-semibold text-gray-900">{{ fullName() }}</p>
+      <p class="font-semibold text-gray-900">{{ fullName }}</p>
       <p v-if="address.phone" class="text-sm text-gray-500 mt-0.5">{{ address.phone }}</p>
       <p class="text-sm text-gray-600 mt-1">{{ address.address1 }}</p>
       <p v-if="address.address2" class="text-sm text-gray-600">{{ address.address2 }}</p>
       <p class="text-sm text-gray-600">
-        {{ cityLine() }}<template v-if="cityLine()">, </template>{{ address.countryName }}
+        {{ cityLine }}<template v-if="cityLine">, </template>{{ address.countryName }}
       </p>
       <p v-if="address.label" class="text-xs text-gray-400 mt-1">{{ address.label }}</p>
     </div>
