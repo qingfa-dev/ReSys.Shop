@@ -76,6 +76,7 @@ function buildRequest(data: StockLocationForm): StockLocationRequest {
 }
 
 async function loadStockLocation(id: string) {
+  // Load: Fetch the stock location to seed the edit form.
   const result = await StockLocationApi.getStockLocation(id)
   if (result.isSuccess) {
     const s = result.value

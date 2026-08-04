@@ -152,6 +152,7 @@ async function loadOrder() {
 async function loadItems() {
   if (itemsLoaded.value || itemsLoading.value) return
   itemsLoading.value = true
+  // Load: Fetch line items lazily when the items tab opens.
   const result = await OrderApi.getLineItems(orderId.value, { pageSize: 100 })
   itemsLoading.value = false
   if (result.isSuccess) {
@@ -165,6 +166,7 @@ async function loadItems() {
 async function loadPayments() {
   if (paymentsLoaded.value || paymentsLoading.value) return
   paymentsLoading.value = true
+  // Load: Fetch payments lazily when the payments tab opens.
   const result = await PaymentApi.getPayments({ orderId: orderId.value, pageSize: 100 })
   paymentsLoading.value = false
   if (result.isSuccess) {

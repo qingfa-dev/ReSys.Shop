@@ -82,6 +82,7 @@ onMounted(() => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Require the form to pass validation before saving.
   if (!event.valid) return
 
   submitting.value = true

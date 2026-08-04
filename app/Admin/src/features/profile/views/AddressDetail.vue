@@ -96,6 +96,7 @@ onMounted(() => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Require the form to pass validation before saving.
   if (!event.valid) return
 
   submitting.value = true
@@ -115,6 +116,7 @@ async function onSubmit(event: FormSubmitEvent) {
     countryName: data.countryName,
   }
 
+  // Call: Create or update the address record.
   const result = isEdit.value
     ? await AddressApi.updateAddress(route.params.id as string, request)
     : await AddressApi.createAddress(request)

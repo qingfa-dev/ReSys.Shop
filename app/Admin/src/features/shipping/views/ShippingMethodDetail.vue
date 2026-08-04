@@ -77,6 +77,7 @@ onMounted(() => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Require the form to pass validation before saving.
   if (!event.valid) return
 
   submitting.value = true
@@ -92,6 +93,7 @@ async function onSubmit(event: FormSubmitEvent) {
     availableToUsers: data.availableToUsers,
   }
 
+  // Call: Create or update the shipping method record.
   const result = isEdit.value
     ? await ShippingMethodApi.updateShippingMethod(route.params.id as string, request)
     : await ShippingMethodApi.createShippingMethod(request)

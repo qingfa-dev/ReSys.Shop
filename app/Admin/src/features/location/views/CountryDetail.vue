@@ -42,6 +42,7 @@ const formLoaded = ref(!isEdit.value)
 
 onMounted(async () => {
   if (isEdit.value) {
+    // Load: Fetch the country to seed the edit form.
     const result = await CountryApi.getCountry(route.params.id as string)
     if (result.isSuccess) {
       const c = result.value
@@ -61,6 +62,7 @@ onMounted(async () => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Require the form to pass validation before saving.
   if (!event.valid) return
 
   loading.value = true

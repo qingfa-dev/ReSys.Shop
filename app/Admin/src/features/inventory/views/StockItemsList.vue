@@ -67,6 +67,7 @@ function navigateToEdit(id: string) {
 
 function confirmDelete() {
   const ids = selectedItems.value.map((s) => s.variantId).join(', ')
+  // Trigger: Confirm before bulk-deleting the selected stock items.
   confirm.require({
     message: `Delete stock item${selectedItems.value.length > 1 ? 's' : ''} ${ids}? This action cannot be undone.`,
     header: 'Confirm Delete',

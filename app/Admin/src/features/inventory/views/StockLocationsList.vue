@@ -46,6 +46,7 @@ function navigateToEdit(id: string) {
 
 function confirmDelete() {
   const names = selectedItems.value.map((l) => l.name).join(', ')
+  // Trigger: Confirm before bulk-deleting the selected stock locations.
   confirm.require({
     message: `Delete ${names}? This action cannot be undone.`,
     header: 'Confirm Delete',

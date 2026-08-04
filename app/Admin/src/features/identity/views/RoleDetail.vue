@@ -38,6 +38,7 @@ const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => (isEdit.value ? 'Edit Role' : 'New Role'))
 
 async function initEditMode(id: string) {
+  // Load: Fetch the role to seed the edit form.
   const result = await RoleApi.getRole(id)
   if (result.isSuccess) {
     form.value = { name: result.value.name, description: result.value.description ?? '' }

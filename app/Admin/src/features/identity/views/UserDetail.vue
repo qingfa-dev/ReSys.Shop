@@ -48,6 +48,7 @@ const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => (isEdit.value ? 'Edit User' : 'New User'))
 
 async function initEditMode(id: string) {
+  // Load: Fetch the user to seed the edit form.
   const result = await UserApi.getUser(id)
   if (result.isSuccess) {
     const u = result.value

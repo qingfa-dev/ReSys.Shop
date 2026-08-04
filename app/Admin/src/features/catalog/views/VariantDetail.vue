@@ -85,6 +85,7 @@ const dimensionsUnitOptions = [
 const fileInputRef = ref<HTMLInputElement>()
 
 async function initEditMode(id: string) {
+  // Load: Fetch the variant to seed the edit form.
   const result = await VariantApi.getVariant(id)
   if (result.isSuccess) {
     const v = result.value!
@@ -196,12 +197,14 @@ async function onSubmit(event: FormSubmitEvent) {
       )
       let optionValueDiffError: string | undefined
       if (toAssign.length > 0) {
+        // Call: Assign the newly selected option values on edit.
         const assignResult = await VariantApi.assignOptionValues(variantId, toAssign)
         if (!assignResult.isSuccess) {
           optionValueDiffError = assignResult.errors?.[0]?.message
         }
       }
       if (toRevoke.length > 0) {
+        // Call: Revoke the deselected option values on edit.
         const revokeResult = await VariantApi.revokeOptionValues(variantId, toRevoke)
         if (!revokeResult.isSuccess && !optionValueDiffError) {
           optionValueDiffError = revokeResult.errors?.[0]?.message
@@ -232,6 +235,7 @@ const uploadLoading = ref(false)
 
 async function loadImages() {
   if (!isEdit.value) return
+  // Load: Fetch the image gallery for the edit form.
   const result = await VariantImageApi.listImages(route.params.id as string)
   if (result.isSuccess) {
     images.value = result.items
@@ -262,6 +266,7 @@ function onFileSelect(event: Event) {
 
 async function uploadImage(file: File) {
   uploadLoading.value = true
+  // Call: Upload the selected image, then refresh the gallery.
   const result = await VariantImageApi.uploadImage({ variantId: route.params.id as string, file })
   if (result.isSuccess) {
     notify.success('Image uploaded')
@@ -351,6 +356,7 @@ const priceForm = ref<PriceRequest>({
 
 async function loadPrices() {
   if (!isEdit.value) return
+  // Load: Fetch the price list for the price-history tab.
   const result = await VariantPriceApi.listPrices(route.params.id as string)
   if (result.isSuccess) {
     prices.value = result.items
@@ -373,6 +379,7 @@ function openPriceDialog() {
 
 async function savePrice() {
   if (!priceForm.value.currency) return
+  // Call: Persist the price, then refresh the price-history list.
   const result = await VariantPriceApi.setPrice({ ...priceForm.value, variantId: route.params.id as string })
   if (result.isSuccess) {
     notify.success('Price saved')

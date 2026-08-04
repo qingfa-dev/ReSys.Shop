@@ -100,6 +100,7 @@ onMounted(async () => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Require the form to pass validation before saving.
   if (!event.valid) return
 
   submitting.value = true
@@ -114,6 +115,7 @@ async function onSubmit(event: FormSubmitEvent) {
     freeShippingThreshold: data.freeShippingThreshold ?? undefined,
   }
 
+  // Call: Create or update the shipping rate record.
   const result = isEdit.value
     ? await ShippingRateApi.updateShippingRate(route.params.id as string, request)
     : await ShippingRateApi.createShippingRate(request)

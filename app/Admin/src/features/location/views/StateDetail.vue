@@ -46,6 +46,7 @@ onMounted(async () => {
   loadActiveCountries()
 
   if (isEdit.value) {
+    // Load: Fetch the state to seed the edit form.
     const result = await StateApi.getState(route.params.id as string)
     if (result.isSuccess) {
       const s = result.value
@@ -64,6 +65,7 @@ onMounted(async () => {
 })
 
 async function onSubmit(event: FormSubmitEvent) {
+  // Validate: Require the form to pass validation before saving.
   if (!event.valid) return
 
   loading.value = true

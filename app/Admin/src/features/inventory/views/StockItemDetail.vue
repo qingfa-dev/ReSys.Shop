@@ -50,6 +50,7 @@ const formLoaded = ref(!isEdit.value)
 const variants = ref<VariantListItem[]>([])
 
 async function loadVariants() {
+  // Load: Fetch the first 100 variants for the dropdown.
   const result = await VariantApi.getVariants('', { pageSize: 100 })
   if (result.isSuccess) {
     variants.value = result.items
@@ -59,6 +60,7 @@ async function loadVariants() {
 }
 
 async function loadStockItem(id: string) {
+  // Load: Fetch the stock item to seed the edit form.
   const result = await StockItemApi.getStockItem(id)
   if (result.isSuccess) {
     const s = result.value

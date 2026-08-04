@@ -116,6 +116,7 @@ function resetAssignments() {
 }
 
 async function initEditMode(id: string) {
+  // Load: Fetch the product to seed the edit form.
   const result = await ProductApi.getProduct(id)
   if (result.isSuccess) {
     const p = result.value
@@ -195,6 +196,7 @@ async function loadClassifications() {
 }
 
 async function saveOptionTypes() {
+  // Call: Persist the reordered option-type assignments.
   const items = assignedOptionTypes.value.map((a, i) => ({
     optionTypeId: a.optionTypeId,
     position: i,
@@ -210,6 +212,7 @@ async function saveOptionTypes() {
 }
 
 async function saveClassifications() {
+  // Call: Persist the reordered taxon classifications.
   const items = assignedClassifications.value.map((a, i) => ({
     taxonId: a.taxonId,
     position: i,

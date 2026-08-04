@@ -67,6 +67,7 @@ function navigateToEdit(data: AddressResponse) {
 
 function confirmDelete(data: AddressResponse) {
   const label = data.label ?? data.address1
+  // Trigger: Confirm before deleting a single address.
   confirm.require({
     message: `Delete address "${label}"? This action cannot be undone.`,
     header: 'Confirm Delete',
@@ -75,6 +76,7 @@ function confirmDelete(data: AddressResponse) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete the address, then refresh the list.
       const result = await AddressApi.deleteAddress(data.userId, data.id)
       if (result.isSuccess) {
         notify.success('Deleted', label)

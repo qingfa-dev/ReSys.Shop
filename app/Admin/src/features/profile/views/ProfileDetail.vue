@@ -104,6 +104,7 @@ async function onSubmit(event: FormSubmitEvent) {
     phoneNumber: data.phoneNumber || undefined,
     dateOfBirth: data.dateOfBirth || undefined,
   }
+  // Call: Persist the profile changes.
   const result = await ProfileApi.updateProfile(request)
   loading.value = false
   if (result.isSuccess) {
@@ -127,6 +128,7 @@ function navigateToEditAddress(id: string) {
 }
 
 function confirmDeleteAddress(id: string, label: string) {
+  // Trigger: Confirm before deleting an address from the profile.
   confirm.require({
     message: `Delete address "${label}"?`,
     header: 'Confirm Delete',
@@ -135,6 +137,7 @@ function confirmDeleteAddress(id: string, label: string) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
+      // Call: Delete the address, then drop it from the local list.
       const result = await AddressApi.deleteAddress(route.params.id as string, id)
       if (result.isSuccess) {
         addresses.value = addresses.value.filter(a => a.id !== id)

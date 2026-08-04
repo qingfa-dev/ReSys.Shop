@@ -40,6 +40,7 @@ const saving = ref(false)
 const formLoaded = ref(!isEdit.value)
 
 async function initEditMode(id: string) {
+  // Load: Fetch the taxonomy to seed the edit form.
   const result = await TaxonomyApi.getTaxonomy(id)
   if (result.isSuccess) {
     const t = result.value
