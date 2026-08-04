@@ -1,4 +1,4 @@
-namespace Module.Profile.Features.Admin.Profiles.Shared.Models;
+namespace Module.Profile.Features.Shared.Profiles.Models;
 
 public abstract record ProfileListItemResponse : ProfileParameters, IResponse
 {

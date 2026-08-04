@@ -1,7 +1,7 @@
 using Module.Profile.Domain.Addresses;
-using Module.Profile.Features.Admin.Addresses.Shared.Models;
+using Module.Profile.Features.Shared.Addresses.Models;
 
-namespace Module.Profile.Features.Admin.Addresses.Shared.Mappings;
+namespace Module.Profile.Features.Shared.Addresses.Mappings;
 
 public static class AddressMapping
 {

@@ -1,5 +1,5 @@
-using Module.Profile.Features.Admin.Profiles.Shared.Models;
-using Module.Profile.Features.Admin.Profiles.Shared.Validators;
+using Module.Profile.Features.Shared.Profiles.Models;
+using Module.Profile.Features.Shared.Profiles.Validators;
 
 namespace Module.Profile.Features.Storefront.Profiles.Create;
 

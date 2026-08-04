@@ -1,11 +1,11 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Notifications;
 using Module.Profile.Domain.Preferences;
-using Module.Profile.Features.Admin.Profiles.Shared.Models;
+using Module.Profile.Features.Shared.Profiles.Models;
 
 using Shared.Application.Domain.Concerns.Auditable;
 
-namespace Module.Profile.Features.Admin.Profiles.Shared.Mappings;
+namespace Module.Profile.Features.Shared.Profiles.Mappings;
 
 public static partial class ProfileMapping
 {

@@ -1,4 +1,4 @@
-using Module.Profile.Features.Admin.Addresses.Shared.Validators;
+using Module.Profile.Features.Shared.Addresses.Validators;
 
 namespace Module.Profile.Features.Storefront.Addresses.Update;
 

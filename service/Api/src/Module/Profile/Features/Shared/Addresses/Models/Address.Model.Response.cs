@@ -1,4 +1,4 @@
-namespace Module.Profile.Features.Admin.Addresses.Shared.Models;
+namespace Module.Profile.Features.Shared.Addresses.Models;
 
 public record AddressResponse : AddressParameters, IResponse
 {

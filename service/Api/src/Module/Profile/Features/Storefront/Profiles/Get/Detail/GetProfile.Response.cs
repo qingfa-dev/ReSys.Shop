@@ -1,4 +1,4 @@
-using Module.Profile.Features.Admin.Profiles.Shared.Models;
+using Module.Profile.Features.Shared.Profiles.Models;
 
 namespace Module.Profile.Features.Storefront.Profiles.Get.Detail;
 

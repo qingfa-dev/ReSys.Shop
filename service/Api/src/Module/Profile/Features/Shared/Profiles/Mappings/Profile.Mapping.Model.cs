@@ -1,9 +1,9 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Admin.Profiles.Shared.Models;
+using Module.Profile.Features.Shared.Profiles.Models;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Profile.Features.Admin.Profiles.Shared.Mappings;
+namespace Module.Profile.Features.Shared.Profiles.Mappings;
 
 public static partial class ProfileMapping
 {

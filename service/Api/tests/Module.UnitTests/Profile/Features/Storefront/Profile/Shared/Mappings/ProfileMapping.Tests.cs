@@ -1,6 +1,6 @@
 using Module.Profile.Domain.Preferences;
-using Module.Profile.Features.Admin.Profiles.Shared.Mappings;
-using Module.Profile.Features.Admin.Profiles.Shared.Models;
+using Module.Profile.Features.Shared.Profiles.Mappings;
+using Module.Profile.Features.Shared.Profiles.Models;
 using Module.UnitTests.Profile.Domain;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Shared.Mappings;

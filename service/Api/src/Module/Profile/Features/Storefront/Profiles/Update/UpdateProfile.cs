@@ -1,5 +1,5 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Admin.Profiles.Shared.Mappings;
+using Module.Profile.Features.Shared.Profiles.Mappings;
 
 namespace Module.Profile.Features.Storefront.Profiles.Update;
 

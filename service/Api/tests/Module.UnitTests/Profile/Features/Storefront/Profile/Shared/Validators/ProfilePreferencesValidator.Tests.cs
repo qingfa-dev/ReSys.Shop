@@ -1,6 +1,6 @@
 using Module.Profile.Domain.Preferences;
-using Module.Profile.Features.Admin.Profiles.Shared.Validators;
-using Module.Profile.Features.Admin.Profiles.Shared.Models;
+using Module.Profile.Features.Shared.Profiles.Validators;
+using Module.Profile.Features.Shared.Profiles.Models;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Shared.Validators;
 

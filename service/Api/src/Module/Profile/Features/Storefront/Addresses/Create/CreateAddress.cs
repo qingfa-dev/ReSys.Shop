@@ -1,6 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
-using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
+using Module.Profile.Features.Shared.Addresses.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
