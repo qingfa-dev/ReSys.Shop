@@ -18,10 +18,11 @@ public static partial class GetStorefrontCountryByIso
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=request!=null, post=country found or NotFound returned
-            // Load: Retrieve country by ISO code.
+            // Load: Retrieve country by ISO code (case-insensitive).
+            var isoCode = request.IsoCode.ToUpperInvariant();
             var entity = await dbContext.Set<Country>()
                 .FirstOrDefaultAsync(predicate: c =>
-                    c.IsoCode == request.IsoCode, cancellationToken: cancellationToken);
+                    c.IsoCode.ToUpper() == isoCode, cancellationToken: cancellationToken);
 
             if (entity is null)
                 return CountryResult.Failure.NotFound;
