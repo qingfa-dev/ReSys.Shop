@@ -1,84 +1,149 @@
-// Storefront Aura theme overrides — Phase 7 design-token pass (§9.1 palette)
+// Storefront Aura theme overrides — Spec A fashion boutique teal palette.
 //
-// Variable names verified against @primeuix/themes v3 (Aura preset). Aura emits
-// one CSS custom property per semantic token as `--p-{dotted-path→kebab}`,
-// e.g. semantic `primary.color` → `--p-primary-color`.
-//
-// The brief's literal `--p-surface-ground` / `--p-surface-card` are legacy
-// PrimeVue v4 tokens and do NOT exist in Aura 3 (the `surface` namespace is a
-// `0–950` scale only). They are mapped below to the real tokens/values the
-// components actually read (card → `--p-content-background`, page ground →
-// `body` background). See .superpowers/sdd/.../task-7.1-report.md for the full
-// mapping table.
+// PrimeVue 5 Aura emits one CSS custom property per semantic token as
+// --p-{dotted-path->kebab}, e.g. semantic primary.color -> --p-primary-color.
+// These :root overrides win the cascade because they appear after Aura's own
+// stylesheet injection.
+
 :root {
-  // --- §9.1 semantic tokens that exist verbatim in Aura 3 ---
-  --p-primary-color: #111827;          // §9.1 primary = gray-900
-  --p-text-color: #111827;             // §9.1 text = gray-900
-  --p-text-muted-color: #6b7280;       // §9.1 text-muted = gray-500
-  --p-content-border-color: #e5e7eb;   // §9.1 content-border = gray-200
+  // --- Primary scale: teal (legacy --color-primary: #0f766e) ---
+  --p-primary-color: #0f766e;            // teal-700
+  --p-primary-hover-color: #0d5d56;      // darkened teal-700
+  --p-primary-active-color: #115e59;     // teal-800
+  --p-primary-contrast-color: #ffffff;   // white text on teal
 
-  // --- Primary hover/active states (button hover/active read these, not
-  //     --p-primary-color) — keeps the monochrome palette on interaction ---
-  --p-primary-hover-color: #374151;    // gray-700
-  --p-primary-active-color: #1f2937;   // gray-800
-  --p-primary-contrast-color: #ffffff; // white text on gray-900
+  --p-primary-50: #f0fdfa;
+  --p-primary-100: #ccfbf1;
+  --p-primary-200: #99f6e4;
+  --p-primary-300: #5eead4;
+  --p-primary-400: #2dd4bf;
+  --p-primary-500: #14b8a6;
+  --p-primary-600: #0d9488;
+  --p-primary-700: #0f766e;
+  --p-primary-800: #115e59;
+  --p-primary-900: #134e4a;
+  --p-primary-950: #042f2e;
 
-  // --- Primary scale → gray (outlined/text buttons, highlight, focus rings
-  //     read --p-primary-{50..950} directly) ---
-  --p-primary-50: #f9fafb;
-  --p-primary-100: #f3f4f6;
-  --p-primary-200: #e5e7eb;
-  --p-primary-300: #d1d5db;
-  --p-primary-400: #9ca3af;
-  --p-primary-500: #6b7280;
-  --p-primary-600: #4b5563;
-  --p-primary-700: #374151;
-  --p-primary-800: #1f2937;
-  --p-primary-900: #111827;
-  --p-primary-950: #030712;
-
-  // --- Surface scale → gray (Aura default is slate-tinted). Drives secondary
-  //     buttons, menus, form fields, overlays and hover backgrounds ---
+  // --- Surface scale: warm stone neutral ---
   --p-surface-0: #ffffff;
-  --p-surface-50: #f9fafb;             // §9.1 surface-ground = gray-50
-  --p-surface-100: #f3f4f6;
-  --p-surface-200: #e5e7eb;
-  --p-surface-300: #d1d5db;
-  --p-surface-400: #9ca3af;
-  --p-surface-500: #6b7280;
-  --p-surface-600: #4b5563;
-  --p-surface-700: #374151;
-  --p-surface-800: #1f2937;
-  --p-surface-900: #111827;
-  --p-surface-950: #030712;
+  --p-surface-50: #fafaf9;
+  --p-surface-100: #f5f5f4;
+  --p-surface-200: #e7e5e4;
+  --p-surface-300: #d6d3d1;
+  --p-surface-400: #a8a29e;
+  --p-surface-500: #78716c;
+  --p-surface-600: #57534e;
+  --p-surface-700: #44403c;
+  --p-surface-800: #292524;
+  --p-surface-900: #1c1917;
+  --p-surface-950: #0c0a09;
 
-  // --- Card surface: Card reads --p-card-background → {content.background} ---
-  --p-content-background: #ffffff;      // §9.1 surface-card = white
+  // --- Semantic tokens ---
+  --p-content-background: #ffffff;
+  --p-content-border-color: #e7e5e4;
+  --p-text-color: #1c1917;
+  --p-text-muted-color: #a8a29e;
+  --p-form-field-background: #ffffff;
+  --p-form-field-border-color: #d6d3d1;
+  --p-form-field-focus-border-color: #0f766e;
+  --p-navigation-item-focus-background: #f0fdfa;
+  --p-navigation-item-active-background: #ccfbf1;
+  --p-highlight-background: #ccfbf1;
+  --p-highlight-color: #0f766e;
 
-  // --- Legacy PrimeVue v4 aliases (kept so the brief's literal names resolve
-  //     for app code / documentation; harmless in Aura 3) ---
-  --p-surface-ground: #f9fafb;
+  // --- State colors ---
+  --p-success-color: #16a34a;
+  --p-warning-color: #ca8a04;
+  --p-danger-color: #dc2626;
+  --p-info-color: #2563eb;
+
+  // --- Legacy v4 aliases ---
+  --p-surface-ground: #fafaf9;
   --p-surface-card: #ffffff;
 }
 
-// Base typography + page ground. §9.1: Inter/system-ui stack, base 16px,
-// page background gray-50 (there is no Aura token that paints <body>).
-body {
-  margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  background: var(--p-surface-ground, #f9fafb);
-  color: var(--p-text-color, #111827);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+// --- Dark mode: invert surface/text, brighten primary ---
+.app-dark {
+  --p-surface-0: #292524;
+  --p-surface-50: #1c1917;
+  --p-surface-100: #292524;
+  --p-surface-200: #44403c;
+  --p-surface-300: #57534e;
+  --p-surface-400: #78716c;
+  --p-surface-500: #a8a29e;
+  --p-surface-600: #d6d3d1;
+  --p-surface-700: #e7e5e4;
+  --p-surface-800: #f5f5f4;
+  --p-surface-900: #fafaf9;
+  --p-surface-950: #ffffff;
+
+  --p-content-background: #1c1917;
+  --p-content-border-color: #44403c;
+  --p-text-color: #fafaf9;
+  --p-text-muted-color: #a8a29e;
+
+  --p-primary-color: #14b8a6;
+  --p-primary-hover-color: #2dd4bf;
+  --p-primary-active-color: #0d9488;
+  --p-primary-contrast-color: #042f2e;
+
+  --p-primary-50: #042f2e;
+  --p-primary-100: #134e4a;
+  --p-primary-200: #115e59;
+  --p-primary-300: #0f766e;
+  --p-primary-400: #0d9488;
+  --p-primary-500: #14b8a6;
+  --p-primary-600: #2dd4bf;
+  --p-primary-700: #5eead4;
+  --p-primary-800: #99f6e4;
+  --p-primary-900: #ccfbf1;
+  --p-primary-950: #f0fdfa;
+
+  --p-surface-ground: #1c1917;
+  --p-surface-card: #1c1917;
 }
 
-// Accessibility — honor prefers-reduced-motion (Task 7.4 NFR #5).
-// Skeleton/loading blocks use Tailwind's `animate-pulse`; stop the pulse for
-// users who request reduced motion (WCAG 2.3.3). This block is unlayered, so it
-// takes precedence over Tailwind's layered `utilities` even when it appears
-// earlier in the cascade.
+// --- Typography ---
+body {
+  margin: 0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background: var(--p-surface-50);
+  color: var(--p-text-color);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+// --- Animations ---
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn    { animation: fadeIn 250ms ease-out; }
+.animate-slideUp   { animation: slideUp 250ms ease-out; }
+.animate-slideDown { animation: slideDown 250ms ease-out; }
+.animate-scaleIn   { animation: scaleIn 250ms ease-out; }
+
+// --- Accessibility ---
 @media (prefers-reduced-motion: reduce) {
   .animate-pulse {
     animation: none;
