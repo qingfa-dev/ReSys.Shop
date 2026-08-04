@@ -50,7 +50,7 @@ public class ReleaseCartReservationTests : IDisposable
         var reservation = new StockReservation
         {
             VariantId = _variantId, StockLocationId = _stockLocationId,
-            Quantity = quantity, State = state,
+            Quantity = quantity, State = state, CartToken = "test-cart-token",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(30),
             CreatedAtUtc = DateTimeOffset.UtcNow
         };
@@ -59,8 +59,8 @@ public class ReleaseCartReservationTests : IDisposable
         return reservation;
     }
 
-    [Fact(DisplayName = "Handler: Should release reservation and restore stock")]
-    public async Task Handle_ShouldReleaseReservation_AndRestoreStock()
+    [Fact(DisplayName = "Handler: Should release reservation without restoring CountOnHand")]
+    public async Task Handle_ShouldReleaseReservation_WithoutRestoringStock()
     {
         var stockItem = await SeedStockItem(10);
         var reservation = await SeedReservation(3);
@@ -75,8 +75,21 @@ public class ReleaseCartReservationTests : IDisposable
         updated!.State.Should().Be(ReservationState.Released);
         updated.ExpiresAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
 
+        // CountOnHand is a soft hold — Reserve never decrements it, so Release must not restore it.
         var reloaded = await _dbContext.Set<StockItem>().FindAsync([stockItem.Id], TestContext.Current.CancellationToken);
-        reloaded!.CountOnHand.Should().Be(13); // 10 seed + 3 released reservation
+        reloaded!.CountOnHand.Should().Be(10);
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure when reservation token mismatched")]
+    public async Task Handle_ShouldReturnFailure_WhenTokenMismatched()
+    {
+        var reservation = await SeedReservation(3);
+
+        var result = await _handler.Handle(
+            new ReleaseCartReservation.Command(new ReleaseCartReservation.Request { ReservationId = reservation.Id, CartToken = "other-cart-token" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
     }
 
     [Fact(DisplayName = "Handler: Should return failure when reservation not found")]

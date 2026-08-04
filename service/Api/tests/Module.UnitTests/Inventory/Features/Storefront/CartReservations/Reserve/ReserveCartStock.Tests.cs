@@ -121,8 +121,8 @@ public class ReserveCartStockTests : IDisposable
         result.IsFailure.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: uses RepeatableRead isolation for cart reservation transaction")]
-    public async Task Handle_UsesRepeatableRead()
+    [Fact(DisplayName = "Handler: uses Serializable isolation for cart reservation transaction")]
+    public async Task Handle_UsesSerializableIsolation()
     {
         IsolationLevel? capturedLevel = null;
 
@@ -157,7 +157,7 @@ public class ReserveCartStockTests : IDisposable
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
-        capturedLevel.Should().Be(IsolationLevel.RepeatableRead);
+        capturedLevel.Should().Be(IsolationLevel.Serializable);
     }
 
     [Fact(DisplayName = "Validator: rejects null StockLocationId")]

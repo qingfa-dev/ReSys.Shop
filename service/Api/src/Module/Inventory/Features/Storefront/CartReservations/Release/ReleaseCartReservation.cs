@@ -1,4 +1,3 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 
 namespace Module.Inventory.Features.Storefront.CartReservations.Release;
@@ -15,7 +14,8 @@ public static partial class ReleaseCartReservation
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var reservation = await dbContext.Set<StockReservation>()
-                .FirstOrDefaultAsync(r => r.Id == command.Request.ReservationId, cancellationToken);
+                .FirstOrDefaultAsync(r => r.Id == command.Request.ReservationId
+                                       && r.CartToken == command.Request.CartToken, cancellationToken);
 
             if (reservation is null)
                 return StockReservationResult.Errors.NotFound(command.Request.ReservationId);
@@ -24,18 +24,6 @@ public static partial class ReleaseCartReservation
             if (releaseResult.IsFailure) return releaseResult.Errors;
 
             reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
-
-            if (reservation.StockLocationId is not null)
-            {
-                var stockItem = await dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(si =>
-                        si.VariantId == reservation.VariantId &&
-                        si.StockLocationId == reservation.StockLocationId.Value,
-                        cancellationToken);
-
-                if (stockItem is not null)
-                    stockItem.CountOnHand += reservation.Quantity;
-            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

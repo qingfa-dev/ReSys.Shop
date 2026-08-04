@@ -27,62 +27,80 @@ public static partial class ReserveCartStock
             var cartToken = command.Request.CartToken;
             var ttlMinutes = command.Request.TtlMinutes;
 
-            await using var transaction = await dbContext.BeginTransactionAsync(
-                IsolationLevel.RepeatableRead, cancellationToken);
-
-            try
+            // Persist: Serialize concurrent reservations for the same stock row; retry on serialization failures.
+            const int maxRetries = 3;
+            for (int attempt = 0; attempt < maxRetries; attempt++)
             {
-                var stockItem = await dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
+                await using var transaction = await dbContext.BeginTransactionAsync(
+                    IsolationLevel.Serializable, cancellationToken);
 
-                if (stockItem is null)
+                try
+                {
+                    var stockItem = await dbContext.Set<StockItem>()
+                        .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
+
+                    if (stockItem is null)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return StockReservationResult.Errors.InsufficientStock;
+                    }
+
+                    var reserved = await dbContext.Set<StockReservation>()
+                        .Where(r => r.VariantId == variantId
+                                    && r.StockLocationId == stockLocationId
+                                    && r.State == ReservationState.Reserved
+                                    && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                        .SumAsync(r => r.Quantity, cancellationToken);
+
+                    var available = stockItem.CountOnHand - reserved;
+                    if (available < quantity)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return StockReservationResult.Errors.InsufficientStock;
+                    }
+                    // NOTE: Cart reservations have null OrderId. When cart converts to order,
+                    // the OrderId must be patched so DecrementStockAsync can match reservations.
+                    // See Module.Ordering for cart-to-order flow.
+                    var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
+                    if (result.IsFailure)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return result.Errors;
+                    }
+
+                    dbContext.Set<StockReservation>().Add(result.Value);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+
+                    // EXCEPTION: reservation aggregate — no single domain entity
+                    return new Response
+                    {
+                        Id = result.Value.Id,
+                        VariantId = result.Value.VariantId,
+                        Quantity = result.Value.Quantity,
+                        ExpiresAtUtc = result.Value.ExpiresAtUtc!.Value,
+                        State = result.Value.State.ToString()
+                    };
+                }
+                catch (DbUpdateConcurrencyException) when (attempt < maxRetries - 1)
                 {
                     await transaction.RollbackAsync(cancellationToken);
-                    return StockReservationResult.Errors.InsufficientStock;
+                    await Task.Delay(100 * (1 << attempt), cancellationToken);
                 }
-
-                var reserved = await dbContext.Set<StockReservation>()
-                    .Where(r => r.VariantId == variantId
-                                && r.StockLocationId == stockLocationId
-                                && r.State == ReservationState.Reserved
-                                && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
-                    .SumAsync(r => r.Quantity, cancellationToken);
-
-                var available = stockItem.CountOnHand - reserved;
-                if (available < quantity)
+                catch (Npgsql.PostgresException ex) when (ex.SqlState == "40001") // serialization_failure
                 {
                     await transaction.RollbackAsync(cancellationToken);
-                    return StockReservationResult.Errors.InsufficientStock;
+                    if (attempt == maxRetries - 1) throw;
+                    await Task.Delay(100 * (1 << attempt), cancellationToken);
                 }
-                // NOTE: Cart reservations have null OrderId. When cart converts to order,
-                // the OrderId must be patched so DecrementStockAsync can match reservations.
-                // See Module.Ordering for cart-to-order flow.
-                var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
-                if (result.IsFailure)
+                catch
                 {
                     await transaction.RollbackAsync(cancellationToken);
-                    return result.Errors;
+                    throw;
                 }
-
-                dbContext.Set<StockReservation>().Add(result.Value);
-                await dbContext.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
-
-                // EXCEPTION: reservation aggregate — no single domain entity
-                return new Response
-                {
-                    Id = result.Value.Id,
-                    VariantId = result.Value.VariantId,
-                    Quantity = result.Value.Quantity,
-                    ExpiresAtUtc = result.Value.ExpiresAtUtc!.Value,
-                    State = result.Value.State.ToString()
-                };
             }
-            catch
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+
+            return StockReservationResult.Errors.InsufficientStock;
         }
     }
 }
