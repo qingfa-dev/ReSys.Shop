@@ -97,5 +97,10 @@ function onFileSelected(file: File): void {
     <Message v-if="vs.validationError.value" severity="error" :closable="true" @close="vs.validationError.value = null">
       {{ vs.validationError.value.message }}
     </Message>
+
+    <!-- State: Search Error -->
+    <Message v-if="vs.error.value" severity="error" :closable="true" @close="vs.error.value = null">
+      {{ vs.error.value }}
+    </Message>
   </div>
 </template>

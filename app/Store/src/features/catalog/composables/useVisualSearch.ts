@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { searchByImage } from '../services/searchByImageApi'
 import type { SearchByImageResponse } from '../types/searchByImage'
 
@@ -20,6 +20,11 @@ export function useVisualSearch() {
   const error = ref<string | null>(null)
   const validationError = ref<ValidationError | null>(null)
   const isDragging = ref(false)
+
+  // Cleanup: Revoke the object URL when the owning component unmounts
+  onUnmounted(() => {
+    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+  })
 
   function validateFile(file: File): ValidationError | null {
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -58,12 +63,17 @@ export function useVisualSearch() {
     if (!selectedFile.value) return
     state.value = 'loading'
     error.value = null
-    const result = await searchByImage(selectedFile.value, topK)
-    if (result.isSuccess) {
-      results.value = result.items
-      state.value = 'results'
-    } else {
-      error.value = result.message ?? 'Search failed. Please try again.'
+    try {
+      const result = await searchByImage(selectedFile.value, topK)
+      if (result.isSuccess) {
+        results.value = result.items
+        state.value = 'results'
+      } else {
+        error.value = result.message ?? 'Search failed. Please try again.'
+        state.value = 'upload'
+      }
+    } catch {
+      error.value = 'Search failed. Please try again.'
       state.value = 'upload'
     }
   }
