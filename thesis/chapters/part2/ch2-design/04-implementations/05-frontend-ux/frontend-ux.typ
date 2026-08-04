@@ -6,7 +6,7 @@ The user-facing components of ReSys.Shop consist of two Vue 3 single-page applic
 
 ===== Dual-SPA Structure
 
-Both applications share a common technology foundation: Vue 3.5 with the Composition API, TypeScript ~6.0, Vite 8, Pinia for state management, and Axios for HTTP communication: but differ in their UI component presets. The storefront uses PrimeVue 4 (Aura theme) optimised for consumer browsing, image upload, and product discovery. The administration dashboard uses PrimeVue 5 (Sakai theme) with Chart.js 4 for data-dense views, inline editing, and aggregate dashboards.
+Both applications share a common technology foundation: Vue 3.5 with the Composition API, TypeScript ~6.0, Vite 8, Pinia for state management, and Axios for HTTP communication: but differ in their UI component presets. The storefront uses PrimeVue 5 (Aura theme) optimised for consumer browsing, image upload, and product discovery. The administration dashboard uses PrimeVue 5 (Sakai theme) with Chart.js 4 for data-dense views, inline editing, and aggregate dashboards.
 
 Each application is organised by feature module, grouping views, types, services, and API repositories together. Vite provides hot module replacement with sub-second feedback during development; the dev server proxies `/api/` requests to the .NET backend running on a separate Aspire-managed port.
 

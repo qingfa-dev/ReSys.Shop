@@ -27,7 +27,7 @@ Centralized package management enforces build reproducibility: `Directory.Packag
     [*ML Framework*], [FastAPI >= 0.115.0, Uvicorn, Hugging Face Transformers],
     [*ONNX Runtime*], [onnxruntime >= 1.17.0],
 
-    [*Storefront UI*], [Vue 3.5, TypeScript ~ 6.0, Vite 8, PrimeVue 4 (Aura)],
+    [*Storefront UI*], [Vue 3.5, TypeScript ~ 6.0, Vite 8, PrimeVue 5 (Aura)],
     [*Admin UI*], [Vue 3.5, TypeScript ~ 6.0, Vite 8, PrimeVue 5 (Sakai), Chart.js 4],
     [*State & HTTP*], [Pinia, Axios 1.x, Zod],
 
