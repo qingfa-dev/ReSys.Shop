@@ -10,6 +10,7 @@ export interface PagedRequestOptions {
   allowedSortFields?: string[]
   allowedSearchFields?: string[]
   signal?: AbortSignal
+  headers?: Record<string, string>
 }
 
 function buildSearchParams(params: QueryingParameters): URLSearchParams {
@@ -47,7 +48,7 @@ export async function getPaged<T>(
   try {
     const sep = url.includes('?') ? '&' : '?'
     const fullUrl = qs ? `${url}${sep}${qs}` : url
-    return await get<PagedResult<T>>(fullUrl, options?.signal)
+    return await get<PagedResult<T>>(fullUrl, { signal: options?.signal, headers: options?.headers })
   } catch (e) {
     if (e instanceof HttpError) {
       return pagedFailure<T>(e.errors, e.statusCode)

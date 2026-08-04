@@ -14,45 +14,50 @@ export function setAuthToken(token: string | null): void {
   }
 }
 
-export async function get<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().get<T>(url, { signal })
+export interface RequestConfig {
+  signal?: AbortSignal
+  headers?: Record<string, string>
+}
+
+export async function get<T>(url: string, config?: RequestConfig): Promise<T> {
+  const response = await getApiClient().get<T>(url, { signal: config?.signal, headers: config?.headers })
   return response.data
 }
 
-function requestConfig(body?: unknown, signal?: AbortSignal): { signal?: AbortSignal; headers?: { 'Content-Type'?: string } } {
-  const config: { signal?: AbortSignal; headers?: { 'Content-Type'?: string } } = { signal }
+function requestConfig(body?: unknown, config?: RequestConfig): { signal?: AbortSignal; headers?: Record<string, string | undefined> } {
+  const headers: Record<string, string | undefined> = { ...config?.headers }
   if (body instanceof FormData) {
-    config.headers = { 'Content-Type': undefined }
+    headers['Content-Type'] = undefined
   }
-  return config
+  return { signal: config?.signal, headers }
 }
 
-export async function post<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().post<T>(url, body, requestConfig(body, signal))
+export async function post<T>(url: string, body?: unknown, config?: RequestConfig): Promise<T> {
+  const response = await getApiClient().post<T>(url, body, requestConfig(body, config))
   return response.data
 }
 
-export async function put<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().put<T>(url, body, requestConfig(body, signal))
+export async function put<T>(url: string, body?: unknown, config?: RequestConfig): Promise<T> {
+  const response = await getApiClient().put<T>(url, body, requestConfig(body, config))
   return response.data
 }
 
-export async function patch<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().patch<T>(url, body, requestConfig(body, signal))
+export async function patch<T>(url: string, body?: unknown, config?: RequestConfig): Promise<T> {
+  const response = await getApiClient().patch<T>(url, body, requestConfig(body, config))
   return response.data
 }
 
-export async function del<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().delete<T>(url, { signal })
+export async function del<T>(url: string, config?: RequestConfig): Promise<T> {
+  const response = await getApiClient().delete<T>(url, { signal: config?.signal, headers: config?.headers })
   return response.data
 }
 
-export async function delWithBody<T>(url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await getApiClient().delete<T>(url, { data: body, signal })
+export async function delWithBody<T>(url: string, body?: unknown, config?: RequestConfig): Promise<T> {
+  const response = await getApiClient().delete<T>(url, { data: body, signal: config?.signal, headers: config?.headers })
   return response.data
 }
 
-export async function getBlob(url: string, signal?: AbortSignal): Promise<Blob> {
-  const response = await getApiClient().get<Blob>(url, { responseType: 'blob', signal })
+export async function getBlob(url: string, config?: RequestConfig): Promise<Blob> {
+  const response = await getApiClient().get<Blob>(url, { responseType: 'blob', signal: config?.signal, headers: config?.headers })
   return response.data
 }

@@ -60,7 +60,8 @@ export const ENDPOINTS = {
   availability: (variantId: string) => `${API_STOREFRONT}/availability/${variantId}`,
   cartReserve: `${API_STOREFRONT}/cart/reserve`,
   cartReserveById: (id: string) => `${API_STOREFRONT}/cart/reserve/${id}`,
-  cartReserveStatus: `${API_STOREFRONT}/cart/reserve/status`,
+  // GET (status) and POST (reserve) share the same route on the backend.
+  cartReserveStatus: `${API_STOREFRONT}/cart/reserve`,
 
   // Profile
   profiles: `${API_STORE}/profiles`,
