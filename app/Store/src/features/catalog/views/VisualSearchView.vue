@@ -12,7 +12,7 @@ function onFileSelected(file: File): void {
 <template>
   <!-- Section: Visual Search Page -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-2xl font-bold text-gray-900 mb-8">Visual Search</h1>
+    <h1 class="text-2xl font-bold text-stone-900 mb-8">Visual Search</h1>
 
     <!-- State: Empty -->
     <VisualSearchDropzone v-if="vs.state.value === 'empty'" @file-selected="onFileSelected" />
@@ -22,7 +22,7 @@ function onFileSelected(file: File): void {
       <div class="flex flex-col md:flex-row gap-8">
         <div class="w-full md:w-1/3">
           <img :src="vs.previewUrl.value" alt="Query image" class="w-full rounded-xl shadow" />
-          <p class="text-sm text-gray-500 mt-2">{{ vs.selectedFile.value?.name }} ({{ ((vs.selectedFile.value?.size ?? 0) / 1024 / 1024).toFixed(1) }} MB)</p>
+          <p class="text-sm text-stone-500 mt-2">{{ vs.selectedFile.value?.name }} ({{ ((vs.selectedFile.value?.size ?? 0) / 1024 / 1024).toFixed(1) }} MB)</p>
         </div>
         <div class="w-full md:w-2/3 flex flex-col justify-center items-center">
           <Button label="Search Similar Products" icon="pi pi-search" size="large" @click="vs.search()" />
@@ -33,11 +33,11 @@ function onFileSelected(file: File): void {
 
     <!-- State: Loading -->
     <div v-if="vs.state.value === 'loading'" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div v-for="i in 8" :key="i" class="bg-gray-100 rounded-xl animate-pulse">
-        <div class="aspect-square bg-gray-200 rounded-t-xl" />
+      <div v-for="i in 8" :key="i" class="bg-stone-100 rounded-xl animate-pulse">
+        <div class="aspect-square bg-stone-200 rounded-t-xl" />
         <div class="p-4 space-y-2">
-          <div class="h-4 bg-gray-200 rounded w-3/4" />
-          <div class="h-5 bg-gray-200 rounded w-1/3" />
+          <div class="h-4 bg-stone-200 rounded w-3/4" />
+          <div class="h-5 bg-stone-200 rounded w-1/3" />
         </div>
       </div>
     </div>
@@ -55,9 +55,9 @@ function onFileSelected(file: File): void {
         <div class="flex-1">
           <!-- Empty results -->
           <div v-if="vs.results.value.length === 0" class="text-center py-16">
-            <i class="pi pi-image text-4xl text-gray-300 mb-4" />
-            <h3 class="text-lg font-medium text-gray-900">We couldn't find products similar to your image.</h3>
-            <p class="text-gray-500 mt-2">Try a different image or angle.</p>
+            <i class="pi pi-image text-4xl text-stone-300 mb-4" />
+            <h3 class="text-lg font-medium text-stone-900">We couldn't find products similar to your image.</h3>
+            <p class="text-stone-500 mt-2">Try a different image or angle.</p>
             <Button label="Try Again" severity="secondary" class="mt-4" @click="vs.reset()" />
           </div>
 

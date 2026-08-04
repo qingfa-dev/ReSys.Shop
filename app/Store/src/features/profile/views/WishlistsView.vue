@@ -84,8 +84,8 @@ onMounted(() => store.fetchWishlists())
     <!-- Section: Page Header -->
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Wishlists</h1>
-        <p class="text-sm text-gray-500 mt-1">Create and manage your saved product lists.</p>
+        <h1 class="text-2xl font-bold text-stone-900">Wishlists</h1>
+        <p class="text-sm text-stone-500 mt-1">Create and manage your saved product lists.</p>
       </div>
       <Button v-if="!showCreate" label="New Wishlist" icon="pi pi-plus" @click="startCreate" />
     </div>
@@ -102,8 +102,8 @@ onMounted(() => store.fetchWishlists())
 
     <template v-else>
       <!-- Section: Inline Create Form -->
-      <div v-if="showCreate" class="mb-6 bg-white rounded-xl border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">New Wishlist</h3>
+      <div v-if="showCreate" class="mb-6 bg-white rounded-xl border border-stone-200 p-6">
+        <h3 class="text-lg font-semibold text-stone-900 mb-4">New Wishlist</h3>
         <div class="flex flex-wrap items-start gap-3">
           <div class="flex-1 min-w-56">
             <InputText
@@ -126,8 +126,8 @@ onMounted(() => store.fetchWishlists())
 
       <!-- Section: Empty -->
       <div v-if="!showCreate && store.items.length === 0" class="text-center py-16">
-        <i class="pi pi-heart text-4xl text-gray-300 mb-4 block" />
-        <p class="text-gray-500">No wishlists yet</p>
+        <i class="pi pi-heart text-4xl text-stone-300 mb-4 block" />
+        <p class="text-stone-500">No wishlists yet</p>
         <Button label="Create a wishlist" severity="secondary" class="mt-4" @click="startCreate" />
       </div>
 

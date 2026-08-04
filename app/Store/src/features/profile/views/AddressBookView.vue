@@ -135,8 +135,8 @@ onMounted(loadAddresses)
     <!-- Section: Page Header -->
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Addresses</h1>
-        <p class="text-sm text-gray-500 mt-1">Manage your shipping and billing addresses.</p>
+        <h1 class="text-2xl font-bold text-stone-900">Addresses</h1>
+        <p class="text-sm text-stone-500 mt-1">Manage your shipping and billing addresses.</p>
       </div>
       <Button v-if="!showForm" label="Add New Address" icon="pi pi-plus" @click="startAdd" />
     </div>
@@ -163,8 +163,8 @@ onMounted(loadAddresses)
 
       <!-- Section: Empty -->
       <div v-if="!showForm && addresses.length === 0" class="text-center py-16">
-        <i class="pi pi-map-marker text-4xl text-gray-300 mb-4 block" />
-        <p class="text-gray-500">No saved addresses yet</p>
+        <i class="pi pi-map-marker text-4xl text-stone-300 mb-4 block" />
+        <p class="text-stone-500">No saved addresses yet</p>
         <Button label="Add an address" severity="secondary" class="mt-4" @click="startAdd" />
       </div>
 

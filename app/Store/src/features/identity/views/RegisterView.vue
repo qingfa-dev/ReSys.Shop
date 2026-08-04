@@ -30,14 +30,14 @@ const confirmMask = ref(true)
 // Strength: Client-side password heuristic — length + mixed case + digits → 0-4 bar.
 function strengthInfo(password: string): { width: number; label: string; colorClass: string } {
   let score = 0
-  if (!password) return { width: 0, label: '', colorClass: 'bg-gray-200' }
+  if (!password) return { width: 0, label: '', colorClass: 'bg-stone-200' }
   if (password.length >= 8) score++
   if (password.length >= 12) score++
   if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++
   if (/\d/.test(password)) score++
   const width = (score / 4) * 100
   const label = ['Too weak', 'Weak', 'Fair', 'Good', 'Strong'][score] ?? ''
-  const colorClass = ['bg-red-400', 'bg-red-500', 'bg-yellow-400', 'bg-green-400', 'bg-green-600'][score] ?? 'bg-gray-200'
+  const colorClass = ['bg-red-400', 'bg-red-500', 'bg-yellow-400', 'bg-green-400', 'bg-green-600'][score] ?? 'bg-stone-200'
   return { width, label, colorClass }
 }
 
@@ -65,7 +65,7 @@ async function onSubmit(event: FormSubmitEvent) {
 
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Create your account</h2>
+    <h2 class="text-2xl font-bold text-center text-stone-900 mb-6">Create your account</h2>
     <Form :resolver="registerResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
       <FormField v-slot="$field" name="fullName" class="flex flex-col gap-1">
         <FloatLabel variant="on">
@@ -96,14 +96,14 @@ async function onSubmit(event: FormSubmitEvent) {
         </FloatLabel>
         <!-- Section: Password Strength Bar -->
         <div v-if="$field.value" class="mt-1">
-          <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+          <div class="h-1.5 w-full bg-stone-200 rounded-full overflow-hidden">
             <div
               class="h-full rounded-full transition-all duration-300"
               :class="strengthInfo($field.value).colorClass"
               :style="{ width: `${strengthInfo($field.value).width}%` }"
             />
           </div>
-          <span class="text-xs text-gray-500">{{ strengthInfo($field.value).label }}</span>
+          <span class="text-xs text-stone-500">{{ strengthInfo($field.value).label }}</span>
         </div>
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
       </FormField>
@@ -126,7 +126,7 @@ async function onSubmit(event: FormSubmitEvent) {
       <Button type="submit" label="Create Account" fluid size="large" :loading="isSubmitting" />
     </Form>
 
-    <p class="text-center text-sm text-gray-600 mt-6">
+    <p class="text-center text-sm text-stone-600 mt-6">
       Already have an account?
       <router-link to="/login" class="font-medium text-primary hover:underline">Sign in</router-link>
     </p>

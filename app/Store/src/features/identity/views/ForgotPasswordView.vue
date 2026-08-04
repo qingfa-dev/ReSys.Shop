@@ -36,7 +36,7 @@ async function onSubmit(event: FormSubmitEvent) {
 
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Reset your password</h2>
+    <h2 class="text-2xl font-bold text-center text-stone-900 mb-6">Reset your password</h2>
 
     <!-- Section: Success State — confirmation shown once the reset link is sent -->
     <template v-if="isSuccess">
@@ -49,7 +49,7 @@ async function onSubmit(event: FormSubmitEvent) {
     </template>
 
     <template v-else>
-      <p class="text-sm text-gray-600 text-center mb-6">
+      <p class="text-sm text-stone-600 text-center mb-6">
         Enter your email and we'll send you a link to reset your password.
       </p>
       <Form :resolver="forgotResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">

@@ -15,11 +15,11 @@ const mobileMenuOpen = ref(false)
 </script>
 <template>
   <!-- Section: Header Bar -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 gap-4">
         <!-- Section: Logo -->
-        <router-link to="/" class="text-xl font-bold text-gray-900 shrink-0">
+        <router-link to="/" class="text-xl font-bold text-stone-900 shrink-0">
           ReSys.Shop
         </router-link>
 
@@ -43,7 +43,7 @@ const mobileMenuOpen = ref(false)
           <!-- Cart Icon -->
           <router-link
             to="/cart"
-            class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+            class="relative p-2 text-stone-600 hover:text-stone-900 transition-colors"
           >
             <i class="pi pi-shopping-cart text-xl" />
           <span
@@ -58,7 +58,7 @@ const mobileMenuOpen = ref(false)
         <template v-if="auth.isAuthenticated">
           <router-link
             to="/account/orders"
-            class="hidden md:flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+            class="hidden md:flex items-center gap-2 text-sm text-stone-600 hover:text-stone-900"
           >
             <i class="pi pi-user" />
             {{ auth.user?.userName ?? 'Account' }}

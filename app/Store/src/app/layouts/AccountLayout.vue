@@ -16,7 +16,7 @@ const navItems = [
 </script>
 <template>
   <!-- Section: Account Shell -->
-  <div class="min-h-screen flex flex-col bg-gray-50">
+  <div class="min-h-screen flex flex-col bg-stone-50">
     <AppHeader />
     <!-- Section: Account Body -->
     <div class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
@@ -29,8 +29,8 @@ const navItems = [
                 :to="item.to"
                 class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 :class="route.path === item.to
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'"
+                  ? 'bg-stone-900 text-white'
+                  : 'text-stone-600 hover:bg-stone-100'"
               >
                 <i :class="item.icon" />
                 {{ item.label }}

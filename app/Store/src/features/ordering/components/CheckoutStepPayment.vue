@@ -79,37 +79,37 @@ async function pay(): Promise<void> {
 </script>
 <template>
   <!-- Section: Payment Step -->
-  <div class="bg-white rounded-xl border border-gray-200 p-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment</h2>
-    <div class="flex justify-between text-sm text-gray-600 mb-4">
+  <div class="bg-white rounded-xl border border-stone-200 p-6">
+    <h2 class="text-lg font-semibold text-stone-900 mb-4">Payment</h2>
+    <div class="flex justify-between text-sm text-stone-600 mb-4">
       <span>Order total</span>
-      <span class="font-semibold text-gray-900">{{ formatVnd(cart.subtotal) }}</span>
+      <span class="font-semibold text-stone-900">{{ formatVnd(cart.subtotal) }}</span>
     </div>
 
     <!-- Section: Loading -->
     <div v-if="loading" class="space-y-3 mb-6">
-      <div v-for="i in 2" :key="i" class="h-16 bg-gray-100 rounded-lg animate-pulse" />
+      <div v-for="i in 2" :key="i" class="h-16 bg-stone-100 rounded-lg animate-pulse" />
     </div>
 
     <!-- Section: Error -->
     <Message v-if="localError" severity="error" class="mb-6">{{ localError }}</Message>
 
     <!-- Section: No Methods -->
-    <p v-else-if="methods.length === 0" class="text-sm text-gray-500 mb-6">No payment methods available.</p>
+    <p v-else-if="methods.length === 0" class="text-sm text-stone-500 mb-6">No payment methods available.</p>
 
     <!-- Section: Payment Methods -->
     <div v-else class="mb-6">
-      <span class="block text-sm font-medium text-gray-700 mb-2">Payment method</span>
+      <span class="block text-sm font-medium text-stone-700 mb-2">Payment method</span>
       <div class="space-y-2">
         <div
           v-for="opt in methods"
           :key="opt.id"
           class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors"
-          :class="selectedMethodId === opt.id ? 'border-teal-600 bg-teal-50' : 'border-gray-200 hover:border-gray-300'"
+          :class="selectedMethodId === opt.id ? 'border-teal-600 bg-teal-50' : 'border-stone-200 hover:border-stone-300'"
           @click="selectedMethodId = opt.id"
         >
           <RadioButton v-model="selectedMethodId" :input-id="`pay-${opt.id}`" :value="opt.id" />
-          <label :for="`pay-${opt.id}`" class="text-sm text-gray-700 cursor-pointer">{{ opt.name }}</label>
+          <label :for="`pay-${opt.id}`" class="text-sm text-stone-700 cursor-pointer">{{ opt.name }}</label>
         </div>
       </div>
       <!-- Section: Continue -->
@@ -118,8 +118,8 @@ async function pay(): Promise<void> {
 
     <!-- Section: Stripe Card Element -->
     <div v-if="clientSecret" class="mb-6">
-      <p class="text-sm text-gray-500 mb-3">Enter your card details:</p>
-      <div ref="cardContainer" class="p-4 border border-gray-200 rounded-lg min-h-[40px]" />
+      <p class="text-sm text-stone-500 mb-3">Enter your card details:</p>
+      <div ref="cardContainer" class="p-4 border border-stone-200 rounded-lg min-h-[40px]" />
     </div>
 
     <!-- Section: Actions -->

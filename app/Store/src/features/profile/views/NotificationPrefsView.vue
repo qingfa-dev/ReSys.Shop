@@ -59,8 +59,8 @@ onMounted(loadPrefs)
   <div>
     <!-- Section: Page Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
-      <p class="text-sm text-gray-500 mt-1">Choose which notifications you want to receive.</p>
+      <h1 class="text-2xl font-bold text-stone-900">Notifications</h1>
+      <p class="text-sm text-stone-500 mt-1">Choose which notifications you want to receive.</p>
     </div>
 
     <!-- Section: Error -->

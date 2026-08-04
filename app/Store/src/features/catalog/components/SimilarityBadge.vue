@@ -5,7 +5,7 @@ defineProps<{ score: number }>()
 function badgeClass(score: number): string {
   if (score >= 90) return 'bg-green-100 text-green-700'
   if (score >= 80) return 'bg-amber-100 text-amber-700'
-  return 'bg-gray-100 text-gray-600'
+  return 'bg-stone-100 text-stone-600'
 }
 </script>
 <template>

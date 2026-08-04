@@ -36,16 +36,16 @@ function onBrowseClick(): void {
   <div
     class="border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-200 cursor-pointer min-h-[300px] flex flex-col items-center justify-center"
     :class="isDragging
-      ? 'border-gray-900 bg-gray-50'
-      : 'border-gray-300 hover:border-gray-400 bg-white'"
+      ? 'border-stone-900 bg-stone-50'
+      : 'border-stone-300 hover:border-stone-400 bg-white'"
     @dragover="onDragOver"
     @dragleave="onDragLeave"
     @drop="onDrop"
     @click="onBrowseClick"
   >
-    <i class="pi pi-cloud-upload text-5xl text-gray-400 mb-4" />
-    <p class="text-lg font-medium text-gray-900">Drop an image here or click to browse</p>
-    <p class="text-sm text-gray-500 mt-2">JPEG, PNG, or WebP up to 10 MB</p>
+    <i class="pi pi-cloud-upload text-5xl text-stone-400 mb-4" />
+    <p class="text-lg font-medium text-stone-900">Drop an image here or click to browse</p>
+    <p class="text-sm text-stone-500 mt-2">JPEG, PNG, or WebP up to 10 MB</p>
     <Button label="Choose an image" severity="secondary" class="mt-6" />
     <input
       ref="fileInput"

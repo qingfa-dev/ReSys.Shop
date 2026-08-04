@@ -29,13 +29,13 @@ function isExpanded(node: TaxonTreeNode): boolean {
   <ul class="space-y-1">
     <li v-for="node in nodes" :key="node.id">
       <button
-        class="flex items-center gap-2 w-full text-left px-2 py-1.5 rounded text-sm hover:bg-gray-100 transition-colors"
-        :class="{ 'font-semibold text-gray-900': node.depth === 0 }"
+        class="flex items-center gap-2 w-full text-left px-2 py-1.5 rounded text-sm hover:bg-stone-100 transition-colors"
+        :class="{ 'font-semibold text-stone-900': node.depth === 0 }"
         @click="emit('select', node.id)"
       >
         <i
           v-if="node.hasChildren"
-          class="pi text-xs text-gray-400 transition-transform"
+          class="pi text-xs text-stone-400 transition-transform"
           :class="isExpanded(node) ? 'pi-chevron-down' : 'pi-chevron-right'"
           @click.stop="toggle(node)"
         />

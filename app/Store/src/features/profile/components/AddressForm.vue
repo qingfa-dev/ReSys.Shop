@@ -110,21 +110,21 @@ function onSubmit(event: FormSubmitEvent): void {
 </script>
 
 <template>
-  <div class="bg-white rounded-xl border border-gray-200 p-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+  <div class="bg-white rounded-xl border border-stone-200 p-6">
+    <h3 class="text-lg font-semibold text-stone-900 mb-4">
       {{ initial ? 'Edit Address' : 'Add New Address' }}
     </h3>
     <Form :resolver="resolver" :initial-values="initialValues" class="space-y-4" @submit="onSubmit">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField v-slot="$field" name="firstName" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">First name *</label>
+          <label class="text-sm font-medium text-stone-700">First name *</label>
           <InputText type="text" fluid :invalid="$field?.invalid" placeholder="Jane" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
           </Message>
         </FormField>
         <FormField v-slot="$field" name="lastName" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Last name</label>
+          <label class="text-sm font-medium text-stone-700">Last name</label>
           <InputText type="text" fluid :invalid="$field?.invalid" placeholder="Smith" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
@@ -133,7 +133,7 @@ function onSubmit(event: FormSubmitEvent): void {
       </div>
 
       <FormField v-slot="$field" name="address1" class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-gray-700">Street address *</label>
+        <label class="text-sm font-medium text-stone-700">Street address *</label>
         <InputText type="text" fluid :invalid="$field?.invalid" placeholder="123 Main Street" />
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
           {{ $field.error?.message }}
@@ -141,7 +141,7 @@ function onSubmit(event: FormSubmitEvent): void {
       </FormField>
 
       <FormField v-slot="$field" name="address2" class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-gray-700">Apartment, suite, etc.</label>
+        <label class="text-sm font-medium text-stone-700">Apartment, suite, etc.</label>
         <InputText type="text" fluid :invalid="$field?.invalid" placeholder="Suite 400" />
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
           {{ $field.error?.message }}
@@ -150,21 +150,21 @@ function onSubmit(event: FormSubmitEvent): void {
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <FormField v-slot="$field" name="city" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">City *</label>
+          <label class="text-sm font-medium text-stone-700">City *</label>
           <InputText type="text" fluid :invalid="$field?.invalid" placeholder="New York" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
           </Message>
         </FormField>
         <FormField v-slot="$field" name="zipCode" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">ZIP / Postal code</label>
+          <label class="text-sm font-medium text-stone-700">ZIP / Postal code</label>
           <InputText type="text" fluid :invalid="$field?.invalid" placeholder="10001" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
           </Message>
         </FormField>
         <FormField v-slot="$field" name="phone" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Phone</label>
+          <label class="text-sm font-medium text-stone-700">Phone</label>
           <InputText type="tel" fluid :invalid="$field?.invalid" placeholder="+1-555-0100" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
@@ -175,7 +175,7 @@ function onSubmit(event: FormSubmitEvent): void {
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- Country cascade select (managed by useLocationCascade; validated manually). -->
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Country *</label>
+          <label class="text-sm font-medium text-stone-700">Country *</label>
           <Select
             v-model="selectedCountryId"
             :options="countries"
@@ -189,7 +189,7 @@ function onSubmit(event: FormSubmitEvent): void {
         </div>
         <!-- State/province cascade select (filtered client-side from cached states). -->
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">State / Province</label>
+          <label class="text-sm font-medium text-stone-700">State / Province</label>
           <Select
             v-model="selectedStateId"
             :options="states"
@@ -205,7 +205,7 @@ function onSubmit(event: FormSubmitEvent): void {
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField v-slot="$field" name="addressType" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Type</label>
+          <label class="text-sm font-medium text-stone-700">Type</label>
           <Select
             :options="addressTypeOptions"
             option-label="label"
@@ -219,7 +219,7 @@ function onSubmit(event: FormSubmitEvent): void {
           </Message>
         </FormField>
         <FormField v-slot="$field" name="label" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Label</label>
+          <label class="text-sm font-medium text-stone-700">Label</label>
           <InputText type="text" fluid :invalid="$field?.invalid" placeholder="Home" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
@@ -229,7 +229,7 @@ function onSubmit(event: FormSubmitEvent): void {
 
       <FormField v-slot="$field" name="isDefault" class="flex items-center gap-2">
         <Checkbox binary :invalid="$field?.invalid" />
-        <label class="text-sm text-gray-700">Set as default address</label>
+        <label class="text-sm text-stone-700">Set as default address</label>
       </FormField>
 
       <div class="flex justify-end gap-3 pt-2">

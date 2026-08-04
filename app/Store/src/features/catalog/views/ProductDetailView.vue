@@ -87,20 +87,20 @@ watch(() => route.params.slug, (slug) => {
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Section: Error State -->
     <div v-if="error" class="text-center py-16">
-      <i class="pi pi-exclamation-circle text-4xl text-gray-300 mb-4" />
-      <h2 class="text-xl font-semibold text-gray-900">{{ error }}</h2>
+      <i class="pi pi-exclamation-circle text-4xl text-stone-300 mb-4" />
+      <h2 class="text-xl font-semibold text-stone-900">{{ error }}</h2>
       <router-link to="/shop" class="text-primary hover:underline mt-2 inline-block">Browse products</router-link>
     </div>
 
     <!-- Section: Loading State -->
     <div v-else-if="loading" class="animate-pulse space-y-8">
       <div class="flex flex-col md:flex-row gap-8">
-        <div class="w-full md:w-1/2 aspect-square bg-gray-200 rounded-xl" />
+        <div class="w-full md:w-1/2 aspect-square bg-stone-200 rounded-xl" />
         <div class="w-full md:w-1/2 space-y-4">
-          <div class="h-8 bg-gray-200 rounded w-3/4" />
-          <div class="h-6 bg-gray-200 rounded w-1/4" />
-          <div class="h-4 bg-gray-200 rounded w-full" />
-          <div class="h-12 bg-gray-200 rounded w-1/3" />
+          <div class="h-8 bg-stone-200 rounded w-3/4" />
+          <div class="h-6 bg-stone-200 rounded w-1/4" />
+          <div class="h-4 bg-stone-200 rounded w-full" />
+          <div class="h-12 bg-stone-200 rounded w-1/3" />
         </div>
       </div>
     </div>
@@ -118,24 +118,15 @@ watch(() => route.params.slug, (slug) => {
           <!-- Section: Breadcrumb -->
           <Breadcrumb :model="breadcrumbItems" class="mb-4" />
 
-          <h1 class="text-2xl font-bold text-gray-900">{{ product.name }}</h1>
+          <h1 class="text-2xl font-bold text-stone-900">{{ product.name }}</h1>
 
           <!-- Section: Size Guide -->
           <SizeGuideModal v-if="product.variants.length > 0" :variants="product.variants" :product-name="product.name" />
 
           <!-- Section: Price -->
-          <p v-if="product.minPrice" class="text-3xl font-bold text-gray-900">
+          <p v-if="product.minPrice" class="text-3xl font-bold text-stone-900">
             {{ new Intl.NumberFormat('vi-VN', { style: 'currency', currency: product.currency ?? 'VND' }).format(product.minPrice) }}
           </p>
-
-          <!-- Section: Fashion Metadata -->
-          <div v-if="product.styleCode || product.materialComposition" class="flex flex-wrap gap-3 text-sm text-gray-500">
-            <span v-if="product.styleCode" class="bg-gray-100 px-2 py-1 rounded">Style: {{ product.styleCode }}</span>
-            <span v-if="product.seasonName" class="bg-gray-100 px-2 py-1 rounded">{{ product.seasonName }}</span>
-            <span v-if="product.materialComposition" class="bg-gray-100 px-2 py-1 rounded">{{ product.materialComposition }}</span>
-            <span v-if="product.department" class="bg-gray-100 px-2 py-1 rounded">{{ product.department }}</span>
-            <span v-if="product.genderTarget" class="bg-gray-100 px-2 py-1 rounded">{{ product.genderTarget }}</span>
-          </div>
 
           <!-- Section: Product Details Info -->
           <ProductDetailsInfo :product="product" />
@@ -154,30 +145,12 @@ watch(() => route.params.slug, (slug) => {
             <Button label="Add to Cart" icon="pi pi-shopping-cart" class="flex-1" :loading="adding" @click="addToCart" />
           </div>
 
-          <!-- Section: Expandable Details -->
-          <Accordion multiple class="space-y-2">
-            <AccordionPanel v-if="product.description" value="description">
+          <!-- Section: Description -->
+          <Accordion v-if="product.description" class="space-y-2">
+            <AccordionPanel value="description">
               <AccordionHeader>Description</AccordionHeader>
               <AccordionContent>
-                <p class="text-gray-600">{{ product.description }}</p>
-              </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel v-if="product.materialComposition" value="material">
-              <AccordionHeader>Material &amp; Composition</AccordionHeader>
-              <AccordionContent>
-                <p class="text-gray-600">{{ product.materialComposition }}</p>
-              </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel v-if="product.careInstructions" value="care">
-              <AccordionHeader>Care Instructions</AccordionHeader>
-              <AccordionContent>
-                <p class="text-gray-600">{{ product.careInstructions }}</p>
-              </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel v-if="product.fitNotes" value="fit">
-              <AccordionHeader>Size &amp; Fit</AccordionHeader>
-              <AccordionContent>
-                <p class="text-gray-600">{{ product.fitNotes }}</p>
+                <p class="text-stone-600">{{ product.description }}</p>
               </AccordionContent>
             </AccordionPanel>
           </Accordion>

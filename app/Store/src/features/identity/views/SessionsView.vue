@@ -100,8 +100,8 @@ onMounted(loadSessions)
   <div>
     <!-- Section: Page Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Sessions</h1>
-      <p class="text-sm text-gray-500 mt-1">Manage the devices signed in to your account.</p>
+      <h1 class="text-2xl font-bold text-stone-900">Sessions</h1>
+      <p class="text-sm text-stone-500 mt-1">Manage the devices signed in to your account.</p>
     </div>
 
     <!-- Section: Error -->
@@ -120,24 +120,24 @@ onMounted(loadSessions)
         <li
           v-for="session in sessions"
           :key="session.id"
-          class="bg-white rounded-xl border border-gray-200 p-6 flex flex-wrap items-center gap-4"
+          class="bg-white rounded-xl border border-stone-200 p-6 flex flex-wrap items-center gap-4"
         >
           <div class="flex items-center gap-4 min-w-0 flex-1">
-            <span class="inline-flex items-center justify-center w-11 h-11 rounded-full bg-gray-100 text-gray-500 shrink-0">
+            <span class="inline-flex items-center justify-center w-11 h-11 rounded-full bg-stone-100 text-stone-500 shrink-0">
               <i :class="deviceIcon()" class="text-lg" />
             </span>
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
-                <p class="font-medium text-gray-900">{{ session.deviceName }}</p>
+                <p class="font-medium text-stone-900">{{ session.deviceName }}</p>
                 <span
                   v-if="session.isCurrent"
-                  class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600"
+                  class="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-600"
                 >
                   <i class="pi pi-check text-[10px]" />
                   Current
                 </span>
               </div>
-              <p class="text-sm text-gray-500 mt-0.5">
+              <p class="text-sm text-stone-500 mt-0.5">
                 IP {{ session.ipAddress || '—' }}
                 <span class="mx-1">·</span>
                 Last active {{ formatDateTimeUtc(session.lastActivityAt) }}
@@ -159,8 +159,8 @@ onMounted(loadSessions)
 
       <!-- Section: Danger zone -->
       <div class="mt-8 bg-red-50 rounded-xl border border-red-200 p-6">
-        <h3 class="text-base font-semibold text-gray-900">Log out everywhere</h3>
-        <p class="text-sm text-gray-600 mt-1">
+        <h3 class="text-base font-semibold text-stone-900">Log out everywhere</h3>
+        <p class="text-sm text-stone-600 mt-1">
           This signs you out of this device and every other device signed in to your account.
         </p>
         <Button

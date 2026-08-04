@@ -48,18 +48,18 @@ async function continueToDelivery(): Promise<void> {
 </script>
 <template>
   <!-- Section: Address Step -->
-  <div class="bg-white rounded-xl border border-gray-200 p-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h2>
+  <div class="bg-white rounded-xl border border-stone-200 p-6">
+    <h2 class="text-lg font-semibold text-stone-900 mb-4">Shipping Address</h2>
 
     <!-- Section: Email -->
     <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-1" for="checkout-email">Email</label>
+      <label class="block text-sm font-medium text-stone-700 mb-1" for="checkout-email">Email</label>
       <InputText id="checkout-email" v-model="email" type="email" class="w-full" />
     </div>
 
     <!-- Section: Loading -->
     <div v-if="loading" class="space-y-3 mb-6">
-      <div v-for="i in 3" :key="i" class="h-16 bg-gray-100 rounded-lg animate-pulse" />
+      <div v-for="i in 3" :key="i" class="h-16 bg-stone-100 rounded-lg animate-pulse" />
     </div>
 
     <!-- Section: Error -->
@@ -67,7 +67,7 @@ async function continueToDelivery(): Promise<void> {
 
     <!-- Section: Empty -->
     <div v-else-if="addresses.length === 0" class="mb-6">
-      <p class="text-sm text-gray-500 mb-3">No saved addresses. Please add one.</p>
+      <p class="text-sm text-stone-500 mb-3">No saved addresses. Please add one.</p>
       <router-link to="/account/addresses">
         <Button label="Go to Address Book" severity="secondary" size="small" />
       </router-link>
@@ -79,16 +79,16 @@ async function continueToDelivery(): Promise<void> {
         v-for="addr in addresses"
         :key="addr.id"
         class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors"
-        :class="selectedAddressId === addr.id ? 'border-teal-600 bg-teal-50' : 'border-gray-200 hover:border-gray-300'"
+        :class="selectedAddressId === addr.id ? 'border-teal-600 bg-teal-50' : 'border-stone-200 hover:border-stone-300'"
         @click="selectedAddressId = addr.id"
       >
         <RadioButton v-model="selectedAddressId" :input-id="`addr-${addr.id}`" :value="addr.id" />
         <label :for="`addr-${addr.id}`" class="flex-1 text-sm cursor-pointer">
-          <span class="font-medium text-gray-900">
+          <span class="font-medium text-stone-900">
             {{ addr.label ?? [addr.firstName, addr.lastName].filter(Boolean).join(' ') }}
           </span>
           <span v-if="addr.isDefault" class="ml-2 text-teal-600">(Default)</span>
-          <span class="block text-gray-500">{{ addressSummary(addr) }}</span>
+          <span class="block text-stone-500">{{ addressSummary(addr) }}</span>
         </label>
       </div>
     </div>

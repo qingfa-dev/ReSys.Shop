@@ -24,18 +24,18 @@ function requestCancel(): void {
 </script>
 <template>
   <!-- Section: Order Card -->
-  <div class="bg-white rounded-xl border border-gray-200 p-6">
+  <div class="bg-white rounded-xl border border-stone-200 p-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-3">
-          <h3 class="text-base font-semibold text-gray-900">#{{ order.number }}</h3>
+          <h3 class="text-base font-semibold text-stone-900">#{{ order.number }}</h3>
           <StatusTag :status="order.status" />
         </div>
-        <p class="text-sm text-gray-500 mt-1">{{ formatDateTimeUtc(order.createdAtUtc) }}</p>
+        <p class="text-sm text-stone-500 mt-1">{{ formatDateTimeUtc(order.createdAtUtc) }}</p>
       </div>
       <div class="text-right">
-        <p class="text-sm text-gray-500">Total</p>
-        <p class="text-lg font-bold text-gray-900">{{ formatVnd(order.total) }}</p>
+        <p class="text-sm text-stone-500">Total</p>
+        <p class="text-lg font-bold text-stone-900">{{ formatVnd(order.total) }}</p>
       </div>
     </div>
     <div class="mt-4 flex flex-wrap items-center justify-end gap-3">

@@ -57,15 +57,15 @@ function selectValue(key: 'optionValue1' | 'optionValue2', valueId: string): voi
   <!-- Section: Product Options -->
   <div class="space-y-4">
     <div v-for="dim in dimensions" :key="dim.key">
-      <p class="text-sm font-medium text-gray-900 mb-2">{{ dim.key === 'optionValue1' ? 'Option 1' : 'Option 2' }}</p>
+      <p class="text-sm font-medium text-stone-900 mb-2">{{ dim.key === 'optionValue1' ? 'Option 1' : 'Option 2' }}</p>
       <div class="flex flex-wrap gap-2">
         <button
           v-for="value in dim.values"
           :key="value.id"
           class="px-4 py-2 rounded-lg border text-sm transition-colors"
           :class="isSelected(dim.key, value.id)
-            ? 'border-gray-900 bg-gray-900 text-white'
-            : 'border-gray-300 text-gray-700 hover:border-gray-400'"
+            ? 'border-stone-900 bg-stone-900 text-white'
+            : 'border-stone-300 text-stone-700 hover:border-stone-400'"
           @click="selectValue(dim.key, value.id)"
         >
           {{ value.name }}

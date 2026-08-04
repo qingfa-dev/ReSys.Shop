@@ -26,8 +26,8 @@ const emit = defineEmits<{ addToCart: [variantId: string]; reload: [] }>()
 
     <!-- Section: Empty State -->
     <div v-else-if="!loading && products.length === 0" class="text-center py-16">
-      <i class="pi pi-search text-4xl text-gray-300 mb-4" />
-      <p class="text-gray-500">No products match your filters.</p>
+      <i class="pi pi-search text-4xl text-stone-300 mb-4" />
+      <p class="text-stone-500">No products match your filters.</p>
     </div>
 
     <!-- Section: Grid -->

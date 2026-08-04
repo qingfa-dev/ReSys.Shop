@@ -32,19 +32,19 @@ function requestDelete(): void {
 </script>
 
 <template>
-  <div class="bg-white rounded-xl border border-gray-200 p-6">
+  <div class="bg-white rounded-xl border border-stone-200 p-6">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-2">
-          <h3 class="font-semibold text-gray-900">{{ wishlist.name }}</h3>
+          <h3 class="font-semibold text-stone-900">{{ wishlist.name }}</h3>
           <span
             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-            :class="wishlist.isPrivate ? 'bg-gray-100 text-gray-600' : 'bg-green-50 text-green-600'"
+            :class="wishlist.isPrivate ? 'bg-stone-100 text-stone-600' : 'bg-green-50 text-green-600'"
           >
             {{ wishlist.isPrivate ? 'Private' : 'Public' }}
           </span>
         </div>
-        <p class="text-sm text-gray-500 mt-1">
+        <p class="text-sm text-stone-500 mt-1">
           {{ wishlist.itemCount }} item{{ wishlist.itemCount === 1 ? '' : 's' }}
         </p>
       </div>
@@ -77,7 +77,7 @@ function requestDelete(): void {
     </div>
 
     <!-- Expanded items -->
-    <div v-if="expanded" class="mt-4 border-t border-gray-100 pt-4">
+    <div v-if="expanded" class="mt-4 border-t border-stone-100 pt-4">
       <div v-if="detailLoading" class="space-y-2">
         <Skeleton v-for="i in 2" :key="i" height="3rem" class="rounded-lg" />
       </div>
@@ -86,11 +86,11 @@ function requestDelete(): void {
           <li
             v-for="item in detail.wishedItems"
             :key="item.id"
-            class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-gray-50 px-4 py-3"
+            class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-stone-50 px-4 py-3"
           >
             <div class="min-w-0">
-              <p class="text-sm font-medium text-gray-800">Variant {{ item.variantId }}</p>
-              <p class="text-xs text-gray-500 mt-0.5">
+              <p class="text-sm font-medium text-stone-800">Variant {{ item.variantId }}</p>
+              <p class="text-xs text-stone-500 mt-0.5">
                 Qty {{ item.quantity }} · Added {{ formatDateTimeUtc(item.addedAtUtc) }}
               </p>
             </div>
@@ -113,7 +113,7 @@ function requestDelete(): void {
           </li>
         </ul>
       </template>
-      <p v-else class="text-sm text-gray-500 py-2">No items in this wishlist yet.</p>
+      <p v-else class="text-sm text-stone-500 py-2">No items in this wishlist yet.</p>
     </div>
   </div>
 </template>

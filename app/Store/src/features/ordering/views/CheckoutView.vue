@@ -25,7 +25,7 @@ const breadcrumbItems = computed(() => [
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Section: Breadcrumb -->
     <Breadcrumb :model="breadcrumbItems" class="mb-4" />
-    <h1 class="text-2xl font-bold text-gray-900 mb-8">Checkout</h1>
+    <h1 class="text-2xl font-bold text-stone-900 mb-8">Checkout</h1>
     <CheckoutStepper :steps="checkout.steps" :current-step="checkout.currentStep" />
     <Message v-if="checkout.error" severity="error" class="mb-6">{{ checkout.error }}</Message>
     <CheckoutStepAddress v-if="checkout.currentStep === 1" />

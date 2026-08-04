@@ -42,7 +42,7 @@ async function onCancel(id: string): Promise<void> {
   <div>
     <!-- Section: Orders Header -->
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
+      <h1 class="text-2xl font-bold text-stone-900">Orders</h1>
       <Select
         :model-value="selectedStatus"
         :options="statusOptions"

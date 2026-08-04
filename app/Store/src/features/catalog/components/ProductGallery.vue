@@ -14,14 +14,14 @@ watch(() => props.images, () => {
   <!-- Section: Product Gallery -->
   <div class="space-y-4">
     <!-- Section: Main Image -->
-    <div class="aspect-square bg-gray-100 rounded-xl overflow-hidden">
+    <div class="aspect-square bg-stone-100 rounded-xl overflow-hidden">
       <img
         v-if="images.length > 0"
         :src="images[activeIndex]?.url"
         :alt="images[activeIndex]?.alt ?? alt"
         class="w-full h-full object-cover"
       />
-      <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+      <div v-else class="w-full h-full flex items-center justify-center text-stone-400">
         <i class="pi pi-image text-6xl" />
       </div>
     </div>
@@ -32,7 +32,7 @@ watch(() => props.images, () => {
         v-for="(image, index) in images"
         :key="image.id"
         class="w-20 h-20 rounded-lg overflow-hidden border-2 shrink-0 transition-colors"
-        :class="index === activeIndex ? 'border-gray-900' : 'border-transparent hover:border-gray-300'"
+        :class="index === activeIndex ? 'border-stone-900' : 'border-transparent hover:border-stone-300'"
         @click="activeIndex = index"
       >
         <img :src="image.url" :alt="image.alt ?? alt" class="w-full h-full object-cover" />

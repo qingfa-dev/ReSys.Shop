@@ -22,7 +22,7 @@ const isNew = computed(() => {
 </script>
 <template>
   <!-- Section: Product Card -->
-  <div class="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+  <div class="group bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
     <!-- Section: Thumbnail -->
     <div class="relative">
       <ProductBadge v-if="isNew" variant="new" />
@@ -33,7 +33,7 @@ const isNew = computed(() => {
             :alt="product.thumbnailAlt ?? product.name"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           />
-          <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+          <div v-else class="w-full h-full flex items-center justify-center text-stone-400">
             <i class="pi pi-image text-4xl" />
           </div>
           <!-- Section: Quick Add Overlay -->
@@ -52,10 +52,10 @@ const isNew = computed(() => {
       </div>
     <!-- Section: Product Info -->
     <div class="p-4">
-      <router-link :to="`/products/${product.slug}`" class="text-sm font-medium text-gray-900 line-clamp-2 hover:text-gray-600">
+      <router-link :to="`/products/${product.slug}`" class="text-sm font-medium text-stone-900 line-clamp-2 hover:text-stone-600">
         {{ product.name }}
       </router-link>
-      <p class="mt-1 text-lg font-bold text-gray-900">{{ displayPrice() }}</p>
+      <p class="mt-1 text-lg font-bold text-stone-900">{{ displayPrice() }}</p>
     </div>
   </div>
 </template>

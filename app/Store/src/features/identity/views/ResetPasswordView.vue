@@ -58,8 +58,8 @@ async function onSubmit(event: FormSubmitEvent) {
 
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Set a new password</h2>
-    <p class="text-sm text-gray-600 text-center mb-6">Choose a new password for your account.</p>
+    <h2 class="text-2xl font-bold text-center text-stone-900 mb-6">Set a new password</h2>
+    <p class="text-sm text-stone-600 text-center mb-6">Choose a new password for your account.</p>
 
     <Form :resolver="resetResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
       <FormField v-slot="$field" name="newPassword" class="flex flex-col gap-1">

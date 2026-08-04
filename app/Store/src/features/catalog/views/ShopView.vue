@@ -146,7 +146,7 @@ watch(() => route.query.search, (val) => {
           :nodes="taxonomyTree.nodes"
           @select="(id) => { catalog.setTaxon(id); applyFilters() }"
         />
-        <p v-else class="text-sm text-gray-400">{{ treeError ?? 'Categories are unavailable.' }}</p>
+        <p v-else class="text-sm text-stone-400">{{ treeError ?? 'Categories are unavailable.' }}</p>
 
         <!-- Section: Option Filters -->
         <FilterSidebar
@@ -162,7 +162,7 @@ watch(() => route.query.search, (val) => {
       <div class="flex-1 min-w-0">
         <!-- Section: Toolbar -->
         <div class="flex items-center justify-between mb-6">
-          <p class="text-sm text-gray-500">{{ totalCount }} products</p>
+          <p class="text-sm text-stone-500">{{ totalCount }} products</p>
           <Select
             :model-value="catalog.sortField"
             :options="sortOptions"

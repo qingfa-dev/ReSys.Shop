@@ -66,7 +66,7 @@ async function onGoogleLogin(): Promise<void> {
 
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Sign in to your account</h2>
+    <h2 class="text-2xl font-bold text-center text-stone-900 mb-6">Sign in to your account</h2>
     <Form :resolver="loginResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
       <FormField v-slot="$field" name="credential" class="flex flex-col gap-1">
         <FloatLabel variant="on">
@@ -94,7 +94,7 @@ async function onGoogleLogin(): Promise<void> {
       <div class="flex items-center justify-between mt-2 mb-2">
         <div class="flex items-center gap-2">
           <Checkbox inputId="rememberme" binary v-model="rememberMe" />
-          <label for="rememberme" class="text-sm text-gray-600">Remember me</label>
+          <label for="rememberme" class="text-sm text-stone-600">Remember me</label>
         </div>
         <router-link to="/forgot-password" class="text-sm font-medium text-primary hover:underline">Forgot password?</router-link>
       </div>
@@ -105,7 +105,7 @@ async function onGoogleLogin(): Promise<void> {
 
     <div class="flex items-center gap-4 my-6">
       <Divider />
-      <span class="text-sm text-gray-400">or</span>
+      <span class="text-sm text-stone-400">or</span>
       <Divider />
     </div>
 
@@ -114,7 +114,7 @@ async function onGoogleLogin(): Promise<void> {
       Continue with Google
     </Button>
 
-    <p class="text-center text-sm text-gray-600 mt-6">
+    <p class="text-center text-sm text-stone-600 mt-6">
       Don't have an account?
       <router-link to="/register" class="font-medium text-primary hover:underline">Create account</router-link>
     </p>

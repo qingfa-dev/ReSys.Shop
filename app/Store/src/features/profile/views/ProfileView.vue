@@ -50,8 +50,8 @@ onMounted(loadProfile)
   <div>
     <!-- Section: Page Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Profile</h1>
-      <p class="text-sm text-gray-500 mt-1">Your basic account details.</p>
+      <h1 class="text-2xl font-bold text-stone-900">Profile</h1>
+      <p class="text-sm text-stone-500 mt-1">Your basic account details.</p>
     </div>
 
     <!-- Section: Error -->
@@ -65,10 +65,10 @@ onMounted(loadProfile)
     </div>
 
     <!-- Section: Profile Form -->
-    <div v-else class="max-w-xl bg-white rounded-xl border border-gray-200 p-6">
+    <div v-else class="max-w-xl bg-white rounded-xl border border-stone-200 p-6">
       <Form :resolver="resolver" :initial-values="initialValues" class="space-y-4" @submit="onSubmit">
         <FormField v-slot="$field" name="firstName" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">First name *</label>
+          <label class="text-sm font-medium text-stone-700">First name *</label>
           <InputText type="text" fluid :invalid="$field?.invalid" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
@@ -76,7 +76,7 @@ onMounted(loadProfile)
         </FormField>
 
         <FormField v-slot="$field" name="lastName" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Last name *</label>
+          <label class="text-sm font-medium text-stone-700">Last name *</label>
           <InputText type="text" fluid :invalid="$field?.invalid" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
@@ -84,7 +84,7 @@ onMounted(loadProfile)
         </FormField>
 
         <FormField v-slot="$field" name="email" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Email *</label>
+          <label class="text-sm font-medium text-stone-700">Email *</label>
           <InputText type="email" fluid :invalid="$field?.invalid" autocomplete="email" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}
@@ -92,7 +92,7 @@ onMounted(loadProfile)
         </FormField>
 
         <FormField v-slot="$field" name="phoneNumber" class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Phone</label>
+          <label class="text-sm font-medium text-stone-700">Phone</label>
           <InputText type="tel" fluid :invalid="$field?.invalid" placeholder="+1-555-0100" />
           <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
             {{ $field.error?.message }}

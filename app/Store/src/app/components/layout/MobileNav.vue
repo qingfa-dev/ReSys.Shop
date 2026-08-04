@@ -11,9 +11,9 @@ defineEmits<{ close: [] }>()
         <Button icon="pi pi-times" text severity="secondary" @click="$emit('close')" />
       </div>
       <ul class="space-y-3">
-        <li><router-link to="/shop" class="text-gray-700 hover:text-gray-900" @click="$emit('close')">Shop</router-link></li>
-        <li><router-link to="/cart" class="text-gray-700 hover:text-gray-900" @click="$emit('close')">Cart</router-link></li>
-        <li><router-link to="/account/orders" class="text-gray-700 hover:text-gray-900" @click="$emit('close')">Orders</router-link></li>
+        <li><router-link to="/shop" class="text-stone-700 hover:text-stone-900" @click="$emit('close')">Shop</router-link></li>
+        <li><router-link to="/cart" class="text-stone-700 hover:text-stone-900" @click="$emit('close')">Cart</router-link></li>
+        <li><router-link to="/account/orders" class="text-stone-700 hover:text-stone-900" @click="$emit('close')">Orders</router-link></li>
       </ul>
     </nav>
   </div>

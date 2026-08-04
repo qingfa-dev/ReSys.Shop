@@ -39,8 +39,8 @@ function openCollection(taxon: StoreTaxonListItemResponse): void {
     <Breadcrumb :model="breadcrumbItems" class="mb-4" />
     <!-- Section: Page Header -->
     <div class="mb-8">
-      <h1 class="text-2xl font-bold text-gray-900">Collections</h1>
-      <p class="text-gray-500 mt-1">Browse the shop by collection.</p>
+      <h1 class="text-2xl font-bold text-stone-900">Collections</h1>
+      <p class="text-stone-500 mt-1">Browse the shop by collection.</p>
     </div>
 
     <!-- Section: Error State -->
@@ -48,13 +48,13 @@ function openCollection(taxon: StoreTaxonListItemResponse): void {
 
     <!-- Section: Loading State -->
     <div v-else-if="loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div v-for="i in 8" :key="i" class="aspect-square bg-gray-200 rounded-xl animate-pulse" />
+      <div v-for="i in 8" :key="i" class="aspect-square bg-stone-200 rounded-xl animate-pulse" />
     </div>
 
     <!-- Section: Empty State -->
     <div v-else-if="taxons.length === 0" class="text-center py-16">
-      <i class="pi pi-tags text-4xl text-gray-300 mb-4" />
-      <p class="text-gray-500">No collections available yet.</p>
+      <i class="pi pi-tags text-4xl text-stone-300 mb-4" />
+      <p class="text-stone-500">No collections available yet.</p>
     </div>
 
     <!-- Section: Collection Grid -->
@@ -62,23 +62,23 @@ function openCollection(taxon: StoreTaxonListItemResponse): void {
       <button
         v-for="taxon in taxons"
         :key="taxon.id"
-        class="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow text-left"
+        class="group bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow text-left"
         @click="openCollection(taxon)"
       >
-        <div class="aspect-square bg-gray-100 overflow-hidden">
+        <div class="aspect-square bg-stone-100 overflow-hidden">
           <img
             v-if="taxon.imageUrl"
             :src="taxon.imageUrl"
             :alt="taxon.name"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           />
-          <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+          <div v-else class="w-full h-full flex items-center justify-center text-stone-400">
             <i class="pi pi-image text-4xl" />
           </div>
         </div>
         <div class="p-4">
-          <p class="text-sm font-medium text-gray-900">{{ taxon.name }}</p>
-          <p class="mt-1 text-xs text-gray-500">{{ taxon.taxonCount }} products</p>
+          <p class="text-sm font-medium text-stone-900">{{ taxon.name }}</p>
+          <p class="mt-1 text-xs text-stone-500">{{ taxon.taxonCount }} products</p>
         </div>
       </button>
     </div>

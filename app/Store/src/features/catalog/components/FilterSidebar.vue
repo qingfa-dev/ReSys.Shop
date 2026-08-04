@@ -21,16 +21,16 @@ const filterableTypes = computed(() => props.optionTypes.filter(t => t.filterabl
 
     <!-- Section: Filter Groups -->
     <section v-for="type in filterableTypes" :key="type.id" class="space-y-2">
-      <h3 class="text-sm font-semibold text-gray-900">{{ type.presentation ?? type.name }}</h3>
+      <h3 class="text-sm font-semibold text-stone-900">{{ type.presentation ?? type.name }}</h3>
       <div class="space-y-1">
         <label
           v-for="value in type.values"
           :key="value.id"
-          class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"
+          class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"
         >
           <input
             type="checkbox"
-            class="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+            class="rounded border-stone-300 text-stone-900 focus:ring-stone-900"
             :checked="selectedIds.includes(value.id)"
             @change="emit('toggle', value.id)"
           />

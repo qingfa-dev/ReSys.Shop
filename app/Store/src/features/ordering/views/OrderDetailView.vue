@@ -57,7 +57,7 @@ onMounted(loadOrder)
     <!-- Section: Page Header -->
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <Button icon="pi pi-arrow-left" severity="secondary" text rounded @click="router.push('/account/orders')" />
-      <h1 class="text-2xl font-bold text-gray-900">{{ order ? `Order #${order.number}` : 'Order' }}</h1>
+      <h1 class="text-2xl font-bold text-stone-900">{{ order ? `Order #${order.number}` : 'Order' }}</h1>
       <StatusTag v-if="order" :status="order.status" />
       <div class="flex-1" />
       <Button
@@ -86,54 +86,54 @@ onMounted(loadOrder)
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Section: Timeline + Totals -->
         <div class="lg:col-span-2 space-y-6">
-          <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Timeline</h3>
+          <div class="bg-white rounded-xl border border-stone-200 p-6">
+            <h3 class="text-lg font-semibold text-stone-900 mb-4">Order Timeline</h3>
             <Timeline :value="timeline" layout="vertical" align="left" data-key="label">
               <template #marker="{ item }">
                 <span
                   class="inline-flex items-center justify-center w-8 h-8 rounded-full border-2"
                   :class="item.status === 'Canceled'
                     ? 'border-red-300 bg-red-50 text-red-500'
-                    : 'border-blue-300 bg-blue-50 text-blue-500'"
+                    : 'border-teal-300 bg-teal-50 text-teal-500'"
                 >
                   <i :class="item.status === 'Canceled' ? 'pi pi-times' : 'pi pi-check'" class="text-xs" />
                 </span>
               </template>
               <template #content="{ item }">
                 <div class="text-sm">
-                  <p class="font-medium text-gray-900">{{ item.label }}</p>
-                  <p class="text-gray-500">{{ formatDateTimeUtc(item.date) }}</p>
+                  <p class="font-medium text-stone-900">{{ item.label }}</p>
+                  <p class="text-stone-500">{{ formatDateTimeUtc(item.date) }}</p>
                 </div>
               </template>
             </Timeline>
           </div>
 
           <!-- Section: Totals -->
-          <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
+          <div class="bg-white rounded-xl border border-stone-200 p-6">
+            <h3 class="text-lg font-semibold text-stone-900 mb-4">Order Summary</h3>
             <div class="space-y-2 text-sm">
-              <div class="flex justify-between text-gray-600">
+              <div class="flex justify-between text-stone-600">
                 <span>Items ({{ order.itemCount }})</span>
                 <span>{{ formatVnd(order.itemTotal) }}</span>
               </div>
-              <div class="flex justify-between text-gray-600">
+              <div class="flex justify-between text-stone-600">
                 <span>Adjustments</span>
                 <span>{{ formatVnd(order.adjustmentTotal) }}</span>
               </div>
-              <div class="flex justify-between text-gray-600">
+              <div class="flex justify-between text-stone-600">
                 <span>Shipping</span>
                 <span>{{ formatVnd(order.shipmentTotal) }}</span>
               </div>
               <Divider />
-              <div class="flex justify-between font-semibold text-gray-900">
+              <div class="flex justify-between font-semibold text-stone-900">
                 <span>Total</span>
                 <span>{{ formatVnd(order.total) }}</span>
               </div>
-              <div class="flex justify-between text-gray-600">
+              <div class="flex justify-between text-stone-600">
                 <span>Paid</span>
                 <span>{{ formatVnd(order.paymentTotal) }}</span>
               </div>
-              <div class="flex justify-between text-gray-600">
+              <div class="flex justify-between text-stone-600">
                 <span>Outstanding Balance</span>
                 <span>{{ formatVnd(order.outstandingBalance) }}</span>
               </div>
@@ -142,53 +142,53 @@ onMounted(loadOrder)
         </div>
 
         <!-- Section: Order Details -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6 h-fit">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Details</h3>
+        <div class="bg-white rounded-xl border border-stone-200 p-6 h-fit">
+          <h3 class="text-lg font-semibold text-stone-900 mb-4">Order Details</h3>
           <dl class="space-y-3 text-sm">
             <div>
-              <dt class="text-gray-500">Checkout State</dt>
-              <dd class="font-medium text-gray-900">{{ order.checkoutState }}</dd>
+              <dt class="text-stone-500">Checkout State</dt>
+              <dd class="font-medium text-stone-900">{{ order.checkoutState }}</dd>
             </div>
             <div>
-              <dt class="text-gray-500">Currency</dt>
-              <dd class="font-medium text-gray-900">{{ order.currency }}</dd>
+              <dt class="text-stone-500">Currency</dt>
+              <dd class="font-medium text-stone-900">{{ order.currency }}</dd>
             </div>
             <div>
-              <dt class="text-gray-500">Email</dt>
-              <dd class="font-medium text-gray-900">{{ order.email ?? '—' }}</dd>
+              <dt class="text-stone-500">Email</dt>
+              <dd class="font-medium text-stone-900">{{ order.email ?? '—' }}</dd>
             </div>
             <div>
-              <dt class="text-gray-500">Payment State</dt>
-              <dd class="font-medium text-gray-900 capitalize">{{ order.paymentState ?? '—' }}</dd>
+              <dt class="text-stone-500">Payment State</dt>
+              <dd class="font-medium text-stone-900 capitalize">{{ order.paymentState ?? '—' }}</dd>
             </div>
             <div>
-              <dt class="text-gray-500">Shipment State</dt>
-              <dd class="font-medium text-gray-900 capitalize">{{ order.shipmentState ?? '—' }}</dd>
+              <dt class="text-stone-500">Shipment State</dt>
+              <dd class="font-medium text-stone-900 capitalize">{{ order.shipmentState ?? '—' }}</dd>
             </div>
             <div>
-              <dt class="text-gray-500">Ship Address</dt>
-              <dd class="font-mono text-xs text-gray-900 break-all">{{ order.shipAddressId ?? '—' }}</dd>
+              <dt class="text-stone-500">Ship Address</dt>
+              <dd class="font-mono text-xs text-stone-900 break-all">{{ order.shipAddressId ?? '—' }}</dd>
             </div>
             <div>
-              <dt class="text-gray-500">Bill Address</dt>
-              <dd class="font-mono text-xs text-gray-900 break-all">{{ order.billAddressId ?? '—' }}</dd>
+              <dt class="text-stone-500">Bill Address</dt>
+              <dd class="font-mono text-xs text-stone-900 break-all">{{ order.billAddressId ?? '—' }}</dd>
             </div>
             <Divider />
             <div>
-              <dt class="text-gray-500">Created</dt>
-              <dd class="font-medium text-gray-900">{{ formatDateTimeUtc(order.createdAtUtc) }}</dd>
+              <dt class="text-stone-500">Created</dt>
+              <dd class="font-medium text-stone-900">{{ formatDateTimeUtc(order.createdAtUtc) }}</dd>
             </div>
             <div v-if="order.completedAtUtc">
-              <dt class="text-gray-500">Completed</dt>
-              <dd class="font-medium text-gray-900">{{ formatDateTimeUtc(order.completedAtUtc) }}</dd>
+              <dt class="text-stone-500">Completed</dt>
+              <dd class="font-medium text-stone-900">{{ formatDateTimeUtc(order.completedAtUtc) }}</dd>
             </div>
             <div v-if="order.canceledAtUtc">
-              <dt class="text-gray-500">Canceled</dt>
-              <dd class="font-medium text-gray-900">{{ formatDateTimeUtc(order.canceledAtUtc) }}</dd>
+              <dt class="text-stone-500">Canceled</dt>
+              <dd class="font-medium text-stone-900">{{ formatDateTimeUtc(order.canceledAtUtc) }}</dd>
             </div>
             <div v-if="order.modifiedAtUtc">
-              <dt class="text-gray-500">Modified</dt>
-              <dd class="font-medium text-gray-900">{{ formatDateTimeUtc(order.modifiedAtUtc) }}</dd>
+              <dt class="text-stone-500">Modified</dt>
+              <dd class="font-medium text-stone-900">{{ formatDateTimeUtc(order.modifiedAtUtc) }}</dd>
             </div>
           </dl>
         </div>
