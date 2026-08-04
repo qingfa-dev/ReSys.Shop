@@ -61,6 +61,10 @@ export const useAuthStore = defineStore('auth', () => {
         status.value = 'authenticated'
         return true
       }
+      tokenService.clearTokens()
+      status.value = 'error'
+      error.value = sessionResult.message ?? sessionResult.errors[0]?.message ?? 'Failed to load session'
+      return false
     }
     status.value = 'error'
     error.value = result.message ?? result.errors[0]?.message ?? 'Login failed'

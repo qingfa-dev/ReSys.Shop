@@ -33,6 +33,6 @@ export function hasValidAccessToken(): boolean {
     if (!token) return false
     const expiresAt = localStorage.getItem(`${STORAGE_KEYS.ACCESS_TOKEN}_expires_at`)
     if (!expiresAt) return true
-    return Number(expiresAt) > Date.now() / 1000
+    return Number(expiresAt) > Date.now() / 1000 + 30
   } catch { return false }
 }
