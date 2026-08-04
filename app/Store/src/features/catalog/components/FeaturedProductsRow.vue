@@ -20,7 +20,7 @@ onMounted(async () => {
 </script>
 <template>
   <!-- Section: Featured Products -->
-  <section v-if="loading || products.length > 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <section v-if="loading || error || products.length > 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="flex items-center justify-between mb-8">
       <h2 class="text-2xl font-bold text-stone-900">Featured</h2>
       <router-link to="/shop" class="text-sm text-teal-600 hover:text-teal-700 font-medium">View All &rarr;</router-link>

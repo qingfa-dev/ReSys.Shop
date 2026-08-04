@@ -18,7 +18,7 @@ onMounted(async () => {
 </script>
 <template>
   <!-- Section: Category Grid -->
-  <section v-if="loading || taxons.length > 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <section v-if="loading || error || taxons.length > 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <h2 class="text-2xl font-bold text-stone-900 mb-8">Shop by Category</h2>
     <!-- Section: Loading -->
     <SkeletonGrid v-if="loading" :count="4" />
