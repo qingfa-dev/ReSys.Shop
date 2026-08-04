@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useLayout } from '@/shared/composables/useLayout';
 import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import AngleDown from '@primeicons/vue/angle-down'
 
 const { layoutState, isDesktop } = useLayout();
+const route = useRoute();
 
 interface MenuItemParameters {
   label?: string
@@ -34,7 +36,14 @@ const props = withDefaults(defineProps<Props>(), {
 const fullPath = computed(() => (props.item.path ? (props.parentPath ? props.parentPath + props.item.path : props.item.path) : ''));
 
 const isActive = computed(() => {
-    return props.item.path ? layoutState.activePath?.startsWith(fullPath.value) : layoutState.activePath === props.item.to;
+    if (props.item.path) {
+        return layoutState.activePath?.startsWith(fullPath.value);
+    }
+    // Leaf item: match via activePath or current route
+    if (layoutState.activePath) {
+        return layoutState.activePath === props.item.to;
+    }
+    return props.item.to && route.path === props.item.to;
 });
 
 const itemClick = (event: Event, item: MenuItemParameters): void => {
