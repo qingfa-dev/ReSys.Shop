@@ -3,6 +3,7 @@ using Hangfire.States;
 
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 
@@ -107,13 +108,19 @@ public static partial class UploadVariantImage
             // Log: Record image creation event for observability
             VariantImageLoggers.Created(logger, Id: image.Id, VariantId: image.VariantId ?? Guid.Empty, FileName: image.FileName, ActionBy: currentUser.UserName);
 
-            // Enqueue: Trigger background embedding generation for search-type images
+            // Enqueue: Create Pending embedding row and enqueue background job for status tracking
             if (imageType == VariantImageType.Search)
             {
                 var modelName = VariantImageConstant.Defaults.DefaultEmbeddingModel;
-                backgroundJobClient?.Create<IEmbeddingOrchestrator>(
-                    orchestrator => orchestrator.GenerateAndPersistAsync(image.Id, modelName, CancellationToken.None),
+                var pendingEmbedding = ImageEmbeddingMethod.CreatePending(image.Id, modelName, "1.0");
+                dbContext.Set<ImageEmbedding>().Add(pendingEmbedding);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                var jobId = backgroundJobClient?.Create<IEmbeddingOrchestrator>(
+                    orchestrator => orchestrator.RunAsync(pendingEmbedding.Id, CancellationToken.None),
                     new EnqueuedState());
+                pendingEmbedding.HangfireJobId = jobId;
+                await dbContext.SaveChangesAsync(cancellationToken);
             }
 
             // Map: Return created image as detail DTO with 201 response
