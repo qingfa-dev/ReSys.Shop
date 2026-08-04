@@ -9,7 +9,7 @@ export const ENDPOINTS = {
   productRelated: `${API_STOREFRONT}/products/related`,
   productSimilar: `${API_STOREFRONT}/products/similar`,
   searchByImage: `${API_STOREFRONT}/search-by-image`,
-  taxonomies: `${API_STOREFRONT}/taxonomies`,
+  // taxonomies: No backend GET /api/storefront/taxonomies list endpoint — use taxons instead
   taxonomyById: (id: string) => `${API_STOREFRONT}/taxonomies/${id}`,
   taxons: `${API_STOREFRONT}/taxons`,
   taxonProducts: `${API_STOREFRONT}/taxons/products`,
@@ -37,7 +37,7 @@ export const ENDPOINTS = {
   authLogout: `${API_STORE}/identity/auth/logout`,
   sessions: `${API_STORE}/identity/auth/sessions`,
   sessionsRefresh: `${API_STORE}/identity/auth/sessions/refresh`,
-  sessionById: (id: string) => `${API_STORE}/identity/auth/sessions/${id}`,
+  // sessionById: Backend route not yet available — use GET /sessions for the list
   passwordsForgot: `${API_STORE}/identity/passwords/forgot`,
   passwordsReset: `${API_STORE}/identity/passwords/reset`,
   passwordsChange: `${API_STORE}/identity/passwords/change`,
@@ -77,7 +77,9 @@ export const ENDPOINTS = {
 
   // Location
   countries: `${API_STORE}/locations/countries`,
-  countryByIdOrIso: (idOrIso: string) => `${API_STORE}/locations/countries/${idOrIso}`,
+  countryById: (id: string) => `${API_STORE}/locations/countries/${id}`,
+  countryByIso: (iso: string) => `${API_STORE}/locations/countries/by-iso/${iso}`,
   states: `${API_STORE}/locations/states`,
-  stateByIdOrIso: (idOrIso: string) => `${API_STORE}/locations/states/${idOrIso}`,
+  stateById: (id: string) => `${API_STORE}/locations/states/${id}`,
+  stateByIso: (iso: string) => `${API_STORE}/locations/states/by-iso/${iso}`,
 } as const
