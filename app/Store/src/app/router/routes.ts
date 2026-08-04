@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 import { catalogRoutes } from '@/features/catalog/routes'
 import { identityRoutes } from '@/features/identity/routes'
+import { orderingRoutes } from '@/features/ordering/routes'
 
 export const routes: RouteRecordRaw[] = [
   // Public storefront shell
@@ -9,7 +10,8 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/app/layouts/DefaultLayout.vue'),
     children: [
       ...catalogRoutes,
-      // ordering routes (Phase 4)
+      // Ordering routes rendered in the default shell: /cart, /checkout
+      ...orderingRoutes.filter(r => !r.path.startsWith('/account')),
     ],
   },
   // Auth pages
@@ -23,7 +25,11 @@ export const routes: RouteRecordRaw[] = [
     path: '/account',
     component: () => import('@/app/layouts/AccountLayout.vue'),
     meta: { requiresAuth: true },
-    children: identityRoutes.filter(r => r.meta?.requiresAuth),
+    children: [
+      ...identityRoutes.filter(r => r.meta?.requiresAuth),
+      // Ordering routes rendered in the account shell: /account/orders, /account/orders/:id
+      ...orderingRoutes.filter(r => r.path.startsWith('/account')),
+    ],
   },
   // 404
   {
