@@ -17,7 +17,7 @@ public static partial class Logout
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
-            .AllowAnonymous()
+            .RequireAuthorization()
             .WithName(nameof(Logout))
             .WithTags(IdentityFeature.Tags.Authentication)
             .WithSummary(IdentityFeature.Store.Auth.Logout.Summary)

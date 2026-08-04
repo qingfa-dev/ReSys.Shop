@@ -11,6 +11,7 @@ public static partial class ResetPassword
     {
         public Validator()
         {
+            RuleFor(x => x.UserId).NotEmpty();
             RuleFor(x => x.Token).ApplyUserTokenRules();
             RuleFor(x => x.NewPassword).ApplyUserPasswordRules(requireMinLength: true);
         }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
 using Module.Identity.Features.Storefront.Auth.Sessions.Get;
-using Module.Profile.Domain;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authorization.Permissions.Services;
@@ -68,7 +67,7 @@ public class GetSessionTests
         var result = await CreateHandler().Handle(new GetSession.Query(), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(UserProfileResult.Failure.AuthRequired.Code);
+        result.Errors[0].Code.Should().Be(UserResult.Failure.Unauthorized.Code);
     }
 
     // ==================== USER NOT FOUND ====================

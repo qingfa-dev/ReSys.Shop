@@ -7,7 +7,7 @@ public static partial class ResendEmailVerification
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/emails/resend-verification — resend email verification link
+            // Map: POST /api/store/emails/resend — resend email verification link
             app.MapPost(IdentityFeature.Store.Emails.Resend.Route, Handle)
                 .AllowAnonymous()
                 .WithName(nameof(ResendEmailVerification))
