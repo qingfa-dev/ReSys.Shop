@@ -355,4 +355,76 @@ public class ListProductsTests : IDisposable
         result.Items.Should().HaveCount(1);
         result.Items.First().Name.Should().Be("Unfiltered Product");
     }
+
+    [Fact(DisplayName = "Handler: Should return facet counts when IncludeFacets is true")]
+    public async Task Handle_ShouldReturnFacetCounts_WhenIncludeFacets()
+    {
+        // Arrange: Option type + value facets
+        var optionType = OptionTypeMethod.Create("Color", "Color", filterable: true).Value;
+        var redValue = OptionValueMethod.Create(optionType.Id, "Red", "Red").Value;
+        optionType.OptionValues.Add(redValue);
+
+        var redProduct = CreateActiveProduct("Red Shirt", "red-shirt");
+        var redVariant = VariantMethod.Create(redProduct.Id, "RED", isMaster: false).Value;
+        redVariant.OptionValueVariants.Add(OptionValueVariantMethod.Create(redVariant.Id, redValue.Id).Value);
+        redProduct.Variants.Add(redVariant);
+
+        var redPants = CreateActiveProduct("Red Pants", "red-pants");
+        var redPantsVariant = VariantMethod.Create(redPants.Id, "RP", isMaster: false).Value;
+        redPantsVariant.OptionValueVariants.Add(OptionValueVariantMethod.Create(redPantsVariant.Id, redValue.Id).Value);
+        redPants.Variants.Add(redPantsVariant);
+
+        // Arrange: Taxon facet
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories").Value;
+        var taxon = TaxonMethod.Create(
+            taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts",
+            null, null, null, false, null, null, false, null, null).Value;
+        taxonomy.Taxons.Add(taxon);
+        redProduct.Classifications.Add(ClassificationMethod.Create(redProduct.Id, taxon.Id).Value);
+
+        _dbContext.Set<OptionType>().Add(optionType);
+        _dbContext.Set<Taxonomy>().Add(taxonomy);
+        _dbContext.Set<Product>().Add(redProduct);
+        _dbContext.Set<Product>().Add(redPants);
+        _dbContext.Set<Variant>().Add(redVariant);
+        _dbContext.Set<Variant>().Add(redPantsVariant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _handler.Handle(
+            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters { IncludeFacets = true }),
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+        var facets = result.Items.First().Facets;
+        facets.Should().NotBeNull();
+        facets!.Groups.Should().HaveCount(2);
+
+        var colorGroup = facets.Groups.First(g => g.Name == "Color");
+        colorGroup.Values.Should().HaveCount(1);
+        colorGroup.Values[0].Label.Should().Be("Red");
+        colorGroup.Values[0].Count.Should().Be(2);
+
+        var categoryGroup = facets.Groups.First(g => g.Name == "Category");
+        categoryGroup.Values.Should().HaveCount(1);
+        categoryGroup.Values[0].Label.Should().Be("shirts");
+        categoryGroup.Values[0].Count.Should().Be(1);
+    }
+
+    [Fact(DisplayName = "Handler: Should not return facets when IncludeFacets is false")]
+    public async Task Handle_ShouldNotReturnFacets_WhenIncludeFacetsFalse()
+    {
+        var product = CreateActiveProduct("Plain Product", "plain-product");
+        _dbContext.Set<Product>().Add(product);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.First().Facets.Should().BeNull();
+    }
 }

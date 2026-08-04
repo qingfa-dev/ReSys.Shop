@@ -8,6 +8,7 @@ public static partial class GetStorefrontProducts
         public Guid[]? TaxonId { get; init; }
         public decimal? MinPrice { get; init; }
         public decimal? MaxPrice { get; init; }
+        public bool IncludeFacets { get; init; }
         public new string? Search { get; init; }
     }
 }
