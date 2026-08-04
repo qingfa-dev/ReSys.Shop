@@ -8,12 +8,12 @@ public static partial class StripeWebhook
 {
     private const int MaxWebhookBodySize = 65536; // 64KB — Stripe max payload ~16KB
 
-    /// <summary>Maps POST api/payments/stripe/webhook to handle Stripe webhook events.</summary>
+    /// <summary>Maps POST api/storefront/webhooks/stripe to handle Stripe webhook events.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/payments/stripe/webhook — handle Stripe webhook events
+            // Map: POST api/storefront/webhooks/stripe — handle Stripe webhook events
             app.MapPost(PaymentFeature.Storefront.Payment.Webhooks.Stripe.Route, async (
                 HttpRequest request,
                 ISender sender,
