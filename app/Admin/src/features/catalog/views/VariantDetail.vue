@@ -400,8 +400,30 @@ async function generateAllMissing() {
 const imageTypeOptions = ['Default', 'Thumbnail', 'Square', 'Gallery', 'Search']
 
 // Set-type: Change an image's classification (Search marks the semantic-search source)
-async function updateImageType(image: VariantImage, type: string) {
+function updateImageType(image: VariantImage, type: string) {
   if (image.type === type) return
+
+  // Confirm: Warn before moving an image in or out of search relevance
+  if (type === 'Search' || type === 'Default') {
+    const message =
+      type === 'Search'
+        ? `Designate ${image.fileName} as the semantic-search image? Its embedding will be used for visual search.`
+        : `Remove ${image.fileName} from semantic search? It will no longer be the search image.`
+    confirm.require({
+      message,
+      header: 'Change Image Type',
+      icon: 'pi pi-exclamation-triangle',
+      rejectLabel: 'Cancel',
+      acceptLabel: 'Change',
+      accept: () => applyImageType(image, type),
+    })
+    return
+  }
+
+  applyImageType(image, type)
+}
+
+async function applyImageType(image: VariantImage, type: string) {
   const request: VariantImageUpdateRequest = { type }
   const result = await VariantImageApi.updateImage(image.id, request)
   if (result.isSuccess) {
