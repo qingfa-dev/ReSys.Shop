@@ -45,7 +45,7 @@ async function onSubmit(event: FormSubmitEvent) {
   formError.value = null
   try {
     const data = event.values as { email: string; userId: string; token: string; newPassword: string }
-    // Call: Persist the new password via the reset-password API.
+    // Call: Confirm the reset token is valid and swap in the new password.
     const result = await resetPassword({
       email: data.email,
       userId: data.userId,

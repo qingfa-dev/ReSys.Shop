@@ -21,7 +21,7 @@ async function onSubmit(event: FormSubmitEvent) {
   submitError.value = null
   try {
     const data = event.values as { email: string }
-    // Call: Request a password-reset link for the supplied email.
+    // Call: Email the reset link only when the account exists.
     await forgotPassword({ email: data.email })
     isSuccess.value = true
   } catch {
