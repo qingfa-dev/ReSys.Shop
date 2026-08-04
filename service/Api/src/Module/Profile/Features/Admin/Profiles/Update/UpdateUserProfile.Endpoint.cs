@@ -1,5 +1,5 @@
 using Module.Profile.Features.Shared;
-using Module.Profile.Features.Store.Profiles.Update;
+using Module.Profile.Features.Storefront.Profiles.Update;
 
 namespace Module.Profile.Features.Admin.Profiles.UpdateUserProfile;
 

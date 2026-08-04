@@ -1,5 +1,5 @@
 using Module.Profile.Features.Shared;
-using Module.Profile.Features.Store.Profiles.Delete;
+using Module.Profile.Features.Storefront.Profiles.Delete;
 
 namespace Module.Profile.Features.Admin.Profiles.DeleteUserProfile;
 

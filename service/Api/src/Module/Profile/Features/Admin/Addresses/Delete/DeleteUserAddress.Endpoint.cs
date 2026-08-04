@@ -1,5 +1,5 @@
 using Module.Profile.Features.Shared;
-using Module.Profile.Features.Store.Addresses.Delete;
+using Module.Profile.Features.Storefront.Addresses.Delete;
 
 namespace Module.Profile.Features.Admin.Addresses.Delete;
 

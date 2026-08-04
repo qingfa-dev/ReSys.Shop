@@ -1,5 +1,5 @@
 using Module.Profile.Features.Shared;
-using Module.Profile.Features.Store.Addresses.Create;
+using Module.Profile.Features.Storefront.Addresses.Create;
 
 namespace Module.Profile.Features.Admin.Addresses.Create;
 

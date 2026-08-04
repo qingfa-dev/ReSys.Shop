@@ -1,5 +1,5 @@
 using Module.Profile.Features.Shared;
-using Module.Profile.Features.Store.Addresses.Get.ById;
+using Module.Profile.Features.Storefront.Addresses.Get.ById;
 
 namespace Module.Profile.Features.Admin.Addresses.Get.ById;
 

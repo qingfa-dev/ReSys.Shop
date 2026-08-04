@@ -1,5 +1,5 @@
 using Module.Profile.Features.Shared;
-using Module.Profile.Features.Store.Addresses.Get.PagedOrAll;
+using Module.Profile.Features.Storefront.Addresses.Get.PagedOrAll;
 
 namespace Module.Profile.Features.Admin.Addresses.Get.All;
 

@@ -12,7 +12,7 @@ public static class ProfileFeature
         public static readonly string[] Wishlist = ["Wishlist"];
     }
 
-    public static class Store
+    public static class Storefront
     {
         private const string StoreRoute = "api/store/profiles";
 

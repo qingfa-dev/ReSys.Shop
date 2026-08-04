@@ -1,5 +1,5 @@
 using Module.Profile.Features.Shared;
-using Module.Profile.Features.Store.Profiles.Create;
+using Module.Profile.Features.Storefront.Profiles.Create;
 
 namespace Module.Profile.Features.Admin.Profiles.CreateUserProfile;
 
