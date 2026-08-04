@@ -6,5 +6,6 @@ public sealed class InferenceClientSetting
 
     public string BaseAddress { get; set; } = "http://embedding";
     public int TimeoutSeconds { get; set; }
+    public string ApiKey { get; set; } = string.Empty;
     public Dictionary<string, string> DefaultHeaders { get; set; } = [];
 }

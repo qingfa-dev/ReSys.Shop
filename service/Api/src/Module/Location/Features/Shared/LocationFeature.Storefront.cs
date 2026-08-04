@@ -28,7 +28,7 @@ public static partial class LocationFeature
 
             public static class GetByIso
             {
-                public const string Route = $"{CountryRoute}/by-iso/{{isoCode:regex(^[A-Za-z]{{2,3}}$)}}";
+                public const string Route = $"{CountryRoute}/by-iso/{{isoCode:regex(^[A-Za-z]{{{{2,3}}}}$)}}";
                 public const string Description = "Find a country using its ISO 3166-1 alpha-2 or alpha-3 code";
                 public const string Summary = "Find country by ISO code";
             }
@@ -56,7 +56,7 @@ public static partial class LocationFeature
 
             public static class GetByIso
             {
-                public const string Route = $"{StateRoute}/by-iso/{{isoCode:regex(^[A-Za-z0-9]{{1,5}}$)}}";
+                public const string Route = $"{StateRoute}/by-iso/{{isoCode:regex(^[A-Za-z0-9]{{{{1,5}}}}$)}}";
                 public const string Description = "Find a state using its ISO 3166-2 subdivision code";
                 public const string Summary = "Find state by ISO code";
             }

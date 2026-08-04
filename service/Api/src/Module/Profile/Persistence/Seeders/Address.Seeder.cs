@@ -36,7 +36,7 @@ public sealed class AddressSeeder(IApplicationDbContext context) : AbstractDataS
                 _ => ("789 Pine Road", "Chicago", "60601", "Home", il),
             };
 
-            Result<Address> addressResult = AddressMethod.Create(
+            Result<Address> shippingResult = AddressMethod.Create(
                 firstName: profile.FirstName,
                 address1: address1,
                 city: city,
@@ -51,13 +51,43 @@ public sealed class AddressSeeder(IApplicationDbContext context) : AbstractDataS
                 stateCode: state.Abbreviation,
                 userProfileId: profile.Id);
 
-            if (addressResult.IsFailure)
+            if (shippingResult.IsFailure)
             {
                 throw new InvalidOperationException(
-                    $"Failed to create address for profile '{profile.Id}': {addressResult.Errors.FirstOrDefault().Message}");
+                    $"Failed to create shipping address for profile '{profile.Id}': {shippingResult.Errors.FirstOrDefault().Message}");
             }
 
-            Context.Set<Address>().Add(addressResult.Value);
+            Context.Set<Address>().Add(shippingResult.Value);
+
+            (string billingAddress1, string billingCity, string billingZip) = profile.FirstName switch
+            {
+                "Admin" => ("321 Broadway", "New York", "10002"),
+                "Manager" => ("654 Elm Boulevard", "Los Angeles", "90002"),
+                _ => ("987 Oak Lane", "Chicago", "60602"),
+            };
+
+            Result<Address> billingResult = AddressMethod.Create(
+                firstName: profile.FirstName,
+                address1: billingAddress1,
+                city: billingCity,
+                countryName: us.Name,
+                addressType: AddressType.Billing,
+                lastName: profile.LastName,
+                zipCode: billingZip,
+                isDefault: false,
+                label: "Billing",
+                stateProvince: state.Name,
+                countryCode: us.IsoCode,
+                stateCode: state.Abbreviation,
+                userProfileId: profile.Id);
+
+            if (billingResult.IsFailure)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to create billing address for profile '{profile.Id}': {billingResult.Errors.FirstOrDefault().Message}");
+            }
+
+            Context.Set<Address>().Add(billingResult.Value);
         }
 
         await SaveChangesWithIdempotencyAsync(cancellationToken);
