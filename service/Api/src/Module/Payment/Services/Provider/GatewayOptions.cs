@@ -3,7 +3,7 @@ namespace Module.Payment.Services.Provider;
 /// <summary>Required and optional parameters passed to gateway payment operations.</summary>
 public sealed record GatewayOptions
 {
-    public static string Currency => GatewayConstants.Currency.Usd;
+    public string Currency { get; init; } = GatewayConstants.Currency.Usd;
 
     public required string Email { get; init; }
     public required string Customer { get; init; }

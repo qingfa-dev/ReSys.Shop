@@ -185,7 +185,7 @@ public sealed class StripeGateway : Gateway
         var o = new PaymentIntentCreateOptions
         {
             Amount = checked((long)Math.Round(amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
-            Currency = GatewayOptions.Currency,
+            Currency = options.Currency,
             ConfirmationMethod = GatewayConstants.Stripe.ConfirmationMethod.Manual,
             CaptureMethod = autoCapture
                 ? GatewayConstants.Stripe.CaptureMethod.Automatic

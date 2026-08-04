@@ -14,7 +14,7 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 /// <summary>Creates a payment intent for checkout.</summary>
 public static partial class CreatePaymentIntent
 {
-    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null, string? PaymentMethodToken = null, string? ReturnUrl = null, string? CardNumber = null) : ICommand<Response>;
+    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null, string? PaymentMethodToken = null, string? ReturnUrl = null, string? CardNumber = null, string? Currency = null) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -79,6 +79,7 @@ public static partial class CreatePaymentIntent
                 IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
                 StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
                 SuccessUrl = command.ReturnUrl,
+                Currency = command.Currency ?? GatewayConstants.Currency.Usd,
             };
 
             // Call: Gateway process (authorize or purchase depending on AutoCapture)
