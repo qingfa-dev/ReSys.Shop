@@ -25,6 +25,12 @@ export interface RegisterRequest {
   password: string
 }
 
+/**
+ * Client-side view model for a single device/session row in the Sessions view.
+ * NOTE: the backend exposes NO list-sessions endpoint — `GET /identity/auth/sessions`
+ * returns only the current user's session payload (`SessionUser`). `deviceName` is
+ * derived client-side from the user agent; `ipAddress` is not exposed by the API.
+ */
 export interface SessionInfo {
   id: string
   deviceName: string
