@@ -12,6 +12,13 @@ public static class GatewayConstants
         public const string Bogus = "bogus";
     }
 
+    // Const: Payment source type discriminators.
+    public static class SourceTypes
+    {
+        public const string PaymentMethod = "payment_method";
+        public const string Card = "card";
+    }
+
     // Const: Supported currencies (delegates to system defaults).
     public static class Currency
     {
