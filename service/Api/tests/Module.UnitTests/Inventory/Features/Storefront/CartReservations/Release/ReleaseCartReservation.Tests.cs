@@ -66,7 +66,7 @@ public class ReleaseCartReservationTests : IDisposable
         var reservation = await SeedReservation(3);
 
         var result = await _handler.Handle(
-            new ReleaseCartReservation.Command(reservation.Id),
+            new ReleaseCartReservation.Command(new ReleaseCartReservation.Request { ReservationId = reservation.Id, CartToken = "test-cart-token" }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -83,7 +83,7 @@ public class ReleaseCartReservationTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenNotFound()
     {
         var result = await _handler.Handle(
-            new ReleaseCartReservation.Command(Guid.NewGuid()),
+            new ReleaseCartReservation.Command(new ReleaseCartReservation.Request { ReservationId = Guid.NewGuid(), CartToken = "test-cart-token" }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -95,7 +95,7 @@ public class ReleaseCartReservationTests : IDisposable
         var reservation = await SeedReservation(3, ReservationState.Released);
 
         var result = await _handler.Handle(
-            new ReleaseCartReservation.Command(reservation.Id),
+            new ReleaseCartReservation.Command(new ReleaseCartReservation.Request { ReservationId = reservation.Id, CartToken = "test-cart-token" }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -107,7 +107,7 @@ public class ReleaseCartReservationTests : IDisposable
         var reservation = await SeedReservation(3, ReservationState.Expired);
 
         var result = await _handler.Handle(
-            new ReleaseCartReservation.Command(reservation.Id),
+            new ReleaseCartReservation.Command(new ReleaseCartReservation.Request { ReservationId = reservation.Id, CartToken = "test-cart-token" }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -119,7 +119,7 @@ public class ReleaseCartReservationTests : IDisposable
         var reservation = await SeedReservation(3, ReservationState.Fulfilled);
 
         var result = await _handler.Handle(
-            new ReleaseCartReservation.Command(reservation.Id),
+            new ReleaseCartReservation.Command(new ReleaseCartReservation.Request { ReservationId = reservation.Id, CartToken = "test-cart-token" }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();

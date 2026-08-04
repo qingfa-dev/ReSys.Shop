@@ -10,10 +10,19 @@ public static partial class ReleaseCartReservation
         {
             app.MapDelete(InventoryFeature.Storefront.CartReservations.Release.Route, async (
                 [FromRoute] Guid reservationId,
+                HttpContext httpContext,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(reservationId);
+                var cartToken = httpContext.Request.Headers["X-Cart-Token"].FirstOrDefault()
+                    ?? httpContext.User.FindFirst("cart_token")?.Value
+                    ?? string.Empty;
+
+                var command = new Command(new Request
+                {
+                    ReservationId = reservationId,
+                    CartToken = cartToken
+                });
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
@@ -21,7 +30,7 @@ public static partial class ReleaseCartReservation
             .WithTags(InventoryFeature.Tags.StockReservation)
             .WithSummary(InventoryFeature.Storefront.CartReservations.Release.Summary)
             .WithDescription(InventoryFeature.Storefront.CartReservations.Release.Description)
-            .Produces<Result>()
+            .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
