@@ -1,12 +1,23 @@
 import type { Router } from 'vue-router'
+import { useAuthStore } from '@/features/identity/stores/authStore'
 
 let isInitialized = false
 
 export function setupGuards(router: Router): void {
-  router.beforeEach(async (_to) => {
-    // Auth guard — wired in Phase 2 after authStore exists
+  router.beforeEach(async (to) => {
+    const store = useAuthStore()
+
     if (!isInitialized) {
+      await store.init()
       isInitialized = true
+    }
+
+    if (to.meta.guestOnly && store.isAuthenticated) {
+      return { path: '/' }
+    }
+
+    if (to.meta.requiresAuth && !store.isAuthenticated) {
+      return { name: 'login', query: { redirect: to.fullPath } }
     }
   })
 

@@ -2,12 +2,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MobileNav from '@/app/components/layout/MobileNav.vue'
-// TODO(task-2.2): re-enable authStore/cartStore wiring once the stores exist.
-// import { useAuthStore } from '@/features/identity/stores/authStore'
+import { useAuthStore } from '@/features/identity/stores/authStore'
+// TODO(task-4.1): re-enable cartStore wiring once the full cart store exists.
 // import { useCartStore } from '@/features/ordering/stores/cartStore'
 
 const router = useRouter()
-// const auth = useAuthStore()
+const auth = useAuthStore()
 // const cart = useCartStore()
 
 const searchQuery = ref('')
@@ -50,39 +50,38 @@ function onSearch(): void {
             class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <i class="pi pi-shopping-cart text-xl" />
-            <!-- TODO(task-4.1): re-enable cart item count badge when cartStore exists.
-            <span
-              v-if="cart.itemCount > 0"
-              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-            >
-              {{ cart.itemCount }}
-            </span>
-            -->
-          </router-link>
-
-          <!-- TODO(task-2.2): re-enable user menu / sign-in when authStore exists.
-          <template v-if="auth.isAuthenticated">
-            <router-link
-              to="/account/orders"
-              class="hidden md:flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
-            >
-              <i class="pi pi-user" />
-              {{ auth.user?.userName ?? 'Account' }}
-            </router-link>
-            <Button
-              label="Logout"
-              size="small"
-              severity="secondary"
-              @click="auth.logout()"
-              class="hidden md:inline-flex"
-            />
-          </template>
-          <template v-else>
-            <router-link to="/login">
-              <Button label="Sign In" size="small" severity="secondary" />
-            </router-link>
-          </template>
+          <!-- TODO(task-4.1): re-enable cart item count badge when full cart store exists.
+          <span
+            v-if="cart.itemCount > 0"
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+          >
+            {{ cart.itemCount }}
+          </span>
           -->
+        </router-link>
+
+        <!-- Section: User Menu / Sign In -->
+        <template v-if="auth.isAuthenticated">
+          <router-link
+            to="/account/orders"
+            class="hidden md:flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+          >
+            <i class="pi pi-user" />
+            {{ auth.user?.userName ?? 'Account' }}
+          </router-link>
+          <Button
+            label="Logout"
+            size="small"
+            severity="secondary"
+            @click="auth.logout()"
+            class="hidden md:inline-flex"
+          />
+        </template>
+        <template v-else>
+          <router-link to="/login">
+            <Button label="Sign In" size="small" severity="secondary" />
+          </router-link>
+        </template>
 
           <!-- Mobile Menu Toggle -->
           <Button
