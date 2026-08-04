@@ -190,6 +190,11 @@ public static class OrderResult
             code: "Order.PaymentFailed",
             message: "Payment verification failed; the payment intent is not in a completed state.");
 
+        /// <summary>Payment has not been completed or has zero amount.</summary>
+        public static Error PaymentNotCompleted => Error.Validation(
+            code: "Order.PaymentNotCompleted",
+            message: "Payment has not been completed or has zero amount.");
+
         /// <summary>Payment amount does not match the order total.</summary>
         public static Error PaymentAmountMismatch => Error.Validation(
             code: "Order.PaymentAmountMismatch",
