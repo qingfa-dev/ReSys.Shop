@@ -10,38 +10,37 @@ public static partial class GetCartReservations
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Fetches all active reservations for the cart and computes remaining seconds before expiry.</summary>
+        /// <summary>Fetches active reservations for the cart with DB-side paging and computes remaining seconds before expiry.</summary>
         /// <param name="request">The query containing the cart token.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A list of active reservations with remaining TTL.</returns>
+        /// <returns>A page of active reservations with remaining TTL.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=request!=null, post=result!=null
             var now = DateTimeOffset.UtcNow;
-            var reservations = await dbContext.Set<StockReservation>()
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+
+            // Query: Filter active, non-expired reservations for the cart token.
+            var query = dbContext.Set<StockReservation>()
+                .AsNoTracking()
                 .Where(r => r.CartToken == request.CartToken
                             && r.State == ReservationState.Reserved
                             && r.ExpiresAtUtc > now)
-                .ToListAsync(cancellationToken);
+                .OrderBy(r => r.ExpiresAtUtc);
 
-            // Map: Compute remaining seconds for each reservation
-            var items = reservations.Select(r => new Response
-            {
-                Id = r.Id,
-                VariantId = r.VariantId,
-                Quantity = r.Quantity,
-                ExpiresAtUtc = r.ExpiresAtUtc!.Value,
-                State = r.State.ToString(),
-                RemainingSeconds = (int)(r.ExpiresAtUtc!.Value - now).TotalSeconds
-            }).ToList();
-
-            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
-            var ordered = items.OrderBy(i => i.ExpiresAtUtc).ToList();
-
-            // Transform: Return all in one page or honor caller-supplied paging
-            return pageModel.IsEmpty
-                ? PagedResult<Response>.Create(ordered, 1, Math.Max(1, ordered.Count), ordered.Count)
-                : ordered.ToPagedResult(pageModel);
+            // Transform: Page in the database, projecting remaining seconds for each reservation.
+            return await query.ToPagedOrAllAsync(
+                r => new Response
+                {
+                    Id = r.Id,
+                    VariantId = r.VariantId,
+                    Quantity = r.Quantity,
+                    ExpiresAtUtc = r.ExpiresAtUtc!.Value,
+                    State = r.State.ToString(),
+                    RemainingSeconds = (int)(r.ExpiresAtUtc!.Value - now).TotalSeconds
+                },
+                pageModel,
+                cancellationToken);
         }
     }
 }

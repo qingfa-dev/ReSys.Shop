@@ -1,6 +1,7 @@
-using Module.Inventory.Features.Storefront.StockAvailability.CheckStockAvailability;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
+
+using Shared.Application.Contracts.Inventory;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 
@@ -69,11 +70,11 @@ public class UpdateCartItemQuantityTests : IDisposable
 
         _senderMock
             .Setup(x => x.Send(
-                It.Is<CheckStockAvailability.Query>(
-                    q => q.Request.VariantId == _variantId && q.Request.Quantity == 5),
+                It.Is<CheckVariantAvailabilityQuery>(
+                    q => q.VariantId == _variantId && q.Quantity == 5),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<CheckStockAvailability.Response>.Ok(
-                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = true }));
+            .ReturnsAsync(Result<CheckVariantAvailabilityResponse>.Ok(
+                new CheckVariantAvailabilityResponse { VariantId = _variantId, IsAvailable = true }));
 
         // Act
         var result = await _handler.Handle(
@@ -108,11 +109,11 @@ public class UpdateCartItemQuantityTests : IDisposable
 
         _senderMock
             .Setup(x => x.Send(
-                It.Is<CheckStockAvailability.Query>(
-                    q => q.Request.VariantId == _variantId && q.Request.Quantity == 10),
+                It.Is<CheckVariantAvailabilityQuery>(
+                    q => q.VariantId == _variantId && q.Quantity == 10),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<CheckStockAvailability.Response>.Ok(
-                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = false }));
+            .ReturnsAsync(Result<CheckVariantAvailabilityResponse>.Ok(
+                new CheckVariantAvailabilityResponse { VariantId = _variantId, IsAvailable = false }));
 
         // Act
         var result = await _handler.Handle(

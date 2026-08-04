@@ -12,11 +12,10 @@ public static partial class GetStockAvailability
             // Map: GET /inventory/stock/availability/{variantId} — checks stock availability for a variant
             app.MapGet(InventoryFeature.Storefront.StockAvailability.Check.Route, async (
                 [FromRoute] Guid variantId,
-                [FromQuery] string? cartToken,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(new Request { VariantId = variantId, CartToken = cartToken });
+                var query = new Query(new Request { VariantId = variantId });
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })

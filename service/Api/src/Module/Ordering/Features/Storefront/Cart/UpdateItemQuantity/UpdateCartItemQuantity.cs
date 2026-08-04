@@ -1,6 +1,7 @@
-using Module.Inventory.Features.Storefront.StockAvailability.CheckStockAvailability;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+
+using Shared.Application.Contracts.Inventory;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 /// <summary>Updates the quantity of a line item in the current user's draft cart after validating stock availability.</summary>
@@ -44,11 +45,9 @@ public static partial class UpdateCartItemQuantity
 
             // Validate: Stock availability via Inventory module's reservation-aware query.
             var stockResult = await sender.Send(
-                new CheckStockAvailability.Query(new CheckStockAvailability.Request
-                {
-                    VariantId = lineItem.VariantId,
-                    Quantity = command.Request.Quantity
-                }),
+                new CheckVariantAvailabilityQuery(
+                    lineItem.VariantId,
+                    command.Request.Quantity),
                 cancellationToken);
 
             if (!stockResult.Value.IsAvailable)
