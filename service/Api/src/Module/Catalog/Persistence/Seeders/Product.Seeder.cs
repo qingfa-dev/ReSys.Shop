@@ -37,9 +37,9 @@ public sealed class CatalogProductSeeder(IApplicationDbContext context, DemoJson
                 metaKeywords: pj.MetaKeywords,
             #endregion SEO
             #region Timestamp
-                availableOn: null,
-                discontinueOn: null,
-                makeActiveAt: null,
+                availableOn: DateTimeOffset.UtcNow.AddDays(-1),
+                discontinueOn: DateTimeOffset.UtcNow.AddYears(1),
+                makeActiveAt: DateTimeOffset.UtcNow.AddDays(-1),
             #endregion Timestamp
             #region Fashion
                 styleCode: pj.StyleCode,

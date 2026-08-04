@@ -84,15 +84,44 @@ public static class ProductStoreMapping
         return new T
         {
             Id = entity.Id,
+            #region Properties
             Name = entity.Name ?? string.Empty,
-            Slug = entity.Slug ?? string.Empty,
             Description = entity.Description,
+            Status = entity.Status,
+            #endregion Properties
+
+            #region SEO
+            Slug = entity.Slug ?? string.Empty,
+            MetaTitle = entity.MetaTitle,
+            MetaDescription = entity.MetaDescription,
+            MetaKeywords = entity.MetaKeywords,
+            #endregion SEO
+
+            #region Timestamp
+            AvailableOn = entity.AvailableOn,
+            DiscontinueOn = entity.DiscontinueOn,
+            ModifiedAtUtc = entity.ModifiedAtUtc,
+            MakeActiveAt = entity.MakeActiveAt,
+            CreatedAtUtc = entity.CreatedAtUtc,
+            #endregion Timestamp
+            MasterVariantId = entity.MasterVariantId,
+
+            #region Fashion
+            StyleCode = entity.StyleCode,
+            SeasonName = entity.SeasonName,
+            MaterialComposition = entity.MaterialComposition,
+            CareInstructions = entity.CareInstructions,
+            FitNotes = entity.FitNotes,
+            Department = entity.Department,
+            GenderTarget = entity.GenderTarget,
+            #endregion Fashion
             MinPrice = firstPrice?.Amount,
             Currency = firstPrice?.Currency,
             ThumbnailUrl = firstImage?.Url,
             ThumbnailAlt = firstImage?.Alt,
-            AvailableOn = entity.AvailableOn,
             VariantsCount = entity.Variants.Count(v => !v.IsDeleted),
+            ClassificationsCount = entity.Classifications.Count,
+            TrackInventory = masterVariant?.TrackInventory ?? false,
         };
     }
 }
