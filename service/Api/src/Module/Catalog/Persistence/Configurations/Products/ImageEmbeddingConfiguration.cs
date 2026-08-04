@@ -16,7 +16,6 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
 
         #region Properties
         builder.Property(x => x.Vector)
-            .IsRequired()
             .HasColumnType("vector(512)");
 
         builder.Property(x => x.ModelName)

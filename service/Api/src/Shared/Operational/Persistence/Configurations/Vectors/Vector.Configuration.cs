@@ -52,7 +52,7 @@ public static class VectorConfiguration
 
     public static IndexBuilder<T> ConfigureIVFFlatIndex<T>(
         this EntityTypeBuilder<T> builder,
-        Expression<Func<T, Vector>> propertyExpression,
+        Expression<Func<T, Vector?>> propertyExpression,
         int lists = 100,
         string? indexName = null) where T : class
     {
@@ -67,7 +67,7 @@ public static class VectorConfiguration
 
     public static IndexBuilder<T> ConfigureHNSWIndex<T>(
         this EntityTypeBuilder<T> builder,
-        Expression<Func<T, Vector>> propertyExpression,
+        Expression<Func<T, Vector?>> propertyExpression,
         int m = 16,
         int efConstruction = 200,
         string? indexName = null) where T : class
@@ -82,7 +82,7 @@ public static class VectorConfiguration
         return indexBuilder;
     }
 
-    private static Expression<Func<T, object?>> ToObjectExpression<T>(Expression<Func<T, Vector>> expression)
+    private static Expression<Func<T, object?>> ToObjectExpression<T>(Expression<Func<T, Vector?>> expression)
     {
         return Expression.Lambda<Func<T, object?>>(
             Expression.Convert(expression.Body, typeof(object)),

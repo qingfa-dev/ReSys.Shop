@@ -15,9 +15,9 @@ public sealed partial class ImageEmbedding : Entity
     public string ModelVersion { get; set; } = string.Empty;
 
     /// <summary>
-    /// Vector data (pgvector compatibility).
+    /// Vector data (pgvector compatibility). Null until the embedding completes.
     /// </summary>
-    public Vector Vector { get; set; } = new(Array.Empty<float>());
+    public Vector? Vector { get; set; }
     public int Dimensions { get; set; }
 
     /// <summary>Current processing status of the embedding.</summary>

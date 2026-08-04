@@ -135,7 +135,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
             VariantImageId = embedding.VariantImageId,
             ModelName = embedding.ModelName,
             ModelVersion = embedding.ModelVersion,
-            Vector = embedding.Vector.ToArray(),
+            Vector = embedding.Vector!.ToArray(),
             Dimensions = embedding.Dimensions
         });
     }

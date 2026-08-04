@@ -50,7 +50,7 @@ public static class ImageEmbeddingMethod
             VariantImageId = variantImageId,
             ModelName = modelName,
             ModelVersion = modelVersion,
-            Vector = new Vector(Array.Empty<float>()),
+            Vector = null,
             Dimensions = 0,
             Status = EmbeddingStatus.Pending
         };

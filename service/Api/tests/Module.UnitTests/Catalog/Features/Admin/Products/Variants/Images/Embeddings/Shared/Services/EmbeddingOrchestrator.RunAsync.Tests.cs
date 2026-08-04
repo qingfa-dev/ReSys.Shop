@@ -56,7 +56,7 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
         updated.Dimensions.Should().Be(2);
         updated.CompletedAtUtc.Should().NotBeNull();
         updated.Vector.Should().NotBeNull();
-        updated.Vector.ToArray().Should().Equal(0.1f, 0.2f);
+        updated.Vector!.ToArray().Should().Equal(0.1f, 0.2f);
     }
 
     [Fact(DisplayName = "RunAsync: Should mark Failed on inference failure")]

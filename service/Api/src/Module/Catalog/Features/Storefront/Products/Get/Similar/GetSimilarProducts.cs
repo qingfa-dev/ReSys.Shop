@@ -38,7 +38,8 @@ public static partial class GetSimilarProducts
             var embeddingData = await dbContext.Set<ImageEmbedding>()
                 .Include(ie => ie.VariantImage)
                 .Where(ie => ie.VariantImage.VariantId == variant.Id
-                          && ie.ModelName == similarityModel)
+                          && ie.ModelName == similarityModel
+                          && ie.Vector != null)
                 .Select(ie => new { ie.Vector, ie.ModelName })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -47,7 +48,7 @@ public static partial class GetSimilarProducts
 
             // Query: Find nearest neighbors in vector space using cosine distance.
             var similarVariantIds = await vectorSearchService.FindSimilarVariantIdsAsync(
-                embeddingData.Vector, embeddingData.ModelName, request.TopK,
+                embeddingData.Vector!, embeddingData.ModelName, request.TopK,
                 excludeProductId: variant.ProductId, cancellationToken);
 
             if (similarVariantIds.Count == 0)

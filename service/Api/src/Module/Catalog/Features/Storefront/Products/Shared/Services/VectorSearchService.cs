@@ -75,6 +75,7 @@ public sealed class VectorSearchService : IVectorSearchService
             .Include(e => e.VariantImage)
                 .ThenInclude(vi => vi.Variant)
             .Where(e => e.ModelName == modelName
+                     && e.Vector != null
                      && e.VariantImage.Type == VariantImageType.Default
                      && e.VariantImage.VariantId != null
                      && !e.VariantImage.Variant!.IsDeleted);
@@ -86,8 +87,8 @@ public sealed class VectorSearchService : IVectorSearchService
 
         return embeddings
             .GroupBy(e => e.VariantImage.VariantId!.Value)
-            .Select(g => g.OrderBy(e => CosineDistance(queryArray, e.Vector.ToArray())).First())
-            .OrderBy(e => CosineDistance(queryArray, e.Vector.ToArray()))
+            .Select(g => g.OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray())).First())
+            .OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray()))
             .Take(topK)
             .Select(e => e.VariantImage.VariantId!.Value)
             .ToList();
