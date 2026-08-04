@@ -39,12 +39,34 @@ public static partial class ListProducts
                 .Where(x => !x.IsDeleted && x.AvailableOn <= DateTimeOffset.UtcNow)
                 .AsNoTracking();
 
-            // Filter: Apply storefront-specific filter aliases (taxon, price range, etc.)
-            foreach (IStorefrontProductAlias alias in StorefrontProductFilterAliases.All)
+            // Filter: Apply direct storefront filters by Id (arrays use OR semantics)
+            if (parameters.OptionValueId is { Length: > 0 })
             {
-                var predicate = alias.BuildPredicate(parameters);
-                if (predicate is not null)
-                    query = query.Where(predicate);
+                var optionValueIds = parameters.OptionValueId;
+                query = query.Where(p => p.Variants.Any(v =>
+                    v.OptionValueVariants.Any(ov =>
+                        ov.OptionValue != null && optionValueIds.Contains(ov.OptionValue.Id))));
+            }
+
+            if (parameters.TaxonId is { Length: > 0 })
+            {
+                var taxonIds = parameters.TaxonId;
+                query = query.Where(p => p.Classifications.Any(c =>
+                    c.Taxon != null && taxonIds.Contains(c.Taxon.Id)));
+            }
+
+            if (parameters.MinPrice.HasValue)
+            {
+                var minPrice = parameters.MinPrice.Value;
+                query = query.Where(p => p.Variants.Any(v =>
+                    v.Prices.Any(pr => pr.Amount >= minPrice)));
+            }
+
+            if (parameters.MaxPrice.HasValue)
+            {
+                var maxPrice = parameters.MaxPrice.Value;
+                query = query.Where(p => p.Variants.Any(v =>
+                    v.Prices.Any(pr => pr.Amount <= maxPrice)));
             }
 
             // Parse: Validate and parse querying parameters for filtering, searching, and sorting
