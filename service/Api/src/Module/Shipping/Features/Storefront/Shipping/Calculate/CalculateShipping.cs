@@ -1,7 +1,8 @@
-using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Calculators;
 using Module.Shipping.Domain.ShippingMethods;
-using Shared.Application.Domain.Currencies;
+
+using Shared.Application.Contracts.Catalog;
+using Shared.Application.Contracts.Ordering;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Calculate;
 /// <summary>Calculates shipping cost for a given order and shipping method based on weight.</summary>
@@ -9,10 +10,10 @@ public static partial class CalculateShipping
 {
     public sealed record Command(Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ILogger<CommandHandler> logger)
+    public sealed class CommandHandler(IApplicationDbContext dbContext, ILogger<CommandHandler> logger, ISender sender)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Loads the shipping method and order, computes order weight from line items, then calculates cost.</summary>
+        /// <summary>Loads the shipping method and order weight via MediatR queries, then calculates cost.</summary>
         /// <param name="command">The command containing the shipping method ID and order ID.</param>
         /// <param name="cancellationToken">Propagates cancellation signal.</param>
         /// <returns>A result containing the calculated shipping cost details or an error.</returns>
@@ -30,31 +31,18 @@ public static partial class CalculateShipping
             if (method is null)
                 return (Result<Response>)ShippingMethodResult.Errors.NotFound;
 
-            // Check: Load order with line items to compute weight.
-            var order = await dbContext.Set<Order>()
-                .Include(o => o.LineItems)
-                .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken);
-
-            if (order is null)
-                return (Result<Response>)OrderResult.Errors.NotFound(request.OrderId);
-
-            // Compute: Calculate order weight from line items.
-            var variantIds = order.LineItems.Select(li => li.VariantId).Distinct().ToList();
-            var variantWeights = await dbContext.Set<Catalog.Domain.Products.Variants.Variant>()
-                .Where(v => variantIds.Contains(v.Id))
-                .Select(v => new { v.Id, v.Weight })
-                .ToListAsync(cancellationToken);
-
-            var weightMap = variantWeights.ToDictionary(v => v.Id, v => v.Weight ?? 0m);
-            var orderWeight = order.LineItems.Sum(li =>
-                weightMap.TryGetValue(li.VariantId, out var w) ? li.Quantity * w : 0m);
+            // Check: Load cart weight/value via Ordering contract.
+            var cartResult = await sender.Send(new GetCartForShippingQuery(request.OrderId), cancellationToken);
+            if (cartResult.IsFailure)
+                return (Result<Response>)cartResult.Errors;
+            var cart = cartResult.Value;
 
             // Compute: Calculate shipping cost via rate calculator.
             var calcResult = await ShippingRateCalculator.CalculateAsync(
                 dbContext,
                 request.ShippingMethodId,
-                orderWeight,
-                order.Total,
+                cart.TotalWeight,
+                cart.TotalValue,
                 cancellationToken);
 
             if (calcResult.IsFailure)
@@ -69,7 +57,7 @@ public static partial class CalculateShipping
                 ShippingMethodId = method.Id,
                 MethodName = method.Name,
                 Cost = cost,
-                Currency = order?.Currency ?? SystemCurrencyConstant.Defaults.Code,
+                Currency = cart.Currency,
                 IsFreeShipping = isFree
             };
         }
