@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Stripe enablement (real payment gateway — optional for dev, keep Bogus as default)
-# Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PUBLISHABLE_KEY env vars
-# to enable Stripe. Script also flips GatewayProviders:stripe:Enabled=true.
-#
-# Manual alternative (no env vars):
-#   dotnet user-secrets set "GatewayProviders:stripe:Enabled"     "true"
-#   dotnet user-secrets set "GatewayProviders:stripe:SecretKey"   "sk_test_..."
-#   dotnet user-secrets set "GatewayProviders:stripe:WebhookSecret" "whsec_..."
-#   dotnet user-secrets set "GatewayProviders:stripe:PublishableKey" "pk_test_..."
-
 PROJECT="service/Api/src/Api/Api.csproj"
 
 if ! grep -q "UserSecretsId" "$PROJECT"; then
@@ -31,7 +21,6 @@ if [ -n "${STRIPE_SECRET_KEY:-}" ]; then
   dotnet user-secrets set "GatewayProviders:stripe:SecretKey" "$STRIPE_SECRET_KEY" --project "$PROJECT"
   dotnet user-secrets set "GatewayProviders:stripe:WebhookSecret" "${STRIPE_WEBHOOK_SECRET:-}" --project "$PROJECT"
   dotnet user-secrets set "GatewayProviders:stripe:PublishableKey" "${STRIPE_PUBLISHABLE_KEY:-}" --project "$PROJECT"
-  dotnet user-secrets set "GatewayProviders:stripe:Enabled" "true" --project "$PROJECT"
   echo "Stripe secrets set from STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET / STRIPE_PUBLISHABLE_KEY env vars."
 fi
 
