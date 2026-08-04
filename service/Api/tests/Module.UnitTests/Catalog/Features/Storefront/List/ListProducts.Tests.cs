@@ -1,6 +1,12 @@
+using Module.Catalog.Domain.OptionTypes;
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products;
+using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Products.Variants.Options;
 using Module.Catalog.Domain.Products.Variants.Prices;
+using Module.Catalog.Domain.Taxonomies;
+using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Storefront.Products.Get.List;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.List;
@@ -96,16 +102,171 @@ public class ListProductsTests : IDisposable
         result.Items.Should().BeEmpty();
     }
 
-    [Fact(DisplayName = "Handler: Should return empty products when alias filters set (InMemory skips ILike)")]
-    public async Task Handle_ShouldReturnEmpty_WhenAliasFilterSet_OnInMemory()
+    [Fact(DisplayName = "Handler: Should filter by option value id and return matching products")]
+    public async Task Handle_FiltersByOptionValueId_ReturnsMatchingProducts()
     {
-        // Note: Alias predicates (option_value, option_type, taxon) use EF.Functions.ILike
-        // which is PostgreSQL-specific and cannot be translated by the InMemory provider.
-        // Filter behavior is covered by integration tests with a real PostgreSQL instance.
+        // Arrange
+        var optionType = OptionTypeMethod.Create("Color", "Color", filterable: true).Value;
+        var optionValue = OptionValueMethod.Create(optionType.Id, "Red", "Red").Value;
+        optionType.OptionValues.Add(optionValue);
+
+        var product = CreateActiveProduct("Red T-Shirt", "red-tshirt");
+        var variant = VariantMethod.Create(product.Id, "RED", isMaster: false).Value;
+        variant.OptionValueVariants.Add(OptionValueVariantMethod.Create(variant.Id, optionValue.Id).Value);
+        product.Variants.Add(variant);
+
+        _dbContext.Set<OptionType>().Add(optionType);
+        _dbContext.Set<Product>().Add(product);
+        _dbContext.Set<Variant>().Add(variant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var parameters = new ListProducts.Parameters { OptionValueId = [optionValue.Id] };
+
+        // Act
         var result = await _handler.Handle(
-            new ListProducts.Query(new ListProducts.Parameters { OptionValue = "Red" }),
+            new ListProducts.Query(parameters),
             TestContext.Current.CancellationToken);
 
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(1);
+        result.Items.First().Name.Should().Be("Red T-Shirt");
+    }
+
+    [Fact(DisplayName = "Handler: Should filter by multiple option value ids with OR semantics")]
+    public async Task Handle_FiltersByMultipleOptionValueIds_ReturnsAnyMatching()
+    {
+        // Arrange
+        var optionType = OptionTypeMethod.Create("Color", "Color", filterable: true).Value;
+        var optionValueRed = OptionValueMethod.Create(optionType.Id, "Red", "Red").Value;
+        var optionValueBlue = OptionValueMethod.Create(optionType.Id, "Blue", "Blue").Value;
+        optionType.OptionValues.Add(optionValueRed);
+        optionType.OptionValues.Add(optionValueBlue);
+
+        var redProduct = CreateActiveProduct("Red Shirt", "red-shirt");
+        var redVariant = VariantMethod.Create(redProduct.Id, "RED", isMaster: false).Value;
+        redVariant.OptionValueVariants.Add(OptionValueVariantMethod.Create(redVariant.Id, optionValueRed.Id).Value);
+        redProduct.Variants.Add(redVariant);
+
+        var blueProduct = CreateActiveProduct("Blue Shirt", "blue-shirt");
+        var blueVariant = VariantMethod.Create(blueProduct.Id, "BLU", isMaster: false).Value;
+        blueVariant.OptionValueVariants.Add(OptionValueVariantMethod.Create(blueVariant.Id, optionValueBlue.Id).Value);
+        blueProduct.Variants.Add(blueVariant);
+
+        _dbContext.Set<OptionType>().Add(optionType);
+        _dbContext.Set<Product>().Add(redProduct);
+        _dbContext.Set<Product>().Add(blueProduct);
+        _dbContext.Set<Variant>().Add(redVariant);
+        _dbContext.Set<Variant>().Add(blueVariant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var parameters = new ListProducts.Parameters
+        {
+            OptionValueId = [optionValueRed.Id, optionValueBlue.Id]
+        };
+
+        // Act
+        var result = await _handler.Handle(
+            new ListProducts.Query(parameters),
+            TestContext.Current.CancellationToken);
+
+        // Assert: Both products returned (OR semantics)
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+    }
+
+    [Fact(DisplayName = "Handler: Should filter by taxon id and return matching products")]
+    public async Task Handle_FiltersByTaxonId_ReturnsMatchingProducts()
+    {
+        // Arrange
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories").Value;
+        var taxon = TaxonMethod.Create(
+            taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts",
+            null, null, null, false, null, null, false, null, null).Value;
+        taxonomy.Taxons.Add(taxon);
+
+        var product = CreateActiveProduct("Casual Shirt", "casual-shirt");
+        product.Classifications.Add(ClassificationMethod.Create(product.Id, taxon.Id).Value);
+
+        _dbContext.Set<Taxonomy>().Add(taxonomy);
+        _dbContext.Set<Product>().Add(product);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var parameters = new ListProducts.Parameters { TaxonId = [taxon.Id] };
+
+        // Act
+        var result = await _handler.Handle(
+            new ListProducts.Query(parameters),
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(1);
+        result.Items.First().Name.Should().Be("Casual Shirt");
+    }
+
+    [Fact(DisplayName = "Handler: Should filter by multiple taxon ids with OR semantics")]
+    public async Task Handle_FiltersByMultipleTaxonIds_ReturnsAnyMatching()
+    {
+        // Arrange
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories").Value;
+        var taxonShirts = TaxonMethod.Create(
+            taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts",
+            null, null, null, false, null, null, false, null, null).Value;
+        var taxonPants = TaxonMethod.Create(
+            taxonomy.Id, null, "Pants", "Pants", null, 0, "pants",
+            null, null, null, false, null, null, false, null, null).Value;
+        taxonomy.Taxons.Add(taxonShirts);
+        taxonomy.Taxons.Add(taxonPants);
+
+        var shirtProduct = CreateActiveProduct("Shirt", "shirt");
+        shirtProduct.Classifications.Add(ClassificationMethod.Create(shirtProduct.Id, taxonShirts.Id).Value);
+
+        var pantsProduct = CreateActiveProduct("Pants", "pants");
+        pantsProduct.Classifications.Add(ClassificationMethod.Create(pantsProduct.Id, taxonPants.Id).Value);
+
+        _dbContext.Set<Taxonomy>().Add(taxonomy);
+        _dbContext.Set<Product>().Add(shirtProduct);
+        _dbContext.Set<Product>().Add(pantsProduct);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var parameters = new ListProducts.Parameters
+        {
+            TaxonId = [taxonShirts.Id, taxonPants.Id]
+        };
+
+        // Act
+        var result = await _handler.Handle(
+            new ListProducts.Query(parameters),
+            TestContext.Current.CancellationToken);
+
+        // Assert: Both products returned (OR semantics)
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(2);
+    }
+
+    [Fact(DisplayName = "Handler: Should return empty when option value id does not match")]
+    public async Task Handle_ReturnsEmpty_WhenOptionValueIdDoesNotMatch()
+    {
+        // Arrange
+        var optionType = OptionTypeMethod.Create("Color", "Color", filterable: true).Value;
+        var optionValue = OptionValueMethod.Create(optionType.Id, "Blue", "Blue").Value;
+        optionType.OptionValues.Add(optionValue);
+
+        var product = CreateActiveProduct("Blue T-Shirt", "blue-tshirt");
+        _dbContext.Set<OptionType>().Add(optionType);
+        _dbContext.Set<Product>().Add(product);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var parameters = new ListProducts.Parameters { OptionValueId = [Guid.NewGuid()] };
+
+        // Act
+        var result = await _handler.Handle(
+            new ListProducts.Query(parameters),
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
         result.Items.Should().BeEmpty();
     }
 
@@ -136,6 +297,46 @@ public class ListProductsTests : IDisposable
         result.Items.Should().BeEmpty();
     }
 
+    [Fact(DisplayName = "Handler: Should filter products within a price range")]
+    public async Task Handle_FiltersByPriceRange_ReturnsProductsInPriceRange()
+    {
+        // Arrange
+        var cheapProduct = CreateActiveProduct("Cheap Item", "cheap-item");
+        var cheapVariant = VariantMethod.Create(cheapProduct.Id, "M").Value;
+        cheapVariant.Prices.Add(PriceMethod.Create(15m, "USD", cheapVariant.Id).Value);
+        cheapProduct.Variants.Add(cheapVariant);
+        _dbContext.Set<Variant>().Add(cheapVariant);
+        _dbContext.Set<Product>().Add(cheapProduct);
+
+        var midProduct = CreateActiveProduct("Mid Item", "mid-item");
+        var midVariant = VariantMethod.Create(midProduct.Id, "M").Value;
+        midVariant.Prices.Add(PriceMethod.Create(50m, "USD", midVariant.Id).Value);
+        midProduct.Variants.Add(midVariant);
+        _dbContext.Set<Variant>().Add(midVariant);
+        _dbContext.Set<Product>().Add(midProduct);
+
+        var expensiveProduct = CreateActiveProduct("Expensive Item", "expensive-item");
+        var expensiveVariant = VariantMethod.Create(expensiveProduct.Id, "M").Value;
+        expensiveVariant.Prices.Add(PriceMethod.Create(150m, "USD", expensiveVariant.Id).Value);
+        expensiveProduct.Variants.Add(expensiveVariant);
+        _dbContext.Set<Variant>().Add(expensiveVariant);
+        _dbContext.Set<Product>().Add(expensiveProduct);
+
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var parameters = new ListProducts.Parameters { MinPrice = 20m, MaxPrice = 100m };
+
+        // Act
+        var result = await _handler.Handle(
+            new ListProducts.Query(parameters),
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().HaveCount(1);
+        result.Items.First().Name.Should().Be("Mid Item");
+    }
+
     [Fact(DisplayName = "Handler: Should silently ignore unwhitelisted raw filter field")]
     public async Task Handle_ShouldSilentlyIgnoreUnwhitelistedRawFilterField()
     {
@@ -153,31 +354,5 @@ public class ListProductsTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().HaveCount(1);
         result.Items.First().Name.Should().Be("Unfiltered Product");
-    }
-
-    [Fact(DisplayName = "Alias map: BuildFilter returns empty string when no alias is set")]
-    public void BuildFilter_ShouldReturnEmpty_WhenNoAliasSet()
-    {
-        var result = StorefrontProductFilterAliases.BuildFilter(new ListProducts.Parameters());
-
-        result.Should().Be(string.Empty);
-    }
-
-    [Fact(DisplayName = "Alias map: BuildFilter wraps string aliases in *value*")]
-    public void BuildFilter_ShouldWrapStringAliasesInContainsOperator()
-    {
-        var result = StorefrontProductFilterAliases.BuildFilter(
-            new ListProducts.Parameters { OptionValue = "Red" });
-
-        result.Should().Be("Variants.OptionValueVariants.OptionValue.Name=*Red*");
-    }
-
-    [Fact(DisplayName = "Alias map: BuildFilter emits two conditions for min/max price")]
-    public void BuildFilter_ShouldEmitTwoConditions_ForMinMaxPrice()
-    {
-        var result = StorefrontProductFilterAliases.BuildFilter(
-            new ListProducts.Parameters { MinPrice = 10, MaxPrice = 50 });
-
-        result.Should().Be("Variants.Prices.Amount>=10,Variants.Prices.Amount<=50");
     }
 }
