@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Remove the `StorefrontProductFilterAliases` abstraction layer and switch storefront product filtering to direct Id-based matching with typed `Guid?` parameters, while wiring the Storefront SPA to load real facet data and send typed query params.
+**Goal:** Remove the `StorefrontProductFilterAliases` abstraction layer and switch storefront product filtering to direct Id-based matching with typed `Guid[]` parameters (`optionValueId`, `taxonId`), while wiring the Storefront SPA to load real facet data and send typed query params. The `OptionType` filter param is dropped.
 
-**Architecture:** The backend will delete the alias interface and implementations, then build predicates directly in `ListProducts.cs` using simple `.Where()` clauses that match by entity Id. The frontend will load filterable option types and taxons from existing endpoints, replace mock colors/sizes/brands with real data, and emit top-level query params (`optionValue`, `optionType`, `taxon`, `minPrice`, `maxPrice`) instead of JSON DSL strings.
+**Architecture:** The backend will delete the alias interface and implementations, then build predicates directly in `ListProducts.cs` using simple `.Where()` clauses that match by entity Id (array params use `Contains` for OR semantics). The frontend will load filterable option types and taxons from existing endpoints, replace mock colors/sizes/brands with real data, and emit top-level camelCase query params (`optionValueId`, `taxonId`, `minPrice`, `maxPrice`) instead of JSON DSL strings.
 
 **Tech Stack:** C# 13 (.NET 9), Entity Framework Core, Vue 3, TypeScript, Axios
 
@@ -14,8 +14,9 @@
 - Frontend uses `pnpm run lint`, `pnpm exec vue-tsc --build`, `pnpm run test:unit`
 - Backend changes are in `service/Api/src/Module/Catalog/Features/Storefront/Products/Get/List/`
 - Frontend changes are in `app/Storefront/src/features/catalog/`
-- Wire param names are camelCase (`optionValue`, `optionType`, `taxon`) matching ASP.NET Core case-insensitive binding
-- Frontend internal type uses `Id` suffix (`optionValueId`, `optionTypeId`, `taxonId`) for clarity
+- Wire param names are camelCase matching the backend property names (`optionValueId`, `taxonId`), so no `[FromQuery(Name=...)]` attributes are needed; `minPrice`, `maxPrice` stay camelCase
+- Backend list params are `Guid[]?`; multiple values use OR semantics (a product matching any supplied id is returned)
+- Frontend internal field is named `optionTypeId` for the list of option-value ids (named after the grouping option type, but semantically carries option-value ids); taxon list field is `taxonId`
 - No new backend endpoints; reuse `GET /api/storefront/option-types` and `GET /api/storefront/taxons`
 - Raw DSL `filter=` param continues to coexist with typed params
 
@@ -28,9 +29,9 @@
 
 **Interfaces:**
 - Consumes: Nothing (standalone record update)
-- Produces: `ListProducts.Parameters` with `Guid?` types for OptionValue, OptionType, Taxon
+- Produces: `ListProducts.Parameters` with `Guid[]?` types `OptionValueId` and `TaxonId` (wire names `optionValueId`, `taxonId`); `OptionType` removed
 
-- [ ] **Step 1: Change the three string properties to Guid?**
+- [ ] **Step 1: Replace the string properties with Guid array id params**
 
 Open `service/Api/src/Module/Catalog/Features/Storefront/Products/Get/List/ListProducts.Parameters.cs` and replace the entire content:
 
@@ -41,9 +42,8 @@ public static partial class ListProducts
 {
     public record Parameters : QueryingParameters
     {
-        public Guid? OptionValue { get; init; }
-        public Guid? OptionType { get; init; }
-        public Guid? Taxon { get; init; }
+        public Guid[]? OptionValueId { get; init; }
+        public Guid[]? TaxonId { get; init; }
         public decimal? MinPrice { get; init; }
         public decimal? MaxPrice { get; init; }
         public new string? Search { get; init; }
@@ -51,7 +51,7 @@ public static partial class ListProducts
 }
 ```
 
-The `new string? Search` hides the base `QueryingParameters.Search` with the same type (intentional shadowing with `new` keyword).
+The `new string? Search` hides the base `QueryingParameters.Search` with the same type (intentional shadowing with `new` keyword). The wire names are camelCase and match the property names, so no `[FromQuery(Name = ...)]` attributes are needed — repeated `?optionValueId=<guid>` values bind into the arrays. `OptionType` is dropped entirely.
 
 - [ ] **Step 2: Verify the change compiles**
 
@@ -59,13 +59,13 @@ The `new string? Search` hides the base `QueryingParameters.Search` with the sam
 dotnet build service/Api
 ```
 
-Expected: Build succeeds with 0 warnings. The type change from `string?` to `Guid?` will cause compilation errors in files that reference these properties — that's expected and will be fixed in Task 3.
+Expected: Build succeeds with 0 warnings. The type change from `string?` to `Guid[]?` will cause compilation errors in files that reference these properties — that's expected and will be fixed in Task 3.
 
 - [ ] **Step 3: Commit the type signature change**
 
 ```bash
 git add service/Api/src/Module/Catalog/Features/Storefront/Products/Get/List/ListProducts.Parameters.cs
-git commit -m "refactor(catalog): change storefront product filter params from string to Guid"
+git commit -m "refactor(catalog): change storefront product filter params to optionValueId and taxonId Guid arrays"
 ```
 
 ---
@@ -117,8 +117,8 @@ git commit -m "refactor(catalog): delete StorefrontProductFilterAliases abstract
 - Modify: `service/Api/src/Module/Catalog/Features/Storefront/Products/Get/List/ListProducts.cs:1-67`
 
 **Interfaces:**
-- Consumes: `ListProducts.Parameters` with `Guid?` types (from Task 1)
-- Produces: Handler that builds predicates directly from typed params using `.Where()` clauses
+- Consumes: `ListProducts.Parameters` with `Guid[]?` types (from Task 1)
+- Produces: Handler that builds predicates directly from typed params using `.Where()` clauses (array params use `Contains` for OR semantics)
 
 - [ ] **Step 1: Replace the alias loop with direct predicate building**
 
@@ -137,30 +137,20 @@ foreach (IStorefrontProductAlias alias in StorefrontProductFilterAliases.All)
 
 **Replace with:**
 ```csharp
-// Apply: Direct storefront filters by Id
-if (parameters.OptionValue.HasValue)
+// Apply: Direct storefront filters by Id (arrays use OR semantics)
+if (parameters.OptionValueId is { Length: > 0 })
 {
-    var optionValueId = parameters.OptionValue.Value;
+    var optionValueIds = parameters.OptionValueId;
     query = query.Where(p => p.Variants.Any(v =>
         v.OptionValueVariants.Any(ov =>
-            ov.OptionValue != null && ov.OptionValue.Id == optionValueId)));
+            ov.OptionValue != null && optionValueIds.Contains(ov.OptionValue.Id))));
 }
 
-if (parameters.OptionType.HasValue)
+if (parameters.TaxonId is { Length: > 0 })
 {
-    var optionTypeId = parameters.OptionType.Value;
-    query = query.Where(p => p.Variants.Any(v =>
-        v.OptionValueVariants.Any(ov =>
-            ov.OptionValue != null &&
-            ov.OptionValue.OptionType != null &&
-            ov.OptionValue.OptionType.Id == optionTypeId)));
-}
-
-if (parameters.Taxon.HasValue)
-{
-    var taxonId = parameters.Taxon.Value;
+    var taxonIds = parameters.TaxonId;
     query = query.Where(p => p.Classifications.Any(c =>
-        c.Taxon != null && c.Taxon.Id == taxonId));
+        c.Taxon != null && taxonIds.Contains(c.Taxon.Id)));
 }
 
 if (parameters.MinPrice.HasValue)
@@ -177,6 +167,8 @@ if (parameters.MaxPrice.HasValue)
         v.Prices.Any(pr => pr.Amount <= maxPrice)));
 }
 ```
+
+There is no `OptionType` predicate — that param was dropped.
 
 The complete handler method should now look like:
 
@@ -195,30 +187,20 @@ public async Task<Result<PagedResult<Response>>> Handle(
         .Where(p => !p.IsDeleted && p.AvailableOn <= DateTimeOffset.UtcNow)
         .AsNoTracking();
 
-    // Apply: Direct storefront filters by Id
-    if (parameters.OptionValue.HasValue)
+    // Apply: Direct storefront filters by Id (arrays use OR semantics)
+    if (parameters.OptionValueId is { Length: > 0 })
     {
-        var optionValueId = parameters.OptionValue.Value;
+        var optionValueIds = parameters.OptionValueId;
         query = query.Where(p => p.Variants.Any(v =>
             v.OptionValueVariants.Any(ov =>
-                ov.OptionValue != null && ov.OptionValue.Id == optionValueId)));
+                ov.OptionValue != null && optionValueIds.Contains(ov.OptionValue.Id))));
     }
 
-    if (parameters.OptionType.HasValue)
+    if (parameters.TaxonId is { Length: > 0 })
     {
-        var optionTypeId = parameters.OptionType.Value;
-        query = query.Where(p => p.Variants.Any(v =>
-            v.OptionValueVariants.Any(ov =>
-                ov.OptionValue != null &&
-                ov.OptionValue.OptionType != null &&
-                ov.OptionValue.OptionType.Id == optionTypeId)));
-    }
-
-    if (parameters.Taxon.HasValue)
-    {
-        var taxonId = parameters.Taxon.Value;
+        var taxonIds = parameters.TaxonId;
         query = query.Where(p => p.Classifications.Any(c =>
-            c.Taxon != null && c.Taxon.Id == taxonId));
+            c.Taxon != null && taxonIds.Contains(c.Taxon.Id)));
     }
 
     if (parameters.MinPrice.HasValue)
@@ -261,7 +243,7 @@ public async Task<Result<PagedResult<Response>>> Handle(
 dotnet build service/Api
 ```
 
-Expected: Build succeeds with 0 warnings. The handler now uses direct `.Where()` clauses with Id equality checks.
+Expected: Build succeeds with 0 warnings. The handler now uses direct `.Where()` clauses with `Contains` id checks.
 
 - [ ] **Step 3: Commit the handler update**
 
@@ -295,7 +277,7 @@ These tests reference the deleted `StorefrontProductFilterAliases.BuildFilter` m
 
 Remove the test `Handle_ReturnsEmpty_WhenAliasFiltersSet_BecauseInMemoryDoesNotSupportILike` (lines 109-124).
 
-Replace it with four new tests that seed real entities and verify Id matching:
+Replace it with five new tests that seed real entities and verify Id matching (including multi-id OR semantics):
 
 ```csharp
 [Fact]
@@ -322,7 +304,7 @@ public async Task Handle_FiltersByOptionValueId_ReturnsMatchingProducts()
     DbContext.Set<Product>().Add(product);
     await DbContext.SaveChangesAsync();
 
-    var parameters = new ListProducts.Parameters { OptionValue = optionValue.Id };
+    var parameters = new ListProducts.Parameters { OptionValueId = [optionValue.Id] };
     var query = new ListProducts.Query(parameters);
 
     // Act
@@ -335,40 +317,45 @@ public async Task Handle_FiltersByOptionValueId_ReturnsMatchingProducts()
 }
 
 [Fact]
-public async Task Handle_FiltersByOptionTypeId_ReturnsMatchingProducts()
+public async Task Handle_FiltersByMultipleOptionValueIds_ReturnsAnyMatching()
 {
-    // Arrange: Create option type with multiple values, product with one value
-    var optionType = new OptionType { Id = Guid.NewGuid(), Name = "Size", IsFilterable = true };
-    var optionValueS = new OptionValue { Id = Guid.NewGuid(), OptionTypeId = optionType.Id, Value = "S" };
-    var optionValueM = new OptionValue { Id = Guid.NewGuid(), OptionTypeId = optionType.Id, Value = "M" };
-    optionType.OptionValues.AddRange([optionValueS, optionValueM]);
+    // Arrange: Create two option values, two products, each linked to one value
+    var optionType = new OptionType { Id = Guid.NewGuid(), Name = "Color", IsFilterable = true };
+    var optionValueRed = new OptionValue { Id = Guid.NewGuid(), OptionTypeId = optionType.Id, Value = "Red" };
+    var optionValueBlue = new OptionValue { Id = Guid.NewGuid(), OptionTypeId = optionType.Id, Value = "Blue" };
+    optionType.OptionValues.AddRange([optionValueRed, optionValueBlue]);
 
-    var product = ProductMethod.Create("T-Shirt", "tshirt", "T-Shirt").Value;
-    var variant = VariantMethod.Create(product.Id, "Small", "S", null, null, 29.99m).Value;
-    var optionValueVariant = new OptionValueVariant
+    var redProduct = ProductMethod.Create("Red Shirt", "red-shirt", "T-Shirt").Value;
+    var redVariant = VariantMethod.Create(redProduct.Id, "Red", "RED", null, null, 29.99m).Value;
+    redVariant.OptionValueVariants.Add(new OptionValueVariant
     {
-        OptionValueId = optionValueS.Id,
-        VariantId = variant.Id,
-        OptionValue = optionValueS,
-        Variant = variant
-    };
-    variant.OptionValueVariants.Add(optionValueVariant);
-    product.Variants.Add(variant);
+        OptionValueId = optionValueRed.Id, VariantId = redVariant.Id,
+        OptionValue = optionValueRed, Variant = redVariant
+    });
+    redProduct.Variants.Add(redVariant);
+
+    var blueProduct = ProductMethod.Create("Blue Shirt", "blue-shirt", "T-Shirt").Value;
+    var blueVariant = VariantMethod.Create(blueProduct.Id, "Blue", "BLU", null, null, 29.99m).Value;
+    blueVariant.OptionValueVariants.Add(new OptionValueVariant
+    {
+        OptionValueId = optionValueBlue.Id, VariantId = blueVariant.Id,
+        OptionValue = optionValueBlue, Variant = blueVariant
+    });
+    blueProduct.Variants.Add(blueVariant);
 
     DbContext.Set<OptionType>().Add(optionType);
-    DbContext.Set<Product>().Add(product);
+    DbContext.Set<Product>().AddRange([redProduct, blueProduct]);
     await DbContext.SaveChangesAsync();
 
-    var parameters = new ListProducts.Parameters { OptionType = optionType.Id };
+    var parameters = new ListProducts.Parameters { OptionValueId = [optionValueRed.Id, optionValueBlue.Id] };
     var query = new ListProducts.Query(parameters);
 
     // Act
     var result = await Handler.Handle(query);
 
-    // Assert
+    // Assert: Both products returned (OR semantics)
     result.IsSuccess.Should().BeTrue();
-    result.Value.Items.Should().HaveCount(1);
-    result.Value.Items[0].Name.Should().Be("T-Shirt");
+    result.Value.Items.Should().HaveCount(2);
 }
 
 [Fact]
@@ -393,7 +380,7 @@ public async Task Handle_FiltersByTaxonId_ReturnsMatchingProducts()
     DbContext.Set<Product>().Add(product);
     await DbContext.SaveChangesAsync();
 
-    var parameters = new ListProducts.Parameters { Taxon = taxon.Id };
+    var parameters = new ListProducts.Parameters { TaxonId = [taxon.Id] };
     var query = new ListProducts.Query(parameters);
 
     // Act
@@ -403,6 +390,44 @@ public async Task Handle_FiltersByTaxonId_ReturnsMatchingProducts()
     result.IsSuccess.Should().BeTrue();
     result.Value.Items.Should().HaveCount(1);
     result.Value.Items[0].Name.Should().Be("Casual Shirt");
+}
+
+[Fact]
+public async Task Handle_FiltersByMultipleTaxonIds_ReturnsAnyMatching()
+{
+    // Arrange: Create two taxons, two products, each classified under one
+    var taxonomy = new Taxonomy { Id = Guid.NewGuid(), Name = "Categories" };
+    var taxonShirts = new Taxon { Id = Guid.NewGuid(), Name = "Shirts", TaxonomyId = taxonomy.Id };
+    var taxonPants = new Taxon { Id = Guid.NewGuid(), Name = "Pants", TaxonomyId = taxonomy.Id };
+    taxonomy.Taxons.AddRange([taxonShirts, taxonPants]);
+
+    var shirtProduct = ProductMethod.Create("Shirt", "shirt", "Item").Value;
+    shirtProduct.Classifications.Add(new Classification
+    {
+        ProductId = shirtProduct.Id, TaxonId = taxonShirts.Id,
+        Product = shirtProduct, Taxon = taxonShirts
+    });
+
+    var pantsProduct = ProductMethod.Create("Pants", "pants", "Item").Value;
+    pantsProduct.Classifications.Add(new Classification
+    {
+        ProductId = pantsProduct.Id, TaxonId = taxonPants.Id,
+        Product = pantsProduct, Taxon = taxonPants
+    });
+
+    DbContext.Set<Taxonomy>().Add(taxonomy);
+    DbContext.Set<Product>().AddRange([shirtProduct, pantsProduct]);
+    await DbContext.SaveChangesAsync();
+
+    var parameters = new ListProducts.Parameters { TaxonId = [taxonShirts.Id, taxonPants.Id] };
+    var query = new ListProducts.Query(parameters);
+
+    // Act
+    var result = await Handler.Handle(query);
+
+    // Assert: Both products returned (OR semantics)
+    result.IsSuccess.Should().BeTrue();
+    result.Value.Items.Should().HaveCount(2);
 }
 
 [Fact]
@@ -418,7 +443,7 @@ public async Task Handle_ReturnsEmpty_WhenOptionValueIdDoesNotMatch()
     DbContext.Set<Product>().Add(product);
     await DbContext.SaveChangesAsync();
 
-    var parameters = new ListProducts.Parameters { OptionValue = Guid.NewGuid() }; // Non-existent Id
+    var parameters = new ListProducts.Parameters { OptionValueId = [Guid.NewGuid()] }; // Non-existent Id
     var query = new ListProducts.Query(parameters);
 
     // Act
@@ -474,7 +499,7 @@ cd service/Api/tests/Module.UnitTests
 dotnet exec bin/Debug/net9.0/Module.UnitTests.dll --filter "FullyQualifiedName~ListProducts.Tests"
 ```
 
-Expected: All tests pass. The four new Id-based filter tests and the positive price range test should all succeed.
+Expected: All tests pass. The five new Id-based filter tests and the positive price range test should all succeed.
 
 - [ ] **Step 5: Commit the unit test updates**
 
@@ -511,7 +536,7 @@ public async Task ListProducts_WithOptionValueAlias_ReturnsOk()
 **Replace with:**
 ```csharp
 [Fact]
-public async Task ListProducts_WithOptionValueParam_ReturnsOk()
+public async Task ListProducts_WithOptionValueIdParam_ReturnsOk()
 {
     // Arrange: Create option type and option value
     var optionTypeResponse = await HttpClient.PostAsJsonAsync("/api/catalog/option-types", new
@@ -524,8 +549,8 @@ public async Task ListProducts_WithOptionValueParam_ReturnsOk()
     var optionTypeData = await optionTypeResponse.Content.ReadFromJsonAsync<JsonElement>();
     var optionValueId = optionTypeData.GetProperty("optionValues")[0].GetProperty("id").GetString();
 
-    // Act: Filter by option value Id
-    var response = await HttpClient.GetAsync($"/api/storefront/products?optionValue={optionValueId}");
+    // Act: Filter by option value Id using the wire param name
+    var response = await HttpClient.GetAsync($"/api/storefront/products?optionValueId={optionValueId}");
 
     // Assert
     response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -565,7 +590,7 @@ public async Task ListProducts_WithTypedParamAndRawFilter_ReturnsOk()
 
     // Act: Use both typed param and raw filter
     var response = await HttpClient.GetAsync(
-        $"/api/storefront/products?optionValue={optionValueId}&filter=Variants.OptionValueVariants.OptionValue.OptionType.Name=Color");
+        $"/api/storefront/products?optionValueId={optionValueId}&filter=Variants.OptionValueVariants.OptionValue.OptionType.Name=Color");
 
     // Assert
     response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -596,7 +621,7 @@ git commit -m "test(catalog): update ListProducts integration tests for Id-based
 
 **Interfaces:**
 - Consumes: Nothing (standalone type update)
-- Produces: `ProductFilter` interface with `optionValueId?`, `optionTypeId?`, `taxonId?`, `priceMin?`, `priceMax?`
+- Produces: `ProductFilter` interface with `optionTypeId?: string[]`, `taxonId?: string[]`, `priceMin?`, `priceMax?`
 
 - [ ] **Step 1: Update the ProductFilter interface**
 
@@ -620,9 +645,8 @@ export interface ProductFilter {
 **Replace with:**
 ```typescript
 export interface ProductFilter {
-  optionValueId?: string
-  optionTypeId?: string
-  taxonId?: string
+  optionTypeId?: string[]
+  taxonId?: string[]
   priceMin?: number
   priceMax?: number
   tags?: string[]
@@ -634,7 +658,7 @@ export interface ProductFilter {
 }
 ```
 
-The internal type uses `Id` suffix for clarity. These will be mapped to wire names (`optionValue`, `optionType`, `taxon`) in the query builder.
+`optionTypeId` is the internal frontend name for the list of **option-value** ids (named after the option type grouping the values belong to, but semantically it carries option-value ids). `taxonId` is the list of taxon ids. These will be mapped to the wire names (`optionValueId`, `taxonId`) in the query builder. A separate `optionType` filter field does not exist — option type is only a grouping label, not a filter.
 
 - [ ] **Step 2: Verify TypeScript compilation**
 
@@ -649,7 +673,7 @@ Expected: TypeScript errors in files that reference the old `category` field (wi
 
 ```bash
 git add app/Storefront/src/features/catalog/types/index.ts
-git commit -m "refactor(storefront): update ProductFilter type to use Id-based fields"
+git commit -m "refactor(storefront): update ProductFilter type to optionTypeId and taxonId id lists"
 ```
 
 ---
@@ -660,8 +684,8 @@ git commit -m "refactor(storefront): update ProductFilter type to use Id-based f
 - Modify: `app/Storefront/src/features/catalog/types/params/product.params.ts`
 
 **Interfaces:**
-- Consumes: `ProductFilter` with `Id`-suffixed fields (from Task 6)
-- Produces: Function that maps internal names to wire names and emits top-level query params
+- Consumes: `ProductFilter` with `optionTypeId` and `taxonId` list fields (from Task 6)
+- Produces: Function that maps internal names to wire names and emits top-level query params (arrays preserved for repeated-key serialization)
 
 - [ ] **Step 1: Replace the buildProductFilter function**
 
@@ -723,15 +747,13 @@ export function buildProductFilter(params: ProductFilter) {
 export function buildProductFilter(params: ProductFilter) {
   const result: Record<string, any> = {}
 
-  // Map internal Id-suffixed names to wire names
-  if (params.optionValueId) {
-    result.optionValue = params.optionValueId
+  // Map internal names to wire names. optionTypeId carries option-value ids
+  // and maps to the optionValueId wire param; arrays are emitted as repeated keys.
+  if (params.optionTypeId && params.optionTypeId.length > 0) {
+    result.optionValueId = params.optionTypeId
   }
-  if (params.optionTypeId) {
-    result.optionType = params.optionTypeId
-  }
-  if (params.taxonId) {
-    result.taxon = params.taxonId
+  if (params.taxonId && params.taxonId.length > 0) {
+    result.taxonId = params.taxonId
   }
   if (params.priceMin !== undefined) {
     result.minPrice = params.priceMin
@@ -768,7 +790,7 @@ export function buildProductFilter(params: ProductFilter) {
 }
 ```
 
-This function now emits top-level query params instead of using the DSL query builder. The `tags`, `inStock`, `sort`, `pageNumber`, and `pageSize` fields remain for backward compatibility but are no longer the primary filter mechanism.
+This function now emits top-level query params instead of using the DSL query builder. Array values (`optionValueId`, `taxonId`) are kept as arrays so the URL serializer in Task 8 can emit repeated keys. The `tags`, `inStock`, `sort`, `pageNumber`, and `pageSize` fields remain for backward compatibility but are no longer the primary filter mechanism.
 
 - [ ] **Step 2: Verify TypeScript compilation**
 
@@ -817,23 +839,32 @@ async getAll(params?: { paging?: { page: number; pageSize: number }; filter?: { 
 **Replace with:**
 ```typescript
 async getAll(filter?: Record<string, any>): Promise<PagedResult<ProductResponse>> {
-  const queryString = filter
-    ? '?' + new URLSearchParams(
-        Object.entries(filter)
-          .filter(([_, v]) => v !== undefined && v !== null)
-          .map(([k, v]) => [k, String(v)])
-      ).toString()
-    : ''
+  const searchParams = new URLSearchParams()
 
+  if (filter) {
+    for (const [key, value] of Object.entries(filter)) {
+      if (value === undefined || value === null) continue
+      // Arrays are emitted as repeated keys so ASP.NET Core binds them into Guid[]
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          searchParams.append(key, String(item))
+        }
+      } else {
+        searchParams.append(key, String(value))
+      }
+    }
+  }
+
+  const queryString = searchParams.toString()
   const response = await this.client.get<PagedResult<ProductResponse>>(
-    `${this.endpoint}${queryString}`
+    `${this.endpoint}${queryString ? `?${queryString}` : ''}`
   )
 
   return response.data
 }
 ```
 
-This method now accepts a flat object of query params and serializes them directly into the URL.
+This method now accepts a flat object of query params and serializes them directly into the URL. Array values (`optionValueId`, `taxonId`) become repeated keys (`?optionValueId=a&optionValueId=b`).
 
 - [ ] **Step 2: Verify TypeScript compilation**
 
@@ -965,11 +996,30 @@ const setCategory = (category: string) => {
 
 // New
 const setTaxon = (taxonId: string) => {
-  filters.value.taxonId = taxonId
+  filters.value.taxonId = [taxonId]
 }
 ```
 
-Also update `setOptionValue`, `setOptionType`, `setPriceRange` methods to use the new filter field names.
+Also update the option-value and price methods to use the new filter field names. The option-value list maps to the frontend `optionTypeId` field (which carries option-value ids):
+
+```typescript
+// Old
+const setOptionValue = (optionValueId: string) => {
+  filters.value.optionValueId = optionValueId
+}
+
+// New: accumulates into the optionTypeId list (which maps to the optionValueId wire param)
+const setOptionValues = (optionValueIds: string[]) => {
+  filters.value.optionTypeId = optionValueIds
+}
+
+// Old
+const setOptionType = (optionTypeId: string) => {
+  filters.value.optionTypeId = optionTypeId
+}
+
+// New: option type is not a filter anymore — remove setOptionType entirely
+```
 
 - [ ] **Step 3: Run the store and composable tests**
 
@@ -1083,7 +1133,7 @@ Update the `handleFilterChange` function to map the new filter shape:
 
 ```typescript
 function handleFilterChange(filters: any) {
-  const { category, priceMin, priceMax, optionValues, optionTypes } = filters
+  const { category, priceMin, priceMax, optionValues } = filters
   
   // Map category to taxonId
   if (category) {
@@ -1095,19 +1145,16 @@ function handleFilterChange(filters: any) {
     setPriceRange(priceMin, priceMax)
   }
   
-  // Map option values (array of Ids)
+  // Map option values (array of option-value Ids) into the optionTypeId list field
   if (optionValues && optionValues.length > 0) {
     setOptionValues(optionValues)
-  }
-  
-  // Map option types (array of Ids)
-  if (optionTypes && optionTypes.length > 0) {
-    setOptionTypes(optionTypes)
   }
   
   loadProducts()
 }
 ```
+
+There is no `optionTypes` mapping — option type is not a filter param.
 
 - [ ] **Step 4: Verify TypeScript compilation**
 
@@ -1472,10 +1519,10 @@ This plan contains **14 tasks** that transform the storefront product filtering 
 
 **Key decisions:**
 - Backend uses direct `.Where()` clauses instead of the alias abstraction
-- Frontend emits top-level query params (`optionValue`, `optionType`, `taxon`) instead of JSON DSL
+- Frontend emits top-level camelCase query params (`optionValueId`, `taxonId`) instead of JSON DSL
 - Frontend loads real facet data from existing endpoints
 - Mock colors/sizes/brands are replaced with real option types and taxons
-- Wire param names are camelCase, internal type uses `Id` suffix
+- Wire params are camelCase matching property names (`optionValueId`, `taxonId`); the frontend field for the option-value id list is named `optionTypeId`; `OptionType` filter is dropped
 
 **Verification:**
 - Backend: `dotnet build`, unit tests, integration tests
