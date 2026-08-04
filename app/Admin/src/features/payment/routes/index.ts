@@ -34,8 +34,8 @@ export const paymentMenuItems = [
     label: 'Payment',
     icon: 'pi pi-fw pi-credit-card',
     items: [
-      { label: 'Payments', icon: 'pi pi-fw pi-dollar', route: '/payment/payments' },
-      { label: 'Methods', icon: 'pi pi-fw pi-wallet', route: '/payment/payment-methods' },
+      { label: 'Payments', icon: 'pi pi-fw pi-dollar', to: '/payment/payments' },
+      { label: 'Methods', icon: 'pi pi-fw pi-wallet', to: '/payment/payment-methods' },
     ],
   },
 ]

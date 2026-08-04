@@ -41,8 +41,8 @@ export const locationMenuItems = [
     label: 'Location',
     icon: 'pi pi-fw pi-map',
     items: [
-      { label: 'Countries', icon: 'pi pi-fw pi-globe', route: '/location/countries' },
-      { label: 'States', icon: 'pi pi-fw pi-flag', route: '/location/states' },
+      { label: 'Countries', icon: 'pi pi-fw pi-globe', to: '/location/countries' },
+      { label: 'States', icon: 'pi pi-fw pi-flag', to: '/location/states' },
     ],
   },
 ]

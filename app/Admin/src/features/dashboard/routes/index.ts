@@ -15,6 +15,6 @@ export const dashboardMenuItems = [
   {
     label: 'Dashboard',
     icon: 'pi pi-fw pi-chart-bar',
-    route: '/',
+    to: '/',
   },
 ]

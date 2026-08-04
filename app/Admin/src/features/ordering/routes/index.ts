@@ -27,7 +27,7 @@ export const orderingMenuItems = [
     label: 'Ordering',
     icon: 'pi pi-fw pi-shopping-cart',
     items: [
-      { label: 'Orders', icon: 'pi pi-fw pi-list', route: '/ordering/orders' },
+      { label: 'Orders', icon: 'pi pi-fw pi-list', to: '/ordering/orders' },
     ],
   },
 ]

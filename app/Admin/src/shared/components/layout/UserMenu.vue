@@ -38,7 +38,7 @@ async function handleLogout() {
         <div class="flex flex-column gap-1">
           <span class="text-sm text-color-secondary">{{ authStore.currentUser?.userName }}</span>
         </div>
-        <router-link to="/profile/my-profile" class="flex align-items-center gap-2 p-ripple no-underline text-color p-2 border-round surface-hover">
+        <router-link to="/profile" class="flex align-items-center gap-2 p-ripple no-underline text-color p-2 border-round surface-hover">
           <User />
           <span>Profile</span>
         </router-link>
