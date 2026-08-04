@@ -20,6 +20,9 @@ importers:
       '@primevue/forms':
         specifier: ^5.0.0
         version: 5.0.0(vue@3.5.40(typescript@6.0.3))
+      '@stripe/stripe-js':
+        specifier: ^9.12.1
+        version: 9.12.1
       '@vee-validate/zod':
         specifier: ^4.15.1
         version: 4.15.1(vue@3.5.40(typescript@6.0.3))(zod@4.4.3)
@@ -885,6 +888,10 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
+
+  '@stripe/stripe-js@9.12.1':
+    resolution: {integrity: sha512-KLXPvjA0BfS4dQnW+ddHjwtIXMnIfKYxqmeNMmQCfKjvYog0cSG+Z7ZvK4RH1+bV90GC07nUztWDRWmJLi5HZQ==}
+    engines: {node: '>=12.16'}
 
   '@tailwindcss/node@4.3.3':
     resolution: {integrity: sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg==}
@@ -3516,6 +3523,8 @@ snapshots:
   '@rolldown/pluginutils@1.0.1': {}
 
   '@standard-schema/spec@1.1.0': {}
+
+  '@stripe/stripe-js@9.12.1': {}
 
   '@tailwindcss/node@4.3.3':
     dependencies:
