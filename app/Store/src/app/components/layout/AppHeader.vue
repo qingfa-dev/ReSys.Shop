@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MobileNav from '@/app/components/layout/MobileNav.vue'
+import ThemeToggle from '@/app/components/ThemeToggle.vue'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 
@@ -56,6 +57,9 @@ function onSearch(): void {
             {{ cart.itemCount }}
           </span>
         </router-link>
+
+        <!-- Section: Theme Toggle -->
+        <ThemeToggle />
 
         <!-- Section: User Menu / Sign In -->
         <template v-if="auth.isAuthenticated">
