@@ -47,6 +47,18 @@ describe('checkoutStore', () => {
       expect(store.error).toBeNull()
     })
 
+    it('stays on the current step and clears loading when validation throws on 3 -> 4', async () => {
+      const store = useCheckoutStore()
+      store.currentStep = 3
+      mockedCheckoutApi.validateCheckout.mockRejectedValue(new Error('network down'))
+
+      await store.goToStep(4)
+
+      expect(store.currentStep).toBe(3)
+      expect(store.error).toBe('Please complete the current step first.')
+      expect(store.loading).toBe(false)
+    })
+
     it('stays on the current step when validation fails on 3 -> 4', async () => {
       const store = useCheckoutStore()
       store.currentStep = 3
@@ -125,6 +137,30 @@ describe('checkoutStore', () => {
       expect(store.orderId).toBe('order-1')
       expect(store.currentStep).toBe(5)
       expect(mockedCheckoutApi.placeOrder).toHaveBeenCalledWith({ paymentIntentId: 'pi-1' })
+    })
+
+    it('saveAddress sets error, clears loading, and returns false when the request throws', async () => {
+      const store = useCheckoutStore()
+      mockedCheckoutApi.updateCheckout.mockRejectedValue(new Error('network down'))
+
+      const okResult = await store.saveAddress('addr-1', 'u1@example.com')
+
+      expect(okResult).toBe(false)
+      expect(store.error).toBe('Failed to save address')
+      expect(store.loading).toBe(false)
+    })
+
+    it('placeOrder sets error, clears loading, and returns false when the request throws', async () => {
+      const store = useCheckoutStore()
+      store.paymentIntentId = 'pi-1'
+      mockedCheckoutApi.placeOrder.mockRejectedValue(new Error('network down'))
+
+      const okResult = await store.placeOrder()
+
+      expect(okResult).toBe(false)
+      expect(store.error).toBe('Failed to place order')
+      expect(store.loading).toBe(false)
+      expect(store.currentStep).not.toBe(5)
     })
 
     it('saveAddress sets error and returns false on failure', async () => {

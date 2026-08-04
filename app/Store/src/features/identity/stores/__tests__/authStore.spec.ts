@@ -136,6 +136,36 @@ describe('authStore', () => {
     expect(mockedTokenService.setTokens).not.toHaveBeenCalled()
   })
 
+  it('login sets error and returns false when the login request throws', async () => {
+    const store = useAuthStore()
+    mockedAuthApi.login.mockRejectedValue(new Error('network down'))
+
+    const success = await store.login('u1@example.com', 'password')
+
+    expect(success).toBe(false)
+    expect(store.status).toBe('error')
+    expect(store.error).toBe('Unable to sign in. Please try again.')
+    expect(store.isAuthenticated).toBe(false)
+    expect(store.user).toBeNull()
+    expect(mockedTokenService.setTokens).not.toHaveBeenCalled()
+  })
+
+  it('login clears tokens and sets error when the session fetch throws', async () => {
+    const store = useAuthStore()
+    mockedAuthApi.login.mockResolvedValue(ok(tokenPair))
+    mockedAuthApi.getSession.mockRejectedValue(new Error('network down'))
+
+    const success = await store.login('u1@example.com', 'password')
+
+    expect(success).toBe(false)
+    expect(store.status).toBe('error')
+    expect(store.error).toBe('Unable to sign in. Please try again.')
+    expect(store.isAuthenticated).toBe(false)
+    expect(store.user).toBeNull()
+    expect(mockedTokenService.setTokens).toHaveBeenCalledWith(tokenPair)
+    expect(mockedTokenService.clearTokens).toHaveBeenCalled()
+  })
+
   it('init hydrates the user when a valid token exists', async () => {
     const store = useAuthStore()
     mockedTokenService.hasValidAccessToken.mockReturnValue(true)

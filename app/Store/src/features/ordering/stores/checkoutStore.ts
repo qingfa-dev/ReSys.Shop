@@ -34,14 +34,19 @@ export const useCheckoutStore = defineStore('checkout', () => {
     if (advancing && step >= 4) {
       loading.value = true
       error.value = null
-      const validateResult = await checkoutApi.validateCheckout()
-      if (!validateResult.isSuccess) {
-        error.value = validateResult.message ?? 'Please complete the current step first.'
+      try {
+        const validateResult = await checkoutApi.validateCheckout()
+        if (!validateResult.isSuccess) {
+          error.value = validateResult.message ?? 'Please complete the current step first.'
+          return
+        }
+        currentStep.value = step
+      } catch {
+        // The error interceptor throws HttpError on network failures / non-Result 5xx.
+        error.value = 'Please complete the current step first.'
+      } finally {
         loading.value = false
-        return
       }
-      currentStep.value = step
-      loading.value = false
       return
     }
     currentStep.value = step
@@ -52,27 +57,39 @@ export const useCheckoutStore = defineStore('checkout', () => {
     email.value = userEmail
     loading.value = true
     error.value = null
-    const result = await checkoutApi.updateCheckout({
-      shipAddressId: addressId,
-      billAddressId: addressId,
-      currency: currency.value,
-      email: userEmail,
-    })
-    loading.value = false
-    if (result.isSuccess) return true
-    error.value = result.message ?? 'Failed to save address'
-    return false
+    try {
+      const result = await checkoutApi.updateCheckout({
+        shipAddressId: addressId,
+        billAddressId: addressId,
+        currency: currency.value,
+        email: userEmail,
+      })
+      if (result.isSuccess) return true
+      error.value = result.message ?? 'Failed to save address'
+      return false
+    } catch {
+      error.value = 'Failed to save address'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   async function calculateShipping(methodId: string): Promise<boolean> {
     shippingMethodId.value = methodId
     loading.value = true
     error.value = null
-    const result = await checkoutApi.selectShippingRate({ shippingMethodId: methodId })
-    loading.value = false
-    if (result.isSuccess) return true
-    error.value = result.message ?? 'Failed to calculate shipping'
-    return false
+    try {
+      const result = await checkoutApi.selectShippingRate({ shippingMethodId: methodId })
+      if (result.isSuccess) return true
+      error.value = result.message ?? 'Failed to calculate shipping'
+      return false
+    } catch {
+      error.value = 'Failed to calculate shipping'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   async function createPaymentIntent(methodId: string, amount: number): Promise<string | null> {
@@ -81,33 +98,45 @@ export const useCheckoutStore = defineStore('checkout', () => {
       error.value = 'Cart is not loaded.'
       return null
     }
-    const result = await checkoutApi.createPaymentIntent({
-      orderId: cart.id,
-      amount,
-      currency: currency.value,
-      paymentMethodId: methodId,
-    })
-    if (result.isSuccess) {
-      paymentIntentId.value = result.value.responseCode ?? result.value.id
-      return result.value.clientSecret
+    error.value = null
+    try {
+      const result = await checkoutApi.createPaymentIntent({
+        orderId: cart.id,
+        amount,
+        currency: currency.value,
+        paymentMethodId: methodId,
+      })
+      if (result.isSuccess) {
+        paymentIntentId.value = result.value.responseCode ?? result.value.id
+        return result.value.clientSecret
+      }
+      error.value = result.message ?? 'Failed to create payment intent'
+      return null
+    } catch {
+      error.value = 'Failed to create payment intent'
+      return null
     }
-    error.value = result.message ?? 'Failed to create payment intent'
-    return null
   }
 
   async function placeOrder(): Promise<boolean> {
     if (!paymentIntentId.value) return false
     loading.value = true
-    const result = await checkoutApi.placeOrder({ paymentIntentId: paymentIntentId.value })
-    if (result.isSuccess) {
-      orderId.value = result.value.id
-      currentStep.value = 5
+    error.value = null
+    try {
+      const result = await checkoutApi.placeOrder({ paymentIntentId: paymentIntentId.value })
+      if (result.isSuccess) {
+        orderId.value = result.value.id
+        currentStep.value = 5
+        return true
+      }
+      error.value = result.message ?? 'Failed to place order'
+      return false
+    } catch {
+      error.value = 'Failed to place order'
+      return false
+    } finally {
       loading.value = false
-      return true
     }
-    error.value = result.message ?? 'Failed to place order'
-    loading.value = false
-    return false
   }
 
   function reset(): void {

@@ -33,13 +33,19 @@ export const useCartStore = defineStore('cart', () => {
   async function fetchCart(): Promise<void> {
     loading.value = true
     error.value = null
-    const result = await cartApi.getCart()
-    if (result.isSuccess) {
-      applyCart(result.value)
-    } else {
-      error.value = result.message ?? 'Failed to load cart'
+    try {
+      const result = await cartApi.getCart()
+      if (result.isSuccess) {
+        applyCart(result.value)
+      } else {
+        error.value = result.message ?? 'Failed to load cart'
+      }
+    } catch {
+      // The error interceptor throws HttpError on network failures / non-Result 5xx.
+      error.value = 'Failed to load cart'
+    } finally {
+      loading.value = false
     }
-    loading.value = false
   }
 
   function applyCart(cart: CartResponse): void {
@@ -49,29 +55,53 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function addItem(variantId: string, quantity = 1): Promise<boolean> {
-    const result = await cartApi.addItem({ variantId, quantity })
-    if (result.isSuccess) { applyCart(result.value); return true }
-    error.value = result.message ?? 'Failed to add item'
-    return false
+    error.value = null
+    try {
+      const result = await cartApi.addItem({ variantId, quantity })
+      if (result.isSuccess) { applyCart(result.value); return true }
+      error.value = result.message ?? 'Failed to add item'
+      return false
+    } catch {
+      // The error interceptor throws HttpError on network failures / non-Result 5xx.
+      error.value = 'Failed to add item'
+      return false
+    }
   }
 
   async function updateQuantity(lineItemId: string, quantity: number): Promise<boolean> {
-    const result = await cartApi.updateItem(lineItemId, { quantity })
-    if (result.isSuccess) { applyCart(result.value); return true }
-    error.value = result.message ?? 'Failed to update quantity'
-    return false
+    error.value = null
+    try {
+      const result = await cartApi.updateItem(lineItemId, { quantity })
+      if (result.isSuccess) { applyCart(result.value); return true }
+      error.value = result.message ?? 'Failed to update quantity'
+      return false
+    } catch {
+      error.value = 'Failed to update quantity'
+      return false
+    }
   }
 
   async function removeItem(lineItemId: string): Promise<boolean> {
-    const result = await cartApi.removeItem(lineItemId)
-    if (result.isSuccess) { applyCart(result.value); return true }
-    error.value = result.message ?? 'Failed to remove item'
-    return false
+    error.value = null
+    try {
+      const result = await cartApi.removeItem(lineItemId)
+      if (result.isSuccess) { applyCart(result.value); return true }
+      error.value = result.message ?? 'Failed to remove item'
+      return false
+    } catch {
+      error.value = 'Failed to remove item'
+      return false
+    }
   }
 
   async function clearCart(): Promise<void> {
-    await cartApi.emptyCart()
-    items.value = []
+    error.value = null
+    try {
+      await cartApi.emptyCart()
+      items.value = []
+    } catch {
+      error.value = 'Failed to clear cart'
+    }
   }
 
   async function associate(): Promise<void> {
@@ -81,8 +111,14 @@ export const useCartStore = defineStore('cart', () => {
     // UserId == null), so do not fetch/resolve here.
     const guestCartId = id.value
     if (!isRealCartId(guestCartId)) return
-    const result = await cartApi.associateCart(guestCartId)
-    if (result.isSuccess) applyCart(result.value)
+    error.value = null
+    try {
+      const result = await cartApi.associateCart(guestCartId)
+      if (result.isSuccess) applyCart(result.value)
+      else error.value = result.message ?? 'Failed to merge cart'
+    } catch {
+      error.value = 'Failed to merge cart'
+    }
   }
 
   function reset(): void {

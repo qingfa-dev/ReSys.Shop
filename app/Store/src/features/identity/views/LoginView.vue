@@ -38,13 +38,19 @@ async function onSubmit(event: FormSubmitEvent) {
   if (!event.valid) return
   loginError.value = null
   const data = event.values as { credential: string; password: string }
-  const ok = await store.login(data.credential, data.password)
-  if (ok) {
-    // Redirect: Resume the protected page the user originally requested.
-    router.replace(validateRedirect(redirectTarget))
-  } else {
-    // Security: Show a generic message without revealing whether the account exists.
-    loginError.value = 'Invalid email or password'
+  try {
+    const ok = await store.login(data.credential, data.password)
+    if (ok) {
+      // Redirect: Resume the protected page the user originally requested.
+      router.replace(validateRedirect(redirectTarget))
+    } else {
+      // Security: Show a generic message without revealing whether the account exists.
+      loginError.value = 'Invalid email or password'
+    }
+  } catch {
+    // Defensive: login() resolves false on all failures, but guard against a
+    // rethrown rejection so the button never stays loading.
+    loginError.value = store.error ?? 'Unable to sign in. Please try again.'
   }
 }
 

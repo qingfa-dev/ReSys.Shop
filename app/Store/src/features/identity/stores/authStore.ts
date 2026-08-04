@@ -45,41 +45,51 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(credential: string, password: string): Promise<boolean> {
     status.value = 'loading'
     error.value = null
-    const result = await authApi.login({ credential, password })
-    if (result.isSuccess) {
-      tokenService.setTokens(result.value)
-      setTokenGetter(tokenService.getAccessToken)
-      const sessionResult = await authApi.getSession()
-      if (sessionResult.isSuccess) {
-        user.value = {
-          userId: sessionResult.value.id,
-          userName: sessionResult.value.userName,
-          email: sessionResult.value.email,
-          roles: sessionResult.value.roles,
-          permissions: sessionResult.value.permissions,
-          isAuthenticated: true,
+    try {
+      const result = await authApi.login({ credential, password })
+      if (result.isSuccess) {
+        tokenService.setTokens(result.value)
+        setTokenGetter(tokenService.getAccessToken)
+        const sessionResult = await authApi.getSession()
+        if (sessionResult.isSuccess) {
+          user.value = {
+            userId: sessionResult.value.id,
+            userName: sessionResult.value.userName,
+            email: sessionResult.value.email,
+            roles: sessionResult.value.roles,
+            permissions: sessionResult.value.permissions,
+            isAuthenticated: true,
+          }
+          status.value = 'authenticated'
+          // Cart merge: Associate the guest cart with the authenticated user and
+          // hydrate the merged cart. Best-effort — a cart-merge failure must not
+          // block the authenticated session.
+          try {
+            const cart = useCartStore()
+            await cart.associate()
+            await cart.fetchCart()
+          } catch {
+            /* fire-and-forget: cart merge is non-critical to auth */
+          }
+          return true
         }
-        status.value = 'authenticated'
-        // Cart merge: Associate the guest cart with the authenticated user and
-        // hydrate the merged cart. Best-effort — a cart-merge failure must not
-        // block the authenticated session.
-        try {
-          const cart = useCartStore()
-          await cart.associate()
-          await cart.fetchCart()
-        } catch {
-          /* fire-and-forget: cart merge is non-critical to auth */
-        }
-        return true
+        tokenService.clearTokens()
+        status.value = 'error'
+        error.value = sessionResult.message ?? sessionResult.errors[0]?.message ?? 'Failed to load session'
+        return false
       }
+      status.value = 'error'
+      error.value = result.message ?? result.errors[0]?.message ?? 'Login failed'
+      return false
+    } catch {
+      // The axios client rejects on network failures / non-Result 5xx. Never
+      // leave the UI stranded in 'loading': clear any persisted tokens, surface
+      // the error, and resolve false so the caller can stop spinning.
       tokenService.clearTokens()
       status.value = 'error'
-      error.value = sessionResult.message ?? sessionResult.errors[0]?.message ?? 'Failed to load session'
+      error.value = 'Unable to sign in. Please try again.'
       return false
     }
-    status.value = 'error'
-    error.value = result.message ?? result.errors[0]?.message ?? 'Login failed'
-    return false
   }
 
   // Login: Redirect to Google OAuth

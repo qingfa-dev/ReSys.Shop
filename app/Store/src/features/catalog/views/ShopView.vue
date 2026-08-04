@@ -86,6 +86,10 @@ async function quickAdd(variantId: string): Promise<void> {
     const ok = await cart.addItem(variantId, 1)
     if (ok) notify.success('Added to cart')
     else notify.error('Could not add', cart.error ?? undefined)
+  } catch {
+    // A thrown rejection (network / non-Result 5xx) would otherwise be an
+    // unhandled rejection — surface it as a toast.
+    notify.error('Could not add', cart.error ?? undefined)
   } finally {
     // Ensure the button never stays loading on a thrown rejection.
     quickAddLoading.value = null

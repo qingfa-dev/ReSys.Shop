@@ -80,6 +80,26 @@ describe('cartStore', () => {
     expect(store.loading).toBe(false)
   })
 
+  it('fetchCart sets an error and clears loading when the request throws', async () => {
+    const store = useCartStore()
+    mockedCartApi.getCart.mockRejectedValue(new Error('network down'))
+
+    await store.fetchCart()
+
+    expect(store.error).toBe('Failed to load cart')
+    expect(store.loading).toBe(false)
+  })
+
+  it('addItem sets an error and returns false when the request throws', async () => {
+    const store = useCartStore()
+    mockedCartApi.addItem.mockRejectedValue(new Error('network down'))
+
+    const success = await store.addItem('v-1')
+
+    expect(success).toBe(false)
+    expect(store.error).toBe('Failed to add item')
+  })
+
   it('computes subtotal as the sum of line totals', async () => {
     const store = useCartStore()
     mockedCartApi.getCart.mockResolvedValue(

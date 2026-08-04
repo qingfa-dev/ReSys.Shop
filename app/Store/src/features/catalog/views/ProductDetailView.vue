@@ -49,6 +49,10 @@ async function addToCart(): Promise<void> {
     const ok = await cart.addItem(selectedVariantId.value, quantity.value)
     if (ok) notify.success('Added to cart', product.value.name)
     else notify.error('Add to cart failed', cart.error ?? undefined)
+  } catch {
+    // A thrown rejection (network / non-Result 5xx) would otherwise be an
+    // unhandled rejection — surface it as a toast.
+    notify.error('Add to cart failed', cart.error ?? undefined)
   } finally {
     // Ensure the button never stays loading on a thrown rejection.
     adding.value = false
