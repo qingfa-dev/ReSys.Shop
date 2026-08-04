@@ -3,11 +3,12 @@ import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
 import { ok, failure } from '@/shared/types/result'
 import { useAuthStore } from '../authStore'
+import { useCartStore } from '../../../ordering/stores/cartStore'
 import * as authApi from '../../services/authApi'
 import * as tokenService from '../../services/tokenService'
 import * as cartApi from '../../../ordering/services/cartApi'
 import type { TokenPair, SessionUser } from '../../types/auth'
-import type { CartResponse } from '../../../ordering/types/cart'
+import type { CartLineItem, CartResponse } from '../../../ordering/types/cart'
 
 const mockedAuthApi = vi.mocked(authApi)
 const mockedTokenService = vi.mocked(tokenService)
@@ -56,11 +57,26 @@ const sessionUser: SessionUser = {
   permissions: ['shop:view'],
 }
 
+const cartItem: CartLineItem = {
+  lineItemId: 'li-1',
+  variantId: 'v-1',
+  productId: 'p-1',
+  productName: 'Hex Bolt',
+  productSlug: 'hex-bolt',
+  sku: 'SKU-1',
+  quantity: 2,
+  unitPrice: 50000,
+  currency: 'VND',
+  thumbnailUrl: null,
+  optionDescription: null,
+  maxQuantity: 10,
+}
+
 const cartResponse: CartResponse = {
   id: 'cart-1',
-  items: [],
-  itemCount: 0,
-  subtotal: 0,
+  items: [cartItem],
+  itemCount: 2,
+  subtotal: 100000,
   currency: 'VND',
 }
 
@@ -94,6 +110,12 @@ describe('authStore', () => {
     // Cart merge wiring from Task 6.4: associate + hydrate after login.
     expect(mockedCartApi.associateCart).toHaveBeenCalledTimes(1)
     expect(mockedCartApi.getCart).toHaveBeenCalledTimes(1)
+
+    // The merged cart must actually hydrate the cart store (not just fire calls).
+    const cart = useCartStore()
+    expect(cart.id).toBe('cart-1')
+    expect(cart.items).toEqual([cartItem])
+    expect(cart.currency).toBe('VND')
   })
 
   it('login failure sets error and stays unauthenticated', async () => {
