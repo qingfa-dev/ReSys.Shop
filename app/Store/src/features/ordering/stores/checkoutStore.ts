@@ -25,34 +25,54 @@ export const useCheckoutStore = defineStore('checkout', () => {
   ]
 
   async function goToStep(step: CheckoutStep): Promise<void> {
-    loading.value = true
-    error.value = null
-    // Validate current step before advancing
-    const validateResult = await checkoutApi.validateCheckout()
-    if (!validateResult.isSuccess && step > currentStep.value) {
-      error.value = validateResult.message ?? 'Please complete the current step first.'
+    const advancing = step > currentStep.value
+    // The all-or-nothing /cart/validate gate requires every checkout
+    // prerequisite at once, but data is collected incrementally across steps
+    // 1-3. Only run it as a final safety net when advancing to the review
+    // (Confirm) and completion steps; never gate data-collection transitions
+    // (1->2->3) or backward navigation on it.
+    if (advancing && step >= 4) {
+      loading.value = true
+      error.value = null
+      const validateResult = await checkoutApi.validateCheckout()
+      if (!validateResult.isSuccess) {
+        error.value = validateResult.message ?? 'Please complete the current step first.'
+        loading.value = false
+        return
+      }
+      currentStep.value = step
       loading.value = false
       return
     }
     currentStep.value = step
-    loading.value = false
   }
 
   async function saveAddress(addressId: string, userEmail: string): Promise<boolean> {
     shipAddressId.value = addressId
     email.value = userEmail
+    loading.value = true
+    error.value = null
     const result = await checkoutApi.updateCheckout({
       shipAddressId: addressId,
+      billAddressId: addressId,
       currency: currency.value,
       email: userEmail,
     })
-    return result.isSuccess
+    loading.value = false
+    if (result.isSuccess) return true
+    error.value = result.message ?? 'Failed to save address'
+    return false
   }
 
   async function calculateShipping(methodId: string): Promise<boolean> {
     shippingMethodId.value = methodId
+    loading.value = true
+    error.value = null
     const result = await checkoutApi.selectShippingRate({ shippingMethodId: methodId })
-    return result.isSuccess
+    loading.value = false
+    if (result.isSuccess) return true
+    error.value = result.message ?? 'Failed to calculate shipping'
+    return false
   }
 
   async function createPaymentIntent(methodId: string, amount: number): Promise<string | null> {
@@ -71,6 +91,7 @@ export const useCheckoutStore = defineStore('checkout', () => {
       paymentIntentId.value = result.value.responseCode ?? result.value.id
       return result.value.clientSecret
     }
+    error.value = result.message ?? 'Failed to create payment intent'
     return null
   }
 

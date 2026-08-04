@@ -1,5 +1,6 @@
 export interface UpdateCheckoutRequest {
   shipAddressId: string
+  billAddressId: string
   currency: string
   email: string
 }
