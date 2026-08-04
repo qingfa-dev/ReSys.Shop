@@ -1,6 +1,6 @@
 namespace Module.Catalog.Features.Storefront.Products.Get.List;
 
-public static partial class GetStorefrontProducts
+public static partial class GetStorefrontProductPagedOrAll
 {
     public record Parameters : QueryingParameters
     {

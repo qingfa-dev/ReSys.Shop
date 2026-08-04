@@ -6,7 +6,7 @@ namespace Module.Catalog.Features.Storefront.Products.Get.List;
 /// <summary>
 /// Defines the use case for listing storefront products.
 /// </summary>
-public static partial class GetStorefrontProducts
+public static partial class GetStorefrontProductPagedOrAll
 {
     public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 

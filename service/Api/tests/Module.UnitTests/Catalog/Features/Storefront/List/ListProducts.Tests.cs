@@ -17,7 +17,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.List;
 public class ListProductsTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetStorefrontProducts.PagedQueryHandler _handler;
+    private readonly GetStorefrontProductPagedOrAll.PagedQueryHandler _handler;
 
     public ListProductsTests()
     {
@@ -28,7 +28,7 @@ public class ListProductsTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetStorefrontProducts.PagedQueryHandler(_dbContext);
+        _handler = new GetStorefrontProductPagedOrAll.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -53,7 +53,7 @@ public class ListProductsTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -70,7 +70,7 @@ public class ListProductsTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -85,7 +85,7 @@ public class ListProductsTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -96,7 +96,7 @@ public class ListProductsTests : IDisposable
     public async Task Handle_ShouldReturnEmpty_WhenNoProducts()
     {
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.Items.Should().BeEmpty();
@@ -120,11 +120,11 @@ public class ListProductsTests : IDisposable
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetStorefrontProducts.Parameters { OptionValueId = [optionValue.Id] };
+        var parameters = new GetStorefrontProductPagedOrAll.Parameters { OptionValueId = [optionValue.Id] };
 
         // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(parameters),
+            new GetStorefrontProductPagedOrAll.Query(parameters),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -160,14 +160,14 @@ public class ListProductsTests : IDisposable
         _dbContext.Set<Variant>().Add(blueVariant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetStorefrontProducts.Parameters
+        var parameters = new GetStorefrontProductPagedOrAll.Parameters
         {
             OptionValueId = [optionValueRed.Id, optionValueBlue.Id]
         };
 
         // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(parameters),
+            new GetStorefrontProductPagedOrAll.Query(parameters),
             TestContext.Current.CancellationToken);
 
         // Assert: Both products returned (OR semantics)
@@ -192,11 +192,11 @@ public class ListProductsTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetStorefrontProducts.Parameters { TaxonId = [taxon.Id] };
+        var parameters = new GetStorefrontProductPagedOrAll.Parameters { TaxonId = [taxon.Id] };
 
         // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(parameters),
+            new GetStorefrontProductPagedOrAll.Query(parameters),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -230,14 +230,14 @@ public class ListProductsTests : IDisposable
         _dbContext.Set<Product>().Add(pantsProduct);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetStorefrontProducts.Parameters
+        var parameters = new GetStorefrontProductPagedOrAll.Parameters
         {
             TaxonId = [taxonShirts.Id, taxonPants.Id]
         };
 
         // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(parameters),
+            new GetStorefrontProductPagedOrAll.Query(parameters),
             TestContext.Current.CancellationToken);
 
         // Assert: Both products returned (OR semantics)
@@ -258,11 +258,11 @@ public class ListProductsTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetStorefrontProducts.Parameters { OptionValueId = [Guid.NewGuid()] };
+        var parameters = new GetStorefrontProductPagedOrAll.Parameters { OptionValueId = [Guid.NewGuid()] };
 
         // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(parameters),
+            new GetStorefrontProductPagedOrAll.Query(parameters),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -290,7 +290,7 @@ public class ListProductsTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters { MinPrice = 10, MaxPrice = 40 }),
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters { MinPrice = 10, MaxPrice = 40 }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -324,11 +324,11 @@ public class ListProductsTests : IDisposable
 
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var parameters = new GetStorefrontProducts.Parameters { MinPrice = 20m, MaxPrice = 100m };
+        var parameters = new GetStorefrontProductPagedOrAll.Parameters { MinPrice = 20m, MaxPrice = 100m };
 
         // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(parameters),
+            new GetStorefrontProductPagedOrAll.Query(parameters),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -345,7 +345,7 @@ public class ListProductsTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters
             {
                 Filter = "SomeSecretProperty=value"
             }),
@@ -392,7 +392,7 @@ public class ListProductsTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters { IncludeFacets = true }),
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters { IncludeFacets = true }),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -421,7 +421,7 @@ public class ListProductsTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            new GetStorefrontProductPagedOrAll.Query(new GetStorefrontProductPagedOrAll.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();

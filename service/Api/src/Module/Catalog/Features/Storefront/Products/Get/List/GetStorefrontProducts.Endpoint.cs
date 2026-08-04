@@ -2,7 +2,7 @@ using Module.Catalog.Features.Shared;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.List;
 
-public static partial class GetStorefrontProducts
+public static partial class GetStorefrontProductPagedOrAll
 {
     /// <summary>Maps the storefront product listing route.</summary>
     public class Endpoint : ICarterModule
@@ -19,7 +19,7 @@ public static partial class GetStorefrontProducts
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
-            .WithName(nameof(GetStorefrontProducts))
+            .WithName(nameof(GetStorefrontProductPagedOrAll))
             .WithTags(CatalogFeature.Tags.Product)
             .WithSummary(CatalogFeature.Storefront.Products.List.Summary)
             .WithDescription(CatalogFeature.Storefront.Products.List.Description)
