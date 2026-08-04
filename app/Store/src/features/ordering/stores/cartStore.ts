@@ -75,14 +75,13 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function associate(): Promise<void> {
-    // Resolve the guest cart id if we haven't captured it yet (e.g. no prior fetch).
-    if (!isRealCartId(id.value)) {
-      await fetchCart()
-    }
-    // Nothing to merge — no guest cart for this session.
-    const cartId = id.value
-    if (!isRealCartId(cartId)) return
-    const result = await cartApi.associateCart(cartId)
+    // Merge only the guest cart id captured BEFORE login (e.g. from an earlier
+    // add-to-cart). After authentication, getCart resolves the user's OWN cart —
+    // associating that would 404 on the backend (the guest order must have
+    // UserId == null), so do not fetch/resolve here.
+    const guestCartId = id.value
+    if (!isRealCartId(guestCartId)) return
+    const result = await cartApi.associateCart(guestCartId)
     if (result.isSuccess) applyCart(result.value)
   }
 

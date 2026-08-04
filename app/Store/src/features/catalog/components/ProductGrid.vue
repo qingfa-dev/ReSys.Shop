@@ -7,6 +7,8 @@ defineProps<{
   products: StoreProductListItemResponse[]
   loading: boolean
   error: string | null
+  /** Variant id currently being quick-added — drives that card's button loading state. */
+  loadingVariantId?: string | null
 }>()
 const emit = defineEmits<{ addToCart: [variantId: string]; reload: [] }>()
 </script>
@@ -34,6 +36,7 @@ const emit = defineEmits<{ addToCart: [variantId: string]; reload: [] }>()
         v-for="product in products"
         :key="product.id"
         :product="product"
+        :loading="product.masterVariantId === loadingVariantId"
         @add-to-cart="(id) => emit('addToCart', id)"
       />
     </div>

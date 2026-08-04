@@ -72,15 +72,24 @@ async function loadCategoryTree(): Promise<StoreTaxonomyTreeResponse | null> {
   return null
 }
 
+// State: Variant currently being quick-added (drives the card button loading state).
+const quickAddLoading = ref<string | null>(null)
+
 // Trigger: Quick-add the master variant of a product card to the cart.
 async function quickAdd(variantId: string): Promise<void> {
   if (!variantId) {
     notify.warn('Unavailable', 'This product has no purchasable variant')
     return
   }
-  const ok = await cart.addItem(variantId, 1)
-  if (ok) notify.success('Added to cart')
-  else notify.error('Could not add', cart.error ?? undefined)
+  quickAddLoading.value = variantId
+  try {
+    const ok = await cart.addItem(variantId, 1)
+    if (ok) notify.success('Added to cart')
+    else notify.error('Could not add', cart.error ?? undefined)
+  } finally {
+    // Ensure the button never stays loading on a thrown rejection.
+    quickAddLoading.value = null
+  }
 }
 
 // Trigger: Load taxonomy, option filters, and initial products on mount
@@ -158,6 +167,7 @@ watch(() => route.query.search, (val) => {
           :products="items"
           :loading="loading"
           :error="error"
+          :loading-variant-id="quickAddLoading"
           @reload="refresh"
           @add-to-cart="quickAdd"
         />

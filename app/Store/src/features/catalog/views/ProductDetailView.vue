@@ -45,10 +45,14 @@ async function addToCart(): Promise<void> {
     return
   }
   adding.value = true
-  const ok = await cart.addItem(selectedVariantId.value, quantity.value)
-  adding.value = false
-  if (ok) notify.success('Added to cart', product.value.name)
-  else notify.error('Add to cart failed', cart.error ?? undefined)
+  try {
+    const ok = await cart.addItem(selectedVariantId.value, quantity.value)
+    if (ok) notify.success('Added to cart', product.value.name)
+    else notify.error('Add to cart failed', cart.error ?? undefined)
+  } finally {
+    // Ensure the button never stays loading on a thrown rejection.
+    adding.value = false
+  }
 }
 
 watch(() => route.params.slug, (slug) => {

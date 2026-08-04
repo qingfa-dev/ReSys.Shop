@@ -2,7 +2,7 @@
 import type { StoreProductListItemResponse } from '../types/product'
 import { formatVnd } from '@/shared/utils/currency'
 
-const props = defineProps<{ product: StoreProductListItemResponse }>()
+const props = defineProps<{ product: StoreProductListItemResponse; loading?: boolean }>()
 // The backend cart add endpoint requires a VARIANT id, not a product id — emit the master variant id.
 const emit = defineEmits<{ addToCart: [variantId: string] }>()
 
@@ -32,6 +32,8 @@ function displayPrice(): string {
           icon="pi pi-plus"
           size="small"
           class="w-full"
+          :loading="loading"
+          :disabled="loading"
           @click.prevent="emit('addToCart', product.masterVariantId)"
         />
       </div>

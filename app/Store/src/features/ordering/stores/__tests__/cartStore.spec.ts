@@ -212,14 +212,21 @@ describe('cartStore', () => {
   it('associate skips cleanly when there is no guest cart id', async () => {
     const store = useCartStore()
     store.id = null
-    // fetchCart is called to try to resolve a guest cart; it finds none.
-    mockedCartApi.getCart.mockResolvedValue(
-      ok(cart({ id: '00000000-0000-0000-0000-000000000000', items: [], itemCount: 0, itemTotal: 0, total: 0 })),
-    )
+
+    await store.associate()
+
+    // No pre-login guest cart id — skip entirely; never fetch the (now user's) cart.
+    expect(mockedCartApi.getCart).not.toHaveBeenCalled()
+    expect(mockedCartApi.associateCart).not.toHaveBeenCalled()
+    expect(store.error).toBeNull()
+  })
+
+  it('associate treats Guid.Empty as "no guest cart" and skips', async () => {
+    const store = useCartStore()
+    store.id = '00000000-0000-0000-0000-000000000000'
 
     await store.associate()
 
     expect(mockedCartApi.associateCart).not.toHaveBeenCalled()
-    expect(store.error).toBeNull()
   })
 })
