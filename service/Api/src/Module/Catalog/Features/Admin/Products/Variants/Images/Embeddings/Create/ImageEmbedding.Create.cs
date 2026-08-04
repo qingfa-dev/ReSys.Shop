@@ -45,12 +45,17 @@ public static partial class CreateEmbedding
             var embedding = ImageEmbeddingMethod.CreatePending(request.VariantImageId, modelName, "1.0");
             dbContext.Set<ImageEmbedding>().Add(embedding);
 
+            // Persist: Save the Pending row (with its id) before enqueueing so a fast
+            // worker never runs against a missing row
+            await dbContext.SaveChangesAsync(cancellationToken);
+
             // Enqueue: Trigger ML inference as a Hangfire job correlated by embedding id
             var jobId = backgroundJobClient?.Create<IEmbeddingOrchestrator>(
                 o => o.RunAsync(embedding.Id, CancellationToken.None),
                 new EnqueuedState());
             embedding.HangfireJobId = jobId;
 
+            // Persist: Save the Hangfire job id on the Pending row
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result<EmbeddingDetailResponse>.Created(

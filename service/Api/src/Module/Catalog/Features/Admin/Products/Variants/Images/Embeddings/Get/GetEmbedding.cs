@@ -18,7 +18,7 @@ public static partial class GetEmbedding
                 .FirstOrDefaultAsync(e => e.VariantImageId == query.VariantImageId, cancellationToken);
 
             if (embedding is null)
-                return ImageEmbeddingResult.Errors.NotFound(query.VariantImageId);
+                return ImageEmbeddingResult.Errors.NotFoundByVariantImage(query.VariantImageId);
 
             return Result<EmbeddingDetailResponse>.Ok(new EmbeddingDetailResponse
             {

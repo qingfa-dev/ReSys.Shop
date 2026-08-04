@@ -45,6 +45,11 @@ public static class ImageEmbeddingResult
             code: "ImageEmbedding.NotFound",
             message: $"Embedding with ID '{id}' was not found.");
 
+        /// <summary>No embedding exists for the given variant image.</summary>
+        public static Error NotFoundByVariantImage(Guid variantImageId) => Error.NotFound(
+            code: "ImageEmbedding.VariantImageNotFound",
+            message: $"No embedding exists for variant image '{variantImageId}'.");
+
         /// <summary>The variant image was deleted before embedding could be persisted.</summary>
         public static Error VariantImageDeletedDuringEmbedding(Guid variantImageId) => Error.NotFound(
             code: "ImageEmbedding.VariantImageDeleted",

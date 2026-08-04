@@ -54,12 +54,17 @@ public static partial class RegenerateEmbedding
                 embedding = existing;
             }
 
+            // Persist: Save the Pending row (with its id) before enqueueing so a fast
+            // worker never runs against a missing row
+            await dbContext.SaveChangesAsync(cancellationToken);
+
             // Enqueue: Trigger ML inference as a Hangfire job correlated by embedding id
             var jobId = backgroundJobClient?.Create<IEmbeddingOrchestrator>(
                 o => o.RunAsync(embedding.Id, CancellationToken.None),
                 new EnqueuedState());
             embedding.HangfireJobId = jobId;
 
+            // Persist: Save the Hangfire job id on the embedding row
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result<EmbeddingDetailResponse>.Ok(new EmbeddingDetailResponse
