@@ -9,6 +9,11 @@ const colorMap: Record<string, string> = {
   in_stock: 'bg-green-100 text-green-700',
   low_stock: 'bg-amber-100 text-amber-700',
   out_of_stock: 'bg-red-100 text-red-700',
+  // Order statuses (string-serialized OrderStatus enum)
+  Draft: 'bg-gray-100 text-gray-600',
+  Placed: 'bg-blue-100 text-blue-700',
+  Canceled: 'bg-red-100 text-red-700',
+  Expired: 'bg-amber-100 text-amber-700',
 }
 const cls = colorMap[status] ?? 'bg-gray-100 text-gray-600'
 </script>

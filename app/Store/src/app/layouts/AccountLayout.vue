@@ -44,6 +44,7 @@ const navItems = [
         </div>
       </div>
     </div>
+    <ConfirmDialog />
     <AppFooter />
   </div>
 </template>
