@@ -11,15 +11,13 @@ export type { Product, Category, ProductImage, ProductInventory } from './schema
 export type { ProductVariantSchema, ProductInventorySchema } from './schemas/product.schema'
 
 export interface ProductFilter {
-  category?: string
+  optionTypeId?: string[]
+  taxonId?: string[]
   priceMin?: number
   priceMax?: number
   tags?: string[]
   inStock?: boolean
   sortBy?: 'newest' | 'price-asc' | 'price-desc' | 'popular'
-  size?: string
-  color?: string
-  brand?: string
 }
 
 export interface PaginatedResult<T> {
