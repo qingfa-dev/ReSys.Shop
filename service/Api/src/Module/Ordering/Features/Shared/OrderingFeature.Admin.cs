@@ -37,6 +37,14 @@ public static partial class OrderingFeature
                 public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
             }
 
+            public static class UpdateShipmentState
+            {
+                public const string Route = $"{BaseRoute}/{{id:guid}}/shipment-state";
+                public const string Description = "Update order shipment state";
+                public const string Summary = "Update order shipment state";
+                public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
+            }
+
             public static class GetLineItems
             {
                 public const string Route = $"{BaseRoute}/{{id:guid}}/line-items";

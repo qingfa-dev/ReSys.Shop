@@ -14,6 +14,7 @@ import type {
   UpdateOrderAddressRequest,
   UpdateOrderShippingMethodRequest,
   UpdateOrderStatusRequest,
+  UpdateShipmentStateRequest,
 } from '../types/order'
 import {
   ORDER_FILTER_FIELDS,
@@ -103,5 +104,9 @@ export class OrderApi {
 
   static updateStatus(id: string, request: UpdateOrderStatusRequest): Promise<Result<void>> {
     return put<Result<void>>(`${OrderApi.BASE}/${id}/status`, request)
+  }
+
+  static updateShipmentState(id: string, request: UpdateShipmentStateRequest): Promise<Result<OrderDetail>> {
+    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/shipment-state`, request)
   }
 }

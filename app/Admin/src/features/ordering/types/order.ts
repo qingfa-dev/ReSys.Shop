@@ -142,3 +142,11 @@ export interface UpdateOrderAddressRequest {
 export interface UpdateOrderShippingMethodRequest {
   shippingMethodId: string
 }
+
+export type ShipmentState = 'pending' | 'delivered' | 'partial' | 'ready' | 'backorder' | 'canceled'
+
+export const SHIPMENT_STATE_OPTIONS: ShipmentState[] = ['pending', 'delivered', 'partial', 'ready', 'backorder', 'canceled']
+
+export interface UpdateShipmentStateRequest {
+  shipmentState: ShipmentState
+}

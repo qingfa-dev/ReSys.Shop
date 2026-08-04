@@ -10,6 +10,7 @@ import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
+import Select from 'primevue/select'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -20,8 +21,9 @@ import { useOrderDetail } from '../composables/useOrderDetail'
 import { OrderApi } from '../services/orderApi'
 import { PaymentApi } from '@/features/payment/services/paymentApi'
 import type { Result } from '@/shared/types'
-import type { OrderDetail, OrderStatus, LineItem } from '../types/order'
+import type { OrderDetail, OrderStatus, LineItem, ShipmentState } from '../types/order'
 import type { PaymentListItem } from '@/features/payment/types/payment'
+import { SHIPMENT_STATE_OPTIONS } from '../types/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -51,6 +53,21 @@ const STATUS_SEVERITY: Record<OrderStatus, string> = {
 
 function statusSeverity(status: OrderStatus | undefined): string {
   return status ? STATUS_SEVERITY[status] : 'secondary'
+}
+
+const shipmentStateLoading = ref(false)
+
+async function onShipmentStateChange(value: ShipmentState) {
+  if (!order.value || value === order.value.shipmentState) return
+  shipmentStateLoading.value = true
+  const result = await OrderApi.updateShipmentState(orderId.value, { shipmentState: value })
+  shipmentStateLoading.value = false
+  if (result.isSuccess) {
+    notify.success('Shipment State', `Shipment state updated to "${value}".`)
+    await fetchOrder(orderId.value)
+  } else {
+    handleResult(result)
+  }
 }
 
 function currency(value: OrderDetail | null): string {
@@ -241,6 +258,16 @@ onMounted(loadOrder)
                   <div>
                     <div class="text-sm text-muted-color">Status</div>
                     <Tag :value="order.status" :severity="statusSeverity(order.status)" />
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Shipment State</div>
+                    <Select
+                      :model-value="order.shipmentState"
+                      :options="SHIPMENT_STATE_OPTIONS"
+                      :loading="shipmentStateLoading"
+                      class="w-40"
+                      @change="onShipmentStateChange($event.value)"
+                    />
                   </div>
                   <div>
                     <div class="text-sm text-muted-color">Checkout State</div>

@@ -12,11 +12,12 @@ import Select from 'primevue/select'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useOrderList } from '../composables/useOrderList'
-import type { OrderStatus, CheckoutState } from '../types/order'
+import type { OrderListItem, OrderStatus, CheckoutState, ShipmentState } from '../types/order'
 import { ORDER_SEARCH_FIELDS } from '../types/order'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
+const selectedItems = ref<OrderListItem[]>([])
 const search = ref('')
 const statusFilter = ref<OrderStatus | null>(null)
 const checkoutStateFilter = ref<CheckoutState | null>(null)
@@ -34,6 +35,15 @@ const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Placed: 'success',
   Canceled: 'danger',
   Expired: 'secondary',
+}
+
+const SHIPMENT_SEVERITY: Record<ShipmentState, string> = {
+  pending: 'warn',
+  delivered: 'success',
+  partial: 'info',
+  ready: 'info',
+  backorder: 'warn',
+  canceled: 'danger',
 }
 
 function onSearch(value: string) {
@@ -66,6 +76,14 @@ function onCheckoutStateFilterChange(value: CheckoutState | null | undefined) {
 
 function statusSeverity(status: OrderStatus): string {
   return STATUS_SEVERITY[status]
+}
+
+function shipmentSeverity(state: ShipmentState | null | undefined): string {
+  return state ? SHIPMENT_SEVERITY[state] : 'secondary'
+}
+
+function formatShipmentState(state: string | null | undefined): string {
+  return state ?? '—'
 }
 
 function formatCurrency(value: number | null | undefined): string {
@@ -136,6 +154,7 @@ function navigateToDetail(id: string) {
     <!-- Section: Data Table — order grid with inline status and totals -->
     <DataTable
       ref="dt"
+      v-model:selection="selectedItems"
       :value="items"
       :loading="loading"
       scrollable
@@ -144,6 +163,7 @@ function navigateToDetail(id: string) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — order identity, status, and totals -->
       <Column field="number" header="Order #" :sortable="true" />
       <Column field="email" header="Customer">
@@ -154,6 +174,11 @@ function navigateToDetail(id: string) {
       <Column field="status" header="Status" :sortable="true">
         <template #body="{ data }">
           <Tag :value="data.status" :severity="statusSeverity(data.status)" />
+        </template>
+      </Column>
+      <Column field="shipmentState" header="Shipment">
+        <template #body="{ data }">
+          <Tag :value="formatShipmentState(data.shipmentState)" :severity="shipmentSeverity(data.shipmentState)" />
         </template>
       </Column>
       <Column field="total" header="Total" :sortable="true">
