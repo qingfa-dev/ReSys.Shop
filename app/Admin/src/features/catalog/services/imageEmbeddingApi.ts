@@ -1,4 +1,4 @@
-import { post, put } from '@/shared/api/client'
+import { get, post, put, del } from '@/shared/api/client'
 import { CATALOG } from '@/shared/constants/api'
 import type { Result } from '@/shared/types'
 import type {
@@ -16,5 +16,13 @@ export class ImageEmbeddingApi {
 
   static regenerate(request: RegenerateEmbeddingRequest): Promise<Result<EmbeddingDetailResponse>> {
     return put<Result<EmbeddingDetailResponse>>(`${ImageEmbeddingApi.BASE}/regenerate`, request)
+  }
+
+  static get(variantImageId: string): Promise<Result<EmbeddingDetailResponse>> {
+    return get<Result<EmbeddingDetailResponse>>(`${ImageEmbeddingApi.BASE}/${variantImageId}`)
+  }
+
+  static deleteEmbedding(variantImageId: string): Promise<Result<{ message: string }>> {
+    return del<Result<{ message: string }>>(`${ImageEmbeddingApi.BASE}/${variantImageId}`)
   }
 }
