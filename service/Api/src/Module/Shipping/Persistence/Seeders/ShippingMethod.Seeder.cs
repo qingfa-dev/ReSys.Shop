@@ -20,7 +20,12 @@ public sealed class ShippingMethodSeeder(IApplicationDbContext context) : Abstra
         };
 
         foreach (var result in methods)
-            Context.Set<ShippingMethod>().Add(result.Value);
+        {
+            var method = result.Value;
+            // Seed: Default worldwide zone ("*") so all methods remain available until zones are curated.
+            method.Zones.Add(new ShippingMethodZone { CountryCode = "*" });
+            Context.Set<ShippingMethod>().Add(method);
+        }
 
         await SaveChangesWithIdempotencyAsync(cancellationToken);
 

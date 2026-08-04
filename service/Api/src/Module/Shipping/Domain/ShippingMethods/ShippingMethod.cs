@@ -19,6 +19,7 @@ public sealed partial class ShippingMethod : Entity, IAuditable, IParameterizabl
     public string CalculatorType { get; set; } = string.Empty;
     public Guid? TaxCategoryId { get; set; }
     public string? Presentation { get; set; }
+    public ICollection<ShippingMethodZone> Zones { get; set; } = new List<ShippingMethodZone>();
     #endregion Properties
 
     #region Auditing

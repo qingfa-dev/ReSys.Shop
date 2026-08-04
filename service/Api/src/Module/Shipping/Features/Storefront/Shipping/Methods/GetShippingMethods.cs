@@ -9,33 +9,41 @@ public static partial class GetShippingMethods
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext, ILogger<PagedQueryHandler> logger)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Loads active, non-deleted shipping methods and returns them as a list.</summary>
+        /// <summary>Loads active, non-deleted shipping methods (optionally zone-filtered) and returns them as a list.</summary>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=none, post=list of available shipping methods returned
             _ = logger;
-            // Load: All available shipping methods.
-            var methods = await dbContext.Set<ShippingMethod>()
-                .Where(x => x.AvailableToUsers && !x.IsDeleted)
+            // Load: Available shipping methods, optionally filtered by delivery country zone.
+            var query = dbContext.Set<ShippingMethod>()
                 .AsNoTracking()
-                .ToListAsync(cancellationToken);
+                .Where(x => x.AvailableToUsers && !x.IsDeleted);
 
-            // Map: Return list of available shipping methods.
-            // EXCEPTION: no domain entity — maps from domain ShippingMethod entities to DTOs
-            var items = methods.Select(m => new Response
+            if (!string.IsNullOrEmpty(request.Parameters.CountryCode))
             {
-                Id = m.Id,
-                Name = m.Name,
-                AdminName = m.AdminName,
-                Code = m.Code,
-                CalculatorType = m.CalculatorType,
-                Position = m.Position
-            }).OrderBy(m => m.Position).ToList();
+                var countryCode = request.Parameters.CountryCode.ToUpperInvariant();
+                query = query.Where(m => m.Zones.Any(z =>
+                    z.CountryCode == "*" || z.CountryCode == countryCode));
+            }
 
             var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
-            return pageModel.IsEmpty
-                ? PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count)
-                : items.ToPagedResult(pageModel);
+
+            // Map: Project to response DTO with DB-side paging.
+            // EXCEPTION: no domain entity — maps from domain ShippingMethod entities to DTOs
+            return await query
+                .OrderBy(m => m.Position)
+                .ToPagedOrAllAsync(
+                    m => new Response
+                    {
+                        Id = m.Id,
+                        Name = m.Name,
+                        AdminName = m.AdminName,
+                        Code = m.Code,
+                        CalculatorType = m.CalculatorType,
+                        Position = m.Position
+                    },
+                    pageModel,
+                    cancellationToken);
         }
     }
 }
