@@ -276,7 +276,7 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         PaymentRecordState successState,
         CancellationToken ct)
     {
-        var source = payment.SourceType is not null ? new { Id = payment.SourceId, Type = payment.SourceType } : null;
+        object? source = payment.SourceId;
         var gatewayResult = await action(payment.Amount, source, options, ct).ConfigureAwait(false);
 
         // Catch: Gateway failure — propagate error

@@ -129,6 +129,28 @@ public class PaymentProcessingServiceTests
         payment.State.Should().Be(PaymentRecordState.Processing);
     }
 
+    [Fact(DisplayName = "PurchaseAsync: Should pass raw string source to gateway")]
+    public async Task PurchaseAsync_ShouldPassStringSource_WhenSourceIdIsSet()
+    {
+        object? capturedSource = null;
+        _gatewayMock.Setup(x => x.AutoCapture).Returns(true);
+        _gatewayMock.Setup(x => x.PurchaseAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .Callback<decimal, object?, GatewayOptions, CancellationToken>((amount, source, options, ct) => capturedSource = source)
+            .ReturnsAsync(new PaymentGatewayResponse("bogus", authorization: "capture-xyz"));
+
+        var payment = CreatePayment();
+        payment.SourceId = "pm_card_visa";
+        payment.SourceType = "card";
+        var options = CreateGatewayOptions(payment);
+
+        var result = await _service.ProcessAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        capturedSource.Should().NotBeNull();
+        capturedSource.Should().BeOfType<string>();
+        capturedSource.Should().Be("pm_card_visa");
+    }
+
     #endregion
 
     #region CaptureAsync
