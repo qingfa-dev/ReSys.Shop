@@ -1,6 +1,8 @@
 using Module.Payment.Features.Storefront.Payment.Shared.Mappings;
 
-using Module.Ordering.Domain.Orders;
+using Shared.Application.Contracts.Ordering;
+using Shared.Application.Contracts.Inventory;
+
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
 using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
@@ -20,22 +22,37 @@ public static partial class CreatePaymentIntent
         IApplicationDbContext dbContext,
         ICurrentUser currentUser,
         IGatewayRegistry gatewayRegistry,
-        IPaymentProcessingService processingService)
+        IPaymentProcessingService processingService,
+        ISender sender)
         : ICommandHandler<Command, Response>
     {
         // Contract: pre=orderId valid & user owns order, post=PaymentCapture persisted + gateway intent created
         /// <summary>Creates a payment intent for checkout.</summary>
-    public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Check: Current user must own the order
-            if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.NotFound(command.OrderId);
+            // Validate: Cart state must be Delivery
+            var cartResult = await sender.Send(
+                new GetCartForCheckoutQuery { CartId = command.OrderId }, cancellationToken);
+            if (cartResult.IsFailure) return cartResult.Errors;
+            var cart = cartResult.Value;
 
-            // Load: Order — verify ownership
-            var order = await dbContext.Set<Order>()
-                .FirstOrDefaultAsync(x => x.Id == command.OrderId && x.UserId == userId, cancellationToken);
-            if (order is null)
-                return OrderResult.Errors.NotFound(command.OrderId);
+            if (cart.State != "Delivery")
+                return Error.Conflict(
+                    code: "Order.CheckoutState.InvalidTransition",
+                    message: $"Cannot transition from {cart.State} to Payment.");
+
+            // Reserve: Stock atomically before gateway call
+            var reserveResult = await sender.Send(
+                new ReserveCartStockCommand
+                {
+                    CartId = command.OrderId,
+                    LineItems = cart.LineItems.Select(li => new ReserveLineItem
+                    {
+                        VariantId = li.VariantId,
+                        Quantity = li.Quantity
+                    }).ToList()
+                }, cancellationToken);
+            if (reserveResult.IsFailure) return reserveResult.Errors;
 
             // Load: First active payment method
             var paymentMethod = command.PaymentMethodId.HasValue
@@ -48,9 +65,9 @@ public static partial class CreatePaymentIntent
 
             // Create: PaymentCapture entity with order total, method, and order
             var createResult = Domain.PaymentCaptures.PaymentCaptureMethod.Create(
-                amount: order.Total,
+                amount: cart.Total,
                 paymentMethodId: (Guid)paymentMethod.Id,
-                orderId: order.Id,
+                orderId: command.OrderId,
                 sourceId: paymentMethod.ProviderKey == GatewayConstants.Providers.Bogus
                     ? command.CardNumber
                     : command.PaymentMethodToken,
@@ -71,10 +88,10 @@ public static partial class CreatePaymentIntent
             // Build: Gateway options with order and payment identifiers
             var options = new GatewayOptions
             {
-                Email = order.Email ?? string.Empty,
-                Customer = order.Email ?? string.Empty,
+                Email = cart.Email ?? string.Empty,
+                Customer = cart.Email ?? string.Empty,
                 CustomerId = currentUser.UserId,
-                OrderId = $"{order.Number}-{payment.Number}",
+                OrderId = $"{command.OrderId}-{payment.Number}",
                 PaymentId = payment.Number,
                 IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
                 StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
@@ -84,9 +101,31 @@ public static partial class CreatePaymentIntent
 
             // Call: Gateway process (authorize or purchase depending on AutoCapture)
             var processResult = await processingService.ProcessAsync(payment, gateway, options, cancellationToken);
-            if (processResult.IsFailure) return processResult.Errors;
+            if (processResult.IsFailure)
+            {
+                // Release reservations on gateway failure
+                await sender.Send(
+                    new ReleaseCartStockReservationsCommand { CartId = command.OrderId }, CancellationToken.None);
+                return processResult.Errors;
+            }
 
-            await dbContext.SaveChangesAsync(cancellationToken);
+            // Save: PaymentCapture to database
+            try
+            {
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                // E3: Gateway succeeded but save failed — void payment and release reservations
+                await processingService.VoidAsync(payment, gateway, options, CancellationToken.None);
+                await sender.Send(
+                    new ReleaseCartStockReservationsCommand { CartId = command.OrderId }, CancellationToken.None);
+                throw;
+            }
+
+            // Advance: Cart state to Payment
+            await sender.Send(
+                new AdvanceCheckoutStateCommand { CartId = command.OrderId, TargetState = "Payment" }, cancellationToken);
 
             // Map: Payment → storefront response DTO
             return payment.MapToStoreDetail<Response>();
