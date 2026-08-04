@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // useVisualSearch() calls onUnmounted() at setup time; there is no active
 // component instance in a unit test, so stub the lifecycle hook out.
@@ -25,6 +25,10 @@ describe('useVisualSearch validateFile', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubGlobal('URL', { ...URL, createObjectURL, revokeObjectURL })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   it('accepts a valid JPEG', () => {

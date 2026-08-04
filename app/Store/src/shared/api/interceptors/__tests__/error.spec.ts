@@ -49,6 +49,20 @@ describe('errorInterceptor', () => {
     expect(mockedNotify).toHaveBeenCalledWith('Server Error')
   })
 
+  it('extracts errors from the errors array', async () => {
+    const caught = await capture(
+      errorInterceptor(
+        axiosLikeError(500, { errors: [{ code: 'Server.Boom', message: 'Boom', type: 500 }] }),
+      ),
+    )
+
+    expect(caught).toBeInstanceOf(HttpError)
+    expect((caught as HttpError).statusCode).toBe(500)
+    expect((caught as HttpError).errors[0]?.code).toBe('Server.Boom')
+    expect((caught as HttpError).errors[0]?.message).toBe('Boom')
+    expect(mockedNotify).toHaveBeenCalledWith('Boom')
+  })
+
   it('does not notify on 4xx responses', async () => {
     const caught = await capture(errorInterceptor(axiosLikeError(400, { title: 'Bad Request' })))
 
