@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { catalogRoutes } from '@/features/catalog/routes'
 import { identityRoutes } from '@/features/identity/routes'
 import { orderingRoutes } from '@/features/ordering/routes'
+import { profileRoutes } from '@/features/profile/routes'
 
 export const routes: RouteRecordRaw[] = [
   // Public storefront shell
@@ -29,6 +30,8 @@ export const routes: RouteRecordRaw[] = [
       ...identityRoutes.filter(r => r.meta?.requiresAuth),
       // Ordering routes rendered in the account shell: /account/orders, /account/orders/:id
       ...orderingRoutes.filter(r => r.path.startsWith('/account')),
+      // Profile routes: /account/profile, /account/addresses, /account/wishlists, /account/notifications
+      ...profileRoutes,
     ],
   },
   // 404

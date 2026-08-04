@@ -64,10 +64,11 @@ export const ENDPOINTS = {
   cartReserveStatus: `${API_STOREFRONT}/cart/reserve`,
 
   // Profile
-  profiles: `${API_STORE}/profiles`,
+  // NOTE: the backend store profile routes live under api/store/profiles/profiles
+  // (the plan's bare api/store/profiles would 404). Set-default uses PUT address.
+  profiles: `${API_STORE}/profiles/profiles`,
   addresses: `${API_STORE}/profiles/addresses`,
   addressById: (id: string) => `${API_STORE}/profiles/addresses/${id}`,
-  addressDefault: (id: string) => `${API_STORE}/profiles/addresses/${id}/default`,
   wishlists: `${API_STORE}/profiles/wishlists`,
   wishlistById: (id: string) => `${API_STORE}/profiles/wishlists/${id}`,
   wishlistItems: (id: string) => `${API_STORE}/profiles/wishlists/${id}/items`,
