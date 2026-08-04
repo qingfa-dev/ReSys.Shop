@@ -3,9 +3,7 @@ import { ref, computed } from 'vue'
 import Button from 'primevue/button'
 import FilterPriceRange from '../filters/FilterPriceRange.vue'
 import FilterCategoryTree from '../filters/FilterCategoryTree.vue'
-import FilterBrandSelect from '../filters/FilterBrandSelect.vue'
-import FilterSizeSelect from '../filters/FilterSizeSelect.vue'
-import FilterColorSelect from '../filters/FilterColorSelect.vue'
+import type { StoreOptionTypeResponse } from '@/features/catalog/types'
 
 const DEFAULT_PRICE_MIN = 0
 const DEFAULT_PRICE_MAX = 1000
@@ -17,34 +15,16 @@ interface Category {
   children?: Category[]
 }
 
-interface Color {
-  id: string
-  name: string
-  hex: string
-}
-
-interface Size {
-  id: string
-  name: string
-}
-
-interface Brand {
-  name: string
-  slug: string
-}
-
 interface Props {
   categories?: Category[]
-  colors?: Color[]
-  sizes?: Size[]
-  brands?: Brand[]
+  optionTypes?: StoreOptionTypeResponse[]
+  loading?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   categories: () => [],
-  colors: () => [],
-  sizes: () => [],
-  brands: () => [],
+  optionTypes: () => [],
+  loading: false,
 })
 
 const emit = defineEmits<{
@@ -56,68 +36,43 @@ interface FilterState {
   category: string | null
   priceMin: number | null
   priceMax: number | null
-  sizes: string[]
-  colors: string[]
-  brands: string[]
+  optionValues: string[]
 }
 
 const selectedCategory = ref<string | null>(null)
 const priceRange = ref({ min: DEFAULT_PRICE_MIN, max: DEFAULT_PRICE_MAX })
-const selectedSizeIds = ref<string[]>([])
-const selectedColorIds = ref<string[]>([])
-const selectedBrandSlugs = ref<string[]>([])
+const selectedOptionValueIds = ref<string[]>([])
 
 const hasActiveFilters = computed(() => {
   return selectedCategory.value !== null ||
     priceRange.value.min > DEFAULT_PRICE_MIN ||
     priceRange.value.max < DEFAULT_PRICE_MAX ||
-    selectedSizeIds.value.length > 0 ||
-    selectedColorIds.value.length > 0 ||
-    selectedBrandSlugs.value.length > 0
+    selectedOptionValueIds.value.length > 0
 })
 
 function handlePriceRangeChange(range: { min: number; max: number }) {
   priceRange.value = range
-  emitFilters()
+  emitFilterChange()
 }
 
 function handleCategorySelect(slug: string | null) {
   selectedCategory.value = slug
-  emitFilters()
+  emitFilterChange()
 }
 
-function handleSizeChange(ids: string[]) {
-  selectedSizeIds.value = ids
-  emitFilters()
-}
-
-function handleColorChange(ids: string[]) {
-  selectedColorIds.value = ids
-  emitFilters()
-}
-
-function handleBrandChange(slugs: string[]) {
-  selectedBrandSlugs.value = slugs
-  emitFilters()
-}
-
-function emitFilters() {
+function emitFilterChange() {
   emit('filterChange', {
     category: selectedCategory.value,
     priceMin: priceRange.value.min > DEFAULT_PRICE_MIN ? priceRange.value.min : null,
     priceMax: priceRange.value.max < DEFAULT_PRICE_MAX ? priceRange.value.max : null,
-    sizes: selectedSizeIds.value,
-    colors: selectedColorIds.value,
-    brands: selectedBrandSlugs.value,
+    optionValues: selectedOptionValueIds.value,
   })
 }
 
 function clearAllFilters() {
   selectedCategory.value = null
   priceRange.value = { min: DEFAULT_PRICE_MIN, max: DEFAULT_PRICE_MAX }
-  selectedSizeIds.value = []
-  selectedColorIds.value = []
-  selectedBrandSlugs.value = []
+  selectedOptionValueIds.value = []
   emit('clear')
 }
 </script>
@@ -126,8 +81,8 @@ function clearAllFilters() {
   <aside class="shop-filters">
     <div class="filters-header">
       <h3>Filters</h3>
-      <button 
-        v-if="hasActiveFilters" 
+      <button
+        v-if="hasActiveFilters"
         class="clear-all"
         aria-label="Clear all filters"
         @click="clearAllFilters"
@@ -136,52 +91,55 @@ function clearAllFilters() {
       </button>
     </div>
 
-    <div class="filter-section">
-      <h4>Category</h4>
-      <FilterCategoryTree
-        :categories="categories"
-        :selected-slug="selectedCategory"
-        @select="handleCategorySelect"
-      />
+    <div v-if="loading" class="filter-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Loading filters...</span>
     </div>
 
-    <div class="filter-section">
-      <h4>Price Range</h4>
-      <FilterPriceRange
-        :min-value="priceRange.min"
-        :max-value="priceRange.max"
-        :min="DEFAULT_PRICE_MIN"
-        :max="DEFAULT_PRICE_MAX"
-        @range-change="handlePriceRangeChange"
-      />
-    </div>
+    <template v-else>
+      <div class="filter-section">
+        <h4>Category</h4>
+        <FilterCategoryTree
+          :categories="categories"
+          :selected-slug="selectedCategory"
+          @select="handleCategorySelect"
+        />
+      </div>
 
-    <div class="filter-section">
-      <h4>Size</h4>
-      <FilterSizeSelect
-        :sizes="sizes"
-        :selected-ids="selectedSizeIds"
-        @update:selected-ids="handleSizeChange"
-      />
-    </div>
+      <div class="filter-section">
+        <h4>Price Range</h4>
+        <FilterPriceRange
+          :min-value="priceRange.min"
+          :max-value="priceRange.max"
+          :min="DEFAULT_PRICE_MIN"
+          :max="DEFAULT_PRICE_MAX"
+          @range-change="handlePriceRangeChange"
+        />
+      </div>
 
-    <div class="filter-section">
-      <h4>Color</h4>
-      <FilterColorSelect
-        :colors="colors"
-        :selected-ids="selectedColorIds"
-        @update:selected-ids="handleColorChange"
-      />
-    </div>
-
-    <div class="filter-section">
-      <h4>Brand</h4>
-      <FilterBrandSelect
-        :brands="brands"
-        :selected-slugs="selectedBrandSlugs"
-        @update:selected-slugs="handleBrandChange"
-      />
-    </div>
+      <div
+        v-for="optionType in optionTypes"
+        :key="optionType.id"
+        class="filter-section"
+      >
+        <h4>{{ optionType.name }}</h4>
+        <div class="filter-options">
+          <label
+            v-for="optionValue in optionType.values"
+            :key="optionValue.id"
+            class="filter-option"
+          >
+            <input
+              type="checkbox"
+              :value="optionValue.id"
+              v-model="selectedOptionValueIds"
+              @change="emitFilterChange"
+            />
+            <span>{{ optionValue.name }}</span>
+          </label>
+        </div>
+      </div>
+    </template>
   </aside>
 </template>
 
@@ -222,6 +180,15 @@ function clearAllFilters() {
   }
 }
 
+.filter-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
 .filter-section {
   margin-bottom: 1.75rem;
   padding-bottom: 1.5rem;
@@ -240,6 +207,25 @@ function clearAllFilters() {
     letter-spacing: 0.05em;
     margin-bottom: 0.75rem;
     color: var(--color-text);
+  }
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+
+  input[type='checkbox'] {
+    cursor: pointer;
   }
 }
 </style>
