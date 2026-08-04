@@ -49,6 +49,6 @@ public class GetEmbeddingTests : IDisposable
         var result = await _handler.Handle(
             new GetEmbedding.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
         result.IsFailure.Should().BeTrue();
-        result.Errors.First().Code.Should().Be("ImageEmbedding.NotFound");
+        result.Errors.First().Code.Should().Be("ImageEmbedding.VariantImageNotFound");
     }
 }
