@@ -18,7 +18,7 @@ public static class ProfileFeature
 
         public static class Profiles
         {
-            private const string BaseRoute = $"{StoreRoute}/profiles";
+            private const string BaseRoute = StoreRoute;
 
             public static class Get
             {
@@ -179,7 +179,7 @@ public static class ProfileFeature
 
         public static class Profiles
         {
-            private const string BaseRoute = $"{AdminStore}/profiles";
+            private const string BaseRoute = AdminStore;
 
             public static class Get
             {
