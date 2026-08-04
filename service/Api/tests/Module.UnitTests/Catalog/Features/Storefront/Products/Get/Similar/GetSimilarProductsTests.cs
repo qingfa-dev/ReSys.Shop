@@ -87,7 +87,7 @@ public class GetSimilarProductsTests : IDisposable
         var sourceImage = new VariantImage
         {
             VariantId = sourceVariant.Id,
-            Type = VariantImageType.Default,
+            Type = VariantImageType.Search,
             Url = "http://test.img/src.jpg",
             ContentType = "image/jpeg",
             FileName = "src.jpg",
@@ -121,7 +121,7 @@ public class GetSimilarProductsTests : IDisposable
         var similarImage = new VariantImage
         {
             VariantId = similarVariant.Id,
-            Type = VariantImageType.Default,
+            Type = VariantImageType.Search,
             Url = "http://test.img/sim.jpg",
             ContentType = "image/jpeg",
             FileName = "sim.jpg",

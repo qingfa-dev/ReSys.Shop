@@ -111,7 +111,7 @@ public class SearchByImageTests : IDisposable
         var variantImage = new VariantImage
         {
             VariantId = variant.Id,
-            Type = VariantImageType.Default,
+            Type = VariantImageType.Search,
             Url = "http://test.img/test.jpg",
             ContentType = "image/jpeg",
             FileName = "test.jpg",

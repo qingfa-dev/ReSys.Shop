@@ -26,6 +26,7 @@ import type { PriceRequest } from '../types/variantPrice'
 import type { VariantForm } from '../validations/variant'
 import { variantSchema } from '../validations/variant'
 import type { VariantImage } from '../types/variantImage'
+import type { VariantImageUpdateRequest } from '../types/variantImage'
 import type { Price } from '../types/variantPrice'
 import { ImageEmbeddingApi } from '../services/imageEmbeddingApi'
 import { useEmbeddingStatus } from '../composables/useEmbeddingStatus'
@@ -249,6 +250,9 @@ const embeddingLoading = ref<Record<string, boolean>>({})
 // Generate-all-missing: Tab-level batch loading
 const batchGenerating = ref(false)
 
+// Filter: Search-type images are the semantic-search source eligible for embeddings
+const searchImages = computed(() => images.value.filter((img) => img.type === 'Search'))
+
 async function loadImages() {
   if (!isEdit.value) return
   // Load: Fetch the image gallery for the edit form.
@@ -315,11 +319,11 @@ function confirmDeleteImage(image: VariantImage) {
   })
 }
 
-// Load: Fetch embedding status for all images in the current variant
+// Load: Fetch embedding status for search-type images in the current variant
 async function loadAllEmbeddings() {
-  if (!images.value.length) return
+  if (!searchImages.value.length) return
   await Promise.allSettled(
-    images.value.map(async (img) => {
+    searchImages.value.map(async (img) => {
       const result = await ImageEmbeddingApi.get(img.id)
       if (result.isSuccess) {
         embeddingMap.value[img.id] = result.value
@@ -381,15 +385,34 @@ async function deleteEmbedding(image: VariantImage) {
   }
 }
 
-// Batch: Generate embeddings for all images without one
+// Batch: Generate embeddings for search-type images without one
 async function generateAllMissing() {
   batchGenerating.value = true
-  for (const image of images.value) {
+  for (const image of searchImages.value) {
     if (!embeddingMap.value[image.id]) {
       await generateEmbedding(image)
     }
   }
   batchGenerating.value = false
+}
+
+// Options: Image usage classifications supported by the backend enum
+const imageTypeOptions = ['Default', 'Thumbnail', 'Square', 'Gallery', 'Search']
+
+// Set-type: Change an image's classification (Search marks the semantic-search source)
+async function updateImageType(image: VariantImage, type: string) {
+  if (image.type === type) return
+  const request: VariantImageUpdateRequest = { type }
+  const result = await VariantImageApi.updateImage(image.id, request)
+  if (result.isSuccess) {
+    image.type = type
+    // Reload: Fetch embedding status when the type change affects search eligibility
+    if (type === 'Search') {
+      await loadAllEmbeddings()
+    }
+  } else {
+    notify.error('Failed to update image type')
+  }
 }
 
 const optionValueAssignments = ref<OptionValueAssignment[]>([])
@@ -651,7 +674,7 @@ function confirmRemovePrice(price: Price) {
                     <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden" ref="fileInputRef" @change="onFileSelect" />
                     <Button label="Upload Image" icon="pi pi-upload" severity="secondary" :loading="uploadLoading" @click="fileInputRef?.click()" />
                     <Button
-                      v-if="images.length > 0"
+                      v-if="searchImages.length > 0"
                       label="Generate All Missing"
                       icon="pi pi-play"
                       severity="help"
@@ -668,12 +691,18 @@ function confirmRemovePrice(price: Price) {
                         <div class="truncate" :title="image.fileName">{{ image.fileName }}</div>
                         <div class="text-muted-color">{{ (image.fileSize / 1024).toFixed(0) }} KB</div>
                         <div class="flex justify-between items-center mt-1">
-                          <Tag :value="image.type" severity="info" />
+                          <Select
+                            :model-value="image.type"
+                            :options="imageTypeOptions"
+                            size="small"
+                            class="w-32"
+                            @update:model-value="updateImageType(image, $event as string)"
+                          />
                           <Button icon="pi pi-trash" severity="secondary" text rounded size="small" aria-label="Delete image" @click="confirmDeleteImage(image)" />
                         </div>
                       </div>
-                      <!-- Section: Embedding Status — badge and management actions per image -->
-                      <div v-if="embeddingMap[image.id] !== undefined" class="border-t mt-1 pt-1">
+                      <!-- Section: Embedding Status — badge and management actions for search-type images -->
+                      <div v-if="image.type === 'Search' && embeddingMap[image.id] !== undefined" class="border-t mt-1 pt-1">
                         <div v-if="!embeddingMap[image.id]" class="text-xs text-muted-color mb-1">
                           No embedding
                         </div>

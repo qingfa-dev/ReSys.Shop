@@ -45,7 +45,7 @@ public sealed class VectorSearchService : IVectorSearchService
             INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
             INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
             WHERE v.is_deleted = false
-              AND vi.type = 'Default'
+              AND vi.type = 'Search'
               AND ie.model_name = {1}" +
             (excludeProductId.HasValue ? "\n              AND v.product_id != {2}" : "") + @"
             ORDER BY v.id, ie.vector <=> {0}::vector
@@ -76,7 +76,7 @@ public sealed class VectorSearchService : IVectorSearchService
                 .ThenInclude(vi => vi.Variant)
             .Where(e => e.ModelName == modelName
                      && e.Vector != null
-                     && e.VariantImage.Type == VariantImageType.Default
+                     && e.VariantImage.Type == VariantImageType.Search
                      && e.VariantImage.VariantId != null
                      && !e.VariantImage.Variant!.IsDeleted);
 
