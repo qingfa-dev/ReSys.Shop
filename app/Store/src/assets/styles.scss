@@ -73,3 +73,14 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+
+// Accessibility — honor prefers-reduced-motion (Task 7.4 NFR #5).
+// Skeleton/loading blocks use Tailwind's `animate-pulse`; stop the pulse for
+// users who request reduced motion (WCAG 2.3.3). This block is unlayered, so it
+// takes precedence over Tailwind's layered `utilities` even when it appears
+// earlier in the cascade.
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse {
+    animation: none;
+  }
+}
