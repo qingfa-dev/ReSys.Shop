@@ -14,7 +14,7 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 /// <summary>Creates a payment intent for checkout.</summary>
 public static partial class CreatePaymentIntent
 {
-    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null, string? PaymentMethodToken = null, string? ReturnUrl = null) : ICommand<Response>;
+    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null, string? PaymentMethodToken = null, string? ReturnUrl = null, string? CardNumber = null) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -51,10 +51,12 @@ public static partial class CreatePaymentIntent
                 amount: order.Total,
                 paymentMethodId: (Guid)paymentMethod.Id,
                 orderId: order.Id,
-                sourceId: command.PaymentMethodToken,
-                sourceType: command.PaymentMethodToken is null
-                    ? null
-                    : GatewayConstants.SourceTypes.PaymentMethod);
+                sourceId: paymentMethod.ProviderKey == GatewayConstants.Providers.Bogus
+                    ? command.CardNumber
+                    : command.PaymentMethodToken,
+                sourceType: paymentMethod.ProviderKey == GatewayConstants.Providers.Bogus
+                    ? (command.CardNumber is null ? null : GatewayConstants.SourceTypes.Card)
+                    : (command.PaymentMethodToken is null ? null : GatewayConstants.SourceTypes.PaymentMethod));
             if (createResult.IsFailure) return createResult.Errors;
 
             var payment = createResult.Value;

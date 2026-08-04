@@ -15,7 +15,7 @@ public static partial class CreatePaymentIntent
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(request.OrderId, request.PaymentMethodId, request.PaymentMethodToken, request.ReturnUrl);
+                var command = new Command(request.OrderId, request.PaymentMethodId, request.PaymentMethodToken, request.ReturnUrl, request.CardNumber);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
