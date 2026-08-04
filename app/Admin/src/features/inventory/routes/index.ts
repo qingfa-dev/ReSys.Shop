@@ -69,11 +69,11 @@ export const inventoryMenuItems = [
     label: 'Inventory',
     icon: 'pi pi-fw pi-warehouse',
     items: [
-      { label: 'Stock Items', icon: 'pi pi-fw pi-box', to: '/inventory/stock-items' },
-      { label: 'Locations', icon: 'pi pi-fw pi-map-marker', to: '/inventory/stock-locations' },
-      { label: 'Reservations', icon: 'pi pi-fw pi-calendar', to: '/inventory/stock-reservations' },
-      { label: 'Transfers', icon: 'pi pi-fw pi-arrows-h', to: '/inventory/stock-transfers' },
-      { label: 'Movements', icon: 'pi pi-fw pi-history', to: '/inventory/stock-movements' },
+      { label: 'Stock Items', icon: 'pi pi-fw pi-box', route: '/inventory/stock-items' },
+      { label: 'Locations', icon: 'pi pi-fw pi-map-marker', route: '/inventory/stock-locations' },
+      { label: 'Reservations', icon: 'pi pi-fw pi-calendar', route: '/inventory/stock-reservations' },
+      { label: 'Transfers', icon: 'pi pi-fw pi-arrows-h', route: '/inventory/stock-transfers' },
+      { label: 'Movements', icon: 'pi pi-fw pi-history', route: '/inventory/stock-movements' },
     ],
   },
 ]

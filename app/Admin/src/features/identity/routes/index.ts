@@ -48,9 +48,9 @@ export const identityMenuItems = [
     label: 'Identity',
     icon: 'pi pi-fw pi-users',
     items: [
-      { label: 'Users', icon: 'pi pi-fw pi-user', to: '/identity/users' },
-      { label: 'Roles', icon: 'pi pi-fw pi-shield', to: '/identity/roles' },
-      { label: 'Permissions', icon: 'pi pi-fw pi-key', to: '/identity/permissions' },
+      { label: 'Users', icon: 'pi pi-fw pi-user', route: '/identity/users' },
+      { label: 'Roles', icon: 'pi pi-fw pi-shield', route: '/identity/roles' },
+      { label: 'Permissions', icon: 'pi pi-fw pi-key', route: '/identity/permissions' },
     ],
   },
 ]

@@ -41,8 +41,8 @@ export const shippingMenuItems = [
     label: 'Shipping',
     icon: 'pi pi-fw pi-truck',
     items: [
-      { label: 'Methods', icon: 'pi pi-fw pi-cog', to: '/shipping/shipping-methods' },
-      { label: 'Rates', icon: 'pi pi-fw pi-ticket', to: '/shipping/shipping-rates' },
+      { label: 'Methods', icon: 'pi pi-fw pi-cog', route: '/shipping/shipping-methods' },
+      { label: 'Rates', icon: 'pi pi-fw pi-ticket', route: '/shipping/shipping-rates' },
     ],
   },
 ]

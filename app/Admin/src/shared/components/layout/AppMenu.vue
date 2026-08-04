@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import PanelMenu from 'primevue/panelmenu'
 import { useNotify } from '@/shared/composables/useNotify'
-import AppMenuItem from './AppMenuItem.vue';
 import { useAuthStore } from '@/features/auth/stores/authStore'
 import { dashboardMenuItems } from '@/features/dashboard/routes'
 import { catalogMenuItems } from '@/features/catalog/routes'
@@ -21,6 +21,7 @@ interface MenuItem {
   path?: string
   items?: MenuItem[]
   icon?: string
+  route?: string
   to?: string
   class?: string
   url?: string
@@ -41,7 +42,7 @@ const model = ref<MenuItem[]>([
   ...paymentMenuItems,
   ...profileMenuItems,
   ...shippingMenuItems,
-]);
+])
 
 async function handleLogout() {
   await authStore.logout()
@@ -51,21 +52,37 @@ async function handleLogout() {
 </script>
 
 <template>
-    <ul class="layout-menu">
-        <template v-for="(item, i) in model" :key="item">
-            <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
-            <li v-if="item.separator" class="menu-separator"></li>
-        </template>
-        <li class="menu-separator"></li>
-        <li>
-            <a class="logout-item flex align-items-center px-3 py-2 cursor-pointer border-round"
-               :class="{ 'pointer-events-none opacity-50': authStore.isLoggingOut }"
-               @click="handleLogout">
-                <SignOut class="layout-menuitem-icon" />
-                <span class="layout-menuitem-text">Logout</span>
-            </a>
-        </li>
-    </ul>
+  <ul class="layout-menu">
+    <li>
+      <PanelMenu :model="model" multiple class="w-full" />
+    </li>
+    <li class="menu-separator"></li>
+    <li>
+      <a class="logout-item flex align-items-center px-3 py-2 cursor-pointer border-round"
+         :class="{ 'pointer-events-none opacity-50': authStore.isLoggingOut }"
+         @click="handleLogout">
+        <SignOut class="layout-menuitem-icon" />
+        <span class="layout-menuitem-text">Logout</span>
+      </a>
+    </li>
+  </ul>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+/* PanelMenu: remove default panel borders to fit sidebar */
+:deep(.p-panelmenu) {
+  border: none;
+}
+
+:deep(.p-panelmenu-panel) {
+  border: none;
+}
+
+:deep(.p-panelmenu-header) {
+  border: none;
+}
+
+:deep(.p-panelmenu-content) {
+  border: none;
+}
+</style>

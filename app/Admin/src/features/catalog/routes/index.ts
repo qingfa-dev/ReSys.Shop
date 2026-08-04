@@ -89,11 +89,11 @@ export const catalogMenuItems = [
     label: 'Catalog',
     icon: 'pi pi-fw pi-box',
     items: [
-      { label: 'Products', icon: 'pi pi-fw pi-tag', to: '/catalog/products' },
-      { label: 'Taxonomies', icon: 'pi pi-fw pi-sitemap', to: '/catalog/taxonomies' },
-      { label: 'Taxons', icon: 'pi pi-fw pi-list', to: '/catalog/taxons' },
-      { label: 'Option Types', icon: 'pi pi-fw pi-sliders-h', to: '/catalog/option-types' },
-      { label: 'Variants', icon: 'pi pi-fw pi-box', to: '/catalog/variants' },
+      { label: 'Products', icon: 'pi pi-fw pi-tag', route: '/catalog/products' },
+      { label: 'Taxonomies', icon: 'pi pi-fw pi-sitemap', route: '/catalog/taxonomies' },
+      { label: 'Taxons', icon: 'pi pi-fw pi-list', route: '/catalog/taxons' },
+      { label: 'Option Types', icon: 'pi pi-fw pi-sliders-h', route: '/catalog/option-types' },
+      { label: 'Variants', icon: 'pi pi-fw pi-box', route: '/catalog/variants' },
     ],
   },
 ]

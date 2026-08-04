@@ -7,6 +7,12 @@ const AddressDetail = () => import('../views/AddressDetail.vue')
 
 export const profileRoutes: RouteRecordRaw[] = [
   {
+    path: 'profile/my-profile',
+    name: 'profile-my-profile',
+    component: () => import('../views/MyProfileView.vue'),
+    meta: { title: 'My Profile' },
+  },
+  {
     path: 'profile',
     redirect: { name: 'profile-profiles' },
   },
@@ -41,8 +47,9 @@ export const profileMenuItems = [
     label: 'Profile',
     icon: 'pi pi-fw pi-id-card',
     items: [
-      { label: 'Profiles', icon: 'pi pi-fw pi-user-edit', to: '/profile/profiles' },
-      { label: 'Addresses', icon: 'pi pi-fw pi-map-marker', to: '/profile/addresses' },
+      { label: 'My Profile', icon: 'pi pi-fw pi-user', route: '/profile/my-profile' },
+      { label: 'Profiles', icon: 'pi pi-fw pi-user-edit', route: '/profile/profiles' },
+      { label: 'Addresses', icon: 'pi pi-fw pi-map-marker', route: '/profile/addresses' },
     ],
   },
 ]

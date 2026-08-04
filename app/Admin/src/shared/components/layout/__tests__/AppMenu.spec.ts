@@ -5,7 +5,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import AppMenu from '../AppMenu.vue'
-import AppMenuItem from '../AppMenuItem.vue'
 import * as authApi from '@/features/auth/services/authApi'
 
 let toastMock = { add: vi.fn<(...args: unknown[]) => unknown>() }
@@ -18,7 +17,7 @@ vi.mock('@/features/auth/services/authApi', () => ({
   logout: vi.fn<(...args: unknown[]) => unknown>(() => Promise.resolve({ isSuccess: true, value: undefined })),
 }))
 
-vi.mock('@/features/dashboard/routes', () => ({ dashboardMenuItems: [{ label: 'Dashboard', icon: 'pi pi-home', to: '/' }] }))
+vi.mock('@/features/dashboard/routes', () => ({ dashboardMenuItems: [{ label: 'Dashboard', icon: 'pi pi-home', route: '/' }] }))
 vi.mock('@/features/catalog/routes', () => ({ catalogMenuItems: [] }))
 vi.mock('@/features/identity/routes', () => ({ identityMenuItems: [] }))
 vi.mock('@/features/inventory/routes', () => ({ inventoryMenuItems: [] }))
@@ -52,7 +51,7 @@ function createWrapper(isLoggingOut = false) {
         PrimeVue,
         ToastService,
       ],
-      components: { AppMenuItem },
+
     },
   }), router }
 }
