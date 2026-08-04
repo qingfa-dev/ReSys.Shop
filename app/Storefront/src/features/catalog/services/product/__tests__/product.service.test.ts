@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { productService } from '../product.service'
 
-import type { ProductFilter } from '../../../types'
-
 describe('ProductService', () => {
   describe('getProducts', () => {
     it('should return paginated products', async () => {
@@ -13,7 +11,7 @@ describe('ProductService', () => {
     })
 
     it('should apply filters', async () => {
-      const result = await productService.getProducts({ category: 'electronics' } as ProductFilter, 1, 10)
+      const result = await productService.getProducts({ taxonId: ['some-taxon-id'] }, 1, 10)
       expect(result.isSuccess).toBe(true)
     })
   })
