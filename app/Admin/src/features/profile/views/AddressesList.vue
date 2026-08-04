@@ -76,7 +76,7 @@ function confirmDelete(data: AddressResponse) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      // Call: Delete the address, then refresh the list.
+      // Call: Delete the address.
       const result = await AddressApi.deleteAddress(data.userId, data.id)
       if (result.isSuccess) {
         notify.success('Deleted', label)

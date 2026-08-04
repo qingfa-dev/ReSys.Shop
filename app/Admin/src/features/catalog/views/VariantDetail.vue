@@ -266,7 +266,7 @@ function onFileSelect(event: Event) {
 
 async function uploadImage(file: File) {
   uploadLoading.value = true
-  // Call: Upload the selected image, then refresh the gallery.
+  // Call: Upload the selected image to the gallery.
   const result = await VariantImageApi.uploadImage({ variantId: route.params.id as string, file })
   if (result.isSuccess) {
     notify.success('Image uploaded')
@@ -379,7 +379,7 @@ function openPriceDialog() {
 
 async function savePrice() {
   if (!priceForm.value.currency) return
-  // Call: Persist the price, then refresh the price-history list.
+  // Call: Persist the price for the variant.
   const result = await VariantPriceApi.setPrice({ ...priceForm.value, variantId: route.params.id as string })
   if (result.isSuccess) {
     notify.success('Price saved')

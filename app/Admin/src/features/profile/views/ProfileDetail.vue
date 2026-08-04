@@ -137,7 +137,7 @@ function confirmDeleteAddress(id: string, label: string) {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      // Call: Delete the address, then drop it from the local list.
+      // Call: Delete the address from the profile.
       const result = await AddressApi.deleteAddress(route.params.id as string, id)
       if (result.isSuccess) {
         addresses.value = addresses.value.filter(a => a.id !== id)
