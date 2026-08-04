@@ -1,5 +1,4 @@
-import { queryBuilder } from '@/core/helpers/query.builder'
-import type { ProductEntity } from '../entity'
+import type { ProductFilter } from '../index'
 
 export interface ProductFilterParams {
   category?: string
@@ -13,50 +12,33 @@ export interface ProductFilterParams {
   pageSize?: number
 }
 
-export function buildProductFilter(params: ProductFilterParams) {
-  const builder = queryBuilder<ProductEntity>()
+export function buildProductFilter(params: ProductFilter) {
+  const result: Record<string, any> = {}
 
-  if (params.category) {
-    builder.where('category.slug', '=', params.category)
+  if (params.optionTypeId && params.optionTypeId.length > 0) {
+    result.optionValueId = params.optionTypeId
+  }
+  if (params.taxonId && params.taxonId.length > 0) {
+    result.taxonId = params.taxonId
   }
   if (params.priceMin !== undefined) {
-    builder.where('price', '>=', params.priceMin)
+    result.minPrice = params.priceMin
   }
   if (params.priceMax !== undefined) {
-    builder.where('price', '<=', params.priceMax)
+    result.maxPrice = params.priceMax
   }
   if (params.tags && params.tags.length > 0) {
-    params.tags.forEach((tag) => {
-      builder.where('tags', '*', tag)
-    })
+    result.tags = params.tags.join(',')
   }
   if (params.inStock) {
-    builder.where('inventory.quantity', '>', 0)
+    result.inStock = true
   }
-  if (params.search) {
-    builder.search(params.search, ['name', 'description', 'category.name'])
-  }
-
   if (params.sortBy) {
-    switch (params.sortBy) {
-      case 'newest':
-        builder.orderBy('createdAt', 'desc')
-        break
-      case 'price-asc':
-        builder.orderBy('price', 'asc')
-        break
-      case 'price-desc':
-        builder.orderBy('price', 'desc')
-        break
-      case 'popular':
-        builder.orderBy('name', 'asc')
-        break
-    }
+    result.sort = params.sortBy === 'newest' ? '-createdAtUtc'
+      : params.sortBy === 'price-asc' ? 'price'
+      : params.sortBy === 'price-desc' ? '-price'
+      : 'name'
   }
 
-  if (params.page !== undefined && params.pageSize !== undefined) {
-    builder.page(params.page, params.pageSize)
-  }
-
-  return builder.build()
+  return result
 }
