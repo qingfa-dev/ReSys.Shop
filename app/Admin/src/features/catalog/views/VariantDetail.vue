@@ -27,6 +27,10 @@ import type { VariantForm } from '../validations/variant'
 import { variantSchema } from '../validations/variant'
 import type { VariantImage } from '../types/variantImage'
 import type { Price } from '../types/variantPrice'
+import { ImageEmbeddingApi } from '../services/imageEmbeddingApi'
+import { useEmbeddingStatus } from '../composables/useEmbeddingStatus'
+import type { EmbeddingDetailResponse } from '../types/imageEmbedding'
+import ProgressSpinner from 'primevue/progressspinner'
 import { buildOptionValueGroups, selectedIdsForGroup } from '../utils/optionValueGroups'
 import type { OptionValueGroup } from '../utils/optionValueGroups'
 import type { OptionValueAssignment } from '../types/variant'
@@ -129,9 +133,15 @@ watch(() => route.params.id, (newId) => {
   }
 })
 
-watch(activeTab, (tab) => {
-  if (isEdit.value && tab === '3' && images.value.length === 0 && !imagesLoaded.value) {
-    loadImages()
+watch(activeTab, async (tab) => {
+  if (isEdit.value && tab === '3') {
+    if (images.value.length === 0 && !imagesLoaded.value) {
+      await loadImages()
+    }
+    // Load: Fetch embedding status after images are loaded
+    if (images.value.length > 0) {
+      await loadAllEmbeddings()
+    }
   }
   if (isEdit.value && tab === '4' && optionValueAssignments.value.length === 0) {
     loadOptionValues()
@@ -232,6 +242,12 @@ function onCancel() {
 const images = ref<VariantImage[]>([])
 const imagesLoaded = ref(false)
 const uploadLoading = ref(false)
+// Embedding: Per-image embedding state (id -> EmbeddingDetailResponse)
+const embeddingMap = ref<Record<string, EmbeddingDetailResponse | null>>({})
+// Loading: Per-image generation loading state
+const embeddingLoading = ref<Record<string, boolean>>({})
+// Generate-all-missing: Tab-level batch loading
+const batchGenerating = ref(false)
 
 async function loadImages() {
   if (!isEdit.value) return
@@ -297,6 +313,83 @@ function confirmDeleteImage(image: VariantImage) {
       }
     },
   })
+}
+
+// Load: Fetch embedding status for all images in the current variant
+async function loadAllEmbeddings() {
+  if (!images.value.length) return
+  await Promise.allSettled(
+    images.value.map(async (img) => {
+      const result = await ImageEmbeddingApi.get(img.id)
+      if (result.isSuccess) {
+        embeddingMap.value[img.id] = result.value
+      } else {
+        embeddingMap.value[img.id] = null
+      }
+    }),
+  )
+}
+
+// Generate: Create embedding for an image (enqueues Hangfire job)
+async function generateEmbedding(image: VariantImage) {
+  embeddingLoading.value[image.id] = true
+  const result = await ImageEmbeddingApi.create({ variantImageId: image.id })
+  if (result.isSuccess) {
+    embeddingMap.value[image.id] = result.value
+    // Poll: Require status poll until terminal
+    const { poll } = useEmbeddingStatus(ref(image.id))
+    await poll()
+  } else {
+    notify.error('Failed to generate embedding')
+  }
+  embeddingLoading.value[image.id] = false
+}
+
+// Regenerate: Re-run embedding generation
+async function regenerateEmbedding(image: VariantImage) {
+  embeddingLoading.value[image.id] = true
+  const result = await ImageEmbeddingApi.regenerate({ variantImageId: image.id })
+  if (result.isSuccess) {
+    embeddingMap.value[image.id] = result.value
+    const { poll } = useEmbeddingStatus(ref(image.id))
+    await poll()
+  } else {
+    notify.error('Failed to regenerate embedding')
+  }
+  embeddingLoading.value[image.id] = false
+}
+
+// Delete: Remove the embedding row
+async function deleteEmbedding(image: VariantImage) {
+  const hasEmbedding = embeddingMap.value[image.id]
+  if (hasEmbedding) {
+    const current = embeddingMap.value[image.id]!
+    // Confirm: Must confirm before permanently deleting embedding
+    confirm.require({
+      message: `Delete ${current.modelName} (${current.dimensions}d) embedding?`,
+      header: 'Delete Embedding',
+      accept: async () => {
+        const result = await ImageEmbeddingApi.deleteEmbedding(image.id)
+        if (result.isSuccess) {
+          embeddingMap.value[image.id] = null
+          notify.success('Embedding deleted')
+        } else {
+          notify.error('Failed to delete embedding')
+        }
+      },
+    })
+  }
+}
+
+// Batch: Generate embeddings for all images without one
+async function generateAllMissing() {
+  batchGenerating.value = true
+  for (const image of images.value) {
+    if (!embeddingMap.value[image.id]) {
+      await generateEmbedding(image)
+    }
+  }
+  batchGenerating.value = false
 }
 
 const optionValueAssignments = ref<OptionValueAssignment[]>([])
@@ -554,9 +647,18 @@ function confirmRemovePrice(price: Price) {
 
                 <TabPanel v-if="isEdit" value="3">
                   <!-- Section: Images — upload button and grid of uploaded images -->
-                  <div class="mb-3">
+                  <div class="mb-3 flex items-center gap-2">
                     <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden" ref="fileInputRef" @change="onFileSelect" />
                     <Button label="Upload Image" icon="pi pi-upload" severity="secondary" :loading="uploadLoading" @click="fileInputRef?.click()" />
+                    <Button
+                      v-if="images.length > 0"
+                      label="Generate All Missing"
+                      icon="pi pi-play"
+                      severity="help"
+                      size="small"
+                      :loading="batchGenerating"
+                      @click="generateAllMissing"
+                    />
                   </div>
                   <div v-if="images.length === 0" class="text-center py-8 text-muted-color">No images uploaded.</div>
                   <div v-else class="grid grid-cols-4 gap-4">
@@ -568,6 +670,77 @@ function confirmRemovePrice(price: Price) {
                         <div class="flex justify-between items-center mt-1">
                           <Tag :value="image.type" severity="info" />
                           <Button icon="pi pi-trash" severity="secondary" text rounded size="small" aria-label="Delete image" @click="confirmDeleteImage(image)" />
+                        </div>
+                      </div>
+                      <!-- Section: Embedding Status — badge and management actions per image -->
+                      <div v-if="embeddingMap[image.id] !== undefined" class="border-t mt-1 pt-1">
+                        <div v-if="!embeddingMap[image.id]" class="text-xs text-muted-color mb-1">
+                          No embedding
+                        </div>
+                        <div v-else>
+                          <Tag
+                            v-if="embeddingMap[image.id]!.status === 'Pending' || embeddingMap[image.id]!.status === 'Processing'"
+                            :value="embeddingMap[image.id]!.status"
+                            severity="info"
+                          />
+                          <Tag
+                            v-else-if="embeddingMap[image.id]!.status === 'Completed'"
+                            :value="embeddingMap[image.id]!.modelName + ' · ' + embeddingMap[image.id]!.dimensions + 'd'"
+                            severity="success"
+                          />
+                          <Tag
+                            v-else-if="embeddingMap[image.id]!.status === 'Failed'"
+                            :value="'Failed'"
+                            severity="danger"
+                          />
+                        </div>
+                        <div class="flex items-center gap-1 mt-1">
+                          <template v-if="embeddingMap[image.id] === null">
+                            <Button
+                              label="Generate"
+                              size="small"
+                              severity="info"
+                              :loading="embeddingLoading[image.id]"
+                              @click="generateEmbedding(image)"
+                            />
+                          </template>
+                          <template v-else-if="embeddingMap[image.id]!.status === 'Pending' || embeddingMap[image.id]!.status === 'Processing'">
+                            <ProgressSpinner style="width:16px;height:16px" :stroke-width="4" />
+                            <span class="text-xs text-muted-color">Processing...</span>
+                          </template>
+                          <template v-else-if="embeddingMap[image.id]!.status === 'Completed'">
+                            <Button
+                              label="Regen"
+                              size="small"
+                              severity="secondary"
+                              :loading="embeddingLoading[image.id]"
+                              @click="regenerateEmbedding(image)"
+                            />
+                            <Button
+                              label="Del"
+                              size="small"
+                              severity="danger"
+                              @click="deleteEmbedding(image)"
+                            />
+                          </template>
+                          <template v-else-if="embeddingMap[image.id]!.status === 'Failed'">
+                            <Button
+                              label="Retry"
+                              size="small"
+                              severity="warn"
+                              :loading="embeddingLoading[image.id]"
+                              @click="regenerateEmbedding(image)"
+                            />
+                            <Button
+                              label="Del"
+                              size="small"
+                              severity="danger"
+                              @click="deleteEmbedding(image)"
+                            />
+                            <div v-if="embeddingMap[image.id]!.error" class="text-xs text-red-500 mt-1 truncate max-w-[120px]">
+                              {{ embeddingMap[image.id]!.error }}
+                            </div>
+                          </template>
                         </div>
                       </div>
                     </div>
