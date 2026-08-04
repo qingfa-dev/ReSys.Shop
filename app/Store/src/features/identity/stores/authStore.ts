@@ -4,6 +4,7 @@ import type { AuthUser } from '../types/auth'
 import * as authApi from '../services/authApi'
 import * as tokenService from '../services/tokenService'
 import { setTokenGetter } from '@/shared/api/interceptors/auth'
+import { useCartStore } from '@/features/ordering/stores/cartStore'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -59,6 +60,16 @@ export const useAuthStore = defineStore('auth', () => {
           isAuthenticated: true,
         }
         status.value = 'authenticated'
+        // Cart merge: Associate the guest cart with the authenticated user and
+        // hydrate the merged cart. Best-effort — a cart-merge failure must not
+        // block the authenticated session.
+        try {
+          const cart = useCartStore()
+          await cart.associate()
+          await cart.fetchCart()
+        } catch {
+          /* fire-and-forget: cart merge is non-critical to auth */
+        }
         return true
       }
       tokenService.clearTokens()
