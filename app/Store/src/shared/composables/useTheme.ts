@@ -75,7 +75,7 @@ export function useTheme() {
     startListening()
   }
 
-  const cleanup = onUnmounted(() => {
+  onUnmounted(() => {
     stopListening()
   })
 

@@ -1,15 +1,23 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-const matchMediaMock = vi.fn().mockImplementation((query: string) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}))
+const eventListenerMock = vi.fn<(event: string, callback?: unknown) => void>()
+const dispatchEventMock = vi.fn<(event: Event) => boolean>()
+
+const matchMediaMock = vi
+  .fn<(query: string) => MediaQueryList>()
+  .mockImplementation(
+    (query: string) =>
+      ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: eventListenerMock,
+        removeEventListener: eventListenerMock,
+        addListener: eventListenerMock,
+        removeListener: eventListenerMock,
+        dispatchEvent: dispatchEventMock,
+      }) as unknown as MediaQueryList,
+  )
 
 describe('useTheme', () => {
   beforeEach(() => {
