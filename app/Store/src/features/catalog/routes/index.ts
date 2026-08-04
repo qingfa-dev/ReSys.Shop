@@ -25,5 +25,10 @@ export const catalogRoutes: RouteRecordRaw[] = [
     component: () => import('../views/ProductDetailView.vue'),
     meta: { title: 'Product' },
   },
-  // TODO(task-3.3): add `/recommendations` visual-search route with VisualSearchView
+  {
+    path: '/recommendations',
+    name: 'visual-search',
+    component: () => import('../views/VisualSearchView.vue'),
+    meta: { title: 'Visual Search' },
+  },
 ]
