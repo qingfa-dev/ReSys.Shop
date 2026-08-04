@@ -96,6 +96,24 @@ public sealed partial class Order
 
     #endregion
 
+    // Enforce: Advance checkout state with strict transition validation
+    public Result AdvanceCheckoutState(CheckoutState target)
+    {
+        var validTransition = (CheckoutState, target) switch
+        {
+            (CheckoutState.Address, CheckoutState.Delivery) => true,
+            (CheckoutState.Delivery, CheckoutState.Payment) => true,
+            (CheckoutState.Payment, CheckoutState.Confirm) => true,
+            (CheckoutState.Payment, CheckoutState.Complete) => true,
+            (CheckoutState.Confirm, CheckoutState.Complete) => true,
+            _ => false
+        };
+        if (!validTransition)
+            return OrderResult.Errors.InvalidCheckoutTransition(CheckoutState, target);
+        CheckoutState = target;
+        return Result.Ok();
+    }
+
     // Validate: Ensure none of the order's line item variants are discontinued
     internal bool EnsureLineItemVariantsAreNotDiscontinued(HashSet<Guid> discontinuedVariantIds)
     {

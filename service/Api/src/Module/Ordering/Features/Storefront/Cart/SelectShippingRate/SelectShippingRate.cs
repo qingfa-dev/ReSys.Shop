@@ -65,6 +65,10 @@ public static partial class SelectShippingRate
             if (shippingResult.IsFailure)
                 return shippingResult.Errors;
 
+            var stateResult = cart.AdvanceCheckoutState(CheckoutState.Delivery);
+            if (stateResult.IsFailure)
+                return stateResult.Errors;
+
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok(OrderResult.Success.ShippingRateSelected(cart.Id));
         }

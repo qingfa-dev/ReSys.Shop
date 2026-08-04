@@ -88,6 +88,11 @@ public static class OrderResult
             code: "Order.CannotAdvanceState",
             message: "Order cannot advance from its current checkout state.");
 
+        /// <summary>Invalid checkout state transition.</summary>
+        public static Error InvalidCheckoutTransition(CheckoutState current, CheckoutState target) => Error.Conflict(
+            code: "Order.CheckoutState.InvalidTransition",
+            message: $"Cannot transition from {current} to {target}.");
+
         /// <summary>The requested status transition is not allowed.</summary>
         public static Error InvalidStatusTransition => Error.Validation(
             code: "Order.InvalidStatusTransition",
