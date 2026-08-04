@@ -7,6 +7,9 @@ import { useNotify } from '@/shared/composables/useNotify'
 import ProductGallery from '../components/ProductGallery.vue'
 import ProductOptions from '../components/ProductOptions.vue'
 import SimilarProductsRow from '../components/SimilarProductsRow.vue'
+import SizeGuideModal from '../components/SizeGuideModal.vue'
+import ProductDetailsInfo from '../components/ProductDetailsInfo.vue'
+import { useRecentlyViewed } from '@/shared/composables/useRecentlyViewed'
 import type { StoreProductDetailResponse, StoreProductListItemResponse } from '../types/product'
 
 const route = useRoute()
@@ -36,6 +39,15 @@ async function loadProduct(slug: string): Promise<void> {
   const result = await getProductBySlug(slug)
   if (result.isSuccess) {
     product.value = result.value
+    // Track: Record the product in the recently-viewed history.
+    useRecentlyViewed().add({
+      productId: result.value.id,
+      productName: result.value.name,
+      slug: result.value.slug,
+      thumbnailUrl: result.value.thumbnailUrl,
+      minPrice: result.value.minPrice,
+      viewedAt: Date.now(),
+    })
     selectedVariantId.value = result.value.masterVariant?.id ?? null
     const simResult = await getSimilarProducts(result.value.id)
     if (simResult.isSuccess) similar.value = simResult.items
@@ -108,6 +120,9 @@ watch(() => route.params.slug, (slug) => {
 
           <h1 class="text-2xl font-bold text-gray-900">{{ product.name }}</h1>
 
+          <!-- Section: Size Guide -->
+          <SizeGuideModal v-if="product.variants.length > 0" :variants="product.variants" :product-name="product.name" />
+
           <!-- Section: Price -->
           <p v-if="product.minPrice" class="text-3xl font-bold text-gray-900">
             {{ new Intl.NumberFormat('vi-VN', { style: 'currency', currency: product.currency ?? 'VND' }).format(product.minPrice) }}
@@ -121,6 +136,9 @@ watch(() => route.params.slug, (slug) => {
             <span v-if="product.department" class="bg-gray-100 px-2 py-1 rounded">{{ product.department }}</span>
             <span v-if="product.genderTarget" class="bg-gray-100 px-2 py-1 rounded">{{ product.genderTarget }}</span>
           </div>
+
+          <!-- Section: Product Details Info -->
+          <ProductDetailsInfo :product="product" />
 
           <!-- Section: Variant Options -->
           <ProductOptions
