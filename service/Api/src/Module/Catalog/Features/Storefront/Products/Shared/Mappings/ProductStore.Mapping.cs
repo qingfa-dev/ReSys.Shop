@@ -47,6 +47,13 @@ public static class ProductStoreMapping
     {
         var firstPrice = variant.Prices.FirstOrDefault();
 
+        var optionValues = variant.OptionValueVariants
+            .Select(ov => ov.OptionValue)
+            .Where(ov => ov is not null)
+            .Select(ov => ov!)
+            .OrderBy(ov => ov.OptionType?.Position)
+            .ToList();
+
         return new StoreProductVariantResponse
         {
             Id = variant.Id,
@@ -54,6 +61,8 @@ public static class ProductStoreMapping
             IsMaster = variant.IsMaster,
             Price = firstPrice?.Amount,
             Currency = firstPrice?.Currency,
+            OptionValue1 = optionValues.ElementAtOrDefault(0)?.Name,
+            OptionValue2 = optionValues.ElementAtOrDefault(1)?.Name,
             Images = variant.VariantImages
                 .OrderBy(i => i.Position)
                 .Select(i => i.MapToStoreImage())

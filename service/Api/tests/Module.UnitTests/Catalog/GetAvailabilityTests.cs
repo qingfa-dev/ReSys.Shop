@@ -20,6 +20,8 @@ public class GetAvailabilityTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Variant).Assembly];
         _db = new ApplicationDbContext(opts);
         _calc = new Mock<IStockAvailabilityCalculator>();
+        _calc.Setup(x => x.GetBackorderableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, bool>());
         _sut = new GetAvailability.QueryHandler(_db, _calc.Object);
     }
 
@@ -89,8 +91,10 @@ public class GetAvailabilityTests : IDisposable
                 It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<Guid, int> { [variantId] = 0 });
 
-        _calc.Setup(x => x.GetForVariantAsync(variantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(            new StockSnapshot { TotalOnHand = 0, TotalReserved = 0, TotalAvailable = 0, Backorderable = true, Locations = [] });
+        _calc.Setup(x => x.GetBackorderableByVariantAsync(
+                It.Is<IEnumerable<Guid>>(ids => ids.Contains(variantId)),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, bool> { [variantId] = true });
 
         var result = await _sut.Handle(new GetAvailability.Query(productId), TestContext.Current.CancellationToken);
 

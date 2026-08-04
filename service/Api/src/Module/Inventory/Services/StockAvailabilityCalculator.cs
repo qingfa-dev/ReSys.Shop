@@ -110,4 +110,28 @@ public sealed class StockAvailabilityCalculator(IApplicationDbContext dbContext)
                 onHandMap.GetValueOrDefault(id, 0) - reservedMap.GetValueOrDefault(id, 0),
                 0));
     }
+
+    /// <summary>Returns whether each variant is backorderable across any active, non-deleted stock location.</summary>
+    /// <param name="variantIds">The variant identifiers to query.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A dictionary mapping variant ID to a backorderable flag.</returns>
+    public async Task<IReadOnlyDictionary<Guid, bool>> GetBackorderableByVariantAsync(
+        IEnumerable<Guid> variantIds, CancellationToken ct)
+    {
+        var ids = variantIds.Distinct().ToList();
+        if (ids.Count == 0) return new Dictionary<Guid, bool>();
+
+        var backorderable = await dbContext.Set<StockItem>()
+            .Where(si => ids.Contains(si.VariantId)
+                         && si.StockLocation != null
+                         && !si.StockLocation.IsDeleted
+                         && si.StockLocation.Active
+                         && si.Backorderable)
+            .Select(si => si.VariantId)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var backorderableSet = backorderable.ToHashSet();
+        return ids.ToDictionary(id => id, id => backorderableSet.Contains(id));
+    }
 }

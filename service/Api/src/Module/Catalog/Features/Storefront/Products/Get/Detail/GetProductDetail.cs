@@ -45,7 +45,41 @@ public static partial class GetProductDetail
             // Log: Record product detail loaded for observability
             ProductLoggers.StorefrontProductDetailLoaded(logger, query.Slug, entity.Id);
 
-            return entity.MapToStoreDetail<Response>();
+            var response = entity.MapToStoreDetail<Response>();
+
+            // Compute: Populate breadcrumb trail (root → leaf) for each taxon classification.
+            var taxons = await dbContext.Set<Module.Catalog.Domain.Taxonomies.Taxons.Taxon>()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+            var taxonLookup = taxons.ToDictionary(t => t.Id, t => t);
+
+            for (int i = 0; i < response.Taxons.Count; i++)
+            {
+                var taxon = taxonLookup.GetValueOrDefault(response.Taxons[i].Id);
+                if (taxon is null)
+                    continue;
+
+                var breadcrumb = new List<TaxonBreadcrumbItem>();
+                Module.Catalog.Domain.Taxonomies.Taxons.Taxon? current = taxon;
+                while (current is not null)
+                {
+                    breadcrumb.Insert(0, new TaxonBreadcrumbItem(current.Id, current.Name, current.Permalink));
+                    current = current.ParentId is not null && taxonLookup.TryGetValue(current.ParentId.Value, out var parent)
+                        ? parent
+                        : null;
+                }
+
+                response.Taxons[i] = new StoreProductTaxonResponse
+                {
+                    Id = taxon.Id,
+                    Name = taxon.Name,
+                    Permalink = taxon.Permalink,
+                    Depth = taxon.Depth,
+                    Breadcrumb = breadcrumb
+                };
+            }
+
+            return response;
         }
     }
 }

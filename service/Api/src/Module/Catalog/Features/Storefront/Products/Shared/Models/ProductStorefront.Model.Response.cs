@@ -45,4 +45,7 @@ public class StoreProductTaxonResponse
     public string Name { get; init; } = string.Empty;
     public string Permalink { get; init; } = string.Empty;
     public int Depth { get; init; }
+    public IReadOnlyList<TaxonBreadcrumbItem> Breadcrumb { get; init; } = [];
 }
+
+public sealed record TaxonBreadcrumbItem(Guid Id, string Name, string Permalink);

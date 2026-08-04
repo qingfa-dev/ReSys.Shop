@@ -23,16 +23,35 @@ public static partial class GetSimilarProducts
         // Contract: pre=request.Id!=Guid.Empty, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Load: Find the variant and its product.
-            var variant = await dbContext.Set<Variant>()
+            // Load: Find the variant and its product, preferring one with a completed similarity embedding.
+            const string similarityModel = VariantImageConstant.Defaults.DefaultSimilarityModel;
+
+            var variants = await dbContext.Set<Variant>()
                 .Include(x => x.Product)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.ProductId == request.Id && !x.IsDeleted, cancellationToken);
+                .Where(x => x.ProductId == request.Id && !x.IsDeleted)
+                .OrderByDescending(v => v.IsMaster)
+                .ThenBy(v => v.Position)
+                .ToListAsync(cancellationToken);
 
-            if (variant is null || variant.Product is null)
+            if (variants.Count == 0 || variants[0].Product is null)
                 return PagedResult<Response>.NotFound();
 
-            const string similarityModel = VariantImageConstant.Defaults.DefaultSimilarityModel;
+            // Select: Prefer a variant with a completed similarity-model embedding for a stable, representative query vector.
+            var variant = variants[0];
+            foreach (var candidate in variants)
+            {
+                var hasEmbedding = await dbContext.Set<ImageEmbedding>()
+                    .AnyAsync(ie => ie.VariantImage.VariantId == candidate.Id
+                                 && ie.ModelName == similarityModel
+                                 && ie.Vector != null,
+                        cancellationToken);
+                if (hasEmbedding)
+                {
+                    variant = candidate;
+                    break;
+                }
+            }
 
             // Load: Get the embedding vector and its model name for the variant's primary image.
             var embeddingData = await dbContext.Set<ImageEmbedding>()

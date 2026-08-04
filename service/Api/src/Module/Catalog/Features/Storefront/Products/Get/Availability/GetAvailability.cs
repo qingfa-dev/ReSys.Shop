@@ -79,6 +79,8 @@ public static partial class GetAvailability
             var variantIds = variants.Select(v => v.Id).Distinct().ToList();
             // Call: Query inventory service for batch available stock per variant
             var availableByVariant = await calculator.GetAvailableByVariantAsync(variantIds, cancellationToken);
+            // Call: Query backorderability in one batched lookup to avoid an N+1 snapshot per variant.
+            var backorderableByVariant = await calculator.GetBackorderableByVariantAsync(variantIds, cancellationToken);
 
             // Compute: Build availability cells for each variant in the matrix grid
             var cells = new List<AvailabilityCell>(variants.Count);
@@ -91,16 +93,11 @@ public static partial class GetAvailability
                 var firstPrice = v.Prices.FirstOrDefault();
                 var available = availableByVariant.GetValueOrDefault(v.Id, 0);
 
-                // Compute: Fetch full snapshot for out-of-stock variants to check backorderability
-                var snapshot = available == 0
-                    ? await calculator.GetForVariantAsync(v.Id, cancellationToken)
-                    : null;
-
                 var status = available switch
                 {
                     > LowStockThreshold.Default => "in_stock",
                     > 0 => "low_stock",
-                    _ when snapshot?.Backorderable == true => "backorderable",
+                    _ when backorderableByVariant.GetValueOrDefault(v.Id) => "backorderable",
                     _ => "out_of_stock"
                 };
 

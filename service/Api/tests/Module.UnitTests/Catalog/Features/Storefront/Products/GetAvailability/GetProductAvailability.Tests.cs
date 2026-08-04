@@ -28,6 +28,8 @@ public class GetProductAvailabilityTests : IDisposable
         _calculator = new Mock<IStockAvailabilityCalculator>();
         _calculator.Setup(x => x.GetAvailableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<Guid, int>());
+        _calculator.Setup(x => x.GetBackorderableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, bool>());
 
         _handler = new Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.QueryHandler(_dbContext, _calculator.Object);
     }

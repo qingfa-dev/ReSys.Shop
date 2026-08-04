@@ -8,4 +8,7 @@ public interface IStockAvailabilityCalculator
     /// <summary>Returns available stock counts for a batch of variants.</summary>
     Task<IReadOnlyDictionary<Guid, int>> GetAvailableByVariantAsync(
         IEnumerable<Guid> variantIds, CancellationToken ct);
+    /// <summary>Returns whether each variant is backorderable across any active location.</summary>
+    Task<IReadOnlyDictionary<Guid, bool>> GetBackorderableByVariantAsync(
+        IEnumerable<Guid> variantIds, CancellationToken ct);
 }
