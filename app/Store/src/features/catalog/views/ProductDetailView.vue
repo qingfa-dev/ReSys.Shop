@@ -19,6 +19,8 @@ const quantity = ref(1)
 async function loadProduct(slug: string): Promise<void> {
   loading.value = true
   error.value = null
+  similar.value = []
+  quantity.value = 1
   const result = await getProductBySlug(slug)
   if (result.isSuccess) {
     product.value = result.value

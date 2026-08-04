@@ -34,9 +34,16 @@ const { items, loading, error, totalCount, totalPages, page, pageSize, refresh, 
 
 // State: Taxonomy tree and filters
 const taxonomyTree = ref<StoreTaxonomyTreeResponse | null>(null)
+const treeError = ref<string | null>(null)
 const optionTypes = ref<StoreOptionTypeResponse[]>([])
 const treeLoading = ref(true)
 const filtersLoading = ref(true)
+
+// Trigger: Reset to the first page and re-fetch after a filter change
+function applyFilters(): void {
+  page.value = 1
+  refresh()
+}
 
 // Map: Sort dropdown options using the querying sort DSL
 const sortOptions = [
@@ -57,6 +64,7 @@ onMounted(async () => {
     getOptionTypes({ pageNumber: 1, pageSize: 50 }),
   ])
   if (treeResult.isSuccess) taxonomyTree.value = treeResult.value
+  else treeError.value = treeResult.message ?? 'Categories are unavailable.'
   if (otResult.isSuccess) optionTypes.value = otResult.items
   treeLoading.value = false
   filtersLoading.value = false
@@ -68,7 +76,7 @@ onMounted(async () => {
 // Trigger: Keep the catalog search query in sync with the URL
 watch(() => route.query.search, (val) => {
   catalog.setSearch(typeof val === 'string' ? val : '')
-  refresh()
+  applyFilters()
 })
 </script>
 <template>
@@ -84,16 +92,17 @@ watch(() => route.query.search, (val) => {
         <CategoryTree
           v-else-if="taxonomyTree"
           :nodes="taxonomyTree.nodes"
-          @select="(id) => { catalog.setTaxon(id); refresh() }"
+          @select="(id) => { catalog.setTaxon(id); applyFilters() }"
         />
+        <p v-else class="text-sm text-gray-400">{{ treeError ?? 'Categories are unavailable.' }}</p>
 
         <!-- Section: Option Filters -->
         <FilterSidebar
           v-if="!filtersLoading"
           :option-types="optionTypes"
           :selected-ids="catalog.selectedOptionValueIds"
-          @toggle="(id) => { catalog.toggleOptionValue(id); refresh() }"
-          @clear="catalog.clearFilters(); refresh()"
+          @toggle="(id) => { catalog.toggleOptionValue(id); applyFilters() }"
+          @clear="catalog.clearFilters(); applyFilters()"
         />
       </aside>
 
