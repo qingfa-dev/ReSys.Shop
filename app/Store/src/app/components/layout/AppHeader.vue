@@ -5,6 +5,7 @@ import ThemeToggle from '@/app/components/ThemeToggle.vue'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useSearch } from '@/features/catalog/composables/useSearch'
+import NotificationBell from '@/features/catalog/components/NotificationBell.vue'
 
 const auth = useAuthStore()
 const cart = useCartStore()
@@ -32,6 +33,9 @@ const mobileMenuOpen = ref(false)
           >
             <i class="pi pi-search text-xl" />
           </button>
+
+          <!-- Section: Notification Bell -->
+          <NotificationBell />
 
           <!-- Section: Theme Toggle -->
           <ThemeToggle />

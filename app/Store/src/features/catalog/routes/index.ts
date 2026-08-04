@@ -31,4 +31,16 @@ export const catalogRoutes: RouteRecordRaw[] = [
     component: () => import('../views/VisualSearchView.vue'),
     meta: { title: 'Visual Search' },
   },
+  {
+    path: '/terms',
+    name: 'terms',
+    component: () => import('../views/TermsView.vue'),
+    meta: { title: 'Terms of Service' },
+  },
+  {
+    path: '/privacy',
+    name: 'privacy',
+    component: () => import('../views/PrivacyView.vue'),
+    meta: { title: 'Privacy Policy' },
+  },
 ]
