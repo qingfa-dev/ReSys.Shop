@@ -47,28 +47,18 @@ export function useCatalog() {
     productStore.fetchProducts()
   }
 
-  function filterByCategory(category: string) {
-    productStore.setFilter({ ...productStore.filter, category })
+  function setTaxon(taxonId: string) {
+    productStore.setFilter({ ...productStore.filter, taxonId: [taxonId] })
     productStore.fetchProducts()
   }
 
-  function filterByPrice(min: number, max: number) {
+  function setPriceRange(min: number, max: number) {
     productStore.setFilter({ ...productStore.filter, priceMin: min, priceMax: max })
     productStore.fetchProducts()
   }
 
-  function filterBySize(size: string) {
-    productStore.setFilter({ ...productStore.filter, size })
-    productStore.fetchProducts()
-  }
-
-  function filterByColor(color: string) {
-    productStore.setFilter({ ...productStore.filter, color })
-    productStore.fetchProducts()
-  }
-
-  function filterByBrand(brand: string) {
-    productStore.setFilter({ ...productStore.filter, brand })
+  function setOptionValues(optionValueIds: string[]) {
+    productStore.setFilter({ ...productStore.filter, optionTypeId: optionValueIds })
     productStore.fetchProducts()
   }
 
@@ -96,11 +86,9 @@ export function useCatalog() {
     search,
     searchProducts,
     sortBy,
-    filterByCategory,
-    filterByPrice,
-    filterBySize,
-    filterByColor,
-    filterByBrand,
+    setTaxon,
+    setPriceRange,
+    setOptionValues,
     clearFilters,
     goToPage,
   }
