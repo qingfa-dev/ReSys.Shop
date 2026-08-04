@@ -4,4 +4,5 @@ export const env = {
   appVersion: __APP_VERSION__,
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
+  primeLicenseKey: import.meta.env.VITE_PRIME_LICENSE_KEY,
 } as const
