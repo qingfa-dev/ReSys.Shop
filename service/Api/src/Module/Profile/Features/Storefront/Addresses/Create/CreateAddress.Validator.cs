@@ -7,10 +7,10 @@ public static partial class CreateAddress
     // ============ COMMAND VALIDATOR ============
     public sealed class Validator : AbstractValidator<Command>
     {
-        public Validator()
+        public Validator(ISender sender)
         {
             RuleFor(x => x.Request)
-                .ApplyAddressParametersRules();
+                .ApplyAddressParametersRules(sender);
         }
     }
 }
