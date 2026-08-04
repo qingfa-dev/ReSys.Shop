@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getTaxons } from '../services/taxonApi'
 import { useCatalogStore } from '../stores/catalogStore'
@@ -11,6 +11,12 @@ const catalog = useCatalogStore()
 const taxons = ref<StoreTaxonListItemResponse[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+// Map: Breadcrumb trail for the collections page
+const breadcrumbItems = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Collections' },
+])
 
 // Trigger: Load top-level taxons on mount
 onMounted(async () => {
@@ -29,6 +35,8 @@ function openCollection(taxon: StoreTaxonListItemResponse): void {
 <template>
   <!-- Section: Collections Page -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Section: Breadcrumb -->
+    <Breadcrumb :model="breadcrumbItems" class="mb-4" />
     <!-- Section: Page Header -->
     <div class="mb-8">
       <h1 class="text-2xl font-bold text-gray-900">Collections</h1>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProductBySlug, getSimilarProducts } from '../services/productApi'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
@@ -19,6 +19,13 @@ const error = ref<string | null>(null)
 const adding = ref(false)
 const selectedVariantId = ref<string | null>(null)
 const quantity = ref(1)
+
+// Map: Breadcrumb trail for the product detail page
+const breadcrumbItems = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Shop', to: '/shop' },
+  { label: product.value?.name ?? 'Product' },
+])
 
 // Trigger: Load product when slug changes
 async function loadProduct(slug: string): Promise<void> {
@@ -97,13 +104,7 @@ watch(() => route.params.slug, (slug) => {
         <!-- Section: Product Info -->
         <div class="w-full md:w-1/2 space-y-6">
           <!-- Section: Breadcrumb -->
-          <nav class="flex items-center gap-2 text-sm text-gray-500">
-            <router-link to="/" class="hover:text-gray-900">Home</router-link>
-            <i class="pi pi-chevron-right text-xs" />
-            <router-link to="/shop" class="hover:text-gray-900">Shop</router-link>
-            <i class="pi pi-chevron-right text-xs" />
-            <span class="text-gray-900">{{ product.name }}</span>
-          </nav>
+          <Breadcrumb :model="breadcrumbItems" class="mb-4" />
 
           <h1 class="text-2xl font-bold text-gray-900">{{ product.name }}</h1>
 

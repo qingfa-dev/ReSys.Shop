@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useCatalogStore } from '../stores/catalogStore'
@@ -50,6 +50,12 @@ function applyFilters(): void {
 }
 
 // Map: Sort dropdown options using the querying sort DSL
+// Map: Breadcrumb trail for the shop page
+const breadcrumbItems = computed(() => [
+  { label: 'Home', to: '/' },
+  { label: 'Shop' },
+])
+
 const sortOptions = [
   { label: 'Newest', value: '-createdAtUtc' },
   { label: 'Price: Low-High', value: 'Variants.Prices.Amount' },
@@ -126,6 +132,8 @@ watch(() => route.query.search, (val) => {
 <template>
   <!-- Section: Shop Page -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Section: Breadcrumb -->
+    <Breadcrumb :model="breadcrumbItems" class="mb-4" />
     <div class="flex gap-8">
       <!-- Section: Sidebar Filters -->
       <aside class="w-64 shrink-0 hidden lg:block space-y-6">
