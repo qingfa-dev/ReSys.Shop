@@ -1,4 +1,5 @@
 import { productApiRepository } from '../../repositories/product/product.api'
+import { buildProductFilter } from '../../types/params/product.params'
 import type { IProductService } from './product.service.interface'
 import type { Product, ProductFilter } from '../../types'
 import type { PagedResult, Result } from '@/core/models/result'
@@ -9,12 +10,8 @@ export class ProductService implements IProductService {
   private readonly productRepository = productApiRepository
 
   async getProducts(filter?: ProductFilter, page = 1, pageSize = 12): Promise<PagedResult<Product>> {
-    const paging = { page, pageSize }
-    const filterStr = filter ? JSON.stringify(filter) : undefined
-    const response = await this.productRepository.getAll({
-      paging,
-      filter: filterStr ? { filter: filterStr } : undefined,
-    })
+    const params = { ...buildProductFilter(filter ?? {}), page, pageSize }
+    const response = await this.productRepository.getAll(params)
     return {
       ...response,
       items: response.items.map(mapResponseToEntity),
@@ -33,8 +30,10 @@ export class ProductService implements IProductService {
 
   async searchProducts(query: string, limit = 10): Promise<Result<Product[]>> {
     const response = await this.productRepository.getAll({
-      paging: { page: 1, pageSize: limit },
-      search: { search: query, searchFields: ['name', 'description'] },
+      search: query,
+      searchFields: ['Name', 'Description'],
+      page: 1,
+      pageSize: limit,
     })
     if (response.isFailure) {
       return fail(response.message ?? 'Search failed', response.statusCode, response.errors)
@@ -44,8 +43,8 @@ export class ProductService implements IProductService {
 
   async getFeaturedProducts(limit = 8): Promise<Result<Product[]>> {
     const response = await this.productRepository.getAll({
-      paging: { page: 1, pageSize: limit },
-      filter: { filter: JSON.stringify({ featured: 'true' }) },
+      page: 1,
+      pageSize: limit,
     })
     if (response.isFailure) {
       return fail(response.message ?? 'Failed to get featured products', response.statusCode, response.errors)
@@ -55,8 +54,9 @@ export class ProductService implements IProductService {
 
   async getNewArrivals(limit = 8): Promise<Result<Product[]>> {
     const response = await this.productRepository.getAll({
-      paging: { page: 1, pageSize: limit },
-      sort: { sortBy: 'createdAt', sortOrder: 'desc' },
+      page: 1,
+      pageSize: limit,
+      sort: ['-CreatedAtUtc'],
     })
     if (response.isFailure) {
       return fail(response.message ?? 'Failed to get new arrivals', response.statusCode, response.errors)
