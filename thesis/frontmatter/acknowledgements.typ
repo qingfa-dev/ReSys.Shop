@@ -1,29 +1,35 @@
+// Acknowledgements
 #import "../info.typ": *
 #import "../template/i18n.typ": term
 
 #let lang = settings.primary_lang
-#let data = info.at(lang, default: info.en)
+#let data = info.at(lang)
 
 #heading(level: 1, numbering: none, outlined: true)[#term(lang, "acknowledgments_title")]
 #v(1cm)
 #set align(left)
 #set par(first-line-indent: 1cm, justify: true)
 
-I would like to express my sincere gratitude to Dr. Tran Cong An, my thesis advisor, for his guidance, continuous feedback, and support throughout this research.
+#if lang == "vi" [
+  Em xin bày tỏ lòng biết ơn sâu sắc nhất và lời cảm ơn chân thành đến cán bộ hướng dẫn, #data.advisor.name, người đã không chỉ tận tình chỉ dẫn mà còn dành rất nhiều thời gian, tâm huyết để hỗ trợ và dẫn dắt em vượt qua những giai đoạn thử thách nhất của luận văn này. Em cũng xin gửi lời tri ân đến quý thầy cô Trường Công nghệ Thông tin và Truyền thông - Đại học Cần Thơ đã truyền thụ những kiến thức quý báu trong suốt những năm học qua.
 
-I also thank the members of the Thesis Defense Committee for their time, thorough evaluation, and constructive comments.
+  Đặc biệt, con xin gửi lời cảm ơn vô hạn đến gia đình, những người đã luôn kề vai sát cánh, đồng hành và là chỗ dựa vững chắc nhất để con có thể hoàn thành tốt chặng đường này. Em cũng xin cảm ơn những người bạn đã luôn khích lệ và đồng hành cùng em trong suốt thời gian học tập và thực hiện đề tài.
+] else [
+  I wish to express my deepest gratitude and sincere thanks to my advisor, #data.advisor.name, who dedicated immense time, patience, and effort to guide me through every challenge of this thesis. His invaluable support was the cornerstone of this work. I would also like to thank the lecturers at Can Tho University for their invaluable knowledge and guidance throughout my studies.
 
-My sincere appreciation goes to the Faculty of Information Technology, Can Tho University, for providing the academic foundation that supported this work, and to the High-Quality Program for fostering the engineering discipline applied throughout this thesis.
-
-Finally, I am deeply grateful to my family for their constant encouragement, patience, and unwavering support throughout my studies and the completion of this work.
+  Most importantly, I am profoundly grateful to my family for being my constant companions, offering their unwavering love, care, and support throughout this journey. I am also thankful to my friends for their continuous encouragement and companionship.
+]
 
 #v(1cm)
 #set align(right)
 #set par(first-line-indent: 0cm)
 
-Sincerely,
+#if lang == "vi" [
+  Trân trọng,
+] else [
+  Sincerely,
+]
 
-#v(0.3cm)
 #data.thesis.location, #data.thesis.date
 
 #v(1cm)

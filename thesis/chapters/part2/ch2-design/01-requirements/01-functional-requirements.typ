@@ -1,10 +1,10 @@
 === Functional Requirements
 
-The system's capabilities are specified as traceable functional requirements organized by *business module*. Each table enumerates specific functional requirements with unique identifiers referenced throughout the design, implementation, and evaluation chapters. Features are implemented via *vertical slices*, as detailed in Section 2.4.1.
+Functional requirements are organized by business module with unique identifiers traceable throughout design, implementation, and evaluation chapters.
 
 ==== Catalog Module
 
-The Catalog module manages the product lifecycle, including entity creation, classification, image handling, and the CBIR infrastructure powering visual product search.
+Manages product lifecycle, classification, image handling, and CBIR infrastructure.
 
 #figure(
   table(
@@ -44,7 +44,7 @@ The Catalog module manages the product lifecycle, including entity creation, cla
 
 ==== Identity Module
 
-The Identity module provides authentication, dynamic authorization, and user management using JWT access tokens @jones2015jwt with refresh token rotation.
+Authentication, authorization, and user management with JWT access tokens and refresh token rotation.
 
 #figure(
   table(
@@ -78,7 +78,7 @@ The Identity module provides authentication, dynamic authorization, and user man
 
 ==== Inventory Module
 
-The Inventory module tracks stock quantities across physical locations, manages checkout reservations to prevent overselling, and maintains audit ledgers.
+Stock tracking, checkout reservations, and audit ledgers.
 
 #figure(
   table(
@@ -108,7 +108,7 @@ The Inventory module tracks stock quantities across physical locations, manages 
 
 ==== Ordering Module
 
-The Ordering module governs purchase workflows from shopping cart creation through checkout state transitions to completed orders.
+Shopping cart through checkout state transitions to completed orders.
 
 #figure(
   table(
@@ -140,7 +140,7 @@ The Ordering module governs purchase workflows from shopping cart creation throu
 
 ==== Payment Module
 
-The Payment module handles payment intent lifecycles across external payment providers (Stripe) and internal test gateways.
+Payment intent lifecycles across Stripe and internal test gateways.
 
 #figure(
   table(
@@ -168,7 +168,7 @@ The Payment module handles payment intent lifecycles across external payment pro
 
 ==== Shipping Module
 
-The Shipping module configures delivery options, geographic destination zones, and dynamic rate calculation algorithms.
+Delivery options, geographic zones, and rate calculation.
 
 #figure(
   table(
@@ -192,7 +192,7 @@ The Shipping module configures delivery options, geographic destination zones, a
 
 ==== Profile Module
 
-The Profile module connects user identity records to customer preferences, addresses, and saved items.
+Customer preferences, addresses, and saved items.
 
 #figure(
   table(
@@ -213,7 +213,7 @@ The Profile module connects user identity records to customer preferences, addre
 
 ==== Location Module
 
-The Location module manages reference data for countries and regional states used in address validation, tax, and shipping zone evaluation.
+Reference data for countries and states used in address validation and shipping zones.
 
 #figure(
   table(
@@ -232,22 +232,3 @@ The Location module manages reference data for countries and regional states use
   kind: table,
   caption: [Location module functional requirements.],
 ) <loc-functional-requirements>
-
-==== Dashboard Module
-
-The Dashboard module consolidates key performance indicators across all business domains for operational review.
-
-#figure(
-  table(
-    columns: (1.5fr, 2fr, 3.8fr, 1.3fr),
-    stroke: 0.5pt,
-    align: (center, left, left + horizon, center + horizon),
-    inset: 5.5pt,
-
-    table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
-
-    [DSH-FR-01], [Aggregate Dashboard], [Aggregate metrics (catalog size, order volumes, stock alerts, user activity) into a unified administrative view.], [Medium],
-  ),
-  kind: table,
-  caption: [Dashboard module functional requirements.],
-) <dsh-functional-requirements>

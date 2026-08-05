@@ -1,0 +1,349 @@
+
+=== DIRECTORY TREE (max depth 3, source files only) ===
+.editorconfig
+.github
+.github/PULL_REQUEST_TEMPLATE.md
+.github/workflows
+.github/workflows/ci.yml
+.gitignore
+.superpowers
+.superpowers/sdd
+.superpowers/sdd/phase10-report.md
+.superpowers/sdd/phase9-report.md
+.superpowers/sdd/task-7.1-7.3-report.md
+.superpowers/sdd/v2-wave3-report.md
+.superpowers/sdd/v4-verify-report.md
+AGENTS.md
+Directory.Build.props
+Directory.Build.targets
+Directory.Packages.props
+LICENSE
+README.md
+ReSys.Shop.slnx
+app
+app/.gitkeep
+app/Admin
+app/Admin/.editorconfig
+app/Admin/.gitattributes
+app/Admin/.gitignore
+app/Admin/.oxfmtrc.json
+app/Admin/.oxlintrc.json
+app/Admin/.vscode
+app/Admin/.vscode/extensions.json
+app/Admin/README.md
+app/Admin/components.d.ts
+app/Admin/env.d.ts
+app/Admin/eslint.config.ts
+app/Admin/index.html
+app/Admin/package.json
+app/Admin/pnpm-lock.yaml
+app/Admin/pnpm-workspace.yaml
+app/Admin/public
+app/Admin/public/favicon.ico
+app/Admin/src
+app/Admin/src/App.vue
+app/Admin/src/__tests__
+app/Admin/src/app
+app/Admin/src/assets
+app/Admin/src/auto-imports.d.ts
+app/Admin/src/features
+app/Admin/src/main.ts
+app/Admin/src/router
+app/Admin/src/shared
+app/Admin/src/stores
+app/Admin/tsconfig.app.json
+app/Admin/tsconfig.json
+app/Admin/tsconfig.node.json
+app/Admin/tsconfig.vitest.json
+app/Admin/vite.config.ts
+app/Admin/vitest.config.ts
+app/Store
+app/Store/.editorconfig
+app/Store/.env.development
+app/Store/.gitattributes
+app/Store/.gitignore
+app/Store/.oxfmtrc.json
+app/Store/.oxlintrc.json
+app/Store/.vscode
+app/Store/.vscode/extensions.json
+app/Store/env.d.ts
+app/Store/eslint.config.ts
+app/Store/index.html
+app/Store/package.json
+app/Store/pnpm-lock.yaml
+app/Store/pnpm-workspace.yaml
+app/Store/public
+app/Store/public/favicon.ico
+app/Store/src
+app/Store/src/App.vue
+app/Store/src/__tests__
+app/Store/src/api.ts
+app/Store/src/assets
+app/Store/src/main.ts
+app/Store/src/router
+app/Store/src/stores
+app/Store/src/views
+app/Store/tsconfig.app.json
+app/Store/tsconfig.json
+app/Store/tsconfig.node.json
+app/Store/tsconfig.vitest.json
+app/Store/vite.config.ts
+app/Store/vitest.config.ts
+app/lagacy
+app/lagacy/Admin
+app/lagacy/Admin/.editorconfig
+app/lagacy/Admin/.env.development
+app/lagacy/Admin/.gitignore
+app/lagacy/Admin/.oxfmtrc.json
+app/lagacy/Admin/.oxlintrc.json
+app/lagacy/Admin/.vscode
+app/lagacy/Admin/README.md
+app/lagacy/Admin/components.d.ts
+app/lagacy/Admin/env.d.ts
+app/lagacy/Admin/eslint.config.ts
+app/lagacy/Admin/index.html
+app/lagacy/Admin/package.json
+app/lagacy/Admin/pnpm-lock.yaml
+app/lagacy/Admin/pnpm-workspace.yaml
+app/lagacy/Admin/public
+app/lagacy/Admin/src
+app/lagacy/Admin/tsconfig.app.json
+app/lagacy/Admin/tsconfig.json
+app/lagacy/Admin/tsconfig.node.json
+app/lagacy/Admin/tsconfig.vitest.json
+app/lagacy/Admin/vite.config.ts
+app/lagacy/Admin/vitest.config.ts
+app/lagacy/ReSys.Admin
+app/lagacy/ReSys.Admin/.editorconfig
+app/lagacy/ReSys.Admin/.gitattributes
+app/lagacy/ReSys.Admin/.gitignore
+app/lagacy/ReSys.Admin/.prettierrc.json
+app/lagacy/ReSys.Admin/.vscode
+app/lagacy/ReSys.Admin/README.md
+app/lagacy/ReSys.Admin/env.d.ts
+app/lagacy/ReSys.Admin/eslint.config.ts
+app/lagacy/ReSys.Admin/index.html
+app/lagacy/ReSys.Admin/package-lock.json
+app/lagacy/ReSys.Admin/package.json
+app/lagacy/ReSys.Admin/postcss.config.ts
+app/lagacy/ReSys.Admin/public
+app/lagacy/ReSys.Admin/src
+app/lagacy/ReSys.Admin/tailwind.config.js
+app/lagacy/ReSys.Admin/tsconfig.app.json
+app/lagacy/ReSys.Admin/tsconfig.json
+app/lagacy/ReSys.Admin/tsconfig.node.json
+app/lagacy/ReSys.Admin/vite.config.ts
+app/lagacy/ReSys.Admin/vitest.config.ts
+app/lagacy/shop
+app/lagacy/shop/.editorconfig
+app/lagacy/shop/.gitattributes
+app/lagacy/shop/.gitignore
+app/lagacy/shop/.oxfmtrc.json
+app/lagacy/shop/.oxlintrc.json
+app/lagacy/shop/.vscode
+app/lagacy/shop/README.md
+app/lagacy/shop/components.d.ts
+app/lagacy/shop/env.d.ts
+app/lagacy/shop/eslint.config.ts
+app/lagacy/shop/index.html
+app/lagacy/shop/package.json
+app/lagacy/shop/pnpm-lock.yaml
+app/lagacy/shop/pnpm-workspace.yaml
+app/lagacy/shop/public
+app/lagacy/shop/samples
+app/lagacy/shop/src
+app/lagacy/shop/tsconfig.app.json
+app/lagacy/shop/tsconfig.json
+app/lagacy/shop/tsconfig.node.json
+app/lagacy/shop/tsconfig.vitest.json
+app/lagacy/shop/vite.config.ts
+app/lagacy/shop/vitest.config.ts
+app/references
+app/references/sakai-vue
+benchmarks
+benchmarks/.gitignore
+benchmarks/.python-version
+benchmarks/AGENTS.md
+benchmarks/PROJECT_COMPARISON.md
+benchmarks/README.md
+benchmarks/configs
+benchmarks/configs/benchmark.yaml
+benchmarks/configs/datasets.yaml
+benchmarks/configs/hardware.yaml
+benchmarks/configs/metrics.yaml
+benchmarks/configs/models
+benchmarks/configs/models/clip_vit_b32.yaml
+benchmarks/configs/models/clip_vit_l14.yaml
+benchmarks/configs/models/eva_clip.yaml
+benchmarks/configs/models/fashion_clip.yaml
+benchmarks/configs/models/siglip.yaml
+benchmarks/data
+benchmarks/data/metadata
+benchmarks/data/metadata/.gitkeep
+benchmarks/data/splits
+benchmarks/data/splits/.gitkeep
+benchmarks/docs
+benchmarks/docs/01-overview.md
+benchmarks/docs/02-models.md
+benchmarks/docs/03-metrics.md
+benchmarks/docs/04-pipeline.md
+benchmarks/docs/05-datasets.md
+benchmarks/docs/06-thesis-protocol.md
+benchmarks/docs/07-references.md
+benchmarks/docs/08-replication-guide.md
+benchmarks/docs/09-benchmark-results.md
+benchmarks/docs/09-visual-similarity-attributes.md
+benchmarks/docs/10-benchmark-comparison.md
+benchmarks/docs/10-visual-similarity-pipeline.md
+benchmarks/docs/11-documentation-review.md
+benchmarks/docs/11-enriched-dataset.md
+benchmarks/docs/12-final-review.md
+benchmarks/docs/README.md
+benchmarks/docs/codebase
+
+=== STACK DETECTION (manifest files) ===
+
+--- ReSys.Shop.slnx ---
+<Solution>
+  <Folder Name="/infra/" />
+  <Folder Name="/infra/Aspire/" />
+  <Folder Name="/infra/Aspire/src/">
+    <Project Path="infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj" />
+    <Project Path="infra/Aspire/src/ReSys.ServiceDefaults/ReSys.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/service/" />
+  <Folder Name="/service/Api/" />
+  <Folder Name="/service/Api/src/">
+    <Project Path="service/Api/src/Api/Api.csproj" />
+    <Project Path="service/Api/src/Migrations/Api.Migrations.csproj" />
+    <Project Path="service/Api/src/Module/Module.csproj" />
+    <Project Path="service/Api/src/Shared/Shared.csproj" />
+  </Folder>
+  <Folder Name="/service/Api/tests/">
+    <Project Path="service/Api/tests/Api.Tests/Api.Tests.csproj" />
+    <Project Path="service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/service/Api/tests/Module.UnitTests/">
+    <Project Path="service/Api/tests/Module.UnitTests/Module.UnitTests.csproj" />
+  </Folder>
+</Solution>
+--- global.json ---
+{
+  "sdk": {
+    "version": "10.0.301",
+    "rollForward": "latestPatch"
+  },
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+
+=== ENTRY POINTS ===
+No common entry points found. Check 'main' or 'scripts.start' in manifest files above.
+
+=== LINTING AND FORMATTING CONFIG ===
+Found: .editorconfig
+
+=== ENVIRONMENT VARIABLE TEMPLATES ===
+No .env.example or .env.template found. Identify required environment variables by searching the code and config for environment variable reads.
+
+=== TODO / FIXME / HACK (production code only, test dirs excluded) ===
+app/lagacy/ReSys.Admin/src/features/ordering/fulfillment/services/fulfillment.service.ts:14: // TODO: Implement complex shipment creation (requires selecting stock location and inventory units)
+app/lagacy/shop/src/features/recommendations/store/recommendations.ts:26: // TODO: Call recommendations service
+app/lagacy/shop/src/features/recommendations/store/recommendations.ts:37: // TODO: Call recommendations service
+guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
+guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
+guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
+guide/code-commenting/CommentingRules.xml:933: <Marker name="TODO">
+guide/code-commenting/CommentingRules.xml:934: <Format>// TODO(jane.smith, 2026-06-01): Replace with PaymentService v2 — TICKET-1234</Format>
+guide/code-commenting/CommentingRules.xml:938: <Marker name="FIXME">
+guide/code-commenting/CommentingRules.xml:939: <Format>// FIXME(ops-team, 2026-04-15): Memory leak on scroll listener — TICKET-5678</Format>
+guide/code-commenting/CommentingRules.xml:943: <Marker name="HACK">
+guide/code-commenting/CommentingRules.xml:944: <Format>// HACK(platform, 2026-03-01): Workaround for rate-limit bug in SDK v3.1 — TICKET-9999</Format>
+guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules for TODO/FIXME/BREAKING format enforcement.</Task>
+guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules for TODO/FIXME/BREAKING format enforcement.</Task>
+service/Api/src/Module/Ordering/Domain/Orders/Order.Method.Checkout.cs:68: // TODO: Implement product-type-based delivery check (physical vs digital).
+
+=== GIT RECENT COMMITS (last 20) ===
+625e6a99 refactor: list pages become thin wrappers, extract list table components
+4ac2db3f refactor: per-entity schemas/api/composables + taxon/option-value sub-modules
+aff02767 feat: catalog i18n — all hardcoded strings replaced with t() calls
+3f1494a8 feat: catalog i18n — all strings use t() from vue-i18n
+3c289198 refactor: catalog request types derive from schemas, rename api to entity.api.ts pattern
+8bcd506e docs: add feature module convention ref + catalog refactoring plan
+16b01a66 refactor: add meta.icon to all catalog routes, display in PageHeader
+7b0872dd feat: catalog pages display route icon in header
+e272910f refactor: catalog pages use typed route name constants
+9f166783 refactor: colocate route files with features (auth pattern)
+5cb83c79 refactor(auth): extract mapper classes, unify CurrentUser in shared types
+6bb47157 chore: catalog module — fix lint errors (vi.fn type params, unused imports, useConfirm API)
+01b29749 feat: implement TaxonomyDetailPage with inline taxons sub-table
+80b93ff0 feat: implement TaxonomyListPage
+1e6f8dc6 feat: implement ProductDetailPage with create/view/edit modes
+fea61ba1 feat: implement ProductListPage with search, pagination, row actions
+a563c3f0 feat: implement Catalog DashboardPage with KPI cards
+1dfee8d6 feat: add catalog taxonomies + optionTypes API services with tests
+d67691e4 feat: add catalog products API service with tests
+0c13251c feat: add catalog TypeScript model interfaces
+
+=== HIGH-CHURN FILES (last 90 days, top 20) ===
+  30 service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs
+  26 service/Api/src/Api/appsettings.Development.json
+  20 service/Api/src/Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs
+  20 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs
+  20 service/Api/src/Module/Payment/Payment.Extension.cs
+  19 app/Admin/package.json
+  19 app/Admin/pnpm-lock.yaml
+  19 app/Admin/src/features/auth/services/auth.service.ts
+  19 service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs
+  19 service/Api/src/Module/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs
+  19 service/Api/src/Api/Program.cs
+  19 service/Api/src/Module/Ordering/Features/Storefront/Orders/Cancel/CancelOrder.cs
+  18 app/Admin/src/app/router/index.ts
+  18 app/Admin/src/features/catalog/products/views/ProductList.View.vue
+  18 service/Api/src/Api/appsettings.json
+  18 service/Api/src/Module/Payment/Features/Admin/Payments/Refund/RefundPayment.cs
+  17 app/Admin/components.d.ts
+  17 app/Admin/src/features/users/services/user.service.ts
+  17 app/Admin/src/features/catalog/products/views/ProductForm.View.vue
+  17 app/Admin/src/features/catalog/taxonomies/views/TaxonomyList.View.vue
+
+=== MONOREPO SIGNALS ===
+No monorepo signals detected.
+
+=== CODE METRICS ===
+Total files scanned: 5236
+Total lines of code: 534353
+
+Files by language:
+  C#: 3047
+  TypeScript: 1161
+  Other: 844
+  Python: 183
+  JavaScript: 1
+
+Top 10 largest files:
+benchmarks/outputs/thesis/splits/fold_2_train.json: 525.9KB
+benchmarks/outputs/thesis/splits/fold_1_train.json: 525.7KB
+benchmarks/outputs/thesis/splits/fold_0_train.json: 525.4KB
+service/Embedding/uv.lock: 376.2KB
+benchmarks/outputs/pipeline/splits/fold_2_train.json: 365.5KB
+benchmarks/outputs/pipeline/splits/fold_0_train.json: 365.0KB
+benchmarks/outputs/pipeline/splits/fold_1_train.json: 364.9KB
+benchmarks/outputs/pipeline.v1/splits/fold_2_train.json: 346.1KB
+benchmarks/outputs/pipeline.v1/splits/fold_0_train.json: 345.6KB
+benchmarks/outputs/pipeline.v1/splits/fold_1_train.json: 345.5KB
+
+=== CI/CD PIPELINES ===
+CI/CD: GitHub Actions
+
+=== CONTAINERS & ORCHESTRATION ===
+No containerization configs detected.
+
+=== SECURITY & COMPLIANCE ===
+No security configs detected.
+
+=== PERFORMANCE & TESTING ===
+No performance testing configs detected.
+
+=== SCAN COMPLETE ===

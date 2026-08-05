@@ -1,0 +1,87 @@
+```mermaid
+%% Use Case Diagram — ReSys.Shop
+%% Based on Chapter 2 — Requirements Analysis
+
+graph LR
+    subgraph "Actors"
+        C["👤 Customer<br/>(Guest / Authenticated)"]
+        A["👤 Administrator"]
+        S["⚙️ System<br/>(Background Jobs)"]
+    end
+
+    subgraph "Catalog"
+        UC1["UC-CAT-01: Browse products"]
+        UC2["UC-CAT-02: Search by image"]
+        UC3["UC-CAT-03: View product details"]
+        UC4["UC-CAT-04: Manage products<br/>(Admin)"]
+        UC5["UC-CAT-05: Manage taxonomies<br/>(Admin)"]
+        UC6["UC-CAT-06: Upload variant images<br/>(Admin)"]
+    end
+
+    subgraph "Ordering"
+        UC7["UC-ORD-01: Add to cart"]
+        UC8["UC-ORD-02: Checkout"]
+        UC9["UC-ORD-03: View order history"]
+        UC10["UC-ORD-04: Cancel order"]
+        UC11["UC-ORD-05: Manage orders<br/>(Admin)"]
+        UC12["UC-ORD-06: Expire abandoned carts<br/>(System)"]
+    end
+
+    subgraph "Identity & Profile"
+        UC13["UC-ID-01: Register / Login"]
+        UC14["UC-ID-02: Login with Google"]
+        UC15["UC-ID-03: Reset password"]
+        UC16["UC-PROF-01: Manage addresses"]
+        UC17["UC-PROF-02: Manage wishlist"]
+        UC18["UC-PROF-03: Set notification preferences"]
+        UC19["UC-ID-04: Manage users & roles<br/>(Admin)"]
+    end
+
+    subgraph "Payment & Shipping"
+        UC20["UC-PAY-01: Create payment intent"]
+        UC21["UC-PAY-02: Confirm payment"]
+        UC22["UC-PAY-03: Refund / capture<br/>(Admin)"]
+        UC23["UC-PAY-04: Handle Stripe webhook<br/>(System)"]
+        UC24["UC-SHIP-01: Calculate shipping"]
+        UC25["UC-SHIP-02: Configure methods<br/>(Admin)"]
+    end
+
+    C --> UC1
+    C --> UC2
+    C --> UC3
+    C --> UC7
+    C --> UC8
+    C --> UC9
+    C --> UC10
+    C --> UC13
+    C --> UC14
+    C --> UC15
+    C --> UC16
+    C --> UC17
+    C --> UC18
+    C --> UC20
+    C --> UC21
+    C --> UC24
+
+    A --> UC4
+    A --> UC5
+    A --> UC6
+    A --> UC11
+    A --> UC19
+    A --> UC22
+    A --> UC25
+
+    S --> UC12
+    S --> UC23
+```
+
+## Diagram Description
+
+The Use Case diagram maps actors to functional requirements. Key observations:
+
+1. **Customers** interact with storefront features across Catalog, Ordering, Identity, Profile, Payment, and Shipping.
+2. **Administrators** have exclusive access to Admin-surface features (product management, user management, payment operations).
+3. **System** actor represents automated background processes (cart expiry, Stripe webhook handling) that require no human intervention.
+4. The diagram aligns with the `Features/{Admin|Storefront}/` directory structure in the codebase.
+
+**Evidence**: `Module/*/Features/Admin/` and `Module/*/Features/Storefront/` directories, `ApiTests/` structure

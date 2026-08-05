@@ -13,7 +13,6 @@ public record StoreProductDetailResponse : ProductDetailResponse
 public record StoreProductListItemResponse : ProductListItemResponse
 {
     public decimal? MinPrice { get; init; }
-    public decimal? MaxPrice { get; init; }
     public string? Currency { get; init; }
     public string? ThumbnailUrl { get; init; }
     public string? ThumbnailAlt { get; init; }

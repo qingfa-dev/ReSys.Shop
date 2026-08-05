@@ -1,0 +1,90 @@
+```mermaid
+%% Class Diagram: Embedding Model Hierarchy (Strategy Pattern)
+%% Based on Chapter 7 — Detailed Design
+
+classDiagram
+    class BaseEmbeddingModel {
+        <<abstract>>
+        +model_name: str [class attr]
+        +vector_dim: int [class attr]
+        -_model: Any
+        -_preprocess: Any
+        -_device: str
+        +__init__()
+        +warmup() void
+        +is_loaded() bool
+        +encode_image(image: PIL.Image) np.ndarray
+        #_load() void*
+        #_ensure_loaded() void
+        #_to_numpy(tensor: Any) np.ndarray
+        #_l2_normalize(vector: np.ndarray) np.ndarray
+    }
+
+    class FashionCLIPModel {
+        +model_name = "fashion-clip"
+        +vector_dim = 512
+        #_load() void
+        +encode_image(image) np.ndarray
+    }
+
+    class ResNet50Model {
+        +model_name = "resnet50"
+        +vector_dim = 2048
+        #_load() void
+        +encode_image(image) np.ndarray
+    }
+
+    class EfficientNetB0Model {
+        +model_name = "efficientnet_b0"
+        +vector_dim = 1280
+        #_load() void
+        +encode_image(image) np.ndarray
+    }
+
+    class CLIPGenericModel {
+        +model_name = "clip"
+        +vector_dim = 512
+        #_load() void
+        +encode_image(image) np.ndarray
+    }
+
+    BaseEmbeddingModel <|-- FashionCLIPModel
+    BaseEmbeddingModel <|-- ResNet50Model
+    BaseEmbeddingModel <|-- EfficientNetB0Model
+    BaseEmbeddingModel <|-- CLIPGenericModel
+
+    class EmbeddingService {
+        +MODEL_REGISTRY: dict~str, type[BaseEmbeddingModel]~
+        +_DEFAULT_MODEL_NAME: str
+        -_loaded_models: dict~str, BaseEmbeddingModel~
+        +get_model(model_name: str) BaseEmbeddingModel
+        +list_available_models() list[dict]
+        +encode_image(image, model_name) dict
+        +warmup_default_model() void
+    }
+
+    EmbeddingService --> BaseEmbeddingModel : uses registry
+```
+
+## Diagram Description
+
+This class diagram illustrates the **Strategy pattern** applied to embedding model selection in the Python sidecar.
+
+**Key design decisions**:
+
+1. **Abstract base class (`BaseEmbeddingModel`)** — Defines the contract: `encode_image(image) → np.ndarray`. All concrete models implement lazy loading (`_load()`) and L2 normalization.
+2. **Class attributes for metadata** — `model_name` and `vector_dim` are class-level constants, enabling the registry to inspect models without instantiating them.
+3. **Lazy loading** — Models are loaded on first use (`_ensure_loaded()`), not at import time. This keeps sidecar startup fast and avoids loading 4 large models into memory simultaneously.
+4. **Singleton cache (`_loaded_models`)** — Once a model is loaded, it is cached process-wide. Switching models requires a sidecar restart (acceptable for the evaluation protocol in §11.5).
+5. **Registry pattern (`MODEL_REGISTRY`)** — Maps string identifiers to model classes. This enables runtime selection via env var or query parameter without conditional chains.
+
+**Comparative dimensions**:
+
+| Model | Library | Vector Dim | Pretraining | Hypothesized Strength |
+|-------|---------|-----------|-------------|----------------------|
+| Fashion-CLIP | open_clip | 512 | LAION-400M + fashion | Highest mAP (H1) |
+| ResNet-50 | torchvision | 2048 | ImageNet-1K | Baseline CNN |
+| EfficientNet-B0 | timm | 1280 | ImageNet-1K (AutoML) | Best mAP/ms (H2) |
+| CLIP-generic | transformers | 512 | OpenAI WIT-400M | Semantic > visual (H4) |
+
+**Evidence**: `service/Embedding/src/infra/models/base.py`, `service/Embedding/src/infra/models/fashion_clip.py`, `service/Embedding/src/infra/models/resnet_model.py`, `service/Embedding/src/infra/models/efficientnet_model.py`, `service/Embedding/src/infra/models/clip.py`, `service/Embedding/src/services/embedding_service.py`

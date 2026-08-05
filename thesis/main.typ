@@ -1,3 +1,7 @@
+// ============================================================================
+// CTU GRADUATION THESIS - MAIN FILE
+// ============================================================================
+
 #import "info.typ": *
 #import "template/ctu-styles.typ": ctu-styles
 #import "template/i18n.typ": term
@@ -20,14 +24,21 @@
 #cover-page(lang: lang)
 #inner-cover-page(lang: lang)
 
+#import "frontmatter/confirmation.typ": confirmation-page
+#confirmation-page(lang: lang)
+
 #include "frontmatter/evaluation.typ"
 #include "frontmatter/acknowledgements.typ"
+
 #include "frontmatter/table-of-contents.typ"
 #pagebreak()
+
 #include "frontmatter/list-of-figures.typ"
 #pagebreak()
+
 #include "frontmatter/list-of-tables.typ"
 #pagebreak()
+
 #include "frontmatter/abbreviations.typ"
 #include "frontmatter/abstract.typ"
 
@@ -68,8 +79,19 @@
 
 // Part 3: Conclusion
 #part-heading[#term(lang, "part") 3: CONCLUSION AND FUTURE WORK]
-#set heading(numbering: "1.1")
 #counter(heading).step()
+// Roman numerals for Part 3 (no chapters, only subsections — same as Part 1)
+#set heading(numbering: (..nums) => {
+  let values = nums.pos()
+  if values.len() == 1 {
+    numbering("I.", ..values)
+  } else if values.len() == 2 {
+    numbering("I.", values.at(1))
+  } else {
+    none
+  }
+})
+#show heading.where(level: 3): set heading(outlined: false)
 #include "chapters/part3-conclusion.typ"
 
 // Back matter

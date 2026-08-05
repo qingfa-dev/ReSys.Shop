@@ -1,0 +1,79 @@
+```mermaid
+%% Class Diagram: Payment Aggregate (Payment Context)
+%% Based on Chapter 4 — Domain Analysis
+
+classDiagram
+    class PaymentIntent {
+        +Guid Id
+        +Guid OrderId
+        +string GatewayId
+        +string GatewayType
+        +PaymentStatus Status
+        +decimal Amount
+        +string Currency
+        +string? ClientSecret
+        +DateTimeOffset CreatedAtUtc
+        --
+        +Create() PaymentIntent
+        +Confirm() Result~PaymentIntent~
+        +Capture() Result~PaymentCapture~
+    }
+
+    class PaymentCapture {
+        +Guid Id
+        +Guid PaymentIntentId
+        +decimal Amount
+        +string Currency
+        +CaptureStatus Status
+        +string? GatewayCaptureId
+        +DateTimeOffset CreatedAtUtc
+        --
+        +Create() PaymentCapture
+        +Refund(decimal amount) Result~PaymentCapture~
+        +Void() Result~PaymentCapture~
+    }
+
+    class PaymentMethod {
+        +Guid Id
+        +string Type
+        +string? LastFourDigits
+        +string? Brand
+        +int? ExpiryMonth
+        +int? ExpiryYear
+        +bool IsDefault
+    }
+
+    class PaymentStatus {
+        <<enumeration>>
+        Pending
+        RequiresAction
+        Processing
+        Succeeded
+        Canceled
+        Failed
+    }
+
+    class CaptureStatus {
+        <<enumeration>>
+        Pending
+        Captured
+        Refunded
+        Voided
+    }
+
+    PaymentIntent "1" --> "0..*" PaymentCapture : hasCaptures
+    PaymentIntent --> PaymentStatus : status
+    PaymentCapture --> CaptureStatus : status
+    PaymentIntent --> PaymentMethod : method
+```
+
+## Diagram Description
+
+The Payment aggregate models the **money-moving lifecycle** with strict state transitions. Key design decisions:
+
+1. **PaymentIntent mirrors Stripe's model** — This allows the same domain logic to work with both Stripe and the Bogus gateway.
+2. **PaymentCapture is a separate entity** — One PaymentIntent can have multiple captures (partial captures) and refunds.
+3. **Status enums enforce valid transitions** — Invalid state changes are rejected at the domain layer.
+4. **Gateway-agnostic design** — `GatewayId` and `GatewayType` abstract over Stripe, Bogus, or future providers.
+
+**Evidence**: `Module/Payment/Domain/PaymentCaptures/PaymentCapture.cs`, `Module/Payment/Domain/PaymentCaptures/PaymentCapture.Method.State.cs`, `Module/Payment/Domain/PaymentMethods/PaymentMethod.cs`

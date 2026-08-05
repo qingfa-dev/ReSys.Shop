@@ -1,6 +1,6 @@
 === C4 Architecture
 
-The C4 model structures software architecture across four abstraction levels: system context, container, component, and code. This section presents the first three C4 levels for ReSys.Shop alongside a deployment view, omitting code-level structures addressed in later implementation sections.
+The C4 model structures software architecture across four abstraction levels: system context, container, component, and code. This section presents the first three C4 levels, omitting code-level structures addressed in later implementation sections.
 
 ==== System Context
 
@@ -12,15 +12,15 @@ The system context positions ReSys.Shop within its operational environment, defi
 ) <fig-c4-context>
 
 The platform interacts with two human user groups:
-- *Customers:* Browse the catalog, run visual and keyword searches, manage carts, and complete checkouts via the Vue 3 storefront SPA.
-- *Administrators:* Manage products, process orders, track inventory, and administer user accounts via the Vue 3 admin SPA.
+- *Customers:* Browse the catalog, run visual and keyword searches, manage carts, and complete checkouts.
+- *Administrators:* Manage products, process orders, track inventory, and administer user accounts.
 
-Five external integrations support platform operations:
-- *Stripe:* Manages payment intent lifecycles and sends webhook notifications validated locally via Stripe signature verification.
-- *SendGrid:* Dispatches transactional emails including order confirmations, password reset links, and shipping updates.
-- *S3-Compatible Storage:* Persists product assets uploaded through the admin interface.
-- *Google OAuth:* Offers customer single sign-on authentication.
-- *Python ML Sidecar:* Generates image embeddings for visual search within the Aspire orchestration boundary.
+Five external integrations:
+- *Stripe:* Payment intent lifecycles and webhook notifications via signature verification.
+- *SendGrid:* Transactional emails (order confirmations, password resets, shipping updates).
+- *S3-Compatible Storage:* Product asset persistence.
+- *Google OAuth:* Customer single sign-on authentication.
+- *Python ML Sidecar:* Image embedding generation within the Aspire orchestration boundary.
 
 ==== Container
 
@@ -31,14 +31,14 @@ The container view decomposes ReSys.Shop into six standalone deployable processe
   caption: [Container diagram showing Vue 3 SPAs, .NET 10 API backend, Python ML sidecar, PostgreSQL with pgvector, and Redis.],
 ) <fig-c4-container>
 
-The deployable units comprise:
-- *Store & Admin SPAs:* Vue 3 single-page applications served as static assets, interacting with the backend strictly over HTTPS REST endpoints.
-- *API Backend:* A .NET 10 (ASP.NET Core) application executing domain logic across eight modules via Carter minimal APIs and MediatR CQRS pipelines.
-- *Embedding Sidecar:* A Python 3.12 FastAPI service loading ML models into GPU/CPU memory to generate image embeddings on demand over internal HTTP.
-- *PostgreSQL 17 (with pgvector):* Stores relational domain schemas and high-dimensional vector embeddings for visual similarity search.
-- *Redis 7:* Serves as an L2 distributed cache for `HybridCache` and a persistent job store for Hangfire background processing.
+The deployable units:
+- *Store & Admin SPAs:* Vue 3 single-page applications interacting with the backend over HTTPS REST endpoints.
+- *API Backend:* .NET 10 application executing domain logic via Carter minimal APIs and MediatR CQRS pipelines.
+- *Embedding Sidecar:* Python 3.12 FastAPI service loading ML models into GPU/CPU memory for on-demand embedding generation.
+- *PostgreSQL 17 (with pgvector):* Relational domain schemas and high-dimensional vector embeddings.
+- *Redis 7:* L2 distributed cache for `HybridCache` and persistent job store for Hangfire.
 
-Communication is strictly centralized through the API Backend. SPAs never query databases or external APIs directly, enforcing all security boundaries server-side.
+All communication routes through the API Backend; SPAs never query databases or external APIs directly.
 
 ==== Component
 
@@ -49,19 +49,19 @@ The component view details the internal structure of the API Backend container (
   caption: [Component diagram detailing the API Backend architecture and the three-layer Python ML sidecar.],
 ) <fig-c4-component>
 
-HTTP requests enter through Carter minimal API modules, which validate parameters and dispatch commands or queries via MediatR's `ISender`. MediatR pipelines wrap execution in logging, FluentValidation checks, and global exception-handling behaviors.
+HTTP requests enter through Carter modules, which validate parameters and dispatch commands or queries via MediatR's `ISender` through logging, validation, and exception-handling pipeline behaviors.
 
 Handlers delegate infrastructure tasks to eight internal components:
-1. *ApplicationDbContext:* EF Core 10 context managing interceptors for auditing, soft-deletes, and optimistic concurrency.
+1. *ApplicationDbContext:* EF Core context with interceptors for auditing, soft-deletes, and concurrency.
 2. *Specification DSL:* Composable `IQueryable` extensions for filtering, sorting, paging, and full-text search.
-3. *Identity Provider:* ASP.NET Identity with JWT management handling access/refresh token rotation and revocation.
-4. *Dynamic Permission Provider:* Resolves `{domain}:{category}:{action}` policy claims dynamically at runtime.
-5. *Storage Service:* Provides interchangeable local or S3-compatible file storage with upload validation.
-6. *Notification Hub:* Routes email (SendGrid/SMTP) and SMS (Sinch) with fallback routing.
-7. *Hangfire Engine:* Executes background tasks including cart expiration, webhook dispatch, and maintenance jobs.
-8. *HybridCache:* Combines L1 in-memory caching with L2 Redis caching for cross-instance consistency.
+3. *Identity Provider:* ASP.NET Identity with JWT management.
+4. *Dynamic Permission Provider:* Runtime resolution of `{domain}:{category}:{action}` policy claims.
+5. *Storage Service:* Interchangeable local or S3-compatible file storage with upload validation.
+6. *Notification Hub:* Email (SendGrid/SMTP) and SMS (Sinch) routing with fallback support.
+7. *Hangfire Engine:* Background task execution (cart expiration, webhook dispatch, maintenance).
+8. *HybridCache:* L1 in-memory and L2 Redis caching combined for cross-instance consistency.
 
-The Python ML Sidecar uses a three-layer layout: a FastAPI router for request validation, a singleton model registry for lazy loading, and an interchangeable strategy interface supporting Fashion-CLIP, ResNet-50, EfficientNet-B0, and standard CLIP.
+The Python ML Sidecar uses a three-layer layout: a FastAPI router, a singleton model registry for lazy loading, and an interchangeable strategy interface supporting Fashion-CLIP, ResNet-50, EfficientNet-B0, and standard CLIP.
 
 ==== Deployment
 
@@ -72,6 +72,4 @@ The deployment diagram illustrates the production infrastructure topology (@fig-
   caption: [Deployment topology showing containerized orchestration under .NET Aspire with horizontal scaling.],
 ) <fig-deployment>
 
-All services run as Docker containers orchestrated by .NET Aspire for service discovery, configuration injection, and health monitoring. Static Vue SPA bundles deploy to a CDN or reverse proxy.
-
-The API Backend scales horizontally across container replicas sharing PostgreSQL and Redis. The stateless ML sidecar scales independently, serving vector generation requests from any API instance. PostgreSQL runs a primary instance for writes alongside read replicas for analytical queries, with `pgvector` enabled across all nodes. External secrets and API keys are injected via Aspire configuration environments at runtime.
+All services run as Docker containers orchestrated by .NET Aspire for service discovery and health monitoring. The API Backend scales horizontally across replicas sharing PostgreSQL and Redis. The stateless ML sidecar scales independently. PostgreSQL runs a primary instance for writes alongside read replicas, with `pgvector` enabled across all nodes. Secrets and API keys are injected via Aspire configuration environments.

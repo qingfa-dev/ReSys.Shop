@@ -56,21 +56,25 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-ROL\nRole and Permission Governance
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Manage Roles and Permissions\nUC-ADM-ROL" as UC_MAIN
+  ' UC-ADM-ROL
+  usecase "Manage Roles and Permissions" as UC_MAIN
 
-  usecase "Manage Roles\nUC-ADM-ROL-ROLE" as UC_ROLES
+  ' UC-ADM-ROL-ROLE
+  usecase "Manage Roles" as UC_ROLES
 
-  usecase "Assign User Roles\nUC-ADM-ROL-ASSIGN" as UC_ASSIGN
+  ' UC-ADM-ROL-ASSIGN
+  usecase "Assign User Roles" as UC_ASSIGN
 
-  usecase "Grant Direct Permissions\nUC-ADM-ROL-GRANT" as UC_GRANT
+  ' UC-ADM-ROL-GRANT
+  usecase "Grant Direct Permissions" as UC_GRANT
 
-  usecase "View Permissions Catalogue\nUC-ADM-ROL-CATALOG" as UC_CATALOG
+  ' UC-ADM-ROL-CATALOG
+  usecase "View Permissions Catalogue" as UC_CATALOG
 
 }
 

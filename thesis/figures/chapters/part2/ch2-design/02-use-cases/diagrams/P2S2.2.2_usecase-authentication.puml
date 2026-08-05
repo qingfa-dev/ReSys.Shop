@@ -56,23 +56,27 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-AUT\nAuthentication
 
 actor "Customer" as Customer
 actor "Email Service" as Email <<system>>
 actor "Google OAuth" as Google <<system>>
 
-rectangle "ReSys.Shop\nStorefront Applications" {
+rectangle {
 
-  usecase "Register\nUC-STR-AUT-REG" as UC_REG
+  ' UC-STR-AUT-REG
+  usecase "Register" as UC_REG
 
-  usecase "Login with Password\nUC-STR-AUT-LOGIN" as UC_LOGIN
+  ' UC-STR-AUT-LOGIN
+  usecase "Login with Password" as UC_LOGIN
 
-  usecase "Login with Google\nUC-STR-AUT-GOOGLE" as UC_GOOGLE
+  ' UC-STR-AUT-GOOGLE
+  usecase "Login with Google" as UC_GOOGLE
 
-  usecase "Reset Password\nUC-STR-AUT-RESET" as UC_RESET
+  ' UC-STR-AUT-RESET
+  usecase "Reset Password" as UC_RESET
 
-  usecase "Change Password\nUC-STR-AUT-CHANGE" as UC_CHANGE
+  ' UC-STR-AUT-CHANGE
+  usecase "Change Password" as UC_CHANGE
 
 }
 

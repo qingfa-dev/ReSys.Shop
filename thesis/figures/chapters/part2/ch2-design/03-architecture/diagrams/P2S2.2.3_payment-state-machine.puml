@@ -1,36 +1,66 @@
 @startuml payment-state-machine
 
 skinparam backgroundColor White
-skinparam DefaultFontSize 12
+skinparam DefaultFontSize 13
+skinparam DefaultFontName Arial
+skinparam shadowing false
 
-[*] --> Pending : create intent
+skinparam activity {
+  BackgroundColor #F7F9FA
+  BorderColor #263238
+  BorderThickness 2
+  FontSize 13
+}
 
-Pending --> RequiresAction : 3D Secure / SCA required
-Pending --> Processing : payment method attached
-Pending --> Canceled : cancel intent
+skinparam diamond {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  FontSize 12
+}
 
-RequiresAction --> Processing : customer authenticates
-RequiresAction --> Canceled : authentication fails
+start
 
-Processing --> Succeeded : charge succeeds
-Processing --> Failed : charge fails
+:Create Payment Intent\nState = **Pending**;
 
-Succeeded --> Captured : capture funds
-Succeeded --> Canceled : cancel (before capture)
+if (3D Secure\nrequired?) then (yes)
+  :State =\n**RequiresAction**;
+  if (Customer\nauthenticates?) then (yes)
+    :State =\n**Processing**;
+  else (no)
+    :State =\n**Canceled**;
+    stop
+  endif
+else (no)
+  :State =\n**Processing**;
+endif
 
-Captured --> Refunded : refund payment
-Captured --> [*] : fulfillment complete
+if (Charge\nsucceeds?) then (yes)
+  :State =\n**Succeeded**;
+  
+  if (Capture\nfunds?) then (yes)
+    :State =\n**Captured**;
+    
+    if (Refund?) then (yes)
+      :State =\n**Refunded**;
+      stop
+    else (no)
+      :Fulfillment\ncomplete;
+      stop
+    endif
+  else (no)
+    :State =\n**Canceled**;
+    stop
+  endif
+else (no)
+  :State =\n**Failed**;
+  :Retry or\nabandon;
+  stop
+endif
 
-Failed --> [*] : retry or abandon
-Canceled --> [*] : order canceled
-Refunded --> [*] : money returned
-
-note right of Succeeded
-  System maintains its own
-  PaymentIntent state in parallel
-  with Stripe's state to support
-  the Bogus test gateway and
-  enable offline operations.
+note right
+  Local state mirrors
+  gateway responses
+  for offline operation
 end note
 
 @enduml

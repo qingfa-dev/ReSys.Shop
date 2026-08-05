@@ -56,21 +56,25 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-STK\nStock Item Management
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nInventory & Logistics Subsystem" {
+rectangle {
 
-  usecase "Manage Stock Items\nUC-ADM-STK" as UC_MAIN
+  ' UC-ADM-STK
+  usecase "Manage Stock Items" as UC_MAIN
 
-  usecase "Restock Inventory\nUC-ADM-STK-RESTOCK" as UC_RESTOCK
+  ' UC-ADM-STK-RESTOCK
+  usecase "Restock Inventory" as UC_RESTOCK
 
-  usecase "Transfer Stock\nUC-ADM-STK-TRANSFER" as UC_TRANSFER
+  ' UC-ADM-STK-TRANSFER
+  usecase "Transfer Stock" as UC_TRANSFER
 
-  usecase "Review Stock Movements\nUC-ADM-STK-MOVEMENTS" as UC_MOVEMENTS
+  ' UC-ADM-STK-MOVEMENTS
+  usecase "Review Stock Movements" as UC_MOVEMENTS
 
-  usecase "Monitor Low Stock\nUC-ADM-STK-LOWSTOCK" as UC_LOWSTOCK
+  ' UC-ADM-STK-LOWSTOCK
+  usecase "Monitor Low Stock" as UC_LOWSTOCK
 
 }
 

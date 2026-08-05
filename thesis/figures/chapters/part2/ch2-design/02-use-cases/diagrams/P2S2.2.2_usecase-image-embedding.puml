@@ -56,14 +56,15 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-IMG\nImage and Embedding Management
 
 actor "Administrator" as Admin
 actor "ML Service" as ML <<system>>
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Manage Images\nand Embeddings\nUC-ADM-IMG" as UC_MAIN
+  ' UC-ADM-IMG
+
+  usecase "Manage Images\nand Embeddings" as UC_MAIN
 
   usecase "Upload Images" as UC_SUB_1
 

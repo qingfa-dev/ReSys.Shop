@@ -56,13 +56,13 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-OPT\nOption Type Configuration
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Manage Option Types\nUC-ADM-OPT" as UC_MAIN
+  ' UC-ADM-OPT
+  usecase "Manage Option Types" as UC_MAIN
 
 }
 

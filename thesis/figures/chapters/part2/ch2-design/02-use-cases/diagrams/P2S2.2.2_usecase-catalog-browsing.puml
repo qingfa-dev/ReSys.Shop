@@ -56,17 +56,19 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-BRW\nCatalog Browsing
 
 actor "Customer" as Customer
 
-rectangle "ReSys.Shop\nStorefront Applications" {
+rectangle {
 
-  usecase "Browse Catalog\nUC-STR-BRW-BROWSE" as UC_BROWSE
+  ' UC-STR-BRW-BROWSE
+  usecase "Browse Catalog" as UC_BROWSE
 
-  usecase "View Product Detail\nUC-STR-BRW-DETAIL" as UC_DETAIL
+  ' UC-STR-BRW-DETAIL
+  usecase "View Product Detail" as UC_DETAIL
 
-  usecase "Keyword Search\nUC-STR-BRW-SEARCH" as UC_SEARCH
+  ' UC-STR-BRW-SEARCH
+  usecase "Keyword Search" as UC_SEARCH
 
 }
 

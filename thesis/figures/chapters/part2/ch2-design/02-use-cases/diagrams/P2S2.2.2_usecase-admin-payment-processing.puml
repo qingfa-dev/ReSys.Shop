@@ -56,20 +56,23 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-PAY\nPayment Processing
 
 actor "Administrator" as Admin
 actor "Payment Gateway" as Gateway <<system>>
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Capture Payment\nUC-ADM-PAY-01" as UC_CAPTURE
+  ' UC-ADM-PAY-01
+  usecase "Capture Payment" as UC_CAPTURE
 
-  usecase "Refund Payment\nUC-ADM-PAY-02" as UC_REFUND
+  ' UC-ADM-PAY-02
+  usecase "Refund Payment" as UC_REFUND
 
-  usecase "Void Payment\nUC-ADM-PAY-03" as UC_VOID
+  ' UC-ADM-PAY-03
+  usecase "Void Payment" as UC_VOID
 
-  usecase "View Payments\nUC-ADM-PAY-04" as UC_VIEW
+  ' UC-ADM-PAY-04
+  usecase "View Payments" as UC_VIEW
 
 }
 

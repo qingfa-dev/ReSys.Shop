@@ -56,18 +56,20 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-CHK\nCheckout Flow
 
 actor "Customer" as Customer
 actor "Payment Gateway" as Gateway <<system>>
 
-rectangle "ReSys.Shop\nStorefront Applications" {
+rectangle {
 
-  usecase "Select Shipping Address\nUC-STR-CHK-ADDRESS" as UC_ADDRESS
+  ' UC-STR-CHK-ADDRESS
+  usecase "Select Shipping Address" as UC_ADDRESS
 
-  usecase "Select Shipping Method\nUC-STR-CHK-METHOD" as UC_METHOD
+  ' UC-STR-CHK-METHOD
+  usecase "Select Shipping Method" as UC_METHOD
 
-  usecase "Complete Checkout\nUC-STR-CHK-COMPLETE" as UC_COMPLETE
+  ' UC-STR-CHK-COMPLETE
+  usecase "Complete Checkout" as UC_COMPLETE
 
 }
 

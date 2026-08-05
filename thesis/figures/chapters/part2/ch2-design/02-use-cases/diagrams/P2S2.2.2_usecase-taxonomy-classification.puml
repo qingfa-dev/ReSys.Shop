@@ -56,13 +56,14 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-TAX\nTaxonomy and Classification
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Manage Taxonomies\nand Classification\nUC-ADM-TAX" as UC_MAIN
+  ' UC-ADM-TAX
+
+  usecase "Manage Taxonomies\nand Classification" as UC_MAIN
 
   usecase "Manage Taxonomies" as UC_SUB_1
 

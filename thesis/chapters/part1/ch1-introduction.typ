@@ -1,6 +1,6 @@
 == Context and Motivation
 
-Global fashion e-commerce revenue exceeded *770 billion USD* in 2024, with projections surpassing *one trillion by 2030* @statista2024fashion. Yet its dominant interface, keyword search, fails where the domain succeeds: fashion products are defined by silhouette, drape, print density, and colour relationships -- attributes that resist textual description. This *semantic gap*, the discrepancy between a garment's visual richness and a user's ability to express it in words, is well documented. A customer can recognise a desired aesthetic instantly from a photograph yet cannot produce query terms that retrieve it. When catalogue indexing uses inconsistent terminology (one vendor tags a pattern as "floral," another as "botanical," a third as "flower print"), relevant products are systematically excluded. Industry estimates place the *session abandonment rate* after an unsuccessful search at approximately *30 percent* @pinterest2023visual.
+Global fashion e-commerce revenue exceeded *770 billion USD* in 2024, with projections surpassing *one trillion by 2030* @statista2024fashion. Yet keyword search fails where the domain succeeds: fashion products are defined by silhouette, drape, print density, and colour -- attributes that resist textual description. Industry estimates place session abandonment after unsuccessful search at approximately *30 percent* @pinterest2023visual.
 
 *Content-Based Image Retrieval (CBIR)* addresses this gap by replacing textual intermediaries with direct visual comparison. Products are indexed not by human-authored labels but by *dense vector embeddings* computed from images, with similarity measured through mathematical distance functions. A query image of a dress with a particular neckline and print pattern retrieves visually similar products without any keyword translation step. Pre-trained convolutional neural networks @he2016deep @tan2019efficientnet, vision transformers @radford2021learning, and fashion-specific models @chia2022fashionclip have substantially advanced this capability.
 
@@ -8,19 +8,19 @@ The contribution of this work is *architectural*, not algorithmic. It investigat
 
 == Problem Statement
 
-Keyword-reliant fashion search suffers from four compounding inefficiencies.
+*Keyword-reliant fashion search suffers from four compounding inefficiencies.*
 
-*Catalogue vocabulary mismatch.* Descriptors vary across vendors, such that a single visual pattern appears under multiple labels and fragments result sets. Users must reformulate queries iteratively as the gap between catalogue indexing vocabulary and customer search vocabulary silently excludes relevant products.
+*Catalogue vocabulary mismatch.* Varying vendor descriptors fragment result sets, silently excluding relevant products.
 
-*Visual inexpressibility.* Attributes such as fabric drape, texture gradient, silhouette proportion, and pattern rhythm cannot be captured reliably through text queries. A customer identifies a desired aesthetic instantly in a photograph yet cannot produce keywords that retrieve it. The search engine cannot match what the user cannot name.
+*Visual inexpressibility.* Attributes such as fabric drape, texture, silhouette proportion, and pattern rhythm elude text queries.
 
-*Cold-start invisibility.* Recommendation models based on collaborative filtering depend on historical user-item interactions. Newly listed products lack this data at their point of highest commercial value: initial release. Visual feature extraction bypasses this limitation, as product images are available from catalogue ingestion and embeddings enable similarity-based discovery without interaction history.
+*Cold-start invisibility.* New products lack interaction history. Visual feature extraction enables discovery immediately from catalogue ingestion.
 
-*Polyglot integration cost.* Integrating pre-trained vision models into a .NET transactional backend introduces a recurring engineering challenge in applied machine learning. The Python deep learning ecosystem (PyTorch, HuggingFace) does not natively interoperate with the .NET enterprise stack. Achieving *sub-second response latency* across this boundary requires architectural design that isolates the ML workload from the main application while bridging incompatible package managers, runtime environments, and deployment conventions.
+*Polyglot integration cost.* The Python deep learning ecosystem does not natively interoperate with .NET. Sub-second latency requires architectural isolation of the ML workload.
 
 == Objectives
 
-This project builds a functional fashion e-commerce platform with integrated image-based search and evaluates the effectiveness of pre-trained deep learning models within that system. The contribution is not a novel AI architecture but the *engineering demonstration* of embedding existing models into a conventional web application stack.
+This project builds a functional fashion e-commerce platform with integrated image-based search and evaluates pre-trained deep learning models within that system. The contribution is the *engineering demonstration* of embedding existing models into a conventional web application stack.
 
 === Technical Objectives
 
@@ -35,82 +35,66 @@ This project builds a functional fashion e-commerce platform with integrated ima
 
 Three questions guide the investigation and are answered empirically in Chapter 3.
 
-*RQ1: Model comparison.* How do fashion-specific embedding models compare with general-purpose CNN and ViT architectures on fashion product retrieval? This question tests whether domain-specific training on fashion data yields measurable improvements over models trained on generic image corpora.
+*RQ1: Model comparison.* How do fashion-specific embedding models compare with general-purpose CNN and ViT architectures on fashion product retrieval?
 
-*RQ2: Accuracy-speed trade-off.* What trade-offs exist between retrieval accuracy and inference latency across pre-trained embedding models, and which model offers the best balance for real-time search? The most accurate model is rarely the fastest; deployment decisions require weighing both dimensions.
+*RQ2: Accuracy-speed trade-off.* What trade-offs exist between retrieval accuracy and inference latency, and which model offers the best balance for real-time search?
 
-*RQ3: Architecture viability.* Can a service-oriented architecture with a dedicated AI sidecar separate image inference from the main application while maintaining interactive response times? This question evaluates whether the chosen polyglot pattern (Python ML service alongside a .NET application) is practical for production use.
+*RQ3: Architecture viability.* Can a service-oriented architecture with a dedicated AI sidecar separate image inference from the main application while maintaining interactive response times?
 
 === Tasks Completed
 
 #list(
-  [*Build an AI service.* A Python FastAPI service that loads multiple pre-trained embedding models and generates feature vectors from product images within interactive latency bounds.],
-  [*Set up vector search.* PostgreSQL configured with pgvector to store and index high-dimensional embeddings, with similarity queries validated for correctness and performance on a catalogue of representative size.],
-  [*Connect the services.* A .NET backend layer that orchestrates image upload, embedding generation, vector database query, and result assembly into a single end-to-end search flow.],
-  [*Create the user interface.* A Vue.js storefront with drag-and-drop image upload and a results grid displaying visually similar products with similarity scores.],
-  [*Evaluate the results.* A systematic benchmark measuring retrieval accuracy via standard information retrieval metrics, comparing inference speed across models, and analyzing operational trade-offs that inform production model selection.],
+  [*Build AI service.* Python FastAPI service loading pre-trained embedding models for vector generation within interactive latency bounds.],
+  [*Set up vector search.* PostgreSQL with pgvector for high-dimensional embedding storage and similarity queries.],
+  [*Connect services.* .NET backend orchestrating image upload, embedding generation, vector database query, and result assembly.],
+  [*Create user interface.* Vue.js storefront with drag-and-drop image upload and similarity-scored results grid.],
+  [*Evaluate results.* Systematic benchmark measuring retrieval accuracy, inference speed, and operational trade-offs across models.],
 )
 
 == Scope and Limitations
 
-The thesis encompasses the design, implementation, and empirical evaluation of a fashion e-commerce platform with integrated visual search. Five areas define the included scope:
-
-#list(
-  [Visual search from the storefront, with image upload via drag-and-drop or file selection.],
-  [Product recommendations derived from embedding similarity scores.],
-  [Core e-commerce functionality: product catalogue browsing, shopping cart, and simulated checkout.],
-  [Multi-model comparison spanning several CNN and transformer architectures.],
-  [End-to-end latency, throughput, and storage footprint measurement.],
-)
-
-The following areas are explicitly excluded:
-
-#list(
-  [Real payment processing (transactions are simulated for demonstration purposes).],
-  [Shipping, logistics, and warehouse management workflows.],
-  [User authentication via social login providers.],
-  [Mobile application development (the system targets desktop and tablet web browsers).],
-  [Custom model training or fine-tuning (all models are used as published).],
-)
+In scope: visual search via image upload, embedding-based recommendations, core e-commerce (catalogue, cart, checkout), and multi-model comparison across CNN and transformer architectures. Out of scope: real payment processing, shipping and logistics, social login, mobile applications, and custom model training.
 
 === Known Limitations
 
-Four limitations define the boundaries of this work and are revisited in the concluding chapter.
+Four limitations define the boundaries of this work.
 
 #list(
-  [*Dataset size.* Evaluation uses 5,000 fashion product images from the Fashion Product Images dataset @kaggle-fashion-dataset. Controlled comparative benchmarking is feasible at this scale, but results may not extrapolate to production catalogues containing millions of items.],
-  [*Hardware.* Experiments ran on consumer-grade hardware (Intel i7-1165G7, 16 GB RAM) with all inference executed on CPU. Reported latency and throughput figures are relative to this CPU-only profile. A dedicated inference server with GPU acceleration would likely improve both metrics.],
-  [*Evaluation method.* Evaluation is exclusively quantitative: retrieval accuracy, inference latency, and throughput. Search output was reviewed qualitatively through visual inspection, but no formal user experience study was conducted. The relationship between measured accuracy metrics and subjective user satisfaction remains an open question.],
-  [*Model training.* All embedding models were used as published by their original authors, without fine-tuning on the evaluation dataset. Domain-specific fine-tuning, particularly for models pre-trained on generic image corpora rather than fashion data, might improve retrieval quality but was beyond scope.],
+  [*Dataset.* 5,000 fashion product images @kaggle-fashion-dataset. Controlled benchmarking is feasible at this scale but results may not extrapolate to production catalogues containing millions of items.],
+  [*Hardware.* Consumer-grade (Intel i7-1165G7, 16 GB RAM), all inference on CPU. Latency and throughput figures are relative to this profile; GPU acceleration would improve both metrics.],
+  [*Evaluation.* Exclusively quantitative: accuracy, latency, throughput. No formal user study; relationship between measured metrics and user satisfaction remains open.],
+  [*Model training.* All models used as published. Domain-specific fine-tuning, particularly for models pre-trained on generic corpora, might improve quality but was beyond scope.],
 )
 
 == Research Methodology
 
-This thesis follows a *Design Science Research (DSR)* methodology @hevner2004design @peffers2008design, a problem-solving paradigm that produces and evaluates an IT artifact (here, the e-commerce platform with integrated visual search) to address a defined problem domain.
+This section describes the methodology and tools used to implement and evaluate the system.
 
-The project progressed through four phases:
+=== Development Methodology
 
-#list(
-  [*Research and planning.* Literature survey on visual search in fashion and e-commerce architectures; exploration of available pre-trained embedding models; evaluation of vector database options; technology stack selection.],
-  [*Design.* Formalization of a modular .NET monolith architecture with a Python AI sidecar communicating via HTTP; database schema design supporting both relational and vector data within a single PostgreSQL instance.],
-  [*Implementation.* Construction of three principal components: the .NET backend following vertical slice architecture, the Python embedding service with lazy model loading, and the Vue.js storefront.],
-  [*Test and evaluation.* Systematic benchmark measuring retrieval accuracy through standard information retrieval metrics; latency and throughput measurement on consumer-grade hardware; qualitative review of search output.],
-)
+The project follows *Design Science Research* (DSR) @hevner2004design @peffers2008design across four phases: Research and Planning (literature review, model and tool selection), Design (technology stack, system architecture, schema design), Implementation (.NET backend with VSA, Python FastAPI sidecar, Vue 3 storefront), and Testing and Evaluation (mAP accuracy with cross-validation, inference latency, throughput across 11 models).
 
-This methodology suits the project's engineering focus: the primary output is not a theoretical contribution but a working system accompanied by empirical data on performance trade-offs practitioners encounter when integrating academic models into production web stacks.
+=== Technologies Used
+
+The system is built using a modular stack designed for performance and scalability:
+- *Backend:* .NET 10 with Carter, MediatR, FluentValidation.
+- *AI Service:* Python 3.12 with FastAPI, PyTorch, Hugging Face Transformers.
+- *Frontend:* Vue 3 with TypeScript, Vite, Pinia.
+- *Database:* PostgreSQL with pgvector for relational and vector data in a single ACID database.
+
+The system is evaluated using quantitative metrics: Mean Average Precision (mAP) with 3-fold cross-validation for retrieval accuracy, per-image inference latency and throughput (images/second) for efficiency, across four representative models and the Fashion Product Images Dataset @kaggle-fashion-dataset (5,000 images). Detailed results appear in Chapter 3.
 
 == Thesis Outline
 
 The thesis is organized into five chapters across three parts.
 
-*Part I: Introduction.* Chapter 1 establishes research context, defines the problem, states objectives and research questions, delineates scope and limitations, describes the methodology, and provides the present outline.
+*Part I: Introduction.* Chapter 1 establishes research context, the problem statement, objectives, research questions, scope, methodology, and outline.
 
 *Part II: Thesis Content* contains three chapters:
-
 #list(
-  [*Chapter 1: Background and Related Work.* Surveys vector embeddings, convolutional and transformer-based neural architectures, vector database technologies including pgvector, prior work in fashion image retrieval, and the technology stack selected for this project.],
-  [*Chapter 2: Design and Implementation.* Translates the problem into functional and non-functional requirements (Section 2.1), presents the system architecture including domain-driven design, C4 diagrams, database design, API design, and security model (Section 2.2), and describes the concrete implementation of the .NET backend, Python ML sidecar, and Vue.js storefront (Section 2.3).],
-  [*Chapter 3: Testing and Evaluation.* Reports a systematic benchmark comparing retrieval accuracy and inference efficiency across multiple embedding models using a cross-validation protocol on 5,000 fashion product images, and analyzes the accuracy-speed trade-offs that inform model selection.],
+  [*Chapter 1: Background.* Surveys vector embeddings, neural architectures, vector databases, prior work in fashion image retrieval, and the technology stack.],
+  [*Chapter 2: Design and Implementation.* Functional and non-functional requirements, system architecture (DDD, C4, database, API, security), and concrete implementation (.NET backend, Python ML sidecar, Vue storefront).],
+  [*Chapter 3: Evaluation.* Systematic benchmark comparing retrieval accuracy and inference efficiency across embedding models using cross-validation on 5,000 fashion images.],
 )
 
-*Part III: Conclusion.* Chapter 4 synthesizes findings against each research objective, evaluates contributions and limitations, and proposes directions for future work.
+*Part III: Conclusion.* Chapter 4 synthesizes findings, evaluates contributions and limitations, and proposes future work.

@@ -56,14 +56,14 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-ORD / UC-ADM-ORD-ITEMS\nOrder Lifecycle
 
 actor "Administrator" as Admin
 actor "Payment Gateway" as Gateway <<system>>
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Manage Orders\nUC-ADM-ORD" as UC_MAIN
+  ' UC-ADM-ORD
+  usecase "Manage Orders" as UC_MAIN
 
   usecase "View Orders" as UC_VIEW
   usecase "Update Order" as UC_UPDATE
@@ -72,7 +72,8 @@ rectangle "ReSys.Shop\nAdministration Portal" {
   usecase "Cancel Order" as UC_CANCEL
   usecase "Resume Order" as UC_RESUME
 
-  usecase "Manage Order Items\nUC-ADM-ORD-ITEMS" as UC_ITEMS
+  ' UC-ADM-ORD-ITEMS
+  usecase "Manage Order Items" as UC_ITEMS
 
 }
 

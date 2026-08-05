@@ -56,17 +56,19 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-PROD\nProduct Management
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Create Product\nUC-ADM-PROD-CREATE" as UC_CREATE
+  ' UC-ADM-PROD-CREATE
+  usecase "Create Product" as UC_CREATE
 
-  usecase "Update Product\nUC-ADM-PROD-UPDATE" as UC_UPDATE
+  ' UC-ADM-PROD-UPDATE
+  usecase "Update Product" as UC_UPDATE
 
-  usecase "Archive Product\nUC-ADM-PROD-ARCHIVE" as UC_ARCHIVE
+  ' UC-ADM-PROD-ARCHIVE
+  usecase "Archive Product" as UC_ARCHIVE
 
 }
 

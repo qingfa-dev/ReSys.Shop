@@ -56,16 +56,17 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-OHI\nOrder History
 
 actor "Customer" as Customer
 actor "Payment Gateway" as Gateway <<system>>
 
-rectangle "ReSys.Shop\nStorefront Applications" {
+rectangle {
 
-  usecase "View Order History\nUC-STR-OHI-VIEW" as UC_VIEW
+  ' UC-STR-OHI-VIEW
+  usecase "View Order History" as UC_VIEW
 
-  usecase "Cancel Order\nUC-STR-OHI-CANCEL" as UC_CANCEL
+  ' UC-STR-OHI-CANCEL
+  usecase "Cancel Order" as UC_CANCEL
 
 }
 
