@@ -7,6 +7,5 @@ The testing scenarios cover the four functional areas identified in Section 3.1:
 - *Hardware.* Intel Core i7-1165G7 (4 cores, 2.80 GHz), 16 GB DDR4 RAM, 512 GB NVMe SSD.
 - *Database.* PostgreSQL 17 with pgvector 0.7.0, provisioned via Testcontainers for integration tests.
 - *Cache.* Redis 7 (Alpine) for HybridCache L2 storage and Hangfire job persistence.
-- *Orchestrator.* .NET Aspire 13.4.6 managing six containerised resources.
 - *ML Sidecar.* Python 3.12 FastAPI service with PyTorch 2.13.0, CPU-only inference.
 - *Web Browsers.* Google Chrome 131, Firefox 135.

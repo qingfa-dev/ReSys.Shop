@@ -26,17 +26,14 @@ The platform uses pinned versions across three ecosystems: .NET 10 for transacti
     [*State and HTTP*], [Pinia, Axios 1.x, Zod],
     [*Data Storage*], [PostgreSQL 17 (pgvector/pgvector:pg17-trixie)],
     [*Cache Storage*], [Redis 7 (Alpine)],
-    [*Orchestration*], [.NET Aspire 13.4.6],
     [*Test Suites*], [xUnit v3 3.2.2, pytest >= 8.0, Vitest 4, Playwright],
   ),
   kind: table,
   caption: [Principal technologies grouped by architectural role with pinned version specifications.],
 ) <tbl-framework-matrix>
 
-==== Service Orchestration and Containerization
+==== Service Containerization
 
-The AppHost defines six resources with startup dependencies: PostgreSQL and Redis initialize first, followed by the Python ML sidecar with `/health` readiness probe, then the .NET API. Vue SPAs run as Vite dev servers reverse-proxying `/api/` endpoints. Multi-stage Docker builds isolate runtime dependencies with non-root execution via `tini`.
-
-// [SCREENSHOT: implementation-aspire-dashboard.png] .NET Aspire dashboard showing all six running resources with health status indicators, structured log stream, and distributed trace waterfall for a CBIR search request spanning the Vue storefront, .NET API, Python sidecar, and PostgreSQL.
+The platform defines six containerized resources with startup dependencies: PostgreSQL and Redis initialize first, followed by the Python ML sidecar with `/health` readiness probe, then the .NET API. Vue SPAs run as Vite dev servers reverse-proxying `/api/` endpoints. Multi-stage Docker builds isolate runtime dependencies with non-root execution via `tini`.
 
 // [SCREENSHOT: implementation-docker-build.png] Terminal output showing the multi-stage Docker build for the ML sidecar: builder stage downloading PyTorch and HuggingFace dependencies, runtime stage copying only the virtual environment, and final image size annotation.

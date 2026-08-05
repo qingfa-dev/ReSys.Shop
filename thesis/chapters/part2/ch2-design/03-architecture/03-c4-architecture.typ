@@ -20,7 +20,7 @@ Five external integrations:
 - *SendGrid:* Transactional emails (order confirmations, password resets, shipping updates).
 - *S3-Compatible Storage:* Product asset persistence.
 - *Google OAuth:* Customer single sign-on authentication.
-- *Python ML Sidecar:* Image embedding generation within the Aspire orchestration boundary.
+- *Python ML Sidecar:* Image embedding generation within the container orchestration boundary.
 
 ==== Container
 
@@ -69,7 +69,7 @@ The deployment diagram illustrates the production infrastructure topology (@fig-
 
 #figure(
   image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_deployment.png", width: 100%),
-  caption: [Deployment topology showing containerized orchestration under .NET Aspire with horizontal scaling.],
+  caption: [Deployment topology showing containerized orchestration with horizontal scaling.],
 ) <fig-deployment>
 
-All services run as Docker containers orchestrated by .NET Aspire for service discovery and health monitoring. The API Backend scales horizontally across replicas sharing PostgreSQL and Redis. The stateless ML sidecar scales independently. PostgreSQL runs a primary instance for writes alongside read replicas, with `pgvector` enabled across all nodes. Secrets and API keys are injected via Aspire configuration environments.
+All services run as Docker containers orchestrated via Docker Compose for service discovery and health monitoring. The API Backend scales horizontally across replicas sharing PostgreSQL and Redis. The stateless ML sidecar scales independently. PostgreSQL runs a primary instance for writes alongside read replicas, with `pgvector` enabled across all nodes. Secrets and API keys are injected via environment configuration.

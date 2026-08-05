@@ -2,7 +2,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-catalog-browsing.png",
-    width: 60%
+    width: 50%
   ),
   caption: [Use case diagram for Catalog Browsing (UC-STR-BRW).],
 ) <fig-uc-str-brw-d>
@@ -66,7 +66,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-search.png",
-    width: 85%
+    width: 70%
   ),
   caption: [Use case diagram for Search (UC-STR-SRC).],
 ) <fig-uc-str-src-d>

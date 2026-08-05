@@ -6,6 +6,11 @@
 ) <fig-benchmark-latency>
 
 #figure(
+  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.6_benchmark_throughput.png", width: 100%),
+  caption: [Throughput comparison across four evaluated models. EfficientNet-B0 leads at 33.2 img/s, followed by CLIP-generic (19.9), Fashion-CLIP (18.0), and ResNet-50 (12.9).],
+) <fig-benchmark-throughput>
+
+#figure(
   caption: [Efficiency Metrics, 3-Fold Cross-Validation],
   table(
     columns: (auto,) + (1fr,) * 5,

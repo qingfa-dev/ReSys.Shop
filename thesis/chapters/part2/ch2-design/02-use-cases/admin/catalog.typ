@@ -3,7 +3,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-product-management.png",
-    width: 80%
+    width: 50%
   ),
   caption: [Use case diagram for Product Management (UC-ADM-PROD).],
 ) <fig-uc-adm-prod-d>
@@ -62,7 +62,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-variant-pricing.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Variant and Pricing (UC-ADM-VAR).],
 ) <fig-uc-adm-var-d>
@@ -122,7 +122,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-image-embedding.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Image and Embedding Management (UC-ADM-IMG).],
 ) <fig-uc-adm-img-d>
@@ -177,7 +177,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-taxonomy-classification.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Taxonomy and Classification (UC-ADM-TAX).],
 ) <fig-uc-adm-tax-d>

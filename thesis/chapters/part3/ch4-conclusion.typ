@@ -83,7 +83,7 @@ These directions define a roadmap from research demonstration to production-grad
     [End-to-end latency under one second; independent scaling and fault isolation without distributed overhead.],
     [Build AI service],
     [Chapter 2, Section 2.3.2],
-    [Python FastAPI service with three-layer architecture, lazy-loading, containerised via Docker and Aspire.],
+    [Python FastAPI service with three-layer architecture, lazy-loading, containerised via Docker.],
     [Set up vector search],
     [Chapter 2, Section 2.2.4, Section 2.3.3],
     [pgvector with cosine similarity; IVFFlat queries under 10 ms; vector storage coexists with relational data.],

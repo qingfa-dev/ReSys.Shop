@@ -133,7 +133,7 @@ Explicit state machines inside domain entities govern checkout and payment workf
 Checkout advances through five forward-only stages: Address, Delivery, Payment, Confirm, and Complete (@fig-order-state-machine). Users can cancel at any pre-completion stage.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_order-state-machine.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_order-state-machine.png", width: 70%),
   caption: [Order checkout state machine showing forward-only stages and cancellation paths.],
 ) <fig-order-state-machine>
 
@@ -142,6 +142,6 @@ Checkout advances through five forward-only stages: Address, Delivery, Payment, 
 Payment intents follow a lifecycle from `Pending` through `Processing` to `Succeeded` or `Failed` (@fig-payment-state-machine). Authorized intents support capture and refund operations.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_payment-state-machine.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_payment-state-machine.png", width: 70%),
   caption: [Payment intent lifecycle and terminal states.],
 ) <fig-payment-state-machine>

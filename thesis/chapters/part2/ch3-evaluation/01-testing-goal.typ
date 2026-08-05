@@ -23,7 +23,7 @@ The goal of testing is to verify that the platform functions correctly against i
       - .NET backend dispatches image bytes to Python sidecar and receives vectors.
       - pgvector queries return results filtered by model_name.
       - Error responses conform to RFC 7807 Problem Details.
-      - Sidecar health endpoint reports correct status for Aspire orchestration.
+      - Sidecar health endpoint reports correct status for container orchestration.
     ],
 
     [Database],

@@ -3,7 +3,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-user-management.png",
-    width: 60%
+    width: 50%
   ),
   caption: [Use case diagram for User Management (UC-ADM-USR).],
 ) <fig-uc-adm-usr-d>
@@ -50,7 +50,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-role-permission.png",
-    height: 50%
+    height: 30%
   ),
   caption: [Use case diagram for Role and Permission Governance (UC-ADM-ROL).],
 ) <fig-uc-adm-rol-d>

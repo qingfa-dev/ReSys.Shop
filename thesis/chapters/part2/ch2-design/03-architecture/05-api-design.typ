@@ -80,4 +80,4 @@ Endpoints follow the convention `/api/{module}/{surface}/{resource}`, where `sur
 
 ==== Error Handling
 
-All API endpoints conform to RFC 7807 Problem Details: 400 for FluentValidation failures, 401 for missing/expired JWT, 403 for insufficient permissions, 404 for entity/route resolution failure, 409 for concurrency conflicts (PostgreSQL `xmin`), and 500 via global exception middleware preventing stack trace leakage.
+All API endpoints conform to RFC 7807 Problem Details: #raw("400", lang: "http") for FluentValidation failures, #raw("401", lang: "http") for missing/expired JWT, #raw("403", lang: "http") for insufficient permissions, #raw("404", lang: "http") for entity/route resolution failure, #raw("409", lang: "http") for concurrency conflicts (PostgreSQL `xmin`), and #raw("500", lang: "http") via global exception middleware preventing stack trace leakage.

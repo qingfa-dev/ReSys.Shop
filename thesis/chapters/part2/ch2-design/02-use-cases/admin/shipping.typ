@@ -3,7 +3,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-shipping-method.png",
-    width: 70%
+    width: 60%
   ),
   caption: [Use case diagram for Shipping Method Configuration (UC-ADM-SHP).],
 ) <fig-uc-adm-shp-d>
@@ -58,7 +58,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-reference-data.png",
-    width: 70%
+    width: 50%
   ),
   caption: [Use case diagram for Reference Data Management (UC-ADM-REF).],
 ) <fig-uc-adm-ref-d>

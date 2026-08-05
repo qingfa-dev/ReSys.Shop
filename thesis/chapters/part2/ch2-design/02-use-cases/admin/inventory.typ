@@ -3,7 +3,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-location-management.png",
-    width: 60%
+    width: 50%
   ),
   caption: [Use case diagram for Stock Location Management (UC-ADM-LOC).],
 ) <fig-uc-adm-loc-d>
@@ -49,7 +49,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-item-management.png",
-    height: 45%
+    height: 25%
   ),
   caption: [Use case diagram for Stock Item Management (UC-ADM-STK).],
 ) <fig-uc-adm-stk-d>

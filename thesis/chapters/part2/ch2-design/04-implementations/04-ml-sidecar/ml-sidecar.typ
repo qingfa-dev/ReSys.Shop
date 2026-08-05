@@ -114,4 +114,3 @@ Six stages across four architectural layers:
 The pluggable architecture supports automated benchmarking (update `EMBEDDING_MODEL`, restart, sequential evaluation of all models without code changes) and production A/B testing via dual sidecar instances with distinct models.
 
 // [SCREENSHOT: postman-embedding-request.png] API client showing POST /embeddings/bytes with fashion image upload and 512-dim float vector response.
-// [SCREENSHOT: aspire-dashboard-config.png] Aspire dashboard showing EMBEDDING_MODEL environment variable configuration.

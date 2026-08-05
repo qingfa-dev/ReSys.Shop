@@ -12,7 +12,6 @@ The preceding sections introduced the principal technologies that compose the Re
     [Database], [PostgreSQL, pgvector], [Relational data and vector embeddings with HNSW-indexed similarity search],
     [Caching], [Redis, HybridCache], [Two-tier cache (L1 in-memory, L2 Redis); Hangfire job queue backing store],
     [ML Sidecar], [Python 3.12, FastAPI, PyTorch], [Embedding generation with lazy model loading and GPU acceleration],
-    [Orchestration], [.NET Aspire], [Container lifecycle management, service discovery, and local dev environment],
     [Background Jobs], [Hangfire], [Persistent job processing for cart expiry, embedding queue, and maintenance],
     [Auth and Identity], [JWT, ASP.NET Identity], [Access tokens, refresh rotation, permission-based authorisation],
     [Benchmarking], [Python 3.12, PyTorch], [Systematic 11-model comparison across retrieval accuracy and efficiency],

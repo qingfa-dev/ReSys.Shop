@@ -126,7 +126,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-session-management.png",
-    width: 70%
+    width: 50%
   ),
   caption: [Use case diagram for Session Management (UC-STR-SES).],
 ) <fig-uc-str-ses-d>

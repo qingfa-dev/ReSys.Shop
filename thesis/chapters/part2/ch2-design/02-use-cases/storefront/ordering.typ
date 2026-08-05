@@ -59,7 +59,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-checkout-flow.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Checkout Flow (UC-STR-CHK).],
 ) <fig-uc-str-chk-d>
@@ -126,7 +126,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-history.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Order History (UC-STR-OHI).],
 ) <fig-uc-str-ohi-d>
