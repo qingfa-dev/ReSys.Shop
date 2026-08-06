@@ -49,7 +49,7 @@
         <div>
           <h3 class="text-sm font-semibold text-stone-900 uppercase tracking-wider mb-4">Company</h3>
           <ul class="space-y-2">
-            <li><a href="#" class="text-sm text-stone-500 hover:text-teal-600 transition-colors">About Us</a></li>
+            <li><router-link to="/about" class="text-sm text-stone-500 hover:text-teal-600 transition-colors">About Us</router-link></li>
             <li><a href="#" class="text-sm text-stone-500 hover:text-teal-600 transition-colors">Careers</a></li>
             <li><router-link to="/privacy" class="text-sm text-stone-500 hover:text-teal-600 transition-colors">Privacy</router-link></li>
             <li><router-link to="/terms" class="text-sm text-stone-500 hover:text-teal-600 transition-colors">Terms</router-link></li>

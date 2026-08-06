@@ -38,6 +38,12 @@ export const catalogRoutes: RouteRecordRaw[] = [
     meta: { title: 'Terms of Service' },
   },
   {
+    path: '/about',
+    name: 'about',
+    component: () => import('../views/AboutView.vue'),
+    meta: { title: 'About Us' },
+  },
+  {
     path: '/privacy',
     name: 'privacy',
     component: () => import('../views/PrivacyView.vue'),
