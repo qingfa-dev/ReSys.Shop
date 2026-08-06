@@ -1,7 +1,19 @@
-import { post } from '@/shared/api'
+import { get, post } from '@/shared/api'
 import { ENDPOINTS } from '@/shared/constants/api'
-import type { PagedResult } from '@/shared/types/result'
+import type { Result, PagedResult } from '@/shared/types/result'
 import type { SearchByImageResponse } from '../types/searchByImage'
+
+export interface VisualSearchModel {
+  id: string
+  name: string
+  description: string | null
+  dimension: number
+  isOnnx: boolean
+}
+
+export function getVisualSearchModels(): Promise<Result<VisualSearchModel[]>> {
+  return get<Result<VisualSearchModel[]>>(ENDPOINTS.visualSearchModels)
+}
 
 export function searchByImage(image: File, topK = 20, model?: string): Promise<PagedResult<SearchByImageResponse>> {
   const formData = new FormData()

@@ -13,6 +13,7 @@ export const ENDPOINTS = {
   optionValues: `${API_STOREFRONT}/option-values`,
   images: `${API_STOREFRONT}/images`,
   search: `${API_STOREFRONT}/images/search`,
+  visualSearchModels: `${API_STOREFRONT}/products/visual-search/models`,
 
   // Ordering
   cart: `${API_STOREFRONT}/cart`,
