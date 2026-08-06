@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CartLineItem } from '../types/cart'
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 
 defineProps<{ item: CartLineItem }>()
 const emit = defineEmits<{ updateQuantity: [lineItemId: string, qty: number]; remove: [lineItemId: string] }>()
@@ -20,12 +20,12 @@ const emit = defineEmits<{ updateQuantity: [lineItemId: string, qty: number]; re
       <!-- Cart items expose no product slug — render the name without a detail link. -->
       <span class="text-sm font-medium text-stone-900">{{ item.productName }}</span>
       <p v-if="item.sku" class="text-xs text-stone-500 mt-1">{{ item.sku }}</p>
-      <p class="text-sm font-semibold text-stone-900 mt-1">{{ formatVnd(item.price) }}</p>
+      <p class="text-sm font-semibold text-stone-900 mt-1">{{ formatCurrency(item.price) }}</p>
     </div>
     <div class="flex flex-col items-end gap-2">
       <InputNumber :model-value="item.quantity" :min="1" :max="99" class="w-20" @update:model-value="(v: number) => emit('updateQuantity', item.id, v)" />
       <Button icon="pi pi-trash" severity="danger" text size="small" @click="emit('remove', item.id)" />
-      <p class="text-sm font-semibold">{{ formatVnd(item.total) }}</p>
+      <p class="text-sm font-semibold">{{ formatCurrency(item.total) }}</p>
     </div>
   </div>
 </template>

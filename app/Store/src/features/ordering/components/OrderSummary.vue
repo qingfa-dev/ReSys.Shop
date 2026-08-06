@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 
 defineProps<{ itemCount: number; subtotal: number }>()
 </script>
@@ -8,7 +8,7 @@ defineProps<{ itemCount: number; subtotal: number }>()
     <h3 class="text-lg font-semibold text-stone-900 mb-4">Order Summary</h3>
     <div class="flex justify-between text-sm text-stone-600 mb-2">
       <span>Items ({{ itemCount }})</span>
-      <span>{{ formatVnd(subtotal) }}</span>
+      <span>{{ formatCurrency(subtotal) }}</span>
     </div>
     <div class="flex justify-between text-sm text-stone-600 mb-2">
       <span>Shipping</span>
@@ -17,7 +17,7 @@ defineProps<{ itemCount: number; subtotal: number }>()
     <Divider />
     <div class="flex justify-between font-semibold text-stone-900 mb-6">
       <span>Total</span>
-      <span>{{ formatVnd(subtotal) }}</span>
+      <span>{{ formatCurrency(subtotal) }}</span>
     </div>
     <router-link to="/checkout">
       <Button label="Proceed to Checkout" class="w-full" :disabled="itemCount === 0" />

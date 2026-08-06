@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Wishlists', to: '/account/wishlists', icon: 'pi pi-heart' },
   { label: 'Notifications', to: '/account/notifications', icon: 'pi pi-bell' },
   { label: 'Change Password', to: '/account/change-password', icon: 'pi pi-key' },
+  { label: 'Preferences', to: '/account/preferences', icon: 'pi pi-cog' },
 ]
 </script>
 <template>

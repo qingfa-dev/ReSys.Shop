@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useCartStore } from '../stores/cartStore'
 import { useCheckoutStore } from '../stores/checkoutStore'
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 
 const checkout = useCheckoutStore()
 const cart = useCartStore()
@@ -20,7 +20,7 @@ async function placeOrder(): Promise<void> {
       </div>
       <div class="flex justify-between px-4 py-3 text-sm">
         <span class="text-stone-600">Subtotal</span>
-        <span class="text-stone-900 font-medium">{{ formatVnd(cart.subtotal) }}</span>
+        <span class="text-stone-900 font-medium">{{ formatCurrency(cart.subtotal) }}</span>
       </div>
       <div class="flex justify-between px-4 py-3 text-sm">
         <span class="text-stone-600">Shipping</span>

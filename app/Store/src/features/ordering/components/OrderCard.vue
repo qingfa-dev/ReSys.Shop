@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useConfirm } from 'primevue/useconfirm'
 import StatusTag from '@/shared/components/StatusTag.vue'
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import type { OrderListItem } from '../types/order'
 import { isOrderCancellable } from '../types/order'
@@ -35,7 +35,7 @@ function requestCancel(): void {
       </div>
       <div class="text-right">
         <p class="text-sm text-stone-500">Total</p>
-        <p class="text-lg font-bold text-stone-900">{{ formatVnd(order.total) }}</p>
+        <p class="text-lg font-bold text-stone-900">{{ formatCurrency(order.total) }}</p>
       </div>
     </div>
     <div class="mt-4 flex flex-wrap items-center justify-end gap-3">

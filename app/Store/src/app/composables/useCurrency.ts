@@ -1,7 +1,7 @@
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 
 export function useCurrency(): {
-  formatVnd: (amount: number) => string
+  formatCurrency: (amount: number) => string
 } {
-  return { formatVnd }
+  return { formatCurrency }
 }

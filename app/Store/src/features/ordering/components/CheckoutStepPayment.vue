@@ -4,7 +4,7 @@ import { useCartStore } from '../stores/cartStore'
 import { useCheckoutStore } from '../stores/checkoutStore'
 import { getPaymentMethods } from '@/features/payment/services/paymentApi'
 import { usePayment } from '@/features/payment/composables/usePayment'
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 import type { PaymentMethod } from '@/features/payment/types/payment'
 
 const checkout = useCheckoutStore()
@@ -83,7 +83,7 @@ async function pay(): Promise<void> {
     <h2 class="text-lg font-semibold text-stone-900 mb-4">Payment</h2>
     <div class="flex justify-between text-sm text-stone-600 mb-4">
       <span>Order total</span>
-      <span class="font-semibold text-stone-900">{{ formatVnd(cart.subtotal) }}</span>
+      <span class="font-semibold text-stone-900">{{ formatCurrency(cart.subtotal) }}</span>
     </div>
 
     <!-- Section: Loading -->

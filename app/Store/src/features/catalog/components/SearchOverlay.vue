@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { useSearch } from '../composables/useSearch'
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 
 const search = useSearch()
 
@@ -25,7 +25,7 @@ function onKeyDown(e: KeyboardEvent): void {
 
 // Map: Format price for display.
 function displayPrice(price: number | null): string {
-  return price != null ? formatVnd(price) : 'Contact'
+  return price != null ? formatCurrency(price) : 'Contact'
 }
 </script>
 <template>

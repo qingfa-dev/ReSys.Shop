@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { StoreProductListItemResponse } from '../types/product'
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 import ProductBadge from './ProductBadge.vue'
 
 const props = defineProps<{ product: StoreProductListItemResponse; loading?: boolean }>()
@@ -11,7 +11,7 @@ const emit = defineEmits<{ addToCart: [variantId: string] }>()
 // Map: Format price for display
 function displayPrice(): string {
   const price = props.product.masterVariant?.price
-  return price != null && price > 0 ? formatVnd(price) : 'Contact'
+  return price != null && price > 0 ? formatCurrency(price) : 'Contact'
 }
 
 // Map: Mark products available within the last 14 days as new

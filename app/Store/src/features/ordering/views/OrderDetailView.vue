@@ -3,7 +3,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import StatusTag from '@/shared/components/StatusTag.vue'
-import { formatVnd } from '@/shared/utils/currency'
+import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useOrderStore } from '../stores/orderStore'
@@ -114,28 +114,28 @@ onMounted(loadOrder)
             <div class="space-y-2 text-sm">
               <div class="flex justify-between text-stone-600">
                 <span>Items ({{ order.itemCount }})</span>
-                <span>{{ formatVnd(order.itemTotal) }}</span>
+                <span>{{ formatCurrency(order.itemTotal) }}</span>
               </div>
               <div class="flex justify-between text-stone-600">
                 <span>Adjustments</span>
-                <span>{{ formatVnd(order.adjustmentTotal) }}</span>
+                <span>{{ formatCurrency(order.adjustmentTotal) }}</span>
               </div>
               <div class="flex justify-between text-stone-600">
                 <span>Shipping</span>
-                <span>{{ formatVnd(order.shipmentTotal) }}</span>
+                <span>{{ formatCurrency(order.shipmentTotal) }}</span>
               </div>
               <Divider />
               <div class="flex justify-between font-semibold text-stone-900">
                 <span>Total</span>
-                <span>{{ formatVnd(order.total) }}</span>
+                <span>{{ formatCurrency(order.total) }}</span>
               </div>
               <div class="flex justify-between text-stone-600">
                 <span>Paid</span>
-                <span>{{ formatVnd(order.paymentTotal) }}</span>
+                <span>{{ formatCurrency(order.paymentTotal) }}</span>
               </div>
               <div class="flex justify-between text-stone-600">
                 <span>Outstanding Balance</span>
-                <span>{{ formatVnd(order.outstandingBalance) }}</span>
+                <span>{{ formatCurrency(order.outstandingBalance) }}</span>
               </div>
             </div>
           </div>
