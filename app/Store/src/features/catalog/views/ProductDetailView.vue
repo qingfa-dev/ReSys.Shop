@@ -201,9 +201,6 @@ watch(selectedVariantId, async (variantId) => {
             </p>
           </div>
 
-          <!-- Section: Product Details Info -->
-          <ProductDetailsInfo :product="product" />
-
           <!-- Section: Variant Options -->
           <ProductOptions
             v-if="product.variants.length > 0"
@@ -218,15 +215,15 @@ watch(selectedVariantId, async (variantId) => {
             <Button label="Add to Cart" icon="pi pi-shopping-cart" class="flex-1" :loading="adding" @click="addToCart" />
           </div>
 
-          <!-- Section: Description -->
-          <Accordion v-if="product.description" class="space-y-2">
-            <AccordionPanel value="description">
-              <AccordionHeader>Description</AccordionHeader>
-              <AccordionContent>
-                <p class="text-stone-600">{{ product.description }}</p>
-              </AccordionContent>
-            </AccordionPanel>
-          </Accordion>
+          <!-- Section: Description & Details Tabs -->
+          <TabView>
+            <TabPanel header="Description">
+              <p class="text-stone-600">{{ product.description }}</p>
+            </TabPanel>
+            <TabPanel header="Details">
+              <ProductDetailsInfo :product="product" />
+            </TabPanel>
+          </TabView>
         </div>
       </div>
 
