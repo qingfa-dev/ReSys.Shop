@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 import type { TaxonomyGroup } from '../types/taxon'
 import type { StoreOptionTypeListItem, StoreOptionValueListItemResponse } from '../types/optionType'
 import TaxonTreeNodes from './TaxonTreeNodes.vue'
+import FilterPriceRange from './FilterPriceRange.vue'
+import { useCatalogStore } from '../stores/catalogStore'
 
 const props = defineProps<{
   taxonomyGroups: TaxonomyGroup[]
@@ -11,15 +13,26 @@ const props = defineProps<{
   selectedOptionValueIds: string[]
 }>()
 const emit = defineEmits<{ toggleTaxon: [id: string]; toggleOptionValue: [id: string]; clear: [] }>()
+const catalog = useCatalogStore()
 
 // State: Track expanded taxonomy sections
 const expandedTaxonomyIds = ref<Set<string>>(new Set())
 
 // Map: Whether any filter is currently selected
-const hasSelection = computed(() => props.selectedTaxonIds.length > 0 || props.selectedOptionValueIds.length > 0)
+const hasSelection = computed(() =>
+  props.selectedTaxonIds.length > 0
+  || props.selectedOptionValueIds.length > 0
+  || catalog.minPrice != null
+  || catalog.maxPrice != null
+)
 
 // Map: Only render option types that are filterable
 const filterableTypes = computed(() => props.optionTypes.filter(t => t.filterable))
+
+const priceRange = computed({
+  get: () => ({ min: catalog.minPrice, max: catalog.maxPrice }),
+  set: (v: { min: number | null; max: number | null }) => catalog.setPriceRange(v.min, v.max),
+})
 
 // Trigger: Toggle expansion of a taxonomy accordion section
 function toggleTaxonomy(id: string): void {
@@ -82,5 +95,8 @@ function isTaxonomyExpanded(id: string): boolean {
         </label>
       </div>
     </section>
+
+    <!-- Section: Price Range -->
+    <FilterPriceRange v-model="priceRange" />
   </div>
 </template>
