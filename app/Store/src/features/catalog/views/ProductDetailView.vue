@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { getProductBySlug, getSimilarProducts } from '../services/productApi'
+import { getProductBySlug, getSimilarProducts, getRelatedProducts } from '../services/productApi'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useNotify } from '@/shared/composables/useNotify'
 import ProductGallery from '../components/ProductGallery.vue'
 import ProductOptions from '../components/ProductOptions.vue'
 import SimilarProductsRow from '../components/SimilarProductsRow.vue'
+import RelatedProductsRow from '../components/RelatedProductsRow.vue'
 import SizeGuideModal from '../components/SizeGuideModal.vue'
 import ProductDetailsInfo from '../components/ProductDetailsInfo.vue'
 import { useRecentlyViewed } from '@/shared/composables/useRecentlyViewed'
@@ -17,6 +18,8 @@ const cart = useCartStore()
 const notify = useNotify()
 const product = ref<StoreProductDetailResponse | null>(null)
 const similar = ref<StoreProductListItemResponse[]>([])
+const related = ref<StoreProductListItemResponse[]>([])
+const relatedLoading = ref(true)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const adding = ref(false)
@@ -60,6 +63,7 @@ async function loadProduct(slug: string): Promise<void> {
   loading.value = true
   error.value = null
   similar.value = []
+  related.value = []
   quantity.value = 1
   const result = await getProductBySlug(slug)
   if (result.isSuccess) {
@@ -76,6 +80,10 @@ async function loadProduct(slug: string): Promise<void> {
     selectedVariantId.value = result.value.masterVariant?.id ?? null
     const simResult = await getSimilarProducts(result.value.id)
     if (simResult.isSuccess) similar.value = simResult.items
+    relatedLoading.value = true
+    const relResult = await getRelatedProducts(result.value.id)
+    if (relResult.isSuccess) related.value = relResult.items
+    relatedLoading.value = false
   } else {
     error.value = result.message ?? 'Product not found'
   }
@@ -191,6 +199,13 @@ watch(() => route.params.slug, (slug) => {
       <SimilarProductsRow
         v-if="similar.length > 0"
         :products="similar"
+        class="mt-16"
+      />
+
+      <!-- Section: Related Products -->
+      <RelatedProductsRow
+        v-if="related.length > 0"
+        :products="related"
         class="mt-16"
       />
     </template>
