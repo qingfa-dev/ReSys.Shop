@@ -1,4 +1,4 @@
-namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
+namespace Module.Catalog.Features.Storefront.Products.Images.Search;
 
 public static class SearchByImageResult
 {

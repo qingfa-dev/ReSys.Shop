@@ -12,7 +12,7 @@ interface OptionDimension {
   optionTypeId: string
   optionTypeName: string | null
   values: Array<{
-    optionValueId: string
+    id: string
     name: string
     presentation: string | null
   }>
@@ -32,9 +32,9 @@ const dimensions = computed<OptionDimension[]>(() => {
         })
       }
       const dim = map.get(ov.optionTypeId)!
-      if (!dim.values.some(v => v.optionValueId === ov.optionValueId)) {
+      if (!dim.values.some(v => v.id === ov.id)) {
         dim.values.push({
-          optionValueId: ov.optionValueId,
+          id: ov.id,
           name: ov.name,
           presentation: ov.presentation,
         })
@@ -54,7 +54,7 @@ watch(() => props.modelValue, (newId) => {
   if (variant) {
     const next = new Map<string, string>()
     for (const ov of variant.optionValues) {
-      next.set(ov.optionTypeId, ov.optionValueId)
+      next.set(ov.optionTypeId, ov.id)
     }
     selectedByOptionType.value = next
   }
@@ -64,7 +64,7 @@ watch(() => props.modelValue, (newId) => {
 function isOptionValueOutOfStock(optionTypeId: string, optionValueId: string): boolean {
   const matchingVariant = props.variants.find(v => {
     return v.optionValues.some(ov =>
-      ov.optionTypeId === optionTypeId && ov.optionValueId === optionValueId
+      ov.optionTypeId === optionTypeId && ov.id === optionValueId
     )
   })
   if (!matchingVariant) return true
@@ -82,7 +82,7 @@ function selectValue(optionTypeId: string, optionValueId: string): void {
   const variant = props.variants.find(v => {
     return v.optionValues.every(ov => {
       const selected = next.get(ov.optionTypeId)
-      return !selected || selected === ov.optionValueId
+      return !selected || selected === ov.id
     })
   })
   if (variant) emit('update:modelValue', variant.id)
@@ -103,18 +103,18 @@ function displayValue(value: { name: string; presentation: string | null }): str
       <div class="flex flex-wrap gap-2">
         <button
           v-for="value in dim.values"
-          :key="value.optionValueId"
+          :key="value.id"
           class="px-4 py-2 rounded-lg border text-sm transition-colors"
           :class="[
-            selectedByOptionType.get(dim.optionTypeId) === value.optionValueId
+            selectedByOptionType.get(dim.optionTypeId) === value.id
               ? 'border-stone-900 bg-stone-900 text-white'
               : 'border-stone-300 text-stone-700 hover:border-stone-400',
-            isOptionValueOutOfStock(dim.optionTypeId, value.optionValueId)
+            isOptionValueOutOfStock(dim.optionTypeId, value.id)
               ? 'line-through opacity-50 cursor-not-allowed'
               : 'cursor-pointer',
           ]"
-          :disabled="isOptionValueOutOfStock(dim.optionTypeId, value.optionValueId)"
-          @click="selectValue(dim.optionTypeId, value.optionValueId)"
+          :disabled="isOptionValueOutOfStock(dim.optionTypeId, value.id)"
+          @click="selectValue(dim.optionTypeId, value.id)"
         >
           {{ displayValue(value) }}
         </button>

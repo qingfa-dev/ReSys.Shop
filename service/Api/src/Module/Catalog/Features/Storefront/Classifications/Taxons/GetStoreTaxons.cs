@@ -39,6 +39,7 @@ public static partial class GetStoreTaxons
                 .Include(t => t.Children)
                 .AsNoTracking()
                 .OrderBy(t => t.Lft)
+                .Where(t => parameters.Depth == null || t.Depth == parameters.Depth)
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreListItem<Response>(), cancellationToken);
 

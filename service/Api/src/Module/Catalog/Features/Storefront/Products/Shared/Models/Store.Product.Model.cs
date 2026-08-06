@@ -9,7 +9,7 @@ public record StoreProductListItemResponse : ProductListItemResponse
 {
     #region Storefront
     public StoreProductVariantResponse? MasterVariant { get; init; }
-    public List<StoreTaxonListItemResponse> Taxons { get; init; } = [];
+    public List<StoreTaxonListItemResponse> Classifications { get; init; } = [];
     #endregion
 }
 

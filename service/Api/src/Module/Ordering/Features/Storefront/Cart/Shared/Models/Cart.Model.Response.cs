@@ -3,8 +3,10 @@ using Module.Ordering.Domain.Orders;
 namespace Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
 /// <summary>Line item within a cart response — identifies the variant, quantity, and computed totals.</summary>
-public record CartItem : Response
+public record CartItem
 {
+    /// <summary>The product variant added to the cart.</summary>
+    public Guid Id { get; init; }
     /// <summary>The product variant added to the cart.</summary>
     public Guid VariantId { get; init; }
     /// <summary>Display name of the product variant.</summary>

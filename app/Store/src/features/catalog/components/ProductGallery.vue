@@ -15,11 +15,13 @@ watch(() => props.images, () => {
   <div class="space-y-4">
     <!-- Section: Main Image -->
     <div class="aspect-square bg-stone-100 rounded-xl overflow-hidden">
-      <img
+      <Image
         v-if="images.length > 0"
         :src="images[activeIndex]?.url"
         :alt="images[activeIndex]?.alt ?? alt"
-        class="w-full h-full object-cover"
+        :preview="true"
+        image-class="w-full h-full object-cover"
+        class="w-full h-full"
       />
       <div v-else class="w-full h-full flex items-center justify-center text-stone-400">
         <i class="pi pi-image text-6xl" />

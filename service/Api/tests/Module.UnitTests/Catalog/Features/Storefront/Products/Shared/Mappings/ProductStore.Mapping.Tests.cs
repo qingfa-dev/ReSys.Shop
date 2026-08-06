@@ -83,10 +83,11 @@ public class ProductStoreMappingTests
         response.Name.Should().Be(product.Name);
         response.Slug.Should().Be(product.Slug);
         response.Description.Should().Be(product.Description);
-        response.MinPrice.Should().Be(29.99m);
-        response.Currency.Should().Be("USD");
-        response.ThumbnailUrl.Should().NotBeNull();
-        response.ThumbnailAlt.Should().Be("Test image");
+        response.MasterVariant.Should().NotBeNull();
+        response.MasterVariant!.Price.Should().Be(29.99m);
+        response.MasterVariant!.Currency.Should().Be("USD");
+        response.MasterVariant!.Images.Should().NotBeEmpty();
+        response.MasterVariant!.Images[0].Alt.Should().Be("Test image");
         response.AvailableOn.Should().Be(product.AvailableOn);
         response.VariantsCount.Should().Be(1);
     }
@@ -101,10 +102,7 @@ public class ProductStoreMappingTests
 
         var response = product.MapToStoreListItem<StoreProductListItemResponse>();
 
-        response.MinPrice.Should().BeNull();
-        response.Currency.Should().BeNull();
-        response.ThumbnailUrl.Should().BeNull();
-        response.ThumbnailAlt.Should().BeNull();
+        response.MasterVariant.Should().BeNull();
         response.VariantsCount.Should().Be(0);
     }
 
@@ -137,8 +135,16 @@ public class ProductStoreMappingTests
         image.VariantId = variant.Id;
         variant.VariantImages.Add(image);
 
-        var classificationResult = ClassificationMethod.Create(productId: product.Id, taxonId: Guid.NewGuid());
+        var taxonResult = TaxonMethod.Create(
+            taxonomyId: Guid.NewGuid(), parentId: null, name: "Clothing", presentation: "Clothing",
+            description: null, position: 0, slug: "clothing", metaTitle: null, metaDescription: null, metaKeywords: null,
+            automatic: false, rulesMatchPolicy: null, sortOrder: null, hideFromNav: false,
+            imageUrl: null, squareImageUrl: null);
+        taxonResult.IsSuccess.Should().BeTrue();
+        var taxon = taxonResult.Value;
+        var classificationResult = ClassificationMethod.Create(productId: product.Id, taxonId: taxon.Id);
         classificationResult.IsSuccess.Should().BeTrue();
+        classificationResult.Value.Taxon = taxon;
         product.Classifications.Add(classificationResult.Value);
 
         return product;

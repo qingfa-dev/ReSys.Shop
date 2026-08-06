@@ -8,6 +8,7 @@ using Module.Catalog.Domain.Products.Variants.Prices;
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Storefront.Products.Get.List;
+using Module.Inventory.Services;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.List;
 
@@ -17,6 +18,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.List;
 public class ListProductsTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<IStockAvailabilityCalculator> _calculatorMock;
     private readonly GetStorefrontProducts.PagedQueryHandler _handler;
 
     public ListProductsTests()
@@ -28,7 +30,14 @@ public class ListProductsTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetStorefrontProducts.PagedQueryHandler(_dbContext);
+        _calculatorMock = new Mock<IStockAvailabilityCalculator>();
+        _calculatorMock
+            .Setup(c => c.GetAvailableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int>());
+        _calculatorMock
+            .Setup(c => c.GetBackorderableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, bool>());
+        _handler = new GetStorefrontProducts.PagedQueryHandler(_dbContext, _calculatorMock.Object);
     }
 
     public void Dispose()
@@ -356,10 +365,9 @@ public class ListProductsTests : IDisposable
         result.Items.First().Name.Should().Be("Unfiltered Product");
     }
 
-    [Fact(DisplayName = "Handler: Should return facet counts when IncludeFacets is true")]
-    public async Task Handle_ShouldReturnFacetCounts_WhenIncludeFacets()
+    [Fact(DisplayName = "Handler: Should return products without facets")]
+    public async Task Handle_ShouldReturnProductsWithoutFacets()
     {
-        // Arrange: Option type + value facets
         var optionType = OptionTypeMethod.Create("Color", "Color", filterable: true).Value;
         var redValue = OptionValueMethod.Create(optionType.Id, "Red", "Red").Value;
         optionType.OptionValues.Add(redValue);
@@ -369,52 +377,21 @@ public class ListProductsTests : IDisposable
         redVariant.OptionValueVariants.Add(OptionValueVariantMethod.Create(redVariant.Id, redValue.Id).Value);
         redProduct.Variants.Add(redVariant);
 
-        var redPants = CreateActiveProduct("Red Pants", "red-pants");
-        var redPantsVariant = VariantMethod.Create(redPants.Id, "RP", isMaster: false).Value;
-        redPantsVariant.OptionValueVariants.Add(OptionValueVariantMethod.Create(redPantsVariant.Id, redValue.Id).Value);
-        redPants.Variants.Add(redPantsVariant);
-
-        // Arrange: Taxon facet
-        var taxonomy = TaxonomyMethod.Create("Categories", "Categories").Value;
-        var taxon = TaxonMethod.Create(
-            taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts",
-            null, null, null, false, null, null, false, null, null).Value;
-        taxonomy.Taxons.Add(taxon);
-        redProduct.Classifications.Add(ClassificationMethod.Create(redProduct.Id, taxon.Id).Value);
-
         _dbContext.Set<OptionType>().Add(optionType);
-        _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Product>().Add(redProduct);
-        _dbContext.Set<Product>().Add(redPants);
         _dbContext.Set<Variant>().Add(redVariant);
-        _dbContext.Set<Variant>().Add(redPantsVariant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Act
         var result = await _handler.Handle(
-            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters { IncludeFacets = true }),
+            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
             TestContext.Current.CancellationToken);
 
-        // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Items.Should().HaveCount(2);
-        var facets = result.Items.First().Facets;
-        facets.Should().NotBeNull();
-        facets!.Groups.Should().HaveCount(2);
-
-        var colorGroup = facets.Groups.First(g => g.Name == "Color");
-        colorGroup.Values.Should().HaveCount(1);
-        colorGroup.Values[0].Label.Should().Be("Red");
-        colorGroup.Values[0].Count.Should().Be(2);
-
-        var categoryGroup = facets.Groups.First(g => g.Name == "Category");
-        categoryGroup.Values.Should().HaveCount(1);
-        categoryGroup.Values[0].Label.Should().Be("shirts");
-        categoryGroup.Values[0].Count.Should().Be(1);
+        result.Items.Should().HaveCount(1);
     }
 
-    [Fact(DisplayName = "Handler: Should not return facets when IncludeFacets is false")]
-    public async Task Handle_ShouldNotReturnFacets_WhenIncludeFacetsFalse()
+    [Fact(DisplayName = "Handler: Should not return facets by default")]
+    public async Task Handle_ShouldNotReturnFacets()
     {
         var product = CreateActiveProduct("Plain Product", "plain-product");
         _dbContext.Set<Product>().Add(product);
@@ -425,6 +402,6 @@ public class ListProductsTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Items.First().Facets.Should().BeNull();
+        result.Items.First().Taxons.Should().NotBeNull();
     }
 }

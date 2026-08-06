@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Products.Shared.Models;
 using Module.Inventory.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Detail;
@@ -11,8 +11,6 @@ public static partial class GetProductDetail
     #region Query
 
     public sealed record Query(string Slug) : IQuery<Response>;
-
-    public record Response : StoreProductDetailResponse;
 
     #endregion
 
@@ -111,12 +109,8 @@ public static partial class GetProductDetail
                         : null;
                 }
 
-                response.Classifications[i] = new StoreProductTaxonResponse
+                response.Classifications[i] = response.Classifications[i] with
                 {
-                    Id = taxon.Id,
-                    Name = taxon.Name,
-                    Permalink = taxon.Permalink,
-                    Depth = taxon.Depth,
                     Breadcrumb = breadcrumb
                 };
             }

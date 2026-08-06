@@ -20,7 +20,7 @@ public static partial class UpdateOrderBillAddress
 
             When(x => x.Request is not null, () =>
             {
-                RuleFor(x => x.Request!.AddressId)
+                RuleFor(x => x.Request.AddressId)
                     .ApplyBillAddressIdRules();
             });
         }

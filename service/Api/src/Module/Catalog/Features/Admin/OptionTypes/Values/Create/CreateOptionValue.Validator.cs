@@ -9,7 +9,7 @@ public static partial class CreateOptionValue
         public Validator()
         {
             RuleFor(x => x.Request)
-                .ApplyOptionValueParametersRules();
+                .ApplyOptionValueRequestRules();
         }
     }
 }

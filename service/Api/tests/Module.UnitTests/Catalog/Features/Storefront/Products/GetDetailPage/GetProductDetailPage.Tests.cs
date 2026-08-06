@@ -4,6 +4,7 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Prices;
 using Module.Catalog.Features.Storefront.Products.Get.Detail;
+using Module.Inventory.Services;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetDetailPage;
 
@@ -13,6 +14,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetDetailPage;
 public class GetProductDetailPageTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<IStockAvailabilityCalculator> _calculatorMock;
     private readonly GetProductDetail.QueryHandler _handler;
 
     public GetProductDetailPageTests()
@@ -24,7 +26,12 @@ public class GetProductDetailPageTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetProductDetail.QueryHandler(_dbContext, NullLogger<GetProductDetail.QueryHandler>.Instance);
+        _calculatorMock = new Mock<IStockAvailabilityCalculator>();
+        _calculatorMock.Setup(x => x.GetAvailableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int>());
+        _calculatorMock.Setup(x => x.GetBackorderableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, bool>());
+        _handler = new GetProductDetail.QueryHandler(_dbContext, NullLogger<GetProductDetail.QueryHandler>.Instance, _calculatorMock.Object);
     }
 
     public void Dispose()

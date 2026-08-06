@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Storefront.OptionTypes.Get.All;
+using Module.Catalog.Features.Storefront.Options.Types;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.OptionTypes.List;
 
@@ -10,7 +10,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.OptionTypes.List;
 public class ListOptionTypesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetAllOptionTypes.PagedQueryHandler _handler;
+    private readonly GetStoreOptionTypes.PagedQueryHandler _handler;
 
     public ListOptionTypesTests()
     {
@@ -21,7 +21,7 @@ public class ListOptionTypesTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(OptionType).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetAllOptionTypes.PagedQueryHandler(_dbContext);
+        _handler = new GetStoreOptionTypes.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -39,11 +39,12 @@ public class ListOptionTypesTests : IDisposable
         _dbContext.Set<OptionType>().Add(color);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetAllOptionTypes.Query(new GetAllOptionTypes.Parameters()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetStoreOptionTypes.Query(new GetStoreOptionTypes.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().HaveCount(1);
-        result.Items.First().Values.Should().HaveCount(2);
+        result.Items.First().Name.Should().Be("Color");
+        result.Items.First().Filterable.Should().BeTrue();
     }
 
     [Fact(DisplayName = "Handler: Should exclude non-filterable option types")]
@@ -53,7 +54,7 @@ public class ListOptionTypesTests : IDisposable
         _dbContext.Set<OptionType>().Add(material);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetAllOptionTypes.Query(new GetAllOptionTypes.Parameters()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetStoreOptionTypes.Query(new GetStoreOptionTypes.Parameters()), TestContext.Current.CancellationToken);
 
         result.Items.Should().BeEmpty();
     }

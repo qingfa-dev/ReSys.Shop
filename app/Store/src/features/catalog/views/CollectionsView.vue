@@ -28,7 +28,7 @@ onMounted(async () => {
 
 // Map: Open a collection in the shop filtered by the taxon
 function openCollection(taxon: StoreTaxonListItemResponse): void {
-  catalog.setTaxon(taxon.id)
+  catalog.toggleTaxon(taxon.id)
   router.push('/shop')
 }
 </script>

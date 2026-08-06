@@ -17,7 +17,6 @@ global using Shared.Application.Mediators.Commands;
 global using Shared.Application.Mediators.Queries;
 global using Shared.Application.Models.Errors;
 global using Shared.Application.Models.Parameters;
-global using Shared.Application.Models.Responses;
 global using Shared.Application.Models.Results;
 global using Shared.Application.Systems.SystemDateTimes;
 global using Shared.Operational.Persistence.Data;

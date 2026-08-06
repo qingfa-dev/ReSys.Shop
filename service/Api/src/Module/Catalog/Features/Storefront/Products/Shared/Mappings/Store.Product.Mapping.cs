@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Features.Admin.Products.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Classifications.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
 
@@ -15,8 +16,9 @@ public static class StoreProductMapping
         var masterVariant = entity.Variants.FirstOrDefault(v => v.IsMaster);
         var taxons = entity.Classifications?
             .Select(c => c.Taxon)
-            ?.Select(t => t.MapToStoreListItem<StoreTaxonListItemResponse>())
-            .ToList();
+            .Where(t => t is not null)
+            .Select(t => t!.MapToStoreListItem<StoreTaxonListItemResponse>())
+            .ToList() ?? [];
 
         return response with
         {
@@ -37,6 +39,11 @@ public static class StoreProductMapping
     {
         var response = entity.MapToListItem<T>();
         var masterVariant = entity.Variants.FirstOrDefault(v => v.IsMaster);
+        var taxons = entity.Classifications?
+            .Select(c => c.Taxon)
+            .Where(t => t is not null)
+            .Select(t => t!.MapToStoreListItem<StoreTaxonListItemResponse>())
+            .ToList() ?? [];
 
         return response with
         {

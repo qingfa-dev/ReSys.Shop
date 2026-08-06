@@ -11,7 +11,7 @@ public static partial class UpdateOptionValue
             RuleFor(x => x.Id).NotEmpty();
 
             RuleFor(x => x.Request)
-                .ApplyOptionValueParametersRules();
+                .ApplyOptionValueRequestRules();
         }
     }
 }

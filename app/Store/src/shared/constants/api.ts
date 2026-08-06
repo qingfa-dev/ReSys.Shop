@@ -7,13 +7,12 @@ export const ENDPOINTS = {
   productBySlug: (slug: string) => `${API_STOREFRONT}/products/${slug}`,
   productRelated: `${API_STOREFRONT}/products/related`,
   productSimilar: `${API_STOREFRONT}/products/similar`,
-  searchByImage: `${API_STOREFRONT}/search-by-image`,
-  // taxonomies: No backend GET /api/storefront/taxonomies list endpoint — use taxons instead
-  taxonomyById: (id: string) => `${API_STOREFRONT}/taxonomies/${id}`,
+  taxonomies: `${API_STOREFRONT}/taxonomies`,
   taxons: `${API_STOREFRONT}/taxons`,
-  taxonProducts: `${API_STOREFRONT}/taxons/products`,
   optionTypes: `${API_STOREFRONT}/option-types`,
+  optionValues: `${API_STOREFRONT}/option-values`,
   images: `${API_STOREFRONT}/images`,
+  search: `${API_STOREFRONT}/images/search`,
 
   // Ordering
   cart: `${API_STOREFRONT}/cart`,

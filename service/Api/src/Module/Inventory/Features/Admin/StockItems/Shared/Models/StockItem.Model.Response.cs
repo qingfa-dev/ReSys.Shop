@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockItems.Shared.Models;
 
-public record ImportStockItemsResponseBase : Response
+public record ImportStockItemsResponseBase
 {
     public int Created { get; init; }
     public int Updated { get; init; }
@@ -26,7 +26,7 @@ public record StockItemListItemResponse : StockItemParameters
     public string? ModifiedBy { get; init; }
 }
 
-public record RestockResultResponse : Response
+public record RestockResultResponse
 {
     public Guid StockItemId { get; init; }
     public int PreviousCountOnHand { get; init; }
@@ -37,7 +37,7 @@ public record RestockResultResponse : Response
     public Guid? MovementId { get; init; }
 }
 
-public record StockSummaryDetailResponse : Response
+public record StockSummaryDetailResponse
 {
     public Guid VariantId { get; init; }
     public int TotalOnHand { get; init; }
@@ -46,7 +46,7 @@ public record StockSummaryDetailResponse : Response
     public List<LocationBreakdownItem> LocationBreakdown { get; init; } = [];
 }
 
-public record LocationBreakdownItem : Response
+public record LocationBreakdownItem
 {
     public Guid LocationId { get; init; }
     public string LocationName { get; init; } = string.Empty;

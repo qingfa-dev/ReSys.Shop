@@ -237,7 +237,7 @@ public sealed class StripeGateway : Gateway
         var e = ex.StripeError;
         var code = e?.Code ?? GatewayConstants.ErrorCodes.Stripe.UnknownError;
         var msg = e?.DeclineCode is not null
-            ? $"Stripe [{code}] decline [{e.DeclineCode}]: {e!.Message}"
+            ? $"Stripe [{code}] decline [{e.DeclineCode}]: {e.Message}"
             : $"Stripe [{code}]: {e?.Message ?? ex.Message}";
 
         var isTransient = ex.HttpStatusCode >= System.Net.HttpStatusCode.InternalServerError

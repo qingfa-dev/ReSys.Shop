@@ -26,7 +26,7 @@ public static partial class UpdateOrderLineItem
 
             When(x => x.Request is not null, () =>
             {
-                RuleFor(x => x.Request!.Quantity)
+                RuleFor(x => x.Request.Quantity)
                     .ApplyQuantityRules();
             });
         }

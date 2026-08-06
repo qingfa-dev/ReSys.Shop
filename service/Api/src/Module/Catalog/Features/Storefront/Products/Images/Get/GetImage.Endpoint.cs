@@ -10,7 +10,7 @@ public static partial class GetImage
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/images/{id} — serve product variant image file
-            app.MapGet(CatalogFeature.Storefront.Images.Image.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Products.Images.Get.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,12 +21,12 @@ public static partial class GetImage
                 if (result.IsFailure)
                     return result.ToResult();
 
-                return TypedResults.PhysicalFile(result.Value.FullPath, result.Value.ContentType);
+                return Results.File(result.Value.Stream, result.Value.ContentType);
             })
             .WithName(nameof(GetImage))
             .WithTags(CatalogFeature.Tags.Variant)
-            .WithSummary(CatalogFeature.Storefront.Images.Image.Summary)
-            .WithDescription(CatalogFeature.Storefront.Images.Image.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Images.Get.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Images.Get.Description)
             .Produces(StatusCodes.Status200OK)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

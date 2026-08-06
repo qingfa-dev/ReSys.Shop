@@ -40,9 +40,10 @@ const emit = defineEmits<{ addToCart: [variantId: string] }>()
               currency: null,
               optionValues: [],
               images: item.thumbnailUrl ? [{ id: '', url: item.thumbnailUrl, alt: null, position: 0 }] : [],
+              prices: [],
               stock: { availableQuantity: 0, backorderable: false },
             },
-            taxons: [],
+            classifications: [],
           }"
           @add-to-cart="(id: string) => emit('addToCart', id)"
         />

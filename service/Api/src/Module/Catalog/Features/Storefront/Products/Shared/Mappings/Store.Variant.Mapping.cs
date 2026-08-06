@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Features.Storefront.Options.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
 
 namespace Module.Catalog.Features.Storefront.Products.Shared.Mappings;
@@ -17,7 +18,7 @@ public static class StoreProductVariantMapping
         return new StoreProductVariantResponse
         {
             Id = variant.Id,
-            Sku = variant.Sku,
+            Sku = variant.Sku ?? string.Empty,
             IsMaster = variant.IsMaster,
 
             #region Price Fallback

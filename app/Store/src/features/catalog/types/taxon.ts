@@ -1,3 +1,33 @@
+export interface StoreTaxonomyListItem {
+  id: string
+  name: string
+  presentation: string | null
+  position: number
+}
+
+export interface TaxonBreadcrumbItem {
+  id: string
+  name: string
+  permalink: string
+}
+
+export interface StoreTaxonListItemResponse {
+  id: string
+  name: string
+  permalink: string
+  depth: number
+  slug: string
+  presentation: string | null
+  taxonomyId: string
+  parentId: string | null
+  position: number
+  imageUrl: string | null
+  taxonCount: number | null
+  childrenCount: number | null
+  prettyName: string
+  breadcrumb: TaxonBreadcrumbItem[]
+}
+
 export interface TaxonTreeNode {
   id: string
   name: string
@@ -8,23 +38,7 @@ export interface TaxonTreeNode {
   children: TaxonTreeNode[]
 }
 
-export interface StoreTaxonomyTreeResponse {
-  id: string
-  name: string
-  presentation: string | null
-  position: number
-  nodes: TaxonTreeNode[]
-}
-
-export interface StoreTaxonListItemResponse {
-  id: string
-  name: string
-  permalink: string
-  depth: number
-  taxonCount: number
-  parentId: string | null
-  taxonomyId: string
-  position: number
-  slug: string
-  imageUrl: string | null
+export interface TaxonomyGroup {
+  taxonomy: StoreTaxonomyListItem
+  tree: TaxonTreeNode[]
 }

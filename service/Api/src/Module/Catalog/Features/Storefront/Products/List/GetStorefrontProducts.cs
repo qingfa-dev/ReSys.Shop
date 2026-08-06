@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
 using Module.Inventory.Services;
@@ -135,11 +136,9 @@ public static partial class GetStorefrontProducts
                     };
                 }
 
-                var taxonsWithBreadcrumbs = item.Taxons.Select(t =>
+                var taxonsWithBreadcrumbs = item.Classifications.Select<StoreTaxonListItemResponse, StoreTaxonListItemResponse>(t =>
                 {
                     var taxonEntity = taxonLookup.GetValueOrDefault(t.Id);
-                    if (taxonEntity is null) return t;
-
                     var breadcrumb = new List<TaxonBreadcrumbItem>();
                     Taxon? current = taxonEntity;
                     while (current is not null)
@@ -150,17 +149,10 @@ public static partial class GetStorefrontProducts
                             : null;
                     }
 
-                    return new StoreProductTaxonResponse
-                    {
-                        Id = t.Id,
-                        Name = t.Name,
-                        Permalink = t.Permalink,
-                        Depth = t.Depth,
-                        Breadcrumb = breadcrumb
-                    };
+                    return t with { Breadcrumb = breadcrumb };
                 }).ToList();
 
-                return item with { Taxons = taxonsWithBreadcrumbs };
+                return item with { Classifications = taxonsWithBreadcrumbs };
             }).ToList();
 
             #endregion

@@ -5,7 +5,7 @@ using Module.Catalog.Features.Storefront.Products.Shared.Services;
 
 using Pgvector;
 
-namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
+namespace Module.Catalog.Features.Storefront.Products.Images.Search;
 
 /// <summary>
 /// Defines the use case for searching products by image similarity.

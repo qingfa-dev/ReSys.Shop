@@ -1,3 +1,5 @@
+import type { StoreTaxonListItemResponse } from './taxon'
+
 export interface StoreProductListItemResponse {
   id: string
   masterVariantId: string
@@ -15,21 +17,13 @@ export interface StoreProductListItemResponse {
   variantsCount: number
   availableOn: string | null
   masterVariant: StoreProductVariantResponse | null
-  taxons: StoreProductTaxonResponse[]
+  classifications: StoreTaxonListItemResponse[]
 }
 
 export interface StoreProductDetailResponse extends StoreProductListItemResponse {
   masterVariant: StoreProductVariantResponse | null
   variants: StoreProductVariantResponse[]
-  taxons: StoreProductTaxonResponse[]
-}
-
-export interface StoreProductTaxonResponse {
-  id: string
-  name: string
-  permalink: string
-  depth: number
-  breadcrumb?: Array<{ id: string; name: string; permalink: string }>
+  classifications: StoreTaxonListItemResponse[]
 }
 
 export interface StoreVariantStockInfo {
@@ -38,8 +32,8 @@ export interface StoreVariantStockInfo {
 }
 
 export interface StoreVariantOptionValueResponse {
+  id: string
   variantOptionValueId: string
-  optionValueId: string
   name: string
   presentation: string | null
   position: number
@@ -55,6 +49,7 @@ export interface StoreProductVariantResponse {
   currency: string | null
   optionValues: StoreVariantOptionValueResponse[]
   images: StoreProductImageResponse[]
+  prices: StoreVariantPriceResponse[]
   stock: StoreVariantStockInfo
 }
 
@@ -63,4 +58,12 @@ export interface StoreProductImageResponse {
   url: string
   alt: string | null
   position: number
+}
+
+export interface StoreVariantPriceResponse {
+  id: string
+  amount: number | null
+  currency: string
+  compareAtAmount: number | null
+  countryIso: string | null
 }

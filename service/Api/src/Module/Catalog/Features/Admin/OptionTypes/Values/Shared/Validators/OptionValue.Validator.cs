@@ -5,9 +5,9 @@ namespace Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Validators;
 
 public static partial class OptionValueValidators
 {
-    public sealed class OptionValueParametersValidator : AbstractValidator<OptionValueParameters>
+    public sealed class OptionValueRequestValidator : AbstractValidator<OptionValueRequest>
     {
-        public OptionValueParametersValidator()
+        public OptionValueRequestValidator()
         {
             RuleFor(x => x.OptionTypeId).ApplyOptionTypeIdRules();
             RuleFor(x => x.Name).ApplyNameRules();
@@ -16,11 +16,11 @@ public static partial class OptionValueValidators
         }
     }
 
-    public static IRuleBuilderOptions<T, OptionValueParameters> ApplyOptionValueParametersRules<T>(
-        this IRuleBuilder<T, OptionValueParameters> ruleBuilder)
+    public static IRuleBuilderOptions<T, OptionValueRequest> ApplyOptionValueRequestRules<T>(
+        this IRuleBuilder<T, OptionValueRequest> ruleBuilder)
     {
         return ruleBuilder
             .NotNull()
-            .SetValidator(new OptionValueParametersValidator());
+            .SetValidator(new OptionValueRequestValidator());
     }
 }

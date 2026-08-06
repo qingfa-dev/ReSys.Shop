@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 export const useCatalogStore = defineStore('catalog', () => {
   const searchQuery = ref('')
-  const selectedTaxonId = ref<string | null>(null)
+  const selectedTaxonIds = ref<string[]>([])
   const selectedOptionValueIds = ref<string[]>([])
   const minPrice = ref<number | null>(null)
   const maxPrice = ref<number | null>(null)
@@ -14,8 +14,13 @@ export const useCatalogStore = defineStore('catalog', () => {
     searchQuery.value = q
   }
 
-  function setTaxon(id: string | null): void {
-    selectedTaxonId.value = id
+  function toggleTaxon(id: string): void {
+    const idx = selectedTaxonIds.value.indexOf(id)
+    if (idx >= 0) {
+      selectedTaxonIds.value.splice(idx, 1)
+    } else {
+      selectedTaxonIds.value.push(id)
+    }
   }
 
   function toggleOptionValue(id: string): void {
@@ -33,15 +38,15 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   function clearFilters(): void {
+    selectedTaxonIds.value = []
     selectedOptionValueIds.value = []
     minPrice.value = null
     maxPrice.value = null
-    selectedTaxonId.value = null
     searchQuery.value = ''
   }
 
   return {
-    searchQuery, selectedTaxonId, selectedOptionValueIds, minPrice, maxPrice, sortField, sortOrder,
-    setSearch, setTaxon, toggleOptionValue, setPriceRange, clearFilters,
+    searchQuery, selectedTaxonIds, selectedOptionValueIds, minPrice, maxPrice, sortField, sortOrder,
+    setSearch, toggleTaxon, toggleOptionValue, setPriceRange, clearFilters,
   }
 })

@@ -5,15 +5,16 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useCatalogStore } from '../stores/catalogStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useNotify } from '@/shared/composables/useNotify'
-import { getTaxonomyTree, getTaxons, CATEGORIES_TAXONOMY_ID } from '../services/taxonApi'
+import { getTaxonomies, getTaxons } from '../services/taxonApi'
 import { getOptionTypes } from '../services/optionTypeApi'
+import { getOptionValues } from '../services/optionValueApi'
+import { buildTaxonTree } from '../utils/taxonTree'
 import { ENDPOINTS } from '@/shared/constants/api'
 import ProductGrid from '../components/ProductGrid.vue'
-import CategoryTree from '../components/CategoryTree.vue'
 import FilterSidebar from '../components/FilterSidebar.vue'
 import type { StoreProductListItemResponse } from '../types/product'
-import type { StoreTaxonomyTreeResponse } from '../types/taxon'
-import type { StoreOptionTypeResponse } from '../types/optionType'
+import type { TaxonomyGroup } from '../types/taxon'
+import type { StoreOptionTypeListItem, StoreOptionValueListItemResponse } from '../types/optionType'
 
 const route = useRoute()
 const catalog = useCatalogStore()
@@ -25,7 +26,7 @@ const query = usePagedQuery<StoreProductListItemResponse>(
   () => {
     const params = new URLSearchParams()
     if (catalog.searchQuery) params.append('search', catalog.searchQuery)
-    if (catalog.selectedTaxonId) params.append('taxonId', catalog.selectedTaxonId)
+    catalog.selectedTaxonIds.forEach(id => params.append('taxonId', id))
     catalog.selectedOptionValueIds.forEach(id => params.append('optionValueId', id))
     if (catalog.minPrice != null) params.append('minPrice', String(catalog.minPrice))
     if (catalog.maxPrice != null) params.append('maxPrice', String(catalog.maxPrice))
@@ -36,11 +37,9 @@ const query = usePagedQuery<StoreProductListItemResponse>(
 )
 const { items, loading, error, totalCount, totalPages, page, pageSize, refresh, setPage, setSort } = query
 
-// State: Taxonomy tree and filters
-const taxonomyTree = ref<StoreTaxonomyTreeResponse | null>(null)
-const treeError = ref<string | null>(null)
-const optionTypes = ref<StoreOptionTypeResponse[]>([])
-const treeLoading = ref(true)
+// State: Taxonomy groups and filters
+const taxonomyGroups = ref<TaxonomyGroup[]>([])
+const optionTypes = ref<(StoreOptionTypeListItem & { values: StoreOptionValueListItemResponse[] })[]>([])
 const filtersLoading = ref(true)
 
 // Trigger: Reset to the first page and re-fetch after a filter change
@@ -49,7 +48,6 @@ function applyFilters(): void {
   refresh()
 }
 
-// Map: Sort dropdown options using the querying sort DSL
 // Map: Breadcrumb trail for the shop page
 const breadcrumbItems = computed(() => [
   { label: 'Home', to: '/' },
@@ -62,20 +60,18 @@ const sortOptions = [
   { label: 'Price: High-Low', value: '-Variants.Prices.Amount' },
 ]
 
-// Load: Category taxonomy tree. The storefront has no taxonomy-list endpoint (only GetTree by
-// id), so we use the seeded Categories taxonomy id; if that fails, derive a taxonomy id from
-// the flat taxon list (each taxon carries its taxonomyId) as a fallback.
-async function loadCategoryTree(): Promise<StoreTaxonomyTreeResponse | null> {
-  const treeResult = await getTaxonomyTree(CATEGORIES_TAXONOMY_ID)
-  if (treeResult.isSuccess) return treeResult.value
-
-  const taxonsResult = await getTaxons({ pageNumber: 1, pageSize: 1 })
-  const fallbackId = taxonsResult.isSuccess ? taxonsResult.items[0]?.taxonomyId : undefined
-  if (fallbackId) {
-    const retry = await getTaxonomyTree(fallbackId)
-    if (retry.isSuccess) return retry.value
-  }
-  return null
+// Load: Fetch taxonomies + taxons, group into taxonomy groups with trees
+async function loadTaxonomyGroups(): Promise<TaxonomyGroup[]> {
+  const [taxonomiesResult, taxonsResult] = await Promise.all([
+    getTaxonomies({ pageNumber: 1, pageSize: 50 }),
+    getTaxons({ pageNumber: 1, pageSize: 999 }),
+  ])
+  if (!taxonomiesResult.isSuccess || !taxonsResult.isSuccess) return []
+  const taxons = taxonsResult.items
+  return taxonomiesResult.items.map(taxonomy => ({
+    taxonomy,
+    tree: buildTaxonTree(taxons, taxonomy.id),
+  }))
 }
 
 // State: Variant currently being quick-added (drives the card button loading state).
@@ -93,30 +89,39 @@ async function quickAdd(variantId: string): Promise<void> {
     if (ok) notify.success('Added to cart')
     else notify.error('Could not add', cart.error ?? undefined)
   } catch {
-    // A thrown rejection (network / non-Result 5xx) would otherwise be an
-    // unhandled rejection — surface it as a toast.
     notify.error('Could not add', cart.error ?? undefined)
   } finally {
-    // Ensure the button never stays loading on a thrown rejection.
     quickAddLoading.value = null
   }
 }
 
-// Trigger: Load taxonomy, option filters, and initial products on mount
+// Trigger: Load taxonomy groups, option filters, and initial products on mount
 onMounted(async () => {
   // Sync: Initialize search query from the URL
   const searchParam = route.query.search
   if (typeof searchParam === 'string') catalog.setSearch(searchParam)
 
-  // Load: Fetch taxonomy tree and option types in parallel
-  const [tree, otResult] = await Promise.all([
-    loadCategoryTree(),
+  // Load: Fetch taxonomy groups, option types, and option values in parallel
+  const [groups, otResult, ovResult] = await Promise.all([
+    loadTaxonomyGroups(),
     getOptionTypes({ pageNumber: 1, pageSize: 50 }),
+    getOptionValues({ pageNumber: 1, pageSize: 200 }),
   ])
-  if (tree) taxonomyTree.value = tree
-  else treeError.value = 'Categories are unavailable.'
-  if (otResult.isSuccess) optionTypes.value = otResult.items
-  treeLoading.value = false
+  taxonomyGroups.value = groups
+  if (otResult.isSuccess) {
+    const valuesByType = new Map<string, StoreOptionValueListItemResponse[]>()
+    if (ovResult.isSuccess) {
+      for (const v of ovResult.items) {
+        const list = valuesByType.get(v.optionTypeId) ?? []
+        list.push(v)
+        valuesByType.set(v.optionTypeId, list)
+      }
+    }
+    optionTypes.value = otResult.items.map(t => ({
+      ...t,
+      values: valuesByType.get(t.id) ?? [],
+    }))
+  }
   filtersLoading.value = false
 
   // Trigger: Initial products fetch
@@ -137,23 +142,14 @@ watch(() => route.query.search, (val) => {
     <div class="flex gap-8">
       <!-- Section: Sidebar Filters -->
       <aside class="w-64 shrink-0 hidden lg:block space-y-6">
-        <!-- Section: Category Tree -->
-        <div v-if="treeLoading" class="space-y-2">
-          <Skeleton width="80%" height="1rem" v-for="i in 5" :key="i" />
-        </div>
-        <CategoryTree
-          v-else-if="taxonomyTree"
-          :nodes="taxonomyTree.nodes"
-          @select="(id) => { catalog.setTaxon(id); applyFilters() }"
-        />
-        <p v-else class="text-sm text-stone-400">{{ treeError ?? 'Categories are unavailable.' }}</p>
-
-        <!-- Section: Option Filters -->
         <FilterSidebar
           v-if="!filtersLoading"
+          :taxonomy-groups="taxonomyGroups"
           :option-types="optionTypes"
-          :selected-ids="catalog.selectedOptionValueIds"
-          @toggle="(id) => { catalog.toggleOptionValue(id); applyFilters() }"
+          :selected-taxon-ids="catalog.selectedTaxonIds"
+          :selected-option-value-ids="catalog.selectedOptionValueIds"
+          @toggle-taxon="(id) => { catalog.toggleTaxon(id); applyFilters() }"
+          @toggle-option-value="(id) => { catalog.toggleOptionValue(id); applyFilters() }"
           @clear="catalog.clearFilters(); applyFilters()"
         />
       </aside>

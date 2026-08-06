@@ -40,8 +40,9 @@ public record OrderListItemResponse : OrderParameters
     public DateTimeOffset? CompletedAtUtc { get; init; }
 }
 
-public record LineItemResponse : Response
+public record LineItemResponse
 {
+    public Guid Id { get; init; }
     public Guid VariantId { get; init; }
     public int Quantity { get; init; }
     public decimal Price { get; init; }

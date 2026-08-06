@@ -11,10 +11,12 @@ const sizeOptions = computed(() => {
   const seen = new Set<string>()
   const sizes: string[] = []
   for (const v of props.variants) {
-    const label = v.optionValue1?.presentation ?? v.optionValue1?.name
-    if (label && !seen.has(label)) {
-      seen.add(label)
-      sizes.push(label)
+    for (const ov of v.optionValues) {
+      const label = ov.presentation ?? ov.name
+      if (label && !seen.has(label)) {
+        seen.add(label)
+        sizes.push(label)
+      }
     }
   }
   return sizes

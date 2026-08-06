@@ -9,7 +9,6 @@ public record OptionValueListItemResponse : OptionValueParameters
     /// Gets or initializes the unique identifier of the option value.
     /// </summary>
     public Guid Id { get; init; }
-
     public Guid OptionTypeId { get; init; } = Guid.Empty;
 
     /// <summary> 

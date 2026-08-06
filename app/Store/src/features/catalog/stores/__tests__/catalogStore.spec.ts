@@ -28,14 +28,24 @@ describe('catalogStore', () => {
     expect(store.selectedOptionValueIds).toEqual(['o-2'])
   })
 
-  it('setTaxon updates the selected taxon', () => {
+  it('toggleTaxon adds and removes a taxon', () => {
     const store = useCatalogStore()
 
-    store.setTaxon('t-1')
-    expect(store.selectedTaxonId).toBe('t-1')
+    store.toggleTaxon('t-1')
+    expect(store.selectedTaxonIds).toEqual(['t-1'])
 
-    store.setTaxon(null)
-    expect(store.selectedTaxonId).toBeNull()
+    store.toggleTaxon('t-1')
+    expect(store.selectedTaxonIds).toEqual([])
+  })
+
+  it('toggleTaxon accumulates multiple taxons', () => {
+    const store = useCatalogStore()
+
+    store.toggleTaxon('t-1')
+    store.toggleTaxon('t-2')
+    store.toggleTaxon('t-1')
+
+    expect(store.selectedTaxonIds).toEqual(['t-2'])
   })
 
   it('setPriceRange updates both bounds', () => {
@@ -60,14 +70,14 @@ describe('catalogStore', () => {
   it('clearFilters resets every filter dimension', () => {
     const store = useCatalogStore()
     store.setSearch('hex bolt')
-    store.setTaxon('t-1')
+    store.toggleTaxon('t-1')
     store.toggleOptionValue('o-1')
     store.setPriceRange(10000, 500000)
 
     store.clearFilters()
 
     expect(store.searchQuery).toBe('')
-    expect(store.selectedTaxonId).toBeNull()
+    expect(store.selectedTaxonIds).toEqual([])
     expect(store.selectedOptionValueIds).toEqual([])
     expect(store.minPrice).toBeNull()
     expect(store.maxPrice).toBeNull()
@@ -77,7 +87,7 @@ describe('catalogStore', () => {
     const store = useCatalogStore()
     store.sortField = 'price'
     store.sortOrder = -1
-    store.setTaxon('t-1')
+    store.toggleTaxon('t-1')
 
     store.clearFilters()
 

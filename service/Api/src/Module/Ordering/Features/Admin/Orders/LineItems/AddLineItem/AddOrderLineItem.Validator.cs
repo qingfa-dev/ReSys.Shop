@@ -21,15 +21,15 @@ public static partial class AddOrderLineItem
 
             When(x => x.Request is not null, () =>
             {
-                RuleFor(x => x.Request!.VariantId)
+                RuleFor(x => x.Request.VariantId)
                     .NotEmpty()
                     .WithErrorCode(OrderResult.Errors.VariantIdRequired.Code)
                     .WithMessage(OrderResult.Errors.VariantIdRequired.Message);
 
-                RuleFor(x => x.Request!.Quantity)
+                RuleFor(x => x.Request.Quantity)
                     .ApplyQuantityRules();
 
-                RuleFor(x => x.Request!.Price)
+                RuleFor(x => x.Request.Price)
                     .ApplyPriceRules();
             });
         }

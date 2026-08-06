@@ -37,7 +37,7 @@ public static partial class GetCartReservations
                     Quantity = r.Quantity,
                     ExpiresAtUtc = r.ExpiresAtUtc!.Value,
                     State = r.State.ToString(),
-                    RemainingSeconds = (int)(r.ExpiresAtUtc!.Value - now).TotalSeconds
+                    RemainingSeconds = (int)(r.ExpiresAtUtc.Value - now).TotalSeconds
                 },
                 pageModel,
                 cancellationToken);

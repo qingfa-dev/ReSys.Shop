@@ -17,8 +17,9 @@ public record StockTransferListItemResponse : StockTransferParameters
     public DateTimeOffset CreatedAtUtc { get; set; }
 }
 
-public record TransferItemResponse : Response
+public record TransferItemResponse
 {
+    public Guid Id { get; init; }
     public Guid VariantId { get; set; }
     public int Quantity { get; set; }
     public int ReceivedQuantity { get; set; }

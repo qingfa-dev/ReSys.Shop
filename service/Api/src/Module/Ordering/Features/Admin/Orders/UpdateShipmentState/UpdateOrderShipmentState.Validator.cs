@@ -20,11 +20,11 @@ public static partial class UpdateOrderShipmentState
 
             When(x => x.Request is not null, () =>
             {
-                RuleFor(x => x.Request!.ShipmentState)
+                RuleFor(x => x.Request.ShipmentState)
                     .NotEmpty()
                     .WithMessage("Shipment state is required.");
 
-                RuleFor(x => x.Request!.ShipmentState)
+                RuleFor(x => x.Request.ShipmentState)
                     .Must(state => new[]
                     {
                         OrderConstant.ShipmentState.Pending,

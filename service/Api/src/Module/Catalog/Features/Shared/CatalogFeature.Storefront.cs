@@ -31,12 +31,7 @@ public static partial class CatalogFeature
                 public const string Summary = "Get similar products by image";
             }
 
-            public static class SearchByImage
-            {
-                public const string Route = $"{BaseRoute}/search-by-image";
-                public const string Description = "Search products by uploading an image for visual similarity";
-                public const string Summary = "Search by image upload";
-            }
+
 
             public static class List
             {
@@ -45,11 +40,24 @@ public static partial class CatalogFeature
                 public const string Summary = "List or search products";
             }
 
+           
+
             public static class Images
             {
-                public const string Route = $"{BaseRoute}/images/{{imageId}}";
-                public const string Description = "Display a variant image file inline by its ID";
-                public const string Summary = "Display image";
+                private const string BaseImagesRoute = $"{BaseRoute}/images";
+
+                public static class Get
+                {
+                    public const string Route = $"{BaseImagesRoute}/{{id}}";
+                    public const string Description = "Display a variant image file inline by its ID";
+                    public const string Summary = "Display image";
+                }
+                public static class Search
+                {
+                    public const string Route = $"{BaseImagesRoute}/search";
+                    public const string Description = "Search products by uploading an image for visual similarity";
+                    public const string Summary = "Search by image upload";
+                }
             }
         }
 
@@ -70,6 +78,12 @@ public static partial class CatalogFeature
                 public const string Description = "Retrieve taxons filtered by depth and taxonomy";
                 public const string Summary = "List taxons";
 
+                public static class All
+                {
+                    public const string Route = $"{BaseRoute}/taxons/all";
+                    public const string Description = "Retrieve all taxons without filtering";
+                    public const string Summary = "List all taxons";
+                }
             }
         }
 

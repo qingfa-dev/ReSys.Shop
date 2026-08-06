@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Features.Storefront.Classifications.Taxonomies;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Taxonomies.GetTree;
 
@@ -9,7 +10,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.Taxonomies.GetTree;
 public class GetTaxonomyTreeTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.QueryHandler _handler;
+    private readonly GetStoreTaxonomies.PagedQueryHandler _handler;
 
     public GetTaxonomyTreeTests()
     {
@@ -20,7 +21,7 @@ public class GetTaxonomyTreeTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Taxonomy).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.QueryHandler(_dbContext);
+        _handler = new GetStoreTaxonomies.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -29,8 +30,8 @@ public class GetTaxonomyTreeTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should return taxonomy tree with nested nodes")]
-    public async Task Handle_ShouldReturnTree_WhenTaxonomyExists()
+    [Fact(DisplayName = "Handler: Should return taxonomy in flat list")]
+    public async Task Handle_ShouldReturnTaxonomy_WhenExists()
     {
         var taxonomy = new Taxonomy { Name = "Categories", Position = 1 };
         var parent = new Taxon { Name = "Clothing", Permalink = "clothing", Lft = 1, Rgt = 6, Depth = 0, Taxonomy = taxonomy };
@@ -42,20 +43,19 @@ public class GetTaxonomyTreeTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.Query(taxonomy.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetStoreTaxonomies.Query(new GetStoreTaxonomies.Parameters()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Name.Should().Be("Categories");
-        result.Value.Nodes.Should().HaveCount(1);
-        result.Value.Nodes[0].Name.Should().Be("Clothing");
-        result.Value.Nodes[0].Children.Should().HaveCount(1);
+        result.Items.Should().HaveCount(1);
+        result.Items.First().Name.Should().Be("Categories");
     }
 
     [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
     public async Task Handle_ShouldReturnFailure_WhenNotFound()
     {
-        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetStoreTaxonomies.Query(new GetStoreTaxonomies.Parameters()), TestContext.Current.CancellationToken);
 
-        result.IsFailure.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().BeEmpty();
     }
 }

@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
+namespace Module.Catalog.Features.Storefront.Products.Images.Search;
 
 public static partial class SearchByImage
 {
@@ -9,8 +9,8 @@ public static partial class SearchByImage
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/storefront/products/search-by-image — visual similarity search via embedding
-            app.MapPost(CatalogFeature.Storefront.Products.SearchByImage.Route, async (
+            // Map: POST /api/storefront/products/images/search — visual similarity search via embedding
+            app.MapPost(CatalogFeature.Storefront.Products.Images.Search.Route, async (
                 [FromForm] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class SearchByImage
             })
             .WithName(nameof(SearchByImage))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Products.SearchByImage.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.SearchByImage.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Images.Search.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Images.Search.Description)
             .DisableAntiforgery()
             .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest);
