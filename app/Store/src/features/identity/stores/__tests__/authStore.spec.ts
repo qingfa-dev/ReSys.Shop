@@ -117,7 +117,6 @@ describe('authStore', () => {
     // The merged cart must actually hydrate the cart store (not just fire calls).
     expect(cart.id).toBe('cart-1')
     expect(cart.items).toEqual([cartItem])
-    expect(cart.currency).toBe('VND')
   })
 
   it('login failure sets error and stays unauthenticated', async () => {

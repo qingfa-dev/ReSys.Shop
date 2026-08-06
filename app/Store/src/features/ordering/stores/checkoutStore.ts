@@ -9,13 +9,11 @@ export type CheckoutStep = 1 | 2 | 3 | 4 | 5
 export const useCheckoutStore = defineStore('checkout', () => {
   const currentStep = ref<CheckoutStep>(1)
   const shipAddressId = ref<string | null>(null)
-  const shippingMethodId = ref<string | null>(null)
   const paymentIntentId = ref<string | null>(null)
   const orderId = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
   const email = ref('')
-  const currency = ref('VND')
 
   const steps = [
     { label: 'Address', stepNumber: 1 },
@@ -62,7 +60,7 @@ export const useCheckoutStore = defineStore('checkout', () => {
       const result = await checkoutApi.updateCheckout({
         shipAddressId: addressId,
         billAddressId: addressId,
-        currency: currency.value,
+        currency: 'VND',
         email: userEmail,
       })
       if (result.isSuccess) return true
@@ -77,7 +75,6 @@ export const useCheckoutStore = defineStore('checkout', () => {
   }
 
   async function calculateShipping(methodId: string): Promise<boolean> {
-    shippingMethodId.value = methodId
     loading.value = true
     error.value = null
     try {
@@ -146,11 +143,10 @@ export const useCheckoutStore = defineStore('checkout', () => {
   function reset(): void {
     currentStep.value = 1
     shipAddressId.value = null
-    shippingMethodId.value = null
     paymentIntentId.value = null
     orderId.value = null
     error.value = null
   }
 
-  return { currentStep, shipAddressId, shippingMethodId, paymentIntentId, orderId, loading, error, email, currency, steps, goToStep, saveAddress, calculateShipping, createPaymentIntent, placeOrder, confirmPayment, reset }
+  return { currentStep, shipAddressId, paymentIntentId, orderId, loading, error, email, steps, goToStep, saveAddress, calculateShipping, createPaymentIntent, placeOrder, confirmPayment, reset }
 })

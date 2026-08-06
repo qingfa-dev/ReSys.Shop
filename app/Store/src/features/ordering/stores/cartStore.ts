@@ -14,7 +14,6 @@ function isRealCartId(id: string | null): id is string {
 export const useCartStore = defineStore('cart', () => {
   const id = ref<string | null>(null)
   const items = ref<CartLineItem[]>([])
-  const currency = ref('VND')
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -51,7 +50,6 @@ export const useCartStore = defineStore('cart', () => {
   function applyCart(cart: CartResponse): void {
     id.value = cart.id
     items.value = cart.items
-    currency.value = cart.currency
   }
 
   async function addItem(variantId: string, quantity = 1): Promise<boolean> {
@@ -127,5 +125,5 @@ export const useCartStore = defineStore('cart', () => {
     error.value = null
   }
 
-  return { id, items, currency, loading, error, itemCount, subtotal, getCartToken, fetchCart, addItem, updateQuantity, removeItem, clearCart, associate, reset }
+  return { id, items, loading, error, itemCount, subtotal, getCartToken, fetchCart, addItem, updateQuantity, removeItem, clearCart, associate, reset }
 })

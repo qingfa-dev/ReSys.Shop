@@ -8,7 +8,6 @@ export const useCatalogStore = defineStore('catalog', () => {
   const minPrice = ref<number | null>(null)
   const maxPrice = ref<number | null>(null)
   const sortField = ref<string | null>(null)
-  const sortOrder = ref<number>(1)
 
   function setSearch(q: string): void {
     searchQuery.value = q
@@ -46,7 +45,7 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   return {
-    searchQuery, selectedTaxonIds, selectedOptionValueIds, minPrice, maxPrice, sortField, sortOrder,
+    searchQuery, selectedTaxonIds, selectedOptionValueIds, minPrice, maxPrice, sortField,
     setSearch, toggleTaxon, toggleOptionValue, setPriceRange, clearFilters,
   }
 })

@@ -119,7 +119,6 @@ describe('checkoutStore', () => {
 
       const shippingOk = await store.calculateShipping('method-1')
       expect(shippingOk).toBe(true)
-      expect(store.shippingMethodId).toBe('method-1')
       expect(mockedCheckoutApi.selectShippingRate).toHaveBeenCalledWith({ shippingMethodId: 'method-1' })
 
       const clientSecret = await store.createPaymentIntent('pm-1', 100000)

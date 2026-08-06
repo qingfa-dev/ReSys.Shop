@@ -54,7 +54,7 @@ describe('cartStore', () => {
     vi.clearAllMocks()
   })
 
-  it('fetchCart applies id, items, and currency on success', async () => {
+  it('fetchCart applies id and items on success', async () => {
     const store = useCartStore()
     const payload = cart({})
     mockedCartApi.getCart.mockResolvedValue(ok(payload))
@@ -63,7 +63,6 @@ describe('cartStore', () => {
 
     expect(store.id).toBe('cart-1')
     expect(store.items).toEqual([baseItem])
-    expect(store.currency).toBe('VND')
     expect(store.loading).toBe(false)
     expect(store.error).toBeNull()
   })
