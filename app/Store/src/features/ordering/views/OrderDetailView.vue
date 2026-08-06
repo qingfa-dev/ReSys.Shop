@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import StatusTag from '@/shared/components/StatusTag.vue'
@@ -7,6 +7,9 @@ import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useOrderStore } from '../stores/orderStore'
+import { getOrderTracking } from '../services/orderApi'
+import type { OrderTrackingResponse } from '../services/orderApi'
+import OrderTrackingTimeline from '../components/OrderTrackingTimeline.vue'
 import { buildOrderTimeline, isOrderCancellable } from '../types/order'
 
 const route = useRoute()
@@ -18,10 +21,16 @@ const store = useOrderStore()
 const orderId = computed(() => route.params.id as string)
 const order = computed(() => store.currentOrder)
 const timeline = computed(() => (order.value ? buildOrderTimeline(order.value) : []))
+const tracking = ref<OrderTrackingResponse | null>(null)
 
 async function loadOrder(): Promise<void> {
   const ok = await store.fetchOrder(orderId.value)
-  if (!ok) notify.error('Order not found', 'The requested order could not be loaded.')
+  if (!ok) {
+    notify.error('Order not found', 'The requested order could not be loaded.')
+    return
+  }
+  const trackRes = await getOrderTracking(orderId.value)
+  if (trackRes.isSuccess) tracking.value = trackRes.value
 }
 
 function requestCancel(): void {
@@ -46,6 +55,7 @@ function requestCancel(): void {
 watch(orderId, (id) => {
   if (id) {
     store.resetDetail()
+    tracking.value = null
     loadOrder()
   }
 })
@@ -139,6 +149,9 @@ onMounted(loadOrder)
               </div>
             </div>
           </div>
+
+          <!-- Section: Shipment Tracking -->
+          <OrderTrackingTimeline v-if="tracking" :tracking="tracking" class="mt-6" />
         </div>
 
         <!-- Section: Order Details -->

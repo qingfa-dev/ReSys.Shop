@@ -26,6 +26,7 @@ export const ENDPOINTS = {
   orders: `${API_STOREFRONT}/orders`,
   orderById: (id: string) => `${API_STOREFRONT}/orders/${id}`,
   orderCancel: (id: string) => `${API_STOREFRONT}/orders/${id}/cancel`,
+  orderTracking: (id: string) => `${API_STOREFRONT}/orders/${id}/tracking`,
 
   // Identity
   authLoginPassword: `${API_STORE}/identity/auth/login/password`,

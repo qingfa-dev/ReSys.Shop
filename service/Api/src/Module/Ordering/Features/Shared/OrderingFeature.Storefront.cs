@@ -120,6 +120,13 @@ public static partial class OrderingFeature
                 public const string Description = "List current user's orders";
                 public const string Summary = "List orders";
             }
+
+            public static class GetTracking
+            {
+                public const string Route = $"{BaseRoute}/{{id:guid}}/tracking";
+                public const string Description = "Retrieve order tracking timeline for a customer order";
+                public const string Summary = "Get order tracking";
+            }
         }
     }
 }

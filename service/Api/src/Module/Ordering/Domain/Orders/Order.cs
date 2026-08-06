@@ -38,6 +38,13 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public DateTimeOffset? CompletedAtUtc { get; set; }
     public DateTimeOffset? CanceledAtUtc { get; set; }
     public DateTimeOffset? ApprovedAtUtc { get; set; }
+    public DateTimeOffset? PaymentProcessingAt { get; set; }
+    public DateTimeOffset? PaymentCompletedAt { get; set; }
+    public DateTimeOffset? PaymentFailedAt { get; set; }
+    public DateTimeOffset? ShippedAt { get; set; }
+    public DateTimeOffset? DeliveredAt { get; set; }
+    public DateTimeOffset? DeliveryExceptionAt { get; set; }
+    public DateTimeOffset? EstimatedDeliveryAt { get; set; }
     #endregion Timestamps
 
     #region Approval & Cancel
