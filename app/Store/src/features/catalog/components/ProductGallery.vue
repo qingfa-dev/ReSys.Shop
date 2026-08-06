@@ -1,44 +1,26 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import type { StoreProductImageResponse } from '../types/product'
 
-const props = defineProps<{ images: StoreProductImageResponse[]; alt: string }>()
-const activeIndex = ref(0)
-
-// Trigger: Reset active image when the product changes
-watch(() => props.images, () => {
-  activeIndex.value = 0
-})
+defineProps<{ images: StoreProductImageResponse[]; alt: string }>()
 </script>
 <template>
   <!-- Section: Product Gallery -->
-  <div class="space-y-4">
-    <!-- Section: Main Image -->
-    <div class="aspect-square bg-stone-100 rounded-xl overflow-hidden">
-      <Image
-        v-if="images.length > 0"
-        :src="images[activeIndex]?.url"
-        :alt="images[activeIndex]?.alt ?? alt"
-        :preview="true"
-        image-class="w-full h-full object-cover"
-        class="w-full h-full"
-      />
-      <div v-else class="w-full h-full flex items-center justify-center text-stone-400">
-        <i class="pi pi-image text-6xl" />
-      </div>
-    </div>
-
-    <!-- Section: Thumbnails -->
-    <div v-if="images.length > 1" class="flex gap-2 overflow-x-auto">
-      <button
-        v-for="(image, index) in images"
-        :key="image.id"
-        class="w-20 h-20 rounded-lg overflow-hidden border-2 shrink-0 transition-colors"
-        :class="index === activeIndex ? 'border-stone-900' : 'border-transparent hover:border-stone-300'"
-        @click="activeIndex = index"
-      >
-        <img :src="image.url" :alt="image.alt ?? alt" class="w-full h-full object-cover" />
-      </button>
-    </div>
+  <Galleria
+    v-if="images.length > 0"
+    :value="images"
+    :num-visible="5"
+    :show-thumbnails="images.length > 1"
+    :show-item-navigators="images.length > 1"
+    container-class="rounded-xl overflow-hidden"
+  >
+    <template #item="{ item }">
+      <img :src="item.url" :alt="item.alt ?? alt" class="w-full object-cover" />
+    </template>
+    <template #thumbnail="{ item }">
+      <img :src="item.url" :alt="item.alt ?? alt" class="w-20 h-20 object-cover rounded-lg" />
+    </template>
+  </Galleria>
+  <div v-if="images.length === 0" class="aspect-square bg-stone-100 rounded-xl flex items-center justify-center text-stone-400">
+    <i class="pi pi-image text-6xl" />
   </div>
 </template>
