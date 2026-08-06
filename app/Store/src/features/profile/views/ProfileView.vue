@@ -5,10 +5,12 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useProfileStore } from '../stores/profileStore'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { profileSchema, type ProfileFormValues } from '../validations/profile'
 
 const store = useProfileStore()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 const resolver = zodResolver(profileSchema)
 
 const initialValues = ref({
@@ -28,7 +30,7 @@ async function onSubmit(event: FormSubmitEvent): Promise<void> {
     phoneNumber: values.phoneNumber || null,
   })
   if (ok) notify.success('Profile updated', 'Your profile has been saved.')
-  else notify.error('Update failed', store.error ?? 'Unable to update your profile.')
+  else handleError(new Error(store.error ?? 'Unable to update your profile.'))
 }
 
 async function loadProfile(): Promise<void> {

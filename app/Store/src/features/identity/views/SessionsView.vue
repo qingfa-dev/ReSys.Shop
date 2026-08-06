@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import EmptyState from '@/shared/components/EmptyState.vue'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import type { SessionInfo } from '../types/auth'
 import { useAuthStore } from '../stores/authStore'
@@ -12,6 +13,7 @@ import * as sessionApi from '../services/sessionApi'
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 const store = useAuthStore()
 
 const sessions = ref<SessionInfo[]>([])
@@ -52,14 +54,14 @@ async function revokeCurrent(): Promise<void> {
   try {
     const result = await sessionApi.revokeCurrentDevice()
     if (!result.isSuccess) {
-      notify.error('Logout failed', result.message ?? 'Unable to log out of this device.')
+      handleError(new Error(result.message ?? 'Unable to log out of this device.'))
       return
     }
     notify.success('Logged out', 'This device has been signed out.')
     await store.logout()
     router.replace('/login')
   } catch {
-    notify.error('Logout failed', 'Unable to log out of this device.')
+    handleError(new Error('Unable to log out of this device.'))
   } finally {
     revokeCurrentLoading.value = false
   }
@@ -78,14 +80,14 @@ function requestLogoutAll(): void {
       try {
         const result = await sessionApi.revokeAll()
         if (!result.isSuccess) {
-          notify.error('Logout failed', result.message ?? 'Unable to log out of all devices.')
+          handleError(new Error(result.message ?? 'Unable to log out of all devices.'))
           return
         }
         notify.success('Logged out', 'All devices have been signed out.')
         await store.logout()
         router.replace('/login')
       } catch {
-        notify.error('Logout failed', 'Unable to log out of all devices.')
+        handleError(new Error('Unable to log out of all devices.'))
       } finally {
         revokeAllLoading.value = false
       }

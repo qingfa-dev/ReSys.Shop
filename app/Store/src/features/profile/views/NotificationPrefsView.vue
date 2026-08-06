@@ -5,8 +5,10 @@ import type { NotificationPreferences } from '../types/notification'
 import { DEFAULT_NOTIFICATION_PREFERENCES } from '../types/notification'
 import NotificationPreferenceRow from '../components/NotificationPreferenceRow.vue'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 const prefs = ref<NotificationPreferences>({ ...DEFAULT_NOTIFICATION_PREFERENCES })
 const loading = ref(false)
 const saving = ref(false)
@@ -42,11 +44,11 @@ async function onToggle(key: keyof NotificationPreferences, value: boolean): Pro
       notify.success('Preferences saved', 'Your notification settings have been updated.')
     } else {
       prefs.value = { ...prefs.value, [key]: previous }
-      notify.error('Save failed', result.message ?? 'Unable to save your notification preferences.')
+      handleError(new Error(result.message ?? 'Unable to save your notification preferences.'))
     }
   } catch {
     prefs.value = { ...prefs.value, [key]: previous }
-    notify.error('Save failed', 'Unable to save your notification preferences.')
+    handleError(new Error('Unable to save your notification preferences.'))
   } finally {
     saving.value = false
   }

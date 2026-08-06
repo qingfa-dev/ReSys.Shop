@@ -4,6 +4,7 @@ import { getPaged } from '@/shared/api/paged'
 import { ENDPOINTS } from '@/shared/constants/api'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import type { StoreProductListItemResponse } from '../types/product'
 import HeroSection from '../components/HeroSection.vue'
 import FeaturesStrip from '../components/FeaturesStrip.vue'
@@ -14,6 +15,7 @@ import ProductGrid from '../components/ProductGrid.vue'
 
 const cart = useCartStore()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 const newArrivals = ref<StoreProductListItemResponse[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -26,9 +28,9 @@ async function quickAdd(variantId: string): Promise<void> {
   try {
     const ok = await cart.addItem(variantId, 1)
     if (ok) notify.success('Added to cart')
-    else notify.error('Could not add', cart.error ?? undefined)
+    else handleError(new Error(cart.error ?? 'Could not add item'))
   } catch {
-    notify.error('Could not add', cart.error ?? undefined)
+    handleError(new Error(cart.error ?? 'Could not add item'))
   }
 }
 

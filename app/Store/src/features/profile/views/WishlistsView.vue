@@ -5,10 +5,12 @@ import { useCartStore } from '@/features/ordering/stores/cartStore'
 import type { WishedItem } from '../types/wishlist'
 import WishlistCard from '../components/WishlistCard.vue'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 
 const store = useWishlistStore()
 const cartStore = useCartStore()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 
 const expandedId = ref<string | null>(null)
 const showCreate = ref(false)
@@ -44,14 +46,14 @@ async function onCreate(): Promise<void> {
     notify.success('Wishlist created', `"${name}" has been added.`)
     showCreate.value = false
   } else {
-    notify.error('Create failed', store.error ?? 'Unable to create the wishlist.')
+    handleError(new Error(store.error ?? 'Unable to create the wishlist.'))
   }
 }
 
 async function onTogglePrivacy(id: string, isPrivate: boolean): Promise<void> {
   const ok = await store.updateWishlist(id, { isPrivate })
   if (ok) notify.success('Privacy updated', isPrivate ? 'Wishlist is now private.' : 'Wishlist is now public.')
-  else notify.error('Update failed', store.error ?? 'Unable to update the wishlist.')
+  else handleError(new Error(store.error ?? 'Unable to update the wishlist.'))
 }
 
 async function onDelete(id: string): Promise<void> {
@@ -60,20 +62,20 @@ async function onDelete(id: string): Promise<void> {
     if (expandedId.value === id) expandedId.value = null
     notify.success('Wishlist deleted', 'The wishlist was removed.')
   } else {
-    notify.error('Delete failed', store.error ?? 'Unable to delete the wishlist.')
+    handleError(new Error(store.error ?? 'Unable to delete the wishlist.'))
   }
 }
 
 async function onRemoveItem(listId: string, itemId: string): Promise<void> {
   const ok = await store.removeItem(listId, itemId)
   if (ok) notify.success('Item removed', 'The item was removed from the wishlist.')
-  else notify.error('Remove failed', store.error ?? 'Unable to remove the item.')
+  else handleError(new Error(store.error ?? 'Unable to remove the item.'))
 }
 
 async function onAddToCart(item: WishedItem): Promise<void> {
   const ok = await cartStore.addItem(item.variantId, item.quantity)
   if (ok) notify.success('Added to cart', 'The item was added to your cart.')
-  else notify.error('Add failed', cartStore.error ?? 'Unable to add the item to your cart.')
+  else handleError(new Error(cartStore.error ?? 'Unable to add the item to your cart.'))
 }
 
 onMounted(() => store.fetchWishlists())

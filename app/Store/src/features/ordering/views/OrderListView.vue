@@ -4,9 +4,11 @@ import { useOrderStore, type OrderStatusFilter } from '../stores/orderStore'
 import OrderCard from '../components/OrderCard.vue'
 import EmptyState from '@/shared/components/EmptyState.vue'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 
 const store = useOrderStore()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 const selectedStatus = ref<OrderStatusFilter>('All')
 
 const statusOptions = [
@@ -35,7 +37,7 @@ function onStatusChange(value: OrderStatusFilter): void {
 async function onCancel(id: string): Promise<void> {
   const ok = await store.cancelOrder(id)
   if (ok) notify.success('Order cancelled', 'Your order was cancelled.')
-  else notify.error('Cancel failed', store.error ?? 'Unable to cancel the order.')
+  else handleError(new Error(store.error ?? 'Unable to cancel the order.'))
 }
 </script>
 <template>

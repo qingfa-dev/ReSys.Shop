@@ -6,6 +6,7 @@ import StatusTag from '@/shared/components/StatusTag.vue'
 import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { useOrderStore } from '../stores/orderStore'
 import { getOrderTracking } from '../services/orderApi'
 import type { OrderTrackingResponse } from '../services/orderApi'
@@ -16,6 +17,7 @@ const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 const store = useOrderStore()
 
 const orderId = computed(() => route.params.id as string)
@@ -26,7 +28,7 @@ const tracking = ref<OrderTrackingResponse | null>(null)
 async function loadOrder(): Promise<void> {
   const ok = await store.fetchOrder(orderId.value)
   if (!ok) {
-    notify.error('Order not found', 'The requested order could not be loaded.')
+    handleError(new Error('The requested order could not be loaded.'))
     return
   }
   const trackRes = await getOrderTracking(orderId.value)
@@ -46,7 +48,7 @@ function requestCancel(): void {
     accept: async () => {
       const ok = await store.cancelOrder(target.id)
       if (ok) notify.success('Order cancelled', 'Your order was cancelled.')
-      else notify.error('Cancel failed', store.error ?? 'Unable to cancel the order.')
+      else handleError(new Error(store.error ?? 'Unable to cancel the order.'))
     },
   })
 }

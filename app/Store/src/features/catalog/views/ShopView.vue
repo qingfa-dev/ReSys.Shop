@@ -6,6 +6,7 @@ import { useCatalogStore } from '../stores/catalogStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useWishlistStore } from '@/features/profile/stores/wishlistStore'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { getTaxonomies, getTaxons } from '../services/taxonApi'
 import { getOptionTypes } from '../services/optionTypeApi'
 import { getOptionValues } from '../services/optionValueApi'
@@ -22,6 +23,7 @@ const catalog = useCatalogStore()
 const cart = useCartStore()
 const wishlist = useWishlistStore()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 
 // Map: Build paged query URL from catalogStore filter state
 const query = usePagedQuery<StoreProductListItemResponse>(
@@ -89,9 +91,9 @@ async function quickAdd(variantId: string): Promise<void> {
   try {
     const ok = await cart.addItem(variantId, 1)
     if (ok) notify.success('Added to cart')
-    else notify.error('Could not add', cart.error ?? undefined)
+    else handleError(new Error(cart.error ?? 'Could not add item'))
   } catch {
-    notify.error('Could not add', cart.error ?? undefined)
+    handleError(new Error(cart.error ?? 'Could not add item'))
   } finally {
     quickAddLoading.value = null
   }

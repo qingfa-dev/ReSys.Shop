@@ -4,9 +4,11 @@ import { useRouter } from 'vue-router'
 import { z } from 'zod'
 import { changePassword } from '@/features/identity/services/authApi'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 
 const router = useRouter()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 
 const form = ref({
   currentPassword: '',
@@ -55,7 +57,7 @@ async function submit(): Promise<void> {
       notify.success('Password changed', 'Your password has been updated')
       router.push('/account/profile')
     } else {
-      notify.error('Change failed', res.message ?? 'Current password may be incorrect')
+      handleError(new Error(res.message ?? 'Current password may be incorrect'))
     }
   } finally {
     loading.value = false

@@ -5,6 +5,7 @@ import { getProductBySlug, getSimilarProducts, getRelatedProducts } from '../ser
 import { checkAvailability } from '@/features/inventory/services/availabilityApi'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import ProductGallery from '../components/ProductGallery.vue'
 import ProductOptions from '../components/ProductOptions.vue'
 import SimilarProductsRow from '../components/SimilarProductsRow.vue'
@@ -18,6 +19,7 @@ import type { AvailabilityEntry } from '@/features/inventory/types/availability'
 const route = useRoute()
 const cart = useCartStore()
 const notify = useNotify()
+const { handleError } = useApiErrorHandler()
 const product = ref<StoreProductDetailResponse | null>(null)
 const similar = ref<StoreProductListItemResponse[]>([])
 const related = ref<StoreProductListItemResponse[]>([])
@@ -96,18 +98,18 @@ async function loadProduct(slug: string): Promise<void> {
 // Trigger: Add the selected variant to the cart.
 async function addToCart(): Promise<void> {
   if (!product.value || !selectedVariantId.value) {
-    notify.error('Add to cart failed', 'Select a variant first')
+    handleError(new Error('Select a variant first'))
     return
   }
   adding.value = true
   try {
     const ok = await cart.addItem(selectedVariantId.value, quantity.value)
     if (ok) notify.success('Added to cart', product.value.name)
-    else notify.error('Add to cart failed', cart.error ?? undefined)
+    else handleError(new Error(cart.error ?? 'Add to cart failed'))
   } catch {
     // A thrown rejection (network / non-Result 5xx) would otherwise be an
     // unhandled rejection — surface it as a toast.
-    notify.error('Add to cart failed', cart.error ?? undefined)
+    handleError(new Error(cart.error ?? 'Add to cart failed'))
   } finally {
     // Ensure the button never stays loading on a thrown rejection.
     adding.value = false
@@ -123,9 +125,9 @@ async function quickAdd(variantId: string): Promise<void> {
   try {
     const ok = await cart.addItem(variantId, 1)
     if (ok) notify.success('Added to cart')
-    else notify.error('Could not add', cart.error ?? undefined)
+    else handleError(new Error(cart.error ?? 'Could not add item'))
   } catch {
-    notify.error('Could not add', 'Unexpected error')
+    handleError(new Error(cart.error ?? 'Could not add item'))
   }
 }
 
