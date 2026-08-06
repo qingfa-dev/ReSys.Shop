@@ -46,12 +46,7 @@ const mobileMenuOpen = ref(false)
             class="relative p-2 text-stone-600 hover:text-stone-900 transition-colors"
           >
             <i class="pi pi-shopping-cart text-xl" />
-          <span
-            v-if="cart.itemCount > 0"
-            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-          >
-            {{ cart.itemCount }}
-          </span>
+          <Badge v-if="cart.itemCount > 0" :value="cart.itemCount" class="absolute -top-2 -right-2" />
         </router-link>
 
         <!-- Section: User Menu / Sign In -->
