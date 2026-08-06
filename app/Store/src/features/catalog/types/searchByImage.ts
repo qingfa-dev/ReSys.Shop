@@ -5,4 +5,5 @@ export interface SearchByImageResponse {
   sku: string
   price: number
   imageUrl: string | null
+  similarityScore: number
 }

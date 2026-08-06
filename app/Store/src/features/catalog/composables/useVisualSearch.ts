@@ -59,12 +59,12 @@ export function useVisualSearch() {
     state.value = 'empty'
   }
 
-  async function search(topK = 20): Promise<void> {
+  async function search(topK = 20, model?: string): Promise<void> {
     if (!selectedFile.value) return
     state.value = 'loading'
     error.value = null
     try {
-      const result = await searchByImage(selectedFile.value, topK)
+      const result = await searchByImage(selectedFile.value, topK, model)
       if (result.isSuccess) {
         results.value = result.items
         state.value = 'results'
