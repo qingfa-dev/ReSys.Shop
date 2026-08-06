@@ -34,6 +34,34 @@ const priceRange = computed({
   set: (v: { min: number | null; max: number | null }) => catalog.setPriceRange(v.min, v.max),
 })
 
+// Map: Find a taxon by ID in a tree (recursive)
+function findTaxon(nodes: TaxonTreeNode[], id: string): TaxonTreeNode | null {
+  for (const node of nodes) {
+    if (node.id === id) return node
+    const found = findTaxon(node.children, id)
+    if (found) return found
+  }
+  return null
+}
+
+// Map: Resolve taxon name from selected IDs
+function getTaxonName(id: string): string {
+  for (const group of props.taxonomyGroups) {
+    const found = findTaxon(group.tree, id)
+    if (found) return found.name
+  }
+  return id
+}
+
+// Map: Resolve option value name from selected IDs
+function getOptionName(id: string): string {
+  for (const type of props.optionTypes) {
+    const found = type.values.find(v => v.id === id)
+    if (found) return found.presentation ?? found.name
+  }
+  return id
+}
+
 // Trigger: Toggle expansion of a taxonomy accordion section
 function toggleTaxonomy(id: string): void {
   const next = new Set(expandedTaxonomyIds.value)
@@ -50,6 +78,12 @@ function isTaxonomyExpanded(id: string): boolean {
 <template>
   <!-- Section: Sidebar Filters -->
   <div class="space-y-6">
+    <!-- Section: Active Filter Chips -->
+    <div v-if="hasSelection" class="flex flex-wrap gap-2 mb-4">
+      <Chip v-for="id in selectedTaxonIds" :key="id" :label="getTaxonName(id)" removable @remove="emit('toggleTaxon', id)" />
+      <Chip v-for="id in selectedOptionValueIds" :key="id" :label="getOptionName(id)" removable @remove="emit('toggleOptionValue', id)" />
+    </div>
+
     <!-- Section: Clear Action -->
     <div v-if="hasSelection" class="flex justify-end">
       <Button label="Clear all" text severity="secondary" size="small" @click="emit('clear')" />
