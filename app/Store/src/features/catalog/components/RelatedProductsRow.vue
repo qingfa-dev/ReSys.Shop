@@ -13,14 +13,18 @@ defineEmits<{ addToCart: [variantId: string] }>()
   <!-- Section: Related Products -->
   <div>
     <h2 class="text-xl font-bold text-stone-900 mb-4">You Might Also Like</h2>
-    <div class="flex gap-4 overflow-x-auto pb-2">
-      <div
-        v-for="item in products"
-        :key="item.id"
-        class="w-64 shrink-0"
-      >
-        <ProductCard :product="item" @add-to-cart="(id) => $emit('addToCart', id)" />
-      </div>
-    </div>
+    <Carousel
+      :value="products"
+      :num-visible="4"
+      :num-scroll="1"
+      :show-indicators="false"
+      :responsive-options="[{ breakpoint: '768px', numVisible: 2 }, { breakpoint: '560px', numVisible: 1 }]"
+    >
+      <template #item="{ data }">
+        <div class="px-2">
+          <ProductCard :product="data" @add-to-cart="(id) => $emit('addToCart', id)" />
+        </div>
+      </template>
+    </Carousel>
   </div>
 </template>
