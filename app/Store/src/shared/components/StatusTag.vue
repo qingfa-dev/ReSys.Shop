@@ -1,22 +1,23 @@
 <script setup lang="ts">
-defineProps<{ status: string }>()
-const colorMap: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-teal-100 text-teal-700',
-  shipped: 'bg-purple-100 text-purple-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
-  in_stock: 'bg-green-100 text-green-700',
-  low_stock: 'bg-amber-100 text-amber-700',
-  out_of_stock: 'bg-red-100 text-red-700',
-  // Order statuses (string-serialized OrderStatus enum)
-  Draft: 'bg-stone-100 text-stone-600',
-  Placed: 'bg-teal-100 text-teal-700',
-  Canceled: 'bg-red-100 text-red-700',
-  Expired: 'bg-amber-100 text-amber-700',
-}
-const cls = colorMap[status] ?? 'bg-stone-100 text-stone-600'
+import { computed } from 'vue'
+
+const props = defineProps<{ status: string }>()
+
+const severity = computed(() => {
+  const map: Record<string, string> = {
+    Placed: 'info',
+    Shipped: 'warn',
+    Delivered: 'success',
+    Canceled: 'danger',
+    Draft: 'secondary',
+    Expired: 'secondary',
+    in_stock: 'success',
+    low_stock: 'warn',
+    out_of_stock: 'danger',
+  }
+  return map[props.status] ?? 'secondary'
+})
 </script>
 <template>
-  <span class="text-xs font-medium px-2 py-0.5 rounded-full" :class="cls">{{ status.replace(/_/g, ' ') }}</span>
+  <Tag :severity="severity" :value="status" />
 </template>
