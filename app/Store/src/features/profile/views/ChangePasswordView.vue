@@ -30,14 +30,14 @@ const strength = computed(() => {
   const p = form.value.newPassword
   let s = 0
   if (p.length >= 8) s++
-  if (/[A-Z]/.test(p)) s++
-  if (/[0-9]/.test(p)) s++
-  if (/[^A-Za-z0-9]/.test(p)) s++
+  if (p.length >= 12) s++
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++
+  if (/\d/.test(p)) s++
   return s
 })
 
-const strengthLabel = computed(() => ['Very weak', 'Weak', 'Fair', 'Strong', 'Very strong'][strength.value])
-const strengthColor = computed(() => ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-emerald-500'][strength.value])
+const strengthLabel = computed(() => ['Too weak', 'Weak', 'Fair', 'Good', 'Strong'][strength.value])
+const strengthColor = computed(() => ['bg-red-400', 'bg-red-500', 'bg-yellow-400', 'bg-green-400', 'bg-green-600'][strength.value])
 
 async function submit(): Promise<void> {
   errors.value = {}

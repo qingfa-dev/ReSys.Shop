@@ -35,5 +35,5 @@ export async function changePassword(
   currentPassword: string,
   newPassword: string,
 ): Promise<Result<void>> {
-  return post('api/store/identity/passwords/change', { currentPassword, newPassword })
+  return post(ENDPOINTS.passwordsChange, { currentPassword, newPassword })
 }
