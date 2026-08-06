@@ -81,7 +81,7 @@ async function loadProduct(slug: string): Promise<void> {
     const simResult = await getSimilarProducts(result.value.id)
     if (simResult.isSuccess) similar.value = simResult.items
     relatedLoading.value = true
-    const relResult = await getRelatedProducts(result.value.id)
+    const relResult = await getRelatedProducts(result.value.id, { pageNumber: 1, pageSize: 12 })
     if (relResult.isSuccess) related.value = relResult.items
     relatedLoading.value = false
   } else {
