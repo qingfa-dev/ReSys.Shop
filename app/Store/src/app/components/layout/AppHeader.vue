@@ -6,12 +6,14 @@ import { useAuthStore } from '@/features/identity/stores/authStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useSearch } from '@/features/catalog/composables/useSearch'
 import NotificationBell from '@/features/catalog/components/NotificationBell.vue'
+import CartDrawer from '@/features/ordering/components/CartDrawer.vue'
 
 const auth = useAuthStore()
 const cart = useCartStore()
 const search = useSearch()
 
 const mobileMenuOpen = ref(false)
+const cartDrawerOpen = ref(false)
 </script>
 <template>
   <!-- Section: Header Bar -->
@@ -41,13 +43,10 @@ const mobileMenuOpen = ref(false)
           <ThemeToggle />
 
           <!-- Cart Icon -->
-          <router-link
-            to="/cart"
-            class="relative p-2 text-stone-600 hover:text-stone-900 transition-colors"
-          >
+          <button @click="cartDrawerOpen = true" class="relative p-2 text-stone-600 hover:text-stone-900 transition-colors">
             <i class="pi pi-shopping-cart text-xl" />
-          <Badge v-if="cart.itemCount > 0" :value="cart.itemCount" class="absolute -top-2 -right-2" />
-        </router-link>
+            <Badge v-if="cart.itemCount > 0" :value="cart.itemCount" class="absolute -top-2 -right-2" />
+          </button>
 
         <!-- Section: User Menu / Sign In -->
         <template v-if="auth.isAuthenticated">
@@ -86,5 +85,8 @@ const mobileMenuOpen = ref(false)
 
     <!-- Section: Mobile Navigation -->
     <MobileNav v-if="mobileMenuOpen" @close="mobileMenuOpen = false" />
+
+    <!-- Section: Cart Drawer -->
+    <CartDrawer v-model:visible="cartDrawerOpen" />
   </header>
 </template>
