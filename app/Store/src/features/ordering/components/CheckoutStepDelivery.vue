@@ -61,9 +61,6 @@ async function continueToPayment(): Promise<void> {
           <span v-if="method.adminName || method.code" class="block text-stone-500">
             {{ method.adminName ?? method.code }}
           </span>
-          <p v-if="(method as any).deliveryRange" class="text-xs text-stone-500">
-            Est. delivery: {{ (method as any).deliveryRange }}
-          </p>
         </label>
       </div>
     </div>
