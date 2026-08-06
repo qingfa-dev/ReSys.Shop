@@ -1,14 +1,3 @@
-export function formatDate(
-  value: string | Date | null | undefined,
-  options?: Intl.DateTimeFormatOptions,
-  locale = 'vi-VN',
-): string {
-  if (value === null || value === undefined) return '—'
-  const date = typeof value === 'string' ? new Date(value) : value
-  if (Number.isNaN(date.getTime())) return '—'
-  return new Intl.DateTimeFormat(locale, options).format(date)
-}
-
 const DATETIME_OPTIONS: Intl.DateTimeFormatOptions = {
   year: 'numeric',
   month: 'short',
