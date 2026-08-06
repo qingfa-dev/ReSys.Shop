@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
-import { ok, failure } from '@/shared/types/result'
+import { ok, failure, pagedOk } from '@/shared/types/result'
 import { useCartStore } from '../cartStore'
 import * as cartApi from '../../services/cartApi'
+import * as cartReservationApi from '@/features/inventory/services/cartReservationApi'
 import type { CartLineItem, CartResponse } from '../../types/cart'
 
 const mockedCartApi = vi.mocked(cartApi)
+const mockedReservationApi = vi.mocked(cartReservationApi)
 
 vi.mock('@/features/ordering/services/cartApi', () => ({
   getCart: vi.fn<(...args: unknown[]) => unknown>(),
@@ -15,6 +17,12 @@ vi.mock('@/features/ordering/services/cartApi', () => ({
   removeItem: vi.fn<(...args: unknown[]) => unknown>(),
   emptyCart: vi.fn<(...args: unknown[]) => unknown>(),
   associateCart: vi.fn<(...args: unknown[]) => unknown>(),
+}))
+
+vi.mock('@/features/inventory/services/cartReservationApi', () => ({
+  reserveStock: vi.fn<(...args: unknown[]) => unknown>(),
+  releaseReservation: vi.fn<(...args: unknown[]) => unknown>(),
+  getCartReservations: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 const baseItem: CartLineItem = {
@@ -52,6 +60,9 @@ describe('cartStore', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ stubActions: false, createSpy: vi.fn }))
     vi.clearAllMocks()
+    mockedReservationApi.reserveStock.mockResolvedValue(ok({ id: 'res-1', variantId: '', stockLocationId: null, orderId: null, quantity: 1, state: 'Reserved', expiresAtUtc: '', reason: null, createdAtUtc: '', modifiedAtUtc: null }))
+    mockedReservationApi.releaseReservation.mockResolvedValue(ok(null))
+    mockedReservationApi.getCartReservations.mockResolvedValue(pagedOk([], 1, 20, 0))
   })
 
   it('fetchCart applies id and items on success', async () => {

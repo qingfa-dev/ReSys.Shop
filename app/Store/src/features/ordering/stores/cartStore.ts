@@ -2,7 +2,9 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { STORAGE_KEYS } from '@/shared/constants/storage'
 import type { CartLineItem, CartResponse } from '../types/cart'
+import type { CartReservationStatus } from '@/features/inventory/types/availability'
 import * as cartApi from '../services/cartApi'
+import { reserveStock, releaseReservation, getCartReservations } from '@/features/inventory/services/cartReservationApi'
 
 /** Guid.Empty — the backend returns this id when no cart exists yet. */
 const EMPTY_GUID = '00000000-0000-0000-0000-000000000000'
@@ -14,6 +16,7 @@ function isRealCartId(id: string | null): id is string {
 export const useCartStore = defineStore('cart', () => {
   const id = ref<string | null>(null)
   const items = ref<CartLineItem[]>([])
+  const reservations = ref<CartReservationStatus[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -36,6 +39,8 @@ export const useCartStore = defineStore('cart', () => {
       const result = await cartApi.getCart()
       if (result.isSuccess) {
         applyCart(result.value)
+        const reservationsResult = await getCartReservations(getCartToken())
+        if (reservationsResult.isSuccess) reservations.value = reservationsResult.items
       } else {
         error.value = result.message ?? 'Failed to load cart'
       }
@@ -56,7 +61,11 @@ export const useCartStore = defineStore('cart', () => {
     error.value = null
     try {
       const result = await cartApi.addItem({ variantId, quantity })
-      if (result.isSuccess) { applyCart(result.value); return true }
+      if (result.isSuccess) {
+        applyCart(result.value)
+        await reserveStock({ variantId, stockLocationId: '', quantity }, getCartToken())
+        return true
+      }
       error.value = result.message ?? 'Failed to add item'
       return false
     } catch {
@@ -82,6 +91,9 @@ export const useCartStore = defineStore('cart', () => {
   async function removeItem(lineItemId: string): Promise<boolean> {
     error.value = null
     try {
+      const cartItem = items.value.find(i => i.id === lineItemId)
+      const reservation = cartItem ? reservations.value.find(r => r.variantId === cartItem.variantId) : null
+      if (reservation) await releaseReservation(reservation.id)
       const result = await cartApi.removeItem(lineItemId)
       if (result.isSuccess) { applyCart(result.value); return true }
       error.value = result.message ?? 'Failed to remove item'
@@ -122,8 +134,9 @@ export const useCartStore = defineStore('cart', () => {
   function reset(): void {
     id.value = null
     items.value = []
+    reservations.value = []
     error.value = null
   }
 
-  return { id, items, loading, error, itemCount, subtotal, getCartToken, fetchCart, addItem, updateQuantity, removeItem, clearCart, associate, reset }
+  return { id, items, reservations, loading, error, itemCount, subtotal, getCartToken, fetchCart, addItem, updateQuantity, removeItem, clearCart, associate, reset }
 })
