@@ -17,24 +17,23 @@ Add timestamp fields to Order entity for tracking state transitions. New storefr
 
 **File:** `service/Api/src/Module/Ordering/Domain/Orders/Order.cs`
 
-Add timestamp fields:
+Add timestamp fields (all nullable):
 ```csharp
-// Order state timestamps
-public DateTime? OrderApprovedAt { get; set; }
-public DateTime? OrderCompletedAt { get; set; }
-public DateTime? OrderCanceledAt { get; set; }
-
 // Payment state timestamps
 public DateTime? PaymentProcessingAt { get; set; }
 public DateTime? PaymentCompletedAt { get; set; }
 public DateTime? PaymentFailedAt { get; set; }
 
 // Shipping state timestamps
-public DateTime? ShipmentLabelCreatedAt { get; set; }
-public DateTime? ShipmentInTransitAt { get; set; }
-public DateTime? ShipmentDeliveredAt { get; set; }
-public DateTime? ShipmentExceptionAt { get; set; }
+public DateTime? ShippedAt { get; set; }
+public DateTime? DeliveredAt { get; set; }
+public DateTime? DeliveryExceptionAt { get; set; }
+
+// Estimated delivery (from shipping rate)
+public DateTime? EstimatedDeliveryAt { get; set; }
 ```
+
+**Note:** Order already has `CompletedAtUtc`, `CanceledAtUtc`, `ApprovedAtUtc` — those cover order state timestamps.
 
 ### Backend: New Storefront Endpoint
 
@@ -55,10 +54,10 @@ GET /api/storefront/orders/{id}/tracking
   "paymentProcessingAt": "2026-08-10T10:31:00Z",
   "paymentCompletedAt": "2026-08-10T10:32:00Z",
   "paymentFailedAt": null,
-  "shipmentLabelCreatedAt": "2026-08-11T09:15:00Z",
-  "shipmentInTransitAt": "2026-08-11T14:30:00Z",
-  "shipmentDeliveredAt": null,
-  "shipmentExceptionAt": null
+  "shippedAt": "2026-08-11T09:15:00Z",
+  "deliveredAt": null,
+  "deliveryExceptionAt": null,
+  "estimatedDeliveryAt": "2026-08-15T00:00:00Z"
 }
 ```
 
@@ -124,8 +123,8 @@ getOrderTracking(orderId: string): Promise<OrderTrackingResponse>
 | File | Action |
 |------|--------|
 | `Module/Ordering/Domain/Orders/Order.cs` | MODIFY — add timestamp fields |
-| `Module/Ordering/Features/Storefront/Orders/GetTracking/` | CREATE — new endpoint |
-| `Migrations/` | CREATE — new migration |
+| `Module/Ordering/Features/Storefront/Orders/GetTracking/` | CREATE — new endpoint (3 files: handler, endpoint, response) |
+| `Migrations/` | CREATE — new migration for timestamp columns |
 | `features/ordering/components/OrderTrackingTimeline.vue` | CREATE |
 | `features/ordering/views/OrderDetailView.vue` | MODIFY — use tracking timeline |
 | `features/ordering/services/orderApi.ts` | MODIFY — add tracking API call |

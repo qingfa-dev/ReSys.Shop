@@ -23,14 +23,23 @@ Wire 5 backend endpoints that exist but aren't consumed by the new Store fronten
 
 **Purpose:** Pre-select default address in checkout.
 
-**File:** `app/Store/src/features/ordering/components/CheckoutStepAddress.vue`
+**Backend:** Endpoint does NOT exist yet. Need to create it.
+
+**New endpoint:** `GET /api/store/profiles/addresses/default`
+
+**Handler:** Query user's addresses, return the one with `IsDefault == true`. Fallback to first address if no default set.
+
+**Backend files to create:**
+- `Module/Profile/Features/Storefront/Addresses/GetDefault/GetDefaultAddress.cs`
+- `Module/Profile/Features/Storefront/Addresses/GetDefault/GetDefaultAddress.Endpoint.cs`
+- `Module/Profile/Features/Storefront/Addresses/GetDefault/GetDefaultAddress.Response.cs`
+
+**Frontend file:** `app/Store/src/features/ordering/components/CheckoutStepAddress.vue`
 
 **Changes:**
-- On mount, fetch addresses via `getAddresses()`
-- Auto-select address where `isDefault === true`
-- Fallback to first address if no default set
-
-**Backend:** Already exists at `GET /api/store/profiles/addresses/default`
+- On mount, call `GET /api/store/profiles/addresses/default`
+- Auto-select returned address
+- Fallback to first address from list if endpoint returns empty
 
 ### 3. POST /passwords/change — Change Password
 
@@ -48,27 +57,27 @@ Wire 5 backend endpoints that exist but aren't consumed by the new Store fronten
 
 **Backend:** Already exists at `GET /api/storefront/products/related`
 
-### 5. GET /shipping/rates/{id}/delivery — Delivery Estimate
+### 5. GET /shipping/rates — Delivery Estimate
 
 **Purpose:** Show estimated delivery date per shipping rate.
+
+**Backend:** No separate endpoint needed. The existing `GET /api/storefront/shipping/rates` response already includes `DeliveryRange` per rate.
 
 **File:** `app/Store/src/features/ordering/components/CheckoutStepDelivery.vue`
 
 **Changes:**
-- For each shipping rate, fetch delivery estimate via `getDeliveryEstimate(rateId)`
-- Display "Est. delivery: Aug 15" next to each rate option
-- Show loading skeleton while fetching
+- Read `deliveryRange` from each shipping rate in the existing list response
+- Display "Est. delivery: Aug 15-17" next to each rate option
+- No additional API call needed
 
-**Backend:** Already exists at `GET /api/storefront/shipping/rates/{id}/delivery`
-
-## Files to Modify
+## Files to Create/Modify
 
 | File | Endpoint |
 |------|----------|
+| `Module/Profile/Features/Storefront/Addresses/GetDefault/` | CREATE — new default address endpoint |
 | `features/ordering/components/CheckoutStepPayment.vue` | setup-intent |
 | `features/ordering/components/CheckoutStepAddress.vue` | addresses/default |
-| `features/ordering/components/CheckoutStepDelivery.vue` | shipping/rates/{id}/delivery |
-| `features/shipping/services/shippingApi.ts` | Add `getDeliveryEstimate` function |
+| `features/ordering/components/CheckoutStepDelivery.vue` | Read deliveryRange from existing rates response |
 
 ## Acceptance Criteria
 

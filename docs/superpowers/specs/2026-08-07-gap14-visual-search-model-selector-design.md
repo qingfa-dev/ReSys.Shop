@@ -15,31 +15,15 @@ Add model selector dropdown to visual search page. Show similarity scores on res
 
 ### Backend: Model Selection
 
-**File:** `service/Api/src/Module/Catalog/Features/Storefront/Products/SearchByImage/`
+**Already implemented.** The `SearchByImage.Request` already has a `Model` parameter (string?, optional). The handler passes it to the Embedding service which supports dynamic model loading.
 
-**Request change:**
-```csharp
-// Before
-public sealed record Request
-{
-    public IFormFile Image { get; init; } = default!;
-}
-
-// After
-public sealed record Request
-{
-    public IFormFile Image { get; init; } = default!;
-    public string? Model { get; init; }  // Optional: "fashion-clip", "clip-vit-l", etc.
-}
-```
-
-**Handler change:** Pass `model` parameter to Embedding service client.
+No backend changes needed for model selection — only the new models list endpoint and similarity scores.
 
 ### Backend: Score Response
 
-**File:** `service/Api/src/Module/Catalog/Features/Storefront/Products/SearchByImage/SearchByImage.cs`
+**File:** `service/Api/src/Module/Catalog/Features/Storefront/Products/Images/Search/SearchByImage.Response.cs`
 
-**Response change:**
+**Add `SimilarityScore` field:**
 ```csharp
 public sealed record Response
 {
@@ -48,14 +32,30 @@ public sealed record Response
 
 public sealed record SimilarProductResponse
 {
+    public Guid VariantId { get; init; }
     public Guid ProductId { get; init; }
-    public string Name { get; init; } = "";
-    public string Slug { get; init; } = "";
-    public string ImageUrl { get; init; } = "";
+    public string ProductName { get; init; } = "";
+    public string Sku { get; init; } = "";
     public decimal Price { get; init; }
+    public string ImageUrl { get; init; } = "";
     public double SimilarityScore { get; init; }  // NEW: 0.0 - 1.0
 }
 ```
+
+**File:** `service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/Services/VectorSearchService.Interface.cs`
+
+**Change return type:**
+```csharp
+// Before
+Task<List<Guid>> FindSimilarVariantIdsAsync(...)
+
+// After
+Task<List<(Guid VariantId, double Score)>> FindSimilarWithScoresAsync(...)
+```
+
+**File:** `service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/Services/VectorSearchService.cs`
+
+**Modify:** Return `(VariantId, Score)` tuples instead of just IDs. The SQL already computes cosine distance — just SELECT it and convert to similarity score (`1 - distance`).
 
 ### Backend: Models Endpoint
 
@@ -129,9 +129,11 @@ interface SimilarProductResponse {
 
 | File | Action |
 |------|--------|
-| `Module/Catalog/Features/Storefront/Products/SearchByImage/` | MODIFY — add model param + score |
-| `Module/Catalog/Features/Storefront/Products/VisualSearchModels/` | CREATE — new endpoint |
-| `Embedding/service/` | MODIFY — accept model parameter |
+| `Module/Catalog/Features/Storefront/Products/Images/Search/SearchByImage.Response.cs` | MODIFY — add SimilarityScore field |
+| `Module/Catalog/Features/Storefront/Products/Shared/Services/VectorSearchService.Interface.cs` | MODIFY — add FindSimilarWithScoresAsync |
+| `Module/Catalog/Features/Storefront/Products/Shared/Services/VectorSearchService.cs` | MODIFY — return scores |
+| `Module/Catalog/Features/Storefront/Products/Images/Search/SearchByImage.cs` | MODIFY — use scores in response |
+| `Module/Catalog/Features/Storefront/Products/VisualSearchModels/` | CREATE — new endpoint (2 files) |
 | `features/catalog/views/VisualSearchView.vue` | MODIFY — add model selector |
 | `features/catalog/services/searchByImageApi.ts` | MODIFY — add model param + score type |
 
