@@ -1,4 +1,4 @@
-import { post, put, del, getPaged } from '@/shared/api'
+import { get, post, put, del, getPaged } from '@/shared/api'
 import { ENDPOINTS } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types/result'
 import type { Address, AddressInput, DeletedAddress } from '../types/address'
@@ -22,4 +22,9 @@ export function updateAddress(id: string, req: AddressInput): Promise<Result<Add
 // DELETE api/store/profiles/addresses/{id} — returns { id, label } confirmation.
 export function deleteAddress(id: string): Promise<Result<DeletedAddress>> {
   return del<Result<DeletedAddress>>(ENDPOINTS.addressById(id))
+}
+
+// GET api/store/profiles/addresses/default — returns the user's default address.
+export function getDefaultAddress(): Promise<Address | null> {
+  return get<Address | null>(`${ENDPOINTS.addresses}/default`)
 }

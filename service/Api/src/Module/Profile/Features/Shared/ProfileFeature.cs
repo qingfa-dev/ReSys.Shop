@@ -94,6 +94,13 @@ public static class ProfileFeature
                 public const string Description = "Delete an address";
                 public const string Summary = "Delete address";
             }
+
+            public static class GetDefault
+            {
+                public const string Route = $"{BaseRoute}/default";
+                public const string Description = "Retrieve the user's default address";
+                public const string Summary = "Get default address";
+            }
         }
 
         public static class NotificationPreferences

@@ -4,6 +4,7 @@ import { useCartStore } from '../stores/cartStore'
 import { useCheckoutStore } from '../stores/checkoutStore'
 import { getPaymentMethods } from '@/features/payment/services/paymentApi'
 import { usePayment } from '@/features/payment/composables/usePayment'
+import { createSetupIntent } from '@/features/payment/services/paymentApi'
 import { formatCurrency } from '@/shared/utils/currency'
 import type { PaymentMethod } from '@/features/payment/types/payment'
 
@@ -18,6 +19,7 @@ const processing = ref(false)
 const localError = ref<string | null>(null)
 const cardContainer = ref<HTMLElement | null>(null)
 const clientSecret = ref<string | null>(null)
+const saveCard = ref(false)
 
 // Map: Stripe publishable key from env.
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string
@@ -75,6 +77,9 @@ async function pay(): Promise<void> {
     return
   }
   await checkout.confirmPayment(checkout.paymentIntentId!)
+  if (saveCard.value && selectedMethodId.value) {
+    await createSetupIntent({ paymentMethodId: selectedMethodId.value })
+  }
   processing.value = false
   await checkout.goToStep(4)
 }
@@ -122,6 +127,10 @@ async function pay(): Promise<void> {
     <div v-if="clientSecret" class="mb-6">
       <p class="text-sm text-stone-500 mb-3">Enter your card details:</p>
       <div ref="cardContainer" class="p-4 border border-stone-200 rounded-lg min-h-[40px]" />
+      <label class="flex items-center gap-2 text-sm text-stone-600 mt-3">
+        <Checkbox v-model="saveCard" :binary="true" />
+        Save this card for future purchases
+      </label>
     </div>
 
     <!-- Section: Actions -->

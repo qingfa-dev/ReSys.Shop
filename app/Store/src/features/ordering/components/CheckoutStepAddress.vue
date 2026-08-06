@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 import { useCheckoutStore } from '../stores/checkoutStore'
-import { getAddresses } from '@/features/profile/services/addressApi'
+import { getAddresses, getDefaultAddress } from '@/features/profile/services/addressApi'
 import type { Address } from '@/features/profile/types/address'
 
 const checkout = useCheckoutStore()
@@ -19,8 +19,12 @@ onMounted(async () => {
   const result = await getAddresses()
   if (result.isSuccess) {
     addresses.value = result.items
-    const preferred = result.items.find((addr) => addr.isDefault) ?? result.items[0]
-    if (preferred) selectedAddressId.value = preferred.id
+    const defaultAddr = await getDefaultAddress()
+    if (defaultAddr) {
+      selectedAddressId.value = defaultAddr.id
+    } else if (result.items.length > 0) {
+      selectedAddressId.value = result.items[0].id
+    }
   } else {
     localError.value = result.message ?? 'Failed to load addresses'
   }
