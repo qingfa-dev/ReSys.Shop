@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProductBySlug, getSimilarProducts, getRelatedProducts } from '../services/productApi'
+import { checkAvailability } from '@/features/inventory/services/availabilityApi'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useNotify } from '@/shared/composables/useNotify'
 import ProductGallery from '../components/ProductGallery.vue'
@@ -12,6 +13,7 @@ import SizeGuideModal from '../components/SizeGuideModal.vue'
 import ProductDetailsInfo from '../components/ProductDetailsInfo.vue'
 import { useRecentlyViewed } from '@/shared/composables/useRecentlyViewed'
 import type { StoreProductDetailResponse, StoreProductListItemResponse } from '../types/product'
+import type { AvailabilityEntry } from '@/features/inventory/types/availability'
 
 const route = useRoute()
 const cart = useCartStore()
@@ -25,6 +27,7 @@ const error = ref<string | null>(null)
 const adding = ref(false)
 const selectedVariantId = ref<string | null>(null)
 const quantity = ref(1)
+const availability = ref<AvailabilityEntry[]>([])
 
 // Map: Breadcrumb trail for the product detail page
 const breadcrumbItems = computed(() => [
@@ -129,6 +132,14 @@ async function quickAdd(variantId: string): Promise<void> {
 watch(() => route.params.slug, (slug) => {
   if (typeof slug === 'string') loadProduct(slug)
 }, { immediate: true })
+
+// Trigger: Fetch per-location availability when the selected variant changes.
+watch(selectedVariantId, async (variantId) => {
+  availability.value = []
+  if (!variantId) return
+  const result = await checkAvailability(variantId)
+  if (result.isSuccess) availability.value = result.items
+})
 </script>
 <template>
   <!-- Section: Product Detail Page -->
@@ -180,6 +191,13 @@ watch(() => route.params.slug, (slug) => {
           <p v-if="stockLabel" :class="stockColor" class="text-sm font-medium">
             {{ stockLabel }}
           </p>
+
+          <!-- Section: Per-Location Stock -->
+          <div v-if="availability.length > 0" class="mt-2 space-y-1">
+            <p v-for="loc in availability" :key="loc.stockLocationId" class="text-xs text-stone-500">
+              {{ loc.locationName }}: {{ loc.availableCount }} in stock
+            </p>
+          </div>
 
           <!-- Section: Product Details Info -->
           <ProductDetailsInfo :product="product" />
