@@ -12,6 +12,7 @@ const navItems = [
   { label: 'Sessions', to: '/account/sessions', icon: 'pi pi-shield' },
   { label: 'Wishlists', to: '/account/wishlists', icon: 'pi pi-heart' },
   { label: 'Notifications', to: '/account/notifications', icon: 'pi pi-bell' },
+  { label: 'Change Password', to: '/account/change-password', icon: 'pi pi-key' },
 ]
 </script>
 <template>

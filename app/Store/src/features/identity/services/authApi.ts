@@ -30,3 +30,10 @@ export async function forgotPassword(email: string): Promise<Result<unknown>> {
 export async function resetPassword(token: string, newPassword: string): Promise<Result<unknown>> {
   return post<Result<unknown>>(ENDPOINTS.passwordsReset, { token, newPassword })
 }
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<Result<void>> {
+  return post('api/store/identity/passwords/change', { currentPassword, newPassword })
+}

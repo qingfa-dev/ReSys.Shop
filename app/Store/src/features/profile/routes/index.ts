@@ -25,4 +25,10 @@ export const profileRoutes: RouteRecordRaw[] = [
     component: () => import('../views/NotificationPrefsView.vue'),
     meta: { requiresAuth: true, title: 'Notifications' },
   },
+  {
+    path: '/account/change-password',
+    name: 'change-password',
+    component: () => import('../views/ChangePasswordView.vue'),
+    meta: { requiresAuth: true, title: 'Change Password' },
+  },
 ]
