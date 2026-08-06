@@ -9,8 +9,10 @@ defineProps<{
   error: string | null
   /** Variant id currently being quick-added — drives that card's button loading state. */
   loadingVariantId?: string | null
+  /** Set of variant ids currently in the user's wishlist. */
+  wishlistedVariantIds?: Set<string>
 }>()
-const emit = defineEmits<{ addToCart: [variantId: string]; reload: [] }>()
+const emit = defineEmits<{ addToCart: [variantId: string]; reload: []; toggleWishlist: [variantId: string] }>()
 </script>
 <template>
   <!-- Section: Product Grid -->
@@ -37,7 +39,9 @@ const emit = defineEmits<{ addToCart: [variantId: string]; reload: [] }>()
         :key="product.id"
         :product="product"
         :loading="product.masterVariantId === loadingVariantId"
+        :is-wishlisted="wishlistedVariantIds?.has(product.masterVariantId)"
         @add-to-cart="(id) => emit('addToCart', id)"
+        @toggle-wishlist="(id) => emit('toggleWishlist', id)"
       />
     </div>
   </div>

@@ -16,6 +16,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
   const error = ref<string | null>(null)
   const details = ref<Record<string, WishlistDetail>>({})
   const detailLoadingId = ref<string | null>(null)
+  const wishlistedVariantIds = ref<Set<string>>(new Set())
 
   function upsertDetail(detail: WishlistDetail): void {
     details.value[detail.id] = detail
@@ -168,6 +169,69 @@ export const useWishlistStore = defineStore('wishlists', () => {
     }
   }
 
+  async function fetchWishlistedIds(): Promise<void> {
+    try {
+      const result = await wishlistApi.getWishlists()
+      if (!result.isSuccess) return
+      const ids = new Set<string>()
+      for (const wl of result.items) {
+        const detail = await wishlistApi.getWishlist(wl.id)
+        if (detail.isSuccess) {
+          for (const item of detail.value.wishedItems) {
+            ids.add(item.variantId)
+          }
+        }
+      }
+      wishlistedVariantIds.value = ids
+    } catch {
+      // Silently ignore — wishlist state is best-effort
+    }
+  }
+
+  async function toggleWishlist(variantId: string): Promise<boolean> {
+    if (wishlistedVariantIds.value.has(variantId)) {
+      // Remove: find the wishlist and item to remove
+      const wishlists = await wishlistApi.getWishlists()
+      if (wishlists.isSuccess) {
+        for (const wl of wishlists.items) {
+          const detail = await wishlistApi.getWishlist(wl.id)
+          if (detail.isSuccess) {
+            const item = detail.value.wishedItems.find(i => i.variantId === variantId)
+            if (item) {
+              await wishlistApi.removeWishlistItem(wl.id, item.id)
+              const next = new Set(wishlistedVariantIds.value)
+              next.delete(variantId)
+              wishlistedVariantIds.value = next
+              return false
+            }
+          }
+        }
+      }
+    } else {
+      // Add: use first wishlist or create one
+      const wishlists = await wishlistApi.getWishlists()
+      let targetId: string | null = null
+      if (wishlists.isSuccess && wishlists.items.length > 0) {
+        targetId = wishlists.items[0].id
+      } else {
+        const created = await wishlistApi.createWishlist({ name: 'My Wishlist', isPrivate: false })
+        if (created.isSuccess) targetId = created.value.id
+      }
+      if (targetId) {
+        await wishlistApi.addWishlistItem(targetId, { variantId, quantity: 1 })
+        const next = new Set(wishlistedVariantIds.value)
+        next.add(variantId)
+        wishlistedVariantIds.value = next
+        return true
+      }
+    }
+    return wishlistedVariantIds.value.has(variantId)
+  }
+
+  function isWishlisted(variantId: string): boolean {
+    return wishlistedVariantIds.value.has(variantId)
+  }
+
   return {
     items,
     loading,
@@ -182,5 +246,9 @@ export const useWishlistStore = defineStore('wishlists', () => {
     deleteWishlist,
     addItem,
     removeItem,
+    wishlistedVariantIds,
+    fetchWishlistedIds,
+    toggleWishlist,
+    isWishlisted,
   }
 })

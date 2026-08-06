@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useCatalogStore } from '../stores/catalogStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useWishlistStore } from '@/features/profile/stores/wishlistStore'
 import { useNotify } from '@/shared/composables/useNotify'
 import { getTaxonomies, getTaxons } from '../services/taxonApi'
 import { getOptionTypes } from '../services/optionTypeApi'
@@ -19,6 +20,7 @@ import type { StoreOptionTypeListItem, StoreOptionValueListItemResponse } from '
 const route = useRoute()
 const catalog = useCatalogStore()
 const cart = useCartStore()
+const wishlist = useWishlistStore()
 const notify = useNotify()
 
 // Map: Build paged query URL from catalogStore filter state
@@ -126,6 +128,9 @@ onMounted(async () => {
 
   // Trigger: Initial products fetch
   refresh()
+
+  // Trigger: Load wishlist state for heart icons
+  wishlist.fetchWishlistedIds()
 })
 
 // Trigger: Keep the catalog search query in sync with the URL
@@ -176,8 +181,10 @@ watch(() => route.query.search, (val) => {
           :loading="loading"
           :error="error"
           :loading-variant-id="quickAddLoading"
+          :wishlisted-variant-ids="wishlist.wishlistedVariantIds"
           @reload="refresh"
           @add-to-cart="quickAdd"
+          @toggle-wishlist="(id) => wishlist.toggleWishlist(id)"
         />
 
         <!-- Section: Pagination -->

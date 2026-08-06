@@ -4,9 +4,8 @@ import type { StoreProductListItemResponse } from '../types/product'
 import { formatCurrency } from '@/shared/utils/currency'
 import ProductBadge from './ProductBadge.vue'
 
-const props = defineProps<{ product: StoreProductListItemResponse; loading?: boolean }>()
-// The backend cart add endpoint requires a VARIANT id, not a product id — emit the master variant id.
-const emit = defineEmits<{ addToCart: [variantId: string] }>()
+const props = defineProps<{ product: StoreProductListItemResponse; loading?: boolean; isWishlisted?: boolean }>()
+const emit = defineEmits<{ addToCart: [variantId: string]; toggleWishlist: [variantId: string] }>()
 
 // Map: Format price for display
 function displayPrice(): string {
@@ -47,6 +46,15 @@ const stockColor = computed(() => {
     <!-- Section: Thumbnail -->
     <div class="relative">
       <ProductBadge v-if="isNew" variant="new" />
+      <button
+        v-if="isWishlisted !== undefined"
+        class="absolute top-3 left-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+        :class="isWishlisted ? 'bg-stone-900 text-white' : 'bg-white/80 text-stone-600 hover:bg-white hover:text-stone-900'"
+        :aria-label="isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'"
+        @click.prevent="emit('toggleWishlist', product.masterVariantId)"
+      >
+        <i :class="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'" />
+      </button>
       <router-link :to="`/products/${product.slug}`" class="block aspect-square bg-stone-100 relative overflow-hidden">
           <img
             v-if="product.masterVariant?.images?.[0]?.url"
