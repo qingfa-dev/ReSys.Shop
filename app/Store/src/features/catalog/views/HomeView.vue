@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { getPaged } from '@/shared/api/paged'
 import { ENDPOINTS } from '@/shared/constants/api'
+import { useCartStore } from '@/features/ordering/stores/cartStore'
 import type { StoreProductListItemResponse } from '../types/product'
 import HeroSection from '../components/HeroSection.vue'
 import FeaturesStrip from '../components/FeaturesStrip.vue'
@@ -10,6 +11,7 @@ import FeaturedProductsRow from '../components/FeaturedProductsRow.vue'
 import RecentlyViewedRow from '../components/RecentlyViewedRow.vue'
 import ProductGrid from '../components/ProductGrid.vue'
 
+const cart = useCartStore()
 const newArrivals = ref<StoreProductListItemResponse[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -31,8 +33,8 @@ onMounted(async () => {
     <HeroSection />
     <FeaturesStrip />
     <CategoryGrid />
-    <FeaturedProductsRow />
-    <RecentlyViewedRow />
+    <FeaturedProductsRow @add-to-cart="(id: string) => cart.addItem(id)" />
+    <RecentlyViewedRow @add-to-cart="(id: string) => cart.addItem(id)" />
     <!-- Section: New Arrivals -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <h2 class="text-2xl font-bold text-stone-900 mb-8">New Arrivals</h2>
