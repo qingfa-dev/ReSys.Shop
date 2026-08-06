@@ -25,6 +25,9 @@ const wishlist = useWishlistStore()
 const notify = useNotify()
 const { handleError } = useApiErrorHandler()
 
+// State: Grid or list layout for product cards
+const viewMode = ref<'grid' | 'list'>('grid')
+
 // Map: Build paged query URL from catalogStore filter state
 const query = usePagedQuery<StoreProductListItemResponse>(
   () => {
@@ -166,15 +169,26 @@ watch(() => route.query.search, (val) => {
         <!-- Section: Toolbar -->
         <div class="flex items-center justify-between mb-6">
           <p class="text-sm text-stone-500">{{ totalCount }} products</p>
-          <Select
-            :model-value="catalog.sortField"
-            :options="sortOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="Sort by"
-            class="w-48"
-            @update:model-value="(val: string) => { catalog.sortField = val; setSort(val ? [val] : []) }"
-          />
+          <div class="flex items-center gap-3">
+            <SelectButton
+              v-model="viewMode"
+              :options="[
+                { icon: 'pi pi-th-large', value: 'grid' },
+                { icon: 'pi pi-list', value: 'list' }
+              ]"
+              option-label="icon"
+              option-value="value"
+            />
+            <Select
+              :model-value="catalog.sortField"
+              :options="sortOptions"
+              option-label="label"
+              option-value="value"
+              placeholder="Sort by"
+              class="w-48"
+              @update:model-value="(val: string) => { catalog.sortField = val; setSort(val ? [val] : []) }"
+            />
+          </div>
         </div>
 
         <!-- Section: Product Grid -->
@@ -184,6 +198,7 @@ watch(() => route.query.search, (val) => {
           :error="error"
           :loading-variant-id="quickAddLoading"
           :wishlisted-variant-ids="wishlist.wishlistedVariantIds"
+          :view-mode="viewMode"
           @reload="refresh"
           @add-to-cart="quickAdd"
           @toggle-wishlist="(id) => wishlist.toggleWishlist(id)"

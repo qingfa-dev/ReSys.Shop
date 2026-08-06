@@ -11,6 +11,8 @@ defineProps<{
   loadingVariantId?: string | null
   /** Set of variant ids currently in the user's wishlist. */
   wishlistedVariantIds?: Set<string>
+  /** Layout mode for product cards. */
+  viewMode?: 'grid' | 'list'
 }>()
 const emit = defineEmits<{ addToCart: [variantId: string]; reload: []; toggleWishlist: [variantId: string] }>()
 </script>
@@ -33,13 +35,14 @@ const emit = defineEmits<{ addToCart: [variantId: string]; reload: []; toggleWis
     </div>
 
     <!-- Section: Grid -->
-    <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div v-else :class="viewMode === 'list' ? 'space-y-4' : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'">
       <ProductCard
         v-for="product in products"
         :key="product.id"
         :product="product"
         :loading="product.masterVariantId === loadingVariantId"
         :is-wishlisted="wishlistedVariantIds?.has(product.masterVariantId)"
+        :view-mode="viewMode"
         @add-to-cart="(id) => emit('addToCart', id)"
         @toggle-wishlist="(id) => emit('toggleWishlist', id)"
       />
