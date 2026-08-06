@@ -9,7 +9,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.Taxonomies.GetTree;
 public class GetTaxonomyTreeTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetTree.QueryHandler _handler;
+    private readonly Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.QueryHandler _handler;
 
     public GetTaxonomyTreeTests()
     {
@@ -20,7 +20,7 @@ public class GetTaxonomyTreeTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Taxonomy).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetTree.QueryHandler(_dbContext);
+        _handler = new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.QueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -42,7 +42,7 @@ public class GetTaxonomyTreeTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetTree.Query(taxonomy.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.Query(taxonomy.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be("Categories");
@@ -54,7 +54,7 @@ public class GetTaxonomyTreeTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
     public async Task Handle_ShouldReturnFailure_WhenNotFound()
     {
-        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetTree.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Taxonomies.Get.Tree.GetStoreTaxonomies.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
     }

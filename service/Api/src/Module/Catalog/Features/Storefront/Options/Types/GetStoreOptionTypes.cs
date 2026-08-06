@@ -44,7 +44,7 @@ public static partial class GetStoreOptionTypes
             // Compute: Apply filtering, sorting, and pagination to produce the storefront result
             var pagedResult = await query
                 .ApplyQuerying(parsing.Value)
-                .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreResponse<Response>(), cancellationToken);
+                .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreListItem<Response>(), cancellationToken);
 
             return pagedResult;
         }

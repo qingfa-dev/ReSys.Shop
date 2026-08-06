@@ -1,6 +1,6 @@
 namespace Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
 
-public record TaxonomyListItemResponse : TaxonomyParameters, IResponse
+public record TaxonomyListItemResponse : TaxonomyParameters
 {
     public Guid Id { get; init; }
 
@@ -10,7 +10,7 @@ public record TaxonomyListItemResponse : TaxonomyParameters, IResponse
     public DateTimeOffset? ModifiedAtUtc { get; init; }
 }
 
-public record TaxonomyDetailResponse : TaxonomyParameters, IResponse
+public record TaxonomyDetailResponse : TaxonomyParameters
 {
     public Guid Id { get; init; }
 

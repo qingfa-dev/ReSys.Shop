@@ -6,7 +6,6 @@ import { getPaged } from '@/shared/api/paged'
 import type {
   StoreProductListItemResponse,
   StoreProductDetailResponse,
-  AvailabilityMatrixResponse,
 } from '../types/product'
 
 export function getPagedProducts(params: QueryingParameters): Promise<PagedResult<StoreProductListItemResponse>> {
@@ -15,10 +14,6 @@ export function getPagedProducts(params: QueryingParameters): Promise<PagedResul
 
 export function getProductBySlug(slug: string): Promise<Result<StoreProductDetailResponse>> {
   return get<Result<StoreProductDetailResponse>>(ENDPOINTS.productBySlug(slug))
-}
-
-export function getAvailability(productId: string): Promise<Result<AvailabilityMatrixResponse>> {
-  return get<Result<AvailabilityMatrixResponse>>(`${ENDPOINTS.productAvailability}?productId=${productId}`)
 }
 
 export function getSimilarProducts(productId: string, topK = 20): Promise<PagedResult<StoreProductListItemResponse>> {

@@ -1,6 +1,6 @@
 namespace Module.Identity.Features.Admin.Users.Shared.Models;
 
-public record UserDetailResponse : UserParameter, IResponse
+public record UserDetailResponse : UserParameter
 {
     public Guid Id { get; init; }
     public bool IsActive { get; init; }
@@ -8,7 +8,7 @@ public record UserDetailResponse : UserParameter, IResponse
     public DateTimeOffset? ModifiedAtUtc { get; init; }
 }
 
-public record UserListResponse : UserParameter, IResponse
+public record UserListResponse : UserParameter
 {
     public Guid Id { get; init; }
     public string FullName { get; init; } = string.Empty;

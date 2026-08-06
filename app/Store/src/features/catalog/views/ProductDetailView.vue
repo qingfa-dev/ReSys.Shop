@@ -30,6 +30,31 @@ const breadcrumbItems = computed(() => [
   { label: product.value?.name ?? 'Product' },
 ])
 
+// Derive: The currently selected variant object from the list
+const selectedVariant = computed(() =>
+  product.value?.variants.find((v) => v.id === selectedVariantId.value) ?? null,
+)
+
+// Derive: Stock label for the selected variant
+const stockLabel = computed(() => {
+  const stock = selectedVariant.value?.stock
+  if (!stock) return null
+  if (stock.availableQuantity > 5) return null
+  if (stock.availableQuantity > 0) return `Only ${stock.availableQuantity} left!`
+  if (stock.backorderable) return 'Available for backorder'
+  return 'Out of stock'
+})
+
+// Derive: Tailwind text colour class for the stock badge
+const stockColor = computed(() => {
+  const stock = selectedVariant.value?.stock
+  if (!stock) return null
+  if (stock.availableQuantity > 5) return 'text-emerald-600'
+  if (stock.availableQuantity > 0) return 'text-amber-600'
+  if (stock.backorderable) return 'text-blue-600'
+  return 'text-red-600'
+})
+
 // Trigger: Load product when slug changes
 async function loadProduct(slug: string): Promise<void> {
   loading.value = true
@@ -44,8 +69,8 @@ async function loadProduct(slug: string): Promise<void> {
       productId: result.value.id,
       productName: result.value.name,
       slug: result.value.slug,
-      thumbnailUrl: result.value.thumbnailUrl,
-      minPrice: result.value.minPrice,
+      thumbnailUrl: result.value.masterVariant?.images?.[0]?.url ?? null,
+      minPrice: result.value.masterVariant?.price ?? null,
       viewedAt: Date.now(),
     })
     selectedVariantId.value = result.value.masterVariant?.id ?? null
@@ -110,7 +135,7 @@ watch(() => route.params.slug, (slug) => {
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Section: Image Gallery -->
         <div class="w-full md:w-1/2">
-          <ProductGallery :images="product.images" :alt="product.name" />
+          <ProductGallery :images="product.masterVariant?.images ?? []" :alt="product.name" />
         </div>
 
         <!-- Section: Product Info -->
@@ -124,8 +149,13 @@ watch(() => route.params.slug, (slug) => {
           <SizeGuideModal v-if="product.variants.length > 0" :variants="product.variants" :product-name="product.name" />
 
           <!-- Section: Price -->
-          <p v-if="product.minPrice" class="text-3xl font-bold text-stone-900">
-            {{ new Intl.NumberFormat('vi-VN', { style: 'currency', currency: product.currency ?? 'VND' }).format(product.minPrice) }}
+          <p v-if="product.masterVariant?.price" class="text-3xl font-bold text-stone-900">
+            {{ new Intl.NumberFormat('vi-VN', { style: 'currency', currency: product.masterVariant?.currency ?? 'VND' }).format(product.masterVariant.price) }}
+          </p>
+
+          <!-- Section: Stock Status -->
+          <p v-if="stockLabel" :class="stockColor" class="text-sm font-medium">
+            {{ stockLabel }}
           </p>
 
           <!-- Section: Product Details Info -->

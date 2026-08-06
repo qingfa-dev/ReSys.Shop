@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Storefront.Taxonomies.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Taxonomies.Shared.Models;
+using Module.Catalog.Features.Storefront.Classifications.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Taxonomies.Shared.Mappings;
 
@@ -17,7 +17,7 @@ public class TaxonomyStoreMappingTests
         var root = taxonomy.Taxons.Single(t => t.ParentId == null);
         var children = taxonomy.Taxons.Where(t => t.ParentId == root.Id).ToList();
 
-        var response = taxonomy.MapToStoreTree<StoreTaxonomyTreeResponse>();
+        var response = taxonomy.MapToStoreListItem<StoreTaxonomyListItemResponse>();
 
         response.Should().NotBeNull();
         response.Id.Should().Be(taxonomy.Id);
@@ -42,7 +42,7 @@ public class TaxonomyStoreMappingTests
         hiddenResult.IsSuccess.Should().BeTrue();
         taxonomy.Taxons.Add(hiddenResult.Value);
 
-        var response = taxonomy.MapToStoreTree<StoreTaxonomyTreeResponse>();
+        var response = taxonomy.MapToStoreListItem<StoreTaxonomyListItemResponse>();
 
         response.Nodes.Should().HaveCount(1);
         response.Nodes[0].Children.Should().HaveCount(2);

@@ -3,12 +3,14 @@ namespace Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Models;
 /// <summary>
 /// Represents the response data for an option value.
 /// </summary>
-public record OptionValueListItemResponse : OptionValueParameters, IResponse
+public record OptionValueListItemResponse : OptionValueParameters
 {
     /// <summary>
     /// Gets or initializes the unique identifier of the option value.
     /// </summary>
     public Guid Id { get; init; }
+
+    public Guid OptionTypeId { get; init; } = Guid.Empty;
 
     /// <summary> 
     /// Gets or initializes the name of the parent option type, included for convenience in responses.

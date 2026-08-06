@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockLocations.Shared.Models;
 
-public record StockLocationDetailResponse : StockLocationParameters, IResponse
+public record StockLocationDetailResponse : StockLocationParameters
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
@@ -9,7 +9,7 @@ public record StockLocationDetailResponse : StockLocationParameters, IResponse
     public string? ModifiedBy { get; init; }
 }
 
-public record StockLocationListItemResponse : StockLocationParameters, IResponse
+public record StockLocationListItemResponse : StockLocationParameters
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }

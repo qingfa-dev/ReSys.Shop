@@ -24,11 +24,11 @@ public record CartItem : Response
 }
 
 /// <summary>Cart detail response — includes line items and computed cart totals.</summary>
-public record CartDetailResponse : CartResponseBase, IResponse
+public record CartDetailResponse : CartResponseBase
 {
     /// <summary>Line items currently in the cart.</summary>
     public List<CartItem> Items { get; init; } = [];
 }
 
 /// <summary>Cart list item — lightweight summary for cart list views without line items.</summary>
-public record CartListItemResponse : CartResponseBase, IResponse;
+public record CartListItemResponse : CartResponseBase;

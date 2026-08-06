@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockReservations.Shared.Models;
 
-public record StockReservationDetailResponse : StockReservationParameters, IResponse
+public record StockReservationDetailResponse : StockReservationParameters
 {
     /// <summary>Gets or sets the unique identifier of the stock reservation.</summary>
     public Guid Id { get; init; }
@@ -12,7 +12,7 @@ public record StockReservationDetailResponse : StockReservationParameters, IResp
     public DateTimeOffset? ModifiedAtUtc { get; set; }
 }
 
-public record StockReservationListItemResponse : StockReservationParameters, IResponse
+public record StockReservationListItemResponse : StockReservationParameters
 {
     /// <summary>Gets or sets the unique identifier of the stock reservation.</summary>
     public Guid Id { get; init; }

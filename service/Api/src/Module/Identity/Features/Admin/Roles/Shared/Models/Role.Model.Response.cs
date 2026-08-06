@@ -1,6 +1,6 @@
 namespace Module.Identity.Features.Admin.Roles.Shared.Models;
 
-public record RoleDetailResponse : RoleParameter, IResponse
+public record RoleDetailResponse : RoleParameter
 {
     public Guid Id { get; init; }
     public bool IsSystem { get; init; }
@@ -10,7 +10,7 @@ public record RoleDetailResponse : RoleParameter, IResponse
     public string? ModifiedBy { get; init; }
 }
 
-public record RoleListResponse : RoleParameter, IResponse
+public record RoleListResponse : RoleParameter
 {
     public Guid Id { get; init; }
     public bool IsSystem { get; init; }

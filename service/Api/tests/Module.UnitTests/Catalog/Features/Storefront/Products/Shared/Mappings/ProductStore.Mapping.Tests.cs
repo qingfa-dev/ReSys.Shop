@@ -36,7 +36,7 @@ public class ProductStoreMappingTests
         response.MasterVariant.Should().NotBeNull();
         response.MasterVariant!.Id.Should().Be(product.Variants.First(v => v.IsMaster).Id);
         response.Variants.Should().HaveCount(1); // only non-deleted variants
-        response.Taxons.Should().HaveCount(1);
+        response.Classifications.Should().HaveCount(1);
     }
 
     [Fact(DisplayName = "MapToStoreVariant: Should map Variant to StoreProductVariantResponse")]

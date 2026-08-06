@@ -2,7 +2,7 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Admin.Orders.Shared.Models;
 
-public record OrderDetailResponse : OrderParameters, IResponse
+public record OrderDetailResponse : OrderParameters
 {
     public Guid Id { get; init; }
     public string Number { get; init; } = string.Empty;
@@ -27,7 +27,7 @@ public record OrderDetailResponse : OrderParameters, IResponse
     public DateTimeOffset? ModifiedAtUtc { get; init; }
 }
 
-public record OrderListItemResponse : OrderParameters, IResponse
+public record OrderListItemResponse : OrderParameters
 {
     public Guid Id { get; init; }
     public string Number { get; init; } = string.Empty;

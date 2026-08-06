@@ -1,7 +1,7 @@
 namespace Module.Catalog.Features.Admin.Taxons.Shared.Models;
 
 // List Item:
-public record TaxonListItemResponse : TaxonParameters, IResponse
+public record TaxonListItemResponse : TaxonParameters
 {
     public Guid Id { get; set; }
 

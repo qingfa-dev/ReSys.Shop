@@ -1,11 +1,11 @@
 using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Models;
+using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
 
 namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
 
 public static partial class ProductClassificationMapping
 {
-    public static T MapToListItem<T>(
+    public static T MapToClassificationListItem<T>(
         this Taxon taxon,
         bool isAssigned,
         int position = 0)
@@ -22,9 +22,3 @@ public static partial class ProductClassificationMapping
     }
 }
 
-public record ClassificationItemResponse : ProductClassificationParameters
-{
-    public string Name { get; init; } = string.Empty;
-    public string? PrettyName { get; init; }
-    public bool IsAssigned { get; init; }
-}

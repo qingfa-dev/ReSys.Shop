@@ -8,7 +8,7 @@ public record ImportStockItemsResponseBase : Response
     public List<string> Errors { get; init; } = [];
 }
 
-public record StockItemDetailResponse : StockItemParameters, IResponse
+public record StockItemDetailResponse : StockItemParameters
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
@@ -17,7 +17,7 @@ public record StockItemDetailResponse : StockItemParameters, IResponse
     public string? ModifiedBy { get; init; }
 }
 
-public record StockItemListItemResponse : StockItemParameters, IResponse
+public record StockItemListItemResponse : StockItemParameters
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }

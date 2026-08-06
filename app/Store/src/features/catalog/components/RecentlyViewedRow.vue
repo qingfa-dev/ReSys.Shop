@@ -23,10 +23,6 @@ const emit = defineEmits<{ addToCart: [variantId: string] }>()
             status: '',
             description: null,
             slug: item.slug,
-            minPrice: item.minPrice,
-            currency: null,
-            thumbnailUrl: item.thumbnailUrl,
-            thumbnailAlt: null,
             styleCode: null,
             seasonName: null,
             materialComposition: null,
@@ -36,6 +32,17 @@ const emit = defineEmits<{ addToCart: [variantId: string] }>()
             genderTarget: null,
             variantsCount: 0,
             availableOn: null,
+            masterVariant: {
+              id: item.productId,
+              sku: null,
+              isMaster: true,
+              price: item.minPrice,
+              currency: null,
+              optionValues: [],
+              images: item.thumbnailUrl ? [{ id: '', url: item.thumbnailUrl, alt: null, position: 0 }] : [],
+              stock: { availableQuantity: 0, backorderable: false },
+            },
+            taxons: [],
           }"
           @add-to-cart="(id: string) => emit('addToCart', id)"
         />

@@ -71,9 +71,9 @@ function displayPrice(price: number | null): string {
         @click="search.navigateToResult(idx)"
       >
         <img
-          v-if="item.thumbnailUrl"
-          :src="item.thumbnailUrl"
-          :alt="item.thumbnailAlt ?? item.name"
+          v-if="item.masterVariant?.images?.[0]?.url"
+          :src="item.masterVariant.images[0].url"
+          :alt="item.masterVariant.images[0].alt ?? item.name"
           class="w-12 h-12 rounded-lg object-cover bg-stone-100 shrink-0"
         />
         <div v-else class="w-12 h-12 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
@@ -81,7 +81,7 @@ function displayPrice(price: number | null): string {
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-stone-900 truncate">{{ item.name }}</p>
-          <p class="text-sm font-semibold text-stone-700">{{ displayPrice(item.minPrice) }}</p>
+          <p class="text-sm font-semibold text-stone-700">{{ displayPrice(item.masterVariant?.price ?? null) }}</p>
         </div>
       </li>
     </ul>

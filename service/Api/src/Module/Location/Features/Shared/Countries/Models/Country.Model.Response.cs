@@ -1,6 +1,6 @@
 namespace Module.Location.Features.Shared.Countries.Models;
 
-public record CountryDetailResponse : CountryParameters, IResponse
+public record CountryDetailResponse : CountryParameters
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
@@ -9,7 +9,7 @@ public record CountryDetailResponse : CountryParameters, IResponse
     public string? ModifiedBy { get; init; }
 }
 
-public record CountryListItemResponse : CountryParameters, IResponse
+public record CountryListItemResponse : CountryParameters
 {
     public Guid Id { get; init; }
 }

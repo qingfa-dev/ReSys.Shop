@@ -7,9 +7,8 @@ namespace Module.Catalog.Features.Storefront.Options.Shared.Mappings;
 
 public static class StoreOptionValueMappings
 {
-
-    public static T MapToStoreResponse<T>(this OptionValue entity) where T : StoreOptionValueResponse, new()
+    public static T MapToStoreListItem<T>(this OptionValue entity) where T : StoreOptionValueListItemResponse, new()
     {
-        return entity.MapToListItem<T>();
+        return entity.MapToDetail<T>();
     }
 }

@@ -1,6 +1,6 @@
 namespace Module.Shipping.Features.Admin.ShippingRates.Shared.Models;
 
-public record ShippingRateDetailResponse : ShippingRateParameters, IResponse
+public record ShippingRateDetailResponse : ShippingRateParameters
 {
     public Guid Id { get; init; }
     public decimal FinalPrice { get; init; }

@@ -3,7 +3,7 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 /// <summary>
 /// Detailed variant image response returned by get-by-id and list endpoints.
 /// </summary>
-public record VariantImageDetailResponse : VariantImageParameters, IResponse
+public record VariantImageDetailResponse : VariantImageParameters
 {
     /// <summary>Unique identifier of the variant image.</summary>
     public Guid Id { get; init; }

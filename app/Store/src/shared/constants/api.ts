@@ -5,7 +5,6 @@ export const ENDPOINTS = {
   // Catalog
   products: `${API_STOREFRONT}/products`,
   productBySlug: (slug: string) => `${API_STOREFRONT}/products/${slug}`,
-  productAvailability: `${API_STOREFRONT}/products/availability`,
   productRelated: `${API_STOREFRONT}/products/related`,
   productSimilar: `${API_STOREFRONT}/products/similar`,
   searchByImage: `${API_STOREFRONT}/search-by-image`,
@@ -57,7 +56,6 @@ export const ENDPOINTS = {
   shippingRates: `${API_STOREFRONT}/shipping/rates`,
 
   // Inventory
-  availability: (variantId: string) => `${API_STOREFRONT}/availability/${variantId}`,
   cartReserve: `${API_STOREFRONT}/cart/reserve`,
   cartReserveById: (id: string) => `${API_STOREFRONT}/cart/reserve/${id}`,
   // GET (status) and POST (reserve) share the same route on the backend.

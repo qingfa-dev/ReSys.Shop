@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockTransfers.Shared.Models;
 
-public record StockTransferDetailResponse : StockTransferParameters, IResponse
+public record StockTransferDetailResponse : StockTransferParameters
 {
     public Guid Id { get; init; }
     public string Number { get; set; } = string.Empty;
@@ -9,7 +9,7 @@ public record StockTransferDetailResponse : StockTransferParameters, IResponse
     public List<TransferItemResponse> Items { get; set; } = [];
 }
 
-public record StockTransferListItemResponse : StockTransferParameters, IResponse
+public record StockTransferListItemResponse : StockTransferParameters
 {
     public Guid Id { get; init; }
     public string Number { get; set; } = string.Empty;

@@ -1,6 +1,6 @@
 namespace Module.Shipping.Features.Admin.ShippingMethods.Shared.Models;
 
-public record ShippingMethodDetailResponse : ShippingMethodParameters, IResponse
+public record ShippingMethodDetailResponse : ShippingMethodParameters
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; set; }

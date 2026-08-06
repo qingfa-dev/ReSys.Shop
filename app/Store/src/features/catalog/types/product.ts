@@ -5,10 +5,6 @@ export interface StoreProductListItemResponse {
   status: string
   description: string | null
   slug: string
-  minPrice: number | null
-  currency: string | null
-  thumbnailUrl: string | null
-  thumbnailAlt: string | null
   styleCode: string | null
   seasonName: string | null
   materialComposition: string | null
@@ -18,30 +14,13 @@ export interface StoreProductListItemResponse {
   genderTarget: string | null
   variantsCount: number
   availableOn: string | null
-}
-
-export interface StoreProductVariantResponse {
-  id: string
-  sku: string | null
-  isMaster: boolean
-  price: number | null
-  currency: string | null
-  optionValue1: { id: string; name: string; presentation: string | null } | null
-  optionValue2: { id: string; name: string; presentation: string | null } | null
-  images: StoreProductImageResponse[]
-}
-
-export interface StoreProductImageResponse {
-  id: string
-  url: string
-  alt: string | null
-  position: number
+  masterVariant: StoreProductVariantResponse | null
+  taxons: StoreProductTaxonResponse[]
 }
 
 export interface StoreProductDetailResponse extends StoreProductListItemResponse {
   masterVariant: StoreProductVariantResponse | null
   variants: StoreProductVariantResponse[]
-  images: StoreProductImageResponse[]
   taxons: StoreProductTaxonResponse[]
 }
 
@@ -50,28 +29,38 @@ export interface StoreProductTaxonResponse {
   name: string
   permalink: string
   depth: number
+  breadcrumb?: Array<{ id: string; name: string; permalink: string }>
 }
 
-export interface AvailabilityAxisValue {
-  id: string
+export interface StoreVariantStockInfo {
+  availableQuantity: number
+  backorderable: boolean
+}
+
+export interface StoreVariantOptionValueResponse {
+  variantOptionValueId: string
+  optionValueId: string
   name: string
   presentation: string | null
+  position: number
+  optionTypeId: string
+  optionTypeName: string | null
 }
 
-export interface AvailabilityCell {
-  variantId: string
-  optionValue1Id: string
-  optionValue2Id: string | null
-  status: string
+export interface StoreProductVariantResponse {
+  id: string
+  sku: string | null
+  isMaster: boolean
   price: number | null
   currency: string | null
+  optionValues: StoreVariantOptionValueResponse[]
+  images: StoreProductImageResponse[]
+  stock: StoreVariantStockInfo
 }
 
-export interface AvailabilityMatrixResponse {
-  axes: Array<{
-    name: string
-    presentation: string | null
-    values: AvailabilityAxisValue[]
-  }>
-  cells: AvailabilityCell[]
+export interface StoreProductImageResponse {
+  id: string
+  url: string
+  alt: string | null
+  position: number
 }

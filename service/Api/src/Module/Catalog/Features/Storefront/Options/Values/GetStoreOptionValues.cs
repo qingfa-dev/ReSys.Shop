@@ -1,4 +1,5 @@
 using Module.Catalog.Domain.OptionTypes;
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Features.Storefront.Options.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.Options.Values;
@@ -27,9 +28,8 @@ public static partial class GetStoreOptionValues
             var parameters = request.Parameters;
 
             // Load: Filterable option types with ordered values for storefront display
-            var query = dbContext.Set<OptionType>()
-                .Include(x => x.OptionValues.OrderBy(v => v.Position))
-                .Where(x => !x.IsDeleted && x.Filterable)
+            var query = dbContext.Set<OptionValue>()
+                .Include(x => x.OptionType)
                 .OrderBy(x => x.Position)
                 .AsNoTracking();
 
@@ -44,7 +44,7 @@ public static partial class GetStoreOptionValues
             // Compute: Apply filtering, sorting, and pagination to produce the storefront result
             var pagedResult = await query
                 .ApplyQuerying(parsing.Value)
-                .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreResponse<Response>(), cancellationToken);
+                .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreListItem<Response>(), cancellationToken);
 
             return pagedResult;
         }

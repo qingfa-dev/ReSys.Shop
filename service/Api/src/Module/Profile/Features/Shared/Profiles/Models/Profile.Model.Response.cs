@@ -1,6 +1,6 @@
 namespace Module.Profile.Features.Shared.Profiles.Models;
 
-public abstract record ProfileListItemResponse : ProfileParameters, IResponse
+public abstract record ProfileListItemResponse : ProfileParameters
 {
     public Guid Id { get; set; }
     public string FullName { get; set; } = string.Empty;
