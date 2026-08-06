@@ -111,6 +111,21 @@ async function addToCart(): Promise<void> {
   }
 }
 
+// Trigger: Quick-add a related product variant to the cart.
+async function quickAdd(variantId: string): Promise<void> {
+  if (!variantId) {
+    notify.warn('Unavailable', 'This product has no purchasable variant')
+    return
+  }
+  try {
+    const ok = await cart.addItem(variantId, 1)
+    if (ok) notify.success('Added to cart')
+    else notify.error('Could not add', cart.error ?? undefined)
+  } catch {
+    notify.error('Could not add', 'Unexpected error')
+  }
+}
+
 watch(() => route.params.slug, (slug) => {
   if (typeof slug === 'string') loadProduct(slug)
 }, { immediate: true })
@@ -207,6 +222,7 @@ watch(() => route.params.slug, (slug) => {
         v-if="related.length > 0"
         :products="related"
         class="mt-16"
+        @add-to-cart="quickAdd"
       />
     </template>
   </div>
