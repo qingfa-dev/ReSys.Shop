@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useCheckoutStore } from '../stores/checkoutStore'
-import { getShippingMethods } from '@/features/shipping/services/shippingApi'
+import { getShippingMethods, getShippingRates } from '@/features/shipping/services/shippingApi'
 import type { ShippingMethod } from '@/features/shipping/types/shipping'
 
 const checkout = useCheckoutStore()
 
 const methods = ref<ShippingMethod[]>([])
 const selectedMethodId = ref<string | null>(null)
+const rates = ref<Map<string, string>>(new Map())
 const loading = ref(true)
 const localError = ref<string | null>(null)
 
@@ -17,6 +18,13 @@ onMounted(async () => {
   if (result.isSuccess) {
     methods.value = result.items
     if (methods.value.length === 1) selectedMethodId.value = methods.value[0]?.id ?? null
+
+    const ratesResult = await getShippingRates()
+    if (ratesResult.isSuccess) {
+      for (const rate of ratesResult.items) {
+        if (rate.deliveryRange) rates.value.set(rate.shippingMethodId, rate.deliveryRange)
+      }
+    }
   } else {
     localError.value = result.message ?? 'Failed to load shipping methods'
   }
@@ -58,6 +66,9 @@ async function continueToPayment(): Promise<void> {
         <RadioButton v-model="selectedMethodId" :input-id="`ship-${method.id}`" :value="method.id" />
         <label :for="`ship-${method.id}`" class="flex-1 text-sm cursor-pointer">
           <span class="font-medium text-stone-900">{{ method.name }}</span>
+          <p v-if="rates.get(method.id)" class="text-xs text-stone-500">
+            Est. delivery: {{ rates.get(method.id) }}
+          </p>
           <span v-if="method.adminName || method.code" class="block text-stone-500">
             {{ method.adminName ?? method.code }}
           </span>
