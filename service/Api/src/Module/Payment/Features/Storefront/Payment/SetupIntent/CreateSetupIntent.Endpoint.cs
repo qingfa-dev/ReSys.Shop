@@ -20,6 +20,7 @@ public static partial class CreateSetupIntent
                 return result.ToResult();
             })
             .RequireAuthorization()
+            .RequireRateLimiting("payment")
             .WithName(nameof(CreateSetupIntent))
             .WithTags(PaymentFeature.Tags.Payment)
             .WithSummary(PaymentFeature.Storefront.Payment.SetupIntent.Summary)

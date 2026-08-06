@@ -69,12 +69,14 @@ async function pay(): Promise<void> {
     return
   }
   const { error } = await stripe.confirmCardPayment(clientSecret.value)
-  processing.value = false
   if (error) {
     localError.value = error.message ?? 'Payment failed. Please try again.'
-  } else {
-    await checkout.goToStep(4)
+    processing.value = false
+    return
   }
+  await checkout.confirmPayment(checkout.paymentIntentId!)
+  processing.value = false
+  await checkout.goToStep(4)
 }
 </script>
 <template>

@@ -127,9 +127,8 @@ describe('checkoutStore', () => {
       expect(store.paymentIntentId).toBe('pi-1')
       expect(mockedCheckoutApi.createPaymentIntent).toHaveBeenCalledWith({
         orderId: 'cart-1',
-        amount: 100000,
-        currency: 'VND',
         paymentMethodId: 'pm-1',
+        returnUrl: expect.stringContaining('/checkout'),
       })
 
       const orderOk = await store.placeOrder()

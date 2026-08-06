@@ -4,7 +4,6 @@ import type { PagedResult, Result } from '@/shared/types/result'
 import type { QueryingParameters } from '@/shared/types/querying'
 import type {
   ConfirmPaymentResponse,
-  CreatePaymentIntentRequest,
   CreateSetupIntentRequest,
   PaymentIntent,
   PaymentMethod,
@@ -13,11 +12,6 @@ import type {
 // GET api/storefront/payment/methods returns a paged result of active methods.
 export function getPaymentMethods(params: QueryingParameters = {}): Promise<PagedResult<PaymentMethod>> {
   return getPaged<PaymentMethod>(ENDPOINTS.paymentMethods, params)
-}
-
-// POST api/storefront/payment/create-intent — backend derives amount/currency from the order.
-export function createPaymentIntent(req: CreatePaymentIntentRequest): Promise<Result<PaymentIntent>> {
-  return post<Result<PaymentIntent>>(ENDPOINTS.paymentCreateIntent, req)
 }
 
 // POST api/storefront/payment/confirm/{paymentId} — no request body.

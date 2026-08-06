@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import * as checkoutApi from '../services/checkoutApi'
+import * as paymentApi from '@/features/payment/services/paymentApi'
 import { useCartStore } from './cartStore'
 
 export type CheckoutStep = 1 | 2 | 3 | 4 | 5
@@ -92,7 +93,7 @@ export const useCheckoutStore = defineStore('checkout', () => {
     }
   }
 
-  async function createPaymentIntent(methodId: string, amount: number): Promise<string | null> {
+  async function createPaymentIntent(methodId: string, _amount: number): Promise<string | null> {
     const cart = useCartStore()
     if (!cart.id) {
       error.value = 'Cart is not loaded.'
@@ -102,9 +103,8 @@ export const useCheckoutStore = defineStore('checkout', () => {
     try {
       const result = await checkoutApi.createPaymentIntent({
         orderId: cart.id,
-        amount,
-        currency: currency.value,
         paymentMethodId: methodId,
+        returnUrl: window.location.origin + '/checkout',
       })
       if (result.isSuccess) {
         paymentIntentId.value = result.value.responseCode ?? result.value.id
@@ -139,6 +139,10 @@ export const useCheckoutStore = defineStore('checkout', () => {
     }
   }
 
+  async function confirmPayment(paymentId: string): Promise<void> {
+    await paymentApi.confirmPayment(paymentId)
+  }
+
   function reset(): void {
     currentStep.value = 1
     shipAddressId.value = null
@@ -148,5 +152,5 @@ export const useCheckoutStore = defineStore('checkout', () => {
     error.value = null
   }
 
-  return { currentStep, shipAddressId, shippingMethodId, paymentIntentId, orderId, loading, error, email, currency, steps, goToStep, saveAddress, calculateShipping, createPaymentIntent, placeOrder, reset }
+  return { currentStep, shipAddressId, shippingMethodId, paymentIntentId, orderId, loading, error, email, currency, steps, goToStep, saveAddress, calculateShipping, createPaymentIntent, placeOrder, confirmPayment, reset }
 })
