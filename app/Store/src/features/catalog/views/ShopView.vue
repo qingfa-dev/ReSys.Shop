@@ -27,6 +27,8 @@ const { handleError } = useApiErrorHandler()
 
 // State: Grid or list layout for product cards
 const viewMode = ref<'grid' | 'list'>('grid')
+// State: Controls mobile filter drawer visibility
+const filterDrawerOpen = ref(false)
 
 // Map: Build paged query URL from catalogStore filter state
 const query = usePagedQuery<StoreProductListItemResponse>(
@@ -151,7 +153,7 @@ watch(() => route.query.search, (val) => {
     <Breadcrumb :model="breadcrumbItems" class="mb-4" />
     <div class="flex gap-8">
       <!-- Section: Sidebar Filters -->
-      <aside class="w-64 shrink-0 hidden lg:block space-y-6">
+      <aside class="w-64 shrink-0 hidden md:block space-y-6">
         <FilterSidebar
           v-if="!filtersLoading"
           :taxonomy-groups="taxonomyGroups"
@@ -170,6 +172,7 @@ watch(() => route.query.search, (val) => {
         <div class="flex items-center justify-between mb-6">
           <p class="text-sm text-stone-500">{{ totalCount }} products</p>
           <div class="flex items-center gap-3">
+            <Button label="Filters" icon="pi pi-filter" class="md:hidden" @click="filterDrawerOpen = true" />
             <SelectButton
               v-model="viewMode"
               :options="[
@@ -215,5 +218,18 @@ watch(() => route.query.search, (val) => {
         />
       </div>
     </div>
+
+    <!-- Section: Mobile Filter Drawer -->
+    <Drawer v-model:visible="filterDrawerOpen" header="Filters" position="left">
+      <FilterSidebar
+        :taxonomy-groups="taxonomyGroups"
+        :option-types="optionTypes"
+        :selected-taxon-ids="catalog.selectedTaxonIds"
+        :selected-option-value-ids="catalog.selectedOptionValueIds"
+        @toggle-taxon="(id) => { catalog.toggleTaxon(id); applyFilters() }"
+        @toggle-option-value="(id) => { catalog.toggleOptionValue(id); applyFilters() }"
+        @clear="catalog.clearFilters(); applyFilters()"
+      />
+    </Drawer>
   </div>
 </template>
