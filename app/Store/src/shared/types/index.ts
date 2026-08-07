@@ -1,3 +1,3 @@
-export * from './result'
-export * from './error'
-export * from './querying'
+export type { Result, PagedResult } from './result'
+export { StatusCode, ErrorType } from './error'
+export type { ApiError } from './error'
