@@ -18,7 +18,7 @@ defineEmits<{ addToCart: [variantId: string] }>()
       :num-visible="4"
       :num-scroll="1"
       :show-indicators="false"
-      :responsive-options="[{ breakpoint: '768px', numVisible: 2 }, { breakpoint: '560px', numVisible: 1 }]"
+      :responsive-options="[{ breakpoint: '768px', numVisible: 2, numScroll: 1 }, { breakpoint: '560px', numVisible: 1, numScroll: 1 }]"
     >
       <template #item="{ data }">
         <div class="px-2">

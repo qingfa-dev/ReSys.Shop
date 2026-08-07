@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { TaxonomyGroup } from '../types/taxon'
+import type { TaxonomyGroup, TaxonTreeNode } from '../types/taxon'
 import type { StoreOptionTypeListItem, StoreOptionValueListItemResponse } from '../types/optionType'
 import TaxonTreeNodes from './TaxonTreeNodes.vue'
 import FilterPriceRange from './FilterPriceRange.vue'

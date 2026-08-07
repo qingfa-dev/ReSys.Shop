@@ -217,10 +217,10 @@ watch(selectedVariantId, async (variantId) => {
 
           <!-- Section: Description & Details Tabs -->
           <TabView>
-            <TabPanel header="Description">
+            <TabPanel header="Description" value="description">
               <p class="text-stone-600">{{ product.description }}</p>
             </TabPanel>
-            <TabPanel header="Details">
+            <TabPanel header="Details" value="details">
               <ProductDetailsInfo :product="product" />
             </TabPanel>
           </TabView>
