@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import { getPagedProducts } from '../services/productApi'
-import type { StoreProductListItemResponse } from '../types/product'
+import { ProductApi } from '../services/productApi'
+import type { StoreProductListItemResponse } from '../types'
 
 let shared: ReturnType<typeof createSearch> | null = null
 
@@ -32,22 +32,15 @@ function createSearch() {
     error.value = null
   }
 
-  // Trigger: Debounced keyword search.
   async function search(): Promise<void> {
-    if (!query.value.trim()) {
-      results.value = []
-      return
-    }
+    if (!query.value.trim()) { results.value = []; return }
     if (debounceTimer) clearTimeout(debounceTimer)
     debounceTimer = setTimeout(async () => {
       loading.value = true
       error.value = null
-      const result = await getPagedProducts({ pageNumber: 1, pageSize: 5, search: query.value.trim() })
-      if (result.isSuccess) {
-        results.value = result.items
-      } else {
-        error.value = result.message ?? 'Search failed'
-      }
+      const result = await ProductApi.getProducts({ pageNumber: 1, pageSize: 5, search: query.value.trim() })
+      if (result.isSuccess) results.value = result.items
+      else error.value = result.message ?? 'Search failed'
       loading.value = false
     }, 300)
   }

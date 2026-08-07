@@ -1,13 +1,25 @@
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { PagedResult } from '@/shared/types/result'
+import { getPaged } from '@/shared/api'
+import { CATALOG } from '@/shared/constants/api'
+import { TaxonListItemSchema, TaxonomyGroupSchema } from '../validations/taxon'
+import { PagedResultSchema } from '@/shared/validations/result'
+import type { PagedResult } from '@/shared/types'
+import type { StoreTaxonListItemResponse, StoreTaxonomyListItem, TaxonomyGroup } from '../types'
 import type { QueryingParameters } from '@/shared/types/querying'
-import { getPaged } from '@/shared/api/paged'
-import type { StoreTaxonomyListItem, StoreTaxonListItemResponse } from '../types/taxon'
 
-export function getTaxonomies(params: QueryingParameters): Promise<PagedResult<StoreTaxonomyListItem>> {
-  return getPaged<StoreTaxonomyListItem>(ENDPOINTS.taxonomies, params)
-}
+const taxonList = PagedResultSchema(TaxonListItemSchema)
+const taxonomyList = PagedResultSchema(TaxonomyGroupSchema)
 
-export function getTaxons(params: QueryingParameters): Promise<PagedResult<StoreTaxonListItemResponse>> {
-  return getPaged<StoreTaxonListItemResponse>(ENDPOINTS.taxons, params)
+export class TaxonApi {
+  static async getTaxonomies(q: QueryingParameters): Promise<PagedResult<StoreTaxonomyListItem>> {
+    const result = await getPaged<unknown>(`${CATALOG}/taxonomies`, q)
+    if (!result.isSuccess) return result as PagedResult<StoreTaxonomyListItem>
+    return result as PagedResult<StoreTaxonomyListItem>
+  }
+
+  static async getTaxons(q: QueryingParameters): Promise<PagedResult<StoreTaxonListItemResponse>> {
+    const result = await getPaged<unknown>(`${CATALOG}/taxons`, q)
+    if (!result.isSuccess) return result as PagedResult<StoreTaxonListItemResponse>
+    const parsed = taxonList.parse({ ...result, items: result.items })
+    return parsed as PagedResult<StoreTaxonListItemResponse>
+  }
 }

@@ -1,16 +1,31 @@
-import { get, post } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types/result'
-import type { SearchByImageResponse, VisualSearchModel } from '../types/searchByImage'
+import { z } from 'zod'
+import { get, post } from '@/shared/api/client'
+import { getPaged } from '@/shared/api'
+import { CATALOG } from '@/shared/constants/api'
+import { SearchByImageResponseSchema, VisualSearchModelSchema } from '../validations/searchByImage'
+import { PagedResultSchema } from '@/shared/validations/result'
+import type { PagedResult } from '@/shared/types'
+import type { SearchByImageResponse, VisualSearchModel } from '../types'
 
-export function getVisualSearchModels(): Promise<Result<VisualSearchModel[]>> {
-  return get<Result<VisualSearchModel[]>>(ENDPOINTS.visualSearchModels)
-}
+export class SearchByImageApi {
+  static async getVisualSearchModels(): Promise<Result<VisualSearchModel[]>> {
+    const result = await get<unknown>(`${CATALOG}/products/visual-search/models`)
+    if (!result.isSuccess) return result as Result<VisualSearchModel[]>
+    result.value = VisualSearchModelSchema.array().parse(result.value)
+    return result as Result<VisualSearchModel[]>
+  }
 
-export function searchByImage(image: File, topK = 20, model?: string): Promise<PagedResult<SearchByImageResponse>> {
-  const formData = new FormData()
-  formData.append('image', image)
-  if (topK) formData.append('TopK', String(topK))
-  if (model) formData.append('Model', model)
-  return post<PagedResult<SearchByImageResponse>>(ENDPOINTS.searchByImage, formData)
+  static async searchByImage(
+    file: File,
+    topK?: number,
+    model?: string
+  ): Promise<PagedResult<SearchByImageResponse>> {
+    const form = new FormData()
+    form.append('image', file)
+    if (topK) form.append('topK', String(topK))
+    if (model) form.append('model', model)
+    const result = await post<unknown>(`${CATALOG}/products/images/search`, form)
+    if (!result.isSuccess) return result as PagedResult<SearchByImageResponse>
+    return result as PagedResult<SearchByImageResponse>
+  }
 }

@@ -1,50 +1,46 @@
-import { get } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types/result'
-import type { QueryingParameters } from '@/shared/types/querying'
-import { getPaged } from '@/shared/api/paged'
-import type {
-  StoreProductListItemResponse,
-  StoreProductDetailResponse,
-} from '../types/product'
+import { get, post } from '@/shared/api/client'
+import { getPaged } from '@/shared/api'
+import { CATALOG } from '@/shared/constants/api'
+import { ProductListItemSchema, ProductDetailSchema } from '../validations/product'
+import { PagedResultSchema } from '@/shared/validations/result'
+import type { PagedResult } from '@/shared/types'
+import type { StoreProductListItemResponse, StoreProductDetailResponse, ProductQuery } from '../types'
+import { toProductQueryParams } from '../types'
 
-export interface ProductFilterParams {
-  searchQuery?: string
-  taxonIds?: string[]
-  optionValueIds?: string[]
-  minPrice?: number | null
-  maxPrice?: number | null
-}
+const validatedPagedList = PagedResultSchema(ProductListItemSchema)
 
-export function getPagedProducts(params: QueryingParameters): Promise<PagedResult<StoreProductListItemResponse>> {
-  return getPaged<StoreProductListItemResponse>(ENDPOINTS.products, params)
-}
+export class ProductApi {
+  private static readonly BASE = `${CATALOG}/products`
 
-export function buildProductFilterUrl(filters: ProductFilterParams): string {
-  const params = new URLSearchParams()
-  if (filters.searchQuery) params.append('search', filters.searchQuery)
-  filters.taxonIds?.forEach(id => params.append('taxonId', id))
-  filters.optionValueIds?.forEach(id => params.append('optionValueId', id))
-  if (filters.minPrice != null) params.append('minPrice', String(filters.minPrice))
-  if (filters.maxPrice != null) params.append('maxPrice', String(filters.maxPrice))
-  const qs = params.toString()
-  return qs ? `${ENDPOINTS.products}?${qs}` : ENDPOINTS.products
-}
+  static async getProducts(q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {
+    const params = toProductQueryParams(q)
+    const result = await getPaged<unknown>(this.BASE, params)
+    if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse>
+    const parsed = validatedPagedList.parse({ ...result, items: result.items })
+    return parsed as PagedResult<StoreProductListItemResponse>
+  }
 
-export function getProductBySlug(slug: string): Promise<Result<StoreProductDetailResponse>> {
-  return get<Result<StoreProductDetailResponse>>(ENDPOINTS.productBySlug(slug))
-}
+  static async getProductBySlug(slug: string): Promise<PagedResult<StoreProductDetailResponse>> {
+    const data = await get<unknown>(`${this.BASE}/${slug}`)
+    if (!data.isSuccess) return data as PagedResult<StoreProductDetailResponse>
+    data.value = ProductDetailSchema.parse(data.value)
+    return data as PagedResult<StoreProductDetailResponse>
+  }
 
-export function getSimilarProducts(productId: string, topK = 20): Promise<PagedResult<StoreProductListItemResponse>> {
-  return getPaged<StoreProductListItemResponse>(
-    `${ENDPOINTS.productSimilar}?productId=${productId}&topK=${topK}`,
-    { pageNumber: 1, pageSize: topK },
-  )
-}
+  static async getSimilar(productId: string, topK?: number): Promise<PagedResult<StoreProductListItemResponse>> {
+    const params: Record<string, unknown> = { productId }
+    if (topK) params.topK = topK
+    const result = await getPaged<unknown>(`${this.BASE}/similar`, params)
+    if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse>
+    const parsed = validatedPagedList.parse({ ...result, items: result.items })
+    return parsed as PagedResult<StoreProductListItemResponse>
+  }
 
-export function getRelatedProducts(productId: string, params: QueryingParameters): Promise<PagedResult<StoreProductListItemResponse>> {
-  return getPaged<StoreProductListItemResponse>(
-    `${ENDPOINTS.productRelated}?productId=${productId}`,
-    params,
-  )
+  static async getRelated(productId: string, q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {
+    const params: Record<string, unknown> = { productId, ...toProductQueryParams(q) }
+    const result = await getPaged<unknown>(`${this.BASE}/related`, params)
+    if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse>
+    const parsed = validatedPagedList.parse({ ...result, items: result.items })
+    return parsed as PagedResult<StoreProductListItemResponse>
+  }
 }

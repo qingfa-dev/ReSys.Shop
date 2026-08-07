@@ -14,3 +14,7 @@ export interface StoreOptionTypeListItem {
   position: number
   filterable: boolean
 }
+
+export interface FilterableOptionType extends StoreOptionTypeListItem {
+  values: StoreOptionValueListItemResponse[]
+}
