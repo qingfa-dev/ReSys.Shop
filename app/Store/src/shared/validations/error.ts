@@ -1,0 +1,1 @@
+export { ApiErrorSchema } from './result'
