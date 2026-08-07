@@ -8,8 +8,27 @@ import type {
   StoreProductDetailResponse,
 } from '../types/product'
 
+export interface ProductFilterParams {
+  searchQuery?: string
+  taxonIds?: string[]
+  optionValueIds?: string[]
+  minPrice?: number | null
+  maxPrice?: number | null
+}
+
 export function getPagedProducts(params: QueryingParameters): Promise<PagedResult<StoreProductListItemResponse>> {
   return getPaged<StoreProductListItemResponse>(ENDPOINTS.products, params)
+}
+
+export function buildProductFilterUrl(filters: ProductFilterParams): string {
+  const params = new URLSearchParams()
+  if (filters.searchQuery) params.append('search', filters.searchQuery)
+  filters.taxonIds?.forEach(id => params.append('taxonId', id))
+  filters.optionValueIds?.forEach(id => params.append('optionValueId', id))
+  if (filters.minPrice != null) params.append('minPrice', String(filters.minPrice))
+  if (filters.maxPrice != null) params.append('maxPrice', String(filters.maxPrice))
+  const qs = params.toString()
+  return qs ? `${ENDPOINTS.products}?${qs}` : ENDPOINTS.products
 }
 
 export function getProductBySlug(slug: string): Promise<Result<StoreProductDetailResponse>> {

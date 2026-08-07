@@ -9,7 +9,7 @@ import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { useOrderStore } from '../stores/orderStore'
 import { getOrderTracking } from '../services/orderApi'
-import type { OrderTrackingResponse } from '../services/orderApi'
+import type { OrderTrackingResponse } from '../types/order'
 import OrderTrackingTimeline from '../components/OrderTrackingTimeline.vue'
 import { buildOrderTimeline, isOrderCancellable } from '../types/order'
 

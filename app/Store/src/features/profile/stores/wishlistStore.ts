@@ -173,9 +173,11 @@ export const useWishlistStore = defineStore('wishlists', () => {
     try {
       const result = await wishlistApi.getWishlists()
       if (!result.isSuccess) return
+      const details = await Promise.all(
+        result.items.map(wl => wishlistApi.getWishlist(wl.id)),
+      )
       const ids = new Set<string>()
-      for (const wl of result.items) {
-        const detail = await wishlistApi.getWishlist(wl.id)
+      for (const detail of details) {
         if (detail.isSuccess) {
           for (const item of detail.value.wishedItems) {
             ids.add(item.variantId)
@@ -189,30 +191,30 @@ export const useWishlistStore = defineStore('wishlists', () => {
   }
 
   async function toggleWishlist(variantId: string): Promise<boolean> {
+    const wishlists = await wishlistApi.getWishlists()
+    if (!wishlists.isSuccess) return wishlistedVariantIds.value.has(variantId)
+
     if (wishlistedVariantIds.value.has(variantId)) {
-      // Remove: find the wishlist and item to remove
-      const wishlists = await wishlistApi.getWishlists()
-      if (wishlists.isSuccess) {
-        for (const wl of wishlists.items) {
-          const detail = await wishlistApi.getWishlist(wl.id)
-          if (detail.isSuccess) {
-            const item = detail.value.wishedItems.find(i => i.variantId === variantId)
-            if (item) {
-              await wishlistApi.removeWishlistItem(wl.id, item.id)
-              const next = new Set(wishlistedVariantIds.value)
-              next.delete(variantId)
-              wishlistedVariantIds.value = next
-              return false
-            }
-          }
+      // Remove: fetch all details in parallel, find and remove the item
+      const details = await Promise.all(
+        wishlists.items.map(wl => wishlistApi.getWishlist(wl.id)),
+      )
+      for (const detail of details) {
+        if (!detail.isSuccess) continue
+        const item = detail.value.wishedItems.find(i => i.variantId === variantId)
+        if (item) {
+          await wishlistApi.removeWishlistItem(detail.value.id, item.id)
+          const next = new Set(wishlistedVariantIds.value)
+          next.delete(variantId)
+          wishlistedVariantIds.value = next
+          return false
         }
       }
     } else {
       // Add: use first wishlist or create one
-      const wishlists = await wishlistApi.getWishlists()
       let targetId: string | null = null
-      if (wishlists.isSuccess && wishlists.items.length > 0) {
-        targetId = wishlists.items[0].id
+      if (wishlists.items.length > 0) {
+        targetId = wishlists.items[0]!.id
       } else {
         const created = await wishlistApi.createWishlist({ name: 'My Wishlist', isPrivate: false })
         if (created.isSuccess) targetId = created.value.id

@@ -1,15 +1,7 @@
 import { get, post } from '@/shared/api'
 import { ENDPOINTS } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types/result'
-import type { SearchByImageResponse } from '../types/searchByImage'
-
-export interface VisualSearchModel {
-  id: string
-  name: string
-  description: string | null
-  dimension: number
-  isOnnx: boolean
-}
+import type { SearchByImageResponse, VisualSearchModel } from '../types/searchByImage'
 
 export function getVisualSearchModels(): Promise<Result<VisualSearchModel[]>> {
   return get<Result<VisualSearchModel[]>>(ENDPOINTS.visualSearchModels)

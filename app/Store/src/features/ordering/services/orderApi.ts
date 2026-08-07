@@ -2,23 +2,8 @@ import { get, put, getPaged } from '@/shared/api'
 import { ENDPOINTS } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types/result'
 import type { QueryingParameters } from '@/shared/types/querying'
-import type { OrderListItem, OrderDetail } from '../types/order'
+import type { OrderListItem, OrderDetail, OrderTrackingResponse } from '../types/order'
 import { ORDER_FILTER_FIELDS, ORDER_SORT_FIELDS, ORDER_SEARCH_FIELDS } from '../types/order'
-
-export interface OrderTrackingResponse {
-  orderId: string
-  orderCreatedAt: string
-  orderApprovedAt: string | null
-  orderCompletedAt: string | null
-  orderCanceledAt: string | null
-  paymentProcessingAt: string | null
-  paymentCompletedAt: string | null
-  paymentFailedAt: string | null
-  shippedAt: string | null
-  deliveredAt: string | null
-  deliveryExceptionAt: string | null
-  estimatedDeliveryAt: string | null
-}
 
 export function getOrders(params: QueryingParameters): Promise<PagedResult<OrderListItem>> {
   return getPaged<OrderListItem>(ENDPOINTS.orders, params, {

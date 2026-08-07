@@ -71,3 +71,18 @@ export function buildOrderTimeline(order: OrderDetail): OrderTimelineEntry[] {
   if (order.modifiedAtUtc) entries.push({ label: 'Modified', date: order.modifiedAtUtc, status: 'Placed' })
   return entries
 }
+
+export interface OrderTrackingResponse {
+  orderId: string
+  orderCreatedAt: string
+  orderApprovedAt: string | null
+  orderCompletedAt: string | null
+  orderCanceledAt: string | null
+  paymentProcessingAt: string | null
+  paymentCompletedAt: string | null
+  paymentFailedAt: string | null
+  shippedAt: string | null
+  deliveredAt: string | null
+  deliveryExceptionAt: string | null
+  estimatedDeliveryAt: string | null
+}

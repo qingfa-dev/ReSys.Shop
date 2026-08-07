@@ -25,6 +25,6 @@ export function deleteAddress(id: string): Promise<Result<DeletedAddress>> {
 }
 
 // GET api/store/profiles/addresses/default — returns the user's default address.
-export function getDefaultAddress(): Promise<Address | null> {
-  return get<Address | null>(`${ENDPOINTS.addresses}/default`)
+export function getDefaultAddress(): Promise<Result<Address | null>> {
+  return get<Result<Address | null>>(ENDPOINTS.addressDefault)
 }

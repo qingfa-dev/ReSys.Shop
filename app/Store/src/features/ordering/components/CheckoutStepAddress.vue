@@ -20,10 +20,10 @@ onMounted(async () => {
   if (result.isSuccess) {
     addresses.value = result.items
     const defaultAddr = await getDefaultAddress()
-    if (defaultAddr) {
-      selectedAddressId.value = defaultAddr.id
+    if (defaultAddr.isSuccess && defaultAddr.value) {
+      selectedAddressId.value = defaultAddr.value.id
     } else if (result.items.length > 0) {
-      selectedAddressId.value = result.items[0].id
+      selectedAddressId.value = result.items[0]!.id
     }
   } else {
     localError.value = result.message ?? 'Failed to load addresses'

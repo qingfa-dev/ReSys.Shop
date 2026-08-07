@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import * as profileApi from '../services/profileApi'
+import * as accountApi from '../services/accountApi'
 import type { ProfileDetail, UpdateProfileRequest } from '../types/profile'
 
 export const useProfileStore = defineStore('profile', () => {
@@ -50,5 +51,24 @@ export const useProfileStore = defineStore('profile', () => {
     }
   }
 
-  return { profile, loading, saving, error, fetchProfile, updateProfile }
+  async function deleteProfile(): Promise<boolean> {
+    saving.value = true
+    error.value = null
+    try {
+      const result = await accountApi.deleteProfile()
+      if (result.isSuccess) {
+        profile.value = null
+        return true
+      }
+      error.value = result.message ?? 'Failed to delete account'
+      return false
+    } catch {
+      error.value = 'Failed to delete account'
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
+  return { profile, loading, saving, error, fetchProfile, updateProfile, deleteProfile }
 })

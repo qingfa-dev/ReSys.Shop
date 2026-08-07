@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getPaged } from '@/shared/api/paged'
-import { ENDPOINTS } from '@/shared/constants/api'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
+import { getPagedProducts } from '../services/productApi'
 import type { StoreProductListItemResponse } from '../types/product'
 import HeroSection from '../components/HeroSection.vue'
 import FeaturesStrip from '../components/FeaturesStrip.vue'
@@ -35,7 +34,7 @@ async function quickAdd(variantId: string): Promise<void> {
 }
 
 onMounted(async () => {
-  const result = await getPaged<StoreProductListItemResponse>(ENDPOINTS.products, {
+  const result = await getPagedProducts({
     pageNumber: 1,
     pageSize: 8,
     sort: ['-createdAtUtc'],

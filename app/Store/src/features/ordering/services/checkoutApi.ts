@@ -10,16 +10,16 @@ import type {
   UpdateCheckoutRequest,
 } from '../types/checkout'
 
-export function updateCheckout(req: UpdateCheckoutRequest): Promise<Result<unknown>> {
-  return put<Result<unknown>>(ENDPOINTS.cart, req)
+export function updateCheckout(req: UpdateCheckoutRequest): Promise<Result<void>> {
+  return put<Result<void>>(ENDPOINTS.cart, req)
 }
 
-export function selectShippingRate(req: SelectShippingRateRequest): Promise<Result<unknown>> {
-  return post<Result<unknown>>(ENDPOINTS.cartShippingRate, req)
+export function selectShippingRate(req: SelectShippingRateRequest): Promise<Result<void>> {
+  return post<Result<void>>(ENDPOINTS.cartShippingRate, req)
 }
 
-export function validateCheckout(): Promise<Result<unknown>> {
-  return post<Result<unknown>>(ENDPOINTS.cartValidate)
+export function validateCheckout(): Promise<Result<void>> {
+  return post<Result<void>>(ENDPOINTS.cartValidate)
 }
 
 export function createPaymentIntent(req: CreatePaymentIntentRequest): Promise<Result<PaymentIntentResponse>> {

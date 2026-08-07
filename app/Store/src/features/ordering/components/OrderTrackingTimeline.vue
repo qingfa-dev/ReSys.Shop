@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OrderTrackingResponse } from '../services/orderApi'
+import type { OrderTrackingResponse } from '../types/order'
 
 const props = defineProps<{ tracking: OrderTrackingResponse }>()
 

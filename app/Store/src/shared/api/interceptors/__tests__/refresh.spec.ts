@@ -11,7 +11,7 @@ vi.mock('axios', () => ({
 import { handleTokenRefresh } from '../refresh'
 import { STORAGE_KEYS } from '@/shared/constants/storage'
 
-const REFRESH_URL = '/api/store/identity/auth/sessions/refresh'
+const REFRESH_URL = 'api/store/identity/auth/sessions/refresh'
 
 describe('handleTokenRefresh', () => {
   beforeEach(() => {

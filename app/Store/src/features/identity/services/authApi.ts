@@ -7,8 +7,8 @@ export async function login(req: LoginRequest): Promise<Result<TokenPair>> {
   return post<Result<TokenPair>>(ENDPOINTS.authLoginPassword, req)
 }
 
-export async function register(req: RegisterRequest): Promise<Result<unknown>> {
-  return post<Result<unknown>>(ENDPOINTS.authRegister, req)
+export async function register(req: RegisterRequest): Promise<Result<void>> {
+  return post<Result<void>>(ENDPOINTS.authRegister, req)
 }
 
 export async function logout(req?: { revokeAll?: boolean }): Promise<void> {
@@ -23,12 +23,12 @@ export async function getLoginProviders(): Promise<Result<Array<{ name: string; 
   return get<Result<Array<{ name: string; url: string }>>>(ENDPOINTS.authLoginProviders)
 }
 
-export async function forgotPassword(email: string): Promise<Result<unknown>> {
-  return post<Result<unknown>>(ENDPOINTS.passwordsForgot, { email })
+export async function forgotPassword(email: string): Promise<Result<void>> {
+  return post<Result<void>>(ENDPOINTS.passwordsForgot, { email })
 }
 
-export async function resetPassword(token: string, newPassword: string): Promise<Result<unknown>> {
-  return post<Result<unknown>>(ENDPOINTS.passwordsReset, { token, newPassword })
+export async function resetPassword(token: string, newPassword: string): Promise<Result<void>> {
+  return post<Result<void>>(ENDPOINTS.passwordsReset, { token, newPassword })
 }
 
 export async function changePassword(

@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { STORAGE_KEYS } from '@/shared/constants/storage'
+import { ENDPOINTS } from '@/shared/constants/api'
 
-let refreshUrl = '/api/store/identity/auth/sessions/refresh'
+let refreshUrl: string = ENDPOINTS.sessionsRefresh
 const rawAxios = axios.create()
 
 let isRefreshing = false

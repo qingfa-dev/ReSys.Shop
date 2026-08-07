@@ -11,7 +11,7 @@ import { getTaxonomies, getTaxons } from '../services/taxonApi'
 import { getOptionTypes } from '../services/optionTypeApi'
 import { getOptionValues } from '../services/optionValueApi'
 import { buildTaxonTree } from '../utils/taxonTree'
-import { ENDPOINTS } from '@/shared/constants/api'
+import { buildProductFilterUrl } from '../services/productApi'
 import ProductGrid from '../components/ProductGrid.vue'
 import FilterSidebar from '../components/FilterSidebar.vue'
 import type { StoreProductListItemResponse } from '../types/product'
@@ -32,16 +32,13 @@ const filterDrawerOpen = ref(false)
 
 // Map: Build paged query URL from catalogStore filter state
 const query = usePagedQuery<StoreProductListItemResponse>(
-  () => {
-    const params = new URLSearchParams()
-    if (catalog.searchQuery) params.append('search', catalog.searchQuery)
-    catalog.selectedTaxonIds.forEach(id => params.append('taxonId', id))
-    catalog.selectedOptionValueIds.forEach(id => params.append('optionValueId', id))
-    if (catalog.minPrice != null) params.append('minPrice', String(catalog.minPrice))
-    if (catalog.maxPrice != null) params.append('maxPrice', String(catalog.maxPrice))
-    const qs = params.toString()
-    return qs ? `${ENDPOINTS.products}?${qs}` : ENDPOINTS.products
-  },
+  () => buildProductFilterUrl({
+    searchQuery: catalog.searchQuery,
+    taxonIds: catalog.selectedTaxonIds,
+    optionValueIds: catalog.selectedOptionValueIds,
+    minPrice: catalog.minPrice,
+    maxPrice: catalog.maxPrice,
+  }),
   { defaultPageSize: 20, defaultSort: catalog.sortField ? [catalog.sortField] : [], immediate: false },
 )
 const { items, loading, error, totalCount, totalPages, page, pageSize, refresh, setPage, setSort } = query

@@ -4,7 +4,7 @@ import { useVisualSearch } from '../composables/useVisualSearch'
 import VisualSearchDropzone from '../components/VisualSearchDropzone.vue'
 import ProductCard from '../components/ProductCard.vue'
 import { getVisualSearchModels } from '../services/searchByImageApi'
-import type { VisualSearchModel } from '../services/searchByImageApi'
+import type { VisualSearchModel } from '../types/searchByImage'
 
 const vs = useVisualSearch()
 
@@ -108,10 +108,6 @@ function onSearch(): void {
                   status: '',
                   description: null,
                   slug: item.productId,
-                  minPrice: item.price,
-                  currency: null,
-                  thumbnailUrl: item.imageUrl,
-                  thumbnailAlt: item.productName,
                   styleCode: null,
                   seasonName: null,
                   materialComposition: null,
@@ -119,8 +115,20 @@ function onSearch(): void {
                   fitNotes: null,
                   department: null,
                   genderTarget: null,
-                  variantsCount: 0,
+                  variantsCount: 1,
                   availableOn: null,
+                  masterVariant: {
+                    id: item.variantId,
+                    sku: item.sku,
+                    isMaster: true,
+                    price: item.price,
+                    currency: null,
+                    optionValues: [],
+                    images: item.imageUrl ? [{ id: item.variantId, url: item.imageUrl, alt: item.productName, position: 0 }] : [],
+                    prices: [],
+                    stock: { availableQuantity: 0, backorderable: false },
+                  },
+                  classifications: [],
                 }"
               />
             </div>

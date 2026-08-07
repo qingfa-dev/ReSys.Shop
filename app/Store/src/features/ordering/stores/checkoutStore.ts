@@ -137,7 +137,12 @@ export const useCheckoutStore = defineStore('checkout', () => {
   }
 
   async function confirmPayment(paymentId: string): Promise<void> {
-    await paymentApi.confirmPayment(paymentId)
+    error.value = null
+    try {
+      await paymentApi.confirmPayment(paymentId)
+    } catch {
+      error.value = 'Failed to confirm payment'
+    }
   }
 
   function reset(): void {

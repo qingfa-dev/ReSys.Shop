@@ -12,8 +12,9 @@ export const ENDPOINTS = {
   optionTypes: `${API_STOREFRONT}/option-types`,
   optionValues: `${API_STOREFRONT}/option-values`,
   images: `${API_STOREFRONT}/images`,
-  search: `${API_STOREFRONT}/images/search`,
+  searchByImage: `${API_STOREFRONT}/products/images/search`,
   visualSearchModels: `${API_STOREFRONT}/products/visual-search/models`,
+  availability: (variantId: string) => `${API_STOREFRONT}/availability/${variantId}`,
 
   // Ordering
   cart: `${API_STOREFRONT}/cart`,
@@ -66,6 +67,7 @@ export const ENDPOINTS = {
   profiles: `${API_STORE}/profiles`,
   addresses: `${API_STORE}/profiles/addresses`,
   addressById: (id: string) => `${API_STORE}/profiles/addresses/${id}`,
+  addressDefault: `${API_STORE}/profiles/addresses/default`,
   wishlists: `${API_STORE}/profiles/wishlists`,
   wishlistById: (id: string) => `${API_STORE}/profiles/wishlists/${id}`,
   wishlistItems: (id: string) => `${API_STORE}/profiles/wishlists/${id}/items`,

@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockReservations;
 
-namespace Module.Inventory.Features.Storefront.CartReservations.Release;
+namespace Module.Inventory.Features.Storefront.CartReservations.ReleaseSingle;
 
 public static partial class ReleaseCartReservation
 {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { AuthUser } from '../types/auth'
 import * as authApi from '../services/authApi'
+import * as emailApi from '../services/emailApi'
 import * as tokenService from '../services/tokenService'
 import { setTokenGetter } from '@/shared/api/interceptors/auth'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
@@ -112,5 +113,47 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
   }
 
-  return { user, status, error, isAuthenticated, init, login, loginWithGoogle, logout }
+  // Email: Request email change
+  async function changeEmail(newEmail: string): Promise<boolean> {
+    error.value = null
+    try {
+      const result = await emailApi.changeEmail(newEmail)
+      if (result.isSuccess) return true
+      error.value = result.message ?? 'Failed to request email change'
+      return false
+    } catch {
+      error.value = 'Failed to request email change'
+      return false
+    }
+  }
+
+  // Email: Confirm email with token
+  async function confirmEmail(token: string): Promise<boolean> {
+    error.value = null
+    try {
+      const result = await emailApi.confirmEmail(token)
+      if (result.isSuccess) return true
+      error.value = result.message ?? 'Failed to confirm email'
+      return false
+    } catch {
+      error.value = 'Failed to confirm email'
+      return false
+    }
+  }
+
+  // Email: Resend verification email
+  async function resendVerification(): Promise<boolean> {
+    error.value = null
+    try {
+      const result = await emailApi.resendVerification()
+      if (result.isSuccess) return true
+      error.value = result.message ?? 'Failed to resend verification'
+      return false
+    } catch {
+      error.value = 'Failed to resend verification'
+      return false
+    }
+  }
+
+  return { user, status, error, isAuthenticated, init, login, loginWithGoogle, logout, changeEmail, confirmEmail, resendVerification }
 })

@@ -29,16 +29,16 @@ export async function getSessions(): Promise<Result<SessionInfo[]>> {
 }
 
 /** Revokes the current device's refresh token (`POST /logout` with `revokeAll: false`). */
-export async function revokeCurrentDevice(): Promise<Result<unknown>> {
-  return post<Result<unknown>>(ENDPOINTS.authLogout, {
+export async function revokeCurrentDevice(): Promise<Result<void>> {
+  return post<Result<void>>(ENDPOINTS.authLogout, {
     revokeAll: false,
     refreshToken: tokenService.getRefreshToken(),
   })
 }
 
 /** Revokes every active refresh token for the user (`POST /logout` with `revokeAll: true`). */
-export async function revokeAll(): Promise<Result<unknown>> {
-  return post<Result<unknown>>(ENDPOINTS.authLogout, { revokeAll: true })
+export async function revokeAll(): Promise<Result<void>> {
+  return post<Result<void>>(ENDPOINTS.authLogout, { revokeAll: true })
 }
 
 function buildCurrentSession(id: string): SessionInfo {

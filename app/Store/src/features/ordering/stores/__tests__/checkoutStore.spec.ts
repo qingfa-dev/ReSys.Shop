@@ -38,7 +38,7 @@ describe('checkoutStore', () => {
     it('validates before advancing 3 -> 4 and advances on success', async () => {
       const store = useCheckoutStore()
       store.currentStep = 3
-      mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(null))
+      mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
 
       await store.goToStep(4)
 
@@ -75,7 +75,7 @@ describe('checkoutStore', () => {
     it('validates before advancing 4 -> 5', async () => {
       const store = useCheckoutStore()
       store.currentStep = 4
-      mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(null))
+      mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
 
       await store.goToStep(5)
 
@@ -99,8 +99,8 @@ describe('checkoutStore', () => {
       const store = useCheckoutStore()
       const cart = useCartStore()
       cart.id = 'cart-1'
-      mockedCheckoutApi.updateCheckout.mockResolvedValue(ok(null))
-      mockedCheckoutApi.selectShippingRate.mockResolvedValue(ok(null))
+      mockedCheckoutApi.updateCheckout.mockResolvedValue(ok(undefined))
+      mockedCheckoutApi.selectShippingRate.mockResolvedValue(ok(undefined))
       mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
         ok({ id: 'pi-1', clientSecret: 'cs_secret', responseCode: null }),
       )
