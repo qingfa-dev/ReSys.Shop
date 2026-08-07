@@ -2,8 +2,7 @@ using Module.Shipping.Domain.ShippingMethods;
 using Module.Shipping.Domain.ShippingRates;
 using Module.Shipping.Features.Storefront.Shipping.Calculate;
 
-using Shared.Application.Contracts.Catalog;
-using Shared.Application.Contracts.Ordering;
+using Module.Ordering.Features.Storefront.GetCartForShipping;
 
 namespace Module.UnitTests.Shipping.Features.Storefront.Shipping.Calculate;
 

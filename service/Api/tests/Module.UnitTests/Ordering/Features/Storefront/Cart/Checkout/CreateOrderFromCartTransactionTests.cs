@@ -1,9 +1,9 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
-using Shared.Application.Contracts.Catalog;
-using Shared.Application.Contracts.Inventory;
-using Shared.Application.Contracts.Payment;
+using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Payment.Features.Storefront.GetPaymentForCheckout;
+using Module.Payment.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
@@ -54,10 +54,8 @@ public class CreateOrderFromCartTransactionTests
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
         sender.Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
-        sender.Setup(s => s.Send(It.IsAny<GetVariantDiscontinuedStatusesQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, bool>());
         sender.Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ConsumeCartStockReservationsResponse { Success = true });
+            .ReturnsAsync(Result.Ok());
 
         var sut = new CreateOrderFromCart.CommandHandler(
             db, logger.Object, currentUser.Object, notificationService.Object, sender.Object);

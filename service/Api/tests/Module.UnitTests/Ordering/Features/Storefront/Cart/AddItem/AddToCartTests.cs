@@ -5,7 +5,7 @@ using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
 
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Features.Storefront.ReserveCartStock;
 using Shared.Application.Systems.SystemInfos;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;

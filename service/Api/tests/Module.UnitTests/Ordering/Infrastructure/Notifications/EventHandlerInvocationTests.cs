@@ -1,6 +1,6 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Cancel;
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Services.Abstractions;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;

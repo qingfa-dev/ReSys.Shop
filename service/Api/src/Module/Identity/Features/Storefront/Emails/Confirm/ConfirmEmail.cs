@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Shared.Application.Contracts.Profile;
+using Module.Profile.Features.Storefront.Profiles.Create;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;

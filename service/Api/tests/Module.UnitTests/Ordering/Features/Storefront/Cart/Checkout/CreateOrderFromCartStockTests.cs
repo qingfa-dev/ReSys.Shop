@@ -1,9 +1,10 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
-using Shared.Application.Contracts.Catalog;
-using Shared.Application.Contracts.Inventory;
-using Shared.Application.Contracts.Payment;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Payment.Features.Storefront.GetPaymentForCheckout;
+using Module.Payment.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
@@ -50,11 +51,8 @@ public class CreateOrderFromCartStockTests : IDisposable
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _senderMock
-            .Setup(s => s.Send(It.IsAny<GetVariantDiscontinuedStatusesQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, bool>());
-        _senderMock
             .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ConsumeCartStockReservationsResponse { Success = true });
+            .ReturnsAsync(Result.Ok());
 
         _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object, _senderMock.Object);
     }
@@ -92,14 +90,14 @@ public class CreateOrderFromCartStockTests : IDisposable
         // Setup: Reservation consumption returns failure (simulates insufficient stock)
         _senderMock
             .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ConsumeCartStockReservationsResponse { Success = false, ErrorMessage = "Insufficient stock" });
+            .ReturnsAsync(Result.Failure(StockReservationResult.Errors.InsufficientStock));
 
         // Act
         var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be("Order.ReservationExpired");
+        result.Errors[0].Code.Should().Be(StockReservationResult.Errors.InsufficientStock.Code);
     }
 
     [Fact(DisplayName = "Stock: Should verify ConsumeCartStockReservationsCommand is sent with correct cart ID")]

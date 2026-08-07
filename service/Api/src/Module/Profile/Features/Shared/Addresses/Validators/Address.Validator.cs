@@ -1,7 +1,7 @@
 using Module.Profile.Domain.Addresses;
 using Module.Profile.Features.Shared.Addresses.Models;
 
-using Shared.Application.Contracts.Location;
+using Module.Location.Features.Shared.Queries;
 
 namespace Module.Profile.Features.Shared.Addresses.Validators;
 

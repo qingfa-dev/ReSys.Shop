@@ -1,10 +1,8 @@
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Storefront.Contracts.CheckVariantAvailability;
+using Module.Inventory.Features.Storefront.CheckVariantAvailability;
 using Module.Inventory.Services;
-
-using Shared.Application.Contracts.Inventory;
 
 namespace Module.UnitTests.Inventory.Features.Storefront.Contracts.CheckVariantAvailability;
 

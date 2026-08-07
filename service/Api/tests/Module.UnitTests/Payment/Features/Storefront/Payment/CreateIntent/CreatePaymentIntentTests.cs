@@ -9,9 +9,11 @@ using Module.Payment.Services.Provider;
 using Module.Payment.Services.Processing;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Features.Storefront.Payment.CreateIntent;
+using Module.Ordering.Features.Storefront.GetCartForCheckout;
+using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
+using Module.Inventory.Features.Storefront.ReserveCartStock;
+using Module.Inventory.Features.Storefront.ReleaseCartStockReservations;
 using Module.Ordering.Domain.Orders;
-using Shared.Application.Contracts.Ordering;
-using Shared.Application.Contracts.Inventory;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
@@ -223,7 +225,6 @@ public class CreatePaymentIntentTests : IDisposable
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<ReserveCartStockResponse>.Ok(new ReserveCartStockResponse
             {
-                Success = true,
                 ReservationIds = [Guid.NewGuid()]
             }));
 
@@ -256,7 +257,6 @@ public class CreatePaymentIntentTests : IDisposable
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<ReserveCartStockResponse>.Ok(new ReserveCartStockResponse
             {
-                Success = true,
                 ReservationIds = [Guid.NewGuid()]
             }));
 

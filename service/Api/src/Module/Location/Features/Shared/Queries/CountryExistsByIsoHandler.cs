@@ -1,8 +1,10 @@
 using Module.Location.Domain.Countries;
 
-using Shared.Application.Contracts.Location;
+using Shared.Application.Mediators.Queries;
 
 namespace Module.Location.Features.Shared.Queries;
+
+public sealed record CountryExistsByIsoQuery(string IsoCode) : IQuery<bool>;
 
 /// <summary>Checks whether a country exists for a given ISO code (case-insensitive).</summary>
 public sealed class CountryExistsByIsoQueryHandler(IApplicationDbContext dbContext)

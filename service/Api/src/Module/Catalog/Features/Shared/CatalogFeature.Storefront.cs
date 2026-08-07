@@ -59,6 +59,13 @@ public static partial class CatalogFeature
                     public const string Summary = "Search by image upload";
                 }
             }
+
+            public static class VisualSearchModels
+            {
+                public const string Route = $"{BaseRoute}/visual-search/models";
+                public const string Description = "List available visual search embedding models";
+                public const string Summary = "List visual search models";
+            }
         }
 
         public static class Classifications

@@ -1,4 +1,4 @@
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Shared.Services;
 

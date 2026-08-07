@@ -61,12 +61,14 @@ public static partial class SearchByImage
 
             var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
 
-            // Query: Find nearest neighbors in vector space using cosine distance
-            var similarVariantIds = await vectorSearchService.FindSimilarVariantIdsAsync(
-                queryVector, modelName, topK, excludeProductId: null, cancellationToken);
+            // Query: Find nearest neighbors in vector space with similarity scores
+            var similarResults = await vectorSearchService.FindSimilarWithScoresAsync(
+                queryVector, modelName, topK, cancellationToken);
 
-            if (similarVariantIds.Count == 0)
+            if (similarResults.Count == 0)
                 return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
+
+            var similarVariantIds = similarResults.Select(r => r.VariantId).ToList();
 
             // Load: Fetch full variant data with includes for response mapping
             var similarVariants = await dbContext.Set<Variant>()
@@ -76,19 +78,17 @@ public static partial class SearchByImage
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            // Order: Preserve the similarity ranking from the vector search
-            var orderedVariants = similarVariantIds
-                .Select(id => similarVariants.First(v => v.Id == id))
+            // Map: Build search result items with variant data and similarity scores
+            var items = similarResults
+                .Join(similarVariants, r => r.VariantId, v => v.Id, (r, v) => (r.Score, Variant: v))
+                .Select(x => MapToItem(x.Variant, x.Score))
                 .ToList();
-
-            // Map: Build search result items with variant and image URLs
-            var items = orderedVariants.Select(MapToItem).ToList();
 
             return PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count);
         }
     }
 
-    private static Response MapToItem(Variant v)
+    private static Response MapToItem(Variant v, double similarityScore = 0)
     {
         var primaryImage = v.VariantImages.FirstOrDefault();
         return new Response
@@ -98,7 +98,8 @@ public static partial class SearchByImage
             ProductName = v.Product?.Name ?? string.Empty,
             Sku = v.Sku ?? string.Empty,
             Price = v.Price ?? 0,
-            ImageUrl = primaryImage?.Url
+            ImageUrl = primaryImage?.Url,
+            SimilarityScore = similarityScore
         };
     }
 }

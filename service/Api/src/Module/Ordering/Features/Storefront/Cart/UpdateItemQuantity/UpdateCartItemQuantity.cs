@@ -1,7 +1,7 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Features.Storefront.CheckVariantAvailability;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 /// <summary>Updates the quantity of a line item in the current user's draft cart after validating stock availability.</summary>
@@ -49,6 +49,9 @@ public static partial class UpdateCartItemQuantity
                     lineItem.VariantId,
                     command.Request.Quantity),
                 cancellationToken);
+
+            if (stockResult.IsFailure)
+                return stockResult.Errors;
 
             if (!stockResult.Value.IsAvailable)
                 return OrderResult.Errors.CartQuantityInvalid;

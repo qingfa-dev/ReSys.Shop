@@ -1,7 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Features.Shared.Profiles.Mappings;
 
-using Shared.Application.Contracts.Profile;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Profile.Features.Storefront.Profiles.Create;

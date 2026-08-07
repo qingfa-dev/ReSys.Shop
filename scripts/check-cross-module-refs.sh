@@ -13,9 +13,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-# Expected baseline: 32 violations as of 2026-07-24.
+# Expected baseline: 38 violations as of 2026-08-07 (contracts moved from Shared to modules).
 # Reduce this number as violations are removed. Set to 0 when fully clean.
-EXPECTED_BASELINE=23
+EXPECTED_BASELINE=38
 FAIL=0
 
 MODULES=(

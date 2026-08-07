@@ -1,4 +1,4 @@
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Services.Abstractions;
 
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Ordering.Domain.LineItems;

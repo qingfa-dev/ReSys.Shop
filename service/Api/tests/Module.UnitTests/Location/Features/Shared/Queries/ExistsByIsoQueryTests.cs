@@ -2,8 +2,6 @@ using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Shared.Queries;
 
-using Shared.Application.Contracts.Location;
-
 namespace Module.UnitTests.Location.Features.Shared.Queries;
 
 [Trait("Category", "Unit")]

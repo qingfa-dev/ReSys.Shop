@@ -5,7 +5,7 @@ using Module.Inventory.Domain.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
 
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Features.Storefront.ReserveCartStock;
 using Shared.Application.Systems.SystemInfos;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
@@ -70,8 +70,7 @@ public class AddToCartReservationTests : IDisposable
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<ReserveCartStockResponse>.Ok(new ReserveCartStockResponse
             {
-                ReservationIds = [Guid.NewGuid()],
-                Success = true
+                ReservationIds = [Guid.NewGuid()]
             }));
 
         var request = new AddToCart.Request { VariantId = variantId, Quantity = 1 };

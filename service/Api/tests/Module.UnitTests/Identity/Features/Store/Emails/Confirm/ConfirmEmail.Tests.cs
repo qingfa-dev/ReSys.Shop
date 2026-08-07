@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 using Module.Identity.Features.Storefront.Emails.Confirm;
 using Module.UnitTests.Identity.Fixtures;
-using Shared.Application.Contracts.Profile;
+using Module.Profile.Features.Storefront.Profiles.Create;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;

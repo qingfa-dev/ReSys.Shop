@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
 using Module.UnitTests.Identity.Fixtures;
 
-using Shared.Application.Contracts.Profile;
+using Module.Profile.Features.Storefront.Profiles.Create;
 using Shared.Security.Authentication.External.Models;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;

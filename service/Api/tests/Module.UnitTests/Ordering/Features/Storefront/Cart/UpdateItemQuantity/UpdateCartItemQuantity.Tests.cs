@@ -1,7 +1,7 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Features.Storefront.CheckVariantAvailability;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Shared.Application.Contracts.Profile;
+using Module.Profile.Features.Storefront.Profiles.Create;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;

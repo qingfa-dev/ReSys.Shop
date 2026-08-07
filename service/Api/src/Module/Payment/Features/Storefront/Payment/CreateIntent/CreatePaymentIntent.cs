@@ -1,8 +1,12 @@
 using Module.Payment.Features.Storefront.Payment.Shared.Mappings;
 
-using Shared.Application.Contracts.Ordering;
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Features.Storefront.ReleaseCartStockReservations;
+using Module.Inventory.Features.Storefront.ReserveCartStock;
+using Module.Inventory.Services.Abstractions;
+using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
+using Module.Ordering.Features.Storefront.GetCartForCheckout;
 
+using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
 using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
@@ -36,10 +40,10 @@ public static partial class CreatePaymentIntent
             if (cartResult.IsFailure) return cartResult.Errors;
             var cart = cartResult.Value;
 
-            if (cart.State != "Delivery")
-                return Error.Conflict(
-                    code: "Order.CheckoutState.InvalidTransition",
-                    message: $"Cannot transition from {cart.State} to Payment.");
+            if (!Enum.TryParse<CheckoutState>(cart.State, out var currentState) || currentState != CheckoutState.Delivery)
+                return OrderResult.Errors.InvalidCheckoutTransition(
+                    Enum.TryParse<CheckoutState>(cart.State, out var s) ? s : CheckoutState.Address,
+                    CheckoutState.Payment);
 
             // Reserve: Stock atomically before gateway call
             var reserveResult = await sender.Send(

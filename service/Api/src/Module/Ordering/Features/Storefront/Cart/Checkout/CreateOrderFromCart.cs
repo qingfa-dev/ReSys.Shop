@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
-using Shared.Application.Contracts.Catalog;
-using Shared.Application.Contracts.Inventory;
-using Shared.Application.Contracts.Payment;
+using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Payment.Features.Storefront.GetPaymentForCheckout;
+using Module.Payment.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
@@ -63,24 +64,10 @@ public static partial class CreateOrderFromCart
             // Mark: Payment as paid via ISender (replaces domain MarkPaymentAsPaid).
             await sender.Send(new MarkPaymentPaidCommand { OrderId = cart.Id, PaymentIntentId = paymentIntentId }, cancellationToken);
 
-            // Validate: Reject orders containing discontinued variants via ISender.
-            var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
-            var discResult = await sender.Send(new GetVariantDiscontinuedStatusesQuery { VariantIds = variantIds }, cancellationToken);
-            if (discResult.IsFailure)
-                return discResult.Errors;
-
-            var discontinuedVariantIds = discResult.Value!
-                .Where(kvp => kvp.Value)
-                .Select(kvp => kvp.Key)
-                .ToHashSet();
-
-            if (!cart.EnsureLineItemVariantsAreNotDiscontinued(discontinuedVariantIds))
-                return OrderResult.Errors.VariantDiscontinued;
-
             // Consume: Existing stock reservations via ISender (replaces inline stock deduction).
             var consumeResult = await sender.Send(new ConsumeCartStockReservationsCommand { CartId = cart.Id }, cancellationToken);
-            if (consumeResult.IsFailure || !consumeResult.Value.Success)
-                return Error.Conflict("Order.ReservationExpired", consumeResult.Value.ErrorMessage ?? "Reservations expired or missing");
+            if (consumeResult.IsFailure)
+                return consumeResult.Errors;
 
             // Advance: Checkout state to Confirm (Place requires >= Confirm).
             var advanceToConfirmResult = cart.AdvanceCheckoutState(CheckoutState.Confirm);

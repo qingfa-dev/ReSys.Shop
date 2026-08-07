@@ -11,5 +11,6 @@ public static partial class SearchByImage
         public string Sku { get; init; } = string.Empty;
         public decimal Price { get; init; }
         public string? ImageUrl { get; init; }
+        public double SimilarityScore { get; init; }
     }
 }

@@ -4,8 +4,6 @@ using Module.Inventory.Persistence.Seeders;
 using Module.Inventory.Services;
 using Module.Inventory.Services.Abstractions;
 
-using Shared.Application.Contracts.Inventory;
-
 namespace Module.Inventory;
 
 public static class InventoryExtension

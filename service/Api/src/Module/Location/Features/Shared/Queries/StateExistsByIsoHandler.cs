@@ -1,8 +1,10 @@
 using Module.Location.Domain.States;
 
-using Shared.Application.Contracts.Location;
+using Shared.Application.Mediators.Queries;
 
 namespace Module.Location.Features.Shared.Queries;
+
+public sealed record StateExistsByIsoQuery(string CountryCode, string StateCode) : IQuery<bool>;
 
 /// <summary>Checks whether a state exists for a given country code and state code (case-insensitive).</summary>
 public sealed class StateExistsByIsoQueryHandler(IApplicationDbContext dbContext)

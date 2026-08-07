@@ -108,4 +108,74 @@ public sealed class VectorSearchService : IVectorSearchService
         }
         return 1.0 - (dot / (Math.Sqrt(normA) * Math.Sqrt(normB) + 1e-12));
     }
+
+    public async Task<List<(Guid VariantId, double Score)>> FindSimilarWithScoresAsync(
+        Vector queryVector, string modelName, int topK,
+        CancellationToken cancellationToken = default)
+    {
+        if (_isNpgsql)
+        {
+            return await NpgsqlSearchWithScoresAsync(queryVector, modelName, topK, cancellationToken);
+        }
+        else
+        {
+            return await InMemorySearchWithScoresAsync(queryVector, modelName, topK, cancellationToken);
+        }
+    }
+
+    private async Task<List<(Guid VariantId, double Score)>> NpgsqlSearchWithScoresAsync(
+        Vector queryVector, string modelName, int topK,
+        CancellationToken cancellationToken)
+    {
+        var sql = @"
+            SELECT DISTINCT ON (v.id) v.id AS ""VariantId"",
+                   1.0 - (ie.vector <=> {0}::vector) AS ""Score""
+            FROM catalog.variants v
+            INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
+            INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
+            WHERE v.is_deleted = false
+              AND vi.type = 'Search'
+              AND ie.model_name = {1}
+            ORDER BY v.id, ie.vector <=> {0}::vector
+            LIMIT {2}";
+
+        object[] parameters = [queryVector, modelName, topK];
+
+        var dbContext = (DbContext)_dbContext;
+        var results = await dbContext.Database
+            .SqlQueryRaw<(Guid VariantId, double Score)>(sql, parameters)
+            .ToListAsync(cancellationToken);
+
+        return results;
+    }
+
+    private async Task<List<(Guid VariantId, double Score)>> InMemorySearchWithScoresAsync(
+        Vector queryVector, string modelName, int topK,
+        CancellationToken cancellationToken)
+    {
+        var queryArray = queryVector.ToArray();
+
+        var query = _dbContext.Set<ImageEmbedding>()
+            .Include(e => e.VariantImage)
+                .ThenInclude(vi => vi.Variant)
+            .Where(e => e.ModelName == modelName
+                     && e.Vector != null
+                     && e.VariantImage.Type == VariantImageType.Search
+                     && e.VariantImage.VariantId != null
+                     && !e.VariantImage.Variant!.IsDeleted);
+
+        var embeddings = await query.ToListAsync(cancellationToken);
+
+        return embeddings
+            .GroupBy(e => e.VariantImage.VariantId!.Value)
+            .Select(g => new
+            {
+                VariantId = g.Key,
+                Best = g.OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray())).First()
+            })
+            .OrderBy(x => CosineDistance(queryArray, x.Best.Vector!.ToArray()))
+            .Take(topK)
+            .Select(x => (x.VariantId, Score: 1.0 - CosineDistance(queryArray, x.Best.Vector!.ToArray())))
+            .ToList();
+    }
 }

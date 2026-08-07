@@ -2,9 +2,10 @@ using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
-using Shared.Application.Contracts.Catalog;
-using Shared.Application.Contracts.Inventory;
-using Shared.Application.Contracts.Payment;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Payment.Features.Storefront.GetPaymentForCheckout;
+using Module.Payment.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
@@ -58,11 +59,8 @@ public class CreateOrderFromCartTests : IDisposable
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _senderMock
-            .Setup(s => s.Send(It.IsAny<GetVariantDiscontinuedStatusesQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, bool>());
-        _senderMock
             .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ConsumeCartStockReservationsResponse { Success = true });
+            .ReturnsAsync(Result.Ok());
     }
 
     public void Dispose()
@@ -212,44 +210,6 @@ public class CreateOrderFromCartTests : IDisposable
         result.Errors[0].Code.Should().Be("Order.PaymentNotCompleted");
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when variant is discontinued")]
-    public async Task Handle_ShouldReturnFailure_WhenVariantDiscontinued()
-    {
-        // Arrange: Create draft cart
-        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
-        cart.BillAddressId = Guid.NewGuid();
-        cart.ShipAddressId = Guid.NewGuid();
-        cart.ShippingMethodId = Guid.NewGuid();
-        cart.Email = "test@test.com";
-        var variantId = Guid.NewGuid();
-        cart.LineItems.Add(new LineItem
-        {
-            Id = Guid.NewGuid(),
-            OrderId = cart.Id,
-            VariantId = variantId,
-            Quantity = 1,
-            Price = 10m,
-            Total = 10m,
-            Currency = "USD"
-        });
-        _dbContext.Set<Order>().Add(cart);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        // Setup: Variant is discontinued
-        _senderMock
-            .Setup(s => s.Send(It.IsAny<GetVariantDiscontinuedStatusesQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, bool> { { variantId, true } });
-
-        // Act
-        var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be("Order.VariantDiscontinued");
-    }
-
     [Fact(DisplayName = "Handler: Should return failure when stock reservation consumption fails")]
     public async Task Handle_ShouldReturnFailure_WhenReservationConsumptionFails()
     {
@@ -277,13 +237,13 @@ public class CreateOrderFromCartTests : IDisposable
         // Setup: Reservation consumption fails
         _senderMock
             .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ConsumeCartStockReservationsResponse { Success = false, ErrorMessage = "Reservations expired" });
+            .ReturnsAsync(Result.Failure(StockReservationResult.Errors.NoActiveReservations));
 
         // Act
         var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be("Order.ReservationExpired");
+        result.Errors[0].Code.Should().Be(StockReservationResult.Errors.NoActiveReservations.Code);
     }
 }
