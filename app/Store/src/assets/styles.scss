@@ -1,4 +1,4 @@
-// Storefront Aura theme overrides — Spec A fashion boutique teal palette.
+// Storefront Aura theme overrides — Farfetch-inspired luxury fashion + teal.
 //
 // PrimeVue 5 Aura emits one CSS custom property per semantic token as
 // --p-{dotted-path->kebab}, e.g. semantic primary.color -> --p-primary-color.
@@ -6,50 +6,50 @@
 // stylesheet injection.
 
 :root {
-  // --- Primary scale: teal (legacy --color-primary: #0f766e) ---
-  --p-primary-color: #0f766e;            // teal-700
-  --p-primary-hover-color: #0d5d56;      // darkened teal-700
-  --p-primary-active-color: #115e59;     // teal-800
-  --p-primary-contrast-color: #ffffff;   // white text on teal
+  // --- Primary scale: deep teal (refined, desaturated for luxury feel) ---
+  --p-primary-color: #0d7377;
+  --p-primary-hover-color: #095c5f;
+  --p-primary-active-color: #074a4d;
+  --p-primary-contrast-color: #ffffff;
 
-  --p-primary-50: #f0fdfa;
-  --p-primary-100: #ccfbf1;
-  --p-primary-200: #99f6e4;
-  --p-primary-300: #5eead4;
-  --p-primary-400: #2dd4bf;
-  --p-primary-500: #14b8a6;
-  --p-primary-600: #0d9488;
-  --p-primary-700: #0f766e;
-  --p-primary-800: #115e59;
-  --p-primary-900: #134e4a;
-  --p-primary-950: #042f2e;
+  --p-primary-50: #e0f5f5;
+  --p-primary-100: #b3e6e7;
+  --p-primary-200: #80d4d6;
+  --p-primary-300: #4dc2c5;
+  --p-primary-400: #26b5b8;
+  --p-primary-500: #0d7377;
+  --p-primary-600: #0b6569;
+  --p-primary-700: #095c5f;
+  --p-primary-800: #074a4d;
+  --p-primary-900: #043537;
+  --p-primary-950: #022022;
 
-  // --- Surface scale: warm stone neutral ---
+  // --- Surface scale: clean neutral (white → gray) ---
   --p-surface-0: #ffffff;
-  --p-surface-50: #fafaf9;
-  --p-surface-100: #f5f5f4;
-  --p-surface-200: #e7e5e4;
-  --p-surface-300: #d6d3d1;
-  --p-surface-400: #a8a29e;
-  --p-surface-500: #78716c;
-  --p-surface-600: #57534e;
-  --p-surface-700: #44403c;
-  --p-surface-800: #292524;
-  --p-surface-900: #1c1917;
-  --p-surface-950: #0c0a09;
+  --p-surface-50: #fafafa;
+  --p-surface-100: #f5f5f5;
+  --p-surface-200: #e5e5e5;
+  --p-surface-300: #d4d4d4;
+  --p-surface-400: #a3a3a3;
+  --p-surface-500: #737373;
+  --p-surface-600: #525252;
+  --p-surface-700: #404040;
+  --p-surface-800: #262626;
+  --p-surface-900: #171717;
+  --p-surface-950: #0a0a0a;
 
   // --- Semantic tokens ---
   --p-content-background: #ffffff;
-  --p-content-border-color: #e7e5e4;
-  --p-text-color: #1c1917;
-  --p-text-muted-color: #a8a29e;
+  --p-content-border-color: #e5e5e5;
+  --p-text-color: #171717;
+  --p-text-muted-color: #737373;
   --p-form-field-background: #ffffff;
-  --p-form-field-border-color: #d6d3d1;
-  --p-form-field-focus-border-color: #0f766e;
-  --p-navigation-item-focus-background: #f0fdfa;
-  --p-navigation-item-active-background: #ccfbf1;
-  --p-highlight-background: #ccfbf1;
-  --p-highlight-color: #0f766e;
+  --p-form-field-border-color: #d4d4d4;
+  --p-form-field-focus-border-color: #0d7377;
+  --p-navigation-item-focus-background: #e0f5f5;
+  --p-navigation-item-active-background: #e0f5f5;
+  --p-highlight-background: #e0f5f5;
+  --p-highlight-color: #0d7377;
 
   // --- State colors ---
   --p-success-color: #16a34a;
@@ -58,66 +58,80 @@
   --p-info-color: #2563eb;
 
   // --- Legacy v4 aliases ---
-  --p-surface-ground: #fafaf9;
+  --p-surface-ground: #fafafa;
   --p-surface-card: #ffffff;
 }
 
 // --- Dark mode: invert surface/text, brighten primary ---
 .app-dark {
-  --p-surface-0: #292524;
-  --p-surface-50: #1c1917;
-  --p-surface-100: #292524;
-  --p-surface-200: #44403c;
-  --p-surface-300: #57534e;
-  --p-surface-400: #78716c;
-  --p-surface-500: #a8a29e;
-  --p-surface-600: #d6d3d1;
-  --p-surface-700: #e7e5e4;
-  --p-surface-800: #f5f5f4;
-  --p-surface-900: #fafaf9;
+  --p-surface-0: #171717;
+  --p-surface-50: #0a0a0a;
+  --p-surface-100: #171717;
+  --p-surface-200: #262626;
+  --p-surface-300: #404040;
+  --p-surface-400: #525252;
+  --p-surface-500: #737373;
+  --p-surface-600: #a3a3a3;
+  --p-surface-700: #d4d4d4;
+  --p-surface-800: #f5f5f5;
+  --p-surface-900: #fafafa;
   --p-surface-950: #ffffff;
 
-  --p-content-background: #1c1917;
-  --p-content-border-color: #44403c;
-  --p-text-color: #fafaf9;
-  --p-text-muted-color: #a8a29e;
+  --p-content-background: #171717;
+  --p-content-border-color: #262626;
+  --p-text-color: #fafafa;
+  --p-text-muted-color: #737373;
 
-  --p-primary-color: #14b8a6;
-  --p-primary-hover-color: #2dd4bf;
-  --p-primary-active-color: #0d9488;
-  --p-primary-contrast-color: #042f2e;
+  --p-primary-color: #2ecfd3;
+  --p-primary-hover-color: #4dd8db;
+  --p-primary-active-color: #0d7377;
+  --p-primary-contrast-color: #022022;
 
-  --p-primary-50: #042f2e;
-  --p-primary-100: #134e4a;
-  --p-primary-200: #115e59;
-  --p-primary-300: #0f766e;
-  --p-primary-400: #0d9488;
-  --p-primary-500: #14b8a6;
-  --p-primary-600: #2dd4bf;
-  --p-primary-700: #5eead4;
-  --p-primary-800: #99f6e4;
-  --p-primary-900: #ccfbf1;
-  --p-primary-950: #f0fdfa;
+  --p-primary-50: #022022;
+  --p-primary-100: #043537;
+  --p-primary-200: #074a4d;
+  --p-primary-300: #095c5f;
+  --p-primary-400: #0b6569;
+  --p-primary-500: #2ecfd3;
+  --p-primary-600: #5ce0e3;
+  --p-primary-700: #80d4d6;
+  --p-primary-800: #b3e6e7;
+  --p-primary-900: #e0f5f5;
+  --p-primary-950: #f0fbfb;
 
-  --p-surface-ground: #1c1917;
-  --p-surface-card: #1c1917;
+  --p-surface-ground: #0a0a0a;
+  --p-surface-card: #171717;
 }
 
 // --- Typography ---
 body {
   margin: 0;
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 16px;
   line-height: 1.5;
   background: var(--p-surface-50);
   color: var(--p-text-color);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 600;
   line-height: 1.25;
+}
+
+// --- Editorial serif for product names ---
+.font-editorial {
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+}
+
+// --- Monospace for prices ---
+.font-mono-price {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
 // --- Animations ---
@@ -126,26 +140,23 @@ h1, h2, h3, h4, h5, h6 {
   to { opacity: 1; }
 }
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-20px); }
+  from { opacity: 0; transform: translateY(-12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
 
-.animate-fadeIn    { animation: fadeIn 250ms ease-out; }
-.animate-slideUp   { animation: slideUp 250ms ease-out; }
-.animate-slideDown { animation: slideDown 250ms ease-out; }
-.animate-scaleIn   { animation: scaleIn 250ms ease-out; }
+.animate-fadeIn    { animation: fadeIn 200ms ease-out; }
+.animate-slideUp   { animation: slideUp 200ms ease-out; }
+.animate-slideDown { animation: slideDown 200ms ease-out; }
 
 // --- Accessibility ---
 @media (prefers-reduced-motion: reduce) {
-  .animate-pulse {
+  .animate-fadeIn,
+  .animate-slideUp,
+  .animate-slideDown {
     animation: none;
   }
 }

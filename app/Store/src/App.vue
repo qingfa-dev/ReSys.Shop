@@ -2,7 +2,6 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { setNotifyToast } from '@/shared/api/notify'
-import ScrollToTop from '@/shared/components/ScrollToTop.vue'
 import { useTheme } from '@/shared/composables/useTheme'
 import { useSearch } from '@/features/catalog/composables/useSearch'
 import SearchOverlay from '@/features/catalog/components/SearchOverlay.vue'
@@ -27,7 +26,7 @@ onUnmounted(() => document.removeEventListener('keydown', onGlobalKeyDown))
 </script>
 <template>
   <Toast />
-  <ScrollToTop />
+  <ScrollTop :threshold="500" icon="pi pi-arrow-up" />
   <SearchOverlay />
   <router-view />
 </template>
