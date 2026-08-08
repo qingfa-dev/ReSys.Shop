@@ -15,10 +15,14 @@ const props = withDefaults(
     product: StoreProductListItemResponse
     ratingAverage?: number
     ratingCount?: number
+    showSimilarity?: boolean
+    similarityScore?: number
   }>(),
   {
     ratingAverage: 0,
     ratingCount: 0,
+    showSimilarity: false,
+    similarityScore: 0,
   },
 )
 
@@ -44,6 +48,9 @@ const compareAtPrice = computed(() => props.product.masterVariant?.prices.find(p
 const isOnSale = computed(() => price.value != null && compareAtPrice.value != null && compareAtPrice.value > price.value)
 const formattedPrice = computed(() => (price.value != null ? formatCurrency(price.value) : null))
 const formattedCompareAt = computed(() => (compareAtPrice.value != null ? formatCurrency(compareAtPrice.value) : null))
+
+// Derive: Similarity percentage badge for visual search results.
+const similarityPercent = `${(props.similarityScore * 100).toFixed(1)}%`
 
 // Wishlist: Variant-level membership is tracked by the wishlist store.
 const isWishlisted = computed(() => wishlistStore.wishlistedVariantIds.has(props.product.masterVariantId))
@@ -129,6 +136,12 @@ const menuItems = computed<MenuItem[]>(() => [
             value="Sale"
             severity="danger"
             class="absolute left-2 top-2"
+          />
+          <Tag
+            v-if="showSimilarity"
+            :value="similarityPercent"
+            severity="info"
+            class="absolute right-2 top-2"
           />
         </div>
       </template>
