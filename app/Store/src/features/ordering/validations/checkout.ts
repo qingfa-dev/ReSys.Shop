@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Checkout request schemas — partial updates for address, shipping, and payment steps.
 export const UpdateCheckoutRequestSchema = z.object({
   shipAddressId: z.string().optional(),
   billAddressId: z.string().optional(),

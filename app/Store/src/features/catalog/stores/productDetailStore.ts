@@ -14,12 +14,14 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   const relatedLoading = ref(false)
 
   const selectedVariant = computed<StoreProductVariantResponse | null>(() =>
+    // Compute: Derive selected variant from current variant ID — null if not found
     product.value?.variants.find(v => v.id === selectedVariantId.value) ?? null
   )
 
   const stockLabel = computed(() => {
     const stock = selectedVariant.value?.stock
     if (!stock) return null
+    // Guard: Skip label when stock is plentiful (over 5 units)
     if (stock.availableQuantity > 5) return null
     if (stock.availableQuantity > 0) return `Only ${stock.availableQuantity} left`
     if (stock.backorderable) return 'Available for backorder'
@@ -28,20 +30,25 @@ export const useProductDetailStore = defineStore('productDetail', () => {
 
   const isInStock = computed(() => {
     const stock = selectedVariant.value?.stock
+    // Compute: In-stock includes backorderable items as a valid purchase option
     return stock ? stock.availableQuantity > 0 || stock.backorderable : false
   })
 
   async function load(slug: string): Promise<void> {
     loading.value = true
     error.value = null
+    // Call: Catalog API — fetch product detail by slug
     const result = await ProductApi.getProductBySlug(slug)
     if (result.isSuccess) {
       product.value = result.value as any // ProductDetail
+      // Assign: Default to master variant on initial load
       selectedVariantId.value = product.value?.masterVariant?.id ?? null
+      // Call: Fetch similar products in background — non-blocking for faster page load
       ProductApi.getSimilar(product.value!.id).then(r => {
         if (r.isSuccess) similarProducts.value = r.items
       })
       relatedLoading.value = true
+      // Call: Fetch related products in background — non-blocking for faster page load
       ProductApi.getRelated(product.value!.id, { pageNumber: 1, pageSize: 12 }).then(r => {
         if (r.isSuccess) relatedProducts.value = r.items
         relatedLoading.value = false
@@ -53,10 +60,12 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   }
 
   function selectVariant(variantId: string): void {
+    // Assign: User-selected variant drives price and stock display
     selectedVariantId.value = variantId
   }
 
   async function addToCart(): Promise<boolean> {
+    // Guard: Require a selected variant before adding to cart
     if (!selectedVariantId.value) return false
     return true
   }
@@ -64,6 +73,7 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   function incrementQuantity(): void { if (quantity.value < 99) quantity.value++ }
   function decrementQuantity(): void { if (quantity.value > 1) quantity.value-- }
   function reset(): void {
+    // Reset: All state to initial values when navigating away from product detail
     product.value = null
     loading.value = false
     error.value = null

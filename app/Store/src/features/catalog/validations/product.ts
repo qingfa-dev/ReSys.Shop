@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Zod schemas mirror server API response contracts for runtime type safety
 const VariantStockInfoSchema = z.object({
   availableQuantity: z.number().int().min(0),
   backorderable: z.boolean(),
@@ -66,6 +67,7 @@ export const ProductDetailSchema = ProductListItemSchema.extend({
   variants: z.array(ProductVariantSchema),
 })
 
+// Validate: Search form — restricts sort to known fields to prevent injection
 export const ProductSearchFormSchema = z.object({
   search: z.string().optional(),
   sort: z.enum(['-createdAtUtc', 'price', '-price', 'name', '-name']).optional(),

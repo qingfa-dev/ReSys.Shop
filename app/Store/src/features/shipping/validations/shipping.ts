@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Shipping method shape matches Module.Shipping storefront DTO.
 export const ShippingMethodSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -9,11 +10,13 @@ export const ShippingMethodSchema = z.object({
   position: z.number().int(),
 })
 
+// Validate: Shipping calculation request — both IDs required for cost computation.
 export const CalculateShippingRequestSchema = z.object({
   orderId: z.string(),
   shippingMethodId: z.string(),
 })
 
+// Validate: Shipping calculation response including free-shipping flag.
 export const ShippingCalculationSchema = z.object({
   shippingMethodId: z.string(),
   methodName: z.string(),
@@ -22,6 +25,7 @@ export const ShippingCalculationSchema = z.object({
   isFreeShipping: z.boolean(),
 })
 
+// Validate: Shipping rate with weight thresholds and free-shipping cutoff.
 export const ShippingRateSchema = z.object({
   id: z.string(),
   shippingMethodId: z.string(),

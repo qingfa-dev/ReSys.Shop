@@ -1,3 +1,4 @@
+// Context: Full profile entity returned by the profile API
 export interface ProfileDetail {
   id: string
   userId: string
@@ -15,6 +16,7 @@ export interface ProfileDetail {
   modifiedAtUtc: string | null
 }
 
+// Context: Request payload for profile update (PUT /profiles/profiles)
 export interface UpdateProfileRequest {
   firstName: string
   lastName: string

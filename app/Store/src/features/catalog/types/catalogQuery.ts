@@ -17,6 +17,7 @@ export interface ProductQuery {
 }
 
 export function toProductQueryParams(q: ProductQuery): Record<string, unknown> {
+  // Transform: Strip undefined fields to avoid sending empty params to API
   const params: Record<string, unknown> = {}
   if (q.pageNumber) params.pageNumber = q.pageNumber
   if (q.pageSize) params.pageSize = q.pageSize

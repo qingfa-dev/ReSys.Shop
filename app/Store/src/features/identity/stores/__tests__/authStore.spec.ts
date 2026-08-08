@@ -129,7 +129,11 @@ describe('authStore', () => {
   it('logout revokes tokens and clears state', async () => {
     const store = useAuthStore()
     store.user = {
-      ...sessionUser,
+      userId: sessionUser.id,
+      userName: sessionUser.userName,
+      email: sessionUser.email,
+      roles: sessionUser.roles,
+      permissions: sessionUser.permissions,
       isAuthenticated: true,
     }
     store.status = 'authenticated'

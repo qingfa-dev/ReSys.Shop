@@ -1,4 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
+
+// Route: Ordering feature routes — lazy-loaded views with auth guards where required.
 export const orderingRoutes: RouteRecordRaw[] = [
   { path: '/cart', name: 'cart', component: () => import('../views/CartView.vue'), meta: { title: 'Cart' } },
   { path: '/checkout', name: 'checkout', component: () => import('../views/CheckoutView.vue'), meta: { requiresAuth: true, title: 'Checkout' } },

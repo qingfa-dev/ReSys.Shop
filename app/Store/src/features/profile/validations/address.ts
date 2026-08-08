@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+// Validate: Address type limited to canonical Shipping/Billing/Other values
 export const AddressTypeSchema = z.enum(['Shipping', 'Billing', 'Other'])
 
+// Validate: Full address entity shape from server
 export const AddressSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -21,6 +23,7 @@ export const AddressSchema = z.object({
   stateCode: z.string().nullable(),
 })
 
+// Enforce: Required fields for create/update; optional fields have max-length constraints
 export const AddressInputSchema = z.object({
   addressType: AddressTypeSchema,
   firstName: z.string().min(1).max(200),

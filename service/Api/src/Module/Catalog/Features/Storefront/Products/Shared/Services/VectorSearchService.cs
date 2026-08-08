@@ -1,12 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-
-using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
 using Pgvector;
-
-using Shared.Operational.Persistence.Data;
+using Pgvector.EntityFrameworkCore;
 
 namespace Module.Catalog.Features.Storefront.Products.Shared.Services;
 
@@ -25,47 +21,59 @@ public sealed class VectorSearchService : IVectorSearchService
         Vector queryVector, string modelName, int topK,
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
-        if (_isNpgsql)
-        {
-            return await NpgsqlSearchAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
-        }
-        else
-        {
-            return await InMemorySearchAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
-        }
+        var ranked = _isNpgsql
+            ? await NpgsqlRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken)
+            : await InMemoryRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
+
+        return ranked.Select(r => r.VariantId).ToList();
     }
 
-    private async Task<List<Guid>> NpgsqlSearchAsync(
+    public async Task<List<(Guid VariantId, double Score)>> FindSimilarWithScoresAsync(
+        Vector queryVector, string modelName, int topK,
+        CancellationToken cancellationToken = default)
+    {
+        var ranked = _isNpgsql
+            ? await NpgsqlRankByVariantAsync(queryVector, modelName, topK, excludeProductId: null, cancellationToken)
+            : await InMemoryRankByVariantAsync(queryVector, modelName, topK, excludeProductId: null, cancellationToken);
+
+        return ranked.Select(r => (r.VariantId, Score: 1.0 - r.Distance)).ToList();
+    }
+
+    /// <summary>
+    /// Ranks variants by their closest "Search"-type image embedding using pgvector's
+    /// cosine distance operator (&lt;=&gt;), translated by EF.Functions.CosineDistance.
+    /// Equivalent to the SQL "DISTINCT ON (variant_id) ... ORDER BY distance" pattern,
+    /// expressed as GroupBy + Min so EF Core can translate it without raw SQL.
+    /// </summary>
+    private async Task<List<(Guid VariantId, double Distance)>> NpgsqlRankByVariantAsync(
         Vector queryVector, string modelName, int topK,
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
-        var sql = @"
-            SELECT DISTINCT ON (v.id) v.*
-            FROM catalog.variants v
-            INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
-            INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
-            WHERE v.is_deleted = false
-              AND vi.type = 'Search'
-              AND ie.model_name = {1}" +
-            (excludeProductId.HasValue ? "\n              AND v.product_id != {2}" : "") + @"
-            ORDER BY v.id, ie.vector <=> {0}::vector
-            LIMIT {3}";
+        var query = _dbContext.Set<ImageEmbedding>()
+            .Where(e => e.ModelName == modelName
+                     && e.Vector != null
+                     && e.VariantImage.Type == VariantImageType.Search
+                     && e.VariantImage.VariantId != null
+                     && !e.VariantImage.Variant!.IsDeleted);
 
-        object[] parameters;
         if (excludeProductId.HasValue)
-            parameters = [queryVector, modelName, excludeProductId.Value, topK];
-        else
-            parameters = [queryVector, modelName, topK];
+            query = query.Where(e => e.VariantImage.Variant!.ProductId != excludeProductId.Value);
 
-        var variants = await _dbContext.Set<Variant>()
-            .FromSqlRaw(sql, parameters)
-            .AsNoTracking()
+        return await query
+            .Select(e => new
+            {
+                VariantId = e.VariantImage.VariantId!.Value,
+                Distance = e.Vector!.CosineDistance(queryVector)
+            })
+            .GroupBy(x => x.VariantId)
+            .Select(g => new { VariantId = g.Key, Distance = g.Min(x => x.Distance) })
+            .OrderBy(x => x.Distance)
+            .Take(topK)
+            .Select(x => new ValueTuple<Guid, double>(x.VariantId, x.Distance))
             .ToListAsync(cancellationToken);
-
-        return variants.Select(v => v.Id).ToList();
     }
 
-    private async Task<List<Guid>> InMemorySearchAsync(
+    private async Task<List<(Guid VariantId, double Distance)>> InMemoryRankByVariantAsync(
         Vector queryVector, string modelName, int topK,
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
@@ -87,10 +95,14 @@ public sealed class VectorSearchService : IVectorSearchService
 
         return embeddings
             .GroupBy(e => e.VariantImage.VariantId!.Value)
-            .Select(g => g.OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray())).First())
-            .OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray()))
+            .Select(g => new
+            {
+                VariantId = g.Key,
+                Distance = g.Min(e => CosineDistance(queryArray, e.Vector!.ToArray()))
+            })
+            .OrderBy(x => x.Distance)
             .Take(topK)
-            .Select(e => e.VariantImage.VariantId!.Value)
+            .Select(x => (x.VariantId, x.Distance))
             .ToList();
     }
 
@@ -107,75 +119,5 @@ public sealed class VectorSearchService : IVectorSearchService
             normB += b[i] * b[i];
         }
         return 1.0 - (dot / (Math.Sqrt(normA) * Math.Sqrt(normB) + 1e-12));
-    }
-
-    public async Task<List<(Guid VariantId, double Score)>> FindSimilarWithScoresAsync(
-        Vector queryVector, string modelName, int topK,
-        CancellationToken cancellationToken = default)
-    {
-        if (_isNpgsql)
-        {
-            return await NpgsqlSearchWithScoresAsync(queryVector, modelName, topK, cancellationToken);
-        }
-        else
-        {
-            return await InMemorySearchWithScoresAsync(queryVector, modelName, topK, cancellationToken);
-        }
-    }
-
-    private async Task<List<(Guid VariantId, double Score)>> NpgsqlSearchWithScoresAsync(
-        Vector queryVector, string modelName, int topK,
-        CancellationToken cancellationToken)
-    {
-        var sql = @"
-            SELECT DISTINCT ON (v.id) v.id AS ""VariantId"",
-                   1.0 - (ie.vector <=> {0}::vector) AS ""Score""
-            FROM catalog.variants v
-            INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
-            INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
-            WHERE v.is_deleted = false
-              AND vi.type = 'Search'
-              AND ie.model_name = {1}
-            ORDER BY v.id, ie.vector <=> {0}::vector
-            LIMIT {2}";
-
-        object[] parameters = [queryVector, modelName, topK];
-
-        var dbContext = (DbContext)_dbContext;
-        var results = await dbContext.Database
-            .SqlQueryRaw<(Guid VariantId, double Score)>(sql, parameters)
-            .ToListAsync(cancellationToken);
-
-        return results;
-    }
-
-    private async Task<List<(Guid VariantId, double Score)>> InMemorySearchWithScoresAsync(
-        Vector queryVector, string modelName, int topK,
-        CancellationToken cancellationToken)
-    {
-        var queryArray = queryVector.ToArray();
-
-        var query = _dbContext.Set<ImageEmbedding>()
-            .Include(e => e.VariantImage)
-                .ThenInclude(vi => vi.Variant)
-            .Where(e => e.ModelName == modelName
-                     && e.Vector != null
-                     && e.VariantImage.Type == VariantImageType.Search
-                     && e.VariantImage.VariantId != null
-                     && !e.VariantImage.Variant!.IsDeleted);
-
-        var embeddings = await query.ToListAsync(cancellationToken);
-
-        return embeddings
-            .GroupBy(e => e.VariantImage.VariantId!.Value)
-            .Select(g => new
-            {
-                VariantId = g.Key,
-                Best = g.OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray())).First()
-            })
-            .OrderBy(x => CosineDistance(queryArray, x.Best.Vector!.ToArray()))
-            .Take(topK)
-            .Select(x => (x.VariantId, Score: 1.0 - CosineDistance(queryArray, x.Best.Vector!.ToArray())))
-            .ToList();
     }
 }

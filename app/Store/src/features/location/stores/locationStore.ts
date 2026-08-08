@@ -12,14 +12,17 @@ export const useLocationStore = defineStore('location', () => {
   const loading = ref(false)
   const _initialized = ref(false)
 
+  // Compute: Filter states belonging to the selected country (client-side cascade).
   const filteredStates = computed(() =>
     states.value.filter(s => s.countryId === selectedCountryId.value),
   )
 
+  // Compute: Determine if the selected country mandates a state selection at checkout.
   const statesRequired = computed(() =>
     countries.value.find(c => c.id === selectedCountryId.value)?.statesRequired ?? false,
   )
 
+  // Fetch: Load countries and states in parallel on first access only.
   async function loadAll(): Promise<void> {
     if (_initialized.value) return
     _initialized.value = true
@@ -30,6 +33,7 @@ export const useLocationStore = defineStore('location', () => {
     loading.value = false
   }
 
+  // Reset: Clear selected state when country changes to avoid orphaned reference.
   function selectCountry(id: string): void {
     selectedCountryId.value = id
     selectedStateId.value = null

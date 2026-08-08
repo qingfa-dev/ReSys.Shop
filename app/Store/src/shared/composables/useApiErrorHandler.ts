@@ -13,6 +13,7 @@ export function useApiErrorHandler() {
 
   function handleError(error: unknown): void {
     if (error instanceof HttpError) {
+      // Map: HTTP 5xx = error severity, 4xx = warn severity for user-facing toast
       const severity = error.statusCode >= 500 ? 'error' : 'warn'
       toast.add({
         severity,
@@ -33,6 +34,7 @@ export function useApiErrorHandler() {
       return
     }
 
+    // Fallback: Non-Error thrown values — display generic message
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -42,7 +44,9 @@ export function useApiErrorHandler() {
   }
 
   function handleResult(result: ResultLike): void {
+    // Guard: Only show toast for failed results with error details
     if (!result.isSuccess && result.errors.length > 0) {
+      // Map: Status code 5xx = error, 4xx = warn — matches HTTP severity convention
       const severity = (result.statusCode ?? 500) >= 500 ? 'error' : 'warn'
       toast.add({
         severity,

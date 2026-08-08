@@ -21,32 +21,10 @@ from embedding.schemas import (
     ValueResult,
 )
 from embedding.services.inference_engine import InferenceEngine
-from fastapi import APIRouter, Depends, File, Request, Response, Security, UploadFile, status
-from fastapi.security import APIKeyHeader
+from fastapi import APIRouter, Depends, File, Request, Response, UploadFile, status
 
 router = APIRouter(tags=["inference"])
 logger = logging.getLogger(__name__)
-
-# API Key header scheme for sidecar security
-api_key_header = APIKeyHeader(name=Constants.Strings.X_API_KEY_HEADER, auto_error=False)
-
-
-async def verify_api_key(api_key: str = Security(api_key_header)) -> str:
-    """Validate: Sidecar API key matches the configured secret.
-
-    Args:
-        api_key: The API key from the X-API-Key header.
-
-    Returns:
-        The validated API key string.
-
-    Raises:
-        HTTPException: With status 403 if the key does not match.
-    """
-    if api_key != settings.API_KEY:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=403, detail="Invalid API Key")
-    return api_key
 
 
 @lru_cache(maxsize=1)
@@ -70,7 +48,6 @@ async def create_embedding(
     request: Request,
     body: EmbeddingRequest,
     response: Response,
-    key: str = Depends(verify_api_key),
     engine: InferenceEngine = Depends(get_engine),
 ):
     """Generates a high-dimensional vector embedding for the provided image URL.
@@ -79,7 +56,6 @@ async def create_embedding(
         request: FastAPI request object (injected by the framework).
         body: The embedding request containing image_url and optional model.
         response: FastAPI response object (injected, used to set status code).
-        key: Validated API key (injected by Depends).
         engine: Cached InferenceEngine instance (injected by Depends).
 
     Returns:
@@ -137,7 +113,6 @@ async def create_embedding_from_bytes(
     response: Response,
     image: UploadFile = File(...),
     model: str = settings.EMBEDDING_MODEL,
-    key: str = Depends(verify_api_key),
     engine: InferenceEngine = Depends(get_engine),
 ):
     """Generates an embedding from a multipart image upload.
@@ -147,7 +122,6 @@ async def create_embedding_from_bytes(
         response: FastAPI response object (injected, used to set status code).
         image: The uploaded image file (multipart form data).
         model: Model identifier (default from settings.EMBEDDING_MODEL).
-        key: Validated API key (injected by Depends).
         engine: Cached InferenceEngine instance (injected by Depends).
 
     Returns:
@@ -204,14 +178,11 @@ async def create_embedding_from_bytes(
     summary="List Available Models",
     description="Returns metadata for both registered skills and discovered ONNX models."
 )
-async def list_models(key: str = Depends(verify_api_key)):
+async def list_models():
     """Dynamic discovery of all models including disk-based ONNX models.
 
     Combines explicitly registered PyTorch skills with ONNX models discovered
     on disk under the configured ONNX_MODEL_DIR.
-
-    Args:
-        key: Validated API key (injected by Depends).
 
     Returns:
         ValueResult containing a list of ModelMetadata for all available models.

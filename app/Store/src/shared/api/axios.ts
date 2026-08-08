@@ -2,14 +2,17 @@ import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 import { STORAGE_KEYS } from '@/shared/constants/storage'
 
+// State: Singleton Axios instance — lazily initialized via getApiClient()
 let apiClient: AxiosInstance | null = null
 
+// Create: Axios instance with JSON default header and Bearer token injection
 export function createApiClient(baseURL?: string): AxiosInstance {
   apiClient = axios.create({
     baseURL: baseURL ?? '',
     headers: { 'Content-Type': 'application/json' },
   })
 
+  // Intercept: Attach access token from localStorage to every request
   apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
     if (token) {
@@ -21,6 +24,7 @@ export function createApiClient(baseURL?: string): AxiosInstance {
   return apiClient
 }
 
+// Acquire: Get or create the singleton Axios instance
 export function getApiClient(): AxiosInstance {
   if (!apiClient) {
     apiClient = createApiClient()
@@ -28,6 +32,7 @@ export function getApiClient(): AxiosInstance {
   return apiClient
 }
 
+// Dispose: Reset singleton — used in tests and logout flows
 export function resetApiClient(): void {
   apiClient = null
 }

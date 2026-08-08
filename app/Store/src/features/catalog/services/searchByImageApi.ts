@@ -9,8 +9,10 @@ import type { SearchByImageResponse, VisualSearchModel } from '../types'
 
 export class SearchByImageApi {
   static async getVisualSearchModels(): Promise<Result<VisualSearchModel[]>> {
+    // Call: Catalog API to fetch available visual search ML models
     const result = await get<Result<VisualSearchModel[]>>(`${CATALOG}/products/visual-search/models`)
     if (!result.isSuccess) return result
+    // Validate: Ensure API response conforms to VisualSearchModel schema
     result.value = VisualSearchModelSchema.array().parse(result.value)
     return result
   }
@@ -20,6 +22,7 @@ export class SearchByImageApi {
     topK?: number,
     model?: string
   ): Promise<PagedResult<SearchByImageResponse>> {
+    // Call: Catalog API image search endpoint — sends multipart form with image
     const form = new FormData()
     form.append('image', file)
     if (topK) form.append('topK', String(topK))

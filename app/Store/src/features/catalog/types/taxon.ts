@@ -3,6 +3,7 @@ export interface StoreTaxonomyListItem {
   name: string
   presentation: string | null
   position: number
+  taxonsCount: number
 }
 
 export interface TaxonBreadcrumbItem {
@@ -14,17 +15,21 @@ export interface TaxonBreadcrumbItem {
 export interface StoreTaxonListItemResponse {
   id: string
   name: string
-  permalink: string
-  depth: number
-  slug: string
   presentation: string | null
-  taxonomyId: string
-  parentId: string | null
+  description: string | null
   position: number
-  imageUrl: string | null
-  taxonCount: number | null
+  parentId: string | null
+  taxonomyId: string
+  parentName: string | null
+  taxonomyName: string | null
+  depth: number
+  taxonRuleCount: number | null
+  productCount: number | null
   childrenCount: number | null
+  permalink: string
   prettyName: string
+  slug: string
+  imageUrl: string | null
   breadcrumb: TaxonBreadcrumbItem[]
 }
 

@@ -15,12 +15,15 @@ export const useProductListStore = defineStore('productList', () => {
   const isInitialLoad = ref(true)
   let _fetchTimer: ReturnType<typeof setTimeout> | null = null
 
+  // Compute: Total pages for pagination controls
   const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value))
 
   async function fetch(): Promise<void> {
+    // Guard: Prevent concurrent fetch requests
     if (loading.value) return
     loading.value = true
     error.value = null
+    // Call: Catalog API — fetch products with catalog store's active filters
     const catalog = useCatalogStore()
     const result = await ProductApi.getProducts({
       pageNumber: page.value,
@@ -39,6 +42,7 @@ export const useProductListStore = defineStore('productList', () => {
   }
 
   function markStale(): void {
+    // Throttle: Debounce filter changes to avoid rapid API calls during user interaction
     page.value = 1
     if (_fetchTimer) clearTimeout(_fetchTimer)
     _fetchTimer = setTimeout(() => fetch(), 300)
@@ -50,6 +54,7 @@ export const useProductListStore = defineStore('productList', () => {
   function refresh(): void { fetch() }
 
   function init(): void {
+    // Subscribe: Listen for filter changes from catalogStore to refetch products
     on('filter:changed', () => markStale())
     fetch()
   }

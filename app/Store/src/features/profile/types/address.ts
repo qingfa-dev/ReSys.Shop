@@ -1,5 +1,7 @@
+// Context: Address type discriminator for shipping vs billing vs other
 export type AddressType = 'Shipping' | 'Billing' | 'Other'
 
+// Context: Full address entity returned by the address API
 export interface Address {
   id: string
   userId: string
@@ -19,6 +21,7 @@ export interface Address {
   stateCode: string | null
 }
 
+// Context: Address input payload for create and update operations
 export interface AddressInput {
   addressType: AddressType
   firstName: string

@@ -402,6 +402,6 @@ public class ListProductsTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Items.First().Taxons.Should().NotBeNull();
+        result.Items.First().Classifications.Should().NotBeNull();
     }
 }

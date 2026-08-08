@@ -14,9 +14,10 @@ export function useLocationCascade() {
   const selectedStateId = ref<string | null>(null)
   const loading = ref(false)
 
-  // Full state catalog, cached so a country change only re-filters, never re-fetches.
+  // Cache: Full state catalog so country changes only re-filter, never re-fetch.
   const allStates = ref<State[]>([])
 
+  // Filter: Derive states for selected country; clear selection if orphaned.
   function applyCountryFilter(countryId: string | null): void {
     if (!countryId) {
       states.value = []
@@ -30,6 +31,7 @@ export function useLocationCascade() {
     }
   }
 
+  // Fetch: Load countries and states in parallel, then apply initial filter.
   async function loadCountries(): Promise<void> {
     loading.value = true
     try {
@@ -45,6 +47,7 @@ export function useLocationCascade() {
     }
   }
 
+  // Subscribe: Re-filter states whenever the selected country changes.
   watch(selectedCountryId, (countryId) => {
     applyCountryFilter(countryId)
   })

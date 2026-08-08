@@ -4,12 +4,12 @@ import type { PagedResult } from '@/shared/types/result'
 import type { QueryingParameters } from '@/shared/types/querying'
 import type { ShippingMethod, ShippingRate } from '../types/shipping'
 
-// GET api/storefront/shipping/methods — paged result of methods available to storefront users.
+// Call: Fetch available shipping methods for storefront display.
 export function getShippingMethods(params: QueryingParameters = {}): Promise<PagedResult<ShippingMethod>> {
   return getPaged<ShippingMethod>(ENDPOINTS.shippingMethods, params)
 }
 
-// GET api/storefront/shipping/rates — paged result of shipping rates with cost/delivery details.
+// Call: Fetch shipping rates with cost and delivery-range details.
 export function getShippingRates(params: QueryingParameters = {}): Promise<PagedResult<ShippingRate>> {
   return getPaged<ShippingRate>(ENDPOINTS.shippingRates, params)
 }

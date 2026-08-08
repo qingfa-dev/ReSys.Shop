@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Full profile shape returned by GET /profiles/profiles
 export const ProfileDetailSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -17,6 +18,7 @@ export const ProfileDetailSchema = z.object({
   modifiedAtUtc: z.string().nullable(),
 })
 
+// Enforce: Name fields required; email must be valid RFC 5322 format
 export const UpdateProfileRequestSchema = z.object({
   firstName: z.string().min(1).max(200),
   lastName: z.string().min(1).max(200),

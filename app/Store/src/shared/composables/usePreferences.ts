@@ -11,19 +11,23 @@ const defaults: UserPreferences = { currency: 'USD', language: 'en' }
 
 function load(): UserPreferences {
   try {
+    // Cache: Load from localStorage, merge with defaults for forward compatibility
     const raw = localStorage.getItem(STORAGE_KEY)
     return raw ? { ...defaults, ...JSON.parse(raw) } : defaults
   } catch { return defaults }
 }
 
+// Cache: Module-level singleton — shared across all components
 const preferences = ref<UserPreferences>(load())
 
+// Cache: Persist preferences to localStorage on every change
 watch(preferences, (val) => {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(val)) } catch { /* ignore */ }
 }, { deep: true })
 
 export function usePreferences() {
   function formatCurrency(amount: number): string {
+    // Format: Use Intl.NumberFormat for locale-aware currency display
     switch (preferences.value.currency) {
       case 'USD': return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
       case 'EUR': return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount)

@@ -7,24 +7,24 @@ import * as cartApi from '../../services/cartApi'
 import * as cartReservationApi from '@/features/inventory/services/cartReservationApi'
 import type { CartLineItem, CartResponse } from '../../types/cart'
 
-const mockedCartApi = vi.mocked(cartApi)
-const mockedReservationApi = vi.mocked(cartReservationApi)
+const mockedCartApi = vi.mocked(cartApi) as any
+const mockedReservationApi = vi.mocked(cartReservationApi) as any
 
 vi.mock('@/features/ordering/services/cartApi', () => ({
   CartApi: {
-    getCart: vi.fn<(...args: unknown[]) => unknown>(),
-    addItem: vi.fn<(...args: unknown[]) => unknown>(),
-    updateItem: vi.fn<(...args: unknown[]) => unknown>(),
-    removeItem: vi.fn<(...args: unknown[]) => unknown>(),
-    emptyCart: vi.fn<(...args: unknown[]) => unknown>(),
-    associateCart: vi.fn<(...args: unknown[]) => unknown>(),
+    getCart: vi.fn(),
+    addItem: vi.fn(),
+    updateItem: vi.fn(),
+    removeItem: vi.fn(),
+    emptyCart: vi.fn(),
+    associateCart: vi.fn(),
   },
 }))
 
 vi.mock('@/features/inventory/services/cartReservationApi', () => ({
-  reserveStock: vi.fn<(...args: unknown[]) => unknown>(),
-  releaseReservation: vi.fn<(...args: unknown[]) => unknown>(),
-  getCartReservations: vi.fn<(...args: unknown[]) => unknown>(),
+  reserveStock: vi.fn(),
+  releaseReservation: vi.fn(),
+  getCartReservations: vi.fn(),
 }))
 
 const baseItem: CartLineItem = {

@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+// Context: Account sub-routes — all require authenticated session
 export const profileRoutes: RouteRecordRaw[] = [
   {
     path: '/account/addresses',

@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+// Context: Catalog feature routes — lazy-loaded for code-splitting per route
 export const catalogRoutes: RouteRecordRaw[] = [
   {
     path: '/',

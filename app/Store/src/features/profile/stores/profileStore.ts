@@ -12,6 +12,7 @@ export const useProfileStore = defineStore('profile', () => {
   const error = ref<string | null>(null)
   const _initialized = ref(false)
 
+  // Guard: Skip init if already loaded to prevent duplicate fetch on remount
   async function init(): Promise<void> {
     if (_initialized.value) return
     _initialized.value = true
@@ -27,12 +28,14 @@ export const useProfileStore = defineStore('profile', () => {
     loading.value = false
   }
 
+  // Update: Apply optimistic local patch before API call for instant UI feedback
   async function updateProfile(req: UpdateProfileRequest): Promise<boolean> {
     saving.value = true
     error.value = null
     const prev = profile.value
     if (prev) Object.assign(prev, req)
     const result = await ProfileApi.updateProfile(req)
+    // Rollback: Restore previous snapshot when API rejects the update
     if (!result.isSuccess) {
       error.value = result.message
       profile.value = prev
@@ -41,6 +44,7 @@ export const useProfileStore = defineStore('profile', () => {
     return result.isSuccess
   }
 
+  // Delete: Remove profile then terminate auth session
   async function deleteProfile(): Promise<boolean> {
     saving.value = true
     const result = await AccountApi.deleteProfile()
@@ -54,6 +58,7 @@ export const useProfileStore = defineStore('profile', () => {
     return result.isSuccess
   }
 
+  // Reset: Return store to pristine default state for cleanup or remount
   function reset(): void {
     profile.value = null
     error.value = null

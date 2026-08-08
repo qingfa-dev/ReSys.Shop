@@ -12,6 +12,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
   const details = ref<Record<string, WishlistDetail>>({})
   const wishlistedVariantIds = ref<Set<string>>(new Set())
 
+  // Fetch: Eagerly load all list details to build a flat variant-id lookup set
   async function fetchWishlists(): Promise<void> {
     loading.value = true
     error.value = null
@@ -33,6 +34,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
     loading.value = false
   }
 
+  // Create: Prepend new list to front for immediate visibility
   async function createWishlist(req: CreateWishlistRequest): Promise<boolean> {
     saving.value = true
     const r = await WishlistApi.createWishlist(req)
@@ -42,6 +44,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
     return r.isSuccess
   }
 
+  // Update: Merge server response into existing detail cache entry
   async function updateWishlist(id: string, req: UpdateWishlistRequest): Promise<boolean> {
     saving.value = true
     const r = await WishlistApi.updateWishlist(id, req)
@@ -51,6 +54,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
     return r.isSuccess
   }
 
+  // Delete: Remove from list array and detail cache atomically
   async function deleteWishlist(id: string): Promise<boolean> {
     saving.value = true
     const r = await WishlistApi.deleteWishlist(id)
@@ -64,6 +68,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
     return r.isSuccess
   }
 
+  // Add: Update detail and track variant in global wishlisted set
   async function addItem(listId: string, req: AddWishlistItemRequest): Promise<boolean> {
     saving.value = true
     const r = await WishlistApi.addWishlistItem(listId, req)
@@ -77,6 +82,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
     return r.isSuccess
   }
 
+  // Remove: Refresh detail and re-sync variant tracking set
   async function removeItem(listId: string, itemId: string): Promise<boolean> {
     saving.value = true
     const r = await WishlistApi.removeWishlistItem(listId, itemId)
@@ -90,6 +96,7 @@ export const useWishlistStore = defineStore('wishlists', () => {
     return r.isSuccess
   }
 
+  // Subscribe: Load wishlists after identity session initializes
   on('auth:init-done', () => fetchWishlists())
 
   return {

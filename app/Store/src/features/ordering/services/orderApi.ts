@@ -8,12 +8,15 @@ import type { OrderListItem, OrderDetail, OrderTrackingResponse } from '../types
 
 const orderListSchema = PagedResultSchema(OrderListItemSchema)
 
+// Service: Order API client for list, detail, tracking, and cancellation.
 export class OrderApi {
   private static readonly BASE = ORDERS
 
+  // Call: Fetch paginated order list — validates both items and paged envelope.
   static async getOrders(params: Record<string, unknown>): Promise<PagedResult<OrderListItem>> {
     const result = await getPaged<unknown>(this.BASE, params)
     if (!result.isSuccess) return result as PagedResult<OrderListItem>
+    // Validate: Parse paged result with item-level schema for full type safety.
     const parsed = orderListSchema.parse({ ...result, items: result.items })
     return parsed as PagedResult<OrderListItem>
   }

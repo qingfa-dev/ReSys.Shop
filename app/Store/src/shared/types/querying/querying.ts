@@ -14,6 +14,7 @@ import { parseSearchQueryString } from './parsers'
 import { parsePageValues } from './parsers'
 import type { ApiError } from '../error'
 
+// Boundary: QueryingParameters — raw API input; QueryingModel — parsed internal model
 export interface QueryingParameters {
   filter?: string | null
   search?: string | null
@@ -38,6 +39,7 @@ export const emptyQueryingModel: QueryingModel = {
   page: emptyPageModel,
 }
 
+// Validate: Parse all query parameters — collects errors across filter/sort/search/page
 export function parseAll(
   params: QueryingParameters,
   allowedFilterFields?: string[] | null,
@@ -68,6 +70,7 @@ export function parseAll(
   )
   if (!searchResult.isSuccess) errors.push(...searchResult.errors)
 
+  // Guard: Return all validation errors at once — caller decides retry strategy
   if (errors.length > 0) return validation(errors)
 
   return ok({

@@ -5,7 +5,7 @@ import { ok, failure } from '@/shared/types/result'
 import { useCheckoutStore } from '../checkoutStore'
 import * as checkoutApi from '../../services/checkoutApi'
 
-const mockedCheckoutApi = vi.mocked(checkoutApi)
+const mockedCheckoutApi = vi.mocked(checkoutApi) as any
 
 const mockCartStore = {
   id: 'cart-1',
@@ -24,11 +24,11 @@ vi.mock('vue-router', () => ({
 
 vi.mock('@/features/ordering/services/checkoutApi', () => ({
   CheckoutApi: {
-    updateCheckout: vi.fn<(...args: unknown[]) => unknown>(),
-    selectShippingRate: vi.fn<(...args: unknown[]) => unknown>(),
-    validateCheckout: vi.fn<(...args: unknown[]) => unknown>(),
-    createPaymentIntent: vi.fn<(...args: unknown[]) => unknown>(),
-    placeOrder: vi.fn<(...args: unknown[]) => unknown>(),
+    updateCheckout: vi.fn(),
+    selectShippingRate: vi.fn(),
+    validateCheckout: vi.fn(),
+    createPaymentIntent: vi.fn(),
+    placeOrder: vi.fn(),
   },
 }))
 

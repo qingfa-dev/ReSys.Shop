@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Order status and checkout state enum schemas for runtime type safety.
 export const OrderStatusSchema = z.enum(['Draft', 'Placed', 'Canceled', 'Expired'])
 export const CheckoutStateSchema = z.enum(['Address', 'Delivery', 'Payment', 'Confirm', 'Complete'])
 

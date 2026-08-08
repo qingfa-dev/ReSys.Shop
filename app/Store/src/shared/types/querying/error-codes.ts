@@ -1,6 +1,7 @@
 import type { ApiError } from '../error'
 import { ErrorType } from '../error'
 
+// Create: Typed API error with domain-prefixed code for grep-based auditing
 export function filterError(code: string, message: string): ApiError {
   return { code: `Filter.${code}`, message, type: ErrorType.Validation }
 }
@@ -17,6 +18,7 @@ export function pageError(code: string, message: string): ApiError {
   return { code: `Paging.${code}`, message, type: ErrorType.Validation }
 }
 
+// Enforce: Filter validation error catalog — used by parsers for consistent error messages
 export const FilterErrors = {
   invalidSyntax: (raw: string) => filterError('String.InvalidSyntax', `Invalid filter syntax: "${raw}".`),
   invalidJson: (detail: string) => filterError('Json.InvalidStructure', `Invalid filter JSON: ${detail}.`),
@@ -27,6 +29,7 @@ export const FilterErrors = {
   invalidTriplet: (entry: string) => filterError('QueryString.InvalidTriplet', `Invalid filter triplet: "${entry}".`),
 } as const
 
+// Enforce: Sort validation error catalog
 export const SortErrors = {
   invalidSyntax: (raw: string) => sortError('Parsing.InvalidSyntax', `Invalid sort syntax: "${raw}".`),
   invalidJson: (detail: string) => sortError('Parsing.InvalidJson', `Invalid sort JSON: ${detail}.`),
@@ -36,12 +39,14 @@ export const SortErrors = {
   missingField: () => sortError('Field.Missing', 'Sort clause must specify a field.'),
 } as const
 
+// Enforce: Search validation error catalog
 export const SearchErrors = {
   termRequired: () => searchError('Parsing.TermRequired', 'Search term is required.'),
   invalidJson: (detail: string) => searchError('Parsing.InvalidJson', `Invalid search JSON: ${detail}.`),
   invalidQueryString: (detail: string) => searchError('Parsing.InvalidQueryString', `Invalid search query string: ${detail}.`),
 } as const
 
+// Enforce: Pagination validation error catalog
 export const PageErrors = {
   invalidJson: (detail: string) => pageError('InvalidJson', `Invalid page JSON: ${detail}.`),
   invalidNumber: (property: string, value: string) => pageError('InvalidNumber', `Invalid ${property}: "${value}".`),

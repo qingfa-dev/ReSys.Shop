@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Per-location stock availability shape matches storefront DTO.
 export const AvailabilityEntrySchema = z.object({
   stockLocationId: z.string(),
   locationName: z.string(),
@@ -10,6 +11,7 @@ export const AvailabilityEntrySchema = z.object({
   available: z.boolean(),
 })
 
+// Validate: Stock reservation request — quantity must be a positive integer.
 export const ReserveStockRequestSchema = z.object({
   variantId: z.string(),
   stockLocationId: z.string(),
@@ -19,6 +21,7 @@ export const ReserveStockRequestSchema = z.object({
   reason: z.string().nullable().optional(),
 })
 
+// Validate: Cart reservation response including expiration timestamp.
 export const CartReservationSchema = z.object({
   id: z.string(),
   variantId: z.string(),
@@ -32,6 +35,7 @@ export const CartReservationSchema = z.object({
   modifiedAtUtc: z.string().nullable(),
 })
 
+// Validate: Cart reservation status with remaining TTL for countdown display.
 export const CartReservationStatusSchema = z.object({
   id: z.string(),
   variantId: z.string(),

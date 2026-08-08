@@ -9,10 +9,12 @@ export function buildTaxonTree(
   taxons: StoreTaxonListItemResponse[],
   taxonomyId?: string,
 ): TaxonTreeNode[] {
+  // Transform: Filter by taxonomy if provided — allows building trees for a single taxonomy
   const filtered = taxonomyId
     ? taxons.filter(t => t.taxonomyId === taxonomyId)
     : taxons
 
+  // Group: Index taxons by parentId for O(1) child lookup during recursion
   const byParent = new Map<string | null, StoreTaxonListItemResponse[]>()
   for (const t of filtered) {
     const key = t.parentId ?? null
@@ -22,6 +24,7 @@ export function buildTaxonTree(
   }
 
   function sortSiblings(items: StoreTaxonListItemResponse[]): TaxonTreeNode[] {
+    // Sort: Preserve display order defined by backend position field
     return items
       .sort((a, b) => a.position - b.position)
       .map(t => ({
@@ -35,5 +38,6 @@ export function buildTaxonTree(
       }))
   }
 
+  // Build: Start from root nodes (parentId === null)
   return sortSiblings(byParent.get(null) ?? [])
 }

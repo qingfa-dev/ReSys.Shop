@@ -58,6 +58,7 @@ export function usePagedQuery<T>(
   const searchFields = ref<string[]>(options?.defaultSearchFields ?? [])
   const searchMode = ref(options?.defaultSearchMode ?? '')
 
+  // Compute: Total pages for pagination controls — guard against zero pageSize
   const totalPages = computed(() => {
     if (pageSize.value <= 0) return 0
     return Math.ceil(totalCount.value / pageSize.value)
@@ -67,6 +68,7 @@ export function usePagedQuery<T>(
     loading.value = true
     error.value = null
 
+    // Call: Resolve URL (supports dynamic functions) and build query params
     const resolvedUrl = typeof url === 'function' ? url() : url
     const params: QueryingParameters = {
       filter: filter.value || null,
@@ -78,6 +80,7 @@ export function usePagedQuery<T>(
       pageSize: pageSize.value,
     }
 
+    // Call: Shared API layer with field whitelists for security
     const result = await getPaged<T>(resolvedUrl, params, {
       allowedFilterFields: options?.allowedFilterFields,
       allowedSortFields: options?.allowedSortFields,
@@ -85,6 +88,7 @@ export function usePagedQuery<T>(
     })
 
     if (result.isSuccess) {
+      // Assign: Sync state from API response — page/pageSize may differ from request
       items.value = result.items
       totalCount.value = result.totalCount
       page.value = result.page
@@ -102,11 +106,13 @@ export function usePagedQuery<T>(
   }
 
   function setPage(p: number) {
+    // Guard: Clamp page to minimum 1 before fetching
     page.value = Math.max(1, p)
     fetch()
   }
 
   function setPageSize(s: number) {
+    // Guard: Clamp page size to minimum 1 and reset to first page
     pageSize.value = Math.max(1, s)
     page.value = 1
     fetch()
@@ -114,6 +120,7 @@ export function usePagedQuery<T>(
 
   function setFilter(f: string) {
     filter.value = f
+    // Reset: Return to first page when filter changes
     page.value = 1
     fetch()
   }
@@ -145,6 +152,7 @@ export function usePagedQuery<T>(
   }
 
   function reset() {
+    // Reset: Clear all query state to defaults — used when switching views
     filter.value = ''
     sort.value = []
     search.value = ''
@@ -157,6 +165,7 @@ export function usePagedQuery<T>(
     error.value = null
   }
 
+  // Guard: Auto-fetch on creation unless immediate is false
   if (options?.immediate ?? true) {
     fetch()
   }

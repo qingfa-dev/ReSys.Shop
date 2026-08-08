@@ -1,5 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
+// Cache: Reactive media query match — updates on viewport resize
 export function useMediaQuery(query: string) {
   const matches = ref(false)
   let mql: MediaQueryList | null = null

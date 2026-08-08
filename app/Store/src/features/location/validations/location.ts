@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Country shape matches Module.Location storefront DTO contract.
 export const CountrySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -9,6 +10,7 @@ export const CountrySchema = z.object({
   isActive: z.boolean(),
 })
 
+// Validate: State shape includes countryId FK for client-side cascade filtering.
 export const StateSchema = z.object({
   id: z.string(),
   name: z.string(),

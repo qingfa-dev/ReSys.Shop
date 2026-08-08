@@ -3,8 +3,7 @@ import { ENDPOINTS } from '@/shared/constants/api'
 import type { PagedResult } from '@/shared/types/result'
 import type { AvailabilityEntry } from '../types/availability'
 
-// GET api/storefront/availability/{variantId} — per-location stock availability (paged).
-// The optional cartToken query param accounts for the current cart's reserved holds.
+// Call: Fetch per-location stock availability — optional cartToken accounts for reserved holds.
 export function checkAvailability(
   variantId: string,
   cartToken?: string,

@@ -7,7 +7,7 @@
 // Guid fields serialize as strings; DateTimeOffset fields as ISO-8601 strings;
 // ReservationState serializes as a string (e.g. "Reserved").
 
-// GetStockAvailability.Response — GET api/storefront/availability/{variantId} (paged).
+// Contract: GET api/storefront/availability/{variantId} — per-location stock availability.
 export interface AvailabilityEntry {
   stockLocationId: string
   locationName: string
@@ -18,7 +18,7 @@ export interface AvailabilityEntry {
   available: boolean
 }
 
-// ReserveCartStock.Request — POST api/storefront/cart/reserve.
+// Contract: POST api/storefront/cart/reserve — reserve stock request.
 // CartToken is not sent by the client — the backend derives it from the X-Cart-Token header.
 export interface ReserveStockRequest {
   variantId: string
@@ -29,8 +29,8 @@ export interface ReserveStockRequest {
   reason?: string | null
 }
 
-// ReserveCartStock.Response — POST api/storefront/cart/reserve (Result).
-// StockReservationDetailResponse + State always "Reserved".
+// Contract: POST api/storefront/cart/reserve — reservation confirmation response.
+// State is always "Reserved" upon successful creation.
 export interface CartReservation {
   id: string
   variantId: string
@@ -44,8 +44,7 @@ export interface CartReservation {
   modifiedAtUtc: string | null
 }
 
-// GetCartReservations.Response — GET api/storefront/cart/reserve (paged).
-// StockReservationListItemResponse + RemainingSeconds.
+// Contract: GET api/storefront/cart/reserve — active reservation status with TTL countdown.
 export interface CartReservationStatus {
   id: string
   variantId: string

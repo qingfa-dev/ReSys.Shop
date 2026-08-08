@@ -1,5 +1,4 @@
 import pytest
-from embedding.core.config import settings
 from embedding.main import app
 from fastapi.testclient import TestClient
 
@@ -23,9 +22,8 @@ def test_embeddings_real_models(model_name, expected_dim):
         "image_url": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1000",
         "model": model_name
     }
-    headers = {"X-API-Key": settings.API_KEY}
 
-    response = client.post("/embeddings", json=payload, headers=headers)
+    response = client.post("/embeddings", json=payload)
 
     assert response.status_code == 200
     data = response.json()
@@ -43,18 +41,11 @@ def test_embeddings_real_models(model_name, expected_dim):
     l2_norm = sum(x*x for x in val["vector"])
     assert l2_norm == pytest.approx(1.0, rel=1e-3)
 
-def test_embeddings_unauthorized():
-    """Verify that requests without API keys are rejected."""
-    payload = {"image_url": "http://test.com/img.jpg", "model": "efficientnet_b0"}
-    response = client.post("/embeddings", json=payload)
-    assert response.status_code == 403
-
 def test_invalid_model_returns_failure_result():
     """Verify that requesting an invalid model returns a 404."""
     payload = {"image_url": "http://test.com/img.jpg", "model": "invalid_model_name"}
-    headers = {"X-API-Key": settings.API_KEY}
 
-    response = client.post("/embeddings", json=payload, headers=headers)
+    response = client.post("/embeddings", json=payload)
 
     assert response.status_code == 404
     data = response.json()

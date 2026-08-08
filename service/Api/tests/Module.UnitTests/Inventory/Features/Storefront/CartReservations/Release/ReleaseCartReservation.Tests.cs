@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Storefront.CartReservations.Release;
+using Module.Inventory.Features.Storefront.CartReservations.ReleaseSingle;
 
 namespace Module.UnitTests.Inventory.Features.Storefront.CartReservations.Release;
 

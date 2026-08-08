@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
@@ -21,6 +23,7 @@ public static partial class SearchByImage
         : IPagedQueryHandler<Command, Response>
     {
         private const string DefaultModel = VariantImageConstant.Defaults.DefaultEmbeddingModel;
+        private const long MaxFileSize = 10_485_760; // 10 MB
 
         /// <summary>
         /// Performs a visual similarity search by encoding an uploaded image into an embedding vector
@@ -33,13 +36,12 @@ public static partial class SearchByImage
 
             // Validate: Reject empty, oversized, and non-image files
             if (image is null || image.Length == 0)
-                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 1, totalCount: 0);
 
-            const long MaxFileSize = 10_485_760; // 10 MB
             if (image.Length > MaxFileSize)
                 return SearchByImageResult.Errors.FileTooLarge;
 
-            if (!image.ContentType.StartsWith("image/"))
+            if (string.IsNullOrEmpty(image.ContentType) || !image.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
                 return SearchByImageResult.Errors.InvalidContentType;
 
             // Transform: Read image bytes into memory for inference
@@ -58,7 +60,6 @@ public static partial class SearchByImage
 
             var embedding = inferenceResult.Value;
             var queryVector = new Vector(embedding.Vector.ToArray());
-
             var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
 
             // Query: Find nearest neighbors in vector space with similarity scores
@@ -66,7 +67,7 @@ public static partial class SearchByImage
                 queryVector, modelName, topK, cancellationToken);
 
             if (similarResults.Count == 0)
-                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: topK, totalCount: 0);
 
             var similarVariantIds = similarResults.Select(r => r.VariantId).ToList();
 
@@ -78,19 +79,23 @@ public static partial class SearchByImage
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            // Map: Build search result items with variant data and similarity scores
+            // Map: Build search result items with variant data and similarity scores,
+            // preserving the similarity-ranked order from the vector search
+            var variantsById = similarVariants.ToDictionary(v => v.Id);
             var items = similarResults
-                .Join(similarVariants, r => r.VariantId, v => v.Id, (r, v) => (r.Score, Variant: v))
-                .Select(x => MapToItem(x.Variant, x.Score))
+                .Where(r => variantsById.ContainsKey(r.VariantId))
+                .Select(r => MapToItem(variantsById[r.VariantId], r.Score))
                 .ToList();
 
-            return PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count);
+            return PagedResult<Response>.Create(items, page: 1, pageSize: topK, totalCount: items.Count);
         }
     }
 
     private static Response MapToItem(Variant v, double similarityScore = 0)
     {
-        var primaryImage = v.VariantImages.FirstOrDefault();
+        var displayImage = v.VariantImages.FirstOrDefault(i => i.Type == VariantImageType.Default)
+                            ?? v.VariantImages.FirstOrDefault();
+
         return new Response
         {
             VariantId = v.Id,
@@ -98,7 +103,7 @@ public static partial class SearchByImage
             ProductName = v.Product?.Name ?? string.Empty,
             Sku = v.Sku ?? string.Empty,
             Price = v.Price ?? 0,
-            ImageUrl = primaryImage?.Url,
+            ImageUrl = displayImage?.Url,
             SimilarityScore = similarityScore
         };
     }

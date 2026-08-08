@@ -12,6 +12,7 @@ export const useShippingStore = defineStore('shipping', () => {
   const error = ref<string | null>(null)
   const _initialized = ref(false)
 
+  // Fetch: Load available shipping methods once on first access.
   async function fetchMethods(): Promise<void> {
     if (_initialized.value) return
     _initialized.value = true
@@ -26,6 +27,7 @@ export const useShippingStore = defineStore('shipping', () => {
     loading.value = false
   }
 
+  // Fetch: Load rates for a specific order — filter by orderId server-side.
   async function fetchRates(orderId: string): Promise<void> {
     loading.value = true
     error.value = null
@@ -39,6 +41,7 @@ export const useShippingStore = defineStore('shipping', () => {
     loading.value = false
   }
 
+  // Assign: Track the user-selected shipping method for checkout.
   function selectMethod(id: string): void {
     selectedMethodId.value = id
   }

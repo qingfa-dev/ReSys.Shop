@@ -5,7 +5,7 @@
 // - Rates:     ListShippingRates.Response (PagedResult)
 // Decimal fields (cost, finalPrice, weights, thresholds) serialize as JSON numbers.
 
-// GetShippingMethods.Response — GET api/storefront/shipping/methods (paged).
+// Contract: GET api/storefront/shipping/methods — available shipping method.
 export interface ShippingMethod {
   id: string
   name: string
@@ -15,14 +15,14 @@ export interface ShippingMethod {
   position: number
 }
 
-// CalculateShipping.Request — POST api/storefront/shipping/calculate.
-// The backend computes the cost from the order's line-item weights; both ids are required.
+// Contract: POST api/storefront/shipping/calculate — cost computation request.
+// Backend computes cost from order line-item weights; both IDs are required.
 export interface CalculateShippingRequest {
   orderId: string
   shippingMethodId: string
 }
 
-// CalculateShipping.Response — POST api/storefront/shipping/calculate (Result).
+// Contract: POST api/storefront/shipping/calculate — cost computation response.
 export interface ShippingCalculation {
   shippingMethodId: string
   methodName: string
@@ -31,7 +31,7 @@ export interface ShippingCalculation {
   isFreeShipping: boolean
 }
 
-// ListShippingRates.Response — GET api/storefront/shipping/rates (paged).
+// Contract: GET api/storefront/shipping/rates — rate with weight thresholds.
 export interface ShippingRate {
   id: string
   shippingMethodId: string

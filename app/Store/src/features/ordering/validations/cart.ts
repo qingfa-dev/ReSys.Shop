@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// Validate: Cart line item schema — enforces non-negative quantity, price, and total.
 export const CartLineItemSchema = z.object({
   id: z.string(),
   variantId: z.string(),

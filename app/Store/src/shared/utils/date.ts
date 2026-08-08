@@ -1,3 +1,4 @@
+// Format: Default datetime display options — medium date + 24h time
 const DATETIME_OPTIONS: Intl.DateTimeFormatOptions = {
   year: 'numeric',
   month: 'short',
@@ -15,6 +16,7 @@ export function formatDateTimeUtc(
   options: Intl.DateTimeFormatOptions = DATETIME_OPTIONS,
   locale = 'vi-VN',
 ): string {
+  // Guard: Return em-dash for null/undefined/invalid dates
   if (value === null || value === undefined) return '—'
   const date = typeof value === 'string' ? new Date(value) : value
   if (Number.isNaN(date.getTime())) return '—'

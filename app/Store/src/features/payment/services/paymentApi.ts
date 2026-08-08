@@ -9,17 +9,17 @@ import type {
   PaymentMethod,
 } from '../types/payment'
 
-// GET api/storefront/payment/methods returns a paged result of active methods.
+// Call: Storefront payment API - fetch active payment methods (paged)
 export function getPaymentMethods(params: QueryingParameters = {}): Promise<PagedResult<PaymentMethod>> {
   return getPaged<PaymentMethod>(ENDPOINTS.paymentMethods, params)
 }
 
-// POST api/storefront/payment/confirm/{paymentId} — no request body.
+// Call: Storefront payment API - confirm payment by ID (no request body)
 export function confirmPayment(paymentId: string): Promise<Result<ConfirmPaymentResponse>> {
   return post<Result<ConfirmPaymentResponse>>(ENDPOINTS.paymentConfirm(paymentId))
 }
 
-// POST api/storefront/payment/setup-intent — creates a Stripe SetupIntent for saving a payment method.
+// Call: Storefront payment API - create Stripe SetupIntent for saving payment method
 export function createSetupIntent(req: CreateSetupIntentRequest): Promise<Result<PaymentIntent>> {
   return post<Result<PaymentIntent>>(ENDPOINTS.paymentSetupIntent, req)
 }

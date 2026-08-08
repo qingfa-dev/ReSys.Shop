@@ -14,10 +14,12 @@ import { tryParseOperator } from './constants'
 import { FilterErrors, SortErrors, SearchErrors, PageErrors } from './error-codes'
 import type { ApiError } from '../error'
 
+// Guard: Whitelist check — null allowed list means all fields permitted
 function isAllowed(field: string, allowed: string[] | null): boolean {
   return !allowed || allowed.includes(field)
 }
 
+// Parse: Filter DSL string (comma-separated "field op value" conditions)
 export function parseFilterDsl(
   dsl: string | null | undefined,
   allowedFields: string[] | null = null,
@@ -27,6 +29,7 @@ export function parseFilterDsl(
   const errors: ApiError[] = []
   const conditions: FilterCondition[] = []
 
+  // Transform: Split comma-separated segments and extract field/operator/value
   const segments = dsl.split(',').map(s => s.trim()).filter(Boolean)
   for (const segment of segments) {
     const match = segment.match(/^(\w[\w.]*)\s*(!=|>=|<=|==|>|<|\*~|!\*|\^~|!\^|\$~|!\$|\*|\^|\$|=|!)\s*(.+)$/)
@@ -45,6 +48,7 @@ export function parseFilterDsl(
       continue
     }
 
+    // Validate: Field must be in the allowed whitelist
     if (!isAllowed(field, allowedFields!)) {
       errors.push(FilterErrors.disallowedField(field))
       continue

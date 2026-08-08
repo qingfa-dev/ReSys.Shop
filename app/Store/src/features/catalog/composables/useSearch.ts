@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { ProductApi } from '../services/productApi'
 import type { StoreProductListItemResponse } from '../types'
 
+// Cache: Singleton shared across all components — avoids duplicate search state
 let shared: ReturnType<typeof createSearch> | null = null
 
 function createSearch() {
@@ -33,11 +34,14 @@ function createSearch() {
   }
 
   async function search(): Promise<void> {
+    // Guard: Skip search on empty query
     if (!query.value.trim()) { results.value = []; return }
+    // Throttle: Debounce rapid keystrokes — 300ms delay between API calls
     if (debounceTimer) clearTimeout(debounceTimer)
     debounceTimer = setTimeout(async () => {
       loading.value = true
       error.value = null
+      // Call: Catalog API — search products by name or description
       const result = await ProductApi.getProducts({ pageNumber: 1, pageSize: 5, search: query.value.trim() })
       if (result.isSuccess) results.value = result.items
       else error.value = result.message ?? 'Search failed'
@@ -56,6 +60,7 @@ function createSearch() {
 }
 
 export function useSearch() {
+  // Cache: Return existing singleton or create new one
   if (!shared) shared = createSearch()
   return shared
 }

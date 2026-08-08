@@ -4,6 +4,7 @@ import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useCatalogStore } from '../stores/catalogStore'
 import { useProductListStore } from '../stores/productListStore'
 import ProductCard from '../components/ProductCard.vue'
+import TaxonTree from '../components/TaxonTree.vue'
 
 usePageTitle('Shop')
 const catalog = useCatalogStore()
@@ -11,11 +12,11 @@ const productList = useProductListStore()
 const mobileFiltersOpen = ref(false)
 
 const sortOptions = [
-  { label: 'Newest', value: '-createdAtUtc' },
-  { label: 'Price: Low to High', value: 'price' },
-  { label: 'Price: High to Low', value: '-price' },
-  { label: 'Name: A-Z', value: 'name' },
-  { label: 'Name: Z-A', value: '-name' },
+  { label: 'Newest', value: '-CreatedAtUtc' },
+  { label: 'Price: Low to High', value: 'Price' },
+  { label: 'Price: High to Low', value: '-Price' },
+  { label: 'Name: A-Z', value: 'Name' },
+  { label: 'Name: Z-A', value: '-Name' },
 ]
 
 // Derive: paginator first index (0-based) from store page (1-based)
@@ -31,10 +32,6 @@ onMounted(() => {
   catalog.loadOptionTypes()
   productList.init()
 })
-
-function onTaxonClick(id: string): void {
-  catalog.toggleTaxon(id)
-}
 
 function onOptionValueClick(id: string): void {
   catalog.toggleOptionValue(id)
@@ -66,36 +63,16 @@ function onPage(event: { page: number }): void {
             <button class="text-xs text-neutral-500 hover:text-neutral-900" @click="onClearFilters()">Clear All</button>
           </div>
 
-          <!-- Taxonomy Tree -->
+          <!-- Taxonomy Tree — collapsible, searchable, depth-indented -->
           <div v-for="group in catalog.taxonomyGroups" :key="group.taxonomy.id">
             <h3 class="text-xs font-semibold text-neutral-900 uppercase tracking-wide mb-2">{{ group.taxonomy.name }}</h3>
-            <div v-for="taxon in group.tree" :key="taxon.id" class="ml-2">
-              <label class="flex items-center gap-2 py-1 cursor-pointer text-sm text-neutral-700 hover:text-neutral-900">
-                <input
-                  type="checkbox"
-                  :checked="catalog.selectedTaxonIds.includes(taxon.id)"
-                  class="rounded border-neutral-300"
-                  @change="onTaxonClick(taxon.id)"
-                />
-                <span :class="{ 'font-semibold text-neutral-900': catalog.selectedTaxonIds.includes(taxon.id) }">
-                  {{ taxon.name }}
-                </span>
-              </label>
-              <!-- Nested children -->
-              <div v-for="child in taxon.children" :key="child.id" class="ml-4">
-                <label class="flex items-center gap-2 py-1 cursor-pointer text-sm text-neutral-700 hover:text-neutral-900">
-                  <input
-                    type="checkbox"
-                    :checked="catalog.selectedTaxonIds.includes(child.id)"
-                    class="rounded border-neutral-300"
-                    @change="onTaxonClick(child.id)"
-                  />
-                  <span :class="{ 'font-semibold text-neutral-900': catalog.selectedTaxonIds.includes(child.id) }">
-                    {{ child.name }}
-                  </span>
-                </label>
-              </div>
-            </div>
+            <TaxonTree
+              :nodes="group.tree"
+              :selected-ids="catalog.selectedTaxonIds"
+              :show-search="group.tree.length > 4"
+              :max-visible="8"
+              @toggle="catalog.toggleTaxon($event)"
+            />
           </div>
 
           <!-- Price Range -->
@@ -105,7 +82,7 @@ function onPage(event: { page: number }): void {
               <InputText
                 type="number"
                 placeholder="Min"
-                :model-value="catalog.minPrice ?? ''"
+                :model-value="catalog.minPrice != null ? String(catalog.minPrice) : ''"
                 class="w-full text-sm"
                 @update:model-value="(v: any) => catalog.setPriceRange(v ? Number(v) : null, catalog.maxPrice)"
               />
@@ -113,7 +90,7 @@ function onPage(event: { page: number }): void {
               <InputText
                 type="number"
                 placeholder="Max"
-                :model-value="catalog.maxPrice ?? ''"
+                :model-value="catalog.maxPrice != null ? String(catalog.maxPrice) : ''"
                 class="w-full text-sm"
                 @update:model-value="(v: any) => catalog.setPriceRange(catalog.minPrice, v ? Number(v) : null)"
               />
@@ -252,35 +229,16 @@ function onPage(event: { page: number }): void {
               <button class="text-xs text-neutral-500 hover:text-neutral-900" @click="onClearFilters()">Clear All</button>
             </div>
 
-            <!-- Taxonomy Tree -->
+            <!-- Taxonomy Tree — collapsible, searchable, depth-indented -->
             <div v-for="group in catalog.taxonomyGroups" :key="group.taxonomy.id" class="mt-6">
               <h3 class="text-xs font-semibold text-neutral-900 uppercase tracking-wide mb-2">{{ group.taxonomy.name }}</h3>
-              <div v-for="taxon in group.tree" :key="taxon.id" class="ml-2">
-                <label class="flex items-center gap-2 py-1 cursor-pointer text-sm text-neutral-700 hover:text-neutral-900">
-                  <input
-                    type="checkbox"
-                    :checked="catalog.selectedTaxonIds.includes(taxon.id)"
-                    class="rounded border-neutral-300"
-                    @change="onTaxonClick(taxon.id)"
-                  />
-                  <span :class="{ 'font-semibold text-neutral-900': catalog.selectedTaxonIds.includes(taxon.id) }">
-                    {{ taxon.name }}
-                  </span>
-                </label>
-                <div v-for="child in taxon.children" :key="child.id" class="ml-4">
-                  <label class="flex items-center gap-2 py-1 cursor-pointer text-sm text-neutral-700 hover:text-neutral-900">
-                    <input
-                      type="checkbox"
-                      :checked="catalog.selectedTaxonIds.includes(child.id)"
-                      class="rounded border-neutral-300"
-                      @change="onTaxonClick(child.id)"
-                    />
-                    <span :class="{ 'font-semibold text-neutral-900': catalog.selectedTaxonIds.includes(child.id) }">
-                      {{ child.name }}
-                    </span>
-                  </label>
-                </div>
-              </div>
+              <TaxonTree
+                :nodes="group.tree"
+                :selected-ids="catalog.selectedTaxonIds"
+                :show-search="group.tree.length > 4"
+                :max-visible="8"
+                @toggle="catalog.toggleTaxon($event)"
+              />
             </div>
 
             <!-- Price Range -->
@@ -290,7 +248,7 @@ function onPage(event: { page: number }): void {
                 <InputText
                   type="number"
                   placeholder="Min"
-                  :model-value="catalog.minPrice ?? ''"
+                  :model-value="catalog.minPrice != null ? String(catalog.minPrice) : ''"
                   class="w-full text-sm"
                   @update:model-value="(v: any) => catalog.setPriceRange(v ? Number(v) : null, catalog.maxPrice)"
                 />
@@ -298,7 +256,7 @@ function onPage(event: { page: number }): void {
                 <InputText
                   type="number"
                   placeholder="Max"
-                  :model-value="catalog.maxPrice ?? ''"
+                  :model-value="catalog.maxPrice != null ? String(catalog.maxPrice) : ''"
                   class="w-full text-sm"
                   @update:model-value="(v: any) => catalog.setPriceRange(catalog.minPrice, v ? Number(v) : null)"
                 />

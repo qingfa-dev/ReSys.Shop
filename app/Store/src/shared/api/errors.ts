@@ -1,3 +1,4 @@
+// Invariant: statusCode is always set; errors array is never empty
 export class HttpError extends Error {
   constructor(
     public statusCode: number,

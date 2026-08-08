@@ -24,9 +24,6 @@ public static class InferenceClientDependencyInjection
             if (options.TimeoutSeconds > 0)
                 client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
 
-            if (!string.IsNullOrEmpty(options.ApiKey))
-                client.DefaultRequestHeaders.TryAddWithoutValidation("X-API-Key", options.ApiKey);
-
             foreach (var header in options.DefaultHeaders)
             {
                 if (!string.IsNullOrEmpty(header.Value))

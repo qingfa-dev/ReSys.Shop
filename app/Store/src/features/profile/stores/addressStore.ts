@@ -9,7 +9,9 @@ export const useAddressStore = defineStore('addresses', () => {
   const saving = ref(false)
   const error = ref<string | null>(null)
 
+  // Compute: Derive the single default address from the full list
   const defaultAddress = computed(() => addresses.value.find(a => a.isDefault))
+  // Filter: Include only shipping-eligible types (Shipping or Other)
   const shippingAddresses = computed(() =>
     addresses.value.filter(a => a.addressType === 'Shipping' || a.addressType === 'Other')
   )
@@ -31,6 +33,7 @@ export const useAddressStore = defineStore('addresses', () => {
     return result.isSuccess
   }
 
+  // Update: Replace address in-place by matching id
   async function updateAddress(id: string, req: AddressInput): Promise<boolean> {
     saving.value = true
     const result = await AddressApi.updateAddress(id, req)
@@ -44,6 +47,7 @@ export const useAddressStore = defineStore('addresses', () => {
     return result.isSuccess
   }
 
+  // Remove: Filter out deleted address by id
   async function deleteAddress(id: string): Promise<boolean> {
     saving.value = true
     const result = await AddressApi.deleteAddress(id)

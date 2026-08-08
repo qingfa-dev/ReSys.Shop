@@ -9,6 +9,10 @@ export const CART = `${STOREFRONT}/cart`
 export const PAYMENT = `${STOREFRONT}/payment`
 export const SHIPPING = `${STOREFRONT}/shipping`
 export const AVAILABILITY = `${STOREFRONT}/availability`
+// Context: Backend — GET /api/storefront/taxonomies returns paged taxonomy list
+export const TAXONOMIES = `${STOREFRONT}/taxonomies`
+// Context: Backend — GET /api/storefront/taxons/all returns flat paged taxon list
+export const TAXONS_ALL = `${STOREFRONT}/taxons/all`
 
 export const ENDPOINTS = {
   availability: (variantId: string) => `${AVAILABILITY}/${variantId}`,

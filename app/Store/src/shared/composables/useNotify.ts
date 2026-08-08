@@ -1,5 +1,6 @@
 import { useToast } from 'primevue/usetoast'
 
+// Cache: Wrap PrimeVue toast with consistent lifetimes per severity
 export function useNotify() {
   const toast = useToast()
   return {

@@ -320,18 +320,18 @@ watch(() => route.params.slug, (slug) => {
       <div class="mt-12">
         <TabView>
           <TabList>
-            <Tab header="Description" />
-            <Tab header="Specifications" />
-            <Tab header="Care" />
+            <Tab header="Description" value="0" />
+            <Tab header="Specifications" value="1" />
+            <Tab header="Care" value="2" />
           </TabList>
           <TabPanels>
-            <TabPanel>
+            <TabPanel value="0">
               <div class="prose prose-sm max-w-none text-neutral-700">
                 <p v-if="detail.product.description">{{ detail.product.description }}</p>
                 <p v-else class="text-neutral-400 italic">No description available.</p>
               </div>
             </TabPanel>
-            <TabPanel>
+            <TabPanel value="1">
               <div class="space-y-3 text-sm">
                 <div v-if="detail.product.styleCode" class="flex">
                   <span class="w-36 shrink-0 font-medium text-neutral-500">Style Code</span>
@@ -360,7 +360,7 @@ watch(() => route.params.slug, (slug) => {
                 </p>
               </div>
             </TabPanel>
-            <TabPanel>
+            <TabPanel value="2">
               <div class="text-sm text-neutral-700">
                 <p v-if="detail.product.careInstructions">{{ detail.product.careInstructions }}</p>
                 <p v-else class="text-neutral-400 italic">No care instructions available.</p>
