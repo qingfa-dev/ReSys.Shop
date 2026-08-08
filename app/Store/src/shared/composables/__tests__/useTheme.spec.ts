@@ -4,7 +4,7 @@ describe('useTheme', () => {
   beforeEach(() => {
     vi.resetModules()
     localStorage.clear()
-    document.documentElement.classList.remove('dark')
+    document.documentElement.classList.remove('app-dark')
     vi.restoreAllMocks()
   })
 
@@ -29,16 +29,16 @@ describe('useTheme', () => {
     const { useTheme } = await import('@/shared/composables/useTheme')
     const { init } = useTheme()
     init()
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(document.documentElement.classList.contains('app-dark')).toBe(true)
   })
 
   it('removes dark class in light mode', async () => {
-    document.documentElement.classList.add('dark')
+    document.documentElement.classList.add('app-dark')
     localStorage.setItem('resys_theme', 'light')
     const { useTheme } = await import('@/shared/composables/useTheme')
     const { init } = useTheme()
     init()
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    expect(document.documentElement.classList.contains('app-dark')).toBe(false)
   })
 
   it('toggle cycles light -> dark -> light', async () => {
