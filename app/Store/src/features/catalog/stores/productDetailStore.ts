@@ -40,7 +40,7 @@ export const useProductDetailStore = defineStore('productDetail', () => {
     // Call: Catalog API — fetch product detail by slug
     const result = await ProductApi.getProductBySlug(slug)
     if (result.isSuccess) {
-      product.value = result.value as any // ProductDetail
+      product.value = result.value
       // Assign: Default to master variant on initial load
       selectedVariantId.value = product.value?.masterVariant?.id ?? null
       // Call: Fetch similar products in background — non-blocking for faster page load

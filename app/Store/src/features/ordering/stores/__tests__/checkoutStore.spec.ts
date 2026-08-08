@@ -3,9 +3,10 @@ import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
 import { ok, failure } from '@/shared/types/result'
 import { useCheckoutStore } from '../checkoutStore'
-import * as checkoutApi from '../../services/checkoutApi'
+import { CheckoutApi } from '../../services/checkoutApi'
+import type { PaymentIntentResponse, PlaceOrderResponse } from '../../types'
 
-const mockedCheckoutApi = vi.mocked(checkoutApi) as any
+const mockedCheckoutApi = vi.mocked(CheckoutApi)
 
 const mockCartStore = {
   id: 'cart-1',
@@ -44,18 +45,18 @@ describe('checkoutStore', () => {
   describe('orchestration', () => {
     it('runs saveAddress -> selectShippingRate -> createPaymentIntent -> placeOrder', async () => {
       const store = useCheckoutStore()
-      mockedCheckoutApi.CheckoutApi.updateCheckout.mockResolvedValue(ok(undefined))
-      mockedCheckoutApi.CheckoutApi.selectShippingRate.mockResolvedValue(ok(undefined))
-      mockedCheckoutApi.CheckoutApi.createPaymentIntent.mockResolvedValue(
-        ok({ id: 'pi-1', clientSecret: 'cs_secret', responseCode: null }),
+      mockedCheckoutApi.updateCheckout.mockResolvedValue(ok(undefined))
+      mockedCheckoutApi.selectShippingRate.mockResolvedValue(ok(undefined))
+      mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
+        ok({ id: 'pi-1', clientSecret: 'cs_secret' }),
       )
-      mockedCheckoutApi.CheckoutApi.placeOrder.mockResolvedValue(ok({ id: 'order-1' }))
+      mockedCheckoutApi.placeOrder.mockResolvedValue(ok({ id: 'order-1' }))
 
       const addressOk = await store.saveAddress('addr-1', 'u1@example.com')
       expect(addressOk).toBe(true)
       expect(store.shipAddressId).toBe('addr-1')
       expect(store.email).toBe('u1@example.com')
-      expect(mockedCheckoutApi.CheckoutApi.updateCheckout).toHaveBeenCalledWith({
+      expect(mockedCheckoutApi.updateCheckout).toHaveBeenCalledWith({
         shipAddressId: 'addr-1',
         billAddressId: 'addr-1',
         email: 'u1@example.com',
@@ -63,12 +64,12 @@ describe('checkoutStore', () => {
 
       const shippingOk = await store.selectShippingRate('method-1')
       expect(shippingOk).toBe(true)
-      expect(mockedCheckoutApi.CheckoutApi.selectShippingRate).toHaveBeenCalledWith({ shippingMethodId: 'method-1' })
+      expect(mockedCheckoutApi.selectShippingRate).toHaveBeenCalledWith({ shippingMethodId: 'method-1' })
 
       const paymentOk = await store.createPaymentIntent('pm-1')
       expect(paymentOk).toBe(true)
       expect(store.paymentIntentId).toBe('pi-1')
-      expect(mockedCheckoutApi.CheckoutApi.createPaymentIntent).toHaveBeenCalledWith({
+      expect(mockedCheckoutApi.createPaymentIntent).toHaveBeenCalledWith({
         orderId: 'cart-1',
         paymentMethodId: 'pm-1',
       })
@@ -77,12 +78,12 @@ describe('checkoutStore', () => {
       expect(orderOk).toBe(true)
       expect(store.orderId).toBe('order-1')
       expect(store.currentStep).toBe(5)
-      expect(mockedCheckoutApi.CheckoutApi.placeOrder).toHaveBeenCalledWith({ paymentIntentId: 'pi-1' })
+      expect(mockedCheckoutApi.placeOrder).toHaveBeenCalledWith({ paymentIntentId: 'pi-1' })
     })
 
     it('saveAddress sets error and returns false on failure', async () => {
       const store = useCheckoutStore()
-      mockedCheckoutApi.CheckoutApi.updateCheckout.mockResolvedValue(
+      mockedCheckoutApi.updateCheckout.mockResolvedValue(
         failure({ code: 'Checkout.UpdateFailed', message: 'Address invalid', type: 400 }),
       )
 
@@ -94,7 +95,7 @@ describe('checkoutStore', () => {
 
     it('saveAddress sets error, clears loading, and returns false when the request throws', async () => {
       const store = useCheckoutStore()
-      mockedCheckoutApi.CheckoutApi.updateCheckout.mockRejectedValue(new Error('network down'))
+      mockedCheckoutApi.updateCheckout.mockRejectedValue(new Error('network down'))
 
       const okResult = await store.saveAddress('addr-1', 'u1@example.com')
 
@@ -105,7 +106,7 @@ describe('checkoutStore', () => {
 
     it('selectShippingRate sets error and returns false on failure', async () => {
       const store = useCheckoutStore()
-      mockedCheckoutApi.CheckoutApi.selectShippingRate.mockResolvedValue(
+      mockedCheckoutApi.selectShippingRate.mockResolvedValue(
         failure({ code: 'Checkout.ShippingFailed', message: 'No shipping method', type: 400 }),
       )
 
@@ -117,8 +118,8 @@ describe('checkoutStore', () => {
 
     it('createPaymentIntent returns false on failure', async () => {
       const store = useCheckoutStore()
-      mockedCheckoutApi.CheckoutApi.createPaymentIntent.mockResolvedValue(
-        failure({ code: 'Payment.IntentFailed', message: 'Stripe error', type: 400 }),
+      mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
+        failure<PaymentIntentResponse>({ code: 'Payment.IntentFailed', message: 'Stripe error', type: 400 }),
       )
 
       const result = await store.createPaymentIntent('pm-1')
@@ -129,7 +130,7 @@ describe('checkoutStore', () => {
 
     it('createPaymentIntent prefers responseCode over id', async () => {
       const store = useCheckoutStore()
-      mockedCheckoutApi.CheckoutApi.createPaymentIntent.mockResolvedValue(
+      mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
         ok({ id: 'pi-1', clientSecret: 'cs_secret', responseCode: 'pi-rc-1' }),
       )
 
@@ -141,8 +142,8 @@ describe('checkoutStore', () => {
     it('placeOrder sets error and returns false on failure', async () => {
       const store = useCheckoutStore()
       store.paymentIntentId = 'pi-1'
-      mockedCheckoutApi.CheckoutApi.placeOrder.mockResolvedValue(
-        failure({ code: 'Order.PlaceFailed', message: 'Could not place order', type: 400 }),
+      mockedCheckoutApi.placeOrder.mockResolvedValue(
+        failure<PlaceOrderResponse>({ code: 'Order.PlaceFailed', message: 'Could not place order', type: 400 }),
       )
 
       const okResult = await store.placeOrder()
@@ -155,7 +156,7 @@ describe('checkoutStore', () => {
     it('placeOrder sets error, clears loading, and returns false when the request throws', async () => {
       const store = useCheckoutStore()
       store.paymentIntentId = 'pi-1'
-      mockedCheckoutApi.CheckoutApi.placeOrder.mockRejectedValue(new Error('network down'))
+      mockedCheckoutApi.placeOrder.mockRejectedValue(new Error('network down'))
 
       const okResult = await store.placeOrder()
 
@@ -171,7 +172,7 @@ describe('checkoutStore', () => {
       const okResult = await store.placeOrder()
 
       expect(okResult).toBe(false)
-      expect(mockedCheckoutApi.CheckoutApi.placeOrder).not.toHaveBeenCalled()
+      expect(mockedCheckoutApi.placeOrder).not.toHaveBeenCalled()
     })
   })
 })

@@ -1,3 +1,5 @@
+import type { StoreTaxonListItemResponse } from './taxon'
+
 export interface StoreVariantStockInfo {
   availableQuantity: number
   backorderable: boolean
@@ -57,7 +59,7 @@ export interface StoreProductListItemResponse {
   variantsCount: number
   availableOn: string | null
   masterVariant: StoreProductVariantResponse | null
-  classifications: any[]
+  classifications: StoreTaxonListItemResponse[]
 }
 
 export interface StoreProductDetailResponse extends StoreProductListItemResponse {

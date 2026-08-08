@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { TaxonApi } from '../services/taxonApi'
 import { OptionTypeApi } from '../services/optionTypeApi'
 import { emit } from '@/shared/composables/useStoreEvents'
-import type { TaxonomyGroup, StoreOptionTypeListItem, StoreOptionValueListItemResponse } from '../types'
+import type { TaxonomyGroup, StoreOptionTypeListItem, StoreOptionValueListItemResponse, StoreTaxonListItemResponse, TaxonTreeNode } from '../types'
 
 export const useCatalogStore = defineStore('catalog', () => {
   const searchQuery = ref('')
@@ -127,7 +127,7 @@ export const useCatalogStore = defineStore('catalog', () => {
 })
 
 // Map: Convert flat taxon list into nested tree structure grouped by taxonomy
-function buildTree(items: any[], taxonomyId: string, parentId: string | null = null): any[] {
+function buildTree(items: StoreTaxonListItemResponse[], taxonomyId: string, parentId: string | null = null): TaxonTreeNode[] {
   return items
     .filter(i => i.taxonomyId === taxonomyId && i.parentId === parentId)
     .map(i => ({
