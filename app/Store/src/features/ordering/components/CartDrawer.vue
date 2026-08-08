@@ -5,10 +5,12 @@ import { useCartStore } from '../stores/cartStore'
 const visible = defineModel<boolean>('visible', { default: false })
 const cart = useCartStore()
 
+// Fetch: Reload cart contents each time the drawer opens.
 watch(visible, (open) => {
   if (open) cart.fetchCart()
 })
 
+// Update: Guard against decrementing below quantity 1.
 function updateQty(lineItemId: string, qty: number): void {
   if (qty < 1) return
   cart.updateQuantity(lineItemId, qty)
@@ -18,13 +20,16 @@ function updateQty(lineItemId: string, qty: number): void {
   <Teleport to="body">
     <Transition name="slide">
       <div v-if="visible" class="fixed inset-0 z-50 flex justify-end">
+        <!-- Section: Backdrop — dismiss drawer on click -->
         <div class="absolute inset-0 bg-black/50" @click="visible = false" />
         <div class="relative w-full max-w-md bg-white shadow-xl flex flex-col">
+          <!-- Section: Drawer Header — cart item count and close button -->
           <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-200">
             <h2 class="text-lg font-semibold text-neutral-900">Cart ({{ cart.itemCount }})</h2>
             <Button icon="pi pi-times" text rounded @click="visible = false" />
           </div>
 
+          <!-- Section: Drawer Body — loading skeleton, empty state, or item list -->
           <div class="flex-1 overflow-y-auto px-6 py-4">
             <div v-if="cart.loading" class="space-y-4">
               <Skeleton v-for="i in 3" :key="i" height="5rem" />
@@ -34,6 +39,7 @@ function updateQty(lineItemId: string, qty: number): void {
               <p class="text-neutral-500 mb-4">Your cart is empty</p>
               <Button label="Continue Shopping" as="router-link" to="/shop" @click="visible = false" />
             </div>
+            <!-- Section: Cart Items — line items with quantity controls -->
             <ul v-else class="divide-y divide-neutral-100">
               <li v-for="item in cart.items" :key="item.id" class="flex gap-4 py-4">
                 <img
@@ -59,6 +65,7 @@ function updateQty(lineItemId: string, qty: number): void {
             </ul>
           </div>
 
+          <!-- Section: Drawer Footer — subtotal summary and checkout CTA -->
           <div v-if="!cart.isEmpty" class="border-t border-neutral-200 px-6 py-4 space-y-3">
             <div class="flex justify-between text-sm">
               <span class="text-neutral-500">Subtotal</span>
@@ -85,5 +92,11 @@ function updateQty(lineItemId: string, qty: number): void {
 .slide-enter-from,
 .slide-leave-to {
   transform: translateX(100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: none;
+  }
 }
 </style>
