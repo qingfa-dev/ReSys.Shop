@@ -11,24 +11,24 @@ const mockCartStore = {
   id: 'cart-1',
   items: [],
   isEmpty: false,
-  fetchCart: vi.fn(),
+  fetchCart: vi.fn<() => Promise<void>>(),
 }
 
 vi.mock('@/features/ordering/stores/cartStore', () => ({
-  useCartStore: vi.fn(() => mockCartStore),
+  useCartStore: vi.fn<() => typeof mockCartStore>(() => mockCartStore),
 }))
 
 vi.mock('vue-router', () => ({
-  useRouter: vi.fn(() => ({ push: vi.fn() })),
+  useRouter: vi.fn<() => { push: () => void }>(() => ({ push: vi.fn<() => void>() })),
 }))
 
 vi.mock('@/features/ordering/services/checkoutApi', () => ({
   CheckoutApi: {
-    updateCheckout: vi.fn(),
-    selectShippingRate: vi.fn(),
-    validateCheckout: vi.fn(),
-    createPaymentIntent: vi.fn(),
-    placeOrder: vi.fn(),
+    updateCheckout: vi.fn<() => Promise<void>>(),
+    selectShippingRate: vi.fn<() => Promise<void>>(),
+    validateCheckout: vi.fn<() => Promise<void>>(),
+    createPaymentIntent: vi.fn<() => Promise<void>>(),
+    placeOrder: vi.fn<() => Promise<void>>(),
   },
 }))
 

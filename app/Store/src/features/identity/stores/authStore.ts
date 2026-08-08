@@ -1,15 +1,9 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { AuthApi, EmailApi } from "../services";
-import {
-  getAccessToken,
-  setTokens,
-  clearTokens,
-  hasValidAccessToken,
-  getRefreshToken,
-} from "../services/tokenService";
+import { getAccessToken, setTokens, clearTokens } from "../services/tokenService";
 import { emit } from "@/shared/composables/useStoreEvents";
-import type { AuthUser, LoginRequest, RegisterRequest } from "../types";
+import type { AuthUser, RegisterRequest } from "../types";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<AuthUser | null>(null);

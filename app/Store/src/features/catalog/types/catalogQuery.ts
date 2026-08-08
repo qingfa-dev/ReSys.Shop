@@ -1,5 +1,3 @@
-import type { QueryingParameters } from '@/shared/types/querying'
-
 export interface CatalogFilterParams {
   searchQuery?: string
   taxonIds?: string[]

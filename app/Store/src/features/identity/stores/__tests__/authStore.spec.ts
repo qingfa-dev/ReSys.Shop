@@ -8,29 +8,29 @@ import type { TokenPair, SessionUser } from '../../types/auth'
 
 vi.mock('../../services/authApi', () => ({
   AuthApi: {
-    login: vi.fn(),
-    getSession: vi.fn(),
-    logout: vi.fn(),
-    getLoginProviders: vi.fn(),
-    register: vi.fn(),
-    forgotPassword: vi.fn(),
-    resetPassword: vi.fn(),
-    changePassword: vi.fn(),
+    login: vi.fn<() => Promise<void>>(),
+    getSession: vi.fn<() => Promise<void>>(),
+    logout: vi.fn<() => Promise<void>>(),
+    getLoginProviders: vi.fn<() => Promise<void>>(),
+    register: vi.fn<() => Promise<void>>(),
+    forgotPassword: vi.fn<() => Promise<void>>(),
+    resetPassword: vi.fn<() => Promise<void>>(),
+    changePassword: vi.fn<() => Promise<void>>(),
   },
 }))
 
 vi.mock('../../services/tokenService', () => ({
-  getAccessToken: vi.fn(),
-  getRefreshToken: vi.fn(),
-  setTokens: vi.fn(),
-  clearTokens: vi.fn(),
-  hasValidAccessToken: vi.fn(),
+  getAccessToken: vi.fn<() => string | null>(),
+  getRefreshToken: vi.fn<() => string | null>(),
+  setTokens: vi.fn<() => void>(),
+  clearTokens: vi.fn<() => void>(),
+  hasValidAccessToken: vi.fn<() => boolean>(),
 }))
 
 vi.mock('@/shared/composables/useStoreEvents', () => ({
-  emit: vi.fn(),
-  on: vi.fn(),
-  off: vi.fn(),
+  emit: vi.fn<() => void>(),
+  on: vi.fn<() => void>(),
+  off: vi.fn<() => void>(),
 }))
 
 const mockedAuthApi = vi.mocked(AuthApi)

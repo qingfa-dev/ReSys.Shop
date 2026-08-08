@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { OrderApi } from '../services/orderApi'
 import { on } from '@/shared/composables/useStoreEvents'
-import type { OrderListItem, OrderDetail, OrderTrackingResponse, OrderStatus } from '../types'
+import type { OrderListItem, OrderDetail, OrderStatus } from '../types'
 
 // Store: Order list pagination and detail view state.
 export const useOrderStore = defineStore('orders', () => {

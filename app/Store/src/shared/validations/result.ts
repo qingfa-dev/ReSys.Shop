@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import type { ApiError } from '@/shared/types/error'
 
 /** Validates API error shape: code, message, type, optional field-level error. */
 export const ApiErrorSchema = z.object({

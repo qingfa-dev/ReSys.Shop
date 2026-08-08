@@ -12,19 +12,19 @@ const mockedReservationApi = vi.mocked(cartReservationApi) as any
 
 vi.mock('@/features/ordering/services/cartApi', () => ({
   CartApi: {
-    getCart: vi.fn(),
-    addItem: vi.fn(),
-    updateItem: vi.fn(),
-    removeItem: vi.fn(),
-    emptyCart: vi.fn(),
-    associateCart: vi.fn(),
+    getCart: vi.fn<() => Promise<void>>(),
+    addItem: vi.fn<() => Promise<void>>(),
+    updateItem: vi.fn<() => Promise<void>>(),
+    removeItem: vi.fn<() => Promise<void>>(),
+    emptyCart: vi.fn<() => Promise<void>>(),
+    associateCart: vi.fn<() => Promise<void>>(),
   },
 }))
 
 vi.mock('@/features/inventory/services/cartReservationApi', () => ({
-  reserveStock: vi.fn(),
-  releaseReservation: vi.fn(),
-  getCartReservations: vi.fn(),
+  reserveStock: vi.fn<() => Promise<void>>(),
+  releaseReservation: vi.fn<() => Promise<void>>(),
+  getCartReservations: vi.fn<() => Promise<void>>(),
 }))
 
 const baseItem: CartLineItem = {

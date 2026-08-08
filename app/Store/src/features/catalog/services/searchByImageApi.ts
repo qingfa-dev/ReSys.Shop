@@ -1,9 +1,6 @@
-import { z } from 'zod'
 import { get, post } from '@/shared/api/client'
-import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
-import { SearchByImageResponseSchema, VisualSearchModelSchema } from '../validations/searchByImage'
-import { PagedResultSchema } from '@/shared/validations/result'
+import { VisualSearchModelSchema } from '../validations/searchByImage'
 import type { PagedResult, Result } from '@/shared/types'
 import type { SearchByImageResponse, VisualSearchModel } from '../types'
 

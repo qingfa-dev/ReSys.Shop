@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { get, post } from '@/shared/api/client'
+import { get } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import { PRODUCT_SORT_FIELDS, PRODUCT_SEARCH_FIELDS, PRODUCT_FILTER_FIELDS } from '@/shared/constants/product'

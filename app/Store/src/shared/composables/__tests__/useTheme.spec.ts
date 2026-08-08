@@ -64,7 +64,7 @@ describe('useTheme', () => {
   })
 
   it('init defaults to system preference when no stored value', async () => {
-    const matchMediaSpy = vi.fn().mockReturnValue({ matches: true })
+    const matchMediaSpy = vi.fn<() => { matches: boolean }>().mockReturnValue({ matches: true })
     vi.stubGlobal('matchMedia', matchMediaSpy)
     const { useTheme } = await import('@/shared/composables/useTheme')
     const { isDark, init } = useTheme()
