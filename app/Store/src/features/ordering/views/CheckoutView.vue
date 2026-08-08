@@ -1,0 +1,426 @@
+<script setup lang="ts">
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { usePageTitle } from '@/shared/composables/usePageTitle'
+import { formatCurrency } from '@/shared/utils/currency'
+import { useAuthStore } from '@/features/identity/stores/authStore'
+import { useLocationStore } from '@/features/location/stores/locationStore'
+import { usePayment } from '@/features/payment/composables/usePayment'
+import { getPaymentMethods } from '@/features/payment/services/paymentApi'
+import { useAddressStore } from '@/features/profile/stores/addressStore'
+import type { AddressInput } from '@/features/profile/types'
+import { useShippingStore } from '@/features/shipping/stores/shippingStore'
+import { useCartStore } from '../stores/cartStore'
+import { useCheckoutStore } from '../stores/checkoutStore'
+
+usePageTitle('Checkout')
+
+// Step: Numeric union matching the checkout store's five wizard panels.
+type CheckoutStep = 1 | 2 | 3 | 4 | 5
+
+const router = useRouter()
+const checkout = useCheckoutStore()
+const cart = useCartStore()
+const addresses = useAddressStore()
+const shipping = useShippingStore()
+const location = useLocationStore()
+const auth = useAuthStore()
+const payment = usePayment()
+
+// Stripe: Load the SDK so Elements can mount the hosted card form later.
+payment.init()
+
+// Card: The Stripe Elements card form mounts into this container on the payment panel.
+const cardContainer = ref<HTMLElement | null>(null)
+const paymentMethodId = ref<string | null>(null)
+
+// Address: Form state for the shipping panel; email pre-filled from the session.
+const selectedAddressId = ref<string | null>(null)
+const firstName = ref('')
+const lastName = ref('')
+const address1 = ref('')
+const city = ref('')
+const zipCode = ref('')
+const phone = ref('')
+const email = ref(auth.user?.email ?? '')
+const showAddressError = ref(false)
+
+// Label: Human-readable options for the saved-address selector.
+const addressOptions = computed(() =>
+  addresses.shippingAddresses.map((addr) => ({
+    id: addr.id,
+    label: addr.label ?? `${addr.firstName} ${addr.lastName ?? ''} - ${addr.address1}, ${addr.city}`.trim(),
+  })),
+)
+
+// Cascade: Country → state option tree built from the location store's full catalogs.
+const cascadeValue = ref<string[]>([])
+const cascadeOptions = computed(() =>
+  location.countries.map((country) => {
+    const states = location.states.filter((state) => state.countryId === country.id)
+    return {
+      id: country.id,
+      name: country.name,
+      ...(states.length > 0 ? { children: states } : {}),
+    }
+  }),
+)
+
+// Sync: Mirror the cascade selection into the location store for required-state checks.
+watch(cascadeValue, (value) => {
+  location.selectedCountryId = value[0] ?? null
+  location.selectedStateId = value[1] ?? null
+})
+
+// Required: State is mandatory only when the selected country mandates it and has states.
+const stateRequired = computed(() => {
+  const country = location.countries.find((c) => c.id === cascadeValue.value[0])
+  if (!country?.statesRequired) return false
+  return location.states.some((state) => state.countryId === country.id)
+})
+
+// Valid: Core shipping fields (and state where required) must be filled before saving.
+const addressValid = computed(() =>
+  firstName.value.trim() !== '' &&
+  address1.value.trim() !== '' &&
+  city.value.trim() !== '' &&
+  email.value.trim() !== '' &&
+  cascadeValue.value[0] !== undefined &&
+  (!stateRequired.value || cascadeValue.value[1] !== undefined),
+)
+
+// Prefill: Populate the form from a saved address, matching cascade nodes by name.
+function selectSavedAddress(id: string | null): void {
+  if (!id) return
+  const addr = addresses.addresses.find((a) => a.id === id)
+  if (!addr) return
+  firstName.value = addr.firstName
+  lastName.value = addr.lastName ?? ''
+  address1.value = addr.address1
+  city.value = addr.city
+  zipCode.value = addr.zipCode ?? ''
+  phone.value = addr.phone ?? ''
+  const country = location.countries.find((c) => c.name === addr.countryName)
+  const state = addr.stateProvince ? location.states.find((s) => s.name === addr.stateProvince) : undefined
+  cascadeValue.value = country ? (state ? [country.id, state.id] : [country.id]) : []
+  showAddressError.value = false
+}
+
+// Action: Persist the chosen or newly entered address, then advance to delivery.
+async function continueToDelivery(): Promise<void> {
+  if (selectedAddressId.value) {
+    await checkout.saveAddress(selectedAddressId.value, email.value)
+    return
+  }
+  if (!addressValid.value) {
+    showAddressError.value = true
+    return
+  }
+  const country = location.countries.find((c) => c.id === cascadeValue.value[0])
+  const state = location.states.find((s) => s.id === cascadeValue.value[1])
+  const input: AddressInput = {
+    addressType: 'Shipping',
+    firstName: firstName.value,
+    lastName: lastName.value || undefined,
+    address1: address1.value,
+    city: city.value,
+    zipCode: zipCode.value || undefined,
+    phone: phone.value || undefined,
+    isDefault: false,
+    countryName: country?.name ?? '',
+    countryCode: country?.isoCode ?? undefined,
+    stateProvince: state?.name ?? undefined,
+    stateCode: state?.abbreviation ?? undefined,
+  }
+  const created = await addresses.createAddress(input)
+  if (created) {
+    const saved = addresses.addresses[addresses.addresses.length - 1]
+    if (saved) await checkout.saveAddress(saved.id, email.value)
+  }
+}
+
+// Delivery: Local radio selection; persisted through the checkout store on continue.
+const selectedShippingId = ref<string | null>(null)
+
+// Cost: Resolve a method's customer-facing price from the fetched rates.
+function methodCost(methodId: string): number | null {
+  const rate = shipping.rates.find((r) => r.shippingMethodId === methodId)
+  return rate ? (rate.finalPrice ?? rate.cost) : null
+}
+
+// Rate: Customer-facing price for the checkout-selected method.
+const shippingCost = computed(() =>
+  checkout.shippingMethodId ? methodCost(checkout.shippingMethodId) : null,
+)
+
+// Action: Persist the chosen shipping method, then advance to the payment panel.
+async function continueToPayment(): Promise<void> {
+  if (!selectedShippingId.value) return
+  shipping.selectMethod(selectedShippingId.value)
+  await checkout.selectShippingRate(selectedShippingId.value)
+}
+
+// Resolve: Pick the active gateway method (e.g. Credit Card) for the payment intent.
+async function resolvePaymentMethod(): Promise<void> {
+  if (paymentMethodId.value) return
+  const result = await getPaymentMethods({ pageSize: 50 })
+  const method = result.isSuccess ? (result.items.find((m) => m.active) ?? result.items[0]) : undefined
+  paymentMethodId.value = method?.id ?? null
+}
+
+// Mount: Attach the Stripe Elements card form to the payment panel container.
+async function mountCard(): Promise<void> {
+  await nextTick()
+  if (!checkout.paymentClientSecret || !cardContainer.value) return
+  payment.unmount()
+  await payment.mount(checkout.paymentClientSecret, cardContainer.value)
+}
+
+// Watch: Prepare the payment intent and card form on entry to the payment panel.
+watch(
+  () => checkout.currentStep,
+  async (step) => {
+    if (step !== 3) {
+      payment.unmount()
+      return
+    }
+    await resolvePaymentMethod()
+    // Guard: Create the intent lazily; the store advances to review on success, so hold here.
+    if (!checkout.paymentClientSecret && paymentMethodId.value) {
+      await checkout.createPaymentIntent(paymentMethodId.value)
+      checkout.currentStep = 3
+    }
+    await mountCard()
+  },
+  { immediate: true },
+)
+
+// Total: Subtotal plus the selected shipping rate; tax is not modelled yet.
+const total = computed(() => cart.subtotal + (shippingCost.value ?? 0))
+
+// Action: Submit the order through the checkout store and land on confirmation.
+async function onPlaceOrder(): Promise<void> {
+  await checkout.placeOrder()
+}
+
+// Navigate: Allow stepping back through completed panels; forward flow is action-driven.
+function goToStep(value: number): void {
+  if (value >= 1 && value <= checkout.currentStep) {
+    checkout.currentStep = value as CheckoutStep
+  }
+}
+
+// Navigate: Advance to the review panel once a payment intent is ready.
+function advanceToReview(): void {
+  if (checkout.paymentClientSecret) checkout.currentStep = 4
+}
+
+onMounted(async () => {
+  // Load: Refresh reference data and the cart on page entry.
+  void addresses.fetchAddresses()
+  void location.loadAll()
+  void shipping.fetchMethods()
+  await cart.fetchCart()
+  if (cart.id) void shipping.fetchRates(cart.id)
+  // Guard: Bounce empty carts back to the cart page unless an order was just confirmed.
+  if (cart.isEmpty && checkout.currentStep !== 5) {
+    await router.push('/cart')
+  }
+})
+
+onUnmounted(() => {
+  // Dispose: Detach the Stripe card element when leaving the view.
+  payment.unmount()
+})
+</script>
+
+<template>
+  <!-- Section: Page Header — title for the checkout wizard -->
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <h1 class="mb-8 text-2xl font-bold">Checkout</h1>
+
+    <!-- Section: Wizard — five-panel stepper driven by the checkout store -->
+    <Stepper :value="checkout.currentStep" @update:value="goToStep($event)">
+      <StepList>
+        <Step :value="1">Shipping</Step>
+        <Step :value="2">Delivery</Step>
+        <Step :value="3">Payment</Step>
+        <Step :value="4">Review</Step>
+        <Step :value="5">Confirmation</Step>
+      </StepList>
+      <StepPanels>
+        <!-- Panel: Shipping — saved-address picker or a new address form -->
+        <StepPanel :value="1">
+          <div class="max-w-xl space-y-5">
+            <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
+            <Message v-if="addresses.error" severity="error" :closable="false">{{ addresses.error }}</Message>
+            <div class="grid gap-4">
+              <div>
+                <Label for="saved-address" class="mb-1 block text-sm font-medium">Saved Address</Label>
+                <Select
+                  id="saved-address"
+                  v-model="selectedAddressId"
+                  :options="addressOptions"
+                  optionLabel="label"
+                  optionValue="id"
+                  placeholder="Choose a saved address"
+                  class="w-full"
+                  @update:model-value="selectSavedAddress($event)"
+                />
+              </div>
+              <Divider />
+              <FloatLabel variant="on">
+                <InputText id="checkout-first-name" v-model="firstName" class="w-full" />
+                <Label for="checkout-first-name">First Name</Label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputText id="checkout-last-name" v-model="lastName" class="w-full" />
+                <Label for="checkout-last-name">Last Name</Label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputText id="checkout-address1" v-model="address1" class="w-full" />
+                <Label for="checkout-address1">Street Address</Label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputText id="checkout-city" v-model="city" class="w-full" />
+                <Label for="checkout-city">City</Label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputText id="checkout-zip" v-model="zipCode" class="w-full" />
+                <Label for="checkout-zip">ZIP / Postal Code</Label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputMask id="checkout-phone" v-model="phone" mask="(999) 999-9999" class="w-full" />
+                <Label for="checkout-phone">Phone</Label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputText id="checkout-email" v-model="email" type="email" class="w-full" />
+                <Label for="checkout-email">Email</Label>
+              </FloatLabel>
+              <div>
+                <Label for="checkout-country" class="mb-1 block text-sm font-medium">Country / State</Label>
+                <CascadeSelect
+                  id="checkout-country"
+                  v-model="cascadeValue"
+                  :options="cascadeOptions"
+                  optionLabel="name"
+                  optionValue="id"
+                  optionGroupLabel="name"
+                  optionGroupChildren="children"
+                  placeholder="Country / State"
+                  class="w-full"
+                />
+              </div>
+            </div>
+            <Message v-if="showAddressError" severity="warn" :closable="false">
+              Complete the required address fields to continue.
+            </Message>
+            <ButtonGroup>
+              <Button as="router-link" to="/cart" label="Back to Cart" icon="pi pi-arrow-left" variant="text" />
+              <Button label="Continue to Delivery" icon="pi pi-arrow-right" iconPos="right" :loading="checkout.loading" @click="continueToDelivery" />
+            </ButtonGroup>
+          </div>
+        </StepPanel>
+
+        <!-- Panel: Delivery — shipping method selection from the shipping store -->
+        <StepPanel :value="2">
+          <div class="max-w-xl space-y-5">
+            <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
+            <Message v-if="shipping.error" severity="error" :closable="false">{{ shipping.error }}</Message>
+            <RadioButtonGroup v-model="selectedShippingId" class="flex flex-col gap-3">
+              <div v-for="method in shipping.methods" :key="method.id" class="flex items-center gap-3">
+                <RadioButton :input-id="`method-${method.id}`" :value="method.id" />
+                <Label :for="`method-${method.id}`" class="flex w-full cursor-pointer items-center justify-between">
+                  <span>{{ method.name }}</span>
+                  <span v-if="methodCost(method.id) !== null" class="font-mono text-sm">{{ formatCurrency(methodCost(method.id)!) }}</span>
+                  <span v-else class="text-sm text-surface-500">Calculated at checkout</span>
+                </Label>
+              </div>
+            </RadioButtonGroup>
+            <Message v-if="shipping.methods.length === 0 && !shipping.loading" severity="info" :closable="false">
+              Shipping methods are loading.
+            </Message>
+            <ButtonGroup>
+              <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(1)" />
+              <Button label="Continue to Payment" icon="pi pi-arrow-right" iconPos="right" :loading="checkout.loading" :disabled="!selectedShippingId" @click="continueToPayment" />
+            </ButtonGroup>
+          </div>
+        </StepPanel>
+
+        <!-- Panel: Payment — Stripe Elements card form bound to the payment intent -->
+        <StepPanel :value="3">
+          <div class="max-w-xl space-y-5">
+            <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
+            <Message v-if="payment.error" severity="error" :closable="false">{{ payment.error }}</Message>
+            <Message v-if="!paymentMethodId && !checkout.loading" severity="warn" :closable="false">
+              No active payment method is available.
+            </Message>
+            <!-- Card: Stripe Elements mounts the hosted card form into this container -->
+            <div ref="cardContainer" class="rounded-lg border border-surface-300 p-4 dark:border-surface-700" />
+            <p class="text-sm text-surface-500">
+              Card details are processed securely by Stripe. Payment is confirmed when you place the order.
+            </p>
+            <ButtonGroup>
+              <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(2)" />
+              <Button label="Continue to Review" icon="pi pi-arrow-right" iconPos="right" :disabled="!checkout.paymentClientSecret" @click="advanceToReview" />
+            </ButtonGroup>
+          </div>
+        </StepPanel>
+
+        <!-- Panel: Review — line-item table, totals and order placement -->
+        <StepPanel :value="4">
+          <div class="max-w-xl space-y-5">
+            <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
+            <DataTable :value="cart.items" size="small">
+              <Column header="Product">
+                <template #body="{ data }">{{ data.productName ?? data.variantName }}</template>
+              </Column>
+              <Column field="sku" header="SKU" />
+              <Column field="quantity" header="Qty" />
+              <Column header="Price">
+                <template #body="{ data }">{{ formatCurrency(data.price) }}</template>
+              </Column>
+              <Column header="Total">
+                <template #body="{ data }">{{ formatCurrency(data.total) }}</template>
+              </Column>
+            </DataTable>
+            <div class="flex max-w-md flex-col gap-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-surface-600 dark:text-surface-400">Subtotal</span>
+                <span>{{ formatCurrency(cart.subtotal) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-surface-600 dark:text-surface-400">Shipping</span>
+                <span>{{ shippingCost === null ? 'Calculated at checkout' : formatCurrency(shippingCost) }}</span>
+              </div>
+              <Divider />
+              <div class="flex justify-between font-semibold">
+                <span>Total</span>
+                <span>{{ formatCurrency(total) }}</span>
+              </div>
+            </div>
+            <ButtonGroup>
+              <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(3)" />
+              <Button label="Place Order" icon="pi pi-check" :loading="checkout.loading" @click="onPlaceOrder" />
+            </ButtonGroup>
+          </div>
+        </StepPanel>
+
+        <!-- Panel: Confirmation — success message with order number and account link -->
+        <StepPanel :value="5">
+          <div class="max-w-xl space-y-5 py-8 text-center">
+            <i class="pi pi-check-circle block text-5xl text-green-500" />
+            <Message severity="success" :closable="false">
+              <div class="flex flex-col items-center gap-1">
+                <span class="font-semibold">Order confirmed!</span>
+                <span v-if="checkout.orderId" class="text-sm">Order number: {{ checkout.orderId }}</span>
+              </div>
+            </Message>
+            <p class="text-sm text-surface-500">A confirmation email has been sent to {{ checkout.email || email }}.</p>
+            <Button as="router-link" to="/account/orders" label="View My Orders" icon="pi pi-receipt" />
+          </div>
+        </StepPanel>
+      </StepPanels>
+    </Stepper>
+  </div>
+</template>
