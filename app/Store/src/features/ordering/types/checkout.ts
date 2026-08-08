@@ -1,8 +1,8 @@
 export interface UpdateCheckoutRequest {
-  shipAddressId: string
-  billAddressId: string
-  currency: string
-  email: string
+  shipAddressId?: string
+  billAddressId?: string
+  currency?: string
+  email?: string
 }
 
 export interface SelectShippingRateRequest {
@@ -15,16 +15,9 @@ export interface CreatePaymentIntentRequest {
   returnUrl?: string
 }
 
-export interface PaymentIntentResponse {
-  id: string
-  clientSecret: string
-  responseCode: string | null
-}
-
 export interface PlaceOrderRequest {
-  paymentIntentId: string
+  paymentIntentId?: string
 }
 
-export interface PlaceOrderResponse {
-  id: string
-}
+export interface PlaceOrderResponse { id: string }
+export interface PaymentIntentResponse { id: string; clientSecret: string; responseCode?: string }

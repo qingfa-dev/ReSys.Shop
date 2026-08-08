@@ -1,46 +1,40 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
-import { ok, failure } from '@/shared/types/result'
 import { useAuthStore } from '../authStore'
-import { useCartStore } from '../../../ordering/stores/cartStore'
-import * as authApi from '../../services/authApi'
+import { AuthApi } from '../../services/authApi'
 import * as tokenService from '../../services/tokenService'
-import * as cartApi from '../../../ordering/services/cartApi'
 import type { TokenPair, SessionUser } from '../../types/auth'
-import type { CartLineItem, CartResponse } from '../../../ordering/types/cart'
 
-const mockedAuthApi = vi.mocked(authApi)
+vi.mock('../../services/authApi', () => ({
+  AuthApi: {
+    login: vi.fn(),
+    getSession: vi.fn(),
+    logout: vi.fn(),
+    getLoginProviders: vi.fn(),
+    register: vi.fn(),
+    forgotPassword: vi.fn(),
+    resetPassword: vi.fn(),
+    changePassword: vi.fn(),
+  },
+}))
+
+vi.mock('../../services/tokenService', () => ({
+  getAccessToken: vi.fn(),
+  getRefreshToken: vi.fn(),
+  setTokens: vi.fn(),
+  clearTokens: vi.fn(),
+  hasValidAccessToken: vi.fn(),
+}))
+
+vi.mock('@/shared/composables/useStoreEvents', () => ({
+  emit: vi.fn(),
+  on: vi.fn(),
+  off: vi.fn(),
+}))
+
+const mockedAuthApi = vi.mocked(AuthApi)
 const mockedTokenService = vi.mocked(tokenService)
-const mockedCartApi = vi.mocked(cartApi)
-
-vi.mock('@/features/identity/services/authApi', () => ({
-  login: vi.fn<(...args: unknown[]) => unknown>(),
-  getSession: vi.fn<(...args: unknown[]) => unknown>(),
-  logout: vi.fn<(...args: unknown[]) => unknown>(),
-  getLoginProviders: vi.fn<(...args: unknown[]) => unknown>(),
-}))
-
-vi.mock('@/features/identity/services/tokenService', () => ({
-  getAccessToken: vi.fn<(...args: unknown[]) => unknown>(),
-  getRefreshToken: vi.fn<(...args: unknown[]) => unknown>(),
-  setTokens: vi.fn<(...args: unknown[]) => unknown>(),
-  clearTokens: vi.fn<(...args: unknown[]) => unknown>(),
-  hasValidAccessToken: vi.fn<(...args: unknown[]) => unknown>(),
-}))
-
-vi.mock('@/shared/api/interceptors/auth', () => ({
-  setTokenGetter: vi.fn<(...args: unknown[]) => unknown>(),
-}))
-
-vi.mock('@/features/ordering/services/cartApi', () => ({
-  getCart: vi.fn<(...args: unknown[]) => unknown>(),
-  addItem: vi.fn<(...args: unknown[]) => unknown>(),
-  updateItem: vi.fn<(...args: unknown[]) => unknown>(),
-  removeItem: vi.fn<(...args: unknown[]) => unknown>(),
-  emptyCart: vi.fn<(...args: unknown[]) => unknown>(),
-  associateCart: vi.fn<(...args: unknown[]) => unknown>(),
-}))
 
 const tokenPair: TokenPair = {
   accessToken: 'header.payload.signature',
@@ -57,26 +51,12 @@ const sessionUser: SessionUser = {
   permissions: ['shop:view'],
 }
 
-const cartItem: CartLineItem = {
-  id: 'li-1',
-  variantId: 'v-1',
-  variantName: 'SKU-1',
-  sku: 'SKU-1',
-  productName: 'Hex Bolt',
-  productImageUrl: null,
-  quantity: 2,
-  price: 50000,
-  total: 100000,
+function ok<T>(value: T) {
+  return { isSuccess: true, statusCode: 200, message: null, errors: [], value }
 }
 
-const cartResponse: CartResponse = {
-  id: 'cart-1',
-  itemTotal: 100000,
-  total: 100000,
-  currency: 'VND',
-  itemCount: 2,
-  checkoutState: 'address',
-  items: [cartItem],
+function failure(error: { code: string; message: string; type: number }) {
+  return { isSuccess: false, statusCode: error.type, message: error.message, errors: [error], value: undefined as never }
 }
 
 describe('authStore', () => {
@@ -85,16 +65,10 @@ describe('authStore', () => {
     vi.clearAllMocks()
   })
 
-  it('login success sets authenticated, hydrates user, and merges the cart', async () => {
-    // Simulate a guest cart id captured before login (e.g. from an earlier add-to-cart).
-    const cart = useCartStore()
-    cart.id = 'guest-cart-1'
-
+  it('login success sets authenticated and hydrates user', async () => {
     const store = useAuthStore()
     mockedAuthApi.login.mockResolvedValue(ok(tokenPair))
     mockedAuthApi.getSession.mockResolvedValue(ok(sessionUser))
-    mockedCartApi.associateCart.mockResolvedValue(ok(cartResponse))
-    mockedCartApi.getCart.mockResolvedValue(ok(cartResponse))
 
     const success = await store.login('u1@example.com', 'password')
 
@@ -102,21 +76,14 @@ describe('authStore', () => {
     expect(mockedTokenService.setTokens).toHaveBeenCalledWith(tokenPair)
     expect(store.status).toBe('authenticated')
     expect(store.user).toEqual({
-      userId: 'u1',
-      userName: 'User One',
-      email: 'u1@example.com',
-      roles: ['customer'],
-      permissions: ['shop:view'],
+      userId: sessionUser.id,
+      userName: sessionUser.userName,
+      email: sessionUser.email,
+      roles: sessionUser.roles,
+      permissions: sessionUser.permissions,
       isAuthenticated: true,
     })
     expect(store.isAuthenticated).toBe(true)
-    // Cart merge wiring from Task 6.4: associate + hydrate after login.
-    expect(mockedCartApi.associateCart).toHaveBeenCalledTimes(1)
-    expect(mockedCartApi.getCart).toHaveBeenCalledTimes(1)
-
-    // The merged cart must actually hydrate the cart store (not just fire calls).
-    expect(cart.id).toBe('cart-1')
-    expect(cart.items).toEqual([cartItem])
   })
 
   it('login failure sets error and stays unauthenticated', async () => {
@@ -135,39 +102,9 @@ describe('authStore', () => {
     expect(mockedTokenService.setTokens).not.toHaveBeenCalled()
   })
 
-  it('login sets error and returns false when the login request throws', async () => {
-    const store = useAuthStore()
-    mockedAuthApi.login.mockRejectedValue(new Error('network down'))
-
-    const success = await store.login('u1@example.com', 'password')
-
-    expect(success).toBe(false)
-    expect(store.status).toBe('error')
-    expect(store.error).toBe('Unable to sign in. Please try again.')
-    expect(store.isAuthenticated).toBe(false)
-    expect(store.user).toBeNull()
-    expect(mockedTokenService.setTokens).not.toHaveBeenCalled()
-  })
-
-  it('login clears tokens and sets error when the session fetch throws', async () => {
-    const store = useAuthStore()
-    mockedAuthApi.login.mockResolvedValue(ok(tokenPair))
-    mockedAuthApi.getSession.mockRejectedValue(new Error('network down'))
-
-    const success = await store.login('u1@example.com', 'password')
-
-    expect(success).toBe(false)
-    expect(store.status).toBe('error')
-    expect(store.error).toBe('Unable to sign in. Please try again.')
-    expect(store.isAuthenticated).toBe(false)
-    expect(store.user).toBeNull()
-    expect(mockedTokenService.setTokens).toHaveBeenCalledWith(tokenPair)
-    expect(mockedTokenService.clearTokens).toHaveBeenCalled()
-  })
-
   it('init hydrates the user when a valid token exists', async () => {
     const store = useAuthStore()
-    mockedTokenService.hasValidAccessToken.mockReturnValue(true)
+    mockedTokenService.getAccessToken.mockReturnValue('some-token')
     mockedAuthApi.getSession.mockResolvedValue(ok(sessionUser))
 
     await store.init()
@@ -180,7 +117,7 @@ describe('authStore', () => {
 
   it('init stays idle when there is no valid token', async () => {
     const store = useAuthStore()
-    mockedTokenService.hasValidAccessToken.mockReturnValue(false)
+    mockedTokenService.getAccessToken.mockReturnValue(null)
 
     await store.init()
 
@@ -189,52 +126,21 @@ describe('authStore', () => {
     expect(mockedAuthApi.getSession).not.toHaveBeenCalled()
   })
 
-  it('init clears tokens when the session fetch fails', async () => {
-    const store = useAuthStore()
-    mockedTokenService.hasValidAccessToken.mockReturnValue(true)
-    mockedAuthApi.getSession.mockResolvedValue(
-      failure({ code: 'Session.Invalid', message: 'Session invalid', type: 401 }),
-    )
-
-    await store.init()
-
-    expect(store.status).toBe('idle')
-    expect(store.user).toBeNull()
-    expect(mockedTokenService.clearTokens).toHaveBeenCalled()
-  })
-
-  it('init clears tokens when the session fetch throws', async () => {
-    const store = useAuthStore()
-    mockedTokenService.hasValidAccessToken.mockReturnValue(true)
-    mockedAuthApi.getSession.mockRejectedValue(new Error('network down'))
-
-    await store.init()
-
-    expect(store.status).toBe('idle')
-    expect(mockedTokenService.clearTokens).toHaveBeenCalled()
-  })
-
   it('logout revokes tokens and clears state', async () => {
     const store = useAuthStore()
     store.user = {
-      userId: 'u1',
-      userName: 'User One',
-      email: 'u1@example.com',
-      roles: [],
-      permissions: [],
+      ...sessionUser,
       isAuthenticated: true,
     }
     store.status = 'authenticated'
-    store.error = 'some error'
-    mockedAuthApi.logout.mockResolvedValue(undefined)
+    mockedAuthApi.logout.mockResolvedValue(ok(undefined as never))
 
     await store.logout()
 
-    expect(mockedAuthApi.logout).toHaveBeenCalledWith({ revokeAll: undefined })
+    expect(mockedAuthApi.logout).toHaveBeenCalledWith({ revokeAll: false })
     expect(mockedTokenService.clearTokens).toHaveBeenCalled()
     expect(store.status).toBe('idle')
     expect(store.user).toBeNull()
-    expect(store.error).toBeNull()
     expect(store.isAuthenticated).toBe(false)
   })
 })

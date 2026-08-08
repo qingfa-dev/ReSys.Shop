@@ -1,13 +1,14 @@
 import { z } from 'zod'
+import type { ApiError } from '@/shared/types/error'
 
 export const ApiErrorSchema = z.object({
   code: z.string(),
   message: z.string(),
   type: z.number(),
-  metadata: z.record(z.unknown()).nullable().optional(),
+  field: z.string().optional(),
 })
 
-export function ResultSchema<T extends z.ZodTypeAny>(valueSchema: T) {
+export function ResultSchema<T extends z.ZodType>(valueSchema: T) {
   return z.object({
     isSuccess: z.boolean(),
     statusCode: z.number(),
@@ -17,7 +18,7 @@ export function ResultSchema<T extends z.ZodTypeAny>(valueSchema: T) {
   })
 }
 
-export function PagedResultSchema<T extends z.ZodTypeAny>(itemSchema: T) {
+export function PagedResultSchema<T extends z.ZodType>(itemSchema: T) {
   return z.object({
     isSuccess: z.boolean(),
     statusCode: z.number(),

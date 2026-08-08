@@ -1,28 +1,35 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { AuthUser } from '../types/auth'
-import * as authApi from '../services/authApi'
-import * as emailApi from '../services/emailApi'
-import * as tokenService from '../services/tokenService'
-import { setTokenGetter } from '@/shared/api/interceptors/auth'
-import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import { AuthApi, EmailApi } from "../services";
+import {
+  getAccessToken,
+  setTokens,
+  clearTokens,
+  hasValidAccessToken,
+  getRefreshToken,
+} from "../services/tokenService";
+import { emit } from "@/shared/composables/useStoreEvents";
+import type { AuthUser, LoginRequest, RegisterRequest } from "../types";
 
-export const useAuthStore = defineStore('auth', () => {
-  const user = ref<AuthUser | null>(null)
-  const status = ref<'idle' | 'loading' | 'authenticated' | 'error'>('idle')
-  const error = ref<string | null>(null)
+export const useAuthStore = defineStore("auth", () => {
+  const user = ref<AuthUser | null>(null);
+  const status = ref<"idle" | "loading" | "authenticated" | "error">("idle");
+  const error = ref<string | null>(null);
+  const _initialized = ref(false);
 
-  const isAuthenticated = computed(() => status.value === 'authenticated' && user.value !== null)
+  const isAuthenticated = computed(() => status.value === "authenticated" && user.value !== null);
 
-  // Init: Validate token and hydrate session (called once by router guard)
   async function init(): Promise<void> {
-    if (!tokenService.hasValidAccessToken()) {
-      status.value = 'idle'
-      return
+    if (_initialized.value) return;
+    _initialized.value = true;
+    if (!getAccessToken()) {
+      status.value = "idle";
+      return;
     }
+    status.value = "loading";
     try {
-      const result = await authApi.getSession()
-      if (result.isSuccess) {
+      const result = await AuthApi.getSession();
+      if (result.isSuccess && result.value) {
         user.value = {
           userId: result.value.id,
           userName: result.value.userName,
@@ -30,130 +37,111 @@ export const useAuthStore = defineStore('auth', () => {
           roles: result.value.roles,
           permissions: result.value.permissions,
           isAuthenticated: true,
-        }
-        status.value = 'authenticated'
+        };
+        status.value = "authenticated";
+        emit({ type: "auth:login", userId: result.value.id });
       } else {
-        tokenService.clearTokens()
-        status.value = 'idle'
+        clearTokens();
+        status.value = "error";
       }
     } catch {
-      tokenService.clearTokens()
-      status.value = 'idle'
+      clearTokens();
+      status.value = "error";
     }
+    emit({ type: "auth:init-done", userId: user.value?.userId ?? "" });
   }
 
-  // Login: Authenticate with password
   async function login(credential: string, password: string): Promise<boolean> {
-    status.value = 'loading'
-    error.value = null
-    try {
-      const result = await authApi.login({ credential, password })
-      if (result.isSuccess) {
-        tokenService.setTokens(result.value)
-        setTokenGetter(tokenService.getAccessToken)
-        const sessionResult = await authApi.getSession()
-        if (sessionResult.isSuccess) {
-          user.value = {
-            userId: sessionResult.value.id,
-            userName: sessionResult.value.userName,
-            email: sessionResult.value.email,
-            roles: sessionResult.value.roles,
-            permissions: sessionResult.value.permissions,
-            isAuthenticated: true,
-          }
-          status.value = 'authenticated'
-          // Cart merge: Associate the guest cart with the authenticated user and
-          // hydrate the merged cart. Best-effort — a cart-merge failure must not
-          // block the authenticated session.
-          try {
-            const cart = useCartStore()
-            await cart.associate()
-            await cart.fetchCart()
-          } catch {
-            /* fire-and-forget: cart merge is non-critical to auth */
-          }
-          return true
-        }
-        tokenService.clearTokens()
-        status.value = 'error'
-        error.value = sessionResult.message ?? sessionResult.errors[0]?.message ?? 'Failed to load session'
-        return false
-      }
-      status.value = 'error'
-      error.value = result.message ?? result.errors[0]?.message ?? 'Login failed'
-      return false
-    } catch {
-      // The axios client rejects on network failures / non-Result 5xx. Never
-      // leave the UI stranded in 'loading': clear any persisted tokens, surface
-      // the error, and resolve false so the caller can stop spinning.
-      tokenService.clearTokens()
-      status.value = 'error'
-      error.value = 'Unable to sign in. Please try again.'
-      return false
-    }
-  }
-
-  // Login: Redirect to Google OAuth
-  async function loginWithGoogle(): Promise<void> {
-    const result = await authApi.getLoginProviders()
+    status.value = "loading";
+    error.value = null;
+    const result = await AuthApi.login({ credential, password });
     if (result.isSuccess) {
-      const provider = result.value.find(p => p.name.toLowerCase() === 'google')
-      if (provider) {
-        window.location.href = provider.url
+      setTokens(result.value);
+      const session = await AuthApi.getSession();
+      if (session.isSuccess && session.value) {
+        user.value = {
+          userId: session.value.id,
+          userName: session.value.userName,
+          email: session.value.email,
+          roles: session.value.roles,
+          permissions: session.value.permissions,
+          isAuthenticated: true,
+        };
+        status.value = "authenticated";
+        emit({ type: "auth:login", userId: session.value.id });
+        return true;
       }
     }
+    error.value = result.message ?? "Login failed";
+    status.value = "error";
+    return false;
   }
 
-  // Logout: Revoke tokens and clear state
-  async function logout(revokeAll?: boolean): Promise<void> {
-    try { await authApi.logout({ revokeAll }) } catch { /* fire-and-forget */ }
-    tokenService.clearTokens()
-    user.value = null
-    status.value = 'idle'
-    error.value = null
+  async function loginWithGoogle(): Promise<void> {
+    const result = await AuthApi.getLoginProviders();
+    if (result.isSuccess) {
+      const google = result.value.find((p) => p.name.toLowerCase().includes("google"));
+      if (google) window.location.href = google.url;
+    }
   }
 
-  // Email: Request email change
+  async function register(req: RegisterRequest): Promise<boolean> {
+    status.value = "loading";
+    error.value = null;
+    const result = await AuthApi.register(req);
+    if (result.isSuccess) {
+      status.value = "idle";
+      return true;
+    }
+    error.value = result.message ?? "Registration failed";
+    status.value = "error";
+    return false;
+  }
+
+  async function logout(revokeAll = false): Promise<void> {
+    try {
+      await AuthApi.logout({ revokeAll });
+    } catch {}
+    clearTokens();
+    user.value = null;
+    status.value = "idle";
+    emit({ type: "auth:logout" });
+  }
+
+  async function changePassword(current: string, newPwd: string): Promise<boolean> {
+    return (await AuthApi.changePassword(current, newPwd)).isSuccess;
+  }
+  async function forgotPassword(email: string): Promise<boolean> {
+    return (await AuthApi.forgotPassword(email)).isSuccess;
+  }
+  async function resetPassword(token: string, newPwd: string): Promise<boolean> {
+    return (await AuthApi.resetPassword(token, newPwd)).isSuccess;
+  }
   async function changeEmail(newEmail: string): Promise<boolean> {
-    error.value = null
-    try {
-      const result = await emailApi.changeEmail(newEmail)
-      if (result.isSuccess) return true
-      error.value = result.message ?? 'Failed to request email change'
-      return false
-    } catch {
-      error.value = 'Failed to request email change'
-      return false
-    }
+    return (await EmailApi.changeEmail(newEmail)).isSuccess;
   }
-
-  // Email: Confirm email with token
   async function confirmEmail(token: string): Promise<boolean> {
-    error.value = null
-    try {
-      const result = await emailApi.confirmEmail(token)
-      if (result.isSuccess) return true
-      error.value = result.message ?? 'Failed to confirm email'
-      return false
-    } catch {
-      error.value = 'Failed to confirm email'
-      return false
-    }
+    return (await EmailApi.confirmEmail(token)).isSuccess;
   }
-
-  // Email: Resend verification email
   async function resendVerification(): Promise<boolean> {
-    error.value = null
-    try {
-      const result = await emailApi.resendVerification()
-      if (result.isSuccess) return true
-      error.value = result.message ?? 'Failed to resend verification'
-      return false
-    } catch {
-      error.value = 'Failed to resend verification'
-      return false
-    }
+    return (await EmailApi.resendVerification()).isSuccess;
   }
 
-  return { user, status, error, isAuthenticated, init, login, loginWithGoogle, logout, changeEmail, confirmEmail, resendVerification }
-})
+  return {
+    user,
+    status,
+    error,
+    isAuthenticated,
+    init,
+    login,
+    loginWithGoogle,
+    register,
+    logout,
+    changePassword,
+    forgotPassword,
+    resetPassword,
+    changeEmail,
+    confirmEmail,
+    resendVerification,
+  };
+});

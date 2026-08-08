@@ -1,38 +1,33 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
-import { authInterceptor } from './interceptors/auth'
-import { camelCaseInterceptor } from './interceptors/camelcase'
-import { errorInterceptor } from './interceptors/error'
+import { STORAGE_KEYS } from '@/shared/constants/storage'
 
-const BASE_URL = typeof import.meta !== 'undefined'
-  ? import.meta.env?.VITE_API_URL ?? ''
-  : ''
-const TIMEOUT = 30_000
+let apiClient: AxiosInstance | null = null
 
-let _instance: AxiosInstance | null = null
-
-export function createApiClient(): AxiosInstance {
-  if (_instance) return _instance
-
-  _instance = axios.create({
-    baseURL: BASE_URL,
-    timeout: TIMEOUT,
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
+export function createApiClient(baseURL?: string): AxiosInstance {
+  apiClient = axios.create({
+    baseURL: baseURL ?? '',
+    headers: { 'Content-Type': 'application/json' },
   })
 
-  _instance.interceptors.request.use(authInterceptor)
-  _instance.interceptors.response.use(camelCaseInterceptor, errorInterceptor)
+  apiClient.interceptors.request.use((config) => {
+    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  })
 
-  return _instance
+  return apiClient
 }
 
 export function getApiClient(): AxiosInstance {
-  return _instance ?? createApiClient()
+  if (!apiClient) {
+    apiClient = createApiClient()
+  }
+  return apiClient
 }
 
 export function resetApiClient(): void {
-  _instance = null
+  apiClient = null
 }

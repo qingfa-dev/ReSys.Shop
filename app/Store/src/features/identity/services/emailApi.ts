@@ -1,15 +1,17 @@
-import { post } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result } from '@/shared/types/result'
+import { post } from '@/shared/api/client'
+import { IDENTITY } from '@/shared/constants/api'
+import type { Result } from '@/shared/types'
 
-export function changeEmail(newEmail: string): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.emailsChange, { newEmail })
-}
+export class EmailApi {
+  static async changeEmail(newEmail: string): Promise<Result<void>> {
+    return await post(`${IDENTITY}/emails/change`, { newEmail })
+  }
 
-export function confirmEmail(token: string): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.emailsConfirm, { token })
-}
+  static async confirmEmail(token: string): Promise<Result<void>> {
+    return await post(`${IDENTITY}/emails/confirm`, { token })
+  }
 
-export function resendVerification(): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.emailsResend)
+  static async resendVerification(): Promise<Result<void>> {
+    return await post(`${IDENTITY}/emails/resend`, {})
+  }
 }

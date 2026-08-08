@@ -1,117 +1,100 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import * as checkoutApi from '../services/checkoutApi'
-import * as paymentApi from '@/features/payment/services/paymentApi'
+import { ref, computed } from 'vue'
+import { CheckoutApi } from '../services/checkoutApi'
 import { useCartStore } from './cartStore'
+import { useRouter } from 'vue-router'
+import { emit } from '@/shared/composables/useStoreEvents'
 
-export type CheckoutStep = 1 | 2 | 3 | 4 | 5
+type Step = 1 | 2 | 3 | 4 | 5
 
 export const useCheckoutStore = defineStore('checkout', () => {
-  const currentStep = ref<CheckoutStep>(1)
+  const currentStep = ref<Step>(1)
   const shipAddressId = ref<string | null>(null)
+  const shippingMethodId = ref<string | null>(null)
+  const paymentMethodId = ref<string | null>(null)
   const paymentIntentId = ref<string | null>(null)
+  const paymentClientSecret = ref<string | null>(null)
   const orderId = ref<string | null>(null)
+  const email = ref('')
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const email = ref('')
 
-  const steps = [
-    { label: 'Address', stepNumber: 1 },
-    { label: 'Delivery', stepNumber: 2 },
-    { label: 'Payment', stepNumber: 3 },
-    { label: 'Confirm', stepNumber: 4 },
-    { label: 'Complete', stepNumber: 5 },
-  ]
+  const steps = computed(() => [
+    { label: 'Address', number: 1, complete: currentStep.value > 1, current: currentStep.value === 1 },
+    { label: 'Delivery', number: 2, complete: currentStep.value > 2, current: currentStep.value === 2 },
+    { label: 'Payment', number: 3, complete: currentStep.value > 3, current: currentStep.value === 3 },
+    { label: 'Confirm', number: 4, complete: currentStep.value > 4, current: currentStep.value === 4 },
+    { label: 'Complete', number: 5, complete: currentStep.value === 5, current: currentStep.value === 5 },
+  ])
 
-  async function goToStep(step: CheckoutStep): Promise<void> {
-    const advancing = step > currentStep.value
-    // The all-or-nothing /cart/validate gate requires every checkout
-    // prerequisite at once, but data is collected incrementally across steps
-    // 1-3. Only run it as a final safety net when advancing to the review
-    // (Confirm) and completion steps; never gate data-collection transitions
-    // (1->2->3) or backward navigation on it.
-    if (advancing && step >= 4) {
-      loading.value = true
-      error.value = null
-      try {
-        const validateResult = await checkoutApi.validateCheckout()
-        if (!validateResult.isSuccess) {
-          error.value = validateResult.message ?? 'Please complete the current step first.'
-          return
-        }
-        currentStep.value = step
-      } catch {
-        // The error interceptor throws HttpError on network failures / non-Result 5xx.
-        error.value = 'Please complete the current step first.'
-      } finally {
-        loading.value = false
-      }
-      return
-    }
-    currentStep.value = step
+  function init(): void {
+    const cart = useCartStore()
+    const router = useRouter()
+    if (cart.isEmpty) { router.push('/cart'); return }
+    cart.fetchCart()
   }
 
   async function saveAddress(addressId: string, userEmail: string): Promise<boolean> {
-    shipAddressId.value = addressId
-    email.value = userEmail
     loading.value = true
     error.value = null
     try {
-      const result = await checkoutApi.updateCheckout({
-        shipAddressId: addressId,
-        billAddressId: addressId,
-        currency: 'VND',
-        email: userEmail,
-      })
-      if (result.isSuccess) return true
-      error.value = result.message ?? 'Failed to save address'
-      return false
+      const result = await CheckoutApi.updateCheckout({ shipAddressId: addressId, billAddressId: addressId, email: userEmail })
+      if (result.isSuccess) {
+        shipAddressId.value = addressId
+        email.value = userEmail
+        currentStep.value = 2
+      } else {
+        error.value = result.message
+      }
+      loading.value = false
+      return result.isSuccess
     } catch {
       error.value = 'Failed to save address'
-      return false
-    } finally {
       loading.value = false
+      return false
     }
   }
 
-  async function calculateShipping(methodId: string): Promise<boolean> {
+  async function selectShippingRate(methodId: string): Promise<boolean> {
     loading.value = true
     error.value = null
     try {
-      const result = await checkoutApi.selectShippingRate({ shippingMethodId: methodId })
-      if (result.isSuccess) return true
-      error.value = result.message ?? 'Failed to calculate shipping'
-      return false
-    } catch {
-      error.value = 'Failed to calculate shipping'
-      return false
-    } finally {
+      const result = await CheckoutApi.selectShippingRate({ shippingMethodId: methodId })
+      if (result.isSuccess) {
+        shippingMethodId.value = methodId
+        currentStep.value = 3
+      } else {
+        error.value = result.message
+      }
       loading.value = false
+      return result.isSuccess
+    } catch {
+      error.value = 'Failed to select shipping'
+      loading.value = false
+      return false
     }
   }
 
-  async function createPaymentIntent(methodId: string, _amount: number): Promise<string | null> {
-    const cart = useCartStore()
-    if (!cart.id) {
-      error.value = 'Cart is not loaded.'
-      return null
-    }
+  async function createPaymentIntent(methodId: string): Promise<boolean> {
+    loading.value = true
     error.value = null
     try {
-      const result = await checkoutApi.createPaymentIntent({
-        orderId: cart.id,
-        paymentMethodId: methodId,
-        returnUrl: window.location.origin + '/checkout',
-      })
+      const cart = useCartStore()
+      const result = await CheckoutApi.createPaymentIntent({ orderId: cart.id!, paymentMethodId: methodId })
       if (result.isSuccess) {
         paymentIntentId.value = result.value.responseCode ?? result.value.id
-        return result.value.clientSecret
+        paymentClientSecret.value = result.value.clientSecret
+        paymentMethodId.value = methodId
+        currentStep.value = 4
+      } else {
+        error.value = result.message
       }
-      error.value = result.message ?? 'Failed to create payment intent'
-      return null
+      loading.value = false
+      return result.isSuccess
     } catch {
       error.value = 'Failed to create payment intent'
-      return null
+      loading.value = false
+      return false
     }
   }
 
@@ -120,38 +103,37 @@ export const useCheckoutStore = defineStore('checkout', () => {
     loading.value = true
     error.value = null
     try {
-      const result = await checkoutApi.placeOrder({ paymentIntentId: paymentIntentId.value })
+      const result = await CheckoutApi.placeOrder({ paymentIntentId: paymentIntentId.value })
       if (result.isSuccess) {
         orderId.value = result.value.id
         currentStep.value = 5
-        return true
+        emit({ type: 'checkout:placed', orderId: result.value.id })
+      } else {
+        error.value = result.message
       }
-      error.value = result.message ?? 'Failed to place order'
-      return false
+      loading.value = false
+      return result.isSuccess
     } catch {
       error.value = 'Failed to place order'
-      return false
-    } finally {
       loading.value = false
-    }
-  }
-
-  async function confirmPayment(paymentId: string): Promise<void> {
-    error.value = null
-    try {
-      await paymentApi.confirmPayment(paymentId)
-    } catch {
-      error.value = 'Failed to confirm payment'
+      return false
     }
   }
 
   function reset(): void {
     currentStep.value = 1
     shipAddressId.value = null
+    shippingMethodId.value = null
+    paymentMethodId.value = null
     paymentIntentId.value = null
+    paymentClientSecret.value = null
     orderId.value = null
     error.value = null
   }
 
-  return { currentStep, shipAddressId, paymentIntentId, orderId, loading, error, email, steps, goToStep, saveAddress, calculateShipping, createPaymentIntent, placeOrder, confirmPayment, reset }
+  return {
+    currentStep, shipAddressId, shippingMethodId, paymentMethodId, paymentIntentId,
+    paymentClientSecret, orderId, email, loading, error, steps,
+    init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, reset,
+  }
 })

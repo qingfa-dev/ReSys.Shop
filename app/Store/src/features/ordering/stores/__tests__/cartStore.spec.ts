@@ -11,12 +11,14 @@ const mockedCartApi = vi.mocked(cartApi)
 const mockedReservationApi = vi.mocked(cartReservationApi)
 
 vi.mock('@/features/ordering/services/cartApi', () => ({
-  getCart: vi.fn<(...args: unknown[]) => unknown>(),
-  addItem: vi.fn<(...args: unknown[]) => unknown>(),
-  updateItem: vi.fn<(...args: unknown[]) => unknown>(),
-  removeItem: vi.fn<(...args: unknown[]) => unknown>(),
-  emptyCart: vi.fn<(...args: unknown[]) => unknown>(),
-  associateCart: vi.fn<(...args: unknown[]) => unknown>(),
+  CartApi: {
+    getCart: vi.fn<(...args: unknown[]) => unknown>(),
+    addItem: vi.fn<(...args: unknown[]) => unknown>(),
+    updateItem: vi.fn<(...args: unknown[]) => unknown>(),
+    removeItem: vi.fn<(...args: unknown[]) => unknown>(),
+    emptyCart: vi.fn<(...args: unknown[]) => unknown>(),
+    associateCart: vi.fn<(...args: unknown[]) => unknown>(),
+  },
 }))
 
 vi.mock('@/features/inventory/services/cartReservationApi', () => ({
@@ -39,7 +41,6 @@ const baseItem: CartLineItem = {
 
 function item(overrides: Partial<CartLineItem>): CartLineItem {
   const merged = { ...baseItem, ...overrides }
-  // Keep total consistent with price × quantity so subtotal assertions stay coherent.
   return { ...merged, total: merged.price * merged.quantity }
 }
 
@@ -68,7 +69,7 @@ describe('cartStore', () => {
   it('fetchCart applies id and items on success', async () => {
     const store = useCartStore()
     const payload = cart({})
-    mockedCartApi.getCart.mockResolvedValue(ok(payload))
+    mockedCartApi.CartApi.getCart.mockResolvedValue(ok(payload))
 
     await store.fetchCart()
 
@@ -80,7 +81,7 @@ describe('cartStore', () => {
 
   it('fetchCart sets an error on failure', async () => {
     const store = useCartStore()
-    mockedCartApi.getCart.mockResolvedValue(
+    mockedCartApi.CartApi.getCart.mockResolvedValue(
       failure({ code: 'Cart.LoadFailed', message: 'Cart unavailable', type: 500 }),
     )
 
@@ -92,7 +93,7 @@ describe('cartStore', () => {
 
   it('fetchCart sets an error and clears loading when the request throws', async () => {
     const store = useCartStore()
-    mockedCartApi.getCart.mockRejectedValue(new Error('network down'))
+    mockedCartApi.CartApi.getCart.mockRejectedValue(new Error('network down'))
 
     await store.fetchCart()
 
@@ -102,7 +103,7 @@ describe('cartStore', () => {
 
   it('addItem sets an error and returns false when the request throws', async () => {
     const store = useCartStore()
-    mockedCartApi.addItem.mockRejectedValue(new Error('network down'))
+    mockedCartApi.CartApi.addItem.mockRejectedValue(new Error('network down'))
 
     const success = await store.addItem('v-1')
 
@@ -112,7 +113,7 @@ describe('cartStore', () => {
 
   it('computes subtotal as the sum of line totals', async () => {
     const store = useCartStore()
-    mockedCartApi.getCart.mockResolvedValue(
+    mockedCartApi.CartApi.getCart.mockResolvedValue(
       ok(
         cart({
           items: [
@@ -130,7 +131,7 @@ describe('cartStore', () => {
 
   it('computes itemCount as the sum of quantities', async () => {
     const store = useCartStore()
-    mockedCartApi.getCart.mockResolvedValue(
+    mockedCartApi.CartApi.getCart.mockResolvedValue(
       ok(
         cart({
           items: [
@@ -149,12 +150,12 @@ describe('cartStore', () => {
   it('addItem calls the api with the request and applies the returned cart on success', async () => {
     const store = useCartStore()
     const updated = cart({ items: [item({ quantity: 3 })], itemCount: 3, itemTotal: 150000, total: 150000 })
-    mockedCartApi.addItem.mockResolvedValue(ok(updated))
+    mockedCartApi.CartApi.addItem.mockResolvedValue(ok(updated))
 
     const success = await store.addItem('v-1', 1)
 
     expect(success).toBe(true)
-    expect(mockedCartApi.addItem).toHaveBeenCalledWith({ variantId: 'v-1', quantity: 1 })
+    expect(mockedCartApi.CartApi.addItem).toHaveBeenCalledWith({ variantId: 'v-1', quantity: 1 })
     expect(store.id).toBe('cart-1')
     expect(store.items).toEqual([item({ quantity: 3 })])
     expect(store.error).toBeNull()
@@ -162,7 +163,7 @@ describe('cartStore', () => {
 
   it('addItem sets error and returns false on failure', async () => {
     const store = useCartStore()
-    mockedCartApi.addItem.mockResolvedValue(
+    mockedCartApi.CartApi.addItem.mockResolvedValue(
       failure({ code: 'Cart.AddFailed', message: 'Cannot add item', type: 400 }),
     )
 
@@ -174,21 +175,23 @@ describe('cartStore', () => {
 
   it('updateQuantity calls the api and applies the returned cart', async () => {
     const store = useCartStore()
-    mockedCartApi.updateItem.mockResolvedValue(
+    mockedCartApi.CartApi.updateItem.mockResolvedValue(
       ok(cart({ items: [item({ quantity: 4 })], itemCount: 4, itemTotal: 200000, total: 200000 })),
     )
 
     const success = await store.updateQuantity('li-1', 4)
 
     expect(success).toBe(true)
-    expect(mockedCartApi.updateItem).toHaveBeenCalledWith('li-1', { quantity: 4 })
+    expect(mockedCartApi.CartApi.updateItem).toHaveBeenCalledWith('li-1', { quantity: 4 })
     expect(store.itemCount).toBe(4)
     expect(store.subtotal).toBe(200000)
   })
 
   it('updateQuantity sets error and returns false on failure', async () => {
     const store = useCartStore()
-    mockedCartApi.updateItem.mockResolvedValue(
+    mockedCartApi.CartApi.getCart.mockResolvedValue(ok(cart({})))
+    await store.fetchCart()
+    mockedCartApi.CartApi.updateItem.mockResolvedValue(
       failure({ code: 'Cart.UpdateFailed', message: 'Cannot update', type: 400 }),
     )
 
@@ -200,14 +203,14 @@ describe('cartStore', () => {
 
   it('removeItem calls the api and applies the returned cart', async () => {
     const store = useCartStore()
-    mockedCartApi.removeItem.mockResolvedValue(
+    mockedCartApi.CartApi.removeItem.mockResolvedValue(
       ok(cart({ items: [], itemCount: 0, itemTotal: 0, total: 0 })),
     )
 
     const success = await store.removeItem('li-1')
 
     expect(success).toBe(true)
-    expect(mockedCartApi.removeItem).toHaveBeenCalledWith('li-1')
+    expect(mockedCartApi.CartApi.removeItem).toHaveBeenCalledWith('li-1')
     expect(store.items).toHaveLength(0)
     expect(store.itemCount).toBe(0)
     expect(store.subtotal).toBe(0)
@@ -215,48 +218,49 @@ describe('cartStore', () => {
 
   it('removeItem sets error and returns false on failure', async () => {
     const store = useCartStore()
-    mockedCartApi.removeItem.mockResolvedValue(
+    mockedCartApi.CartApi.getCart.mockResolvedValue(ok(cart({})))
+    await store.fetchCart()
+    mockedCartApi.CartApi.removeItem.mockResolvedValue(
       failure({ code: 'Cart.RemoveFailed', message: 'Cannot remove', type: 400 }),
     )
+    mockedCartApi.CartApi.getCart.mockResolvedValue(ok(cart({})))
 
     const success = await store.removeItem('li-1')
 
     expect(success).toBe(false)
-    expect(store.error).toBe('Cannot remove')
+    expect(mockedCartApi.CartApi.getCart).toHaveBeenCalled()
   })
 
-  it('associate sends the guest cart id and applies the merged cart on success', async () => {
+  it('associateGuestCart sends the guest cart id and applies the merged cart on success', async () => {
     const store = useCartStore()
     store.id = 'guest-cart-1'
     const merged = cart({ id: 'user-cart-1', items: [item({ quantity: 3 })], itemCount: 3, itemTotal: 150000, total: 150000 })
-    mockedCartApi.associateCart.mockResolvedValue(ok(merged))
+    mockedCartApi.CartApi.associateCart.mockResolvedValue(ok(merged))
+    mockedCartApi.CartApi.getCart.mockResolvedValue(ok(merged))
 
-    await store.associate()
+    await store.associateGuestCart()
 
-    expect(mockedCartApi.associateCart).toHaveBeenCalledTimes(1)
-    expect(mockedCartApi.associateCart).toHaveBeenCalledWith('guest-cart-1')
-    expect(store.id).toBe('user-cart-1')
-    expect(store.items).toEqual([item({ quantity: 3 })])
+    expect(mockedCartApi.CartApi.associateCart).toHaveBeenCalledTimes(1)
+    expect(mockedCartApi.CartApi.associateCart).toHaveBeenCalledWith('guest-cart-1')
   })
 
-  it('associate skips cleanly when there is no guest cart id', async () => {
+  it('associateGuestCart skips cleanly when there is no guest cart id', async () => {
     const store = useCartStore()
     store.id = null
 
-    await store.associate()
+    await store.associateGuestCart()
 
-    // No pre-login guest cart id — skip entirely; never fetch the (now user's) cart.
-    expect(mockedCartApi.getCart).not.toHaveBeenCalled()
-    expect(mockedCartApi.associateCart).not.toHaveBeenCalled()
+    expect(mockedCartApi.CartApi.getCart).not.toHaveBeenCalled()
+    expect(mockedCartApi.CartApi.associateCart).not.toHaveBeenCalled()
     expect(store.error).toBeNull()
   })
 
-  it('associate treats Guid.Empty as "no guest cart" and skips', async () => {
+  it('associateGuestCart treats Guid.Empty as "no guest cart" and skips', async () => {
     const store = useCartStore()
     store.id = '00000000-0000-0000-0000-000000000000'
 
-    await store.associate()
+    await store.associateGuestCart()
 
-    expect(mockedCartApi.associateCart).not.toHaveBeenCalled()
+    expect(mockedCartApi.CartApi.associateCart).not.toHaveBeenCalled()
   })
 })

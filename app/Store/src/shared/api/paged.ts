@@ -1,4 +1,4 @@
-import type { QueryingParameters } from '@/shared/types/querying'
+import type { QueryingParameters, QueryingModel } from '@/shared/types/querying'
 import { queryingModelToParams, queryingParamsToModel } from '@/shared/types/querying'
 import type { PagedResult } from '@/shared/types/result'
 import { pagedFailure } from '@/shared/types/result'
@@ -13,14 +13,14 @@ export interface PagedRequestOptions {
   headers?: Record<string, string>
 }
 
-function buildSearchParams(params: QueryingParameters): URLSearchParams {
+function buildSearchParams(params: QueryingModel): URLSearchParams {
   const sp = new URLSearchParams()
   if (params.filter) sp.set('filter', params.filter)
   if (params.search) sp.set('search', params.search)
   if (params.searchFields?.length) sp.set('searchFields', params.searchFields.join(','))
   if (params.searchMode) sp.set('searchMode', params.searchMode)
   if (params.sort?.length) params.sort.forEach(s => sp.append('sort', s))
-  if (params.pageNumber != null) sp.set('page', String(params.pageNumber))
+  if (params.page != null) sp.set('page', String(params.page))
   if (params.pageSize != null) sp.set('pageSize', String(params.pageSize))
   return sp
 }

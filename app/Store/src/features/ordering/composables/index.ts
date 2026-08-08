@@ -1,0 +1,1 @@
+export { useQuickAdd } from './useQuickAdd'

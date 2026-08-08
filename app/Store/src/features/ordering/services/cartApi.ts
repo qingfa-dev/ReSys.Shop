@@ -1,30 +1,48 @@
-import { get, post, put, del } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result } from '@/shared/types/result'
-import type { CartResponse, AddCartItemRequest, UpdateCartItemRequest } from '../types/cart'
+import { get, post, put, del } from '@/shared/api/client'
+import { CART } from '@/shared/constants/api'
+import { CartResponseSchema } from '../validations/cart'
+import type { Result } from '@/shared/types'
+import type { CartResponse, AddCartItemRequest, UpdateCartItemRequest } from '../types'
 
-export function getCart(): Promise<Result<CartResponse>> {
-  return get<Result<CartResponse>>(ENDPOINTS.cart)
-}
+export class CartApi {
+  private static readonly BASE = CART
 
-export function addItem(req: AddCartItemRequest): Promise<Result<CartResponse>> {
-  return post<Result<CartResponse>>(ENDPOINTS.cartItems, req)
-}
+  static async getCart(): Promise<Result<CartResponse>> {
+    const result = await get<Result<CartResponse>>(this.BASE)
+    if (!result.isSuccess) return result
+    result.value = CartResponseSchema.parse(result.value)
+    return result
+  }
 
-export function updateItem(lineItemId: string, req: UpdateCartItemRequest): Promise<Result<CartResponse>> {
-  return put<Result<CartResponse>>(ENDPOINTS.cartItem(lineItemId), req)
-}
+  static async addItem(req: AddCartItemRequest): Promise<Result<CartResponse>> {
+    const result = await post<Result<CartResponse>>(`${this.BASE}/items`, req)
+    if (!result.isSuccess) return result
+    result.value = CartResponseSchema.parse(result.value)
+    return result
+  }
 
-export function removeItem(lineItemId: string): Promise<Result<CartResponse>> {
-  return del<Result<CartResponse>>(ENDPOINTS.cartItem(lineItemId))
-}
+  static async updateItem(lineItemId: string, req: UpdateCartItemRequest): Promise<Result<CartResponse>> {
+    const result = await put<Result<CartResponse>>(`${this.BASE}/items/${lineItemId}`, req)
+    if (!result.isSuccess) return result
+    result.value = CartResponseSchema.parse(result.value)
+    return result
+  }
 
-export function emptyCart(): Promise<Result<null>> {
-  return post<Result<null>>(ENDPOINTS.cartEmpty)
-}
+  static async removeItem(lineItemId: string): Promise<Result<CartResponse>> {
+    const result = await del<Result<CartResponse>>(`${this.BASE}/items/${lineItemId}`)
+    if (!result.isSuccess) return result
+    result.value = CartResponseSchema.parse(result.value)
+    return result
+  }
 
-export function associateCart(guestOrderId: string): Promise<Result<CartResponse>> {
-  // Backend AssociateCartWithUser requires [FromBody] { guestOrderId } — the cart id is
-  // the draft order id returned by CartResponse.id.
-  return post<Result<CartResponse>>(ENDPOINTS.cartAssociate, { guestOrderId })
+  static async emptyCart(): Promise<Result<null>> {
+    return await post<Result<null>>(`${this.BASE}/empty`)
+  }
+
+  static async associateCart(guestOrderId: string): Promise<Result<CartResponse>> {
+    const result = await post<Result<CartResponse>>(`${this.BASE}/associate`, { guestOrderId })
+    if (!result.isSuccess) return result
+    result.value = CartResponseSchema.parse(result.value)
+    return result
+  }
 }

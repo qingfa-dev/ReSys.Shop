@@ -1,101 +1,68 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { usePagedQuery } from '@/shared/composables/usePagedQuery'
-import { ENDPOINTS } from '@/shared/constants/api'
-import * as orderApi from '../services/orderApi'
-import type { OrderListItem, OrderDetail, OrderStatus } from '../types/order'
-import { ORDER_FILTER_FIELDS, ORDER_SORT_FIELDS, ORDER_SEARCH_FIELDS } from '../types/order'
-
-export type OrderStatusFilter = OrderStatus | 'All'
+import { ref, computed } from 'vue'
+import { OrderApi } from '../services/orderApi'
+import { on } from '@/shared/composables/useStoreEvents'
+import type { OrderListItem, OrderDetail, OrderTrackingResponse, OrderStatus } from '../types'
 
 export const useOrderStore = defineStore('orders', () => {
-  // Paged order list state (same usePagedQuery pattern as ShopView). immediate:false so
-  // the list only loads when the Orders view mounts — the detail route must not trigger it.
-  const paged = usePagedQuery<OrderListItem>(ENDPOINTS.orders, {
-    defaultPageSize: 10,
-    defaultSort: ['-createdAtUtc'],
-    allowedFilterFields: ORDER_FILTER_FIELDS,
-    allowedSortFields: ORDER_SORT_FIELDS,
-    allowedSearchFields: ORDER_SEARCH_FIELDS,
-    immediate: false,
-  })
-
+  const items = ref<OrderListItem[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+  const page = ref(1)
+  const pageSize = ref(20)
+  const totalCount = ref(0)
+  const statusFilter = ref<OrderStatus | 'All'>('All')
   const currentOrder = ref<OrderDetail | null>(null)
   const detailLoading = ref(false)
   const cancelLoading = ref(false)
-  const error = ref<string | null>(null)
+
+  const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value))
 
   async function fetchOrders(): Promise<void> {
-    await paged.fetch()
-  }
-
-  function setStatusFilter(status: OrderStatusFilter): void {
-    paged.setFilter(status === 'All' ? '' : `status=${status}`)
-  }
-
-  async function fetchOrder(id: string): Promise<boolean> {
-    detailLoading.value = true
+    if (loading.value) return
+    loading.value = true
     error.value = null
-    const result = await orderApi.getOrder(id)
-    detailLoading.value = false
+    const result = await OrderApi.getOrders({ pageNumber: page.value, pageSize: pageSize.value })
     if (result.isSuccess) {
-      currentOrder.value = result.value
-      return true
+      items.value = result.items
+      totalCount.value = result.totalCount
+    } else {
+      error.value = result.message ?? 'Failed to load orders'
     }
-    error.value = result.message ?? 'Failed to load order'
-    return false
+    loading.value = false
+  }
+
+  async function fetchOrder(id: string): Promise<void> {
+    detailLoading.value = true
+    const [detail] = await Promise.all([OrderApi.getOrder(id), OrderApi.getOrderTracking(id)])
+    if (detail.isSuccess) currentOrder.value = detail.value
+    else error.value = detail.message
+    detailLoading.value = false
   }
 
   async function cancelOrder(id: string): Promise<boolean> {
     cancelLoading.value = true
-    error.value = null
-    const result = await orderApi.cancelOrder(id)
-    cancelLoading.value = false
+    const result = await OrderApi.cancelOrder(id)
     if (result.isSuccess) {
-      // Reflect the terminal state locally without a refetch of the detail.
-      if (currentOrder.value && currentOrder.value.id === id) {
-        currentOrder.value = { ...currentOrder.value, status: 'Canceled', canceledAtUtc: new Date().toISOString() }
-      }
-      // Keep the list in sync (the canceled order may drop out of a status filter).
-      await paged.refresh()
-      return true
+      const item = items.value.find(o => o.id === id)
+      if (item) item.status = 'Canceled'
+      if (currentOrder.value?.id === id) currentOrder.value.status = 'Canceled'
+    } else {
+      error.value = result.message
     }
-    error.value = result.message ?? 'Failed to cancel order'
-    return false
+    cancelLoading.value = false
+    return result.isSuccess
   }
 
-  function resetDetail(): void {
-    currentOrder.value = null
-    detailLoading.value = false
-    error.value = null
-  }
+  function nextPage(): void { if (page.value < totalPages.value) { page.value++; fetchOrders() } }
+  function prevPage(): void { if (page.value > 1) { page.value--; fetchOrders() } }
+  function refresh(): void { fetchOrders() }
+
+  on('checkout:placed', () => refresh())
 
   return {
-    // Paged list state + pagination actions from usePagedQuery.
-    items: paged.items,
-    loading: paged.loading,
-    listError: paged.error,
-    page: paged.page,
-    pageSize: paged.pageSize,
-    totalCount: paged.totalCount,
-    totalPages: paged.totalPages,
-    filter: paged.filter,
-    sort: paged.sort,
-    search: paged.search,
-    searchFields: paged.searchFields,
-    searchMode: paged.searchMode,
-    fetchOrders,
-    setStatusFilter,
-    setPage: paged.setPage,
-    setPageSize: paged.setPageSize,
-    setSort: paged.setSort,
-    // Detail state + actions.
-    currentOrder,
-    detailLoading,
-    cancelLoading,
-    error,
-    fetchOrder,
-    cancelOrder,
-    resetDetail,
+    items, loading, error, page, pageSize, totalCount, totalPages, statusFilter,
+    currentOrder, detailLoading, cancelLoading,
+    fetchOrders, fetchOrder, cancelOrder, nextPage, prevPage, refresh,
   }
 })

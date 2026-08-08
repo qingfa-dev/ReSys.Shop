@@ -153,11 +153,36 @@ class InferenceEngine:
             span.set_attribute("image.url", image_url)
             span.set_attribute("model.requested", model_name)
 
+            logger.info(
+                "Starting embedding inference: model=%s, image_url=%s",
+                model_name,
+                image_url
+            )
+
             embedder_result = self.get_embedder(model_name)
             if not embedder_result.is_success:
+                logger.warning(
+                    "Failed to get embedder for model=%s: %s",
+                    model_name,
+                    embedder_result.errors
+                )
                 return embedder_result
 
-            return embedder_result.value.extract(image_url)
+            result = embedder_result.value.extract(image_url)
+            if result.is_success:
+                logger.info(
+                    "Embedding inference succeeded: model=%s, dimension=%d",
+                    model_name,
+                    len(result.value)
+                )
+            else:
+                logger.warning(
+                    "Embedding extraction failed: model=%s, error=%s",
+                    model_name,
+                    result.errors
+                )
+
+            return result
 
     def embed_bytes(
         self, image_bytes: bytes, model_name: str = "efficientnet_b0"
@@ -170,9 +195,34 @@ class InferenceEngine:
             span.set_attribute("image.size_bytes", len(image_bytes))
             span.set_attribute("model.requested", model_name)
 
+            logger.info(
+                "Starting byte embedding inference: model=%s, size=%d bytes",
+                model_name,
+                len(image_bytes)
+            )
+
             embedder_result = self.get_embedder(model_name)
             if not embedder_result.is_success:
+                logger.warning(
+                    "Failed to get embedder for model=%s: %s",
+                    model_name,
+                    embedder_result.errors
+                )
                 return embedder_result
 
-            return embedder_result.value.extract(image_bytes)
+            result = embedder_result.value.extract(image_bytes)
+            if result.is_success:
+                logger.info(
+                    "Byte embedding inference succeeded: model=%s, dimension=%d",
+                    model_name,
+                    len(result.value)
+                )
+            else:
+                logger.warning(
+                    "Byte embedding extraction failed: model=%s, error=%s",
+                    model_name,
+                    result.errors
+                )
+
+            return result
 

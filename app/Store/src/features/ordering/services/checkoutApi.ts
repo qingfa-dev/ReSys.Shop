@@ -1,31 +1,40 @@
-import { post, put } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result } from '@/shared/types/result'
+import { post, put } from '@/shared/api/client'
+import { CART, PAYMENT } from '@/shared/constants/api'
+import { PaymentIntentResponseSchema, PlaceOrderResponseSchema } from '../validations/checkout'
+import type { Result } from '@/shared/types'
 import type {
+  UpdateCheckoutRequest,
+  SelectShippingRateRequest,
   CreatePaymentIntentRequest,
   PaymentIntentResponse,
   PlaceOrderRequest,
   PlaceOrderResponse,
-  SelectShippingRateRequest,
-  UpdateCheckoutRequest,
-} from '../types/checkout'
+} from '../types'
 
-export function updateCheckout(req: UpdateCheckoutRequest): Promise<Result<void>> {
-  return put<Result<void>>(ENDPOINTS.cart, req)
-}
+export class CheckoutApi {
+  static async updateCheckout(req: UpdateCheckoutRequest): Promise<Result<void>> {
+    return await put<Result<void>>(`${CART}`, req)
+  }
 
-export function selectShippingRate(req: SelectShippingRateRequest): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.cartShippingRate, req)
-}
+  static async selectShippingRate(req: SelectShippingRateRequest): Promise<Result<void>> {
+    return await post<Result<void>>(`${CART}/shipping-rate`, req)
+  }
 
-export function validateCheckout(): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.cartValidate)
-}
+  static async validateCheckout(): Promise<Result<void>> {
+    return await post<Result<void>>(`${CART}/validate`)
+  }
 
-export function createPaymentIntent(req: CreatePaymentIntentRequest): Promise<Result<PaymentIntentResponse>> {
-  return post<Result<PaymentIntentResponse>>(ENDPOINTS.paymentCreateIntent, req)
-}
+  static async createPaymentIntent(req: CreatePaymentIntentRequest): Promise<Result<PaymentIntentResponse>> {
+    const result = await post<Result<PaymentIntentResponse>>(`${PAYMENT}/create-intent`, req)
+    if (!result.isSuccess) return result
+    result.value = PaymentIntentResponseSchema.parse(result.value)
+    return result
+  }
 
-export function placeOrder(req: PlaceOrderRequest): Promise<Result<PlaceOrderResponse>> {
-  return post<Result<PlaceOrderResponse>>(ENDPOINTS.cartCheckout, req)
+  static async placeOrder(req: PlaceOrderRequest): Promise<Result<PlaceOrderResponse>> {
+    const result = await post<Result<PlaceOrderResponse>>(`${CART}/checkout`, req)
+    if (!result.isSuccess) return result
+    result.value = PlaceOrderResponseSchema.parse(result.value)
+    return result
+  }
 }

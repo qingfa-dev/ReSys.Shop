@@ -1,83 +1,30 @@
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, watchEffect } from 'vue'
 
-export type ThemeMode = 'light' | 'dark' | 'system'
-
-const STORAGE_KEY = 'theme-preference'
-const DARK_CLASS = 'app-dark'
-
-let mediaQuery: MediaQueryList | null = null
-let mediaListener: ((e: MediaQueryListEvent) => void) | null = null
-
-const currentMode = ref<ThemeMode>(readStoredMode())
-
-function readStoredMode(): ThemeMode {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
-  } catch { /* localStorage unavailable */ }
-  return 'system'
-}
-
-function systemPrefersDark(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-}
-
-function applyClass(dark: boolean): void {
-  if (typeof document === 'undefined') return
-  document.documentElement.classList.toggle(DARK_CLASS, dark)
-}
-
-function persist(mode: ThemeMode): void {
-  try { localStorage.setItem(STORAGE_KEY, mode) } catch { /* ignore */ }
-}
-
-function startListening(): void {
-  if (typeof window === 'undefined') return
-  mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  mediaListener = () => {
-    if (currentMode.value === 'system') {
-      applyClass(systemPrefersDark())
-    }
-  }
-  mediaQuery.addEventListener('change', mediaListener)
-}
-
-function stopListening(): void {
-  if (mediaQuery && mediaListener) {
-    mediaQuery.removeEventListener('change', mediaListener)
-    mediaQuery = null
-    mediaListener = null
-  }
-}
+const isDark = ref(false)
 
 export function useTheme() {
-  const isDark = computed(() => {
-    if (currentMode.value === 'dark') return true
-    if (currentMode.value === 'light') return false
-    return systemPrefersDark()
-  })
-
-  function setMode(mode: ThemeMode): void {
-    currentMode.value = mode
-    persist(mode)
-    applyClass(isDark.value)
+  function applyTheme(dark: boolean): void {
+    isDark.value = dark
+    document.documentElement.classList.toggle('dark', dark)
+    localStorage.setItem('resys_theme', dark ? 'dark' : 'light')
   }
 
   function toggle(): void {
-    const order: ThemeMode[] = ['light', 'dark', 'system']
-    const idx = order.indexOf(currentMode.value)
-    setMode(order[(idx + 1) % order.length] ?? 'light')
+    applyTheme(!isDark.value)
   }
 
-  if (typeof document !== 'undefined') {
-    applyClass(isDark.value)
-    startListening()
+  function init(): void {
+    const stored = localStorage.getItem('resys_theme')
+    if (stored) {
+      applyTheme(stored === 'dark')
+    } else {
+      applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)
+    }
   }
 
-  onUnmounted(() => {
-    stopListening()
+  watchEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark.value)
   })
 
-  return { mode: currentMode, isDark, toggle, setMode }
+  return { isDark, toggle, init }
 }

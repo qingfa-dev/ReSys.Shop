@@ -1,74 +1,64 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as profileApi from '../services/profileApi'
-import * as accountApi from '../services/accountApi'
-import type { ProfileDetail, UpdateProfileRequest } from '../types/profile'
+import { ProfileApi } from '../services/profileApi'
+import { AccountApi } from '../services/accountApi'
+import { useAuthStore } from '@/features/identity/stores/authStore'
+import type { ProfileDetail, UpdateProfileRequest } from '../types'
 
 export const useProfileStore = defineStore('profile', () => {
-  // Starts true so the view shows the skeleton on first paint (a false initial value would
-  // render the empty form before the fetch resolves).
-  const loading = ref(true)
   const profile = ref<ProfileDetail | null>(null)
+  const loading = ref(false)
   const saving = ref(false)
   const error = ref<string | null>(null)
+  const _initialized = ref(false)
 
-  async function fetchProfile(): Promise<boolean> {
+  async function init(): Promise<void> {
+    if (_initialized.value) return
+    _initialized.value = true
+    await fetchProfile()
+  }
+
+  async function fetchProfile(): Promise<void> {
     loading.value = true
     error.value = null
-    try {
-      const result = await profileApi.getProfile()
-      if (result.isSuccess) {
-        profile.value = result.value
-        return true
-      }
-      error.value = result.message ?? result.errors[0]?.message ?? 'Failed to load profile'
-      return false
-    } catch {
-      // The error interceptor throws HttpError on network failures / non-Result 5xx.
-      error.value = 'Failed to load profile'
-      return false
-    } finally {
-      loading.value = false
-    }
+    const result = await ProfileApi.getProfile()
+    if (result.isSuccess) profile.value = result.value
+    else error.value = result.message
+    loading.value = false
   }
 
   async function updateProfile(req: UpdateProfileRequest): Promise<boolean> {
     saving.value = true
     error.value = null
-    try {
-      const result = await profileApi.updateProfile(req)
-      if (result.isSuccess) {
-        profile.value = result.value
-        return true
-      }
-      error.value = result.message ?? result.errors[0]?.message ?? 'Failed to update profile'
-      return false
-    } catch {
-      error.value = 'Failed to update profile'
-      return false
-    } finally {
-      saving.value = false
+    const prev = profile.value
+    if (prev) Object.assign(prev, req)
+    const result = await ProfileApi.updateProfile(req)
+    if (!result.isSuccess) {
+      error.value = result.message
+      profile.value = prev
     }
+    saving.value = false
+    return result.isSuccess
   }
 
   async function deleteProfile(): Promise<boolean> {
     saving.value = true
-    error.value = null
-    try {
-      const result = await accountApi.deleteProfile()
-      if (result.isSuccess) {
-        profile.value = null
-        return true
-      }
-      error.value = result.message ?? 'Failed to delete account'
-      return false
-    } catch {
-      error.value = 'Failed to delete account'
-      return false
-    } finally {
-      saving.value = false
+    const result = await AccountApi.deleteProfile()
+    if (result.isSuccess) {
+      profile.value = null
+      await useAuthStore().logout()
+    } else {
+      error.value = result.message
     }
+    saving.value = false
+    return result.isSuccess
   }
 
-  return { profile, loading, saving, error, fetchProfile, updateProfile, deleteProfile }
+  function reset(): void {
+    profile.value = null
+    error.value = null
+    _initialized.value = false
+  }
+
+  return { profile, loading, saving, error, init, fetchProfile, updateProfile, deleteProfile, reset }
 })

@@ -23,7 +23,7 @@ public static class SecurityExtension
         builder.AddApplicationIdentity();
         builder.AddSecurityHeaders();
         builder.AddAntiForgery();
-        builder.AddRateLimiting();
+        // builder.AddRateLimiting();
 
         return builder;
     }

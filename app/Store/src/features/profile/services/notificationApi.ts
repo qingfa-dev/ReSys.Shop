@@ -1,16 +1,23 @@
-import { get, put } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result } from '@/shared/types/result'
-import type { NotificationPreferences } from '../types/notification'
+import { get, put } from '@/shared/api/client'
+import { PROFILES } from '@/shared/constants/api'
+import { NotificationPreferencesSchema } from '../validations/notification'
+import type { Result } from '@/shared/types'
+import type { NotificationPreferences } from '../types'
 
-// GET api/store/profiles/notification-preferences.
-export function getNotificationPreferences(): Promise<Result<NotificationPreferences>> {
-  return get<Result<NotificationPreferences>>(ENDPOINTS.notificationPreferences)
-}
+export class NotificationApi {
+  private static readonly BASE = `${PROFILES}/notifications`
 
-// PUT api/store/profiles/notification-preferences — full three-boolean replacement.
-export function updateNotificationPreferences(
-  req: NotificationPreferences,
-): Promise<Result<NotificationPreferences>> {
-  return put<Result<NotificationPreferences>>(ENDPOINTS.notificationPreferences, req)
+  static async getNotificationPreferences(): Promise<Result<NotificationPreferences>> {
+    const result = await get<Result<NotificationPreferences>>(`${this.BASE}/preferences`)
+    if (!result.isSuccess) return result
+    result.value = NotificationPreferencesSchema.parse(result.value)
+    return result
+  }
+
+  static async updateNotificationPreferences(req: NotificationPreferences): Promise<Result<NotificationPreferences>> {
+    const result = await put<Result<NotificationPreferences>>(`${this.BASE}/preferences`, req)
+    if (!result.isSuccess) return result
+    result.value = NotificationPreferencesSchema.parse(result.value)
+    return result
+  }
 }

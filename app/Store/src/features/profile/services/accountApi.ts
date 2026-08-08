@@ -1,7 +1,11 @@
-import { del } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result } from '@/shared/types/result'
+import { del } from '@/shared/api/client'
+import { PROFILES } from '@/shared/constants/api'
+import type { Result } from '@/shared/types'
 
-export function deleteProfile(): Promise<Result<void>> {
-  return del<Result<void>>(ENDPOINTS.profiles)
+export class AccountApi {
+  private static readonly BASE = `${PROFILES}/profiles`
+
+  static async deleteProfile(): Promise<Result<void>> {
+    return await del<Result<void>>(`${this.BASE}`)
+  }
 }

@@ -1,4 +1,3 @@
-// Ported from app/Admin — keep in sync.
 import type { ToastServiceMethods } from 'primevue/toastservice'
 
 let toast: ToastServiceMethods | null = null

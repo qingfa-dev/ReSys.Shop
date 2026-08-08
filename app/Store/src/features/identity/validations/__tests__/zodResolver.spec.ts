@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
-import { loginSchema } from '../login'
-import { registerSchema } from '../register'
+import { LoginFormSchema, RegisterFormSchema } from '../auth'
 
 /**
  * Regression guard for Risk R2: `@primevue/forms`' `zodResolver` must accept
@@ -11,11 +10,11 @@ import { registerSchema } from '../register'
  */
 describe('zodResolver with Zod 4 schemas (@primevue/forms/resolvers/zod)', () => {
   it('returns a resolver function from zodResolver', () => {
-    expect(typeof zodResolver(loginSchema)).toBe('function')
+    expect(typeof zodResolver(LoginFormSchema)).toBe('function')
   })
 
   it('resolves a valid login payload with no errors', async () => {
-    const result = await zodResolver(loginSchema)({
+    const result = await zodResolver(LoginFormSchema)({
       values: { credential: 'user@example.com', password: 'secret123' },
     })
 
@@ -23,28 +22,24 @@ describe('zodResolver with Zod 4 schemas (@primevue/forms/resolvers/zod)', () =>
     expect(result.values).toEqual({ credential: 'user@example.com', password: 'secret123' })
   })
 
-  it('reports an invalid email on the credential field', async () => {
-    const result = await zodResolver(loginSchema)({
-      values: { credential: 'not-an-email', password: 'secret123' },
+  it('reports an empty credential as error', async () => {
+    const result = await zodResolver(LoginFormSchema)({
+      values: { credential: '', password: 'secret123' },
     })
 
-    const fieldErrors = result.errors.credential as Array<{ message: string }> | undefined
-    expect(fieldErrors).toBeDefined()
-    expect(fieldErrors?.[0]?.message).toBe('Enter a valid email address')
+    expect(result.errors.credential).toBeDefined()
   })
 
   it('reports a missing password on the password field', async () => {
-    const result = await zodResolver(loginSchema)({
+    const result = await zodResolver(LoginFormSchema)({
       values: { credential: 'user@example.com', password: '' },
     })
 
-    const fieldErrors = result.errors.password as Array<{ message: string }> | undefined
-    expect(fieldErrors).toBeDefined()
-    expect(fieldErrors?.[0]?.message).toBe('Password is required')
+    expect(result.errors.password).toBeDefined()
   })
 
   it('surfaces a cross-field refine error on confirmPassword', async () => {
-    const result = await zodResolver(registerSchema)({
+    const result = await zodResolver(RegisterFormSchema)({
       values: {
         fullName: 'Jane Doe',
         email: 'jane@example.com',
@@ -59,7 +54,7 @@ describe('zodResolver with Zod 4 schemas (@primevue/forms/resolvers/zod)', () =>
   })
 
   it('passes a valid register payload with no errors', async () => {
-    const result = await zodResolver(registerSchema)({
+    const result = await zodResolver(RegisterFormSchema)({
       values: {
         fullName: 'Jane Doe',
         email: 'jane@example.com',

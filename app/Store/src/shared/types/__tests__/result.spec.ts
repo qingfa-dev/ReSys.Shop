@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { ok, created, noContent, failure, badRequest, notFound, unauthorized, pagedOk, pagedFailure, isSuccess, isFailure, StatusCode } from '@/shared/types/result'
+import { ok, created, noContent, failure, badRequest, notFound, unauthorized, pagedOk, pagedFailure, isSuccess, isFailure } from '@/shared/types/result'
+import { StatusCode } from '@/shared/types/error'
 import type { ApiError } from '@/shared/types/error'
 
 describe('Result factories', () => {

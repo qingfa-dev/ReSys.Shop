@@ -1,38 +1,38 @@
-import { STORAGE_KEYS } from '@/shared/constants/storage'
-import type { TokenPair } from '../types/auth'
+import type { TokenPair } from '../types'
+
+const ACCESS_KEY = 'accessToken'
+const REFRESH_KEY = 'refreshToken'
+const ACCESS_EXPIRY_KEY = 'accessTokenExpiresAt'
+const REFRESH_EXPIRY_KEY = 'refreshTokenExpiresAt'
 
 export function getAccessToken(): string | null {
-  try { return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN) } catch { return null }
+  return localStorage.getItem(ACCESS_KEY)
 }
 
 export function getRefreshToken(): string | null {
-  try { return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN) } catch { return null }
+  return localStorage.getItem(REFRESH_KEY)
 }
 
 export function setTokens(pair: TokenPair): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, pair.accessToken)
-    localStorage.setItem(`${STORAGE_KEYS.ACCESS_TOKEN}_expires_at`, String(pair.accessTokenExpiresIn))
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, pair.refreshToken)
-    localStorage.setItem(`${STORAGE_KEYS.REFRESH_TOKEN}_expires_at`, String(pair.refreshTokenExpiresIn))
-  } catch { /* localStorage unavailable */ }
+  localStorage.setItem(ACCESS_KEY, pair.accessToken)
+  localStorage.setItem(REFRESH_KEY, pair.refreshToken)
+  const accessExpiresAt = Date.now() + pair.accessTokenExpiresIn * 1000
+  const refreshExpiresAt = Date.now() + pair.refreshTokenExpiresIn * 1000
+  localStorage.setItem(ACCESS_EXPIRY_KEY, String(accessExpiresAt))
+  localStorage.setItem(REFRESH_EXPIRY_KEY, String(refreshExpiresAt))
 }
 
 export function clearTokens(): void {
-  try {
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-    localStorage.removeItem(`${STORAGE_KEYS.ACCESS_TOKEN}_expires_at`)
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
-    localStorage.removeItem(`${STORAGE_KEYS.REFRESH_TOKEN}_expires_at`)
-  } catch { /* ignore */ }
+  localStorage.removeItem(ACCESS_KEY)
+  localStorage.removeItem(REFRESH_KEY)
+  localStorage.removeItem(ACCESS_EXPIRY_KEY)
+  localStorage.removeItem(REFRESH_EXPIRY_KEY)
 }
 
 export function hasValidAccessToken(): boolean {
-  try {
-    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-    if (!token) return false
-    const expiresAt = localStorage.getItem(`${STORAGE_KEYS.ACCESS_TOKEN}_expires_at`)
-    if (!expiresAt) return true
-    return Number(expiresAt) > Date.now() / 1000 + 30
-  } catch { return false }
+  const token = getAccessToken()
+  if (!token) return false
+  const expiry = localStorage.getItem(ACCESS_EXPIRY_KEY)
+  if (!expiry) return false
+  return Date.now() < Number(expiry) - 30_000 // 30s buffer
 }

@@ -1,39 +1,45 @@
-import { post, get } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result } from '@/shared/types/result'
-import type { TokenPair, LoginRequest, RegisterRequest, SessionUser } from '../types/auth'
+import { get, post } from '@/shared/api/client'
+import { IDENTITY } from '@/shared/constants/api'
+import { TokenPairSchema, SessionUserSchema } from '../validations/auth'
+import type { Result } from '@/shared/types'
+import type { LoginRequest, RegisterRequest, TokenPair, SessionUser } from '../types'
 
-export async function login(req: LoginRequest): Promise<Result<TokenPair>> {
-  return post<Result<TokenPair>>(ENDPOINTS.authLoginPassword, req)
-}
+export class AuthApi {
+  static async login(req: LoginRequest): Promise<Result<TokenPair>> {
+    const result = await post<Result<TokenPair>>(`${IDENTITY}/auth/login/password`, req)
+    if (!result.isSuccess) return result
+    result.value = TokenPairSchema.parse(result.value)
+    return result
+  }
 
-export async function register(req: RegisterRequest): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.authRegister, req)
-}
+  static async register(req: RegisterRequest): Promise<Result<void>> {
+    return await post<Result<void>>(`${IDENTITY}/auth/register`, req)
+  }
 
-export async function logout(req?: { revokeAll?: boolean }): Promise<void> {
-  await post(ENDPOINTS.authLogout, req)
-}
+  static async logout(req?: { refreshToken?: string; revokeAll?: boolean }): Promise<Result<void>> {
+    return await post<Result<void>>(`${IDENTITY}/auth/logout`, req ?? {})
+  }
 
-export async function getSession(): Promise<Result<SessionUser>> {
-  return get<Result<SessionUser>>(ENDPOINTS.sessions)
-}
+  static async getSession(): Promise<Result<SessionUser>> {
+    const result = await get<Result<SessionUser>>(`${IDENTITY}/auth/sessions`)
+    if (!result.isSuccess) return result
+    result.value = SessionUserSchema.parse(result.value)
+    return result
+  }
 
-export async function getLoginProviders(): Promise<Result<Array<{ name: string; url: string }>>> {
-  return get<Result<Array<{ name: string; url: string }>>>(ENDPOINTS.authLoginProviders)
-}
+  static async getLoginProviders(): Promise<Result<{ name: string; url: string }[]>> {
+    return await get<Result<{ name: string; url: string }[]>>(`${IDENTITY}/auth/login/providers`)
+  }
 
-export async function forgotPassword(email: string): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.passwordsForgot, { email })
-}
+  static async forgotPassword(email: string): Promise<Result<void>> {
+    return await post<Result<void>>(`${IDENTITY}/passwords/forgot`, { email })
+  }
 
-export async function resetPassword(token: string, newPassword: string): Promise<Result<void>> {
-  return post<Result<void>>(ENDPOINTS.passwordsReset, { token, newPassword })
-}
+  static async resetPassword(token: string, newPassword: string): Promise<Result<void>> {
+    return await post<Result<void>>(`${IDENTITY}/passwords/reset`, { token, newPassword })
+  }
 
-export async function changePassword(
-  currentPassword: string,
-  newPassword: string,
-): Promise<Result<void>> {
-  return post(ENDPOINTS.passwordsChange, { currentPassword, newPassword })
+  static async changePassword(currentPassword: string, newPassword: string): Promise<Result<void>> {
+    return await post<Result<void>>(`${IDENTITY}/passwords/change`, { currentPassword, newPassword })
+  }
 }

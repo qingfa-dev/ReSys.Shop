@@ -1,44 +1,58 @@
-import { get, post, put, del, getPaged } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types/result'
-import type {
-  WishlistListItem,
-  WishlistDetail,
-  CreateWishlistRequest,
-  UpdateWishlistRequest,
-  AddWishlistItemRequest,
-} from '../types/wishlist'
+import { get, post, put, del } from '@/shared/api/client'
+import { PROFILES } from '@/shared/constants/api'
+import { WishlistListItemSchema, WishlistDetailSchema } from '../validations/wishlist'
+import { PagedResultSchema } from '@/shared/validations/result'
+import type { Result, PagedResult } from '@/shared/types'
+import type { WishlistListItem, WishlistDetail, CreateWishlistRequest, UpdateWishlistRequest, AddWishlistItemRequest } from '../types'
 
-// GET api/store/profiles/wishlists — PagedResult envelope. Unlike the addresses handler
-// (ToPagedOrAllAsync), GetWishlists applies Skip/Take with pageSize ?? 10, so an explicit
-// page size is required to load the full list (the view has no paging UI).
-export function getWishlists(): Promise<PagedResult<WishlistListItem>> {
-  return getPaged<WishlistListItem>(ENDPOINTS.wishlists, { pageSize: 100 })
-}
+const wishlistList = PagedResultSchema(WishlistListItemSchema)
 
-export function getWishlist(id: string): Promise<Result<WishlistDetail>> {
-  return get<Result<WishlistDetail>>(ENDPOINTS.wishlistById(id))
-}
+export class WishlistApi {
+  private static readonly BASE = `${PROFILES}/wishlists`
 
-export function createWishlist(req: CreateWishlistRequest): Promise<Result<WishlistDetail>> {
-  return post<Result<WishlistDetail>>(ENDPOINTS.wishlists, req)
-}
+  static async getWishlists(): Promise<PagedResult<WishlistListItem>> {
+    const result = await get<PagedResult<WishlistListItem>>(this.BASE)
+    if (!result.isSuccess) return result
+    const parsed = wishlistList.parse({ ...result, items: result.items })
+    return parsed as PagedResult<WishlistListItem>
+  }
 
-export function updateWishlist(id: string, req: UpdateWishlistRequest): Promise<Result<WishlistDetail>> {
-  return put<Result<WishlistDetail>>(ENDPOINTS.wishlistById(id), req)
-}
+  static async getWishlist(id: string): Promise<Result<WishlistDetail>> {
+    const result = await get<Result<WishlistDetail>>(`${this.BASE}/${id}`)
+    if (!result.isSuccess) return result
+    result.value = WishlistDetailSchema.parse(result.value)
+    return result
+  }
 
-// DELETE api/store/profiles/wishlists/{id} — returns the soft-deleted detail.
-export function deleteWishlist(id: string): Promise<Result<WishlistDetail>> {
-  return del<Result<WishlistDetail>>(ENDPOINTS.wishlistById(id))
-}
+  static async createWishlist(req: CreateWishlistRequest): Promise<Result<WishlistListItem>> {
+    const result = await post<Result<WishlistListItem>>(this.BASE, req)
+    if (!result.isSuccess) return result
+    result.value = WishlistListItemSchema.parse(result.value)
+    return result
+  }
 
-// POST api/store/profiles/wishlists/{id}/items — 201 with the updated detail.
-export function addWishlistItem(id: string, req: AddWishlistItemRequest): Promise<Result<WishlistDetail>> {
-  return post<Result<WishlistDetail>>(ENDPOINTS.wishlistItems(id), req)
-}
+  static async updateWishlist(id: string, req: UpdateWishlistRequest): Promise<Result<WishlistListItem>> {
+    const result = await put<Result<WishlistListItem>>(`${this.BASE}/${id}`, req)
+    if (!result.isSuccess) return result
+    result.value = WishlistListItemSchema.parse(result.value)
+    return result
+  }
 
-// DELETE api/store/profiles/wishlists/{id}/items/{itemId} — returns the updated detail.
-export function removeWishlistItem(listId: string, itemId: string): Promise<Result<WishlistDetail>> {
-  return del<Result<WishlistDetail>>(ENDPOINTS.wishlistItem(listId, itemId))
+  static async deleteWishlist(id: string): Promise<Result<void>> {
+    return await del<Result<void>>(`${this.BASE}/${id}`)
+  }
+
+  static async addWishlistItem(listId: string, req: AddWishlistItemRequest): Promise<Result<WishlistDetail>> {
+    const result = await post<Result<WishlistDetail>>(`${this.BASE}/${listId}/items`, req)
+    if (!result.isSuccess) return result
+    result.value = WishlistDetailSchema.parse(result.value)
+    return result
+  }
+
+  static async removeWishlistItem(listId: string, itemId: string): Promise<Result<WishlistDetail>> {
+    const result = await del<Result<WishlistDetail>>(`${this.BASE}/${listId}/items/${itemId}`)
+    if (!result.isSuccess) return result
+    result.value = WishlistDetailSchema.parse(result.value)
+    return result
+  }
 }

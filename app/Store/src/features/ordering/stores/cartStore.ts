@@ -1,87 +1,83 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { STORAGE_KEYS } from '@/shared/constants/storage'
-import type { CartLineItem, CartResponse } from '../types/cart'
-import type { CartReservationStatus } from '@/features/inventory/types/availability'
-import * as cartApi from '../services/cartApi'
-import { reserveStock, releaseReservation, getCartReservations } from '@/features/inventory/services/cartReservationApi'
-
-/** Guid.Empty — the backend returns this id when no cart exists yet. */
-const EMPTY_GUID = '00000000-0000-0000-0000-000000000000'
-
-function isRealCartId(id: string | null): id is string {
-  return !!id && id !== EMPTY_GUID
-}
+import { CartApi } from '../services/cartApi'
+import { emit, on } from '@/shared/composables/useStoreEvents'
+import type { CartLineItem } from '../types'
 
 export const useCartStore = defineStore('cart', () => {
   const id = ref<string | null>(null)
   const items = ref<CartLineItem[]>([])
-  const reservations = ref<CartReservationStatus[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const lastFetchedAt = ref(0)
+  const cartToken = crypto.randomUUID()
 
-  const itemCount = computed(() => items.value.reduce((sum, i) => sum + i.quantity, 0))
-  const subtotal = computed(() => items.value.reduce((sum, i) => sum + i.total, 0))
+  const itemCount = computed(() => items.value.reduce((s, i) => s + i.quantity, 0))
+  const subtotal = computed(() => items.value.reduce((s, i) => s + i.total, 0))
+  const isEmpty = computed(() => items.value.length === 0)
 
-  function getCartToken(): string {
-    let token = localStorage.getItem(STORAGE_KEYS.CART_TOKEN)
-    if (!token) {
-      token = crypto.randomUUID()
-      localStorage.setItem(STORAGE_KEYS.CART_TOKEN, token)
-    }
-    return token
-  }
-
-  async function fetchCart(): Promise<void> {
+  async function fetchCart(): Promise<boolean> {
+    if (loading.value) return false
+    if (Date.now() - lastFetchedAt.value < 30_000 && items.value.length > 0) return true
     loading.value = true
     error.value = null
     try {
-      const result = await cartApi.getCart()
+      const result = await CartApi.getCart()
       if (result.isSuccess) {
-        applyCart(result.value)
-        const reservationsResult = await getCartReservations(getCartToken())
-        if (reservationsResult.isSuccess) reservations.value = reservationsResult.items
+        id.value = result.value.id
+        items.value = result.value.items
+        lastFetchedAt.value = Date.now()
+        emit({ type: 'cart:updated', itemCount: itemCount.value })
       } else {
         error.value = result.message ?? 'Failed to load cart'
       }
-    } catch {
-      // The error interceptor throws HttpError on network failures / non-Result 5xx.
-      error.value = 'Failed to load cart'
-    } finally {
       loading.value = false
+      return result.isSuccess
+    } catch {
+      error.value = 'Failed to load cart'
+      loading.value = false
+      return false
     }
   }
 
-  function applyCart(cart: CartResponse): void {
-    id.value = cart.id
-    items.value = cart.items
-  }
-
   async function addItem(variantId: string, quantity = 1): Promise<boolean> {
+    loading.value = true
     error.value = null
     try {
-      const result = await cartApi.addItem({ variantId, quantity })
+      const result = await CartApi.addItem({ variantId, quantity })
       if (result.isSuccess) {
-        applyCart(result.value)
-        await reserveStock({ variantId, stockLocationId: '', quantity }, getCartToken())
-        return true
+        id.value = result.value.id
+        items.value = result.value.items
+        lastFetchedAt.value = Date.now()
+        emit({ type: 'cart:updated', itemCount: itemCount.value })
+      } else {
+        error.value = result.message ?? 'Failed to add item'
       }
-      error.value = result.message ?? 'Failed to add item'
-      return false
+      loading.value = false
+      return result.isSuccess
     } catch {
-      // The error interceptor throws HttpError on network failures / non-Result 5xx.
       error.value = 'Failed to add item'
+      loading.value = false
       return false
     }
   }
 
   async function updateQuantity(lineItemId: string, quantity: number): Promise<boolean> {
-    error.value = null
+    const prev = items.value.find(i => i.id === lineItemId)
+    if (prev) prev.quantity = quantity
     try {
-      const result = await cartApi.updateItem(lineItemId, { quantity })
-      if (result.isSuccess) { applyCart(result.value); return true }
-      error.value = result.message ?? 'Failed to update quantity'
-      return false
+      const result = await CartApi.updateItem(lineItemId, { quantity })
+      if (result.isSuccess) {
+        items.value = result.value.items
+        emit({ type: 'cart:updated', itemCount: itemCount.value })
+      } else if (prev) {
+        const refresh = await CartApi.getCart()
+        if (refresh.isSuccess) {
+          prev.quantity = refresh.value.items.find(i => i.id === lineItemId)?.quantity ?? prev.quantity
+        }
+        error.value = result.message
+      }
+      return result.isSuccess
     } catch {
       error.value = 'Failed to update quantity'
       return false
@@ -89,54 +85,48 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function removeItem(lineItemId: string): Promise<boolean> {
-    error.value = null
+    const removed = items.value.filter(i => i.id !== lineItemId)
+    items.value = removed
     try {
-      const cartItem = items.value.find(i => i.id === lineItemId)
-      const reservation = cartItem ? reservations.value.find(r => r.variantId === cartItem.variantId) : null
-      if (reservation) await releaseReservation(reservation.id)
-      const result = await cartApi.removeItem(lineItemId)
-      if (result.isSuccess) { applyCart(result.value); return true }
-      error.value = result.message ?? 'Failed to remove item'
-      return false
+      const result = await CartApi.removeItem(lineItemId)
+      if (!result.isSuccess) {
+        error.value = result.message
+        await fetchCart()
+      } else {
+        emit({ type: 'cart:updated', itemCount: itemCount.value })
+      }
+      return result.isSuccess
     } catch {
       error.value = 'Failed to remove item'
+      await fetchCart()
       return false
     }
   }
 
   async function clearCart(): Promise<void> {
-    error.value = null
-    try {
-      await cartApi.emptyCart()
-      items.value = []
-    } catch {
-      error.value = 'Failed to clear cart'
-    }
+    await CartApi.emptyCart()
+    items.value = []
+    id.value = null
+    emit({ type: 'cart:updated', itemCount: 0 })
   }
 
-  async function associate(): Promise<void> {
-    // Merge only the guest cart id captured BEFORE login (e.g. from an earlier
-    // add-to-cart). After authentication, getCart resolves the user's OWN cart —
-    // associating that would 404 on the backend (the guest order must have
-    // UserId == null), so do not fetch/resolve here.
-    const guestCartId = id.value
-    if (!isRealCartId(guestCartId)) return
-    error.value = null
-    try {
-      const result = await cartApi.associateCart(guestCartId)
-      if (result.isSuccess) applyCart(result.value)
-      else error.value = result.message ?? 'Failed to merge cart'
-    } catch {
-      error.value = 'Failed to merge cart'
-    }
+  async function associateGuestCart(): Promise<void> {
+    if (!id.value || id.value === '00000000-0000-0000-0000-000000000000') return
+    await CartApi.associateCart(id.value)
+    await fetchCart()
   }
 
   function reset(): void {
-    id.value = null
     items.value = []
-    reservations.value = []
+    id.value = null
     error.value = null
   }
 
-  return { id, items, reservations, loading, error, itemCount, subtotal, getCartToken, fetchCart, addItem, updateQuantity, removeItem, clearCart, associate, reset }
+  on('auth:login', () => associateGuestCart())
+  on('auth:logout', () => reset())
+
+  return {
+    id, items, loading, error, itemCount, subtotal, isEmpty, cartToken,
+    fetchCart, addItem, updateQuantity, removeItem, clearCart, associateGuestCart, reset,
+  }
 })

@@ -1,13 +1,25 @@
 import { z } from 'zod'
 
-// Profile edit form schema. firstName/lastName are required by the backend update
-// validator; email is required client-side because the update mapping writes the email
-// unconditionally (sending an empty email would wipe the stored value).
-export const profileSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().min(1, 'Email is required').email('Enter a valid email address'),
-  phoneNumber: z.string(),
+export const ProfileDetailSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  fullName: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
+  phoneNumber: z.string().nullable(),
+  dateOfBirth: z.string().nullable(),
+  preferences: z.record(z.string(), z.unknown()).nullable(),
+  notifications: z.record(z.string(), z.boolean()).nullable(),
+  emailConfirmed: z.boolean(),
+  phoneNumberConfirmed: z.boolean(),
+  createdAtUtc: z.string(),
+  modifiedAtUtc: z.string().nullable(),
 })
 
-export type ProfileFormValues = z.infer<typeof profileSchema>
+export const UpdateProfileRequestSchema = z.object({
+  firstName: z.string().min(1).max(200),
+  lastName: z.string().min(1).max(200),
+  email: z.string().email(),
+  phoneNumber: z.string().optional(),
+})

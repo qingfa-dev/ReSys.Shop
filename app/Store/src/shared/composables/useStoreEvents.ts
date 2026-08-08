@@ -1,39 +1,30 @@
-export type StoreEvent =
-  | { type: 'auth:login'; userId: string }
-  | { type: 'auth:logout' }
-  | { type: 'auth:init-done'; userId: string }
-  | { type: 'filter:changed' }
-  | { type: 'checkout:placed'; orderId: string }
-  | { type: 'cart:updated'; itemCount: number }
-  | { type: 'profile:deleted' }
+type EventHandler = (event: Record<string, unknown>) => void
 
-type EventHandler<T extends StoreEvent> = (event: T) => void
+const handlers = new Map<string, Set<EventHandler>>()
 
-const listeners = new Map<string, Set<EventHandler<any>>>()
-
-function getListeners<T extends StoreEvent>(type: string): Set<EventHandler<T>> {
-  if (!listeners.has(type)) {
-    listeners.set(type, new Set())
-  }
-  return listeners.get(type) as Set<EventHandler<T>>
-}
-
-export function emit<T extends StoreEvent>(event: T): void {
-  for (const handler of getListeners<T>(event.type)) {
-    handler(event)
+export function emit(event: Record<string, unknown>): void {
+  const type = event.type as string
+  if (!type) return
+  const typeHandlers = handlers.get(type)
+  if (typeHandlers) {
+    typeHandlers.forEach(h => h(event))
   }
 }
 
-export function on<T extends StoreEvent>(
-  type: T['type'],
-  handler: EventHandler<T>
-): void {
-  getListeners<T>(type).add(handler)
+export function on(type: string, handler: EventHandler): () => void {
+  if (!handlers.has(type)) {
+    handlers.set(type, new Set())
+  }
+  handlers.get(type)!.add(handler)
+  return () => {
+    handlers.get(type)?.delete(handler)
+  }
 }
 
-export function off<T extends StoreEvent>(
-  type: T['type'],
-  handler: EventHandler<T>
-): void {
-  getListeners<T>(type).delete(handler)
+export function off(type: string, handler: EventHandler): void {
+  handlers.get(type)?.delete(handler)
+}
+
+export function reset(): void {
+  handlers.clear()
 }

@@ -3,7 +3,7 @@ import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import { ProductListItemSchema, ProductDetailSchema } from '../validations/product'
 import { PagedResultSchema } from '@/shared/validations/result'
-import type { PagedResult } from '@/shared/types'
+import type { PagedResult, Result } from '@/shared/types'
 import type { StoreProductListItemResponse, StoreProductDetailResponse, ProductQuery } from '../types'
 import { toProductQueryParams } from '../types'
 
@@ -20,11 +20,11 @@ export class ProductApi {
     return parsed as PagedResult<StoreProductListItemResponse>
   }
 
-  static async getProductBySlug(slug: string): Promise<PagedResult<StoreProductDetailResponse>> {
-    const data = await get<unknown>(`${this.BASE}/${slug}`)
-    if (!data.isSuccess) return data as PagedResult<StoreProductDetailResponse>
+  static async getProductBySlug(slug: string): Promise<Result<StoreProductDetailResponse>> {
+    const data = await get<Result<StoreProductDetailResponse>>(`${this.BASE}/${slug}`)
+    if (!data.isSuccess) return data
     data.value = ProductDetailSchema.parse(data.value)
-    return data as PagedResult<StoreProductDetailResponse>
+    return data
   }
 
   static async getSimilar(productId: string, topK?: number): Promise<PagedResult<StoreProductListItemResponse>> {

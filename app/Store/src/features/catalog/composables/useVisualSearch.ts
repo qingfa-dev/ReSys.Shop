@@ -1,5 +1,5 @@
 import { onUnmounted, ref } from 'vue'
-import { searchByImage } from '../services/searchByImageApi'
+import { SearchByImageApi } from '../services/searchByImageApi'
 import type { SearchByImageResponse } from '../types/searchByImage'
 
 export type VisualSearchState = 'empty' | 'upload' | 'loading' | 'results'
@@ -64,7 +64,7 @@ export function useVisualSearch() {
     state.value = 'loading'
     error.value = null
     try {
-      const result = await searchByImage(selectedFile.value, topK, model)
+      const result = await SearchByImageApi.searchByImage(selectedFile.value, topK, model)
       if (result.isSuccess) {
         results.value = result.items
         state.value = 'results'

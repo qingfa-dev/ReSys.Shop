@@ -1,30 +1,44 @@
-import { get, post, put, del, getPaged } from '@/shared/api'
-import { ENDPOINTS } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types/result'
-import type { Address, AddressInput, DeletedAddress } from '../types/address'
+import { get, post, put, del } from '@/shared/api/client'
+import { PROFILES } from '@/shared/constants/api'
+import { AddressSchema } from '../validations/address'
+import { PagedResultSchema } from '@/shared/validations/result'
+import type { Result, PagedResult } from '@/shared/types'
+import type { Address, AddressInput } from '../types'
 
-// GET api/store/profiles/addresses — PagedResult envelope; no paging params → all rows.
-export function getAddresses(): Promise<PagedResult<Address>> {
-  return getPaged<Address>(ENDPOINTS.addresses, {})
-}
+const addressList = PagedResultSchema(AddressSchema)
 
-// POST api/store/profiles/addresses — 201 with the created address.
-export function createAddress(req: AddressInput): Promise<Result<Address>> {
-  return post<Result<Address>>(ENDPOINTS.addresses, req)
-}
+export class AddressApi {
+  private static readonly BASE = `${PROFILES}/addresses`
 
-// PUT api/store/profiles/addresses/{id} — full replacement of address fields.
-// There is no dedicated `{id}/default` route; Set-default sends isDefault: true here.
-export function updateAddress(id: string, req: AddressInput): Promise<Result<Address>> {
-  return put<Result<Address>>(ENDPOINTS.addressById(id), req)
-}
+  static async getAddresses(): Promise<PagedResult<Address>> {
+    const result = await get<PagedResult<Address>>(this.BASE)
+    if (!result.isSuccess) return result
+    const parsed = addressList.parse({ ...result, items: result.items })
+    return parsed as PagedResult<Address>
+  }
 
-// DELETE api/store/profiles/addresses/{id} — returns { id, label } confirmation.
-export function deleteAddress(id: string): Promise<Result<DeletedAddress>> {
-  return del<Result<DeletedAddress>>(ENDPOINTS.addressById(id))
-}
+  static async getDefaultAddress(): Promise<Result<Address>> {
+    const result = await get<Result<Address>>(`${this.BASE}/default`)
+    if (!result.isSuccess) return result
+    result.value = AddressSchema.parse(result.value)
+    return result
+  }
 
-// GET api/store/profiles/addresses/default — returns the user's default address.
-export function getDefaultAddress(): Promise<Result<Address | null>> {
-  return get<Result<Address | null>>(ENDPOINTS.addressDefault)
+  static async createAddress(req: AddressInput): Promise<Result<Address>> {
+    const result = await post<Result<Address>>(this.BASE, req)
+    if (!result.isSuccess) return result
+    result.value = AddressSchema.parse(result.value)
+    return result
+  }
+
+  static async updateAddress(id: string, req: AddressInput): Promise<Result<Address>> {
+    const result = await put<Result<Address>>(`${this.BASE}/${id}`, req)
+    if (!result.isSuccess) return result
+    result.value = AddressSchema.parse(result.value)
+    return result
+  }
+
+  static async deleteAddress(id: string): Promise<Result<void>> {
+    return await del<Result<void>>(`${this.BASE}/${id}`)
+  }
 }
