@@ -1,4 +1,33 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+
+// Route: Track current route for active sidebar state.
+const route = useRoute()
+
+const navItems = [
+  { to: '/account/orders', label: 'Orders' },
+  { to: '/account/addresses', label: 'Addresses' },
+  { to: '/account/profile', label: 'Profile' },
+  { to: '/account/sessions', label: 'Sessions' },
+  { to: '/account/wishlists', label: 'Wishlists' },
+  { to: '/account/notifications', label: 'Notifications' },
+  { to: '/account/change-password', label: 'Change Password' },
+  { to: '/account/preferences', label: 'Preferences' },
+]
+
+// Nav: Determine active state for a nav link.
+function isActive(path: string): boolean {
+  return route.path === path
+}
+
+// Nav: Resolve CSS classes based on active state.
+function linkClass(path: string): string {
+  const base = 'block rounded-r-lg border-l-2 px-3 py-2 text-sm transition-colors'
+  if (isActive(path)) {
+    return `${base} border-neutral-900 text-neutral-900 font-semibold bg-neutral-100`
+  }
+  return `${base} border-transparent text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 font-medium`
+}
 </script>
 <template>
   <div class="min-h-screen bg-neutral-50">
@@ -15,14 +44,14 @@
       <div class="flex flex-col md:flex-row gap-8">
         <aside class="w-full md:w-56 shrink-0">
           <nav class="space-y-1">
-            <router-link to="/account/orders" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Orders</router-link>
-            <router-link to="/account/addresses" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Addresses</router-link>
-            <router-link to="/account/profile" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Profile</router-link>
-            <router-link to="/account/sessions" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Sessions</router-link>
-            <router-link to="/account/wishlists" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Wishlists</router-link>
-            <router-link to="/account/notifications" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Notifications</router-link>
-            <router-link to="/account/change-password" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Change Password</router-link>
-            <router-link to="/account/preferences" class="block px-3 py-2 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">Preferences</router-link>
+            <router-link
+              v-for="item in navItems"
+              :key="item.to"
+              :to="item.to"
+              :class="linkClass(item.to)"
+            >
+              {{ item.label }}
+            </router-link>
           </nav>
         </aside>
         <div class="flex-1 min-w-0">
