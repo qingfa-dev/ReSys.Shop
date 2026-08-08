@@ -7,7 +7,8 @@ import type { WritableComputedRef } from 'vue'
 
 const catalog = useCatalogStore()
 
-// Term: Client-side taxonomy filter for the tree — passed to TaxonTree as a prop (Task 18)
+// Term: Keep local taxonomy search for future use; v5 Tree filter is internal state
+// only (no filterValue prop), so TaxonTree renders its own search input instead
 const taxonSearchTerm = ref('')
 
 // Options: Map of option value ids per type for group-scoped selection proxies
@@ -165,7 +166,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
 
 <template>
   <div class="flex flex-col gap-6">
-    <!-- Section: Taxon Search — client-side tree filter term for TaxonTree (Task 18) -->
+    <!-- Section: Taxon Search — local filter term kept for future use (v5 Tree has no filterValue prop) -->
     <IconField>
       <InputIcon class="pi pi-filter" />
       <InputText
@@ -185,7 +186,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
       >
         <AccordionHeader>{{ group.taxonomy.presentation ?? group.taxonomy.name }}</AccordionHeader>
         <AccordionContent>
-          <!-- TaxonTree (Task 18) -->
+          <TaxonTree :nodes="group.tree" />
         </AccordionContent>
       </AccordionPanel>
     </Accordion>
