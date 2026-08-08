@@ -346,6 +346,4 @@ onMounted(() => {
       <Button label="Save Address" icon="pi pi-check" :loading="addressStore.saving" @click="saveAddress" />
     </template>
   </Dialog>
-
-  <ConfirmDialog />
 </template>

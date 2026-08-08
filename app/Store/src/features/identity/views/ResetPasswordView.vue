@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useForm, useField } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
+import { z } from 'zod'
 import { useAuthStore } from '../stores/authStore'
 import { ResetPasswordSchema } from '../validations'
 import { usePasswordStrength } from '../composables/usePasswordStrength'
@@ -11,25 +12,29 @@ import { usePasswordStrength } from '../composables/usePasswordStrength'
 const auth = useAuthStore()
 const route = useRoute()
 
-// Form: Wire vee-validate to the existing zod reset schema.
+// Form: Extend the shared reset schema with the confirm field so the mirror
+// check participates in form-level validation (vee-validate skips standalone
+// useField rules when a validationSchema is set — same fix as ChangePasswordView).
+const ResetPasswordFormSchema = ResetPasswordSchema.extend({
+  confirmPassword: z.string(),
+}).refine(d => d.confirmPassword === d.newPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+})
+
 const token = typeof route.query.token === 'string' ? route.query.token : ''
 const { handleSubmit, isSubmitting, errors, defineField } = useForm<{
   token: string
   newPassword: string
+  confirmPassword: string
 }>({
-  validationSchema: toFormValidator(ResetPasswordSchema),
-  initialValues: { token, newPassword: '' },
+  validationSchema: toFormValidator(ResetPasswordFormSchema),
+  initialValues: { token, newPassword: '', confirmPassword: '' },
 })
 
-// Fields: Two-way model ref with per-field attrs for the input.
+// Fields: Two-way model refs with per-field attrs for the inputs.
 const [newPassword, newPasswordAttrs] = defineField('newPassword')
-
-// Confirm: Field-level rule keeps the mirror field outside the zod schema.
-const { value: confirmPassword, errorMessage: confirmPasswordError } = useField<
-  string | null
->('confirmPassword', value => (value === newPassword.value ? true : 'Passwords do not match'), {
-  initialValue: '',
-})
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
 
 // Meter: Live strength feedback for the new password field.
 const strengthInfo = usePasswordStrength(newPassword)
@@ -91,14 +96,15 @@ const onSubmit = handleSubmit(async values => {
       <InputPassword
         id="confirmPassword"
         v-model="confirmPassword"
+        v-bind="confirmPasswordAttrs"
         fluid
         autocomplete="new-password"
-        :invalid="!!confirmPasswordError"
+        :invalid="!!errors.confirmPassword"
       />
       <Label for="confirmPassword">Confirm password</Label>
     </FloatLabel>
-    <Message v-if="confirmPasswordError" severity="error" size="small" variant="simple">
-      {{ confirmPasswordError }}
+    <Message v-if="errors.confirmPassword" severity="error" size="small" variant="simple">
+      {{ errors.confirmPassword }}
     </Message>
 
     <!-- Section: Feedback — inline message for API errors -->

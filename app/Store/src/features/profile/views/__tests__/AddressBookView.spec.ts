@@ -10,6 +10,7 @@ import { getCountries } from '@/features/location/services/countryApi'
 import { getStates } from '@/features/location/services/stateApi'
 import type { Country } from '@/features/location/types/location'
 import type { Address } from '../../types'
+import ConfirmDialog from 'primevue/confirmdialog'
 
 // Confirm: Stub the service so delete clicks can be observed and accepted inline.
 type RequireOptions = { accept?: () => void }
@@ -240,5 +241,13 @@ describe('AddressBookView', () => {
     expect(wrapper.findAll('input')).toHaveLength(0)
     expect(wrapper.findAll('textarea')).toHaveLength(0)
     expect(wrapper.findAll('select')).toHaveLength(0)
+  })
+
+  it('does not render its own ConfirmDialog — App.vue already mounts the global one', async () => {
+    const wrapper = await mountView()
+    seedAddresses()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findComponent(ConfirmDialog).exists()).toBe(false)
   })
 })
