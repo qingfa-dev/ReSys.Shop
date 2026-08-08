@@ -25,8 +25,10 @@ const cartDrawerOpen = ref(false)
         </nav>
         <div class="flex items-center gap-1">
           <Button icon="pi pi-search" text rounded aria-label="Search" @click="search.open()" />
-          <Button icon="pi pi-shopping-cart" text rounded class="relative" @click="cartDrawerOpen = true" />
-          <Tag v-if="cart.itemCount > 0" :value="String(cart.itemCount)" severity="contrast" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] text-[10px] p-0" />
+          <div class="relative inline-flex">
+            <Button icon="pi pi-shopping-cart" text rounded @click="cartDrawerOpen = true" />
+            <Tag v-if="cart.itemCount > 0" :value="String(cart.itemCount)" severity="contrast" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] text-[10px] p-0" />
+          </div>
           <ThemeToggle />
           <template v-if="auth.isAuthenticated">
             <Button icon="pi pi-user" text rounded as="router-link" to="/account/orders" aria-label="Account" class="hidden md:flex" />
