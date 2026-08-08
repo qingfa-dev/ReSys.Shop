@@ -2,7 +2,7 @@
 goal: Configure IVFFlat and HNSW pgvector indexes, create EF Core migration, and fix embedding service connection config
 version: 1.0
 date_created: 2026-07-29
-last_updated: 2026-07-29
+last_updated: 2026-08-08
 status: Planned
 tags: feature, pgvector, index, migration, configuration, embedding, infrastructure
 ---
@@ -19,7 +19,7 @@ The `catalog.product_image_embeddings` table stores `VECTOR(512)` embeddings but
 - **REQ-002**: IVFFlat index must use `vector_cosine_ops` operator class — same operator class used in benchmark `benchmarks/infra/postgres/init.sql:38`
 - **REQ-003**: HNSW index configuration method must be available for future production adoption (higher recall, larger index build cost)
 - **REQ-004**: Index configuration methods must be reusable across any entity with a `Vector` property (generic, on `EntityTypeBuilder<T>`)
-- **REQ-005**: Embedding service (Python FastAPI at `service/Embedding/`) must be reachable via Aspire service discovery AND via explicit `appsettings` URL for non-Aspire environments
+- **REQ-005**: Embedding service (Python FastAPI at `service/Embedding/`) must be reachable from the .NET API: resolved endpoint injected via the AppHost (`embedding.GetEndpoint("http")`) with an `appsettings` URL (`http://embedding:8000`) as fallback for non-Aspire environments
 - **SEC-001**: Vector index must not expose sensitive data through index metadata (index is on a `VECTOR(512)` column containing embeddings, not raw data)
 - **CON-001**: Shared layer must not depend on Module — index config methods go in `Shared/Operational/Persistence/Configurations/Vectors/` (already depends only on `Pgvector` NuGet)
 - **CON-002**: Extension method pattern must match existing `VectorConfiguration.cs` conventions: `public static` methods on `EntityTypeBuilder<T>`
@@ -27,7 +27,7 @@ The `catalog.product_image_embeddings` table stores `VECTOR(512)` embeddings but
 - **GUD-001**: IVFFlat `lists` parameter = 100 for initial deployment (<100K rows expected); tune later as data grows
 - **GUD-002**: HNSW `m` = 16, `ef_construction` = 200 per pgvector recommended defaults for production-quality recall
 - **GUD-003**: Index name convention: `IX_{TableName}_{ColumnName}_{Method}` using `HasDatabaseName`
-- **GUD-004**: Connection config for embedding service: default `"http://embedding"` (Aspire service discovery) with `appsettings.Development.json` override for non-Aspire local dev at `http://localhost:8000`
+- **GUD-004**: Connection config for embedding service: the AppHost injects the resolved endpoint URL directly (`embedding.GetEndpoint("http")`) into the Api as `Http:Clients:Inference:BaseAddress` so no DNS/hostname translation is needed; default and dev fallback both use `http://embedding:8000`
 
 ## 2. Implementation Steps
 
@@ -177,24 +177,23 @@ docker run -d --name pgvector-test \
 
 ### Implementation Phase 4: Correct Embedding Service Connection Configuration
 
-- **GOAL-004**: Ensure the .NET API can reach the Python FastAPI embedding service both via Aspire service discovery (`http://embedding`) and via explicit URL for non-Aspire environments (`http://localhost:8000`)
+- **GOAL-004**: Ensure the .NET API can reach the Python FastAPI embedding service. In Aspire, the endpoint is injected directly into the Api so it does not depend on service-discovery hostname translation (`embedding` is not a resolvable DNS name); for non-Aspire standalone dev, an explicit `appsettings` URL is used as fallback.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-009 | Add `Http:Clients:Inference` configuration section to `appsettings.Development.json` with `BaseAddress: "http://localhost:8000"` for non-Aspire local dev | | |
-| TASK-010 | Verify that `InferenceClientDependencyInjection.AddInferenceClient` correctly reads the config section (it already does via `InferenceClientSetting.SectionName = "Http:Clients:Inference"`) and falls back to default `"http://embedding"` if section is absent | | |
+| TASK-009 | Add `Http:Clients:Inference` configuration section to `appsettings.Development.json` with `BaseAddress: "http://embedding:8000"` (standalone fallback; under Aspire the env-injected value from the AppHost always wins) | | |
+| TASK-010 | Verify that `InferenceClientDependencyInjection.AddInferenceClient` correctly reads the config section (it already does via `InferenceClientSetting.SectionName = "Http:Clients:Inference"`) and falls back to default `"http://embedding:8000"` if section is absent | | |
+| TASK-011 | In `infra/Aspire/src/ReSys.AppHost/AppHost.cs`, inject the resolved embedding endpoint into the Api: `.WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))`. DCP resolves the runtime-reachable URL (e.g. `http://localhost:8000`), so no gateway or service-discovery host rewrite is required. | | |
 
 **Implementation Details:**
 
 File: `service/Api/src/Api/appsettings.Development.json`
 
-Add after the `"Storage"` section (after line 46, before the closing `}`):
-
 ```json
   "Http": {
     "Clients": {
       "Inference": {
-        "BaseAddress": "http://localhost:8000",
+        "BaseAddress": "http://embedding:8000",
         "TimeoutSeconds": 60,
         "DefaultHeaders": {}
       }
@@ -202,9 +201,23 @@ Add after the `"Storage"` section (after line 46, before the closing `}`):
   },
 ```
 
-This ensures that when running the API standalone (without Aspire), the embedding client resolves to the local Python service. When running with Aspire, the Aspire service discovery layer injects the Aspire-resolved URL which overrides this value (Aspire config sources have higher priority than appsettings files).
+File: `infra/Aspire/src/ReSys.AppHost/AppHost.cs`
+
+```csharp
+IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Services.Api)
+    .WithReference(database)
+    .WithReference(redis)
+    .WithReference(embedding)
+    .WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))
+    .WithHttpHealthCheck("/health")
+    .WithExternalHttpEndpoints()
+    .WithOtlpExporter();
+```
+
+The `WithEnvironment(name, EndpointReference)` overload (Aspire.Hosting 13.4.6) materializes the endpoint's URL at runtime, overriding the appsettings value via the standard env-var config source. This avoids the earlier failure mode where the client configured `BaseAddress: "http://embedding"` fell through to port 80 and then to an unresolvable hostname because the reactive `.ResolvingHttpDelegatingHandler` had no `Services__Embedding__http__0` entry to rewrite.
 
 **Validation**:
+- `dotnet build infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj` — must succeed with zero warnings
 - `dotnet build service/Api/src/Api/Api.csproj` — must succeed with zero warnings
 - The JSON must be valid (no trailing commas, proper nesting)
 
@@ -213,14 +226,14 @@ This ensures that when running the API standalone (without Aspire), the embeddin
 - **ALT-001**: Configure the index directly in migration `Up()` method as raw SQL (`migrationBuilder.Sql("CREATE INDEX ...")`). Rejected because it bypasses EF Core model snapshot, making the index invisible to `dotnet ef migrations list` and causing diff drift on subsequent migrations. The `HasMethod`/`HasOperators`/`HasStorageParameter` approach preserves full snapshot integration.
 - **ALT-002**: Hardcode index config in each entity configuration instead of reusable extension methods. Rejected because it duplicates logic — every entity with a `Vector` property would re-implement the same `HasMethod`/`HasOperators` calls. The extension method on `EntityTypeBuilder<T>` is the correct abstraction per the project's convention in `Vector.Configuration.cs`.
 - **ALT-003**: Use HNSW instead of IVFFlat as the initial index. Rejected because IVFFlat is faster to build and sufficient for <1M rows; HNSW can be adopted later via a migration that drops IVFFlat and creates HNSW. Both methods are provided for future use.
-- **ALT-004**: Rely solely on Aspire service discovery without explicit `appsettings` fallback. Rejected because running the API standalone (`dotnet run --project service/Api/src/Api`) or in CI without Aspire would fail DNS resolution on `http://embedding`.
-- **ALT-005**: Modify `InferenceClientSetting.DefaultBaseAddress` to `"http://localhost:8000"`. Rejected because the default `"http://embedding"` is semantically correct for Aspire orchestration; the override belongs in environment-specific config.
+- **ALT-004**: Rely solely on Aspire service discovery without explicit `appsettings` fallback and without an AppHost-injected endpoint. Rejected because the runtime exception showed the `Services__Embedding__http__0` discovery config was not rewriting the client base, so the Api attempted DNS resolution on the literal hostname `embedding` and failed. The AppHost endpoint injection (TASK-011) removes the need for that translation.
+- **ALT-005**: Use `http://localhost:8000` in `InferenceClientSetting.DefaultBaseAddress` and dev config. Rejected in favor of `http://embedding:8000`, which stays semantically correct for the Aspire resource name and makes the fallback match the sidecar's declared `targetPort: 8000` in `AppHost.cs:20`; Aspire overrides the actual reachable URL via the injected environment variable.
 
 ## 4. Dependencies
 
 - **DEP-001**: PostgreSQL with pgvector extension running on `localhost:5432` (or accessible via connection string) — required for migration generation
 - **DEP-002**: `dotnet-ef` CLI tool — required for `dotnet ef migrations add`. Install: `dotnet tool install --global dotnet-ef`
-- **DEP-003**: Python FastAPI embedding service running on `http://localhost:8000` (or via Aspire) — required for end-to-end verification of the inference client connection
+- **DEP-003**: Python FastAPI embedding service (listening on port 8000) reachable via the AppHost-injected endpoint, or standalone at `localhost:8000` — required for end-to-end verification of the inference client connection
 
 ## 5. Files
 
@@ -230,7 +243,9 @@ This ensures that when running the API standalone (without Aspire), the embeddin
 | FILE-002 | `service/Api/src/Module/Catalog/Persistence/Configurations/Products/ImageEmbeddingConfiguration.cs` | Modify — add `using Shared.Operational.Persistence.Configurations.Vectors`; call `builder.ConfigureIVFFlatIndex(x => x.Vector, ...)` |
 | FILE-003 | `service/Api/src/Migrations/Migrations/<timestamp>_InitialCreate.cs` | Create — auto-generated EF Core migration with `HasPostgresExtension("vector")` and IVFFlat index |
 | FILE-004 | `service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs` | Create — auto-generated EF Core model snapshot reflecting the new index |
-| FILE-005 | `service/Api/src/Api/appsettings.Development.json` | Modify — add `Http.Clients.Inference` section with `BaseAddress: "http://localhost:8000"` |
+| FILE-005 | `service/Api/src/Api/appsettings.Development.json` | Modify — add `Http.Clients.Inference` section with `BaseAddress: "http://embedding:8000"` |
+| FILE-006 | `infra/Aspire/src/ReSys.AppHost/AppHost.cs` | Modify — inject resolved embedding endpoint into Api via `.WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))` |
+| FILE-007 | `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Shared/Clients/Options/ImageEmbedding.Inference.Options.cs` | Modify — default `BaseAddress` updated to `"http://embedding:8000"` |
 
 ## 6. Testing
 
@@ -249,7 +264,7 @@ This ensures that when running the API standalone (without Aspire), the embeddin
 - **RISK-002**: IVFFlat `lists = 100` may be insufficient for >100K embeddings, causing degraded recall. Mitigation: monitor recall metrics and increase `lists` in a follow-up migration (or migrate to HNSW via `ConfigureHNSWIndex`).
 - **RISK-003**: The `HasStorageParameter` API in Npgsql.EntityFrameworkCore 10.0.2 may have a different signature or not support all parameter types. Mitigation: if `HasStorageParameter("lists", 100)` generates invalid SQL, fall back to raw SQL in the migration `Up()` method.
 - **ASSUMPTION-001**: The `pgvector` extension is available on the target PostgreSQL instance (pgvector/pgvector:pg17-trixie image in Aspire, or pgvector extension installed manually).
-- **ASSUMPTION-002**: The embedding service runs on `http://localhost:8000` when not using Aspire orchestration (matching the `targetPort: 8000` in `AppHost.cs:20`).
+- **ASSUMPTION-002**: The embedding service declares `targetPort: 8000` in `AppHost.cs:20`; under Aspire the AppHost-injected endpoint env var carries the reachable URL, so no DNS entry for the `embedding` hostname is needed. Standalone (non-Aspire) dev must ensure the `embedding` name resolves or run the API via the AppHost.
 - **ASSUMPTION-003**: The index should be an IVFFlat index (not HNSW) for initial deployment because the table is expected to have <100K rows and IVFFlat provides adequate recall with faster build time.
 
 ## 8. Related Specifications / Further Reading

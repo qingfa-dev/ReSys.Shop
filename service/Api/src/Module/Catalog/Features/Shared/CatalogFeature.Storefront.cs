@@ -81,16 +81,8 @@ public static partial class CatalogFeature
             public static class Taxons
             {
                 public const string Route = $"{BaseRoute}/taxons";
-
                 public const string Description = "Retrieve taxons filtered by depth and taxonomy";
                 public const string Summary = "List taxons";
-
-                public static class All
-                {
-                    public const string Route = $"{BaseRoute}/taxons/all";
-                    public const string Description = "Retrieve all taxons without filtering";
-                    public const string Summary = "List all taxons";
-                }
             }
         }
 

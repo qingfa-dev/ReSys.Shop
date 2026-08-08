@@ -102,7 +102,7 @@ public class GetSimilarProductsTests : IDisposable
         {
             Id = Guid.NewGuid(),
             VariantImageId = sourceImage.Id,
-            ModelName = "dinov2_vits14",
+            ModelName = VariantImageConstant.Defaults.DefaultSimilarityModel,
             ModelVersion = "1.0",
             Vector = new Vector(sourceVectorData),
             Dimensions = 384
@@ -135,7 +135,7 @@ public class GetSimilarProductsTests : IDisposable
         {
             Id = Guid.NewGuid(),
             VariantImageId = similarImage.Id,
-            ModelName = "dinov2_vits14",
+            ModelName = VariantImageConstant.Defaults.DefaultSimilarityModel,
             ModelVersion = "1.0",
             Vector = new Vector(sourceVectorData),
             Dimensions = 384
@@ -151,7 +151,8 @@ public class GetSimilarProductsTests : IDisposable
         // Assert: Similar product should be returned, source product should be excluded
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().NotBeEmpty();
-        result.Items.Should().ContainSingle(i => i.VariantId == similarVariant.Id);
-        result.Items.Should().NotContain(i => i.VariantId == sourceVariant.Id);
+        result.Items.Should().ContainSingle(i => i.Id == similarProduct.Id);
+        result.Items.Should().NotContain(i => i.Id == sourceProduct.Id);
+        result.Items.Single(i => i.Id == similarProduct.Id).SimilarityScore.Should().BeApproximately(1.0, 1e-6);
     }
 }

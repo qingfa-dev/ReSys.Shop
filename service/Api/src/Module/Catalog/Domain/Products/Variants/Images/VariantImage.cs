@@ -54,7 +54,7 @@ public sealed partial class VariantImage : Entity<Guid>, IAuditable
     /// <summary>Navigation property to the parent variant.</summary>
     public Variant? Variant { get; set; }
     /// <summary>AI-generated image embeddings for semantic search.</summary>
-    public ICollection<ImageEmbedding> ImageEmbedding { get; set; } = new List<ImageEmbedding>();
+    public ICollection<ImageEmbedding> ImageEmbeddings { get; set; } = new List<ImageEmbedding>();
     #endregion Relationships
 
     #region Constructor

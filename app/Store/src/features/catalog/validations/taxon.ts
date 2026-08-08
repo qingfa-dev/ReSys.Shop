@@ -17,7 +17,7 @@ export const TaxonBreadcrumbItemSchema = z.object({
   permalink: z.string(),
 })
 
-// Schema: Taxon list item from GET /api/storefront/taxons/all
+// Schema: Taxon list item from GET /api/storefront/taxons
 // Backend: StoreTaxonListItemResponse extends TaxonListItemResponse
 export const TaxonListItemSchema = z.object({
   id: z.string(),

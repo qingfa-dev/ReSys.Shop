@@ -37,8 +37,8 @@ public static class VariantImageConstant
         public const string DimensionsUnit = "px";
         public const int Position = 0;
 
-        public const string DefaultEmbeddingModel = AIModels.OpenClipB32;
-        public const string DefaultSimilarityModel = AIModels.DinoV2Small;
+        public const string DefaultEmbeddingModel = AIModels.FashionClip;
+        public const string DefaultSimilarityModel = AIModels.FashionClip;
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public static class VariantImageConstant
         public const string SigLipBase = "siglip-vit-b-16";
 
         // Fashion-specific
-        public const string FashionClip = "fashion_clip";
+        public const string FashionClip = "fashion-clip";
         public const string DeepFashion = "deepfashion-embed-v2";
 
         // Visual similarity

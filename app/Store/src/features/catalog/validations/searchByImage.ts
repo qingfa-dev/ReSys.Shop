@@ -1,12 +1,8 @@
 import { z } from 'zod'
 
-export const SearchByImageResponseSchema = z.object({
-  variantId: z.string(),
-  productId: z.string(),
-  productName: z.string(),
-  sku: z.string(),
-  price: z.number(),
-  imageUrl: z.string().nullable(),
+import { ProductListItemSchema } from './product'
+
+export const SearchByImageResponseSchema = ProductListItemSchema.extend({
   similarityScore: z.number().min(0).max(1),
 })
 

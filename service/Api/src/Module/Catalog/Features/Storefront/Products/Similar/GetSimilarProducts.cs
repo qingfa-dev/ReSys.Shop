@@ -1,6 +1,8 @@
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Products.Shared.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
@@ -23,81 +25,102 @@ public static partial class GetSimilarProducts
         // Contract: pre=request.Id!=Guid.Empty, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Load: Find the variant and its product, preferring one with a completed similarity embedding.
             const string similarityModel = VariantImageConstant.Defaults.DefaultSimilarityModel;
 
-            var variants = await dbContext.Set<Variant>()
-                .Include(x => x.Product)
-                .AsNoTracking()
-                .Where(x => x.ProductId == request.Id && !x.IsDeleted)
-                .OrderByDescending(v => v.IsMaster)
-                .ThenBy(v => v.Position)
-                .ToListAsync(cancellationToken);
-
-            if (variants.Count == 0 || variants[0].Product is null)
-                return PagedResult<Response>.NotFound();
-
-            // Select: Prefer a variant with a completed similarity-model embedding for a stable, representative query vector.
-            var variant = variants[0];
-            foreach (var candidate in variants)
-            {
-                var hasEmbedding = await dbContext.Set<ImageEmbedding>()
-                    .AnyAsync(ie => ie.VariantImage.VariantId == candidate.Id
-                                 && ie.ModelName == similarityModel
-                                 && ie.Vector != null,
-                        cancellationToken);
-                if (hasEmbedding)
-                {
-                    variant = candidate;
-                    break;
-                }
-            }
-
-            // Load: Get the embedding vector and its model name for the variant's primary image.
-            var embeddingData = await dbContext.Set<ImageEmbedding>()
+            // Query: Find the best representative embedding for the product in a single round trip,
+            // loading the full relationship chain (ImageEmbedding -> VariantImage -> Variant -> Product).
+            // "Best" = master variant first, then lowest position.
+            var embedding = await dbContext.Set<ImageEmbedding>()
                 .Include(ie => ie.VariantImage)
-                .Where(ie => ie.VariantImage.VariantId == variant.Id
-                          && ie.ModelName == similarityModel
-                          && ie.Vector != null)
-                .Select(ie => new { ie.Vector, ie.ModelName })
+                    .ThenInclude(vi => vi.Variant!)
+                        .ThenInclude(v => v.Product)
+                .AsNoTracking()
+                .Where(ie => ie.ModelName == similarityModel
+                          && ie.Vector != null
+                          && ie.VariantImage.VariantId != null
+                          && ie.VariantImage.Variant!.ProductId == request.Id
+                          && !ie.VariantImage.Variant!.IsDeleted)
+                .OrderByDescending(ie => ie.VariantImage.Variant!.IsMaster)
+                .ThenBy(ie => ie.VariantImage.Variant!.Position)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (embeddingData is null)
-                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
+            if (embedding is null)
+            {
+                // Distinguish "product doesn't exist" from "product exists but has no embedding
+                // yet" only when needed, this check is skipped entirely in the common case above.
+                var productExists = await dbContext.Set<Variant>()
+                    .AnyAsync(v => v.ProductId == request.Id && !v.IsDeleted, cancellationToken);
 
-            // Query: Find nearest neighbors in vector space using cosine distance.
-            var similarVariantIds = await vectorSearchService.FindSimilarVariantIdsAsync(
-                embeddingData.Vector!, embeddingData.ModelName, request.TopK,
-                excludeProductId: variant.ProductId, cancellationToken);
+                return productExists
+                    ? PagedResult<Response>.Create(items: [], page: 1, pageSize: request.TopK, totalCount: 0)
+                    : PagedResult<Response>.NotFound();
+            }
 
-            if (similarVariantIds.Count == 0)
-                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 0, totalCount: 0);
+            var sourceVariant = embedding.VariantImage.Variant!;
 
-            // Load: Fetch full variant data with includes for response mapping.
-            var similarVariants = await dbContext.Set<Variant>()
-                .Where(v => similarVariantIds.Contains(v.Id))
-                .Include(x => x.Product)
-                .Include(x => x.Prices)
+            // Query: Find nearest neighbors in vector space with scores. Fetch a superset of
+            // variants so that de-duplicating to one item per product still yields TopK products.
+            var similarResults = await vectorSearchService.FindSimilarWithScoresAsync(
+                embedding.Vector!, embedding.ModelName, request.TopK * 2,
+                excludeProductId: sourceVariant.ProductId, cancellationToken);
+
+            if (similarResults.Count == 0)
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: request.TopK, totalCount: 0);
+
+            // Map: Resolve which product each matching variant belongs to.
+            var variantIds = similarResults.Select(r => r.VariantId).ToList();
+            var productByVariant = await dbContext.Set<Variant>()
                 .AsNoTracking()
-                .ToListAsync(cancellationToken);
+                .Where(v => variantIds.Contains(v.Id))
+                .Select(v => new { v.Id, v.ProductId })
+                .ToDictionaryAsync(v => v.Id, v => v.ProductId, cancellationToken);
 
-            // Order: Preserve the similarity ranking from the vector search, then apply secondary sort.
-            var orderedVariants = similarVariantIds
-                .Select(id => similarVariants.First(v => v.Id == id))
-                .OrderBy(v => v.Position).ThenBy(v => v.IsMaster ? 0 : 1)
+            // Aggregate: One result per product, ranked by the best-scoring matching variant.
+            var scoresByProduct = new Dictionary<Guid, double>();
+            foreach (var result in similarResults)
+            {
+                if (!productByVariant.TryGetValue(result.VariantId, out var productId))
+                    continue;
+
+                scoresByProduct.TryGetValue(productId, out var currentScore);
+                if (result.Score > currentScore)
+                    scoresByProduct[productId] = result.Score;
+            }
+
+            var rankedProducts = scoresByProduct
+                .OrderByDescending(kvp => kvp.Value)
+                .Take(request.TopK)
                 .ToList();
 
-            // Map: Build response with similar products.
-            var items = orderedVariants.Select(v => new Response
-            {
-                VariantId = v.Id,
-                ProductId = v.ProductId,
-                ProductName = v.Product?.Name ?? "",
-                Sku = v.Sku ?? "",
-                Price = v.Price ?? 0
-            }).ToList();
+            // Load: Fetch the full product graph required by MapToStoreListItem, then map
+            // results preserving the vector-search ranking (do not re-sort by Position).
+            var productIds = rankedProducts.Select(kvp => kvp.Key).ToList();
+            var products = await dbContext.Set<Product>()
+                .Include(x => x.Variants)
+                    .ThenInclude(v => v.Prices)
+                .Include(x => x.Variants)
+                    .ThenInclude(v => v.VariantImages)
+                .Include(x => x.Variants)
+                    .ThenInclude(v => v.OptionValueVariants)
+                        .ThenInclude(ov => ov.OptionValue!)
+                            .ThenInclude(o => o.OptionType!)
+                .Include(x => x.Classifications)
+                    .ThenInclude(c => c.Taxon)
+                .AsNoTracking()
+                .Where(x => productIds.Contains(x.Id) && !x.IsDeleted)
+                .ToListAsync(cancellationToken);
 
-            return PagedResult<Response>.Create(items, 1, Math.Max(1, items.Count), items.Count);
+            var productsById = products.ToDictionary(p => p.Id);
+            var items = rankedProducts
+                .Where(kvp => productsById.ContainsKey(kvp.Key))
+                .Select(kvp =>
+                {
+                    var item = productsById[kvp.Key].MapToStoreListItem<Response>();
+                    return item with { SimilarityScore = kvp.Value };
+                })
+                .ToList();
+
+            return PagedResult<Response>.Create(items, page: 1, pageSize: request.TopK, totalCount: items.Count);
         }
     }
 }

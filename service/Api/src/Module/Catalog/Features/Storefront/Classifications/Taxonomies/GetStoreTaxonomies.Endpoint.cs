@@ -10,7 +10,7 @@ public static partial class GetStoreTaxonomies
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/taxons — paged listing of all taxons for a taxonomy
-            app.MapGet(CatalogFeature.Storefront.Classifications.Taxons.All.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Classifications.Taxonomies.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -20,9 +20,9 @@ public static partial class GetStoreTaxonomies
                 return result.ToPagedResult();
             })
             .WithName(nameof(GetStoreTaxonomies))
-            .WithTags(CatalogFeature.Tags.Taxon)
-            .WithSummary(CatalogFeature.Storefront.Classifications.Taxons.All.Summary)
-            .WithDescription(CatalogFeature.Storefront.Classifications.Taxons.All.Description)
+            .WithTags(CatalogFeature.Tags.Taxonomy)
+            .WithSummary(CatalogFeature.Storefront.Classifications.Taxonomies.Summary)
+            .WithDescription(CatalogFeature.Storefront.Classifications.Taxonomies.Description)
             .Produces<PagedResult<Response>>();
         }
     }

@@ -9,7 +9,7 @@ using Pgvector;
 namespace Api.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitalCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -112,6 +112,13 @@ namespace Api.Migrations.Migrations
                     completed_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     canceled_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     approved_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    payment_processing_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    payment_completed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    payment_failed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    shipped_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    delivered_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    delivery_exception_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    estimated_delivery_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     canceled_by_id = table.Column<Guid>(type: "uuid", nullable: true),
                     approved_by_id = table.Column<Guid>(type: "uuid", nullable: true),
                     bill_address_id = table.Column<Guid>(type: "uuid", nullable: true),
@@ -515,7 +522,7 @@ namespace Api.Migrations.Migrations
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     payment_method_id = table.Column<Guid>(type: "uuid", nullable: true),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    source_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    source_id = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     source_type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -628,6 +635,28 @@ namespace Api.Migrations.Migrations
                         column: x => x.role_id,
                         principalSchema: "identity",
                         principalTable: "roles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "shipping_method_zones",
+                schema: "shipping",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    shipping_method_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    country_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
+                    state_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_shipping_method_zones", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_shipping_method_zones_shipping_methods_shipping_method_id",
+                        column: x => x.shipping_method_id,
+                        principalSchema: "shipping",
+                        principalTable: "shipping_methods",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1028,7 +1057,7 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "product_images",
+                name: "variant_images",
                 schema: "catalog",
                 columns: table => new
                 {
@@ -1052,9 +1081,9 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_product_images", x => x.id);
+                    table.PrimaryKey("pk_variant_images", x => x.id);
                     table.ForeignKey(
-                        name: "fk_product_images_variants_variant_id",
+                        name: "fk_variant_images_variants_variant_id",
                         column: x => x.variant_id,
                         principalSchema: "catalog",
                         principalTable: "variants",
@@ -1202,25 +1231,29 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "product_image_embeddings",
+                name: "variant_image_embeddings",
                 schema: "catalog",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     model_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     model_version = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    vector = table.Column<Vector>(type: "vector(512)", nullable: false),
+                    vector = table.Column<Vector>(type: "vector(512)", nullable: true),
                     dimensions = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false, defaultValue: "Completed"),
+                    error = table.Column<string>(type: "text", nullable: true),
+                    hangfire_job_id = table.Column<string>(type: "text", nullable: true),
+                    completed_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     variant_image_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_product_image_embeddings", x => x.id);
+                    table.PrimaryKey("pk_variant_image_embeddings", x => x.id);
                     table.ForeignKey(
-                        name: "fk_product_image_embeddings_variant_image_variant_image_id",
+                        name: "fk_variant_image_embeddings_variant_image_variant_image_id",
                         column: x => x.variant_image_id,
                         principalSchema: "catalog",
-                        principalTable: "product_images",
+                        principalTable: "variant_images",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1444,27 +1477,6 @@ namespace Api.Migrations.Migrations
                 column: "variant_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_product_image_embeddings_variant_image_id",
-                schema: "catalog",
-                table: "product_image_embeddings",
-                column: "variant_image_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_product_image_embeddings_vector_ivfflat",
-                schema: "catalog",
-                table: "product_image_embeddings",
-                column: "vector")
-                .Annotation("Npgsql:IndexMethod", "ivfflat")
-                .Annotation("Npgsql:IndexOperators", new[] { "vector_cosine_ops" })
-                .Annotation("Npgsql:StorageParameter:lists", 100);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_product_images_variant_id",
-                schema: "catalog",
-                table: "product_images",
-                column: "variant_id");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_product_option_types_option_type_id",
                 schema: "catalog",
                 table: "product_option_types",
@@ -1514,6 +1526,12 @@ namespace Api.Migrations.Migrations
                 table: "roles",
                 column: "normalized_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shipping_method_zones_shipping_method_id_country_code_state",
+                schema: "shipping",
+                table: "shipping_method_zones",
+                columns: new[] { "shipping_method_id", "country_code", "state_code" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_shipping_methods_code",
@@ -1652,6 +1670,27 @@ namespace Api.Migrations.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_product_image_embeddings_vector_ivfflat",
+                schema: "catalog",
+                table: "variant_image_embeddings",
+                column: "vector")
+                .Annotation("Npgsql:IndexMethod", "ivfflat")
+                .Annotation("Npgsql:IndexOperators", new[] { "vector_cosine_ops" })
+                .Annotation("Npgsql:StorageParameter:lists", 100);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_variant_image_embeddings_variant_image_id",
+                schema: "catalog",
+                table: "variant_image_embeddings",
+                column: "variant_image_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_variant_images_variant_id",
+                schema: "catalog",
+                table: "variant_images",
+                column: "variant_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_variants_product_id",
                 schema: "catalog",
                 table: "variants",
@@ -1732,10 +1771,6 @@ namespace Api.Migrations.Migrations
                 schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "product_image_embeddings",
-                schema: "catalog");
-
-            migrationBuilder.DropTable(
                 name: "product_option_types",
                 schema: "catalog");
 
@@ -1748,7 +1783,7 @@ namespace Api.Migrations.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
-                name: "shipping_methods",
+                name: "shipping_method_zones",
                 schema: "shipping");
 
             migrationBuilder.DropTable(
@@ -1792,6 +1827,10 @@ namespace Api.Migrations.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
+                name: "variant_image_embeddings",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
                 name: "wished_items",
                 schema: "profile");
 
@@ -1808,8 +1847,8 @@ namespace Api.Migrations.Migrations
                 schema: "payment");
 
             migrationBuilder.DropTable(
-                name: "product_images",
-                schema: "catalog");
+                name: "shipping_methods",
+                schema: "shipping");
 
             migrationBuilder.DropTable(
                 name: "countries",
@@ -1832,15 +1871,15 @@ namespace Api.Migrations.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
+                name: "variant_images",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
                 name: "wishlists",
                 schema: "profile");
 
             migrationBuilder.DropTable(
                 name: "option_types",
-                schema: "catalog");
-
-            migrationBuilder.DropTable(
-                name: "variants",
                 schema: "catalog");
 
             migrationBuilder.DropTable(
@@ -1850,6 +1889,10 @@ namespace Api.Migrations.Migrations
             migrationBuilder.DropTable(
                 name: "stock_locations",
                 schema: "inventory");
+
+            migrationBuilder.DropTable(
+                name: "variants",
+                schema: "catalog");
 
             migrationBuilder.DropTable(
                 name: "products",

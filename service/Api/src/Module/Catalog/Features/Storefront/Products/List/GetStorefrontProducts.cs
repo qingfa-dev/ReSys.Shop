@@ -1,6 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
+using Module.Catalog.Features.Storefront.Products.Shared;
 using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
 using Module.Inventory.Services;
@@ -79,10 +80,18 @@ public static partial class GetStorefrontProducts
 
             #region Parsing
 
-            var parsing = parameters.ParseAll(
+            // Resolve: Map storefront sort aliases (e.g. "Price") to EF Core paths
+            var resolvedSort = parameters.Sort?
+                .Select(s => StoreProductConstant.ResolveSortField(s.TrimStart('-', '+'))
+                    is var field && s.StartsWith('-') ? $"-{field}" : s)
+                .ToArray();
+
+            var resolvedParams = parameters with { Sort = resolvedSort };
+
+            var parsing = resolvedParams.ParseAll(
                 allowedFilterFields: ProductConstant.Query.AllowedFilterFields,
                 allowedSearchFields: ProductConstant.Query.AllowedSearchFields,
-                allowedSortFields: ProductConstant.Query.AllowedSortFields);
+                allowedSortFields: StoreProductConstant.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

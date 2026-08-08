@@ -66,7 +66,7 @@ describe('ShopView', () => {
       selectedOptionValueIds: [],
       minPrice: null,
       maxPrice: null,
-      sortField: '-createdAtUtc',
+      sortField: '-CreatedAtUtc',
       activeFilterCount: 0,
       loadTaxonomyGroups: vi.fn(),
       loadOptionTypes: vi.fn(),

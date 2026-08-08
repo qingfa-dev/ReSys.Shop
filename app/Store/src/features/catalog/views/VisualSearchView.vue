@@ -40,12 +40,6 @@ function onChangeImage(): void {
 function onSearch(): void {
   vs.search()
 }
-
-// Format: Convert similarity score to percentage string
-function formatScore(product: { similarityScore?: number; score?: number }): string {
-  const score = product.similarityScore ?? product.score ?? 0
-  return `${(score * 100).toFixed(1)}%`
-}
 </script>
 <template>
   <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -105,35 +99,19 @@ function formatScore(product: { similarityScore?: number; score?: number }): str
       <Skeleton v-for="i in 8" :key="i" class="aspect-[3/4] rounded-lg" />
     </div>
 
-    <!-- Section: Results Grid — visually similar products with similarity score badges -->
+    <!-- Section: Results Grid — visually similar products via ProductCard -->
     <div v-if="vs.state === 'results'">
       <h2 class="text-sm font-medium text-neutral-500 uppercase tracking-wide mb-6 mt-8">
         Results ({{ vs.results.length }})
       </h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <router-link
+        <ProductCard
           v-for="item in vs.results"
-          :key="item.variantId"
-          :to="`/products/${item.productId}`"
-          class="group block"
-        >
-          <div class="aspect-[3/4] rounded-lg bg-neutral-100 overflow-hidden relative">
-            <img
-              v-if="item.imageUrl"
-              :src="item.imageUrl"
-              :alt="item.productName"
-              class="w-full h-full object-cover transition-opacity group-hover:opacity-90"
-            />
-            <div v-else class="w-full h-full flex items-center justify-center text-neutral-300">
-              <i class="pi pi-image text-3xl" />
-            </div>
-            <span class="absolute top-2 right-2 bg-teal-500/90 text-white text-xs font-medium rounded px-1.5 py-0.5">
-              {{ formatScore(item) }}
-            </span>
-          </div>
-          <p class="text-sm font-medium text-neutral-900 truncate mt-2">{{ item.productName }}</p>
-          <p v-if="item.price" class="text-sm font-medium text-neutral-900 font-mono">${{ item.price.toFixed(2) }}</p>
-        </router-link>
+          :key="item.id"
+          :product="item"
+          :show-similarity="true"
+          :similarity-score="item.similarityScore"
+        />
       </div>
     </div>
 

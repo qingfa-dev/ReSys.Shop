@@ -9,7 +9,7 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   const error = ref<string | null>(null)
   const selectedVariantId = ref<string | null>(null)
   const quantity = ref(1)
-  const similarProducts = ref<StoreProductListItemResponse[]>([])
+  const similarProducts = ref<(StoreProductListItemResponse & { similarityScore: number })[]>([])
   const relatedProducts = ref<StoreProductListItemResponse[]>([])
   const relatedLoading = ref(false)
 

@@ -70,7 +70,7 @@ export const ProductDetailSchema = ProductListItemSchema.extend({
 // Validate: Search form — restricts sort to known fields to prevent injection
 export const ProductSearchFormSchema = z.object({
   search: z.string().optional(),
-  sort: z.enum(['-createdAtUtc', 'price', '-price', 'name', '-name']).optional(),
+  sort: z.enum(['-CreatedAtUtc', 'Price', '-Price', 'Name', '-Name']).optional(),
 })
 
 export type ProductSearchForm = z.infer<typeof ProductSearchFormSchema>

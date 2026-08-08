@@ -22,7 +22,6 @@ const expandedNodeIds = ref<Set<string>>(new Set())
 const searchQuery = ref('')
 const showAll = ref(false)
 
-// Filter: Case-insensitive name search across taxonomy tree
 function matchesSearch(node: TaxonTreeNode, q: string): boolean {
   if (!q) return true
   const lower = q.toLowerCase()
@@ -59,20 +58,16 @@ function isExpanded(nodeId: string): boolean {
 <template>
   <div>
     <!-- Search input for taxonomy filtering -->
-    <div v-if="showSearch && nodes.length > 3" class="relative mb-3">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400"
-        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Search..."
-        class="w-full rounded-lg border border-neutral-200 py-1.5 pl-8 pr-3 text-xs text-neutral-700 outline-none transition placeholder:text-neutral-400 focus:border-neutral-400"
-      />
+    <div v-if="showSearch && nodes.length > 3" class="mb-3">
+      <IconField>
+        <InputIcon class="pi pi-search" />
+        <InputText
+          v-model="searchQuery"
+          placeholder="Search..."
+          size="small"
+          class="w-full text-xs"
+        />
+      </IconField>
     </div>
 
     <!-- Taxonomy tree nodes -->
@@ -83,41 +78,39 @@ function isExpanded(nodeId: string): boolean {
           :style="{ paddingLeft: `${depth * 16}px` }"
         >
           <!-- Expand/collapse chevron for nodes with children -->
-          <button
+          <Button
             v-if="node.hasChildren"
-            class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-neutral-400 transition-colors hover:text-neutral-700"
+            :icon="isExpanded(node.id) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            severity="secondary"
+            text
+            rounded
+            size="small"
+            class="!p-0 !w-5 !h-5"
             @click="toggleExpand(node.id)"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-3 w-3 transition-transform duration-200"
-              :class="{ 'rotate-90': isExpanded(node.id) }"
-              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          />
           <span v-else class="h-5 w-5 shrink-0" />
 
-          <!-- Checkbox -->
-          <label class="flex flex-1 min-w-0 items-center gap-2 cursor-pointer py-0.5">
-            <input
-              type="checkbox"
-              :checked="selectedIds.includes(node.id)"
-              class="h-3.5 w-3.5 shrink-0 rounded border-neutral-300 text-teal-600 focus:ring-teal-500"
+          <!-- Checkbox + label -->
+          <div class="flex flex-1 min-w-0 items-center gap-2 cursor-pointer py-0.5">
+            <Checkbox
+              :model-value="selectedIds.includes(node.id)"
+              binary
+              size="small"
               @change="emit('toggle', node.id)"
             />
-            <span class="truncate text-sm" :class="selectedIds.includes(node.id) ? 'font-semibold text-neutral-900' : 'text-neutral-700'">
-              {{ node.name }}
-            </span>
-            <!-- Child count badge -->
             <span
+              class="truncate text-sm"
+              :class="selectedIds.includes(node.id) ? 'font-semibold text-neutral-900' : 'text-neutral-700'"
+              @click="emit('toggle', node.id)"
+            >{{ node.name }}</span>
+            <!-- Child count badge -->
+            <Tag
               v-if="node.hasChildren && node.children.length > 0"
-              class="ml-auto shrink-0 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] leading-none text-neutral-400"
-            >
-              {{ node.children.length }}
-            </span>
-          </label>
+              :value="String(node.children.length)"
+              severity="secondary"
+              class="ml-auto shrink-0 !text-[10px]"
+            />
+          </div>
         </div>
 
         <!-- Recursive children (only when expanded) -->
@@ -134,14 +127,16 @@ function isExpanded(nodeId: string): boolean {
     </ul>
 
     <!-- Show more / Show less toggle -->
-    <button
+    <Button
       v-if="hasMore"
-      class="mt-1 w-full py-1 text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-700"
+      :label="showAll ? 'Show less' : `Show all ${filteredNodes.length} items`"
+      severity="secondary"
+      text
+      size="small"
+      class="mt-1 text-xs"
       :style="{ paddingLeft: `${depth * 16 + 20}px` }"
       @click="showAll = !showAll"
-    >
-      {{ showAll ? 'Show less' : `Show all ${filteredNodes.length} items` }}
-    </button>
+    />
 
     <!-- No results from search -->
     <p

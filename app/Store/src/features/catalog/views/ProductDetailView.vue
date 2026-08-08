@@ -402,7 +402,11 @@ watch(() => route.params.slug, (slug) => {
             :key="item.id"
             class="shrink-0 w-48 snap-start"
           >
-            <ProductCard :product="item" />
+            <ProductCard
+              :product="item"
+              :show-similarity="true"
+              :similarity-score="item.similarityScore"
+            />
           </div>
         </div>
       </section>

@@ -3,7 +3,8 @@ using ReSys.ServiceDefaults.Constants;
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
-    .WithImage(Images.Pgvector.Optimized);
+    .WithImage(Images.Pgvector.Optimized)
+    .WithPgAdmin();
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis(Infrastructures.Cache.Resource)
     .WithImage(Images.Redis.Optimized);
@@ -24,6 +25,7 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WithReference(database)
     .WithReference(redis)
     .WithReference(embedding)
+    .WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints()
     .WithOtlpExporter();

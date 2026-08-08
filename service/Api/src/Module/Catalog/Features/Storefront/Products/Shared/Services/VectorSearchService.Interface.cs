@@ -10,5 +10,5 @@ public interface IVectorSearchService
 
     Task<List<(Guid VariantId, double Score)>> FindSimilarWithScoresAsync(
         Vector queryVector, string modelName, int topK,
-        CancellationToken cancellationToken = default);
+        Guid? excludeProductId = null, CancellationToken cancellationToken = default);
 }

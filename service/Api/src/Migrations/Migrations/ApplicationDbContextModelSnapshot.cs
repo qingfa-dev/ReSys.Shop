@@ -402,10 +402,10 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("vector");
 
                     b.HasKey("Id")
-                        .HasName("pk_product_image_embeddings");
+                        .HasName("pk_variant_image_embeddings");
 
                     b.HasIndex("VariantImageId")
-                        .HasDatabaseName("ix_product_image_embeddings_variant_image_id");
+                        .HasDatabaseName("ix_variant_image_embeddings_variant_image_id");
 
                     b.HasIndex("Vector")
                         .HasDatabaseName("ix_product_image_embeddings_vector_ivfflat")
@@ -414,7 +414,7 @@ namespace Api.Migrations.Migrations
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Vector"), "ivfflat");
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Vector"), new[] { "vector_cosine_ops" });
 
-                    b.ToTable("product_image_embeddings", "catalog");
+                    b.ToTable("variant_image_embeddings", "catalog");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
@@ -513,12 +513,12 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("width");
 
                     b.HasKey("Id")
-                        .HasName("pk_product_images");
+                        .HasName("pk_variant_images");
 
                     b.HasIndex("VariantId")
-                        .HasDatabaseName("ix_product_images_variant_id");
+                        .HasDatabaseName("ix_variant_images_variant_id");
 
-                    b.ToTable("product_images", "catalog");
+                    b.ToTable("variant_images", "catalog");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Options.OptionValueVariant", b =>
@@ -3284,11 +3284,11 @@ namespace Api.Migrations.Migrations
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.Embeddings.ImageEmbedding", b =>
                 {
                     b.HasOne("Module.Catalog.Domain.Products.Variants.Images.VariantImage", "VariantImage")
-                        .WithMany("ImageEmbedding")
+                        .WithMany("ImageEmbeddings")
                         .HasForeignKey("VariantImageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_product_image_embeddings_variant_image_variant_image_id");
+                        .HasConstraintName("fk_variant_image_embeddings_variant_image_variant_image_id");
 
                     b.Navigation("VariantImage");
                 });
@@ -3299,7 +3299,7 @@ namespace Api.Migrations.Migrations
                         .WithMany("VariantImages")
                         .HasForeignKey("VariantId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_product_images_variants_variant_id");
+                        .HasConstraintName("fk_variant_images_variants_variant_id");
 
                     b.Navigation("Variant");
                 });
@@ -3779,7 +3779,7 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
                 {
-                    b.Navigation("ImageEmbedding");
+                    b.Navigation("ImageEmbeddings");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Variant", b =>

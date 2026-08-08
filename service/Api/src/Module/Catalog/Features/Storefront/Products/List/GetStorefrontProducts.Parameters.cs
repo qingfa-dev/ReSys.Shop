@@ -10,9 +10,5 @@ public static partial class GetStorefrontProducts
         public decimal? MinPrice { get; init; }
         public decimal? MaxPrice { get; init; }
         #endregion
-
-        #region Search
-        public new string? Search { get; init; }
-        #endregion
     }
 }

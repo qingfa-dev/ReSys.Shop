@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
+using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Products.Shared.Services;
-
 using Pgvector;
 
 namespace Module.Catalog.Features.Storefront.Products.Images.Search;
@@ -50,6 +51,7 @@ public static partial class SearchByImage
             var imageBytes = ms.ToArray();
 
             var modelName = command.Request.Model ?? DefaultModel;
+            var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
 
             // Call: Generate embedding vector from uploaded image via inference service
             var inferenceResult = await inferenceClient.CreateEmbeddingFromBytesAsync(
@@ -60,51 +62,69 @@ public static partial class SearchByImage
 
             var embedding = inferenceResult.Value;
             var queryVector = new Vector(embedding.Vector.ToArray());
-            var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
 
-            // Query: Find nearest neighbors in vector space with similarity scores
+            // Query: Find nearest neighbors in vector space with scores. Fetch a superset of
+            // variants so that de-duplicating to one item per product still yields TopK products.
             var similarResults = await vectorSearchService.FindSimilarWithScoresAsync(
-                queryVector, modelName, topK, cancellationToken);
+                queryVector, modelName, topK * 2, cancellationToken: cancellationToken);
 
             if (similarResults.Count == 0)
                 return PagedResult<Response>.Create(items: [], page: 1, pageSize: topK, totalCount: 0);
 
-            var similarVariantIds = similarResults.Select(r => r.VariantId).ToList();
-
-            // Load: Fetch full variant data with includes for response mapping
-            var similarVariants = await dbContext.Set<Variant>()
-                .Where(v => similarVariantIds.Contains(v.Id))
-                .Include(x => x.Product)
-                .Include(x => x.VariantImages)
+            // Map: Resolve which product each matching variant belongs to.
+            var variantIds = similarResults.Select(r => r.VariantId).ToList();
+            var productByVariant = await dbContext.Set<Variant>()
                 .AsNoTracking()
+                .Where(v => variantIds.Contains(v.Id))
+                .Select(v => new { v.Id, v.ProductId })
+                .ToDictionaryAsync(v => v.Id, v => v.ProductId, cancellationToken);
+
+            // Aggregate: One result per product, ranked by the best-scoring matching variant.
+            var scoresByProduct = new Dictionary<Guid, double>();
+            foreach (var result in similarResults)
+            {
+                if (!productByVariant.TryGetValue(result.VariantId, out var productId))
+                    continue;
+
+                scoresByProduct.TryGetValue(productId, out var currentScore);
+                if (result.Score > currentScore)
+                    scoresByProduct[productId] = result.Score;
+            }
+
+            var rankedProducts = scoresByProduct
+                .OrderByDescending(kvp => kvp.Value)
+                .Take(topK)
+                .ToList();
+
+            // Load: Fetch the full product graph required by MapToStoreListItem, then map
+            // results preserving the similarity ranking.
+            var productIds = rankedProducts.Select(kvp => kvp.Key).ToList();
+            var products = await dbContext.Set<Product>()
+                .Include(x => x.Variants)
+                    .ThenInclude(v => v.Prices)
+                .Include(x => x.Variants)
+                    .ThenInclude(v => v.VariantImages)
+                .Include(x => x.Variants)
+                    .ThenInclude(v => v.OptionValueVariants)
+                        .ThenInclude(ov => ov.OptionValue!)
+                            .ThenInclude(o => o.OptionType!)
+                .Include(x => x.Classifications)
+                    .ThenInclude(c => c.Taxon)
+                .AsNoTracking()
+                .Where(x => productIds.Contains(x.Id) && !x.IsDeleted)
                 .ToListAsync(cancellationToken);
 
-            // Map: Build search result items with variant data and similarity scores,
-            // preserving the similarity-ranked order from the vector search
-            var variantsById = similarVariants.ToDictionary(v => v.Id);
-            var items = similarResults
-                .Where(r => variantsById.ContainsKey(r.VariantId))
-                .Select(r => MapToItem(variantsById[r.VariantId], r.Score))
+            var productsById = products.ToDictionary(p => p.Id);
+            var items = rankedProducts
+                .Where(kvp => productsById.ContainsKey(kvp.Key))
+                .Select(kvp =>
+                {
+                    var item = productsById[kvp.Key].MapToStoreListItem<Response>();
+                    return item with { SimilarityScore = kvp.Value };
+                })
                 .ToList();
 
             return PagedResult<Response>.Create(items, page: 1, pageSize: topK, totalCount: items.Count);
         }
-    }
-
-    private static Response MapToItem(Variant v, double similarityScore = 0)
-    {
-        var displayImage = v.VariantImages.FirstOrDefault(i => i.Type == VariantImageType.Default)
-                            ?? v.VariantImages.FirstOrDefault();
-
-        return new Response
-        {
-            VariantId = v.Id,
-            ProductId = v.ProductId,
-            ProductName = v.Product?.Name ?? string.Empty,
-            Sku = v.Sku ?? string.Empty,
-            Price = v.Price ?? 0,
-            ImageUrl = displayImage?.Url,
-            SimilarityScore = similarityScore
-        };
     }
 }

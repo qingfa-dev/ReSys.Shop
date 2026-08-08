@@ -85,11 +85,11 @@ describe('catalogStore', () => {
 
   it('clearFilters keeps sort state intact', () => {
     const store = useCatalogStore()
-    store.sortField = 'price'
+    store.sortField = 'Price'
     store.toggleTaxon('t-1')
 
     store.clearFilters()
 
-    expect(store.sortField).toBe('price')
+    expect(store.sortField).toBe('Price')
   })
 })

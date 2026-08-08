@@ -11,7 +11,7 @@ export const useCatalogStore = defineStore('catalog', () => {
   const selectedOptionValueIds = ref<string[]>([])
   const minPrice = ref<number | null>(null)
   const maxPrice = ref<number | null>(null)
-  const sortField = ref('-createdAtUtc')
+  const sortField = ref('-CreatedAtUtc')
 
   const taxonomyGroups = ref<TaxonomyGroup[]>([])
   const optionTypes = ref<(StoreOptionTypeListItem & { values: StoreOptionValueListItemResponse[] })[]>([])

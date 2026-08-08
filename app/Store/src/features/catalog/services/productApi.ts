@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { get, post } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
+import { PRODUCT_SORT_FIELDS, PRODUCT_SEARCH_FIELDS, PRODUCT_FILTER_FIELDS } from '@/shared/constants/product'
 import { ProductListItemSchema, ProductDetailSchema } from '../validations/product'
 import { PagedResultSchema } from '@/shared/validations/result'
 import type { PagedResult, Result } from '@/shared/types'
@@ -9,6 +11,9 @@ import { toProductQueryParams } from '../types'
 
 // Validate: Paged result schema for product list items — reused across all list endpoints
 const validatedPagedList = PagedResultSchema(ProductListItemSchema)
+// Validate: Similar products schema extends list item with similarity score
+const SimilarProductSchema = ProductListItemSchema.extend({ similarityScore: z.number() })
+const validatedSimilarList = PagedResultSchema(SimilarProductSchema)
 
 export class ProductApi {
   private static readonly BASE = `${CATALOG}/products`
@@ -16,7 +21,11 @@ export class ProductApi {
   static async getProducts(q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {
     // Call: Catalog API — paginated product list with filters, sort, search
     const params = toProductQueryParams(q)
-    const result = await getPaged<unknown>(this.BASE, params)
+    const result = await getPaged<unknown>(this.BASE, params, {
+      allowedSortFields: [...PRODUCT_SORT_FIELDS],
+      allowedSearchFields: [...PRODUCT_SEARCH_FIELDS],
+      allowedFilterFields: [...PRODUCT_FILTER_FIELDS],
+    })
     if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse>
     // Validate: Ensure API response matches ProductListItem schema
     const parsed = validatedPagedList.parse({ ...result, items: result.items })
@@ -32,15 +41,15 @@ export class ProductApi {
     return data
   }
 
-  static async getSimilar(productId: string, topK?: number): Promise<PagedResult<StoreProductListItemResponse>> {
+  static async getSimilar(productId: string, topK?: number): Promise<PagedResult<StoreProductListItemResponse & { similarityScore: number }>> {
     // Call: Catalog API — AI-powered similar product recommendations
     const params: Record<string, unknown> = { productId }
     if (topK) params.topK = topK
     const result = await getPaged<unknown>(`${this.BASE}/similar`, params)
-    if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse>
-    // Validate: Ensure API response matches ProductListItem schema
-    const parsed = validatedPagedList.parse({ ...result, items: result.items })
-    return parsed as PagedResult<StoreProductListItemResponse>
+    if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse & { similarityScore: number }>
+    // Validate: Ensure API response matches SimilarProduct schema with similarity score
+    const parsed = validatedSimilarList.parse({ ...result, items: result.items })
+    return parsed as PagedResult<StoreProductListItemResponse & { similarityScore: number }>
   }
 
   static async getRelated(productId: string, q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {

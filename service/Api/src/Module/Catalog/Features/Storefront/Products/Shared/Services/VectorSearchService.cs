@@ -30,11 +30,11 @@ public sealed class VectorSearchService : IVectorSearchService
 
     public async Task<List<(Guid VariantId, double Score)>> FindSimilarWithScoresAsync(
         Vector queryVector, string modelName, int topK,
-        CancellationToken cancellationToken = default)
+        Guid? excludeProductId = null, CancellationToken cancellationToken = default)
     {
         var ranked = _isNpgsql
-            ? await NpgsqlRankByVariantAsync(queryVector, modelName, topK, excludeProductId: null, cancellationToken)
-            : await InMemoryRankByVariantAsync(queryVector, modelName, topK, excludeProductId: null, cancellationToken);
+            ? await NpgsqlRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken)
+            : await InMemoryRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
 
         return ranked.Select(r => (r.VariantId, Score: 1.0 - r.Distance)).ToList();
     }
@@ -50,12 +50,12 @@ public sealed class VectorSearchService : IVectorSearchService
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
         var query = _dbContext.Set<ImageEmbedding>()
-            .Where(e => e.ModelName == modelName
+            .Include(e => e.VariantImage)
+            .Where(e => e.VariantImage.Type == VariantImageType.Search
+                     && e.ModelName == modelName
                      && e.Vector != null
-                     && e.VariantImage.Type == VariantImageType.Search
-                     && e.VariantImage.VariantId != null
-                     && !e.VariantImage.Variant!.IsDeleted);
-
+                     && e.VariantImage.VariantId != null);
+                     
         if (excludeProductId.HasValue)
             query = query.Where(e => e.VariantImage.Variant!.ProductId != excludeProductId.Value);
 
@@ -85,8 +85,7 @@ public sealed class VectorSearchService : IVectorSearchService
             .Where(e => e.ModelName == modelName
                      && e.Vector != null
                      && e.VariantImage.Type == VariantImageType.Search
-                     && e.VariantImage.VariantId != null
-                     && !e.VariantImage.Variant!.IsDeleted);
+                     && e.VariantImage.VariantId != null);
 
         if (excludeProductId.HasValue)
             query = query.Where(e => e.VariantImage.Variant!.ProductId != excludeProductId.Value);

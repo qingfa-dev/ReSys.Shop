@@ -14,8 +14,8 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260804180445_AddShippingMethodZones")]
-    partial class AddShippingMethodZones
+    [Migration("20260808062439_InitalCreate")]
+    partial class InitalCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -405,10 +405,10 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("vector");
 
                     b.HasKey("Id")
-                        .HasName("pk_product_image_embeddings");
+                        .HasName("pk_variant_image_embeddings");
 
                     b.HasIndex("VariantImageId")
-                        .HasDatabaseName("ix_product_image_embeddings_variant_image_id");
+                        .HasDatabaseName("ix_variant_image_embeddings_variant_image_id");
 
                     b.HasIndex("Vector")
                         .HasDatabaseName("ix_product_image_embeddings_vector_ivfflat")
@@ -417,7 +417,7 @@ namespace Api.Migrations.Migrations
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Vector"), "ivfflat");
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Vector"), new[] { "vector_cosine_ops" });
 
-                    b.ToTable("product_image_embeddings", "catalog");
+                    b.ToTable("variant_image_embeddings", "catalog");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
@@ -516,12 +516,12 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("width");
 
                     b.HasKey("Id")
-                        .HasName("pk_product_images");
+                        .HasName("pk_variant_images");
 
                     b.HasIndex("VariantId")
-                        .HasDatabaseName("ix_product_images_variant_id");
+                        .HasDatabaseName("ix_variant_images_variant_id");
 
-                    b.ToTable("product_images", "catalog");
+                    b.ToTable("variant_images", "catalog");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Options.OptionValueVariant", b =>
@@ -1847,10 +1847,22 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("deleted_by");
 
+                    b.Property<DateTimeOffset?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivered_at");
+
+                    b.Property<DateTimeOffset?>("DeliveryExceptionAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivery_exception_at");
+
                     b.Property<string>("Email")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<DateTimeOffset?>("EstimatedDeliveryAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("estimated_delivery_at");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -1885,6 +1897,18 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("outstanding_balance");
 
+                    b.Property<DateTimeOffset?>("PaymentCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_completed_at");
+
+                    b.Property<DateTimeOffset?>("PaymentFailedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_failed_at");
+
+                    b.Property<DateTimeOffset?>("PaymentProcessingAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_processing_at");
+
                     b.Property<string>("PaymentState")
                         .HasColumnType("text")
                         .HasColumnName("payment_state");
@@ -1911,6 +1935,10 @@ namespace Api.Migrations.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("shipment_total");
+
+                    b.Property<DateTimeOffset?>("ShippedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shipped_at");
 
                     b.Property<Guid?>("ShippingMethodId")
                         .HasColumnType("uuid")
@@ -3263,7 +3291,7 @@ namespace Api.Migrations.Migrations
                         .HasForeignKey("VariantImageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_product_image_embeddings_variant_image_variant_image_id");
+                        .HasConstraintName("fk_variant_image_embeddings_variant_image_variant_image_id");
 
                     b.Navigation("VariantImage");
                 });
@@ -3274,7 +3302,7 @@ namespace Api.Migrations.Migrations
                         .WithMany("VariantImages")
                         .HasForeignKey("VariantId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_product_images_variants_variant_id");
+                        .HasConstraintName("fk_variant_images_variants_variant_id");
 
                     b.Navigation("Variant");
                 });

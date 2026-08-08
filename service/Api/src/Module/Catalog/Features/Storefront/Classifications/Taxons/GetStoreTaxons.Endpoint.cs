@@ -8,7 +8,7 @@ public static partial class GetStoreTaxons
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Admin.Taxons.GetAll.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Classifications.Taxons.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -19,9 +19,8 @@ public static partial class GetStoreTaxons
             })
             .WithName(nameof(GetStoreTaxons))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .HasPermission(CatalogFeature.Admin.Taxons.GetAll.Permission)
-            .WithSummary(CatalogFeature.Admin.Taxons.GetAll.Summary)
-            .WithDescription(CatalogFeature.Admin.Taxons.GetAll.Description)
+            .WithSummary(CatalogFeature.Storefront.Classifications.Taxons.Summary)
+            .WithDescription(CatalogFeature.Storefront.Classifications.Taxons.Description)
             .Produces<PagedResult<Response>>();
         }
     }

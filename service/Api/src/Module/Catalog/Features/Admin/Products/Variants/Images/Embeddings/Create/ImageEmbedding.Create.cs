@@ -34,6 +34,7 @@ public static partial class CreateEmbedding
 
             // Check: Only one embedding may be pending or processing per variant image + model
             var existingPending = await dbContext.Set<ImageEmbedding>()
+                .Include(e => e.VariantImage)
                 .AnyAsync(e => e.VariantImageId == request.VariantImageId
                     && e.ModelName == modelName
                     && (e.Status == EmbeddingStatus.Pending || e.Status == EmbeddingStatus.Processing),

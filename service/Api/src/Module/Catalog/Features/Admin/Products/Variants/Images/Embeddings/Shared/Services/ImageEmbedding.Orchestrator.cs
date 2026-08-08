@@ -97,6 +97,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         }
 
         var existing = await _dbContext.Set<ImageEmbedding>()
+            .Include(e => e.VariantImage)
             .FirstOrDefaultAsync(e => e.VariantImageId == variantImageId && e.ModelName == modelName, ct);
 
         ImageEmbedding embedding;
@@ -147,6 +148,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
     public async Task<Result> RunAsync(Guid embeddingId, CancellationToken ct = default)
     {
         var embedding = await _dbContext.Set<ImageEmbedding>()
+            .Include(e => e.VariantImage)
             .FirstOrDefaultAsync(e => e.Id == embeddingId, ct);
         if (embedding is null)
         {

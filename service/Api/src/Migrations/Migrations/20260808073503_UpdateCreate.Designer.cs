@@ -14,8 +14,8 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260803211613_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260808073503_UpdateCreate")]
+    partial class UpdateCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -361,9 +361,21 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at_utc");
+
                     b.Property<int>("Dimensions")
                         .HasColumnType("integer")
                         .HasColumnName("dimensions");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<string>("HangfireJobId")
+                        .HasColumnType("text")
+                        .HasColumnName("hangfire_job_id");
 
                     b.Property<string>("ModelName")
                         .IsRequired()
@@ -377,20 +389,26 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("model_version");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Completed")
+                        .HasColumnName("status");
+
                     b.Property<Guid>("VariantImageId")
                         .HasColumnType("uuid")
                         .HasColumnName("variant_image_id");
 
                     b.Property<Vector>("Vector")
-                        .IsRequired()
                         .HasColumnType("vector(512)")
                         .HasColumnName("vector");
 
                     b.HasKey("Id")
-                        .HasName("pk_product_image_embeddings");
+                        .HasName("pk_variant_image_embeddings");
 
                     b.HasIndex("VariantImageId")
-                        .HasDatabaseName("ix_product_image_embeddings_variant_image_id");
+                        .HasDatabaseName("ix_variant_image_embeddings_variant_image_id");
 
                     b.HasIndex("Vector")
                         .HasDatabaseName("ix_product_image_embeddings_vector_ivfflat")
@@ -399,7 +417,7 @@ namespace Api.Migrations.Migrations
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Vector"), "ivfflat");
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Vector"), new[] { "vector_cosine_ops" });
 
-                    b.ToTable("product_image_embeddings", "catalog");
+                    b.ToTable("variant_image_embeddings", "catalog");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
@@ -498,12 +516,12 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("width");
 
                     b.HasKey("Id")
-                        .HasName("pk_product_images");
+                        .HasName("pk_variant_images");
 
                     b.HasIndex("VariantId")
-                        .HasDatabaseName("ix_product_images_variant_id");
+                        .HasDatabaseName("ix_variant_images_variant_id");
 
-                    b.ToTable("product_images", "catalog");
+                    b.ToTable("variant_images", "catalog");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Options.OptionValueVariant", b =>
@@ -1829,10 +1847,22 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("deleted_by");
 
+                    b.Property<DateTimeOffset?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivered_at");
+
+                    b.Property<DateTimeOffset?>("DeliveryExceptionAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivery_exception_at");
+
                     b.Property<string>("Email")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<DateTimeOffset?>("EstimatedDeliveryAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("estimated_delivery_at");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -1867,6 +1897,18 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("outstanding_balance");
 
+                    b.Property<DateTimeOffset?>("PaymentCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_completed_at");
+
+                    b.Property<DateTimeOffset?>("PaymentFailedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_failed_at");
+
+                    b.Property<DateTimeOffset?>("PaymentProcessingAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_processing_at");
+
                     b.Property<string>("PaymentState")
                         .HasColumnType("text")
                         .HasColumnName("payment_state");
@@ -1893,6 +1935,10 @@ namespace Api.Migrations.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("shipment_total");
+
+                    b.Property<DateTimeOffset?>("ShippedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shipped_at");
 
                     b.Property<Guid?>("ShippingMethodId")
                         .HasColumnType("uuid")
@@ -2044,8 +2090,9 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
-                    b.Property<Guid?>("SourceId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("SourceId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("source_id");
 
                     b.Property<string>("SourceType")
@@ -2649,6 +2696,36 @@ namespace Api.Migrations.Migrations
                     b.ToTable("shipping_methods", "shipping");
                 });
 
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethodZone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("country_code");
+
+                    b.Property<Guid>("ShippingMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shipping_method_id");
+
+                    b.Property<string>("StateCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("state_code");
+
+                    b.HasKey("Id")
+                        .HasName("pk_shipping_method_zones");
+
+                    b.HasIndex("ShippingMethodId", "CountryCode", "StateCode")
+                        .HasDatabaseName("ix_shipping_method_zones_shipping_method_id_country_code_state");
+
+                    b.ToTable("shipping_method_zones", "shipping");
+                });
+
             modelBuilder.Entity("Module.Shipping.Domain.ShippingRates.ShippingRate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3210,11 +3287,11 @@ namespace Api.Migrations.Migrations
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.Embeddings.ImageEmbedding", b =>
                 {
                     b.HasOne("Module.Catalog.Domain.Products.Variants.Images.VariantImage", "VariantImage")
-                        .WithMany("ImageEmbedding")
+                        .WithMany("ImageEmbeddings")
                         .HasForeignKey("VariantImageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_product_image_embeddings_variant_image_variant_image_id");
+                        .HasConstraintName("fk_variant_image_embeddings_variant_image_variant_image_id");
 
                     b.Navigation("VariantImage");
                 });
@@ -3225,7 +3302,7 @@ namespace Api.Migrations.Migrations
                         .WithMany("VariantImages")
                         .HasForeignKey("VariantId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_product_images_variants_variant_id");
+                        .HasConstraintName("fk_variant_images_variants_variant_id");
 
                     b.Navigation("Variant");
                 });
@@ -3577,6 +3654,16 @@ namespace Api.Migrations.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethodZone", b =>
+                {
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", null)
+                        .WithMany("Zones")
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipping_method_zones_shipping_methods_shipping_method_id");
+                });
+
             modelBuilder.Entity("Shared.Security.Identity.Domain.Roles.Claims.RoleClaim", b =>
                 {
                     b.HasOne("Shared.Security.Identity.Domain.Roles.Role", "Role")
@@ -3695,7 +3782,7 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
                 {
-                    b.Navigation("ImageEmbedding");
+                    b.Navigation("ImageEmbeddings");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Variant", b =>
@@ -3763,6 +3850,11 @@ namespace Api.Migrations.Migrations
             modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
                 {
                     b.Navigation("WishedItems");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethod", b =>
+                {
+                    b.Navigation("Zones");
                 });
 
             modelBuilder.Entity("Shared.Security.Identity.Domain.Roles.Role", b =>

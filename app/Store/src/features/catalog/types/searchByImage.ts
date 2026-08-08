@@ -1,10 +1,6 @@
-export interface SearchByImageResponse {
-  variantId: string
-  productId: string
-  productName: string
-  sku: string
-  price: number
-  imageUrl: string | null
+import type { StoreProductListItemResponse } from './product'
+
+export type SearchByImageResponse = StoreProductListItemResponse & {
   similarityScore: number
 }
 

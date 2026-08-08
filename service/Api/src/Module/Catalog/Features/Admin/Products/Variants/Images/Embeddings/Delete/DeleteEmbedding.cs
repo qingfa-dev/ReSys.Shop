@@ -14,6 +14,7 @@ public static partial class DeleteEmbedding
             Command command, CancellationToken cancellationToken)
         {
             var embedding = await dbContext.Set<ImageEmbedding>()
+                .Include(e => e.VariantImage)
                 .FirstOrDefaultAsync(e => e.VariantImageId == command.VariantImageId, cancellationToken);
 
             if (embedding is null)
