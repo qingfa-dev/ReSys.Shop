@@ -61,6 +61,6 @@ export const useProductListStore = defineStore('productList', () => {
 
   return {
     items, loading, error, page, pageSize, totalCount, totalPages, isInitialLoad,
-    fetch, nextPage, prevPage, goToPage, refresh, init,
+    fetch, markStale, nextPage, prevPage, goToPage, refresh, init,
   }
 })
