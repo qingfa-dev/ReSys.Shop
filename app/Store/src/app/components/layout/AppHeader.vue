@@ -7,6 +7,7 @@ import type { AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import type { TaxonTreeNode } from '@/features/catalog/types'
 import { useTheme } from '@/shared/composables/useTheme'
 import { useSearch } from '@/features/catalog/composables/useSearch'
+import SearchOverlay from '@/features/catalog/components/SearchOverlay.vue'
 import { useCatalogStore } from '@/features/catalog/stores/catalogStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useAuthStore } from '@/features/identity/stores/authStore'
@@ -195,4 +196,7 @@ onMounted(() => {
       <Button v-else as="router-link" to="/login" label="Sign In" icon="pi pi-sign-in" iconPos="right" />
     </div>
   </header>
+
+  <!-- Search Palette: Mounted once so the header button and Ctrl+K share one overlay (Task 19) -->
+  <SearchOverlay />
 </template>
