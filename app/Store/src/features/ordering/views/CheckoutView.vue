@@ -53,8 +53,9 @@ const addressOptions = computed(() =>
   })),
 )
 
-// Cascade: Country → state option tree built from the location store's full catalogs.
-const cascadeValue = ref<string[]>([])
+// Cascade: Leaf value of the CascadeSelect — the state id when a state is chosen,
+// otherwise the country id (PrimeVue v5 emits only the leaf optionValue).
+const cascadeValue = ref<string | null>(null)
 const cascadeOptions = computed(() =>
   location.countries.map((country) => {
     const states = location.states.filter((state) => state.countryId === country.id)
@@ -66,15 +67,32 @@ const cascadeOptions = computed(() =>
   }),
 )
 
-// Sync: Mirror the cascade selection into the location store for required-state checks.
-watch(cascadeValue, (value) => {
-  location.selectedCountryId = value[0] ?? null
-  location.selectedStateId = value[1] ?? null
+// Country: Resolve the selected country and state from the location store path fields.
+const selectedCountry = computed(() => location.countries.find((c) => c.id === location.selectedCountryId))
+const selectedState = computed(() => location.states.find((s) => s.id === location.selectedStateId))
+
+// Label: Full country / state path for the cascade control's value display.
+const cascadeLabel = computed(() =>
+  selectedState.value
+    ? `${selectedCountry.value?.name ?? ''} / ${selectedState.value.name}`
+    : selectedCountry.value?.name ?? '',
+)
+
+// Sync: Translate the cascade leaf value (state id, else country id) into store fields.
+watch(cascadeValue, (leaf) => {
+  const state = leaf ? location.states.find((s) => s.id === leaf) : undefined
+  if (state) {
+    location.selectedCountryId = state.countryId
+    location.selectedStateId = state.id
+    return
+  }
+  location.selectedCountryId = leaf ?? null
+  location.selectedStateId = null
 })
 
 // Required: State is mandatory only when the selected country mandates it and has states.
 const stateRequired = computed(() => {
-  const country = location.countries.find((c) => c.id === cascadeValue.value[0])
+  const country = location.countries.find((c) => c.id === location.selectedCountryId)
   if (!country?.statesRequired) return false
   return location.states.some((state) => state.countryId === country.id)
 })
@@ -85,8 +103,8 @@ const addressValid = computed(() =>
   address1.value.trim() !== '' &&
   city.value.trim() !== '' &&
   email.value.trim() !== '' &&
-  cascadeValue.value[0] !== undefined &&
-  (!stateRequired.value || cascadeValue.value[1] !== undefined),
+  location.selectedCountryId !== null &&
+  (!stateRequired.value || location.selectedStateId !== null),
 )
 
 // Prefill: Populate the form from a saved address, matching cascade nodes by name.
@@ -102,7 +120,7 @@ function selectSavedAddress(id: string | null): void {
   phone.value = addr.phone ?? ''
   const country = location.countries.find((c) => c.name === addr.countryName)
   const state = addr.stateProvince ? location.states.find((s) => s.name === addr.stateProvince) : undefined
-  cascadeValue.value = country ? (state ? [country.id, state.id] : [country.id]) : []
+  cascadeValue.value = state?.id ?? country?.id ?? null
   showAddressError.value = false
 }
 
@@ -116,8 +134,6 @@ async function continueToDelivery(): Promise<void> {
     showAddressError.value = true
     return
   }
-  const country = location.countries.find((c) => c.id === cascadeValue.value[0])
-  const state = location.states.find((s) => s.id === cascadeValue.value[1])
   const input: AddressInput = {
     addressType: 'Shipping',
     firstName: firstName.value,
@@ -127,10 +143,10 @@ async function continueToDelivery(): Promise<void> {
     zipCode: zipCode.value || undefined,
     phone: phone.value || undefined,
     isDefault: false,
-    countryName: country?.name ?? '',
-    countryCode: country?.isoCode ?? undefined,
-    stateProvince: state?.name ?? undefined,
-    stateCode: state?.abbreviation ?? undefined,
+    countryName: selectedCountry.value?.name ?? '',
+    countryCode: selectedCountry.value?.isoCode ?? undefined,
+    stateProvince: selectedState.value?.name ?? undefined,
+    stateCode: selectedState.value?.abbreviation ?? undefined,
   }
   const created = await addresses.createAddress(input)
   if (created) {
@@ -309,7 +325,10 @@ onUnmounted(() => {
                   optionGroupChildren="children"
                   placeholder="Country / State"
                   class="w-full"
-                />
+                >
+                  <!-- Label: Show the full country / state path instead of the leaf only -->
+                  <template #value="{ placeholder }">{{ cascadeLabel || placeholder }}</template>
+                </CascadeSelect>
               </div>
             </div>
             <Message v-if="showAddressError" severity="warn" :closable="false">

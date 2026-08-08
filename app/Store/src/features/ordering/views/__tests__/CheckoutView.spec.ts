@@ -5,11 +5,15 @@ import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import type { Pinia } from 'pinia'
 import CheckoutView from '../CheckoutView.vue'
+import CascadeSelect from 'primevue/cascadeselect'
 import { useCartStore } from '../../stores/cartStore'
 import { useCheckoutStore } from '../../stores/checkoutStore'
 import { useShippingStore } from '@/features/shipping/stores/shippingStore'
+import { useLocationStore } from '@/features/location/stores/locationStore'
+import { useAddressStore } from '@/features/profile/stores/addressStore'
 import type { CartLineItem } from '../../types'
 import type { ShippingMethod, ShippingRate } from '@/features/shipping/types/shipping'
+import type { Address } from '@/features/profile/types'
 
 // Polyfill: Select calls matchMedia on mount; jsdom does not provide it.
 function createMatchMediaStub(query: string) {
@@ -85,6 +89,54 @@ const standardRate: ShippingRate = {
   minWeight: null,
   maxWeight: null,
   freeShippingThreshold: null,
+}
+
+// Fixture: Country with a state cascade level, its state, and a state-free country.
+const usCountry = {
+  id: 'c1',
+  name: 'United States',
+  isoCode: 'US',
+  callingCode: '1',
+  statesRequired: true,
+  isActive: true,
+}
+
+const texas = {
+  id: 's2',
+  name: 'Texas',
+  abbreviation: 'TX',
+  countryId: 'c1',
+  isActive: true,
+  countryName: 'United States',
+}
+
+const canadaCountry = {
+  id: 'c9',
+  name: 'Canada',
+  isoCode: 'CA',
+  callingCode: '1',
+  statesRequired: false,
+  isActive: true,
+}
+
+// Fixture: Existing saved address used to prove the created address flows into checkout.
+const savedAddress: Address = {
+  id: 'addr-1',
+  userId: 'u-1',
+  addressType: 'Shipping',
+  firstName: 'Ada',
+  lastName: null,
+  address1: '1 Main St',
+  address2: null,
+  city: 'Austin',
+  zipCode: '73301',
+  phone: null,
+  label: null,
+  isDefault: true,
+  countryName: 'United States',
+  stateProvince: 'Texas',
+  countryCode: 'US',
+  stateCode: 'TX',
 }
 
 // Router: Memory-history router with the checkout's navigation targets.
@@ -168,6 +220,62 @@ describe('CheckoutView', () => {
     expect(wrapper.text()).toContain('Express')
     expect(wrapper.text()).toContain('$5.99')
     expect(wrapper.find('[data-pc-name="radiobuttongroup"]').exists()).toBe(true)
+  })
+
+  it('maps a cascade country/state selection into the store and the new address payload', async () => {
+    const { wrapper, pinia } = await mountView({ seedCart: true })
+    const location = useLocationStore(pinia)
+    location.countries = [usCountry, canadaCountry]
+    location.states = [texas]
+    const addresses = useAddressStore(pinia)
+    addresses.addresses = [savedAddress]
+    // Stub: Force the createAddress action to succeed so the created id flows onward.
+    vi.mocked(addresses.createAddress).mockResolvedValue(true)
+    const checkout = useCheckoutStore(pinia)
+
+    // Simulate: Select United States → Texas through the cascade control; PrimeVue v5
+    // emits the leaf optionValue (the state id) as modelValue.
+    const cascade = wrapper.findComponent(CascadeSelect)
+    cascade.vm.$emit('update:modelValue', 's2')
+    await wrapper.vm.$nextTick()
+
+    expect(cascade.props('modelValue')).toBe('s2')
+    expect(location.selectedCountryId).toBe('c1')
+    expect(location.selectedStateId).toBe('s2')
+    expect(wrapper.text()).toContain('United States / Texas')
+
+    await wrapper.find('#checkout-first-name').setValue('Ada')
+    await wrapper.find('#checkout-address1').setValue('1 Main St')
+    await wrapper.find('#checkout-city').setValue('Austin')
+    await wrapper.find('#checkout-email').setValue('ada@example.com')
+    const continueButton = wrapper.findAll('button').find((b) => b.text() === 'Continue to Delivery')
+    await continueButton!.trigger('click')
+    await flushPromises()
+
+    expect(addresses.createAddress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        countryName: 'United States',
+        stateProvince: 'Texas',
+        countryCode: 'US',
+        stateCode: 'TX',
+      }),
+    )
+    expect(checkout.saveAddress).toHaveBeenCalledWith('addr-1', 'ada@example.com')
+  })
+
+  it('selects a state-free country as a bare leaf and clears the state field', async () => {
+    const { wrapper, pinia } = await mountView({ seedCart: true })
+    const location = useLocationStore(pinia)
+    location.countries = [usCountry, canadaCountry]
+    location.states = [texas]
+
+    const cascade = wrapper.findComponent(CascadeSelect)
+    cascade.vm.$emit('update:modelValue', 'c9')
+    await wrapper.vm.$nextTick()
+
+    expect(location.selectedCountryId).toBe('c9')
+    expect(location.selectedStateId).toBeNull()
+    expect(wrapper.text()).toContain('Canada')
   })
 
   it('places the order via checkoutStore.placeOrder from the review panel', async () => {
