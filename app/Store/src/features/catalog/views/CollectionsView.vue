@@ -1,0 +1,73 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
+import { usePageTitle } from '@/shared/composables/usePageTitle'
+import { useCatalogStore } from '../stores/catalogStore'
+
+// Title: Browser tab title for the collections page
+usePageTitle('Collections')
+
+const catalog = useCatalogStore()
+
+onMounted(() => {
+  // Load: Root taxons for the collection grid — store guards duplicate fetches
+  void catalog.loadTaxonomyGroups()
+})
+</script>
+
+<template>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Section: Page Header — breadcrumb and heading -->
+    <Breadcrumb :model="[{ label: 'Home', to: '/' }, { label: 'Collections' }]" class="mb-6" />
+    <h1 class="mb-8 text-2xl font-semibold tracking-tight text-surface-900 dark:text-surface-100">
+      Collections
+    </h1>
+
+    <!-- Section: Loading State — skeleton cards while root taxons load -->
+    <div v-if="catalog.taxonsLoading" class="grid grid-cols-2 gap-6 lg:grid-cols-4">
+      <div v-for="n in 8" :key="n" class="space-y-3">
+        <Skeleton class="aspect-[3/4] w-full rounded-2xl" />
+        <Skeleton width="60%" height="1rem" />
+        <Skeleton width="40%" height="1rem" />
+      </div>
+    </div>
+
+    <!-- Section: Collection Grid — root taxon cards linking into the shop filter -->
+    <div v-else-if="catalog.collections.length > 0" class="grid grid-cols-2 gap-6 lg:grid-cols-4">
+      <RouterLink
+        v-for="collection in catalog.collections"
+        :key="collection.id"
+        :to="`/shop?taxon=${collection.id}`"
+        class="group block"
+      >
+        <Card class="overflow-hidden">
+          <template #header>
+            <Image
+              v-if="collection.imageUrl"
+              :src="collection.imageUrl"
+              :alt="collection.presentation ?? collection.name"
+              imageClass="aspect-[3/4] w-full object-cover"
+            />
+            <div
+              v-else
+              class="flex aspect-[3/4] items-center justify-center bg-surface-50 dark:bg-surface-800"
+            >
+              <i class="pi pi-images text-4xl text-surface-300" />
+            </div>
+          </template>
+          <template #title>
+            <span class="text-sm font-semibold">{{ collection.presentation ?? collection.name }}</span>
+          </template>
+          <template #content>
+            <Tag :value="`${collection.productCount ?? 0} items`" severity="secondary" />
+          </template>
+        </Card>
+      </RouterLink>
+    </div>
+
+    <!-- Section: Empty State — shown when no root taxons exist -->
+    <div v-else class="py-24 text-center">
+      <p class="text-surface-500 dark:text-surface-400">No collections available yet.</p>
+    </div>
+  </div>
+</template>

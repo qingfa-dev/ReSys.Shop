@@ -15,6 +15,7 @@ export const useCatalogStore = defineStore('catalog', () => {
 
   const taxonomyGroups = ref<TaxonomyGroup[]>([])
   const optionTypes = ref<(StoreOptionTypeListItem & { values: StoreOptionValueListItemResponse[] })[]>([])
+  const collections = ref<StoreTaxonListItemResponse[]>([])
   const taxonsLoading = ref(false)
   const optionsLoading = ref(false)
 
@@ -81,6 +82,16 @@ export const useCatalogStore = defineStore('catalog', () => {
         taxonomy: { id: t.id, name: t.name, presentation: t.presentation },
         tree: buildTree(taxonsResult.items, t.id),
       }))
+      // Collect: De-duplicated root taxons across taxonomies drive the collections grid
+      const roots: StoreTaxonListItemResponse[] = []
+      const seen = new Set<string>()
+      for (const t of taxonsResult.items) {
+        if (t.depth === 0 && !seen.has(t.id)) {
+          seen.add(t.id)
+          roots.push(t)
+        }
+      }
+      collections.value = roots
     }
     taxonsLoading.value = false
   }
@@ -119,7 +130,7 @@ export const useCatalogStore = defineStore('catalog', () => {
 
   return {
     searchQuery, selectedTaxonIds, selectedOptionValueIds, minPrice, maxPrice, sortField,
-    taxonomyGroups, optionTypes, taxonsLoading, optionsLoading,
+    taxonomyGroups, optionTypes, collections, taxonsLoading, optionsLoading,
     activeFilterCount,
     setSearch, toggleTaxon, toggleOptionValue, setPriceRange, setSort, clearFilters,
     loadTaxonomyGroups, loadOptionTypes,
