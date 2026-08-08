@@ -2,10 +2,14 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../components/layout/AppHeader.vue'
+import MobileNav from '../components/layout/MobileNav.vue'
 
 // Loader: Show the skeleton bar while the router resolves lazy route chunks.
 const router = useRouter()
 const loading = ref(false)
+
+// Nav: Mobile drawer state driven by the AppHeader hamburger (Task 11).
+const mobileNavOpen = ref(false)
 
 router.beforeEach((_to, _from, next) => {
   loading.value = true
@@ -23,8 +27,11 @@ router.afterEach(() => {
     <!-- Route Loader: Full-width skeleton bar while lazy route chunks load -->
     <Skeleton v-if="loading" class="w-full rounded-none" height="0.5rem" />
 
-    <!-- Header: Sticky shell bar; MobileNav (Task 11) and CartDrawer (Task 31) bind its events -->
-    <AppHeader />
+    <!-- Header: Sticky shell bar; CartDrawer (Task 31) binds its open-cart event -->
+    <AppHeader @open-mobile-nav="mobileNavOpen = true" />
+
+    <!-- Mobile Nav: Drawer below lg; closes itself on route change -->
+    <MobileNav :visible="mobileNavOpen" @update:visible="mobileNavOpen = $event" />
 
     <main class="flex-1">
       <RouterView />
