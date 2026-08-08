@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../components/layout/AppHeader.vue'
 import MobileNav from '../components/layout/MobileNav.vue'
+import AppFooter from '../components/layout/AppFooter.vue'
 
 // Loader: Show the skeleton bar while the router resolves lazy route chunks.
 const router = useRouter()
@@ -37,7 +38,8 @@ router.afterEach(() => {
       <RouterView />
     </main>
 
-    <!-- AppFooter (Task 12) -->
+    <!-- Footer: Brand, links and newsletter across four columns -->
+    <AppFooter />
 
     <ScrollTop :threshold="400" icon="pi pi-arrow-up" />
   </div>
