@@ -71,7 +71,7 @@ const handleSignOut = async () => {
         </div>
       </div>
     </div>
-    <MobileNav v-if="mobileMenuOpen" @close="mobileMenuOpen = false" />
+    <MobileNav v-model:open="mobileMenuOpen" />
     <CartDrawer v-model:visible="cartDrawerOpen" />
   </header>
 </template>
