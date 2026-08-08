@@ -18,6 +18,7 @@ export const useCatalogStore = defineStore('catalog', () => {
   const taxonsLoading = ref(false)
   const optionsLoading = ref(false)
 
+  // Compute: Count all active filters for badge display on filter button
   const activeFilterCount = computed(() => {
     let count = 0
     if (searchQuery.value) count++
@@ -34,6 +35,7 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   function toggleTaxon(id: string): void {
+    // Filter: Add or remove taxon ID from active category filters
     const idx = selectedTaxonIds.value.indexOf(id)
     if (idx === -1) selectedTaxonIds.value.push(id)
     else selectedTaxonIds.value.splice(idx, 1)
@@ -41,6 +43,7 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   function toggleOptionValue(id: string): void {
+    // Filter: Add or remove option value ID from active attribute filters
     const idx = selectedOptionValueIds.value.indexOf(id)
     if (idx === -1) selectedOptionValueIds.value.push(id)
     else selectedOptionValueIds.value.splice(idx, 1)
@@ -54,6 +57,7 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   function clearFilters(): void {
+    // Reset: Clear all active filters and notify product list
     searchQuery.value = ''
     selectedTaxonIds.value = []
     selectedOptionValueIds.value = []
@@ -63,13 +67,16 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function loadTaxonomyGroups(): Promise<void> {
+    // Guard: Skip fetch if taxonomy groups already loaded (singleton cache)
     if (taxonomyGroups.value.length > 0) return
     taxonsLoading.value = true
+    // Call: Catalog API — fetch taxonomies and taxons in parallel for category tree
     const [taxonomiesResult, taxonsResult] = await Promise.all([
       TaxonApi.getTaxonomies({ pageNumber: 1, pageSize: 50 }),
       TaxonApi.getTaxons({ pageNumber: 1, pageSize: 500 }),
     ])
     if (taxonomiesResult.isSuccess && taxonsResult.isSuccess) {
+      // Map: Build taxonomy groups with nested tree structure from flat taxon list
       taxonomyGroups.value = taxonomiesResult.items.map(t => ({
         taxonomy: { id: t.id, name: t.name, presentation: t.presentation },
         tree: buildTree(taxonsResult.items, t.id),
@@ -79,13 +86,17 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function loadOptionTypes(): Promise<void> {
+    // Guard: Skip fetch if option types already loaded (singleton cache)
     if (optionTypes.value.length > 0) return
     optionsLoading.value = true
+    // Call: Catalog API — fetch option types and values in parallel for filter sidebar
     const [typesResult, valuesResult] = await Promise.all([
       OptionTypeApi.getOptionTypes({ pageNumber: 1, pageSize: 50 }),
       OptionTypeApi.getOptionValues({ pageNumber: 1, pageSize: 500 }),
     ])
     if (typesResult.isSuccess && valuesResult.isSuccess) {
+      // Filter: Only include filterable option types (e.g. exclude internal-only types)
+      // Map: Attach option values to their parent type by ID
       optionTypes.value = typesResult.items
         .filter(t => t.filterable)
         .map(t => ({
@@ -96,7 +107,13 @@ export const useCatalogStore = defineStore('catalog', () => {
     optionsLoading.value = false
   }
 
+  function setSort(field: string): void {
+    sortField.value = field
+    emitFilterChanged()
+  }
+
   function emitFilterChanged(): void {
+    // Raise: Emit filter:changed event for product list store to refetch
     emit({ type: 'filter:changed' })
   }
 
@@ -104,11 +121,12 @@ export const useCatalogStore = defineStore('catalog', () => {
     searchQuery, selectedTaxonIds, selectedOptionValueIds, minPrice, maxPrice, sortField,
     taxonomyGroups, optionTypes, taxonsLoading, optionsLoading,
     activeFilterCount,
-    setSearch, toggleTaxon, toggleOptionValue, setPriceRange, clearFilters,
+    setSearch, toggleTaxon, toggleOptionValue, setPriceRange, setSort, clearFilters,
     loadTaxonomyGroups, loadOptionTypes,
   }
 })
 
+// Map: Convert flat taxon list into nested tree structure grouped by taxonomy
 function buildTree(items: any[], taxonomyId: string, parentId: string | null = null): any[] {
   return items
     .filter(i => i.taxonomyId === taxonomyId && i.parentId === parentId)
