@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import AppHeader from '../components/layout/AppHeader.vue'
 
 // Loader: Show the skeleton bar while the router resolves lazy route chunks.
 const router = useRouter()

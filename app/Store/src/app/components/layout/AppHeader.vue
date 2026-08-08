@@ -64,7 +64,7 @@ const catalogItems = computed<MenuItem[]>(() =>
     group.tree.map(root => ({
       label: root.name,
       command: () => router.push({ path: '/shop', query: { taxon: root.id } }),
-      items: root.children.length > 0 ? [{ items: root.children.map(toTaxonItem) }] : undefined,
+      items: root.children.length > 0 ? [root.children.map(toTaxonItem)] : undefined,
     })),
   ),
 )
