@@ -34,13 +34,8 @@
           </ul>
         </div>
       </div>
-      <div class="mt-8 pt-8 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="mt-8 pt-8 border-t border-neutral-200">
         <p class="text-sm text-neutral-500">&copy; {{ new Date().getFullYear() }} ReSys.Shop. All rights reserved.</p>
-        <div class="flex items-center gap-4">
-          <Button icon="pi pi-facebook" text rounded aria-label="Facebook" />
-          <Button icon="pi pi-twitter" text rounded aria-label="Twitter" />
-          <Button icon="pi pi-instagram" text rounded aria-label="Instagram" />
-        </div>
       </div>
     </div>
   </footer>
