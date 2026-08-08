@@ -70,7 +70,6 @@ function onPage(event: { page: number }): void {
               :nodes="group.tree"
               :selected-ids="catalog.selectedTaxonIds"
               :show-search="group.tree.length > 4"
-              :max-visible="8"
               @toggle="catalog.toggleTaxon($event)"
             />
           </div>
@@ -224,7 +223,6 @@ function onPage(event: { page: number }): void {
                 :nodes="group.tree"
                 :selected-ids="catalog.selectedTaxonIds"
                 :show-search="group.tree.length > 4"
-                :max-visible="8"
                 @toggle="catalog.toggleTaxon($event)"
               />
             </div>
