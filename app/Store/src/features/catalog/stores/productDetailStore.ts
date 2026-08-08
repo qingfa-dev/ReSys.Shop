@@ -13,6 +13,9 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   const relatedProducts = ref<StoreProductListItemResponse[]>([])
   const relatedLoading = ref(false)
 
+  // Seq: Monotonic load counter — stale loads discard their responses after rapid navigation
+  let _loadSeq = 0
+
   const selectedVariant = computed<StoreProductVariantResponse | null>(() =>
     // Compute: Derive selected variant from current variant ID — null if not found
     product.value?.variants.find(v => v.id === selectedVariantId.value) ?? null
@@ -35,21 +38,28 @@ export const useProductDetailStore = defineStore('productDetail', () => {
   })
 
   async function load(slug: string): Promise<void> {
+    const seq = ++_loadSeq
     loading.value = true
     error.value = null
     // Call: Catalog API — fetch product detail by slug
     const result = await ProductApi.getProductBySlug(slug)
+    // Guard: Discard stale responses after rapid A→B product navigation
+    if (seq !== _loadSeq) return
     if (result.isSuccess) {
       product.value = result.value
       // Assign: Default to master variant on initial load
       selectedVariantId.value = product.value?.masterVariant?.id ?? null
       // Call: Fetch similar products in background — non-blocking for faster page load
       ProductApi.getSimilar(product.value!.id).then(r => {
+        // Guard: Ignore stale similar rail responses after product switch
+        if (seq !== _loadSeq) return
         if (r.isSuccess) similarProducts.value = r.items
       })
       relatedLoading.value = true
       // Call: Fetch related products in background — non-blocking for faster page load
       ProductApi.getRelated(product.value!.id, { pageNumber: 1, pageSize: 12 }).then(r => {
+        // Guard: Ignore stale related rail responses after product switch
+        if (seq !== _loadSeq) return
         if (r.isSuccess) relatedProducts.value = r.items
         relatedLoading.value = false
       })

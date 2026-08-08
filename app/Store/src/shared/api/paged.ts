@@ -23,6 +23,11 @@ function buildSearchParams(params: QueryingParameters): URLSearchParams {
   if (params.sort?.length) params.sort.forEach(s => sp.append('sort', s))
   if (params.pageNumber != null) sp.set('page', String(params.pageNumber))
   if (params.pageSize != null) sp.set('pageSize', String(params.pageSize))
+  // Append: Dedicated storefront filters — repeated params bind to Guid[] on the backend
+  if (params.taxonId?.length) params.taxonId.forEach(id => sp.append('taxonId', id))
+  if (params.optionValueId?.length) params.optionValueId.forEach(id => sp.append('optionValueId', id))
+  if (params.minPrice != null) sp.set('minPrice', String(params.minPrice))
+  if (params.maxPrice != null) sp.set('maxPrice', String(params.maxPrice))
   return sp
 }
 

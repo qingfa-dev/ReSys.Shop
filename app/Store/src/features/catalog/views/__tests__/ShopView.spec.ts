@@ -249,4 +249,35 @@ describe('ShopView', () => {
     await wrapper.vm.$nextTick()
     expect(wrapper.find('[aria-label="Remove filter Men"]').exists()).toBe(true)
   })
+
+  it('re-applies a changed ?taxon= query when navigating within /shop', async () => {
+    const wrapper = await mountView({ taxon: 'r1' })
+    seedStores()
+    await wrapper.vm.$nextTick()
+    vi.clearAllMocks()
+
+    const router = wrapper.vm.$router
+    await router.push({ path: '/shop', query: { taxon: 'r2' } })
+    await flushPromises()
+
+    const catalog = useCatalogStore()
+    expect(catalog.toggleTaxon).toHaveBeenCalledTimes(1)
+    expect(catalog.toggleTaxon).toHaveBeenCalledWith('r2')
+  })
+
+  it('skips re-toggling a taxon already selected from the route query', async () => {
+    const wrapper = await mountView({ taxon: 'r1' })
+    const { catalog } = seedStores()
+    catalog.selectedTaxonIds = ['r1']
+    await wrapper.vm.$nextTick()
+    vi.clearAllMocks()
+
+    const router = wrapper.vm.$router
+    await router.push({ path: '/shop', query: { taxon: 'r1', q: 'tee' } })
+    await flushPromises()
+
+    // The watch fired (setSearch ran in the same pass) but the selected taxon is skipped
+    expect(catalog.toggleTaxon).not.toHaveBeenCalled()
+    expect(catalog.setSearch).toHaveBeenCalledWith('tee')
+  })
 })

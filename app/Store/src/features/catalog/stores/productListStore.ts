@@ -30,6 +30,11 @@ export const useProductListStore = defineStore('productList', () => {
       pageSize: pageSize.value,
       search: catalog.searchQuery || undefined,
       sort: [catalog.sortField],
+      // Filter: Forward the catalog store's active filters into the API query
+      taxonIds: catalog.selectedTaxonIds,
+      optionValueIds: catalog.selectedOptionValueIds,
+      minPrice: catalog.minPrice ?? undefined,
+      maxPrice: catalog.maxPrice ?? undefined,
     })
     if (result.isSuccess) {
       items.value = result.items

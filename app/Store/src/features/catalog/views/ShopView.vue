@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { on } from '@/shared/composables/useStoreEvents'
@@ -62,6 +62,9 @@ function applyRouteQuery(): void {
 }
 
 let unsubscribe: (() => void) | null = null
+
+// Watch: Re-apply route query filters on in-page navigations (e.g. category tag clicks)
+watch(() => route.query, applyRouteQuery)
 
 onMounted(() => {
   // Load: Taxonomy and option metadata — stores guard duplicate fetches

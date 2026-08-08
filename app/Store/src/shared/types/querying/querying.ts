@@ -23,6 +23,11 @@ export interface QueryingParameters {
   sort?: string[] | null
   pageNumber?: number | null
   pageSize?: number | null
+  // Dedicated: Storefront filter params — mirror GetStorefrontProducts.Parameters
+  taxonId?: string[] | null
+  optionValueId?: string[] | null
+  minPrice?: number | null
+  maxPrice?: number | null
 }
 
 export interface QueryingModel {
