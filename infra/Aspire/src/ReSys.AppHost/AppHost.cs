@@ -3,8 +3,7 @@ using ReSys.ServiceDefaults.Constants;
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
-    .WithImage(Images.Pgvector.Optimized)
-    .WithPgAdmin();
+    .WithImage(Images.Pgvector.Optimized);
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis(Infrastructures.Cache.Resource)
     .WithImage(Images.Redis.Optimized);
