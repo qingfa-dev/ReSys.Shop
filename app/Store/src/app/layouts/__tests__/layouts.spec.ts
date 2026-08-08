@@ -6,7 +6,7 @@ import AuthLayout from '../AuthLayout.vue'
 import AccountLayout from '../AccountLayout.vue'
 
 vi.mock('@/features/identity/stores/authStore', () => ({
-  useAuthStore: vi.fn().mockReturnValue({ isAuthenticated: false, user: null }),
+  useAuthStore: vi.fn<() => unknown>().mockReturnValue({ isAuthenticated: false, user: null }),
 }))
 
 vi.mock('@/app/components/layout/AppHeader.vue', () => ({

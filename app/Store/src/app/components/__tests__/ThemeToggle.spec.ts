@@ -3,14 +3,14 @@ import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
 import ThemeToggle from '../ThemeToggle.vue'
 
-const mockToggle = vi.fn()
+const mockToggle = vi.fn<() => void>()
 const mockIsDark = ref(false)
 
 vi.mock('@/shared/composables/useTheme', () => ({
   useTheme: () => ({
     isDark: mockIsDark,
     toggle: mockToggle,
-    init: vi.fn(),
+    init: vi.fn<() => void>(),
   }),
 }))
 
