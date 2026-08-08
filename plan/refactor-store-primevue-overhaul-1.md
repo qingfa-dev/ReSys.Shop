@@ -12,7 +12,7 @@ tags: [refactor, ui, primevue, storefront, full-coverage]
 
 ![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
 
-The Store SPA (`app/Store/`) currently contains 38 `.vue` files (3 layouts, 7 shell components, 28 feature views/components) built incrementally with mixed native HTML and PrimeVue. The user directive is absolute: **drop all `.vue` files and rebuild the UI** with PrimeVue 5 as the only component system, following the canonical user flows. The non-presentation layers (Pinia stores, API services, types, validations, composables, router) are complete and verified (289 tests passing) and MUST NOT be touched. This plan is a deterministic, phase-ordered rewrite of the presentation layer only: delete first, then rebuild shell → catalog → identity → ordering → profile, then re-verify.
+The Store SPA (`app/Store/`) currently contains 36 `.vue` files (3 layouts, 7 shell components, 26 feature views/components) built incrementally with mixed native HTML and PrimeVue. The user directive is absolute: **drop all `.vue` files and rebuild the UI** with PrimeVue 5 as the only component system, following the canonical user flows. The non-presentation layers (Pinia stores, API services, types, validations, composables, router) are complete and verified (289 tests passing) and MUST NOT be touched. This plan is a deterministic, phase-ordered rewrite of the presentation layer only: delete first, then rebuild shell → catalog → identity → ordering → profile, then re-verify.
 
 The rebuild must exercise the **full PrimeVue 5 component catalog**, not a subset: every applicable component from the installed library (verified against `app/legacy/llms.txt` and `app/Store/node_modules/primevue/`) is assigned a concrete home in the UI via the coverage matrix in REQ-009, and an automated gate (`scripts/check-primevue-coverage.sh`, TEST-005) fails the build if any matrix row is missing. Only components with no storefront application are excluded, with explicit rationale in REQ-009.
 
@@ -25,7 +25,7 @@ Canonical flows preserved by this plan (from `src/app/router/routes.ts` and feat
 
 ## 1. Requirements & Constraints
 
-- **REQ-001**: Delete every `.vue` file under `app/Store/src/` (38 files, listed in FILE-001 to FILE-005) and all view/component specs in FILE-006, then rebuild from scratch.
+- **REQ-001**: Delete every `.vue` file under `app/Store/src/` (36 files, listed in FILE-001 to FILE-005) and all view/component specs in FILE-006, then rebuild from scratch.
 - **REQ-002**: Every interactive element must be a PrimeVue 5 component. Native interactive tags (`<button>`, `<input>`, `<select>`, `<textarea>`, `<a href>` for actions, `<label>` with for/onclick, native checkbox/radio) are forbidden anywhere in `src/**/*.vue`.
 - **REQ-003**: Do not modify any non-presentation layer file: `src/features/*/stores`, `src/features/*/services`, `src/features/*/types`, `src/features/*/validations`, `src/shared/**`, `src/app/router/**`, `src/app/config/**`, `src/app/providers/**`.
 - **REQ-004**: All 26 named routes and the 3-layout shell structure in `src/app/router/routes.ts` remain unchanged; every rebuilt view must be imported by its existing route exactly where it is today.
@@ -139,9 +139,9 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | Delete all 38 `.vue` files: FILE-001 (8 shell/layout files), FILE-002 (14 catalog files), FILE-003 (5 identity files), FILE-004 (5 ordering files), FILE-005 (6 profile files). | | |
+| TASK-001 | Delete all 36 `.vue` files: FILE-001 (8 shell/layout files), FILE-002 (12 catalog files), FILE-003 (5 identity files), FILE-004 (5 ordering files), FILE-005 (6 profile files). | | |
 | TASK-002 | Delete the 9 view/component spec files listed in FILE-006 (they import deleted components and will not compile). | | |
-| TASK-003 | Run `npx vue-tsc --build` in `app/Store/`. Expected outcome: errors ONLY for missing `.vue` modules — `App.vue` in `src/main.ts`, the lazy route imports in `src/app/router/routes.ts` + feature route files, and the feature `views/index.ts` barrels. Any error inside stores/services/types/validations/composables/shared indicates an unintended deletion and blocks Phase 2. | | |
+| TASK-003 | Run `npx vue-tsc --build` in `app/Store/`. The `*.vue` shim means missing module errors do NOT surface; verification is: (a) vue-tsc exits 0 (no error in stores/services/types/validations/composables/shared/router — any such error indicates an unintended deletion and blocks Phase 2), and (b) `git status --short` shows exactly the 36 deletions enumerated in FILE-001 to FILE-005 plus the 9 spec deletions from TASK-002. | | |
 | TASK-004 | Run `npx vitest run` and `pnpm run lint`. All non-view tests (280+ cases across stores, validations, api interceptors, composables, querying types) must pass; zero lint errors. | | |
 
 ### Implementation Phase 2 — App shell & layouts
