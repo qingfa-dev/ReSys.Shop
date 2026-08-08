@@ -22,7 +22,8 @@ router.afterEach(() => {
     <!-- Route Loader: Full-width skeleton bar while lazy route chunks load -->
     <Skeleton v-if="loading" class="w-full rounded-none" height="0.5rem" />
 
-    <!-- AppHeader (Task 10) -->
+    <!-- Header: Sticky shell bar; MobileNav (Task 11) and CartDrawer (Task 31) bind its events -->
+    <AppHeader />
 
     <main class="flex-1">
       <RouterView />
