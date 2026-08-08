@@ -60,7 +60,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="email"
         :invalid="!!errors.email"
       />
-      <label for="email">Email</label>
+      <Label for="email">Email</Label>
     </FloatLabel>
     <Message v-if="errors.email" severity="error" size="small" variant="simple">
       {{ errors.email }}

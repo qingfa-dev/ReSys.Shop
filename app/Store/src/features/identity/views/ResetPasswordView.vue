@@ -68,7 +68,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="new-password"
         :invalid="!!errors.newPassword"
       />
-      <label for="newPassword">New password</label>
+      <Label for="newPassword">New password</Label>
     </FloatLabel>
     <Message v-if="errors.newPassword" severity="error" size="small" variant="simple">
       {{ errors.newPassword }}
@@ -95,7 +95,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="new-password"
         :invalid="!!confirmPasswordError"
       />
-      <label for="confirmPassword">Confirm password</label>
+      <Label for="confirmPassword">Confirm password</Label>
     </FloatLabel>
     <Message v-if="confirmPasswordError" severity="error" size="small" variant="simple">
       {{ confirmPasswordError }}

@@ -60,7 +60,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="username"
         :invalid="!!errors.credential"
       />
-      <label for="credential">Email or Username</label>
+      <Label for="credential">Email or Username</Label>
     </FloatLabel>
     <Message v-if="errors.credential" severity="error" size="small" variant="simple">
       {{ errors.credential }}
@@ -82,7 +82,7 @@ const onSubmit = handleSubmit(async values => {
           <EyeSlash v-else />
         </InputIcon>
       </IconField>
-      <label for="password">Password</label>
+      <Label for="password">Password</Label>
     </FloatLabel>
     <Message v-if="errors.password" severity="error" size="small" variant="simple">
       {{ errors.password }}
@@ -92,7 +92,7 @@ const onSubmit = handleSubmit(async values => {
     <div class="flex items-center justify-between gap-4">
       <div class="flex items-center gap-2">
         <Checkbox inputId="remember-me" v-model="rememberMe" binary />
-        <label for="remember-me">Remember me</label>
+        <Label for="remember-me">Remember me</Label>
       </div>
       <Button as="router-link" to="/forgot-password" text size="small" label="Forgot password?" />
     </div>
@@ -106,6 +106,7 @@ const onSubmit = handleSubmit(async values => {
     <Button type="submit" label="Sign In" fluid :loading="isSubmitting" />
 
     <!-- Section: Register Link — text button to the create-account route -->
+    <Divider align="center">or</Divider>
     <div class="flex justify-center">
       <Button as="router-link" to="/register" text size="small" label="Create account" />
     </div>

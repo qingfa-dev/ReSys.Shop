@@ -64,7 +64,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="name"
         :invalid="!!errors.fullName"
       />
-      <label for="fullName">Full name</label>
+      <Label for="fullName">Full name</Label>
     </FloatLabel>
     <Message v-if="errors.fullName" severity="error" size="small" variant="simple">
       {{ errors.fullName }}
@@ -80,7 +80,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="email"
         :invalid="!!errors.email"
       />
-      <label for="email">Email</label>
+      <Label for="email">Email</Label>
     </FloatLabel>
     <Message v-if="errors.email" severity="error" size="small" variant="simple">
       {{ errors.email }}
@@ -95,7 +95,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="new-password"
         :invalid="!!errors.password"
       />
-      <label for="password">Password</label>
+      <Label for="password">Password</Label>
     </FloatLabel>
     <Message v-if="errors.password" severity="error" size="small" variant="simple">
       {{ errors.password }}
@@ -123,7 +123,7 @@ const onSubmit = handleSubmit(async values => {
         autocomplete="new-password"
         :invalid="!!errors.confirmPassword"
       />
-      <label for="confirmPassword">Confirm password</label>
+      <Label for="confirmPassword">Confirm password</Label>
     </FloatLabel>
     <Message v-if="errors.confirmPassword" severity="error" size="small" variant="simple">
       {{ errors.confirmPassword }}
@@ -132,7 +132,7 @@ const onSubmit = handleSubmit(async values => {
     <!-- Section: Terms Consent — checkbox with link to the terms page -->
     <div class="flex items-center gap-2">
       <Checkbox inputId="agree-to-terms" v-model="agreeToTerms" binary />
-      <label for="agree-to-terms" class="text-sm text-surface-500">I agree to the</label>
+      <Label for="agree-to-terms" class="text-sm text-surface-500">I agree to the</Label>
       <Button as="router-link" to="/terms" text size="small" label="Terms of Service" />
     </div>
     <Message v-if="termsError" severity="error" size="small" variant="simple">
