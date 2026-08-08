@@ -52,7 +52,10 @@ const selectionKeys = computed<Record<string, { checked: boolean; partialChecked
         .map(([key]) => key),
     )
     // Diff: Toggle every taxon whose membership changed (partial parents excluded).
-    for (const id of catalog.selectedTaxonIds) {
+    // Snapshot: Iterate a copy — toggleTaxon splices the live array, so a direct
+    // loop skips the element after each removal (catalogStore.ts:40).
+    // oxlint-disable-next-line unicorn/no-useless-spread -- false positive: the copy is required
+    for (const id of [...catalog.selectedTaxonIds]) {
       if (!fullyChecked.has(id)) catalog.toggleTaxon(id)
     }
     for (const id of fullyChecked) {

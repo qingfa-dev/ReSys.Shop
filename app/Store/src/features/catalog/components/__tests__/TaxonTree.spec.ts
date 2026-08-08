@@ -25,7 +25,7 @@ beforeAll(() => {
   vi.stubGlobal('matchMedia', vi.fn<typeof createMatchMediaStub>(createMatchMediaStub))
 })
 
-// Fixture: Root taxon with two leaf children for checkbox filtering.
+// Fixture: Root taxon with three leaf children for checkbox filtering.
 const taxonomyTree: TaxonTreeNode[] = [
   {
     id: 'root-1',
@@ -49,6 +49,15 @@ const taxonomyTree: TaxonTreeNode[] = [
         name: 'Jeans',
         presentation: null,
         permalink: '/clothing/jeans',
+        depth: 1,
+        hasChildren: false,
+        children: [],
+      },
+      {
+        id: 'leaf-3',
+        name: 'Sneakers',
+        presentation: null,
+        permalink: '/clothing/sneakers',
         depth: 1,
         hasChildren: false,
         children: [],
@@ -78,7 +87,8 @@ describe('TaxonTree', () => {
     expect(wrapper.text()).toContain('Clothing')
     expect(wrapper.text()).toContain('T-Shirts')
     expect(wrapper.text()).toContain('Jeans')
-    expect(wrapper.text()).toContain('2')
+    expect(wrapper.text()).toContain('Sneakers')
+    expect(wrapper.text()).toContain('3')
   })
 
   it('calls catalogStore.toggleTaxon with the leaf id when its checkbox is checked', async () => {
@@ -101,5 +111,30 @@ describe('TaxonTree', () => {
 
     const leafNode = wrapper.findAll('.p-tree-node').find(n => n.text().includes('Jeans'))
     expect(leafNode!.find('.p-tree-node-checkbox[data-p-checked="true"]').exists()).toBe(true)
+  })
+
+  it('unchecks every selected leaf when a checked parent is unchecked', async () => {
+    const wrapper = mountTree()
+    const catalog = useCatalogStore()
+    catalog.selectedTaxonIds = ['root-1', 'leaf-1', 'leaf-2', 'leaf-3']
+    await nextTick()
+    // Mimic: Restore the real splice semantics of toggleTaxon (catalogStore.ts:40) so
+    // removals mutate the live array while the setter iterates it.
+    vi.mocked(catalog.toggleTaxon).mockImplementation((id: string) => {
+      const idx = catalog.selectedTaxonIds.indexOf(id)
+      if (idx === -1) catalog.selectedTaxonIds.push(id)
+      else catalog.selectedTaxonIds.splice(idx, 1)
+    })
+
+    const rootNode = wrapper.findAll('.p-tree-node').find(n => n.text().includes('Clothing'))
+    await rootNode!.find('.p-tree-node-checkbox').trigger('click')
+
+    // Regression: the setter iterates a snapshot, so a cascade uncheck removes every
+    // selected node instead of skipping the element after each splice.
+    expect(catalog.toggleTaxon).toHaveBeenCalledTimes(4)
+    expect(catalog.toggleTaxon).toHaveBeenCalledWith('leaf-1')
+    expect(catalog.toggleTaxon).toHaveBeenCalledWith('leaf-2')
+    expect(catalog.toggleTaxon).toHaveBeenCalledWith('leaf-3')
+    expect(catalog.selectedTaxonIds).toEqual([])
   })
 })
