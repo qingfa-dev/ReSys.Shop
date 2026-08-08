@@ -48,7 +48,7 @@ Canonical flows preserved by this plan (from `src/app/router/routes.ts` and feat
 - **PAT-001**: Every SFC is `<script setup lang="ts">` + `<template>`; template root is a semantic native element (`main`, `section`, `div`, `Card`, etc.) allowed per native-HTML rules; component props/emits typed and named per existing store APIs.
 - **PAT-002**: Feature-scoped structure retained: `src/features/{catalog,identity,ordering,profile}/{views,components}/`; shell components stay in `src/app/components/`.
 - **PAT-003**: When a PrimeVue component exists for a need, use it first and customize via `class`/design tokens; never hand-roll: buttons, inputs, selects, checkboxes, radios, dialogs, drawers, menus, tabs, pagination, tables, trees, toasts, confirms, tooltips, file upload, carousels/galleries, steppers, timeline, rating, tags/badges, skeletons, sliders, switches, accordions, breadcrumbs, cards.
-- **REQ-009**: Full-catalog coverage — every row of Table 1 (coverage matrix) MUST render its component as a real element in the designated file's `<template>` (match `<Component` or `<Component `). Verified by `scripts/check-primevue-coverage.sh` (TEST-005) which parses Table 1 from this plan. Excluded components (no storefront application or superseded in v5, listed with rationale): Chart (no analytics graphs), ColorPicker/InputColor (no color fields), DatePicker (no date inputs in any form), Dock (web anti-pattern), Editor (no rich text), ImageCompare (no before/after use case), InputOtp (no OTP flow), InputTags (no tag entry), KeyFilter/Mask (InputNumber/InputMask cover), Knob (no dial input), Listbox (Select covers), OrderList/PickList (no reorder lists), OrganizationChart (no org data), SpeedDial (no FAB pattern), Splitter (no resizable panes), StyleClass (no declarative toggles needed), Terminal (no CLI UI), TreeSelect/TreeTable (Tree covers taxonomy), VirtualScroller (Paginator covers), AvatarGroup (no user groups), Password (superseded by InputPassword), Steps (superseded by Stepper).
+- **REQ-009**: Full-catalog coverage — every row of Table 1 (coverage matrix) MUST render its component as a real element in the designated file's `<template>` (match `<Component` or `<Component `). Verified by `scripts/check-primevue-coverage.sh` (TEST-005) which parses Table 1 from this plan. Excluded components (no storefront application or superseded in v5, listed with rationale): Chart (no analytics graphs), ColorPicker/InputColor (no color fields), DatePicker (no date inputs in any form), Dock (web anti-pattern), Editor (no rich text), ImageCompare (no before/after use case), InputOtp (no OTP flow), InputTags (no tag entry), KeyFilter/Mask (InputNumber/InputMask cover), Knob (no dial input), Listbox (Select covers), OrderList/PickList (no reorder lists), OrganizationChart (no org data), SpeedDial (no FAB pattern), Splitter (no resizable panes), StyleClass (no declarative toggles needed), Terminal (no CLI UI), TreeSelect/TreeTable (Tree covers taxonomy), VirtualScroller (Paginator covers), AvatarGroup (no user groups), Password (superseded by InputPassword), Steps (superseded by Stepper), Tooltip (directive-only API in v5 — used as v-tooltip in ProductCard), AnimateOnScroll (directive-only API in v5 — used as v-animateonscroll in HomeView), Badge (superseded by Tag + OverlayBadge/badge prop), Fieldset (filter groups covered by Panel/Accordion).
 - **REQ-010**: Plan completion requires both audits green: native-interactive audit (TEST-002) returns zero files AND coverage audit (TEST-005) reports every Table 1 row present (TASK-048).
 - **GUD-006**: `app/legacy/llms.txt` and https://primevue.dev/llms are the authoritative PrimeVue catalog; when a new UI need arises, consult it first and either use the component or record the exclusion rationale in REQ-009.
 
@@ -56,11 +56,9 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 
 | Component | File (relative to app/Store/src) | Task |
 |-----------|----------------------------------|------|
-| Accordion | features/catalog/views/ShopView.vue | via TASK-017 |
-| AnimateOnScroll | features/catalog/views/HomeView.vue | via TASK-016 |
+| Accordion | features/catalog/components/ShopFilterPanel.vue | via TASK-017 |
 | AutoComplete | app/components/layout/AppHeader.vue | via TASK-010 |
 | Avatar | app/components/layout/AppHeader.vue | via TASK-010 |
-| Badge | features/catalog/components/ProductCard.vue | via TASK-015 |
 | Breadcrumb | features/catalog/views/ProductDetailView.vue | via TASK-020 |
 | Button | app/components/layout/AppHeader.vue | via TASK-010 |
 | ButtonGroup | features/ordering/views/CheckoutView.vue | via TASK-033 |
@@ -68,10 +66,10 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 | Carousel | features/catalog/views/HomeView.vue | via TASK-016 |
 | CascadeSelect | features/ordering/views/CheckoutView.vue | via TASK-033 |
 | Checkbox | features/identity/views/LoginView.vue | via TASK-025 |
-| CheckboxGroup | features/catalog/views/ShopView.vue | via TASK-017 |
-| Chip | features/catalog/views/ShopView.vue | via TASK-017 |
+| CheckboxGroup | features/catalog/components/ShopFilterPanel.vue | via TASK-017 |
+| Chip | features/catalog/components/ShopFilterPanel.vue | via TASK-017 |
 | CommandMenu | features/catalog/components/SearchOverlay.vue | via TASK-019 |
-| ConfirmDialog | features/profile/views/AddressBookView.vue | via TASK-038 |
+| ConfirmDialog | App.vue | via TASK-038 |
 | ConfirmPopup | features/identity/views/SessionsView.vue | via TASK-029 |
 | ContextMenu | features/catalog/components/ProductCard.vue | via TASK-015 |
 | DataTable | features/ordering/views/OrderListView.vue | via TASK-034 |
@@ -80,13 +78,12 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 | Dialog | features/profile/views/AddressBookView.vue | via TASK-038 |
 | Divider | features/identity/views/LoginView.vue | via TASK-025 |
 | Drawer | features/ordering/components/CartDrawer.vue | via TASK-031 |
-| Fieldset | features/catalog/views/ShopView.vue | via TASK-017 |
 | FileUpload | features/catalog/views/VisualSearchView.vue | via TASK-022 |
 | FloatLabel | features/identity/views/LoginView.vue | via TASK-025 |
 | Fluid | app/layouts/AuthLayout.vue | via TASK-008 |
 | Galleria | features/catalog/views/ProductDetailView.vue | via TASK-020 |
 | Gallery | features/catalog/views/ProductDetailView.vue | via TASK-020 |
-| IconField | features/catalog/views/ShopView.vue | via TASK-017 |
+| IconField | features/catalog/components/ShopFilterPanel.vue | via TASK-017 |
 | Image | features/catalog/components/ProductCard.vue | via TASK-015 |
 | Inplace | features/profile/views/ProfileView.vue | via TASK-037 |
 | InputGroup | features/ordering/views/CartView.vue | via TASK-032 |
@@ -100,10 +97,10 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 | Menubar | app/components/layout/AppHeader.vue | via TASK-010 |
 | Message | features/catalog/views/ShopView.vue | via TASK-017 |
 | MeterGroup | features/catalog/views/ProductDetailView.vue | via TASK-020 |
-| MultiSelect | features/catalog/views/ShopView.vue | via TASK-017 |
+| MultiSelect | features/catalog/components/ShopFilterPanel.vue | via TASK-017 |
 | OverlayBadge | app/components/layout/AppHeader.vue | via TASK-010 |
 | Paginator | features/catalog/views/ShopView.vue | via TASK-017 |
-| Panel | features/catalog/views/ShopView.vue | via TASK-017 |
+| Panel | features/catalog/components/ShopFilterPanel.vue | via TASK-017 |
 | PanelMenu | app/layouts/AccountLayout.vue | via TASK-009 |
 | Popover | features/catalog/components/ProductCard.vue | via TASK-015 |
 | ProgressBar | features/ordering/components/CartDrawer.vue | via TASK-031 |
@@ -117,18 +114,17 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 | SelectButton | features/catalog/views/ShopView.vue | via TASK-017 |
 | Sidebar | app/layouts/AccountLayout.vue | via TASK-009 |
 | Skeleton | features/catalog/views/HomeView.vue | via TASK-016 |
-| Slider | features/catalog/views/ShopView.vue | via TASK-017 |
+| Slider | features/catalog/components/ShopFilterPanel.vue | via TASK-017 |
 | SplitButton | features/catalog/views/ProductDetailView.vue | via TASK-020 |
 | Stepper | features/ordering/views/CheckoutView.vue | via TASK-033 |
 | Tabs | features/catalog/views/ProductDetailView.vue | via TASK-020 |
 | Tag | features/ordering/views/OrderListView.vue | via TASK-034 |
 | Textarea | features/profile/views/AddressBookView.vue | via TASK-038 |
 | Timeline | features/ordering/views/OrderDetailView.vue | via TASK-035 |
-| Toast | app/App.vue | via TASK-006 |
+| Toast | App.vue | via TASK-006 |
 | ToggleButton | features/profile/views/PreferencesView.vue | via TASK-041 |
 | ToggleSwitch | app/components/ThemeToggle.vue | via TASK-013 |
 | Toolbar | features/catalog/views/ShopView.vue | via TASK-017 |
-| Tooltip | features/catalog/components/ProductCard.vue | via TASK-015 |
 | Tree | features/catalog/components/TaxonTree.vue | via TASK-018 |
 
 ## 2. Implementation Steps
@@ -271,11 +267,11 @@ total=0
 while IFS=$'\t' read -r comp file; do
   [ -z "$comp" ] && continue
   total=$((total + 1))
-  if ! grep -qE "<${comp}[ /]" "$STORE/$file" 2>/dev/null; then
+  if ! grep -qE "<${comp}([ />]|$)" "$STORE/$file" 2>/dev/null; then
     echo "MISSING: <$comp> not found in $STORE/$file"
     fail=1
   fi
-done < <(grep -E '^\| [A-Z][A-Za-z]+ \| (app|features)/' "$PLAN" | awk -F'|' '{gsub(/[ ]+/,"",$2); gsub(/[ ]+/,"",$3); if ($2 != "" && $3 != "") print $2 "\t" $3}')
+done < <(grep -E '^\| [A-Z][A-Za-z]+ \| [^|]+ \| via ' "$PLAN" | awk -F'|' '{gsub(/[ ]+/,"",$2); gsub(/[ ]+/,"",$3); if ($2 != "" && $3 != "") print $2 "\t" $3}')
 if [ "$fail" -eq 0 ]; then echo "PrimeVue coverage OK: $total matrix rows verified."; else echo "PrimeVue coverage FAILED."; fi
 exit $fail
 ```
@@ -295,7 +291,7 @@ exit $fail
 - **RISK-002**: Recreated specs (TEST-001) may be flaky against auto-imported PrimeVue components (transition/stub needs). Mitigation: stub `transition` and `teleport` in specs, use `createTestingPinia`, follow existing passing spec patterns (e.g., `CartDrawer.spec.ts` before deletion).
 - **RISK-003**: Dark-mode and theme-token regressions if `useTheme` binding is mis-wired in `App.vue` (TASK-006). Mitigation: TASK-006 binds the exact class the existing provider token set uses (`.app-dark`), verified by existing `useTheme.spec.ts` which stays untouched.
 - **RISK-004**: The coverage gate (TEST-005) may flag a matrix component whose API differs from expectations (e.g., v5 `MegaMenu`, `Sidebar` compound nav, `CommandMenu`). Mitigation: consult `app/Store/node_modules/primevue/<component>/*.vue` before use; the gate parses Table 1, so a genuine redesign updates the plan matrix rather than weakening the gate.
-- **ASSUMPTION-004**: All 74 matrix components exist in the installed PrimeVue 5.0.0 build (verified against `node_modules/primevue/` before the matrix was written); auto-import resolver covers each (re-verified by `components.d.ts` regeneration during TASK-045 builds).
+- **ASSUMPTION-004**: All 70 matrix components exist in the installed PrimeVue 5.0.0 build (verified against `node_modules/primevue/` before the matrix was written); auto-import resolver covers each (re-verified by `components.d.ts` regeneration during TASK-045 builds).
 - **ASSUMPTION-001**: All non-presentation layers (stores, services, types, validations, composables, router, guards) are complete and correct as of commit `eab1adfd`; Phase 1 (TASK-004) verifies this before any rebuild begins.
 - **ASSUMPTION-002**: No backend, API, or C# changes are required; the contract types in `src/features/*/types` are final.
 - **ASSUMPTION-003**: PrimeVue auto-import resolver covers every component used (verified per component via `components.d.ts` regeneration in TASK-008/TASK-045 builds).
