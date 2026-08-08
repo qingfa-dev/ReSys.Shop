@@ -83,7 +83,7 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 | Fieldset | features/catalog/views/ShopView.vue | via TASK-017 |
 | FileUpload | features/catalog/views/VisualSearchView.vue | via TASK-022 |
 | FloatLabel | features/identity/views/LoginView.vue | via TASK-025 |
-| Fluid | features/identity/views/LoginView.vue | via TASK-025 |
+| Fluid | app/layouts/AuthLayout.vue | via TASK-008 |
 | Galleria | features/catalog/views/ProductDetailView.vue | via TASK-020 |
 | Gallery | features/catalog/views/ProductDetailView.vue | via TASK-020 |
 | IconField | features/catalog/views/ShopView.vue | via TASK-017 |
