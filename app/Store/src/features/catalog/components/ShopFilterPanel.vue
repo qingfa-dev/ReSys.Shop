@@ -215,12 +215,12 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
       >
         <div v-for="value in group.values" :key="value.id" class="flex items-center gap-2">
           <Checkbox :inputId="`filter-${value.id}`" :value="value.id" />
-          <label
+          <Label
             :for="`filter-${value.id}`"
             class="text-sm text-surface-600 dark:text-surface-300"
           >
             {{ value.presentation ?? value.name }}
-          </label>
+          </Label>
         </div>
       </CheckboxGroup>
     </Panel>
