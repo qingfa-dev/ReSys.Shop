@@ -159,7 +159,7 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 | TASK-011 | Create `src/app/components/layout/MobileNav.vue`: `Drawer` (position `left`) listing the same routes as AppHeader via `PanelMenu` + account actions; closes on route change (`watch(route)`). | | |
 | TASK-012 | Create `src/app/components/layout/AppFooter.vue`: 4-column layout — brand + blurb, Shop links (`Button text` → catalog routes), Company links (`/about`, `/terms`, `/privacy`), newsletter `InputGroup` (`InputText` + `Button` `pi pi-send`, emits toast via `useNotify`); `Divider` before copyright line. No native interactive elements. | | |
 | TASK-013 | Create `src/app/components/ThemeToggle.vue`: thin wrapper exposing `ToggleSwitch` bound to `useTheme`; used by AppHeader (TASK-010) and AccountLayout. | | |
-| TASK-014 | Verify Phase 2: `npx vue-tsc --build` clean; `pnpm run lint` clean; `pnpm run build-only` succeeds; `src/app/router/routes.ts` unchanged (git diff empty for it). | | |
+| TASK-014 | Verify Phase 2: `npx vue-tsc --build` clean; `pnpm exec oxlint .` and `pnpm exec eslint .` clean; `npx vitest run` green; `src/app/router/routes.ts` unchanged (git diff empty for it). `pnpm run build-only` is NOT a Phase 2 gate — route lazy imports still reference views rebuilt in Phases 3-6; first green build is verified at TASK-045. | | |
 
 ### Implementation Phase 3 — Catalog (14 views/components)
 
