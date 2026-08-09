@@ -5,7 +5,6 @@ import type { MenuItem } from 'primevue/menuitem'
 import type Menu from 'primevue/menu'
 import type { AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import type { TaxonTreeNode } from '@/features/catalog/types'
-import { useTheme } from '@/shared/composables/useTheme'
 import { useSearch } from '@/features/catalog/composables/useSearch'
 import SearchOverlay from '@/features/catalog/components/SearchOverlay.vue'
 import { useCatalogStore } from '@/features/catalog/stores/catalogStore'
@@ -21,7 +20,6 @@ const emit = defineEmits<{
 const router = useRouter()
 // Search: Destructure refs so template bindings unwrap them as top-level properties.
 const { query, results, loading, open, clear, search, navigateToResult } = useSearch()
-const { isDark, toggle } = useTheme()
 const catalogStore = useCatalogStore()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
@@ -140,14 +138,6 @@ onMounted(() => {
         aria-label="Open search overlay"
         v-tooltip.bottom="'Search'"
         @click="open()"
-      />
-
-      <!-- Theme Toggle: Switch bound to the shared dark-mode state -->
-      <ToggleSwitch
-        :model-value="isDark"
-        aria-label="Toggle dark mode"
-        v-tooltip.bottom="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-        @update:model-value="toggle"
       />
 
       <!-- Cart: Opens the CartDrawer overlay via the parent layout (Task 31) -->
