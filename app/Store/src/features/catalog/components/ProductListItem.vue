@@ -198,12 +198,12 @@ const menuItems = computed<MenuItem[]>(() => [
       </div>
     </div>
 
-    <!-- Actions: Wishlist, add-to-cart, buy-now -->
+    <!-- Actions: Wishlist, add-to-cart, quick-view -->
     <div class="flex shrink-0 flex-col items-end justify-between gap-2">
       <Button
         :icon="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"
         variant="text"
-        severity="secondary"
+        :severity="isWishlisted ? 'danger' : 'secondary'"
         rounded
         :aria-label="wishlistLabel"
         v-tooltip.left="wishlistLabel"
@@ -213,6 +213,7 @@ const menuItems = computed<MenuItem[]>(() => [
         <Button
           label="Add to cart"
           icon="pi pi-shopping-cart"
+          severity="success"
           size="small"
           @click="onAddToCart"
         />
@@ -221,6 +222,7 @@ const menuItems = computed<MenuItem[]>(() => [
           label="Quick view"
           icon="pi pi-eye"
           variant="text"
+          severity="secondary"
           size="small"
           @click="onQuickView"
         />

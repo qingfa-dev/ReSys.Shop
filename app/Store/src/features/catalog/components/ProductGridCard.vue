@@ -179,7 +179,7 @@ const menuItems = computed<MenuItem[]>(() => [
           <Button
             :icon="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"
             variant="text"
-            severity="secondary"
+            :severity="isWishlisted ? 'danger' : 'secondary'"
             rounded
             :aria-label="wishlistLabel"
             v-tooltip.bottom="wishlistLabel"
@@ -189,6 +189,7 @@ const menuItems = computed<MenuItem[]>(() => [
             <Button
               label="Add to cart"
               icon="pi pi-shopping-cart"
+              severity="success"
               size="small"
               @click="onAddToCart"
             />
