@@ -1,6 +1,6 @@
 import { post, get, put, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { LOCATION } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   StateRequest,
@@ -15,7 +15,7 @@ import {
 } from '../types/state'
 
 export class StateApi {
-  private static readonly BASE = `${LOCATION}/states`
+  private static readonly BASE = 'api/admin/location/states'
 
   static getStates(query: StateQuery): Promise<PagedResult<StateListItem>> {
     return getPaged<StateListItem>(StateApi.BASE, toStateQueryParams(query), {

@@ -1,10 +1,10 @@
 import { get, post, put, del, getBlob } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type { VariantImage, VariantImageUpdateRequest, VariantImageUploadRequest } from '../types/variantImage'
 
-const BASE = `${CATALOG}/variant-images`
+const BASE = 'api/admin/catalog/variant-images'
 
 export class VariantImageApi {
   static listImages(variantId: string): Promise<PagedResult<VariantImage>> {

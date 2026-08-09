@@ -1,12 +1,12 @@
 import { post, get, put, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { SHIPPING } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type { ShippingRateRequest, ShippingRateListItem, ShippingRateDetail, ShippingRateQuery } from '../types/shippingRate'
 import { toShippingRateQueryParams, SHIPPING_RATE_FILTER_FIELDS, SHIPPING_RATE_SORT_FIELDS, SHIPPING_RATE_SEARCH_FIELDS } from '../types/shippingRate'
 
 export class ShippingRateApi {
-  private static readonly BASE = `${SHIPPING}/shipping-rates`
+  private static readonly BASE = 'api/admin/shipping/shipping-rates'
 
   static getShippingRates(query: ShippingRateQuery): Promise<PagedResult<ShippingRateListItem>> {
     return getPaged<ShippingRateListItem>(ShippingRateApi.BASE, toShippingRateQueryParams(query), {

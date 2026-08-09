@@ -1,6 +1,6 @@
 import { post, get, put, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   OptionValueRequest,
@@ -15,7 +15,7 @@ import {
 } from '../types/optionValue'
 
 export class OptionValueApi {
-  private static readonly BASE = `${CATALOG}/option-values`
+  private static readonly BASE = 'api/admin/catalog/option-values'
 
   static getOptionValues(query: OptionValueQuery): Promise<PagedResult<OptionValueListItem>> {
     return getPaged<OptionValueListItem>(OptionValueApi.BASE, toOptionValueQueryParams(query), {

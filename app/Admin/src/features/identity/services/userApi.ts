@@ -1,6 +1,6 @@
 import { post, get, put, patch, del, delWithBody } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { IDENTITY } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   UserRequest,
@@ -22,7 +22,7 @@ export interface UserRoleAssignment extends RoleListItem {
 }
 
 export class UserApi {
-  private static readonly BASE = `${IDENTITY}/users`
+  private static readonly BASE = 'api/admin/identity/users'
 
   static getUsers(query: UserQuery): Promise<PagedResult<UserListItem>> {
     return getPaged<UserListItem>(UserApi.BASE, toUserQueryParams(query), {

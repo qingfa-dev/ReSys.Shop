@@ -38,7 +38,7 @@ const {
   setSort,
   setFilter,
   refresh,
-} = usePagedQuery<OptionTypeListItem>('api/catalog/option-types', {
+} = usePagedQuery<OptionTypeListItem>('api/admin/catalog/option-types', {
   allowedFilterFields: OPTION_TYPE_FILTER_FIELDS,
   allowedSortFields: OPTION_TYPE_SORT_FIELDS,
   allowedSearchFields,

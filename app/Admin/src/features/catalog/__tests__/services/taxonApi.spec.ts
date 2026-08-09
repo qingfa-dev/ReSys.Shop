@@ -39,7 +39,7 @@ describe('TaxonApi.getTaxons', () => {
     await TaxonApi.getTaxons({ taxonomyId: 'abc-123' })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/taxons',
+      'api/admin/catalog/taxons',
       expect.objectContaining({ filter: 'taxonomyId=abc-123' }),
       expect.any(Object),
     )
@@ -50,7 +50,7 @@ describe('TaxonApi.getTaxon', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'Shoes' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonApi.getTaxon('abc-123')
-    expect(mockGet).toHaveBeenCalledWith('api/catalog/taxons/abc-123')
+    expect(mockGet).toHaveBeenCalledWith('api/admin/catalog/taxons/abc-123')
   })
 })
 
@@ -63,7 +63,7 @@ describe('TaxonApi.getList', () => {
     })
     await TaxonApi.getList('abc-123', { page: 1, pageSize: 10 })
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/taxons/list?taxonomyId=abc-123',
+      'api/admin/catalog/taxons/list?taxonomyId=abc-123',
       expect.objectContaining({ pageNumber: 1, pageSize: 10 }),
       expect.any(Object),
     )
@@ -80,7 +80,7 @@ describe('TaxonApi.createTaxon', () => {
     }
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await TaxonApi.createTaxon(req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/taxons', req)
+    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/taxons', req)
   })
 })
 
@@ -94,7 +94,7 @@ describe('TaxonApi.updateTaxon', () => {
     }
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonApi.updateTaxon('abc-123', req)
-    expect(mockPut).toHaveBeenCalledWith('api/catalog/taxons/abc-123', req)
+    expect(mockPut).toHaveBeenCalledWith('api/admin/catalog/taxons/abc-123', req)
   })
 })
 
@@ -102,7 +102,7 @@ describe('TaxonApi.deleteTaxon', () => {
   it('calls DELETE with correct URL', async () => {
     mockDel.mockResolvedValue({ value: { id: '1', name: 'Shoes' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonApi.deleteTaxon('abc-123')
-    expect(mockDel).toHaveBeenCalledWith('api/catalog/taxons/abc-123')
+    expect(mockDel).toHaveBeenCalledWith('api/admin/catalog/taxons/abc-123')
   })
 })
 
@@ -110,7 +110,7 @@ describe('TaxonApi.restoreTaxon', () => {
   it('calls PATCH with restore URL and no body', async () => {
     mockPatch.mockResolvedValue({ value: { id: '1', name: 'Shoes' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonApi.restoreTaxon('abc-123')
-    expect(mockPatch).toHaveBeenCalledWith('api/catalog/taxons/abc-123/restore')
+    expect(mockPatch).toHaveBeenCalledWith('api/admin/catalog/taxons/abc-123/restore')
   })
 })
 
@@ -124,6 +124,6 @@ describe('TaxonApi.repositionTaxon', () => {
     }
     mockPost.mockResolvedValue({ value: { id: '1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonApi.repositionTaxon('abc-123', req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/taxons/abc-123/reposition', req)
+    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/taxons/abc-123/reposition', req)
   })
 })

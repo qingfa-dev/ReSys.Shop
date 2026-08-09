@@ -32,7 +32,7 @@ describe('PermissionApi.getPermissions', () => {
     await PermissionApi.getPermissions()
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/identity/permissions',
+      'api/admin/identity/permissions',
       { pageNumber: 1, pageSize: 100 },
     )
   })

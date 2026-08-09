@@ -59,11 +59,11 @@ function clearSearch() {
 }
 
 function navigateToNew() {
-  router.push(initialUserId ? `/profile/addresses/new?userId=${encodeURIComponent(initialUserId)}` : '/profile/addresses/new')
+  router.push(initialUserId ? `/customer/addresses/new?userId=${encodeURIComponent(initialUserId)}` : '/customer/addresses/new')
 }
 
 function navigateToEdit(data: AddressResponse) {
-  router.push(`/profile/addresses/${data.id}?userId=${encodeURIComponent(data.userId)}`)
+  router.push(`/customer/addresses/${data.id}?userId=${encodeURIComponent(data.userId)}`)
 }
 
 function confirmDelete(data: AddressResponse) {

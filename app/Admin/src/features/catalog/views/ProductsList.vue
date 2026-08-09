@@ -39,7 +39,7 @@ const {
   setSort,
   setFilter,
   refresh,
-} = usePagedQuery<ProductListItem>('api/catalog/products', {
+} = usePagedQuery<ProductListItem>('api/admin/catalog/products', {
   allowedFilterFields: PRODUCT_FILTER_FIELDS,
   allowedSortFields: PRODUCT_SORT_FIELDS,
   allowedSearchFields,

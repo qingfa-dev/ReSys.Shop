@@ -1,6 +1,6 @@
 import { getPaged } from '@/shared/api'
 import { get, post } from '@/shared/api/client'
-import { INVENTORY } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type { StockReservationQuery, StockReservationListItem, StockReservationDetail } from '../types/stockReservation'
 import {
@@ -11,7 +11,7 @@ import {
 } from '../types/stockReservation'
 
 export class StockReservationApi {
-  private static readonly BASE = `${INVENTORY}/stock-reservations`
+  private static readonly BASE = 'api/admin/inventory/stock-reservations'
 
   static getStockReservations(query: StockReservationQuery): Promise<PagedResult<StockReservationListItem>> {
     return getPaged<StockReservationListItem>(StockReservationApi.BASE, toStockReservationQueryParams(query), {

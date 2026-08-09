@@ -38,7 +38,7 @@ async function handleLogout() {
       </div>
       <div class="border-top-1 surface-border" />
       <router-link
-        to="/profile/profiles"
+        to="/customer/profiles"
         class="flex align-items-center gap-2 px-3 py-2 border-round surface-hover no-underline text-color"
       >
         <User class="text-sm" />

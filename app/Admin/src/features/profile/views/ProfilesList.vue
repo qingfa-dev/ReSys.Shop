@@ -10,7 +10,7 @@ import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { useProfileList } from '../composables/useProfileList'
 import type { ProfileListItem } from '../types/profile'
-import { PROFILE_SEARCH_FIELDS } from '../types/profile'
+import { CUSTOMER_SEARCH_FIELDS } from '../types/profile'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
@@ -18,7 +18,7 @@ const selectedItems = ref<ProfileListItem[]>([])
 const search = ref('')
 
 const { items, loading, setSearch, refresh } = useProfileList({
-  defaultSearchFields: PROFILE_SEARCH_FIELDS,
+  defaultSearchFields: CUSTOMER_SEARCH_FIELDS,
 })
 
 function onSearch(value: string) {
@@ -32,7 +32,7 @@ function clearSearch() {
 }
 
 function navigateToDetail(id: string) {
-  router.push(`/profile/profiles/${id}`)
+  router.push(`/customer/profiles/${id}`)
 }
 </script>
 

@@ -1,6 +1,5 @@
 import { getPaged } from '@/shared/api'
 import { get, post, put, del } from '@/shared/api/client'
-import { PROFILE } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
 import type { AddressQuery, AddressRequest, AddressResponse } from '../types/address'
 import {
@@ -11,7 +10,7 @@ import {
 } from '../types/address'
 
 export class AddressApi {
-  private static readonly BASE = `${PROFILE}/addresses`
+  private static readonly BASE = 'api/admin/customer/addresses'
 
   static getAddresses(userId: string, query: AddressQuery): Promise<PagedResult<AddressResponse>> {
     return getPaged<AddressResponse>(`${AddressApi.BASE}?userId=${userId}`, toAddressQueryParams(query), {

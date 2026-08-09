@@ -8,7 +8,7 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
-import { IDENTITY } from '@/shared/constants/api'
+
 import type { PermissionMetadata } from '../types/permission'
 
 const { dt, exportCSV } = useDataTableExport()
@@ -16,7 +16,7 @@ const search = ref('')
 const selectedItems = ref<PermissionMetadata[]>([])
 
 const { items, loading, setSearch, refresh } = usePagedQuery<PermissionMetadata>(
-  `${IDENTITY}/permissions`,
+  `/api/admin/identity/permissions`,
   {
     defaultPageSize: 100,
     allowedSearchFields: ['name', 'category', 'description'],

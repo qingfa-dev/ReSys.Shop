@@ -1,6 +1,6 @@
 import { get } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { INVENTORY } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   StockMovementQuery,
@@ -15,7 +15,7 @@ import {
 } from '../types/stockMovement'
 
 export class StockMovementApi {
-  private static readonly BASE = `${INVENTORY}/stock-movements`
+  private static readonly BASE = 'api/admin/inventory/stock-movements'
 
   static getStockMovements(query: StockMovementQuery): Promise<PagedResult<StockMovementListItem>> {
     const parts: string[] = []

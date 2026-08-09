@@ -1,6 +1,6 @@
 import { getPaged } from '@/shared/api'
 import { get, post, put, del } from '@/shared/api/client'
-import { ORDERING } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   OrderRequest,
@@ -24,7 +24,7 @@ import {
 } from '../types/order'
 
 export class OrderApi {
-  private static readonly BASE = `${ORDERING}/orders`
+  private static readonly BASE = 'api/admin/ordering/orders'
 
   static getOrders(query: OrderQuery): Promise<PagedResult<OrderListItem>> {
     return getPaged<OrderListItem>(OrderApi.BASE, toOrderQueryParams(query), {

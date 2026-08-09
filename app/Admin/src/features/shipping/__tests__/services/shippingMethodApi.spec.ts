@@ -53,7 +53,7 @@ describe('ShippingMethodApi.getShippingMethods', () => {
     })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/shipping/shipping-methods',
+      'api/admin/shipping/shipping-methods',
       {
         filter: 'availableToUsers=true,calculatorType=FlatRate',
         search: 'express',
@@ -74,7 +74,7 @@ describe('ShippingMethodApi.getShippingMethod', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: 'sm-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ShippingMethodApi.getShippingMethod('sm-1')
-    expect(mockGet).toHaveBeenCalledWith('api/shipping/shipping-methods/sm-1')
+    expect(mockGet).toHaveBeenCalledWith('api/admin/shipping/shipping-methods/sm-1')
   })
 })
 
@@ -89,7 +89,7 @@ describe('ShippingMethodApi.createShippingMethod', () => {
     }
     mockPost.mockResolvedValue({ value: { id: 'sm-1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await ShippingMethodApi.createShippingMethod(req)
-    expect(mockPost).toHaveBeenCalledWith('api/shipping/shipping-methods', req)
+    expect(mockPost).toHaveBeenCalledWith('api/admin/shipping/shipping-methods', req)
   })
 })
 
@@ -98,7 +98,7 @@ describe('ShippingMethodApi.updateShippingMethod', () => {
     const req = { name: 'Express Updated' }
     mockPut.mockResolvedValue({ value: { id: 'sm-1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ShippingMethodApi.updateShippingMethod('sm-1', req)
-    expect(mockPut).toHaveBeenCalledWith('api/shipping/shipping-methods/sm-1', req)
+    expect(mockPut).toHaveBeenCalledWith('api/admin/shipping/shipping-methods/sm-1', req)
   })
 })
 
@@ -106,7 +106,7 @@ describe('ShippingMethodApi.deleteShippingMethod', () => {
   it('calls DELETE with correct URL', async () => {
     mockDel.mockResolvedValue({ value: null, isSuccess: true, statusCode: 204, message: null, errors: [], metadata: null })
     await ShippingMethodApi.deleteShippingMethod('sm-1')
-    expect(mockDel).toHaveBeenCalledWith('api/shipping/shipping-methods/sm-1')
+    expect(mockDel).toHaveBeenCalledWith('api/admin/shipping/shipping-methods/sm-1')
   })
 })
 
@@ -114,7 +114,7 @@ describe('ShippingMethodApi.activateShippingMethod', () => {
   it('calls PATCH with activate URL', async () => {
     mockPatch.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ShippingMethodApi.activateShippingMethod('sm-1')
-    expect(mockPatch).toHaveBeenCalledWith('api/shipping/shipping-methods/sm-1/activate')
+    expect(mockPatch).toHaveBeenCalledWith('api/admin/shipping/shipping-methods/sm-1/activate')
   })
 })
 
@@ -122,6 +122,6 @@ describe('ShippingMethodApi.deactivateShippingMethod', () => {
   it('calls PATCH with deactivate URL', async () => {
     mockPatch.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ShippingMethodApi.deactivateShippingMethod('sm-1')
-    expect(mockPatch).toHaveBeenCalledWith('api/shipping/shipping-methods/sm-1/deactivate')
+    expect(mockPatch).toHaveBeenCalledWith('api/admin/shipping/shipping-methods/sm-1/deactivate')
   })
 })

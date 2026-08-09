@@ -43,7 +43,7 @@ describe('OptionValueApi.getOptionValues', () => {
     await OptionValueApi.getOptionValues({ optionTypeId: 'abc-123' })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/option-values',
+      'api/admin/catalog/option-values',
       expect.objectContaining({ filter: 'optionTypeId=abc-123' }),
       expect.any(Object),
     )
@@ -55,7 +55,7 @@ describe('OptionValueApi.getOptionValue', () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'Medium' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await OptionValueApi.getOptionValue('xyz-456')
-    expect(mockGet).toHaveBeenCalledWith('api/catalog/option-values/xyz-456')
+    expect(mockGet).toHaveBeenCalledWith('api/admin/catalog/option-values/xyz-456')
   })
 })
 
@@ -65,7 +65,7 @@ describe('OptionValueApi.createOptionValue', () => {
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
 
     await OptionValueApi.createOptionValue(req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/option-values', req)
+    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/option-values', req)
   })
 })
 
@@ -75,7 +75,7 @@ describe('OptionValueApi.updateOptionValue', () => {
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await OptionValueApi.updateOptionValue('xyz-456', req)
-    expect(mockPut).toHaveBeenCalledWith('api/catalog/option-values/xyz-456', req)
+    expect(mockPut).toHaveBeenCalledWith('api/admin/catalog/option-values/xyz-456', req)
   })
 })
 
@@ -84,6 +84,6 @@ describe('OptionValueApi.deleteOptionValue', () => {
     mockDel.mockResolvedValue({ value: { id: '1', name: 'Medium' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await OptionValueApi.deleteOptionValue('xyz-456')
-    expect(mockDel).toHaveBeenCalledWith('api/catalog/option-values/xyz-456')
+    expect(mockDel).toHaveBeenCalledWith('api/admin/catalog/option-values/xyz-456')
   })
 })

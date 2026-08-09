@@ -11,7 +11,7 @@ import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
-import { IDENTITY } from '@/shared/constants/api'
+
 import { RoleApi } from '../services/roleApi'
 import type { RoleListItem } from '../types/role'
 import { ROLE_FILTER_FIELDS, ROLE_SORT_FIELDS, ROLE_SEARCH_FIELDS } from '../types/role'
@@ -24,7 +24,7 @@ const search = ref('')
 const selectedItems = ref<RoleListItem[]>([])
 
 const { items, loading, setSearch, refresh } = usePagedQuery<RoleListItem>(
-  `${IDENTITY}/roles`,
+  `/api/admin/identity/roles`,
   {
     allowedFilterFields: ROLE_FILTER_FIELDS,
     allowedSortFields: ROLE_SORT_FIELDS,

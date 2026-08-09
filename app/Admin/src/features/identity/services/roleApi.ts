@@ -1,6 +1,6 @@
 import { post, get, put, patch, del, delWithBody } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { IDENTITY } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   RoleRequest,
@@ -17,7 +17,7 @@ import {
 import type { PermissionGroupResponse } from '../types/permission'
 
 export class RoleApi {
-  private static readonly BASE = `${IDENTITY}/roles`
+  private static readonly BASE = 'api/admin/identity/roles'
 
   static getRoles(query: RoleQuery): Promise<PagedResult<RoleListItem>> {
     return getPaged<RoleListItem>(RoleApi.BASE, toRoleQueryParams(query), {

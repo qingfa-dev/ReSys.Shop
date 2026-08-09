@@ -1,11 +1,11 @@
 import { getPaged } from '@/shared/api'
 import { post, put } from '@/shared/api/client'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type { OptionTypeAssignment, ProductOptionTypeAssignmentRequest } from '../types/productOptionType'
 
 export class ProductOptionTypeApi {
-  private static readonly BASE = `${CATALOG}/product-option-types`
+  private static readonly BASE = 'api/admin/catalog/product-option-types'
 
   static getOptionTypes(productId: string): Promise<PagedResult<OptionTypeAssignment>> {
     return getPaged<OptionTypeAssignment>(`${ProductOptionTypeApi.BASE}?productId=${productId}`, {})

@@ -1,6 +1,6 @@
 import { getPaged } from '@/shared/api'
 import { get, post } from '@/shared/api/client'
-import { INVENTORY } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   StockTransferQuery,
@@ -17,7 +17,7 @@ import {
 } from '../types/stockTransfer'
 
 export class StockTransferApi {
-  private static readonly BASE = `${INVENTORY}/stock-transfers`
+  private static readonly BASE = 'api/admin/inventory/stock-transfers'
 
   static getStockTransfers(query: StockTransferQuery): Promise<PagedResult<StockTransferListItem>> {
     return getPaged<StockTransferListItem>(StockTransferApi.BASE, toStockTransferQueryParams(query), {

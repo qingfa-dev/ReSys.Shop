@@ -48,7 +48,7 @@ describe('ProfileApi.getProfiles', () => {
     })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/profiles/profiles/all',
+      'api/admin/customer/all',
       {
         filter: 'gender=Male,isActive=true',
         search: null,
@@ -76,7 +76,7 @@ describe('ProfileApi.createProfile', () => {
     }
     mockPost.mockResolvedValue({ value: { id: 'p-1', ...req, fullName: 'A B' }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await ProfileApi.createProfile(req)
-    expect(mockPost).toHaveBeenCalledWith('api/profiles/profiles', req)
+    expect(mockPost).toHaveBeenCalledWith('api/admin/customer', req)
   })
 })
 
@@ -90,7 +90,7 @@ describe('ProfileApi.updateProfile', () => {
     }
     mockPut.mockResolvedValue({ value: { id: 'p-1', ...req, fullName: 'A B' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProfileApi.updateProfile(req)
-    expect(mockPut).toHaveBeenCalledWith('api/profiles/profiles', req)
+    expect(mockPut).toHaveBeenCalledWith('api/admin/customer', req)
   })
 })
 
@@ -98,6 +98,6 @@ describe('ProfileApi.deleteProfile', () => {
   it('calls DELETE with userId query parameter', async () => {
     mockDel.mockResolvedValue({ value: null, isSuccess: true, statusCode: 204, message: null, errors: [], metadata: null })
     await ProfileApi.deleteProfile('u-1')
-    expect(mockDel).toHaveBeenCalledWith('api/profiles/profiles?userId=u-1')
+    expect(mockDel).toHaveBeenCalledWith('api/admin/customer?userId=u-1')
   })
 })

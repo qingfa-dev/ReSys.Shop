@@ -32,7 +32,7 @@ const {
   setPageSize,
   setSort,
   refresh,
-} = usePagedQuery<TaxonomyListItem>('api/catalog/taxonomies', {
+} = usePagedQuery<TaxonomyListItem>('api/admin/catalog/taxonomies', {
   allowedFilterFields: TAXONOMY_FILTER_FIELDS,
   allowedSortFields: TAXONOMY_SORT_FIELDS,
   allowedSearchFields,

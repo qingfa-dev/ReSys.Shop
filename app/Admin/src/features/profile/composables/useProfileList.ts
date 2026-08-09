@@ -1,14 +1,13 @@
 import { usePagedQuery } from '@/shared/composables'
 import type { UsePagedQueryOptions } from '@/shared/composables'
-import { PROFILE } from '@/shared/constants/api'
-import { PROFILE_FILTER_FIELDS, PROFILE_SORT_FIELDS, PROFILE_SEARCH_FIELDS } from '../types/profile'
+import { CUSTOMER_FILTER_FIELDS, CUSTOMER_SORT_FIELDS, CUSTOMER_SEARCH_FIELDS } from '../types/profile'
 import type { ProfileListItem } from '../types/profile'
 
 export function useProfileList(options?: UsePagedQueryOptions) {
-  return usePagedQuery<ProfileListItem>(`${PROFILE}/all`, {
-    allowedFilterFields: PROFILE_FILTER_FIELDS,
-    allowedSortFields: PROFILE_SORT_FIELDS,
-    allowedSearchFields: PROFILE_SEARCH_FIELDS,
+  return usePagedQuery<ProfileListItem>('api/admin/customer/all', {
+    allowedFilterFields: CUSTOMER_FILTER_FIELDS,
+    allowedSortFields: CUSTOMER_SORT_FIELDS,
+    allowedSearchFields: CUSTOMER_SEARCH_FIELDS,
     ...options,
   })
 }

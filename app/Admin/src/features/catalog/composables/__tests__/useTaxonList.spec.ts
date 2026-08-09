@@ -38,7 +38,7 @@ describe('useTaxonList', () => {
     await fetch()
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/taxons/list?taxonomyId=tax1',
+      'api/admin/catalog/taxons/list?taxonomyId=tax1',
       expect.objectContaining({ pageNumber: 1 }),
       expect.any(Object),
     )
@@ -52,7 +52,7 @@ describe('useTaxonList', () => {
     await fetch()
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/taxons',
+      'api/admin/catalog/taxons',
       expect.objectContaining({ pageNumber: 1 }),
       expect.any(Object),
     )
@@ -68,7 +68,7 @@ describe('useTaxonList', () => {
     await fetch()
 
     expect(mockGetPaged).toHaveBeenLastCalledWith(
-      'api/catalog/taxons/list?taxonomyId=tax2',
+      'api/admin/catalog/taxons/list?taxonomyId=tax2',
       expect.objectContaining({ pageNumber: 1 }),
       expect.any(Object),
     )
@@ -84,7 +84,7 @@ describe('useTaxonList', () => {
     await fetch()
 
     expect(mockGetPaged).toHaveBeenLastCalledWith(
-      'api/catalog/taxons',
+      'api/admin/catalog/taxons',
       expect.objectContaining({ pageNumber: 1 }),
       expect.any(Object),
     )

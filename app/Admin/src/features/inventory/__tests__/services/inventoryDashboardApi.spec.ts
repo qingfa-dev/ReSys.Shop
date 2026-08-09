@@ -18,6 +18,6 @@ describe('InventoryDashboardApi.getInventoryDashboard', () => {
   it('calls GET with dashboard URL', async () => {
     mockGet.mockResolvedValue({ value: { totalStockItems: 0 }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await InventoryDashboardApi.getInventoryDashboard()
-    expect(mockGet).toHaveBeenCalledWith('api/inventory/dashboard')
+    expect(mockGet).toHaveBeenCalledWith('api/admin/inventory/dashboard')
   })
 })

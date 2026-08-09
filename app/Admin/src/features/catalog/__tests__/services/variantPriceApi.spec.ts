@@ -29,7 +29,7 @@ describe('VariantPriceApi.listPrices', () => {
     })
     await VariantPriceApi.listPrices('abc-123')
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/variant-prices?variantId=abc-123',
+      'api/admin/catalog/variant-prices?variantId=abc-123',
       expect.objectContaining({ pageNumber: 1, pageSize: 100 }),
     )
   })
@@ -40,7 +40,7 @@ describe('VariantPriceApi.setPrice', () => {
     const req = { variantId: 'abc-123', amount: 10, currency: 'USD' }
     mockPost.mockResolvedValue({ value: { variantId: 'abc-123' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantPriceApi.setPrice(req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/variant-prices', req)
+    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/variant-prices', req)
   })
 })
 
@@ -48,7 +48,7 @@ describe('VariantPriceApi.removePrice', () => {
   it('calls DELETE with body', async () => {
     mockDelWithBody.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantPriceApi.removePrice('abc-123', 'price-1')
-    expect(mockDelWithBody).toHaveBeenCalledWith('api/catalog/variant-prices/price-1', { variantId: 'abc-123', priceId: 'price-1' })
+    expect(mockDelWithBody).toHaveBeenCalledWith('api/admin/catalog/variant-prices/price-1', { variantId: 'abc-123', priceId: 'price-1' })
   })
 })
 
@@ -57,6 +57,6 @@ describe('VariantPriceApi.syncPrices', () => {
     const req = { variantId: 'abc-123', prices: [{ amount: 10, currency: 'USD' }] }
     mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantPriceApi.syncPrices(req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/variant-prices/sync', req)
+    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/variant-prices/sync', req)
   })
 })

@@ -1,6 +1,6 @@
 import { post, get, put, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   VariantRequest,
@@ -16,7 +16,7 @@ import {
   VARIANT_SEARCH_FIELDS,
 } from '../types/variant'
 
-const BASE = `${CATALOG}/variants`
+const BASE = 'api/admin/catalog/variants'
 
 export class VariantApi {
   static getVariants(
@@ -63,7 +63,7 @@ export class VariantApi {
     variantId: string,
   ): Promise<PagedResult<OptionValueAssignment>> {
     return getPaged<OptionValueAssignment>(
-      `${CATALOG}/variant-option-values?variantId=${variantId}`,
+      `api/admin/catalog/variant-option-values?variantId=${variantId}`,
       {},
     )
   }
@@ -73,7 +73,7 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return post<Result<void>>(
-      `${CATALOG}/variant-option-values/assign`,
+      `api/admin/catalog/variant-option-values/assign`,
       { variantId, optionValueIds },
     )
   }
@@ -83,7 +83,7 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return post<Result<void>>(
-      `${CATALOG}/variant-option-values/revoke`,
+      `api/admin/catalog/variant-option-values/revoke`,
       { variantId, optionValueIds },
     )
   }
@@ -93,7 +93,7 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return put<Result<void>>(
-      `${CATALOG}/variant-option-values/sync`,
+      `api/admin/catalog/variant-option-values/sync`,
       { variantId, optionValueIds },
     )
   }

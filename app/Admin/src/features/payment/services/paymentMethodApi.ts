@@ -1,6 +1,5 @@
 import { getPaged } from '@/shared/api'
 import { get, post, put, del, patch } from '@/shared/api/client'
-import { PAYMENT } from '@/shared/constants/api'
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   PaymentMethodDetail,
@@ -17,7 +16,7 @@ import {
 } from '../types/paymentMethod'
 
 export class PaymentMethodApi {
-  private static readonly BASE = `${PAYMENT}/payment-methods`
+  private static readonly BASE = 'api/admin/billing/payment-methods'
 
   static getPaymentMethods(query: PaymentMethodQuery): Promise<PagedResult<PaymentMethodListItem>> {
     return getPaged<PaymentMethodListItem>(PaymentMethodApi.BASE, toPaymentMethodQueryParams(query), {

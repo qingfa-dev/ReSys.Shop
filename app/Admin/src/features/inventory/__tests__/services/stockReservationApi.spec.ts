@@ -45,7 +45,7 @@ describe('StockReservationApi.getStockReservations', () => {
     })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/inventory/stock-reservations',
+      'api/admin/inventory/stock-reservations',
       {
         filter: 'state=Reserved',
         search: null,
@@ -66,7 +66,7 @@ describe('StockReservationApi.getStockReservation', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: 'r-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await StockReservationApi.getStockReservation('r-1')
-    expect(mockGet).toHaveBeenCalledWith('api/inventory/stock-reservations/r-1')
+    expect(mockGet).toHaveBeenCalledWith('api/admin/inventory/stock-reservations/r-1')
   })
 })
 
@@ -74,6 +74,6 @@ describe('StockReservationApi.cancelStockReservation', () => {
   it('calls POST with cancel URL and no body', async () => {
     mockPost.mockResolvedValue({ value: { id: 'r-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await StockReservationApi.cancelStockReservation('r-1')
-    expect(mockPost).toHaveBeenCalledWith('api/inventory/stock-reservations/r-1/cancel')
+    expect(mockPost).toHaveBeenCalledWith('api/admin/inventory/stock-reservations/r-1/cancel')
   })
 })

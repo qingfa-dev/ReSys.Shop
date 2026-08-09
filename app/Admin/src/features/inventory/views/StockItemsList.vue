@@ -12,7 +12,7 @@ import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
-import { INVENTORY } from '@/shared/constants/api'
+
 import { StockItemApi } from '../services/stockItemApi'
 import { useActiveStockLocations } from '../composables/useActiveStockLocations'
 import type { StockItemListItem } from '../types/stockItem'
@@ -31,7 +31,7 @@ const selectedItems = ref<StockItemListItem[]>([])
 loadActiveStockLocations()
 
 const { items, loading, setSearch, setFilter, refresh } = usePagedQuery<StockItemListItem>(
-  `${INVENTORY}/stock-items`,
+  `/api/admin/inventory/stock-items`,
   {
     allowedFilterFields: STOCK_ITEM_FILTER_FIELDS,
     allowedSortFields: STOCK_ITEM_SORT_FIELDS,

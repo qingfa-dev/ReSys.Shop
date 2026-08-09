@@ -1,6 +1,6 @@
 import { post, put, delWithBody } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   TaxonRuleRequest,
@@ -12,7 +12,7 @@ import {
 } from '../types/taxonRule'
 
 export class TaxonRuleApi {
-  private static readonly BASE = `${CATALOG}/taxon-rules`
+  private static readonly BASE = 'api/admin/catalog/taxon-rules'
 
   static getRules(taxonId: string): Promise<PagedResult<TaxonRuleListItem>> {
     return getPaged<TaxonRuleListItem>(`${TaxonRuleApi.BASE}?taxonId=${taxonId}`, toTaxonRuleQueryParams({ taxonId }))

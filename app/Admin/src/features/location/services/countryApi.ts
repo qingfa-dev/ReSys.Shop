@@ -1,6 +1,6 @@
 import { post, get, put, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { LOCATION } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   CountryRequest,
@@ -15,7 +15,7 @@ import {
 } from '../types/country'
 
 export class CountryApi {
-  private static readonly BASE = `${LOCATION}/countries`
+  private static readonly BASE = 'api/admin/location/countries'
 
   static getCountries(query: CountryQuery): Promise<PagedResult<CountryListItem>> {
     return getPaged<CountryListItem>(CountryApi.BASE, toCountryQueryParams(query), {

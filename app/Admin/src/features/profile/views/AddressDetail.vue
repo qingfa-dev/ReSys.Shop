@@ -68,7 +68,7 @@ async function initEditMode(id: string) {
   const result = await fetchAddress(form.value.userId, id)
   if (!result.isSuccess) {
     handleResult(result)
-    router.push('/profile/addresses')
+    router.push('/customer/addresses')
     return
   }
   const a = address.value
@@ -125,14 +125,14 @@ async function onSubmit(event: FormSubmitEvent) {
 
   if (result.isSuccess) {
     notify.success(isEdit.value ? 'Address updated' : 'Address created')
-    router.push('/profile/addresses')
+    router.push('/customer/addresses')
   } else {
     handleResult(result)
   }
 }
 
 function onCancel() {
-  router.push('/profile/addresses')
+  router.push('/customer/addresses')
 }
 </script>
 

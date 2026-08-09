@@ -1,6 +1,6 @@
 import { post, get, put, del, patch } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   ProductRequest,
@@ -15,7 +15,7 @@ import {
 } from '../types/product'
 
 export class ProductApi {
-  private static readonly BASE = `${CATALOG}/products`
+  private static readonly BASE = 'api/admin/catalog/products'
 
   static getProducts(query: ProductQuery): Promise<PagedResult<ProductListItem>> {
     return getPaged<ProductListItem>(ProductApi.BASE, toProductQueryParams(query), {

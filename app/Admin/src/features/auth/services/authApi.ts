@@ -9,8 +9,8 @@ import type {
   SessionInfo,
 } from '../types/auth'
 
-const AUTH_BASE = 'api/store/identity/auth'
-const PASSWORD_BASE = 'api/store/identity/passwords'
+const AUTH_BASE = 'api/storefront/identity/auth'
+const PASSWORD_BASE = 'api/storefront/identity/passwords'
 
 export function login(request: LoginRequest): Promise<Result<TokenPair>> {
   return post<Result<TokenPair>>(`${AUTH_BASE}/login/password`, request)

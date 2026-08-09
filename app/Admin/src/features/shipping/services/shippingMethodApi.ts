@@ -1,12 +1,12 @@
 import { post, get, put, del, patch } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { SHIPPING } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type { ShippingMethodRequest, ShippingMethodListItem, ShippingMethodDetail, ShippingMethodQuery } from '../types/shippingMethod'
 import { toShippingMethodQueryParams, SHIPPING_METHOD_FILTER_FIELDS, SHIPPING_METHOD_SORT_FIELDS, SHIPPING_METHOD_SEARCH_FIELDS } from '../types/shippingMethod'
 
 export class ShippingMethodApi {
-  private static readonly BASE = `${SHIPPING}/shipping-methods`
+  private static readonly BASE = 'api/admin/shipping/shipping-methods'
 
   static getShippingMethods(query: ShippingMethodQuery): Promise<PagedResult<ShippingMethodListItem>> {
     return getPaged<ShippingMethodListItem>(ShippingMethodApi.BASE, toShippingMethodQueryParams(query), {

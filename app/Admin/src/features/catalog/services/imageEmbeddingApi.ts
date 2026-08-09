@@ -1,5 +1,5 @@
 import { get, post, put, del } from '@/shared/api/client'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result } from '@/shared/types'
 import type {
   CreateEmbeddingRequest,
@@ -8,7 +8,7 @@ import type {
 } from '../types/imageEmbedding'
 
 export class ImageEmbeddingApi {
-  private static readonly BASE = `${CATALOG}/variant-image-embeddings`
+  private static readonly BASE = 'api/admin/catalog/variant-image-embeddings'
 
   static create(request: CreateEmbeddingRequest): Promise<Result<EmbeddingDetailResponse>> {
     return post<Result<EmbeddingDetailResponse>>(ImageEmbeddingApi.BASE, request)

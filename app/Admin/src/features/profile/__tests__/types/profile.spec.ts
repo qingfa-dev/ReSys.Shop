@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
   toProfileQueryParams,
-  PROFILE_FILTER_FIELDS,
-  PROFILE_SORT_FIELDS,
-  PROFILE_SEARCH_FIELDS,
+  CUSTOMER_FILTER_FIELDS,
+  CUSTOMER_SORT_FIELDS,
+  CUSTOMER_SEARCH_FIELDS,
 } from '../../types/profile'
 
 describe('toProfileQueryParams', () => {
@@ -49,9 +49,9 @@ describe('toProfileQueryParams', () => {
   })
 })
 
-describe('PROFILE_FILTER_FIELDS', () => {
+describe('CUSTOMER_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(PROFILE_FILTER_FIELDS).toEqual([
+    expect(CUSTOMER_FILTER_FIELDS).toEqual([
       'gender',
       'isActive',
       'createdAtUtc',
@@ -60,9 +60,9 @@ describe('PROFILE_FILTER_FIELDS', () => {
   })
 })
 
-describe('PROFILE_SORT_FIELDS', () => {
+describe('CUSTOMER_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(PROFILE_SORT_FIELDS).toEqual([
+    expect(CUSTOMER_SORT_FIELDS).toEqual([
       'firstName',
       'lastName',
       'createdAtUtc',
@@ -71,8 +71,8 @@ describe('PROFILE_SORT_FIELDS', () => {
   })
 })
 
-describe('PROFILE_SEARCH_FIELDS', () => {
+describe('CUSTOMER_SEARCH_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(PROFILE_SEARCH_FIELDS).toEqual(['firstName', 'lastName', 'email', 'bio'])
+    expect(CUSTOMER_SEARCH_FIELDS).toEqual(['firstName', 'lastName', 'email', 'bio'])
   })
 })

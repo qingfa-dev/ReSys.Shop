@@ -65,7 +65,7 @@ const {
   setSearch: setValueSearch,
   setFilter: setValueFilter,
   refresh: refreshValues,
-} = usePagedQuery<OptionValueListItem>('api/catalog/option-values', {
+} = usePagedQuery<OptionValueListItem>('api/admin/catalog/option-values', {
   allowedFilterFields: OPTION_VALUE_FILTER_FIELDS,
   allowedSortFields: OPTION_VALUE_SORT_FIELDS,
   allowedSearchFields: valueSearchFields,

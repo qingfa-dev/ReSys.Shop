@@ -1,6 +1,6 @@
 import { post, get, put, patch, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   TaxonRequest,
@@ -15,7 +15,7 @@ import {
 } from '../types/taxon'
 
 export class TaxonApi {
-  private static readonly BASE = `${CATALOG}/taxons`
+  private static readonly BASE = 'api/admin/catalog/taxons'
 
   static getTaxons(query: TaxonQuery): Promise<PagedResult<TaxonListItem>> {
     return getPaged<TaxonListItem>(TaxonApi.BASE, toTaxonQueryParams(query), {

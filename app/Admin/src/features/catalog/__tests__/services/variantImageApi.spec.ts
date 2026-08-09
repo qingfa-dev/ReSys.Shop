@@ -35,7 +35,7 @@ describe('VariantImageApi.listImages', () => {
     })
     await VariantImageApi.listImages('abc-123')
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/variant-images?variantId=abc-123',
+      'api/admin/catalog/variant-images?variantId=abc-123',
       {},
     )
   })
@@ -45,7 +45,7 @@ describe('VariantImageApi.getImage', () => {
   it('calls GET with image URL', async () => {
     mockGet.mockResolvedValue({ value: { id: 'img-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantImageApi.getImage('img-1')
-    expect(mockGet).toHaveBeenCalledWith('api/catalog/variant-images/img-1')
+    expect(mockGet).toHaveBeenCalledWith('api/admin/catalog/variant-images/img-1')
   })
 })
 
@@ -54,7 +54,7 @@ describe('VariantImageApi.uploadImage', () => {
     const file = new File(['x'], 'a.png', { type: 'image/png' })
     mockPost.mockResolvedValue({ value: { id: '1' }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await VariantImageApi.uploadImage({ variantId: 'abc-123', file })
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/variant-images', expect.any(FormData))
+    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/variant-images', expect.any(FormData))
   })
 })
 
@@ -63,7 +63,7 @@ describe('VariantImageApi.updateImage', () => {
     mockPut.mockResolvedValue({ value: { id: 'img-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantImageApi.updateImage('img-1', { alt: 'updated', position: 2, type: 'gallery' })
     expect(mockPut).toHaveBeenCalledWith(
-      'api/catalog/variant-images/img-1',
+      'api/admin/catalog/variant-images/img-1',
       { alt: 'updated', position: 2, type: 'gallery' },
     )
   })
@@ -73,7 +73,7 @@ describe('VariantImageApi.deleteImage', () => {
   it('calls DELETE with correct URL', async () => {
     mockDel.mockResolvedValue({ value: { message: 'ok' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await VariantImageApi.deleteImage('img-1')
-    expect(mockDel).toHaveBeenCalledWith('api/catalog/variant-images/img-1')
+    expect(mockDel).toHaveBeenCalledWith('api/admin/catalog/variant-images/img-1')
   })
 })
 
@@ -82,7 +82,7 @@ describe('VariantImageApi.downloadImage', () => {
     const blob = new Blob(['data'], { type: 'application/octet-stream' })
     mockGetBlob.mockResolvedValue(blob)
     const result = await VariantImageApi.downloadImage('img-1')
-    expect(mockGetBlob).toHaveBeenCalledWith('api/catalog/variant-images/img-1/download')
+    expect(mockGetBlob).toHaveBeenCalledWith('api/admin/catalog/variant-images/img-1/download')
     expect(result).toBe(blob)
   })
 })
