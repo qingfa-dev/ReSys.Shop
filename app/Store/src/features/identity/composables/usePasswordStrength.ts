@@ -1,10 +1,10 @@
 import { computed, type ComputedRef, type Ref } from 'vue'
 
 const strengthMap = {
-  weak: { label: 'Weak', percent: 25, color: 'var(--p-red-400)', severity: 'danger' },
-  medium: { label: 'Medium', percent: 50, color: 'var(--p-amber-400)', severity: 'warn' },
-  strong: { label: 'Strong', percent: 75, color: 'var(--p-blue-400)', severity: 'info' },
-  'very-strong': { label: 'Very Strong', percent: 100, color: 'var(--p-emerald-400)', severity: 'success' },
+  weak: { label: 'Weak', percent: 25, color: 'var(--p-danger-color)', severity: 'danger' },
+  medium: { label: 'Medium', percent: 50, color: 'var(--p-warning-color)', severity: 'warn' },
+  strong: { label: 'Strong', percent: 75, color: 'var(--p-info-color)', severity: 'info' },
+  'very-strong': { label: 'Very Strong', percent: 100, color: 'var(--p-success-color)', severity: 'success' },
 } as const
 
 export type PasswordStrength = keyof typeof strengthMap

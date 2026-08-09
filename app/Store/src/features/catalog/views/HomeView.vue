@@ -50,7 +50,7 @@ onMounted(() => {
     <!-- Section: Hero — animated headline, CTA and gradient banner -->
     <section
       v-animateonscroll.once="{ enterClass: 'animate-fadein' }"
-      class="bg-gradient-to-br from-primary-50 via-surface-0 to-primary-100"
+      class="bg-gradient-to-br from-highlight via-surface-0 to-brand-subtle"
     >
       <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
         <div>
@@ -69,6 +69,7 @@ onMounted(() => {
           />
         </div>
         <!-- Banner: Gradient panel stands in for the seasonal campaign image -->
+        <!-- Decorative: dark gradient panel (intentional primary scale use, not a token violation) -->
         <div class="hidden min-h-80 items-center justify-center rounded-3xl bg-gradient-to-br from-primary-500 via-primary-700 to-primary-950 shadow-lg lg:flex">
           <i class="pi pi-sparkles text-7xl text-on-brand/80" />
         </div>
@@ -93,11 +94,12 @@ onMounted(() => {
       <Carousel
         v-else-if="featuredProducts.length > 0"
         :value="featuredProducts"
-        :numVisible="1"
+        :numVisible="4"
         :numScroll="1"
         :responsiveOptions="[
-          { breakpoint: '1024px', numVisible: 4, numScroll: 4 },
-          { breakpoint: '768px', numVisible: 2, numScroll: 2 },
+          { breakpoint: '1024px', numVisible: 3, numScroll: 1 },
+          { breakpoint: '768px', numVisible: 2, numScroll: 1 },
+          { breakpoint: '560px', numVisible: 1, numScroll: 1 },
         ]"
       >
         <template #item="{ data }">

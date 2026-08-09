@@ -25,8 +25,8 @@ const layoutOptions = [
 // Grid: Column density per layout mode — list mode shows one wide card per row
 const gridClass = computed(() =>
   layout.value === 'grid'
-    ? 'grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4'
-    : 'grid grid-cols-1 gap-6',
+    ? 'grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4'
+    : 'grid grid-cols-1 gap-4',
 )
 
 // Sort: Select options mirroring the backend's allowed sort fields

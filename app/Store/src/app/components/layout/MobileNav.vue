@@ -47,7 +47,7 @@ watch(
           :class="[
             'flex w-full items-center gap-3 px-3 py-2 text-sm',
             route.path === item.to
-              ? 'rounded-lg bg-primary-50 font-semibold text-brand'
+              ? 'rounded-lg bg-highlight font-semibold text-brand'
               : 'text-body',
           ]"
           :aria-current="route.path === item.to ? 'page' : undefined"
