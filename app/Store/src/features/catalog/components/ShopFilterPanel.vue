@@ -1,18 +1,74 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import type { TreeNode } from 'primevue/treenode'
 import { useFilters } from '../composables/useFilters'
 import { useTaxonomy } from '../composables/useTaxonomy'
 import { formatCurrency } from '@/shared/utils/currency'
-import TaxonTree from './TaxonTree.vue'
 import type { StoreOptionValueListItemResponse, TaxonTreeNode } from '../types'
 import type { WritableComputedRef } from 'vue'
 
 const catalogFilters = useFilters()
 const taxonomy = useTaxonomy()
 
-// Term: Keep local taxonomy search for future use; v5 Tree filter is internal state
-// only (no filterValue prop), so TaxonTree renders its own search input instead
-const taxonSearchTerm = ref('')
+// Term: Tree filter is internal state (no external binding needed)
+// Kept for potential future use with filterValue prop if PrimeVue adds it
+
+// Tree: Convert taxonomy groups into a single flat Tree with taxonomy names as root nodes
+function toTreeNode(node: TaxonTreeNode): TreeNode {
+  return {
+    key: node.id,
+    label: node.presentation ?? node.name,
+    leaf: node.children.length === 0 ? true : undefined,
+    children: node.children.length > 0 ? node.children.map(toTreeNode) : undefined,
+  }
+}
+
+const treeNodes = computed<TreeNode[]>(() =>
+  taxonomy.taxonomyGroups.map(group => ({
+    key: `taxonomy-${group.taxonomy.id}`,
+    label: group.taxonomy.presentation ?? group.taxonomy.name,
+    children: group.tree.map(toTreeNode),
+  })),
+)
+
+// Expand: Taxonomy root nodes start expanded; preserve user toggles
+const expandedKeys = ref<Record<string, boolean>>({})
+watch(
+  treeNodes,
+  (groups) => {
+    const seed: Record<string, boolean> = {}
+    for (const group of groups) {
+      if (group.children?.length) seed[group.key] = true
+    }
+    expandedKeys.value = { ...seed, ...expandedKeys.value }
+  },
+  { immediate: true },
+)
+
+// Select: Mirror composable selection into checkbox keys
+const selectionKeys = computed<Record<string, { checked: boolean; partialChecked: boolean }>>({
+  get: () => {
+    const keys: Record<string, { checked: boolean; partialChecked: boolean }> = {}
+    for (const id of catalogFilters.selectedTaxonIds) {
+      keys[id] = { checked: true, partialChecked: false }
+    }
+    return keys
+  },
+  set: (keys) => {
+    const fullyChecked = new Set(
+      Object.entries(keys)
+        .filter(([, meta]) => meta && meta.checked && !meta.partialChecked)
+        .map(([key]) => key),
+    )
+    // oxlint-disable-next-line unicorn/no-useless-spread -- false positive: the copy is required
+    for (const id of [...catalogFilters.selectedTaxonIds]) {
+      if (!fullyChecked.has(id)) catalogFilters.toggleTaxon(id)
+    }
+    for (const id of fullyChecked) {
+      if (!catalogFilters.selectedTaxonIds.includes(id)) catalogFilters.toggleTaxon(id)
+    }
+  },
+})
 
 // Options: Map of option value ids per type for group-scoped selection proxies
 const valueIdsByType = computed(() => {
@@ -169,30 +225,29 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
 
 <template>
   <div class="flex flex-col gap-6">
-    <!-- Section: Taxon Search — local filter term kept for future use (v5 Tree has no filterValue prop) -->
-    <IconField>
-      <InputIcon class="pi pi-filter" />
-      <InputText
-        v-model="taxonSearchTerm"
-        type="search"
-        placeholder="Search categories..."
-        class="w-full"
-      />
-    </IconField>
-
-    <!-- Section: Taxonomy Tree — one accordion tab per taxonomy group -->
-    <Accordion multiple>
-      <AccordionPanel
-        v-for="group in taxonomy.taxonomyGroups"
-        :key="group.taxonomy.id"
-        :value="group.taxonomy.id"
-      >
-        <AccordionHeader>{{ group.taxonomy.presentation ?? group.taxonomy.name }}</AccordionHeader>
-        <AccordionContent>
-          <TaxonTree :nodes="group.tree" />
-        </AccordionContent>
-      </AccordionPanel>
-    </Accordion>
+    <!-- Section: Taxonomy Tree — checkbox tree grouped by taxonomy root, with built-in filter -->
+    <Tree
+      v-model:expanded-keys="expandedKeys"
+      v-model:selection-keys="selectionKeys"
+      :value="treeNodes"
+      selection-mode="checkbox"
+      filter
+      filter-mode="lenient"
+      filter-placeholder="Search categories..."
+    >
+      <template #default="{ node }">
+        <div class="flex w-full items-center gap-2">
+          <span class="truncate text-sm">{{ node.label }}</span>
+          <Tag
+            v-if="node.children?.length"
+            :value="String(node.children.length)"
+            severity="secondary"
+            size="small"
+            class="ml-auto shrink-0"
+          />
+        </div>
+      </template>
+    </Tree>
 
     <!-- Section: Option Values — checkbox list or multi-select per filterable option type -->
     <Panel
@@ -238,6 +293,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
           :max="priceBounds.max"
           class="w-full"
           @change="commitPrice"
+          fluid
         />
         <div class="flex items-center gap-2">
           <InputNumber
