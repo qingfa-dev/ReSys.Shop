@@ -1,21 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { formatCurrency } from '@/shared/utils/currency'
 import { useCart } from '../composables/useCart'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 
-// Threshold: Site-wide free-shipping cutoff mirrors the HomeView benefits strip copy.
-const FREE_SHIPPING_THRESHOLD = 100
-
 const cart = useCart()
-
-// Progress: Clamp the free-shipping progress bar between 0 and 100 percent.
-const shippingProgress = computed(() => Math.min(100, Math.round((cart.subtotal / FREE_SHIPPING_THRESHOLD) * 100)))
-
-// Remaining: Spend still needed before the free-shipping cutoff is reached.
-const remainingForFreeShipping = computed(() => Math.max(0, FREE_SHIPPING_THRESHOLD - cart.subtotal))
 
 // Guard: Fall back to the minimum quantity when the input is cleared.
 function updateQuantity(lineItemId: string, quantity: number | null): void {
@@ -46,16 +36,16 @@ function removeItem(lineItemId: string): void {
 
     <!-- Items: Compact rows with thumbnail, quantity input and line total -->
     <div v-else class="flex flex-col gap-4">
-      <div v-for="item in cart.items" :key="item.id" class="flex items-center gap-3">
+      <div v-for="item in cart.items" :key="item.id" class="flex items-start gap-3">
         <Image
           v-if="item.productImageUrl"
           :src="item.productImageUrl"
           :alt="item.productName ?? item.variantName"
-          imageClass="h-16 w-16 rounded-lg object-cover"
+          imageClass="h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-lg object-cover"
         />
         <div
           v-else
-          class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-surface-100"
+          class="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-lg bg-surface-100"
         >
           <i class="pi pi-image text-xl text-placeholder" />
         </div>
@@ -66,43 +56,36 @@ function removeItem(lineItemId: string): void {
           <div class="mt-1 text-xs text-muted">{{ formatCurrency(item.price) }} each</div>
         </div>
 
-        <InputNumber
-          :model-value="item.quantity"
-          :min="1"
-          size="small"
-          class="w-20"
-          aria-label="Quantity"
-          @update:model-value="updateQuantity(item.id, $event)"
-        />
-
-        <div class="w-16 text-right text-sm font-semibold">{{ formatCurrency(item.total) }}</div>
-
-        <Button
-          icon="pi pi-trash"
-          variant="text"
-          severity="secondary"
-          rounded
-          aria-label="Remove item"
-          v-tooltip.left="'Remove item'"
-          @click="removeItem(item.id)"
-        />
+        <!-- Actions: Quantity, total, and remove — right-aligned -->
+        <div class="flex items-center gap-2 shrink-0">
+          <InputNumber
+            :model-value="item.quantity"
+            :min="1"
+            size="small"
+            inputClass="w-12 text-center"
+            aria-label="Quantity"
+            @update:model-value="updateQuantity(item.id, $event)"
+          />
+          <span class="w-16 text-right text-sm font-semibold">{{ formatCurrency(item.total) }}</span>
+          <Button
+            icon="pi pi-trash"
+            variant="text"
+            severity="secondary"
+            rounded
+            size="small"
+            aria-label="Remove item"
+            v-tooltip.left="'Remove item'"
+            @click="removeItem(item.id)"
+          />
+        </div>
       </div>
 
       <Divider />
 
-      <!-- Totals: Subtotal plus progress toward the free-shipping cutoff -->
+      <!-- Totals: Cart subtotal -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-muted">Subtotal</span>
         <span class="font-semibold">{{ formatCurrency(cart.subtotal) }}</span>
-      </div>
-      <div class="space-y-1">
-        <div class="text-xs text-muted">
-          <template v-if="remainingForFreeShipping > 0">
-            Add {{ formatCurrency(remainingForFreeShipping) }} more for free shipping
-          </template>
-          <template v-else>You have free shipping!</template>
-        </div>
-        <ProgressBar :value="shippingProgress" />
       </div>
     </div>
 

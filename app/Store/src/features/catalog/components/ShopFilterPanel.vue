@@ -341,13 +341,12 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
 
     <!-- Section: Price Range — slider with min/max number inputs and apply/reset -->
     <Panel header="Price" toggleable>
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-3 overflow-hidden">
         <Slider
           v-model="priceRange"
           range
           :min="priceBounds.min"
           :max="priceBounds.max"
-          class="w-full"
           fluid
         />
         <div class="flex items-center gap-2">
@@ -356,15 +355,17 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
             :min="priceBounds.min"
             :max="priceBounds.max"
             placeholder="Min"
-            class="w-full"
+            class="min-w-0 flex-1"
+            inputClass="w-full"
           />
-          <span class="text-sm text-muted">—</span>
+          <span class="shrink-0 text-sm text-muted">—</span>
           <InputNumber
             v-model="maxInput"
             :min="priceBounds.min"
             :max="priceBounds.max"
             placeholder="Max"
-            class="w-full"
+            class="min-w-0 flex-1"
+            inputClass="w-full"
           />
         </div>
         <div class="flex items-center gap-2">
