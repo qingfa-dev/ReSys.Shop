@@ -3,16 +3,14 @@ import { computed, onMounted, ref } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { usePreferences } from '@/shared/composables/usePreferences'
-import { useTheme } from '@/shared/composables/useTheme'
 import { NotificationApi } from '../services/notificationApi'
 import type { NotificationPreferences } from '../types'
 
 usePageTitle('Preferences')
 
 // Preferences: Currency/language persist to localStorage through the shared
-// singleton's watcher; theme persists through useTheme's DOM + storage sync.
+// singleton's watcher.
 const { preferences } = usePreferences()
-const { isDark, toggle } = useTheme()
 const notify = useNotify()
 
 // Receipts: Email-receipt toggle maps to the enableEmail notification channel —
@@ -39,7 +37,7 @@ const localeOptions = [
 ]
 
 // Save: Persist the full channel set so toggles made elsewhere are preserved;
-// currency/language/theme persist automatically through their composables.
+// currency/language persist automatically through their composables.
 async function onSave(): Promise<void> {
   prefsError.value = null
   if (!notif.value) return
@@ -65,7 +63,7 @@ onMounted(async () => {
     <template #title>Preferences</template>
     <template #content>
       <div class="flex flex-col gap-5">
-        <!-- Section: Form Fields — currency, locale, dark mode and receipts -->
+        <!-- Section: Form Fields — currency, locale and receipts -->
         <div class="grid max-w-md grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
             <Label for="pref-currency" class="mb-1 block text-sm font-medium">Currency</Label>
@@ -90,14 +88,7 @@ onMounted(async () => {
             />
           </div>
         </div>
-        <div class="flex items-center justify-between gap-4 border-t border-surface-100 pt-4 dark:border-surface-800">
-          <div>
-            <div class="font-medium">Dark mode</div>
-            <p class="mt-0.5 text-sm text-surface-500">Uses a darker palette across the whole store.</p>
-          </div>
-          <ToggleSwitch :model-value="isDark" @update:model-value="toggle" />
-        </div>
-        <div class="flex items-center justify-between gap-4 border-t border-surface-100 pt-4 dark:border-surface-800">
+        <div class="flex items-center justify-between gap-4 border-t border-surface-100 pt-4">
           <div>
             <div class="font-medium">Email receipts</div>
             <p class="mt-0.5 text-sm text-surface-500">Receive a receipt by email for every completed order.</p>
