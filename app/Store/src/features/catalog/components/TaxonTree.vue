@@ -15,7 +15,7 @@ function toTreeNode(node: TaxonTreeNode): TreeNode {
   return {
     key: node.id,
     label: node.name,
-    leaf: !node.hasChildren,
+    leaf: node.children.length === 0 ? true : undefined,
     children: node.children.length > 0 ? node.children.map(toTreeNode) : undefined,
   }
 }
@@ -33,7 +33,7 @@ watch(
     }
     expandedKeys.value = { ...seed, ...expandedKeys.value }
   },
-  { immediate: true },
+  { immediate: true, deep: true },
 )
 
 // Select: Mirror store selection into checkbox keys ({ checked, partialChecked }).
@@ -66,14 +66,12 @@ const selectionKeys = computed<Record<string, { checked: boolean; partialChecked
 </script>
 
 <template>
-  <!-- Section: Taxon Tree — checkbox tree with internal search; store is the single source of truth -->
+  <!-- Section: Taxon Tree — checkbox tree; store is the single source of truth -->
   <Tree
     v-model:expanded-keys="expandedKeys"
     v-model:selection-keys="selectionKeys"
     :value="treeNodes"
     selection-mode="checkbox"
-    filter
-    filter-placeholder="Search..."
   >
     <template #default="{ node }">
       <div class="flex w-full items-center gap-2">

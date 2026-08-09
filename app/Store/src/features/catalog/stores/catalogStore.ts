@@ -140,7 +140,7 @@ export const useCatalogStore = defineStore('catalog', () => {
 // Map: Convert flat taxon list into nested tree structure grouped by taxonomy
 function buildTree(items: StoreTaxonListItemResponse[], taxonomyId: string, parentId: string | null = null): TaxonTreeNode[] {
   return items
-    .filter(i => i.taxonomyId === taxonomyId && i.parentId === parentId)
+    .filter(i => i.taxonomyId === taxonomyId && (i.parentId ?? undefined) === parentId)
     .map(i => ({
       id: i.id,
       name: i.name,
