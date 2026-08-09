@@ -1,8 +1,14 @@
 using Microsoft.Extensions.Logging.Abstractions;
 
+using Module.Catalog.Domain.OptionTypes;
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products;
+using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Products.Variants.Options;
 using Module.Catalog.Domain.Products.Variants.Prices;
+using Module.Catalog.Domain.Taxonomies;
+using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Storefront.Products.Get.Detail;
 using Module.Inventory.Services;
 
@@ -49,7 +55,17 @@ public class GetProductDetailPageTests : IDisposable
         variant.Prices.Add(new Price { Amount = 29.99m, Currency = "USD" });
         product.Variants.Add(variant);
         product.MasterVariantId = variant.Id;
+
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories").Value;
+        var taxon = TaxonMethod.Create(
+            taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts",
+            null, null, null, false, null, null, false, null, null).Value;
+        taxonomy.Taxons.Add(taxon);
+        product.Classifications.Add(ClassificationMethod.Create(product.Id, taxon.Id).Value);
+        product.Classifications.First().Taxon = taxon;
+
         _dbContext.Set<Product>().Add(product);
+        _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new GetProductDetail.Query(product.Id), TestContext.Current.CancellationToken);
@@ -58,6 +74,14 @@ public class GetProductDetailPageTests : IDisposable
         result.Value.Should().NotBeNull();
         result.Value.Slug.Should().Be("test-product");
         result.Value.Name.Should().Be("Test Product");
+        result.Value.MasterVariant.Should().NotBeNull();
+        result.Value.MasterVariant!.Price.Should().Be(29.99m);
+        result.Value.MasterVariant!.Prices.Should().HaveCount(1);
+        result.Value.MasterVariant!.Prices[0].Amount.Should().Be(29.99m);
+        result.Value.Classifications.Should().HaveCount(1);
+        result.Value.Classifications[0].Name.Should().Be("Shirts");
+        result.Value.Classifications[0].Breadcrumb.Should().NotBeEmpty();
+        result.Value.Classifications[0].Breadcrumb[0].Name.Should().Be("Shirts");
     }
 
     [Fact(DisplayName = "Handler: Should return failure when ID not found")]
@@ -94,14 +118,57 @@ public class GetProductDetailPageTests : IDisposable
         var variant = VariantMethod.Create(product.Id, "V-001", isMaster: false).Value;
         variant.Prices.Add(new Price { Amount = 39.99m, Currency = "USD" });
         product.Variants.Add(variant);
+
+        var optionType = OptionTypeMethod.Create("Size", "Size", filterable: true).Value;
+        var optionValue = OptionValueMethod.Create(optionType.Id, "Large", "L").Value;
+        optionType.OptionValues.Add(optionValue);
+        variant.OptionValueVariants.Add(OptionValueVariantMethod.Create(variant.Id, optionValue.Id).Value);
+
         _dbContext.Set<Product>().Add(product);
+        _dbContext.Set<OptionType>().Add(optionType);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new GetProductDetail.Query(product.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Variants.Should().HaveCount(2);
+        result.Value.Variants.Should().HaveCount(1);
         result.Value.MasterVariant.Should().NotBeNull();
         result.Value.MasterVariant!.Price.Should().Be(49.99m);
+        result.Value.MasterVariant!.Prices.Should().HaveCount(1);
+        result.Value.MasterVariant!.Prices[0].Amount.Should().Be(49.99m);
+        var nonMaster = result.Value.Variants.First();
+        nonMaster.Prices.Should().HaveCount(1);
+        nonMaster.Prices[0].Amount.Should().Be(39.99m);
+        nonMaster.OptionValues.Should().HaveCount(1);
+        nonMaster.OptionValues[0].Name.Should().Be("Large");
+    }
+
+    [Fact(DisplayName = "Handler: Should enrich variant stock from calculator")]
+    public async Task Handle_ShouldEnrichVariantStock()
+    {
+        var product = ProductMethod.Create("Stock Product", "stock-product", status: ProductStatus.Active).Value;
+        product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
+        var master = VariantMethod.Create(product.Id, "MASTER", isMaster: true).Value;
+        product.Variants.Add(master);
+        product.MasterVariantId = master.Id;
+        _dbContext.Set<Product>().Add(product);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _calculatorMock.Setup(x => x.GetAvailableByVariantAsync(
+                It.Is<IEnumerable<Guid>>(ids => ids.Contains(master.Id)),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int> { { master.Id, 42 } });
+        _calculatorMock.Setup(x => x.GetBackorderableByVariantAsync(
+                It.Is<IEnumerable<Guid>>(ids => ids.Contains(master.Id)),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, bool> { { master.Id, true } });
+
+        var result = await _handler.Handle(new GetProductDetail.Query(product.Id), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.MasterVariant.Should().NotBeNull();
+        result.Value.MasterVariant!.Stock.Should().NotBeNull();
+        result.Value.MasterVariant!.Stock.AvailableQuantity.Should().Be(42);
+        result.Value.MasterVariant!.Stock.Backorderable.Should().BeTrue();
     }
 }

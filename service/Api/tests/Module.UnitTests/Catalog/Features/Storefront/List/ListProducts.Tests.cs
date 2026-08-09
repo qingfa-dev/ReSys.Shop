@@ -3,6 +3,7 @@ using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Domain.Products.Variants.Options;
 using Module.Catalog.Domain.Products.Variants.Prices;
 using Module.Catalog.Domain.Taxonomies;
@@ -68,6 +69,76 @@ public class ListProductsTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().HaveCount(1);
         result.Items.First().Name.Should().Be("Blue T-Shirt");
+    }
+
+    [Fact(DisplayName = "Handler: Should map nested variant details in list response")]
+    public async Task Handle_ShouldMapNestedVariantDetails()
+    {
+        var product = CreateActiveProduct("Red T-Shirt", "red-tshirt");
+        var variant = VariantMethod.Create(product.Id, "RED", isMaster: true).Value;
+        variant.Prices.Add(PriceMethod.Create(29.99m, "USD", variant.Id).Value);
+        product.Variants.Add(variant);
+        product.MasterVariantId = variant.Id;
+
+        var optionType = OptionTypeMethod.Create("Color", "Color", filterable: true).Value;
+        var optionValue = OptionValueMethod.Create(optionType.Id, "Red", "Red").Value;
+        optionType.OptionValues.Add(optionValue);
+        variant.OptionValueVariants.Add(OptionValueVariantMethod.Create(variant.Id, optionValue.Id).Value);
+
+        var image = VariantImageMethod.Create(
+            "image/jpeg", "img.jpg", 1024,
+            "https://example.com/img.jpg", "/storage/img.jpg",
+            position: 1, alt: "Red shirt", type: VariantImageType.Default).Value;
+        image.VariantId = variant.Id;
+        variant.VariantImages.Add(image);
+
+        _dbContext.Set<OptionType>().Add(optionType);
+        _dbContext.Set<Product>().Add(product);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var item = result.Items.First();
+        item.MasterVariant.Should().NotBeNull();
+        item.MasterVariant!.Price.Should().Be(29.99m);
+        item.MasterVariant!.Currency.Should().Be("USD");
+        item.MasterVariant!.Prices.Should().HaveCount(1);
+        item.MasterVariant!.Prices[0].Amount.Should().Be(29.99m);
+        item.MasterVariant!.OptionValues.Should().HaveCount(1);
+        item.MasterVariant!.OptionValues[0].Name.Should().Be("Red");
+        item.MasterVariant!.Images.Should().HaveCount(1);
+        item.MasterVariant!.Images[0].Alt.Should().Be("Red shirt");
+    }
+
+    [Fact(DisplayName = "Handler: Should map classification with taxon in list response")]
+    public async Task Handle_ShouldMapClassificationWithTaxon()
+    {
+        var product = CreateActiveProduct("Shirt", "shirt");
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories").Value;
+        var taxon = TaxonMethod.Create(
+            taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts",
+            null, null, null, false, null, null, false, null, null).Value;
+        taxonomy.Taxons.Add(taxon);
+        product.Classifications.Add(ClassificationMethod.Create(product.Id, taxon.Id).Value);
+
+        _dbContext.Set<Taxonomy>().Add(taxonomy);
+        _dbContext.Set<Product>().Add(product);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new GetStorefrontProducts.Query(new GetStorefrontProducts.Parameters()),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var item = result.Items.First();
+        item.Classifications.Should().HaveCount(1);
+        item.Classifications[0].Name.Should().Be("Shirts");
+        item.Classifications[0].Slug.Should().Be("shirts");
+        item.Classifications[0].Breadcrumb.Should().NotBeEmpty();
+        item.Classifications[0].Breadcrumb[0].Name.Should().Be("Shirts");
     }
 
     [Fact(DisplayName = "Handler: Should exclude discontinued products")]
