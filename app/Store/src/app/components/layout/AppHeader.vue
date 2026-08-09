@@ -6,7 +6,6 @@ import type Menu from 'primevue/menu'
 import type { AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import { useSearch } from '@/features/catalog/composables/useSearch'
 import SearchOverlay from '@/features/catalog/components/SearchOverlay.vue'
-import { useCatalogStore } from '@/features/catalog/stores/catalogStore'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 
@@ -19,7 +18,6 @@ const emit = defineEmits<{
 const router = useRouter()
 // Search: Destructure refs so template bindings unwrap them as top-level properties.
 const { query, results, loading, open, clear, search, navigateToResult } = useSearch()
-const catalogStore = useCatalogStore()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const userMenu = ref<InstanceType<typeof Menu> | null>(null)
@@ -55,9 +53,8 @@ function onOptionSelect(event: AutoCompleteOptionSelectEvent): void {
   if (index !== -1) navigateToResult(index)
 }
 
-// Load: Fetch the taxonomy tree for the catalog panel and refresh the cart badge.
+// Load: Refresh the cart badge on mount.
 onMounted(() => {
-  void catalogStore.loadTaxonomyGroups()
   void cartStore.fetchCart()
 })
 </script>
