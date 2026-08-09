@@ -158,6 +158,12 @@ function commitPrice(): void {
   catalogFilters.setPriceRange(priceRange.value[0], priceRange.value[1])
 }
 
+// Reset: Clear price range and push defaults
+function resetPrice(): void {
+  priceRange.value = [priceBounds.min, priceBounds.max]
+  catalogFilters.setPriceRange(null, null)
+}
+
 // Input: Proxy the local slider bounds for the min/max number inputs
 const minInput = computed({
   get: () => priceRange.value[0],
@@ -237,6 +243,43 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
       />
     </IconField>
 
+    <!-- Section: Active Filters — removable chips, clear-all and active count -->
+    <div v-if="catalogFilters.activeFilterCount > 0" class="flex flex-col gap-3">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-sm font-semibold text-body">
+          Active Filters
+        </span>
+        <div class="flex items-center gap-2">
+          <Tag :value="catalogFilters.activeFilterCount" severity="secondary" />
+          <Button
+            label="Clear all"
+            variant="text"
+            size="small"
+            @click="catalogFilters.clearFilters()"
+          />
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <Chip
+          v-for="chip in activeChips"
+          :key="chip.id"
+          :label="chip.label"
+          removable
+          @remove="chip.clear"
+        >
+          <template #removeicon="{ removeCallback, keydownCallback }">
+            <i
+              class="pi pi-times"
+              tabindex="0"
+              :aria-label="`Remove filter ${chip.label}`"
+              @click="removeCallback"
+              @keydown="keydownCallback"
+            />
+          </template>
+        </Chip>
+      </div>
+    </div>
+
     <!-- Section: Taxonomy Tree — checkbox tree grouped by taxonomy root, with built-in filter -->
     <Tree
       v-model:expanded-keys="expandedKeys"
@@ -295,7 +338,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
       </CheckboxGroup>
     </Panel>
 
-    <!-- Section: Price Range — slider with min/max number inputs -->
+    <!-- Section: Price Range — slider with min/max number inputs and apply/reset -->
     <Panel header="Price" toggleable>
       <div class="flex flex-col gap-3">
         <Slider
@@ -304,7 +347,6 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
           :min="priceBounds.min"
           :max="priceBounds.max"
           class="w-full"
-          @change="commitPrice"
           fluid
         />
         <div class="flex items-center gap-2">
@@ -314,55 +356,31 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
             :max="priceBounds.max"
             placeholder="Min"
             class="w-full"
-            @update:modelValue="commitPrice"
           />
+          <span class="text-sm text-muted">—</span>
           <InputNumber
             v-model="maxInput"
             :min="priceBounds.min"
             :max="priceBounds.max"
             placeholder="Max"
             class="w-full"
-            @update:modelValue="commitPrice"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <Button
+            label="Apply"
+            size="small"
+            class="flex-1"
+            @click="commitPrice"
+          />
+          <Button
+            label="Reset"
+            size="small"
+            variant="text"
+            @click="resetPrice"
           />
         </div>
       </div>
     </Panel>
-
-    <!-- Section: Active Filters — removable chips, clear-all and active count -->
-    <div v-if="catalogFilters.activeFilterCount > 0" class="flex flex-col gap-3">
-      <div class="flex items-center justify-between gap-2">
-        <span class="text-sm font-semibold text-body">
-          Active Filters
-        </span>
-        <div class="flex items-center gap-2">
-          <Tag :value="catalogFilters.activeFilterCount" severity="secondary" />
-          <Button
-            label="Clear all"
-            variant="text"
-            size="small"
-            @click="catalogFilters.clearFilters()"
-          />
-        </div>
-      </div>
-      <div class="flex flex-wrap gap-2">
-        <Chip
-          v-for="chip in activeChips"
-          :key="chip.id"
-          :label="chip.label"
-          removable
-          @remove="chip.clear"
-        >
-          <template #removeicon="{ removeCallback, keydownCallback }">
-            <i
-              class="pi pi-times"
-              tabindex="0"
-              :aria-label="`Remove filter ${chip.label}`"
-              @click="removeCallback"
-              @keydown="keydownCallback"
-            />
-          </template>
-        </Chip>
-      </div>
-    </div>
   </div>
 </template>

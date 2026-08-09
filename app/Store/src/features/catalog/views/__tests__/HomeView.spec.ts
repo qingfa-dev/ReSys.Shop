@@ -4,7 +4,7 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import HomeView from '../HomeView.vue'
-import ProductCard from '../../components/ProductCard.vue'
+import ProductGridCard from '../../components/ProductGridCard.vue'
 import { useTaxonomy } from '../../composables/useTaxonomy'
 import { useProducts } from '../../composables/useProducts'
 import type { StoreProductListItemResponse, TaxonomyGroup } from '../../types'
@@ -145,7 +145,7 @@ describe('HomeView', () => {
     expect(wrapper.text()).toContain('Shop New Arrivals')
   })
 
-  it('renders one ProductCard per seeded featured product', async () => {
+  it('renders one ProductGridCard per seeded featured product', async () => {
     const router = createTestRouter()
     await router.push('/')
     await router.isReady()
@@ -157,7 +157,7 @@ describe('HomeView', () => {
     list.isInitialLoad = false
     await wrapper.vm.$nextTick()
 
-    const cards = wrapper.findAllComponents(ProductCard)
+    const cards = wrapper.findAllComponents(ProductGridCard)
     expect(cards).toHaveLength(2)
     expect(wrapper.text()).toContain('Classic Tee')
   })
@@ -174,7 +174,7 @@ describe('HomeView', () => {
     list.loading = true
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAllComponents(ProductCard)).toHaveLength(0)
+    expect(wrapper.findAllComponents(ProductGridCard)).toHaveLength(0)
     expect(wrapper.findAll('div[data-pc-name="skeleton"]').length).toBeGreaterThan(0)
   })
 

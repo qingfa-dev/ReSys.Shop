@@ -133,7 +133,7 @@ const menuItems = computed<MenuItem[]>(() => [
 
 <template>
   <!-- Section: Product Card — router-linked card with quick actions and context menu -->
-  <RouterLink :to="`/products/${product.slug}`" class="group block" @contextmenu="onContextMenu">
+  <RouterLink :to="`/products/${product.id}`" class="group block" @contextmenu="onContextMenu">
     <Card class="overflow-hidden">
       <template #header>
         <div class="relative">
@@ -232,7 +232,7 @@ const menuItems = computed<MenuItem[]>(() => [
       </div>
       <Button
         as="router-link"
-        :to="`/products/${product.slug}`"
+        :to="`/products/${product.id}`"
         label="View details"
         size="small"
         class="w-full"

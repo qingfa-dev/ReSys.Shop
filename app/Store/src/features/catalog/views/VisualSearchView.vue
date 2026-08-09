@@ -2,7 +2,7 @@
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useVisualSearch } from '../composables/useVisualSearch'
 import type { FileUploadSelectEvent } from 'primevue/fileupload'
-import ProductCard from '../components/ProductCard.vue'
+import ProductGridCard from '../components/ProductGridCard.vue'
 
 // Title: Browser tab title for the visual search page
 usePageTitle('Visual Search')
@@ -66,7 +66,7 @@ function onSelect(event: FileUploadSelectEvent): void {
         Results ({{ vs.results.length }})
       </h2>
       <div class="grid grid-cols-2 gap-6 lg:grid-cols-4">
-        <ProductCard
+        <ProductGridCard
           v-for="item in vs.results"
           :key="item.id"
           :product="item"

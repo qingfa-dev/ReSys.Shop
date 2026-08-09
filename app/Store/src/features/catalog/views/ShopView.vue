@@ -5,7 +5,8 @@ import { usePageTitle } from "@/shared/composables/usePageTitle";
 import { useFilters } from "../composables/useFilters";
 import { useTaxonomy } from "../composables/useTaxonomy";
 import { useProducts } from "../composables/useProducts";
-import ProductCard from "../components/ProductCard.vue";
+import ProductGridCard from "../components/ProductGridCard.vue";
+import ProductListItem from "../components/ProductListItem.vue";
 import ShopFilterPanel from "../components/ShopFilterPanel.vue";
 
 usePageTitle("Shop");
@@ -158,24 +159,25 @@ onMounted(() => {
               </div>
             </div>
             <div v-else class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
-              <ProductCard v-for="product in items" :key="product.id" :product="product" />
+              <ProductGridCard v-for="product in items" :key="product.id" :product="product" />
             </div>
           </template>
 
-          <!-- List: Product cards in single-column list layout -->
+          <!-- List: Product list items in single-column layout -->
           <template #list="{ items }">
             <!-- Loading: Skeleton cards while the first page fetches -->
             <div v-if="productList.loading && items.length === 0" class="flex flex-col gap-4">
-              <div v-for="n in 8" :key="n" class="flex gap-4">
-                <Skeleton class="h-40 w-40 shrink-0 rounded-xl" />
+              <div v-for="n in 8" :key="n" class="flex gap-4 rounded-lg border border-surface-200 p-4">
+                <Skeleton class="h-32 w-32 shrink-0 rounded-lg sm:h-40 sm:w-40" />
                 <div class="flex flex-1 flex-col justify-center gap-3">
-                  <Skeleton width="70%" height="1rem" />
-                  <Skeleton width="40%" height="1rem" />
+                  <Skeleton width="70%" height="1.25rem" />
+                  <Skeleton width="50%" height="0.875rem" />
+                  <Skeleton width="30%" height="1rem" />
                 </div>
               </div>
             </div>
-            <div v-else class="flex flex-col">
-              <ProductCard v-for="product in items" :key="product.id" :product="product" />
+            <div v-else class="flex flex-col gap-3">
+              <ProductListItem v-for="product in items" :key="product.id" :product="product" />
             </div>
           </template>
 

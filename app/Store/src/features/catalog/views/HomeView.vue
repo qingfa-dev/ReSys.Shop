@@ -3,7 +3,7 @@ import { computed, onMounted } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useTaxonomy } from '../composables/useTaxonomy'
 import { useProducts } from '../composables/useProducts'
-import ProductCard from '../components/ProductCard.vue'
+import ProductGridCard from '../components/ProductGridCard.vue'
 
 // Title: Browser tab title for the storefront home
 usePageTitle('Home')
@@ -104,7 +104,7 @@ onMounted(() => {
       >
         <template #item="{ data }">
           <div class="px-1">
-            <ProductCard :product="data" />
+            <ProductGridCard :product="data" />
           </div>
         </template>
       </Carousel>

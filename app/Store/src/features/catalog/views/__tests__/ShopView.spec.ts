@@ -4,7 +4,7 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import ShopView from '../ShopView.vue'
-import ProductCard from '../../components/ProductCard.vue'
+import ProductGridCard from '../../components/ProductGridCard.vue'
 import Paginator from 'primevue/paginator'
 import Select from 'primevue/select'
 import { useFilters } from '../../composables/useFilters'
@@ -95,7 +95,7 @@ function createTestRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: '/shop', component: ShopView },
-      { path: '/products/:slug', component: { template: '<div />' } },
+      { path: '/products/:id', component: { template: '<div />' } },
     ],
   })
 }
@@ -163,7 +163,7 @@ describe('ShopView', () => {
     expect(wrapper.text()).toContain('Categories')
     expect(wrapper.text()).toContain('Color')
     expect(wrapper.text()).toContain('25 products')
-    expect(wrapper.findAllComponents(ProductCard)).toHaveLength(1)
+    expect(wrapper.findAllComponents(ProductGridCard)).toHaveLength(1)
     expect(wrapper.text()).toContain('Classic Tee')
   })
 
@@ -251,7 +251,7 @@ describe('ShopView', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('No products found')
-    expect(wrapper.findAllComponents(ProductCard)).toHaveLength(0)
+    expect(wrapper.findAllComponents(ProductGridCard)).toHaveLength(0)
 
     const clearButton = wrapper.findAll('button').find(b => b.text().trim() === 'Clear filters')
     expect(clearButton?.exists()).toBe(true)

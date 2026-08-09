@@ -11,7 +11,7 @@ import { useCart } from '@/features/ordering/composables/useCart'
 import { useWishlists } from '@/features/profile/composables/useWishlists'
 import { useAvailability } from '@/features/inventory/composables'
 import type { AvailabilityEntry } from '@/features/inventory/types/availability'
-import ProductCard from '../components/ProductCard.vue'
+import ProductGridCard from '../components/ProductGridCard.vue'
 
 // Type: Breadcrumb trail items carry a router target and a current-page marker
 interface BreadcrumbItemModel extends MenuItem {
@@ -155,13 +155,13 @@ const purchaseMenu = computed<MenuItem[]>(() => [
   { label: 'Add to Wishlist', icon: 'pi pi-heart', command: () => void addToWishlist() },
 ])
 
-// Load: Fetch the product by slug and reset navigation-sensitive state
-function loadProduct(slug: string): void {
-  if (!slug) return
+// Load: Fetch the product by ID and reset navigation-sensitive state
+function loadProduct(id: string): void {
+  if (!id) return
   galleryActiveIndex.value = 0
   activeTab.value = 'description'
   stockEntry.value = null
-  void detail.load(slug)
+  void detail.load(id)
 }
 
 // Gallery: Open the fullscreen viewer at the clicked image index
@@ -209,13 +209,13 @@ watch(() => detail.selectedVariantId, async id => {
 })
 
 onMounted(() => {
-  const slug = route.params.slug
-  loadProduct(typeof slug === 'string' ? slug : '')
+  const id = route.params.id
+  loadProduct(typeof id === 'string' ? id : '')
 })
 
 // Watch: Reload when navigating between products
-watch(() => route.params.slug, slug => {
-  loadProduct(typeof slug === 'string' ? slug : '')
+watch(() => route.params.id, id => {
+  loadProduct(typeof id === 'string' ? id : '')
 })
 </script>
 
@@ -465,7 +465,7 @@ watch(() => route.params.slug, slug => {
         You may also like
       </h2>
       <div class="grid grid-cols-2 gap-6 lg:grid-cols-4">
-        <ProductCard v-for="product in detail.relatedProducts" :key="product.id" :product="product" />
+        <ProductGridCard v-for="product in detail.relatedProducts" :key="product.id" :product="product" />
       </div>
     </section>
   </div>

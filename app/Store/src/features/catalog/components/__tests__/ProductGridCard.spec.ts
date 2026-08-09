@@ -4,7 +4,7 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
-import ProductCard from '../ProductCard.vue'
+import ProductGridCard from '../ProductGridCard.vue'
 import { useWishlists } from '@/features/profile/composables/useWishlists'
 import { useCart } from '@/features/ordering/composables/useCart'
 import type { StoreProductListItemResponse } from '@/features/catalog/types'
@@ -64,14 +64,14 @@ function createTestRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: '/', component: { template: '<div />' } },
-      { path: '/products/:slug', component: { template: '<div />' } },
+      { path: '/products/:id', component: { template: '<div />' } },
     ],
   })
 }
 
 // Mount: PrimeVue + ToastService + stubbed pinia; teleport stays in-wrapper for popover asserts.
 async function mountCard(router = createTestRouter()) {
-  const wrapper = mount(ProductCard, {
+  const wrapper = mount(ProductGridCard, {
     props: { product, ratingAverage: 4.5, ratingCount: 12 },
     global: {
       plugins: [PrimeVue, ToastService, createTestingPinia({ stubActions: true }), router],
@@ -82,7 +82,7 @@ async function mountCard(router = createTestRouter()) {
   return wrapper
 }
 
-describe('ProductCard', () => {
+describe('ProductGridCard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -125,7 +125,7 @@ describe('ProductCard', () => {
     await wrapper.find('a').trigger('click')
     await flushPromises()
 
-    expect(router.currentRoute.value.path).toBe('/products/classic-tee')
+    expect(router.currentRoute.value.path).toBe('/products/p-1')
   })
 
   it('does not navigate when the wishlist or quick-add buttons are clicked', async () => {
