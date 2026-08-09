@@ -1,80 +1,80 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { usePageTitle } from '@/shared/composables/usePageTitle'
-import { useFilters } from '../composables/useFilters'
-import { useTaxonomy } from '../composables/useTaxonomy'
-import { useProducts } from '../composables/useProducts'
-import ProductCard from '../components/ProductCard.vue'
-import ShopFilterPanel from '../components/ShopFilterPanel.vue'
-import type { PageState } from 'primevue/paginator'
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { usePageTitle } from "@/shared/composables/usePageTitle";
+import { useFilters } from "../composables/useFilters";
+import { useTaxonomy } from "../composables/useTaxonomy";
+import { useProducts } from "../composables/useProducts";
+import ProductCard from "../components/ProductCard.vue";
+import ShopFilterPanel from "../components/ShopFilterPanel.vue";
+import type { PageState } from "primevue/paginator";
 
-usePageTitle('Shop')
+usePageTitle("Shop");
 
-const filters = useFilters()
-const taxonomy = useTaxonomy()
-const productList = useProducts()
-const route = useRoute()
+const filters = useFilters();
+const taxonomy = useTaxonomy();
+const productList = useProducts();
+const route = useRoute();
 
 // Layout: Grid/list presentation toggle for the product rail
-const layout = ref<'grid' | 'list'>('grid')
+const layout = ref<"grid" | "list">("grid");
 const layoutOptions = [
-  { value: 'grid', icon: 'pi pi-th-large', label: 'Grid view' },
-  { value: 'list', icon: 'pi pi-bars', label: 'List view' },
-]
+  { value: "grid", icon: "pi pi-th-large", label: "Grid view" },
+  { value: "list", icon: "pi pi-bars", label: "List view" },
+];
 
 // Grid: Column density per layout mode — list mode shows one wide card per row
 const gridClass = computed(() =>
-  layout.value === 'grid'
-    ? 'grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4'
-    : 'grid grid-cols-1 gap-4',
-)
+  layout.value === "grid"
+    ? "grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4"
+    : "grid grid-cols-1 gap-4",
+);
 
 // Sort: Select options mirroring the backend's allowed sort fields
 const sortOptions = [
-  { value: '-CreatedAtUtc', label: 'Newest' },
-  { value: 'CreatedAtUtc', label: 'Oldest' },
-  { value: 'Name', label: 'Name A-Z' },
-  { value: '-Name', label: 'Name Z-A' },
-  { value: 'Price', label: 'Price: Low to High' },
-  { value: '-Price', label: 'Price: High to Low' },
-]
+  { value: "-CreatedAtUtc", label: "Newest" },
+  { value: "CreatedAtUtc", label: "Oldest" },
+  { value: "Name", label: "Name A-Z" },
+  { value: "-Name", label: "Name Z-A" },
+  { value: "Price", label: "Price: Low to High" },
+  { value: "-Price", label: "Price: High to Low" },
+];
 
 // Mobile: Drawer visibility for the filter panel below lg
-const filtersOpen = ref(false)
+const filtersOpen = ref(false);
 
 // Pagination: Zero-based first index for the Paginator from the 1-based store page
-const first = computed(() => (productList.page - 1) * productList.pageSize)
+const first = computed(() => (productList.page - 1) * productList.pageSize);
 
 // Page: Forward Paginator page state to the composable and refetch
 function onPage(event: PageState): void {
-  productList.goToPage(event.page + 1)
+  productList.goToPage(event.page + 1);
 }
 
 // Restore: Pre-populate filters from ?taxon= and ?q= route query on mount
 function applyRouteQuery(): void {
-  const taxon = route.query.taxon
-  const ids = Array.isArray(taxon) ? taxon : taxon ? [taxon] : []
+  const taxon = route.query.taxon;
+  const ids = Array.isArray(taxon) ? taxon : taxon ? [taxon] : [];
   for (const id of ids) {
-    if (id && !filters.selectedTaxonIds.includes(id)) filters.toggleTaxon(id)
+    if (id && !filters.selectedTaxonIds.includes(id)) filters.toggleTaxon(id);
   }
-  const query = route.query.q
-  if (typeof query === 'string' && query.length > 0) filters.setSearch(query)
+  const query = route.query.q;
+  if (typeof query === "string" && query.length > 0) filters.setSearch(query);
 }
 
 // Watch: Re-apply route query filters on in-page navigations (e.g. category tag clicks)
-watch(() => route.query, applyRouteQuery)
+watch(() => route.query, applyRouteQuery);
 
 onMounted(() => {
   // Load: Taxonomy and option metadata — composables guard duplicate fetches
-  void taxonomy.loadTaxonomyGroups()
-  void taxonomy.loadOptionTypes()
+  void taxonomy.loadTaxonomyGroups();
+  void taxonomy.loadOptionTypes();
   // Restore: Apply route query filters before the first fetch
-  applyRouteQuery()
+  applyRouteQuery();
   // Fetch: Initial product page — skip if the home rail already loaded one
-  if (productList.isInitialLoad) void productList.fetch()
-  else void productList.refresh()
-})
+  if (productList.isInitialLoad) void productList.fetch();
+  else void productList.refresh();
+});
 </script>
 
 <template>
@@ -97,7 +97,9 @@ onMounted(() => {
               <Button
                 class="lg:hidden"
                 icon="pi pi-filter"
-                :badge="filters.activeFilterCount > 0 ? String(filters.activeFilterCount) : undefined"
+                :badge="
+                  filters.activeFilterCount > 0 ? String(filters.activeFilterCount) : undefined
+                "
                 aria-label="Open filters"
                 @click="filtersOpen = true"
               />
@@ -142,11 +144,7 @@ onMounted(() => {
 
         <!-- Grid: Product cards in the active layout mode -->
         <div v-else-if="productList.items.length > 0" :class="gridClass">
-          <ProductCard
-            v-for="product in productList.items"
-            :key="product.id"
-            :product="product"
-          />
+          <ProductCard v-for="product in productList.items" :key="product.id" :product="product" />
         </div>
 
         <!-- Empty State: No products match the active filters -->

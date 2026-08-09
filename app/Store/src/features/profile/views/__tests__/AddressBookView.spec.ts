@@ -5,7 +5,7 @@ import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import AddressBookView from '../AddressBookView.vue'
-import { useAddressStore } from '../../stores/addressStore'
+import { useAddresses } from '../../composables/useAddresses'
 import { getCountries } from '@/features/location/services/countryApi'
 import { getStates } from '@/features/location/services/stateApi'
 import type { Country } from '@/features/location/types/location'
@@ -146,7 +146,7 @@ const secondAddress: Address = {
 
 // Seed: Populate the address store with two rows.
 function seedAddresses() {
-  const addresses = useAddressStore()
+  const addresses = useAddresses()
   addresses.addresses = [defaultAddress, secondAddress]
   return addresses
 }

@@ -1,5 +1,4 @@
 export * from './types'
 export * from './services'
-export * from './stores'
 export * from './validations'
 export * from './composables'

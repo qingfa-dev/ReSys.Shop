@@ -5,7 +5,7 @@ import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import ProfileView from '../ProfileView.vue'
-import { useProfileStore } from '../../stores/profileStore'
+import { useProfile } from '../../composables/useProfile'
 import type { ProfileDetail } from '../../types'
 
 // Router: Memory-history router with the profile routes.
@@ -53,7 +53,7 @@ const profile: ProfileDetail = {
 
 // Seed: Load the profile into the store and wait for the draft watcher.
 async function seedProfile(wrapper: ReturnType<typeof mountView> extends Promise<infer T> ? T : never) {
-  const profileStore = useProfileStore()
+  const profileStore = useProfile()
   profileStore.profile = profile
   await wrapper.vm.$nextTick()
   return profileStore

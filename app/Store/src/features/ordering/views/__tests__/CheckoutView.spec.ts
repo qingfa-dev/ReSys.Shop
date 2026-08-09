@@ -4,9 +4,9 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import CheckoutView from '../CheckoutView.vue'
 import { useCart } from '../../composables/useCart'
-import { useShippingStore } from '@/features/shipping/stores/shippingStore'
-import { useLocationStore } from '@/features/location/stores/locationStore'
-import { useAddressStore } from '@/features/profile/stores/addressStore'
+import { useShipping } from '@/features/shipping/composables'
+import { useLocation } from '@/features/location/composables'
+import { useAddresses } from '@/features/profile/composables/useAddresses'
 import { CartApi } from '../../services/cartApi'
 import { CheckoutApi } from '../../services/checkoutApi'
 import type { CartLineItem } from '../../types'
@@ -204,7 +204,7 @@ describe('CheckoutView', () => {
 
   it('shows shipping methods from the shipping store on the delivery panel', async () => {
     const { wrapper } = await mountView(true)
-    const shipping = useShippingStore()
+    const shipping = useShipping()
     shipping.methods = [shippingMethod, expressMethod]
     shipping.rates = [standardRate]
     await wrapper.vm.$nextTick()
@@ -216,10 +216,10 @@ describe('CheckoutView', () => {
 
   it('maps a cascade country/state selection into the location store', async () => {
     const { wrapper } = await mountView(true)
-    const location = useLocationStore()
+    const location = useLocation()
     location.countries = [usCountry, canadaCountry]
     location.states = [texas]
-    const addresses = useAddressStore()
+    const addresses = useAddresses()
     addresses.addresses = []
     vi.mocked(addresses.createAddress).mockResolvedValue(true)
     await wrapper.vm.$nextTick()

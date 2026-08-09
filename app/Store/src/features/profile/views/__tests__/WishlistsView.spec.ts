@@ -5,7 +5,7 @@ import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import WishlistsView from '../WishlistsView.vue'
-import { useWishlistStore } from '../../stores/wishlistStore'
+import { useWishlists } from '../../composables/useWishlists'
 import type { WishlistListItem, WishlistDetail } from '../../types'
 
 // Polyfill: Dialog calls matchMedia on mount; jsdom does not provide it.
@@ -76,7 +76,7 @@ const detailOne: WishlistDetail = {
 
 // Seed: Populate lists and the detail cache; the list watcher selects the first tab.
 async function seedLists() {
-  const store = useWishlistStore()
+  const store = useWishlists()
   store.lists = [listOne, listTwo]
   store.details = { 'wl-1': detailOne }
   await flushPromises()

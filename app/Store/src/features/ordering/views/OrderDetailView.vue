@@ -5,13 +5,13 @@ import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useOrders } from '../composables/useOrders'
-import { useAddressStore } from '@/features/profile/stores/addressStore'
+import { useAddresses } from '@/features/profile/composables/useAddresses'
 import { OrderApi } from '../services'
 import type { OrderStatus, OrderTrackingResponse } from '../types'
 
 const route = useRoute()
 const orders = useOrders()
-const addresses = useAddressStore()
+const addresses = useAddresses()
 
 usePageTitle(() => (orders.currentOrder ? `Order ${orders.currentOrder.number}` : 'Order'))
 

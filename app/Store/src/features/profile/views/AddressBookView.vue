@@ -4,14 +4,14 @@ import { useConfirm } from 'primevue/useconfirm'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useLocationCascade } from '@/features/location/composables/useLocationCascade'
-import { useAddressStore } from '../stores/addressStore'
+import { useAddresses } from '../composables/useAddresses'
 import { AddressInputSchema } from '../validations'
 import type { Address, AddressInput } from '../types'
 
 usePageTitle('Addresses')
 
 // Stores: Address list state plus the confirm service for row deletes.
-const addressStore = useAddressStore()
+const addressStore = useAddresses()
 const confirm = useConfirm()
 const notify = useNotify()
 const cascade = useLocationCascade()

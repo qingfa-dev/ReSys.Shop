@@ -8,8 +8,8 @@ import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { formatCurrency } from '@/shared/utils/currency'
 import { useProductDetail } from '../composables/useProductDetail'
 import { useCart } from '@/features/ordering/composables/useCart'
-import { useWishlistStore } from '@/features/profile/stores/wishlistStore'
-import { useAvailabilityStore } from '@/features/inventory/stores/availabilityStore'
+import { useWishlists } from '@/features/profile/composables/useWishlists'
+import { useAvailability } from '@/features/inventory/composables'
 import type { AvailabilityEntry } from '@/features/inventory/types/availability'
 import ProductCard from '../components/ProductCard.vue'
 
@@ -23,8 +23,8 @@ const route = useRoute()
 const router = useRouter()
 const detail = useProductDetail()
 const cart = useCart()
-const wishlist = useWishlistStore()
-const availability = useAvailabilityStore()
+const wishlist = useWishlists()
+const availability = useAvailability()
 const notify = useNotify()
 const { handleError } = useApiErrorHandler()
 

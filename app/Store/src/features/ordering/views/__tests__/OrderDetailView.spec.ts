@@ -4,7 +4,7 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import OrderDetailView from '../OrderDetailView.vue'
 import { useOrders } from '../../composables/useOrders'
-import { useAddressStore } from '@/features/profile/stores/addressStore'
+import { useAddresses } from '@/features/profile/composables/useAddresses'
 import { OrderApi } from '../../services/orderApi'
 import { ok } from '@/shared/types/result'
 import type { OrderDetail, OrderTrackingResponse } from '../../types'
@@ -132,7 +132,7 @@ async function mountView(router = createTestRouter()) {
 function seedDetail() {
   const orders = useOrders()
   orders.currentOrder = orderDetail
-  const addresses = useAddressStore()
+  const addresses = useAddresses()
   addresses.addresses = [shippingAddress]
   return { orders, addresses }
 }

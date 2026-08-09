@@ -3,13 +3,13 @@ import { onMounted, ref, watch } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { usePreferences } from '@/shared/composables/usePreferences'
-import { useProfileStore } from '../stores/profileStore'
+import { useProfile } from '../composables/useProfile'
 import { UpdateProfileRequestSchema } from '../validations'
 
 usePageTitle('Profile')
 
 // Stores: Profile owns the entity; preferences back the summary card.
-const profileStore = useProfileStore()
+const profileStore = useProfile()
 const notify = useNotify()
 const { preferences } = usePreferences()
 

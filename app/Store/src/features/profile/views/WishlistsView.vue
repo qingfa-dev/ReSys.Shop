@@ -3,13 +3,13 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { formatDateTimeUtc } from '@/shared/utils/date'
-import { useWishlistStore } from '../stores/wishlistStore'
+import { useWishlists } from '../composables/useWishlists'
 import type { WishlistDetail } from '../types'
 
 usePageTitle('My Wishlists')
 
 // Store: Wishlist summaries plus the per-list detail cache.
-const wishlistStore = useWishlistStore()
+const wishlistStore = useWishlists()
 const notify = useNotify()
 
 // Tabs: Active tab key mirrors the selected wishlist id (Tabs v5 emits string|number).

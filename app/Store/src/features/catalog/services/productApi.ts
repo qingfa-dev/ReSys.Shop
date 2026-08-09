@@ -1,10 +1,11 @@
 import { z } from 'zod'
-import { get } from '@/shared/api/client'
+import { get, HttpError } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { CATALOG } from '@/shared/constants/api'
 import { PRODUCT_SORT_FIELDS, PRODUCT_SEARCH_FIELDS, PRODUCT_FILTER_FIELDS } from '@/shared/constants/product'
 import { ProductListItemSchema, ProductDetailSchema } from '../validations/product'
 import { PagedResultSchema } from '@/shared/validations/result'
+import { failure } from '@/shared/types/result'
 import type { PagedResult, Result } from '@/shared/types'
 import type { StoreProductListItemResponse, StoreProductDetailResponse, ProductQuery } from '../types'
 import { toProductQueryParams } from '../types'
@@ -33,12 +34,25 @@ export class ProductApi {
   }
 
   static async getProductBySlug(slug: string): Promise<Result<StoreProductDetailResponse>> {
-    // Call: Catalog API — single product detail by SEO-friendly slug
-    const data = await get<Result<StoreProductDetailResponse>>(`${this.BASE}/${slug}`)
-    if (!data.isSuccess) return data
-    // Validate: Ensure API response matches ProductDetail schema
-    data.value = ProductDetailSchema.parse(data.value)
-    return data
+    try {
+      // Call: Catalog API — single product detail by SEO-friendly slug
+      const data = await get<Result<StoreProductDetailResponse>>(`${this.BASE}/${slug}`)
+      if (!data.isSuccess) return data
+      // Validate: Ensure API response matches ProductDetail schema
+      data.value = ProductDetailSchema.parse(data.value)
+      return data
+    } catch (e) {
+      // Catch: Zod validation failures — return structured failure instead of throwing
+      if (e instanceof z.ZodError) {
+        return failure<StoreProductDetailResponse>(`Response validation failed: ${e.message}`, 500)
+      }
+      // Catch: HTTP errors from interceptor — return structured failure
+      if (e instanceof HttpError) {
+        return failure<StoreProductDetailResponse>(e.errors[0]?.message ?? 'Request failed', e.statusCode)
+      }
+      // Catch: Network and unexpected errors
+      return failure<StoreProductDetailResponse>(e instanceof Error ? e.message : 'Unexpected error', 500)
+    }
   }
 
   static async getSimilar(productId: string, topK?: number): Promise<PagedResult<StoreProductListItemResponse & { similarityScore: number }>> {

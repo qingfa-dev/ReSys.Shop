@@ -5,7 +5,7 @@ import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import ProductCard from '../ProductCard.vue'
-import { useWishlistStore } from '@/features/profile/stores/wishlistStore'
+import { useWishlists } from '@/features/profile/composables/useWishlists'
 import { useCart } from '@/features/ordering/composables/useCart'
 import type { StoreProductListItemResponse } from '@/features/catalog/types'
 
@@ -98,7 +98,7 @@ describe('ProductCard', () => {
   it('calls wishlistStore.addItem on the default wishlist when toggled', async () => {
     const router = createTestRouter()
     const wrapper = await mountCard(router)
-    const wishlists = useWishlistStore()
+    const wishlists = useWishlists()
     wishlists.details = {
       'wl-1': {
         id: 'wl-1',

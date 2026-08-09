@@ -4,12 +4,12 @@ import { useRouter } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { formatCurrency } from '@/shared/utils/currency'
 import { useAuthStore } from '@/features/identity/stores/authStore'
-import { useLocationStore } from '@/features/location/stores/locationStore'
+import { useLocation } from '@/features/location/composables'
 import { usePayment } from '@/features/payment/composables/usePayment'
 import { getPaymentMethods } from '@/features/payment/services/paymentApi'
-import { useAddressStore } from '@/features/profile/stores/addressStore'
+import { useAddresses } from '@/features/profile/composables/useAddresses'
 import type { AddressInput } from '@/features/profile/types'
-import { useShippingStore } from '@/features/shipping/stores/shippingStore'
+import { useShipping } from '@/features/shipping/composables'
 import { useCart } from '../composables/useCart'
 import { useCheckout } from '../composables/useCheckout'
 
@@ -21,9 +21,9 @@ type CheckoutStep = 1 | 2 | 3 | 4 | 5
 const router = useRouter()
 const cart = useCart()
 const checkout = useCheckout(() => cart)
-const addresses = useAddressStore()
-const shipping = useShippingStore()
-const location = useLocationStore()
+const addresses = useAddresses()
+const shipping = useShipping()
+const location = useLocation()
 const auth = useAuthStore()
 const payment = usePayment()
 
