@@ -3,7 +3,7 @@ using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Services;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Shared.Services;
+using Module.Ordering.Services;
 
 namespace Module.UnitTests.Ordering.Features.Shared.Services;
 

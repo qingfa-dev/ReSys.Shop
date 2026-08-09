@@ -1,5 +1,4 @@
 using Module.Catalog.Features.Shared;
-using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.List;
 

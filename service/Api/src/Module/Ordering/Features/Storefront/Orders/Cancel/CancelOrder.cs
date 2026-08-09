@@ -1,6 +1,6 @@
 using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Shared.Services;
+using Module.Ordering.Services;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;

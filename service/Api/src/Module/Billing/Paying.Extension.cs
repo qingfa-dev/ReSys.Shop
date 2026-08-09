@@ -35,7 +35,7 @@ public static class PaymentExtension
     /// <returns>The application builder for chaining.</returns>
     // @CAT-10 Boundary: Domain -> Infrastructure — do not import EF Core or repository types here
     // Contract: post=GatewayRegistry, IPaymentProcessingService, and seeders registered
-    public static WebApplicationBuilder AddPaymentModule(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddBillingModule(this WebApplicationBuilder builder)
     {
         var services = builder.Services;
         var configuration = builder.Configuration;
