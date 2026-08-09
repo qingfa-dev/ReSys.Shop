@@ -70,7 +70,7 @@ onMounted(() => {
         </div>
         <!-- Banner: Gradient panel stands in for the seasonal campaign image -->
         <div class="hidden min-h-80 items-center justify-center rounded-3xl bg-gradient-to-br from-primary-500 via-primary-700 to-primary-950 shadow-lg lg:flex">
-          <i class="pi pi-sparkles text-7xl text-white/80" />
+          <i class="pi pi-sparkles text-7xl text-on-brand/80" />
         </div>
       </div>
     </section>

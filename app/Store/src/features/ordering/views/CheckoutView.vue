@@ -428,7 +428,7 @@ onUnmounted(() => {
         <!-- Panel: Confirmation — success message with order number and account link -->
         <StepPanel :value="5">
           <div class="max-w-xl space-y-5 py-8 text-center">
-            <i class="pi pi-check-circle block text-5xl text-green-500" />
+            <i class="pi pi-check-circle block text-5xl text-success" />
             <Message severity="success" :closable="false">
               <div class="flex flex-col items-center gap-1">
                 <span class="font-semibold">Order confirmed!</span>
