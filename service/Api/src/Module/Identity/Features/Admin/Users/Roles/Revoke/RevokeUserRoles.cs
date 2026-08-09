@@ -4,7 +4,7 @@ using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Roles.Revoke;
+namespace Module.Identity.Features.Shared.Admin.Users.Roles.Revoke;
 
 public static partial class RevokeUserRoles
 {

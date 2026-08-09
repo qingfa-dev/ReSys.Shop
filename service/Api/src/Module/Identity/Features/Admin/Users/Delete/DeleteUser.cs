@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Delete;
+namespace Module.Identity.Features.Shared.Admin.Users.Delete;
 
 /// <summary>
 /// Defines the use case for deleting an existing user and their associated profile.

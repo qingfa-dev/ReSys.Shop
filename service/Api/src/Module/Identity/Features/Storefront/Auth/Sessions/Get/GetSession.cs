@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Sessions.Get;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
 
 /// <summary>
 /// Defines the use case for retrieving the current user's session.

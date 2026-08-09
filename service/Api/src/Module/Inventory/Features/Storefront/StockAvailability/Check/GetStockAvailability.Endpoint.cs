@@ -10,7 +10,7 @@ public static partial class GetStockAvailability
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /inventory/stock/availability/{variantId} — checks stock availability for a variant
-            app.MapGet(InventoryFeature.Storefront.StockAvailability.Check.Route, async (
+            app.MapGet(InventoryFeature.Storefront.StockItems.Check.Route, async (
                 [FromRoute] Guid variantId,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class GetStockAvailability
             })
             .WithName(nameof(GetStockAvailability))
             .WithTags(InventoryFeature.Tags.StockItem)
-            .WithSummary(InventoryFeature.Storefront.StockAvailability.Check.Summary)
-            .WithDescription(InventoryFeature.Storefront.StockAvailability.Check.Description)
+            .WithSummary(InventoryFeature.Storefront.StockItems.Check.Summary)
+            .WithDescription(InventoryFeature.Storefront.StockItems.Check.Description)
             .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

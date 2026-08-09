@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Prices.Set;
 
@@ -6,7 +7,7 @@ public static partial class SetVariantPrice
 {
     /// <summary>
     /// POST endpoint that sets (upserts) a price for a variant by currency and country ISO.
-    /// Route: api/catalog/variant-prices
+    /// Route: api/admin/catalog/variant-prices
     /// Permission: Products.Variants.ManagePrice
     /// </summary>
     public class Endpoint : ICarterModule

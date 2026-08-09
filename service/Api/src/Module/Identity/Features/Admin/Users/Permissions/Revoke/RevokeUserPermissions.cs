@@ -6,7 +6,7 @@ using Shared.Security.Authorization.Registry;
 using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Permissions.Revoke;
+namespace Module.Identity.Features.Shared.Admin.Users.Permissions.Revoke;
 
 public static partial class RevokeUserPermissions
 {

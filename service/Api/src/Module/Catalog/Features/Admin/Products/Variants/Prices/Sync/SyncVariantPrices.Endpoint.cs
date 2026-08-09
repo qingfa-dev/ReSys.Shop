@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Prices.Sync;
 
@@ -7,7 +8,7 @@ public static partial class SyncVariantPrices
     /// <summary>
     /// POST endpoint that synchronises the full price list for a variant
     /// (adds, updates, and soft-deletes as needed).
-    /// Route: api/catalog/variant-prices/sync
+    /// Route: api/admin/catalog/variant-prices/sync
     /// Permission: Products.Variants.ManagePrice
     /// </summary>
     public sealed class Endpoint : ICarterModule

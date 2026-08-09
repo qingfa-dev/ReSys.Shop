@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Users.Shared.Mappings;
+using Module.Identity.Features.Shared.Admin.Users.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Create;
+namespace Module.Identity.Features.Shared.Admin.Users.Create;
 
 /// <summary>
 /// Defines the use case for creating a new user.

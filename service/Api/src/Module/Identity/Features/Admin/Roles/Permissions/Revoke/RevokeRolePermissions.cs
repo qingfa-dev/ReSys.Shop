@@ -6,7 +6,7 @@ using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Roles.Permissions.Revoke;
+namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Revoke;
 
 /// <summary>
 /// Defines the use case for revoking permissions from a role.

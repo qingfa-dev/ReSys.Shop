@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Storefront.Classifications.Taxons;
 
@@ -8,7 +9,7 @@ public static partial class GetStoreTaxons
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Storefront.Classifications.Taxons.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Taxons.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -19,8 +20,8 @@ public static partial class GetStoreTaxons
             })
             .WithName(nameof(GetStoreTaxons))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .WithSummary(CatalogFeature.Storefront.Classifications.Taxons.Summary)
-            .WithDescription(CatalogFeature.Storefront.Classifications.Taxons.Description)
+            .WithSummary(CatalogFeature.Storefront.Taxons.Summary)
+            .WithDescription(CatalogFeature.Storefront.Taxons.Description)
             .Produces<PagedResult<Response>>();
         }
     }

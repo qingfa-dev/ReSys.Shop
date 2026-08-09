@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Download;
 
@@ -6,7 +7,7 @@ public static partial class DownloadVariantImage
 {
     /// <summary>
     /// GET endpoint that streams the binary content of a variant image file.
-    /// Route: api/catalog/variant-images/{id:guid}/download
+    /// Route: api/admin/catalog/variant-images/{id:guid}/download
     /// Permission: Products.VariantImageMethod.View
     /// Returns: Binary file stream (not JSON)
     /// </summary>

@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.OptionTypes.Get.Paged;
 

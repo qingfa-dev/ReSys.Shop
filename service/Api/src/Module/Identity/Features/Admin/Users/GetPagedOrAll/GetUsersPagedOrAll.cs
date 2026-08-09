@@ -1,9 +1,9 @@
 using DomainUsers = Module.Identity.Domain.Users;
-using Module.Identity.Features.Admin.Users.Shared.Mappings;
+using Module.Identity.Features.Shared.Admin.Users.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.GetPagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Users.GetPagedOrAll;
 
 public static partial class GetUsersPagedOrAll
 {

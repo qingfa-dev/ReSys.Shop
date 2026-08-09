@@ -77,10 +77,10 @@ public static class ProductResult
             code: "Product.NotFound",
             message: $"Product with ID '{id}' was not found.");
 
-        /// <summary>Product was not found by slug.</summary>
-        public static Error NotFoundBySlug(string slug) => Error.NotFound(
-            code: "Product.NotFound.Slug",
-            message: $"Product with slug '{slug}' was not found.");
+        /// <summary>Product was not found by ID.</summary>
+        public static Error NotFoundById(Guid id) => Error.NotFound(
+            code: "Product.NotFound.Id",
+            message: $"Product with ID '{id}' was not found.");
 
         /// <summary>Duplicate slug detected.</summary>
         public static Error DuplicateSlug => Error.Conflict(

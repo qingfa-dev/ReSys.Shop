@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Passwords.Forgot;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Forgot;
 
 public static partial class RequestPasswordReset
 {

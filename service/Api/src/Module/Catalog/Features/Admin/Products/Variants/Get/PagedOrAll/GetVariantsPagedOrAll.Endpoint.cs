@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Get.PagedOrAll;
 
@@ -6,7 +7,7 @@ public static partial class GetVariantsPagedOrAll
 {
     /// <summary>
     /// GET endpoint that lists all variants for a product.
-    /// Route: api/catalog/variants
+    /// Route: api/admin/catalog/variants
     /// Permission: Products.Variants.List
     /// </summary>
     public class Endpoint : ICarterModule

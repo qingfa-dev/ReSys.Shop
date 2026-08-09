@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Prices.Remove;
 
@@ -6,7 +7,7 @@ public static partial class RemoveVariantPrice
 {
     /// <summary>
     /// DELETE endpoint that removes (soft-deletes) a price for a variant.
-    /// Route: api/catalog/variant-prices/{priceId:guid}
+    /// Route: api/admin/catalog/variant-prices/{priceId:guid}
     /// Permission: Products.Variants.ManagePrice
     /// </summary>
     public class Endpoint : ICarterModule

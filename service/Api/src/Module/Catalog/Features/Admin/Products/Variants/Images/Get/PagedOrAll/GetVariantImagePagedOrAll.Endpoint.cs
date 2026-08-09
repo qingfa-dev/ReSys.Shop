@@ -1,5 +1,6 @@
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Get.PagedOrAll;
 
@@ -7,7 +8,7 @@ public static partial class GetVariantImagePagedOrAll
 {
     /// <summary>
     /// GET endpoint that lists all images for a variant.
-    /// Route: api/catalog/variant-images?variantId=
+    /// Route: api/admin/catalog/variant-images?variantId=
     /// Permission: Products.VariantImageMethod.List
     /// </summary>
     public class Endpoint : ICarterModule

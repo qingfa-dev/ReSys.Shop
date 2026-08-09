@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Profile.Features.Storefront.Profiles.Create;
+using Module.Customer.Features.Storefront.Profiles.Create;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Emails.Confirm;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Confirm;
 
 public static partial class ConfirmEmail
 {

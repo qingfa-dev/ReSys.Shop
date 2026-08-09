@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Emails.Confirm;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Confirm;
 
 public static partial class ConfirmEmail
 {

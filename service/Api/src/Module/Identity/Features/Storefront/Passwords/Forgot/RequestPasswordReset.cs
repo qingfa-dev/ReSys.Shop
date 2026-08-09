@@ -7,7 +7,7 @@ using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Passwords.Forgot;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Forgot;
 
 public static partial class RequestPasswordReset
 {

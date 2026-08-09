@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.GetById;
 
@@ -6,7 +7,7 @@ public static partial class GetVariantImageById
 {
     /// <summary>
     /// GET endpoint that retrieves a single variant image by its identifier.
-    /// Route: api/catalog/variant-images/{id:guid}
+    /// Route: api/admin/catalog/variant-images/{id:guid}
     /// Permission: Products.VariantImageMethod.View
     /// </summary>
     public class Endpoint : ICarterModule

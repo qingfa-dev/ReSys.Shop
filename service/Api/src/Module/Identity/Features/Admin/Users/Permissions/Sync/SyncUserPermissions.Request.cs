@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Permissions.Sync;
+namespace Module.Identity.Features.Shared.Admin.Users.Permissions.Sync;
 
 public static partial class SyncUserPermissions
 {

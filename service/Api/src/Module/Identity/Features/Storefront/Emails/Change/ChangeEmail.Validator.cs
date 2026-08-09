@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Emails.Change;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Change;
 
 public static partial class ChangeEmail
 {

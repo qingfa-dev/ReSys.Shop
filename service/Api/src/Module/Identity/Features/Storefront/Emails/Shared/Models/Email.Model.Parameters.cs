@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Emails.Shared.Models;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Shared.Models;
 
 public abstract record EmailParameters
 {

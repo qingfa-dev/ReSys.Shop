@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Roles.Sync;
+namespace Module.Identity.Features.Shared.Admin.Users.Roles.Sync;
 
 public static partial class SyncUserRoles
 {

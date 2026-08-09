@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.External.Authenticate;
 
 public static partial class ExternalAuthenticate
 {

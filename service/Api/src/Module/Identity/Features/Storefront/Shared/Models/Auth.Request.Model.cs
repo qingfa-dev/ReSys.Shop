@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Shared.Models;
+namespace Module.Identity.Features.Shared.Storefront.Shared.Models;
 
 public abstract record BasePasswordLoginRequest
 {

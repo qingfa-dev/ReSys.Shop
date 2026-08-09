@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Login.Password;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.Password;
 
 public static partial class PasswordLogin
 {

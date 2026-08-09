@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Profile.Features.Storefront.Profiles.Create;
+using Module.Customer.Features.Storefront.Profiles.Create;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
@@ -8,7 +8,7 @@ using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.External.Authenticate;
 
 /// <summary>
 /// Defines the use case for external provider authentication.

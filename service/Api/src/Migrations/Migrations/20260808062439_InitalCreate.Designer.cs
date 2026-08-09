@@ -1988,7 +1988,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("orders", "ordering");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.PaymentCaptures.PaymentCapture", b =>
+            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.PaymentCapture", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -2123,7 +2123,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("payment_captures", "payment");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.PaymentMethods.PaymentMethod", b =>
+            modelBuilder.Entity("Module.Billing.Domain.PaymentMethods.PaymentMethod", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -2237,7 +2237,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("payment_methods", "payment");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Addresses.Address", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Addresses.Address", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -2349,7 +2349,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("addresses", "profile");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.UserProfile", b =>
+            modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -2476,7 +2476,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("user_profiles", "profile");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.WishedItems.WishedItem", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.WishedItems.WishedItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -2524,7 +2524,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("wished_items", "profile");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.Wishlist", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -3487,7 +3487,7 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.PaymentCaptures.PaymentCapture", b =>
+            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.PaymentCapture", b =>
                 {
                     b.HasOne("Module.Ordering.Domain.Orders.Order", null)
                         .WithMany()
@@ -3496,7 +3496,7 @@ namespace Api.Migrations.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_payment_captures_orders_order_id");
 
-                    b.HasOne("Module.Payment.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
+                    b.HasOne("Module.Billing.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
                         .WithMany("Payments")
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -3505,9 +3505,9 @@ namespace Api.Migrations.Migrations
                     b.Navigation("PaymentMethod");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Addresses.Address", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Addresses.Address", b =>
                 {
-                    b.HasOne("Module.Profile.Domain.UserProfile", "UserProfile")
+                    b.HasOne("Module.Customer.Domain.UserProfile", "UserProfile")
                         .WithMany("Addresses")
                         .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3516,15 +3516,15 @@ namespace Api.Migrations.Migrations
                     b.Navigation("UserProfile");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.UserProfile", b =>
+            modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
                 {
-                    b.HasOne("Module.Profile.Domain.Addresses.Address", null)
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", null)
                         .WithMany()
                         .HasForeignKey("DefaultBillingAddressId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_user_profiles_addresses_default_billing_address_id");
 
-                    b.HasOne("Module.Profile.Domain.Addresses.Address", null)
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", null)
                         .WithMany()
                         .HasForeignKey("DefaultShippingAddressId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -3537,7 +3537,7 @@ namespace Api.Migrations.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_user_profiles_users_user_id");
 
-                    b.OwnsOne("Module.Profile.Domain.Notifications.NotificationPreferences", "Notifications", b1 =>
+                    b.OwnsOne("Module.Customer.Domain.Notifications.NotificationPreferences", "Notifications", b1 =>
                         {
                             b1.Property<Guid>("UserProfileId")
                                 .HasColumnType("uuid")
@@ -3565,7 +3565,7 @@ namespace Api.Migrations.Migrations
                                 .HasConstraintName("fk_user_profiles_user_profiles_id");
                         });
 
-                    b.OwnsOne("Module.Profile.Domain.Preferences.UserPreferences", "Preferences", b1 =>
+                    b.OwnsOne("Module.Customer.Domain.Preferences.UserPreferences", "Preferences", b1 =>
                         {
                             b1.Property<Guid>("UserProfileId")
                                 .HasColumnType("uuid")
@@ -3630,9 +3630,9 @@ namespace Api.Migrations.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.WishedItems.WishedItem", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.WishedItems.WishedItem", b =>
                 {
-                    b.HasOne("Module.Profile.Domain.Wishlists.Wishlist", "Wishlist")
+                    b.HasOne("Module.Customer.Domain.Wishlists.Wishlist", "Wishlist")
                         .WithMany("WishedItems")
                         .HasForeignKey("WishlistId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3642,7 +3642,7 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Wishlist");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.Wishlist", b =>
                 {
                     b.HasOne("Shared.Security.Identity.Domain.Users.User", "User")
                         .WithMany()
@@ -3837,17 +3837,17 @@ namespace Api.Migrations.Migrations
                     b.Navigation("LineItems");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.PaymentMethods.PaymentMethod", b =>
+            modelBuilder.Entity("Module.Billing.Domain.PaymentMethods.PaymentMethod", b =>
                 {
                     b.Navigation("Payments");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.UserProfile", b =>
+            modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
                 {
                     b.Navigation("Addresses");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.Wishlist", b =>
                 {
                     b.Navigation("WishedItems");
                 });

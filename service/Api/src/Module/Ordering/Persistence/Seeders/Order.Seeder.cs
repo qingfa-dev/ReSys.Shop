@@ -1,11 +1,11 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Domain.PaymentCaptures;
+using Module.Billing.Domain.PaymentMethods;
+using Module.Billing.Domain.PaymentCaptures;
 
-using Module.Profile.Domain;
-using Module.Profile.Domain.Addresses;
+using Module.Customer.Domain;
+using Module.Customer.Domain.Addresses;
 using Module.Shipping.Domain.ShippingMethods;
 
 using Shared.Security.Identity.Domain.Users;

@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.GetById;
+namespace Module.Identity.Features.Shared.Admin.Users.GetById;
 
 public static partial class GetUserById
 {

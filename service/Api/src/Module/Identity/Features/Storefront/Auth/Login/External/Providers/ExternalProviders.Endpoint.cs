@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Login.External.Providers;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.External.Providers;
 
 public static partial class ExternalProviders
 {
@@ -7,8 +7,8 @@ public static partial class ExternalProviders
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /api/store/auth/login/external/providers — list available OAuth providers
-            app.MapGet(IdentityFeature.Store.Auth.Login.External.Providers.Route, async (
+            // Map: GET /api/storefront/auth/login/external/providers — list available OAuth providers
+            app.MapGet(IdentityFeature.Storefront.Auth.Login.External.Providers.Route, async (
                 ISender sender,
                 CancellationToken ct) =>
             {
@@ -19,8 +19,8 @@ public static partial class ExternalProviders
             .WithName(nameof(ExternalProviders))
             .WithTags(IdentityFeature.Tags.Authentication)
             .AllowAnonymous()
-            .WithSummary(IdentityFeature.Store.Auth.Login.External.Providers.Summary)
-            .WithDescription(IdentityFeature.Store.Auth.Login.External.Providers.Description)
+            .WithSummary(IdentityFeature.Storefront.Auth.Login.External.Providers.Summary)
+            .WithDescription(IdentityFeature.Storefront.Auth.Login.External.Providers.Description)
             .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

@@ -9,8 +9,8 @@ public static partial class GetStoreOptionTypes
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /api/storefront/option-types — paged listing of product option types (size, colour)
-            app.MapGet(CatalogFeature.Storefront.Options.OptionTypes.Route, async (
+            // Map: GET /api/storefront/options/option-types — paged listing of product option types (size, colour)
+            app.MapGet(CatalogFeature.Storefront.OptionTypes.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class GetStoreOptionTypes
             })
             .WithName(nameof(GetStoreOptionTypes))
             .WithTags(CatalogFeature.Tags.OptionType)
-            .WithSummary(CatalogFeature.Storefront.Options.OptionTypes.Summary)
-            .WithDescription(CatalogFeature.Storefront.Options.OptionTypes.Description)
+            .WithSummary(CatalogFeature.Storefront.OptionTypes.Summary)
+            .WithDescription(CatalogFeature.Storefront.OptionTypes.Description)
             .Produces<PagedResult<Response>>();
         }
     }

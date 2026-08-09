@@ -9,7 +9,7 @@ public static partial class UpdateOrderLineItem
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: PUT api/ordering/orders/{id:guid}/line-items/{lineItemId:guid} — update a line item on an order
+            // Map: PUT api/admin/ordering/orders/{id:guid}/line-items/{lineItemId:guid} — update a line item on an order
             app.MapPut(OrderingFeature.Admin.Orders.UpdateLineItem.Route, async ([FromRoute] Guid id, [FromRoute] Guid lineItemId, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(id, lineItemId, request), ct);

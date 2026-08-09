@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Sessions.Get;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
 
 public static partial class GetSession
 {
@@ -7,8 +7,8 @@ public static partial class GetSession
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /api/store/auth/sessions — get current user session info
-            app.MapGet(IdentityFeature.Store.Auth.Sessions.Get.Route, async (
+            // Map: GET /api/storefront/auth/sessions — get current user session info
+            app.MapGet(IdentityFeature.Storefront.Auth.Sessions.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>
             {
@@ -19,8 +19,8 @@ public static partial class GetSession
             .RequireAuthorization()
             .WithName(nameof(GetSession))
             .WithTags(IdentityFeature.Tags.Authentication)
-            .WithSummary(IdentityFeature.Store.Auth.Sessions.Get.Summary)
-            .WithDescription(IdentityFeature.Store.Auth.Sessions.Get.Description)
+            .WithSummary(IdentityFeature.Storefront.Auth.Sessions.Get.Summary)
+            .WithDescription(IdentityFeature.Storefront.Auth.Sessions.Get.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

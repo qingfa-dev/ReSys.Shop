@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Update;
 
@@ -6,7 +7,7 @@ public static partial class UpdateProduct
 {
     /// <summary>
     /// PUT endpoint that updates a product by ID, including its master variant.
-    /// Route: api/catalog/products/{id:guid}
+    /// Route: api/admin/catalog/products/{id:guid}
     /// Permission: Products.Update
     /// </summary>
     public class Endpoint : ICarterModule

@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Roles.Get.ById;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.ById;
 
 public static partial class GetRoleById
 {

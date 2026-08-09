@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Shared.Models;
+namespace Module.Identity.Features.Shared.Admin.Users.Shared.Models;
 
 public abstract record UserParameter
 {

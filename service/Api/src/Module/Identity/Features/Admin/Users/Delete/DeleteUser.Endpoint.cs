@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Delete;
+namespace Module.Identity.Features.Shared.Admin.Users.Delete;
 
 public static partial class DeleteUser
 {

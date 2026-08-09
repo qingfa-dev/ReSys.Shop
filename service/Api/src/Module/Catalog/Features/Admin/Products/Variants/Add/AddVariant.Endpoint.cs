@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Add;
 
@@ -6,7 +7,7 @@ public static partial class AddVariant
 {
     /// <summary>
     /// POST endpoint that adds a new variant to a product.
-    /// Route: api/catalog/variants
+    /// Route: api/admin/catalog/variants
     /// Permission: Products.Variants.Create
     /// </summary>
     public class Endpoint : ICarterModule

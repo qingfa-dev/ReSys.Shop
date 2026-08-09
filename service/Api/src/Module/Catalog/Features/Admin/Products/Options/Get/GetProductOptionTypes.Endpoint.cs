@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Options.Get;
 
@@ -6,7 +7,7 @@ public static partial class GetProductOptionTypes
 {
     /// <summary>
     /// GET endpoint that retrieves all option types with assignment status for a product.
-    /// Route: api/catalog/product-option-types
+    /// Route: api/admin/catalog/product-option-types
     /// Permission: Products.OptionTypes.Get
     /// </summary>
     public sealed class Endpoint : ICarterModule

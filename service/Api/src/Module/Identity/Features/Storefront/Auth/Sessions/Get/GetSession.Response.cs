@@ -1,6 +1,6 @@
-using Module.Identity.Features.Storefront.Shared.Models;
+using Module.Identity.Features.Shared.Storefront.Shared.Models;
 
-namespace Module.Identity.Features.Storefront.Auth.Sessions.Get;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
 
 public static partial class GetSession
 {

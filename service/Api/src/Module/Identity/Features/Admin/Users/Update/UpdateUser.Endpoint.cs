@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Update;
+namespace Module.Identity.Features.Shared.Admin.Users.Update;
 
 public static partial class UpdateUser
 {

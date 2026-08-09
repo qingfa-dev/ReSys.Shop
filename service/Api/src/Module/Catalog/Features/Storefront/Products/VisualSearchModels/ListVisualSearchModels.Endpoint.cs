@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Storefront.Products.VisualSearchModels;
 
@@ -20,8 +21,7 @@ public static partial class ListVisualSearchModels
             .WithTags(CatalogFeature.Tags.Product)
             .WithSummary(CatalogFeature.Storefront.Products.VisualSearchModels.Summary)
             .WithDescription(CatalogFeature.Storefront.Products.VisualSearchModels.Description)
-            .Produces<Result<Response>>()
-            .Produces<Result>(StatusCodes.Status400BadRequest);
+            .Produces<Result<Response>>();
         }
     }
 }

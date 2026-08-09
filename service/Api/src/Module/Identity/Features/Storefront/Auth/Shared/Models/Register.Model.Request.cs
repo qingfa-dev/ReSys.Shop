@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Shared.Models;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Shared.Models;
 
 public abstract record RegisterParameters
 {

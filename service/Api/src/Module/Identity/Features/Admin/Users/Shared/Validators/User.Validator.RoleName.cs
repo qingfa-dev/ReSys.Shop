@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Users.Shared.Validators;
+namespace Module.Identity.Features.Shared.Admin.Users.Shared.Validators;
 
 public static class UserRoleValidations
 {

@@ -10,7 +10,7 @@ public static partial class GetProductDetail
 {
     #region Query
 
-    public sealed record Query(string Slug) : IQuery<Response>;
+    public sealed record Query(Guid Id) : IQuery<Response>;
 
     #endregion
 
@@ -35,7 +35,7 @@ public static partial class GetProductDetail
                         .ThenInclude(ov => ov.OptionValue)
                 .Include(x => x.Classifications)
                     .ThenInclude(c => c.Taxon)
-                .FirstOrDefaultAsync(x => x.Slug == query.Slug
+                .FirstOrDefaultAsync(x => x.Id == query.Id
                     && !x.IsDeleted
                     && x.AvailableOn <= DateTimeOffset.UtcNow, cancellationToken);
 
@@ -43,11 +43,11 @@ public static partial class GetProductDetail
 
             if (entity is null)
             {
-                ProductLoggers.StorefrontProductNotFoundBySlug(logger, query.Slug);
-                return ProductResult.Errors.NotFoundBySlug(query.Slug);
+                ProductLoggers.StorefrontProductNotFoundById(logger, query.Id);
+                return ProductResult.Errors.NotFoundById(query.Id);
             }
 
-            ProductLoggers.StorefrontProductDetailLoaded(logger, query.Slug, entity.Id);
+            ProductLoggers.StorefrontProductDetailLoaded(logger, entity.Slug, entity.Id);
 
             var response = entity.MapToStoreDetail<Response>();
 

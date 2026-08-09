@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Roles.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Delete;
+namespace Module.Identity.Features.Shared.Admin.Roles.Delete;
 
 public static partial class DeleteRole
 {

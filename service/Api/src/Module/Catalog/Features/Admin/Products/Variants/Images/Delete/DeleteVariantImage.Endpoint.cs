@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Delete;
 
@@ -6,7 +7,7 @@ public static partial class DeleteVariantImage
 {
     /// <summary>
     /// DELETE endpoint that removes a variant image and its storage file.
-    /// Route: api/catalog/variant-images/{id:guid}
+    /// Route: api/admin/catalog/variant-images/{id:guid}
     /// Permission: Products.VariantImageMethod.Delete
     /// </summary>
     public class Endpoint : ICarterModule

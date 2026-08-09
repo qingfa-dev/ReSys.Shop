@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Users.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Users.Create;
+namespace Module.Identity.Features.Shared.Admin.Users.Create;
 
 public static partial class CreateUser
 {

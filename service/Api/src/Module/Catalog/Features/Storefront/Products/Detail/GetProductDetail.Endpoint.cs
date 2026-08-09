@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Detail;
 
@@ -9,13 +10,13 @@ public static partial class GetProductDetail
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET /api/storefront/products/{slug} — full product detail with variants and prices
+            // Map: GET /api/storefront/products/{id} — full product detail with variants and prices
             app.MapGet(CatalogFeature.Storefront.Products.Detail.Route, async (
-                [FromRoute] string slug,
+                [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(slug);
+                var query = new Query(id);
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Permissions.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Permissions.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Get;
 
 public static partial class GetRolePermissions
 {

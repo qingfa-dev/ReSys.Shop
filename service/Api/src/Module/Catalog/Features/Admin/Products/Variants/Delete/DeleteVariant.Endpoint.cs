@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Delete;
 
@@ -6,7 +7,7 @@ public static partial class DeleteVariant
 {
     /// <summary>
     /// DELETE endpoint that soft-deletes a variant by ID.
-    /// Route: api/catalog/variants/{id:guid}
+    /// Route: api/admin/catalog/variants/{id:guid}
     /// Permission: Products.Variants.Delete
     /// </summary>
     public class Endpoint : ICarterModule

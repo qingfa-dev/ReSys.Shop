@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Emails.Resend;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Resend;
 
 public static partial class ResendEmailVerification
 {

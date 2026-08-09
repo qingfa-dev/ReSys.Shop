@@ -1,8 +1,8 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Roles.Shared.Models;
 
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Shared.Mappings;
+namespace Module.Identity.Features.Shared.Admin.Roles.Shared.Mappings;
 
 /// <summary>
 /// Provides extension methods for mapping between <see cref="Role"/> entities and various DTOs.

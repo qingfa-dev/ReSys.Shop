@@ -5,7 +5,7 @@ using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Sessions.Refresh;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Refresh;
 
 /// <summary>
 /// Defines the use case for refreshing an authentication session.

@@ -9,7 +9,7 @@ public static partial class CancelOrderAdmin
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/ordering/orders/{id:guid}/cancel — admin cancel an order
+            // Map: POST api/admin/ordering/orders/{id:guid}/cancel — admin cancel an order
             app.MapPost(OrderingFeature.Admin.Orders.Cancel.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

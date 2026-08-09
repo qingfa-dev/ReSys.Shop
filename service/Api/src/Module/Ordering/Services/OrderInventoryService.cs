@@ -4,7 +4,7 @@ using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
-namespace Module.Ordering.Features.Shared.Services;
+namespace Module.Ordering.Services;
 
 /// <summary>
 /// Synchronizes inventory units for completed orders when line item quantities change.

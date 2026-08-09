@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Create;
 
@@ -6,7 +7,7 @@ public static partial class CreateProduct
 {
     /// <summary>
     /// POST endpoint that creates a new product with a master variant.
-    /// Route: api/catalog/products
+    /// Route: api/admin/catalog/products
     /// Permission: Products.Create
     /// </summary>
     public class Endpoint : ICarterModule

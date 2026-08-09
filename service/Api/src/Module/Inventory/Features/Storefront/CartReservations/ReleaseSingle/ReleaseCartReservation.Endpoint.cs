@@ -4,11 +4,13 @@ namespace Module.Inventory.Features.Storefront.CartReservations.ReleaseSingle;
 
 public static partial class ReleaseCartReservation
 {
+    /// <summary>Releases a cart stock reservation scoped to the caller's cart token.</summary>
+    /// <remarks>Legacy REST edge — superseded by <c>ReleaseCartStockReservationsCommand</c>. Deprecated; kept for <c>app/Store</c> + <c>ApiTests</c> compatibility.</remarks>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(InventoryFeature.Storefront.CartReservations.Release.Route, async (
+            app.MapDelete(InventoryFeature.Storefront.Cart.Release.Route, async (
                 [FromRoute] Guid reservationId,
                 HttpContext httpContext,
                 ISender sender,
@@ -28,8 +30,8 @@ public static partial class ReleaseCartReservation
             })
             .WithName(nameof(ReleaseCartReservation))
             .WithTags(InventoryFeature.Tags.StockReservation)
-            .WithSummary(InventoryFeature.Storefront.CartReservations.Release.Summary)
-            .WithDescription(InventoryFeature.Storefront.CartReservations.Release.Description)
+            .WithSummary(InventoryFeature.Storefront.Cart.Release.Summary)
+            .WithDescription(InventoryFeature.Storefront.Cart.Release.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

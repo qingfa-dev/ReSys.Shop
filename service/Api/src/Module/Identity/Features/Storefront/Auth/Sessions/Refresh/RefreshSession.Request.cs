@@ -1,6 +1,6 @@
-using Module.Identity.Features.Storefront.Shared.Models;
+using Module.Identity.Features.Shared.Storefront.Shared.Models;
 
-namespace Module.Identity.Features.Storefront.Auth.Sessions.Refresh;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Refresh;
 
 public static partial class RefreshSession
 {

@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Passwords.Reset;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Reset;
 
 public static partial class ResetPassword
 {

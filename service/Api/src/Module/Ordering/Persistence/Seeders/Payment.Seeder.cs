@@ -1,8 +1,8 @@
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Domain.PaymentCaptures;
+using Module.Billing.Domain.PaymentMethods;
+using Module.Billing.Domain.PaymentCaptures;
 
-using PaymentEntity = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
+using PaymentEntity = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Ordering.Persistence.Seeders;
 

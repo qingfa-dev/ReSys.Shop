@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Permissions;
 
-namespace Module.Identity.Features.Admin.Permissions.Shared.Models;
+namespace Module.Identity.Features.Shared.Admin.Permissions.Shared.Models;
 
 public sealed record ResourceGroup
 {

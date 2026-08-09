@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Storefront.Options.Values;
 
@@ -10,7 +11,7 @@ public static partial class GetStoreOptionValues
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/option-values — paged listing of product option values (size, colour)
-            app.MapGet(CatalogFeature.Storefront.Options.OptionValues.Route, async (
+            app.MapGet(CatalogFeature.Storefront.OptionValues.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +22,8 @@ public static partial class GetStoreOptionValues
             })
             .WithName(nameof(GetStoreOptionValues))
             .WithTags(CatalogFeature.Tags.OptionValue)
-            .WithSummary(CatalogFeature.Storefront.Options.OptionValues.Summary)
-            .WithDescription(CatalogFeature.Storefront.Options.OptionValues.Description)
+            .WithSummary(CatalogFeature.Storefront.OptionValues.Summary)
+            .WithDescription(CatalogFeature.Storefront.OptionValues.Description)
             .Produces<PagedResult<Response>>();
         }
     }

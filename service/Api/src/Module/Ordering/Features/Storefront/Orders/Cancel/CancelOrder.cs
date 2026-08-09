@@ -50,7 +50,7 @@ public static partial class CancelOrder
 
             // Call: Cancel associated payments via MediatR.
             var voidResult = await sender.Send(
-                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand
+                new Module.Billing.Features.Shared.Commands.VoidOrderPaymentsCommand
                 {
                     OrderId = entity.Id,
                     Reason = OrderConstant.CancelReasons.Customer

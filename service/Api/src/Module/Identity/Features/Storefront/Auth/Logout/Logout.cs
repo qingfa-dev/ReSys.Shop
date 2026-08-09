@@ -5,7 +5,7 @@ using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Tokens;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Logout;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Logout;
 
 /// <summary>
 /// Defines the use case for user logout.

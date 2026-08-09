@@ -13,7 +13,7 @@ public static partial class GetOrderingDashboard
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET api/ordering/dashboard — get ordering dashboard metrics
+            // Map: GET api/admin/ordering/dashboard — get ordering dashboard metrics
             app.MapGet(OrderingDashboardFeature.Admin.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Upload;
 
@@ -6,7 +7,7 @@ public static partial class UploadVariantImage
 {
     /// <summary>
     /// POST endpoint that uploads a new image for a variant.
-    /// Route: api/catalog/variant-images
+    /// Route: api/admin/catalog/variant-images
     /// Permission: Products.VariantImageMethod.Upload
     /// Accepts: multipart/form-data
     /// </summary>

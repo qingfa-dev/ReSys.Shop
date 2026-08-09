@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Roles.Assign;
+namespace Module.Identity.Features.Shared.Admin.Users.Roles.Assign;
 
 public static partial class AssignUserRoles
 {

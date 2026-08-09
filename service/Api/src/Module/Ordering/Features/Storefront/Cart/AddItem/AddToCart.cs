@@ -66,13 +66,12 @@ public static partial class AddToCart
             }
 
             // Reserve: Delegate stock check + location picking to Inventory module via Shared contract.
-            const int CartReservationTtlMinutes = 30;
             var reserveResult = await sender.Send(
                 new ReserveCartStockCommand
                 {
                     CartId = cart.Id,
                     LineItems = [new ReserveLineItem { VariantId = request.VariantId, Quantity = request.Quantity }],
-                    TtlMinutes = CartReservationTtlMinutes
+                    TtlMinutes = Module.Inventory.Features.Shared.InventoryFeature.Storefront.Cart.TtlMinutesDefault
                 },
                 cancellationToken);
 

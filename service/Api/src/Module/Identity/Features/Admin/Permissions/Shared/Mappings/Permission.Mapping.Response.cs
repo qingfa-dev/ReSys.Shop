@@ -1,8 +1,8 @@
-using Module.Identity.Features.Admin.Permissions.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Permissions.Shared.Models;
 
 using Shared.Security.Identity.Domain.Permissions;
 
-namespace Module.Identity.Features.Admin.Permissions.Shared.Mappings;
+namespace Module.Identity.Features.Shared.Admin.Permissions.Shared.Mappings;
 
 public static class PermissionMapping
 {

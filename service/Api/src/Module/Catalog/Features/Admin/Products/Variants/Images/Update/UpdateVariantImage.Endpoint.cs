@@ -1,4 +1,5 @@
 using Module.Catalog.Features.Shared;
+using Module.Catalog.Shared;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Update;
 
@@ -6,7 +7,7 @@ public static partial class UpdateVariantImage
 {
     /// <summary>
     /// PUT endpoint that updates a variant image's metadata (alt, position, type).
-    /// Route: api/catalog/variant-images/{id:guid}
+    /// Route: api/admin/catalog/variant-images/{id:guid}
     /// Permission: Products.VariantImageMethod.Update
     /// </summary>
     public class Endpoint : ICarterModule

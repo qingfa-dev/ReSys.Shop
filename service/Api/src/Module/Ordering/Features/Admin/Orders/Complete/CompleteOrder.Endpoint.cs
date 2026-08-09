@@ -9,7 +9,7 @@ public static partial class CompleteOrder
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/ordering/orders/{id:guid}/complete — mark an order as completed
+            // Map: POST api/admin/ordering/orders/{id:guid}/complete — mark an order as completed
             app.MapPost(OrderingFeature.Admin.Orders.Complete.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

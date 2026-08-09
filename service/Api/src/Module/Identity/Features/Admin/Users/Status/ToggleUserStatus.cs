@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Status;
+namespace Module.Identity.Features.Shared.Admin.Users.Status;
 
 /// <summary>
 /// Defines the use case for toggling a user's active status.

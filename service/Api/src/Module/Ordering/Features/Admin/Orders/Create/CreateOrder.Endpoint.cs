@@ -9,7 +9,7 @@ public static partial class CreateOrder
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/ordering/orders — admin create a new order
+            // Map: POST api/admin/ordering/orders — admin create a new order
             app.MapPost(OrderingFeature.Admin.Orders.Create.Route, async ([FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(request), ct);

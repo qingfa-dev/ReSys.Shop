@@ -400,7 +400,7 @@ technical:
       steps:
         - "Each feature action is a static partial class split across files"
         - "Handler, Request, Response, Endpoint, Validator in dedicated files"
-        - "Admin routes under api/catalog, Storefront under api/storefront"
+        - "Admin routes under api/admin/catalog, Storefront under api/storefront"
         - "Carter minimal APIs wire endpoints; MediatR dispatches to handlers"
 
 anti_patterns:
@@ -475,22 +475,22 @@ usage:
         with option values, sets prices, and uploads images.
       pattern: |
         // 1. Create product
-        POST /api/catalog/products { name, description, slug }
+        POST /api/admin/catalog/products { name, description, slug }
 
         // 2. Assign option types (Size, Color)
-        POST /api/catalog/products/{id}/option-types/assign
+        POST /api/admin/catalog/products/{id}/option-types/assign
         { optionTypeIds: [size-id, color-id] }
 
         // 3. Add variants with option values
-        POST /api/catalog/products/{id}/variants
+        POST /api/admin/catalog/products/{id}/variants
         { sku: "TSHIRT-RED-S", optionValues: [red-val, small-val] }
 
         // 4. Set prices
-        POST /api/catalog/variants/{variantId}/prices
+        POST /api/admin/catalog/variants/{variantId}/prices
         { amount: 29.99, currency: "USD" }
 
         // 5. Upload images
-        POST /api/catalog/variants/{variantId}/images
+        POST /api/admin/catalog/variants/{variantId}/images
         Content-Type: multipart/form-data
       benefits:
         - Complete product setup in a single workflow

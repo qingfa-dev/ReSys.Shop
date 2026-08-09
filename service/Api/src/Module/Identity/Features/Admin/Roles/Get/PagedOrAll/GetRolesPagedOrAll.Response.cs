@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Roles.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Get.PagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.PagedOrAll;
 
 public static partial class GetRolesPagedOrAll
 {

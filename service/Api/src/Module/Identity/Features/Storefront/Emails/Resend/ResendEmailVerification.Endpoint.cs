@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Emails.Resend;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Resend;
 
 public static partial class ResendEmailVerification
 {
@@ -7,13 +7,13 @@ public static partial class ResendEmailVerification
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/emails/resend — resend email verification link
-            app.MapPost(IdentityFeature.Store.Emails.Resend.Route, Handle)
+            // Map: POST /api/storefront/emails/resend — resend email verification link
+            app.MapPost(IdentityFeature.Storefront.Emails.Resend.Route, Handle)
                 .AllowAnonymous()
                 .WithName(nameof(ResendEmailVerification))
                 .WithTags(IdentityFeature.Tags.Authentication)
-                .WithSummary(IdentityFeature.Store.Emails.Resend.Summary)
-                .WithDescription(IdentityFeature.Store.Emails.Resend.Description)
+                .WithSummary(IdentityFeature.Storefront.Emails.Resend.Summary)
+                .WithDescription(IdentityFeature.Storefront.Emails.Resend.Description)
                 .Produces<Result>()
                 .Produces<Result>(StatusCodes.Status400BadRequest)
                 .Produces<Result>(StatusCodes.Status404NotFound);

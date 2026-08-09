@@ -1,8 +1,8 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Roles.Shared.Models;
 
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Shared.Validators;
+namespace Module.Identity.Features.Shared.Admin.Roles.Shared.Validators;
 
 /// <summary>
 /// Provides a comprehensive extension method to apply all standard validation rules for role-related objects.

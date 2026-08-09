@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Users.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Users.GetPagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Users.GetPagedOrAll;
 
 public static partial class GetUsersPagedOrAll
 {

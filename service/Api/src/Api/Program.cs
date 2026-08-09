@@ -6,8 +6,8 @@ using Module.Identity;
 using Module.Inventory;
 using Module.Location;
 using Module.Ordering;
-using Module.Payment;
-using Module.Profile;
+using Module.Billing;
+using Module.Customer;
 using Module.Shipping;
 
 using ReSys.ServiceDefaults;
@@ -44,11 +44,11 @@ builder.AddOperational(additionalAssemblies);
 // Configure: Add modular
 builder.AddLocationModule();
 builder.AddIdentityModule();
-builder.AddProfilesModule();
+builder.AddCustomerModule();
 builder.AddCatalogModule();
 builder.AddInventoryModule();
 builder.AddOrderingModule();
-builder.AddPaymentModule();
+builder.AddBillingModule();
 builder.AddShippingModule();
 
 // Initialize: Register database init state, hosted service, and health check

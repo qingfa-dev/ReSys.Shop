@@ -7,7 +7,7 @@ using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Roles.Permissions.Sync;
+namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Sync;
 
 /// <summary>
 /// Defines the use case for synchronizing role permissions.

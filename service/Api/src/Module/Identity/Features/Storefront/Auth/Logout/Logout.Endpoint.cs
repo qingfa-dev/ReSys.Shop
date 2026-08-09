@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Logout;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Logout;
 
 public static partial class Logout
 {
@@ -7,8 +7,8 @@ public static partial class Logout
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/auth/logout — revoke refresh token and sign out
-            app.MapPost(IdentityFeature.Store.Auth.Logout.Route, async (
+            // Map: POST /api/storefront/auth/logout — revoke refresh token and sign out
+            app.MapPost(IdentityFeature.Storefront.Auth.Logout.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -20,8 +20,8 @@ public static partial class Logout
             .RequireAuthorization()
             .WithName(nameof(Logout))
             .WithTags(IdentityFeature.Tags.Authentication)
-            .WithSummary(IdentityFeature.Store.Auth.Logout.Summary)
-            .WithDescription(IdentityFeature.Store.Auth.Logout.Description)
+            .WithSummary(IdentityFeature.Storefront.Auth.Logout.Summary)
+            .WithDescription(IdentityFeature.Storefront.Auth.Logout.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

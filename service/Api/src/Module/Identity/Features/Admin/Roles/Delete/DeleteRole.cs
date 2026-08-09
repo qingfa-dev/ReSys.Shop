@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Delete;
+namespace Module.Identity.Features.Shared.Admin.Roles.Delete;
 
 /// <summary>
 /// Defines the use case for deleting an existing role.

@@ -111,7 +111,7 @@ public static partial class UploadVariantImage
             // set the Url to the download endpoint so the frontend can display the image.
             if (string.IsNullOrEmpty(image.Url))
             {
-                image.Url = $"/api/catalog/variant-images/{image.Id}/download";
+                image.Url = $"/api/admin/catalog/variant-images/{image.Id}/download";
             }
 
             dbContext.Set<VariantImage>().Add(image);

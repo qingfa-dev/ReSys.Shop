@@ -1,6 +1,6 @@
-using Module.Identity.Features.Storefront.Passwords.Shared.Models;
+using Module.Identity.Features.Shared.Storefront.Passwords.Shared.Models;
 
-namespace Module.Identity.Features.Storefront.Passwords.Forgot;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Forgot;
 
 public static partial class RequestPasswordReset
 {

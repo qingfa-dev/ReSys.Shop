@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Permissions.Shared.Models;
+namespace Module.Identity.Features.Shared.Admin.Permissions.Shared.Models;
 
 public abstract record ResourceGroupListItemResponse<TPermission>
     where TPermission : PermissionResponse

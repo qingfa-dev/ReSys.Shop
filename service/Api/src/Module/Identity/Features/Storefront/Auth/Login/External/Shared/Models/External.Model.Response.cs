@@ -1,6 +1,6 @@
 using Shared.Security.Authentication.External.Models;
 
-namespace Module.Identity.Features.Storefront.Auth.Login.External.Shared.Models;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.External.Shared.Models;
 
 public abstract record ExternalProvidersBaseResponse
 {
