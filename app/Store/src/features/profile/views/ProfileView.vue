@@ -3,17 +3,15 @@ import { onMounted, ref, watch } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { usePreferences } from '@/shared/composables/usePreferences'
-import { useTheme } from '@/shared/composables/useTheme'
 import { useProfileStore } from '../stores/profileStore'
 import { UpdateProfileRequestSchema } from '../validations'
 
 usePageTitle('Profile')
 
-// Stores: Profile owns the entity; preferences/theme back the summary card.
+// Stores: Profile owns the entity; preferences back the summary card.
 const profileStore = useProfileStore()
 const notify = useNotify()
 const { preferences } = usePreferences()
-const { isDark } = useTheme()
 
 // Draft: Editable name fields committed by the save button.
 const firstName = ref('')
@@ -116,10 +114,6 @@ onMounted(() => {
       <template #title>Preferences</template>
       <template #content>
         <div class="flex flex-col gap-3 text-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-surface-500">Theme</span>
-            <span>{{ isDark ? 'Dark' : 'Light' }}</span>
-          </div>
           <div class="flex items-center justify-between">
             <span class="text-surface-500">Currency</span>
             <span>{{ preferences.currency }}</span>
