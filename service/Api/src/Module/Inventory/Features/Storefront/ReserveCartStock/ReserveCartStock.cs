@@ -33,6 +33,7 @@ public sealed class ReserveCartStockCommandHandler(IApplicationDbContext dbConte
 
                     var reserved = await dbContext.Set<StockReservation>()
                         .Where(r => r.VariantId == item.VariantId
+                                    && r.StockLocationId == stockItem.StockLocationId
                                     && r.State == ReservationState.Reserved
                                     && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
                         .SumAsync(r => r.Quantity, cancellationToken);
