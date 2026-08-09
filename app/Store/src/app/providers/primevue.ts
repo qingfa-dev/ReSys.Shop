@@ -10,9 +10,7 @@ export function registerPrimeVue(app: App): void {
     license: env.primeLicenseKey,
     theme: {
       preset: Aura,
-      options: {
-        darkModeSelector: '.app-dark',
-      },
+      options: {},
     },
   })
   app.use(ToastService)
