@@ -233,7 +233,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
         type="search"
         placeholder="Search products..."
         class="w-full"
-        @update:model-value="catalogFilters.setSearch($event)"
+        @update:model-value="catalogFilters.setSearch($event ?? '')"
       />
     </IconField>
 
