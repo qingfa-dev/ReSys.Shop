@@ -47,8 +47,8 @@ watch(
           :class="[
             'flex w-full items-center gap-3 px-3 py-2 text-sm',
             route.path === item.to
-              ? 'rounded-lg bg-primary-50 font-semibold text-primary-800 dark:bg-primary-950 dark:text-primary-200'
-              : 'text-surface-700 dark:text-surface-300',
+              ? 'rounded-lg bg-primary-50 font-semibold text-primary-800'
+              : 'text-surface-700',
           ]"
           :aria-current="route.path === item.to ? 'page' : undefined"
           data-pc-section="headerlink"

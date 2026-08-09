@@ -19,7 +19,7 @@ function subscribe(): void {
 
 <template>
   <!-- Section: Footer — brand, link columns and newsletter capture -->
-  <footer class="border-t border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-950">
+  <footer class="border-t border-surface-200 bg-surface-50">
     <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
       <!-- Brand: Wordmark with a one-line blurb about the storefront -->
       <div>
@@ -27,14 +27,14 @@ function subscribe(): void {
           <i class="pi pi-sparkles text-xl text-primary-500" />
           <span class="text-lg font-semibold tracking-tight">ReSys.Shop</span>
         </div>
-        <p class="mt-3 text-sm text-surface-500 dark:text-surface-400">
+        <p class="mt-3 text-sm text-surface-500">
           Fashion retail built on semantic search, visual discovery and curated collections.
         </p>
       </div>
 
       <!-- Shop Links: Catalog destinations -->
       <div>
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-surface-900 dark:text-surface-100">Shop</h3>
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-surface-900">Shop</h3>
         <div class="mt-3 flex flex-col items-start gap-1">
           <Button as="router-link" to="/shop" label="Shop" variant="text" class="p-0" />
           <Button as="router-link" to="/collections" label="Collections" variant="text" class="p-0" />
@@ -44,7 +44,7 @@ function subscribe(): void {
 
       <!-- Company Links: About and legal pages -->
       <div>
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-surface-900 dark:text-surface-100">Company</h3>
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-surface-900">Company</h3>
         <div class="mt-3 flex flex-col items-start gap-1">
           <Button as="router-link" to="/about" label="About" variant="text" class="p-0" />
           <Button as="router-link" to="/terms" label="Terms" variant="text" class="p-0" />
@@ -54,8 +54,8 @@ function subscribe(): void {
 
       <!-- Newsletter: Email input group; subscribe confirms via toast -->
       <div>
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-surface-900 dark:text-surface-100">Newsletter</h3>
-        <p class="mt-3 text-sm text-surface-500 dark:text-surface-400">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-surface-900">Newsletter</h3>
+        <p class="mt-3 text-sm text-surface-500">
           Get new arrivals and promotions in your inbox.
         </p>
         <InputGroup class="mt-3">
@@ -68,7 +68,7 @@ function subscribe(): void {
     <!-- Copyright: Divider then the legal line -->
     <Divider />
     <div class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-      <p class="text-center text-sm text-surface-500 dark:text-surface-400">
+      <p class="text-center text-sm text-surface-500">
         &copy; {{ new Date().getFullYear() }} ReSys.Shop. All rights reserved.
       </p>
     </div>

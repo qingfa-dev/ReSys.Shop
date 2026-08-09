@@ -85,7 +85,7 @@ onMounted(() => {
 <template>
   <!-- Section: Sticky Header — blur backdrop wrapping brand, nav, search and actions -->
   <header
-    class="sticky top-0 z-40 border-b border-surface-200 bg-surface-0/80 backdrop-blur dark:border-surface-800 dark:bg-surface-950/80"
+    class="sticky top-0 z-40 border-b border-surface-200 bg-surface-0/80 backdrop-blur"
   >
     <div class="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6">
       <!-- Mobile Nav Trigger: Opens the MobileNav drawer below lg (Task 11) -->
@@ -177,7 +177,7 @@ onMounted(() => {
             :label="userInitial"
             shape="circle"
             size="small"
-            class="bg-primary-100 text-primary-900 dark:bg-primary-900 dark:text-primary-100"
+            class="bg-primary-100 text-primary-900"
           />
           <i class="pi pi-chevron-down ml-2" />
         </Button>

@@ -48,7 +48,7 @@ watch(
 
 <template>
   <!-- Section: Auth Fallback — defensive guard; guards normally redirect before this -->
-  <div v-if="!authStore.isAuthenticated" class="flex min-h-svh items-center justify-center bg-surface-50 p-8 dark:bg-surface-950">
+  <div v-if="!authStore.isAuthenticated" class="flex min-h-svh items-center justify-center bg-surface-50 p-8">
     <Message severity="warn" :closable="false">Your session has expired. Please sign in again to continue.</Message>
   </div>
 
@@ -70,7 +70,7 @@ watch(
       <SidebarAside>
         <SidebarPanel>
           <SidebarHeader>
-            <span class="px-1 text-sm font-semibold text-surface-900 dark:text-surface-100">Account</span>
+            <span class="px-1 text-sm font-semibold text-surface-900">Account</span>
           </SidebarHeader>
           <SidebarContent>
             <PanelMenu :model="navItems">
@@ -80,8 +80,8 @@ watch(
                   :class="[
                     'flex w-full items-center gap-3 px-3 py-2 text-sm',
                     isItemActive(item.to)
-                      ? 'rounded-lg bg-primary-50 font-semibold text-primary-800 dark:bg-primary-950 dark:text-primary-200'
-                      : 'text-surface-700 dark:text-surface-300',
+                      ? 'rounded-lg bg-primary-50 font-semibold text-primary-800'
+                      : 'text-surface-700',
                   ]"
                   :aria-current="isItemActive(item.to) ? 'page' : undefined"
                   data-pc-section="headerlink"
@@ -106,12 +106,12 @@ watch(
     <SidebarMain>
       <div class="flex min-h-svh flex-col">
         <!-- Mobile Top Bar: Opens the drawer below lg -->
-        <header class="flex items-center border-b border-surface-200 px-4 py-3 lg:hidden dark:border-surface-800">
+        <header class="flex items-center border-b border-surface-200 px-4 py-3 lg:hidden">
           <Button icon="pi pi-bars" label="Menu" severity="secondary" variant="text" @click="mobileNavOpen = true" />
         </header>
 
         <div class="grid flex-1 lg:grid-cols-[16rem_1fr] lg:items-start">
-          <aside class="hidden border-r border-surface-200 p-4 lg:sticky lg:top-0 lg:block lg:h-svh lg:overflow-y-auto lg:bg-surface-50 dark:border-surface-800 dark:bg-surface-950">
+          <aside class="hidden border-r border-surface-200 p-4 lg:sticky lg:top-0 lg:block lg:h-svh lg:overflow-y-auto lg:bg-surface-50">
             <PanelMenu :model="navItems">
               <template #item="{ item }">
                 <RouterLink
@@ -119,8 +119,8 @@ watch(
                   :class="[
                     'flex w-full items-center gap-3 px-3 py-2 text-sm',
                     isItemActive(item.to)
-                      ? 'rounded-lg bg-primary-50 font-semibold text-primary-800 dark:bg-primary-950 dark:text-primary-200'
-                      : 'text-surface-700 dark:text-surface-300',
+                      ? 'rounded-lg bg-primary-50 font-semibold text-primary-800'
+                      : 'text-surface-700',
                   ]"
                   :aria-current="isItemActive(item.to) ? 'page' : undefined"
                   data-pc-section="headerlink"
