@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { usePageTitle } from '@/shared/composables/usePageTitle'
-import { useVisualSearchStore } from '../stores/visualSearchStore'
+import { useVisualSearch } from '../composables/useVisualSearch'
 import type { FileUploadSelectEvent } from 'primevue/fileupload'
 import ProductCard from '../components/ProductCard.vue'
 
 // Title: Browser tab title for the visual search page
 usePageTitle('Visual Search')
 
-const vs = useVisualSearchStore()
+const vs = useVisualSearch()
 
-// Upload: Route the chosen file into the store, then embed and search
+// Upload: Route the chosen file into the composable, then embed and search
 function onSelect(event: FileUploadSelectEvent): void {
   const file = event.files[0] as File | undefined
   if (!file) return
   vs.selectFile(file)
-  // Guard: Skip search when the store rejected the file
+  // Guard: Skip search when the composable rejected the file
   if (!vs.validationError) void vs.search()
 }
 </script>

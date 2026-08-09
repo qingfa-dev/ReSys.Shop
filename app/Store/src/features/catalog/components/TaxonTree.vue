@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { TreeNode } from 'primevue/treenode'
-import { useCatalogStore } from '../stores/catalogStore'
+import { useFilters } from '../composables/useFilters'
 import type { TaxonTreeNode } from '../types'
 
 const props = defineProps<{
   nodes: TaxonTreeNode[]
 }>()
 
-const catalog = useCatalogStore()
+const catalogFilters = useFilters()
 
 // Map: Convert taxonomy nodes to PrimeVue TreeNode shape (key = taxon id).
 function toTreeNode(node: TaxonTreeNode): TreeNode {
@@ -36,11 +36,11 @@ watch(
   { immediate: true, deep: true },
 )
 
-// Select: Mirror store selection into checkbox keys ({ checked, partialChecked }).
+// Select: Mirror composable selection into checkbox keys ({ checked, partialChecked }).
 const selectionKeys = computed<Record<string, { checked: boolean; partialChecked: boolean }>>({
   get: () => {
     const keys: Record<string, { checked: boolean; partialChecked: boolean }> = {}
-    for (const id of catalog.selectedTaxonIds) {
+    for (const id of catalogFilters.selectedTaxonIds) {
       keys[id] = { checked: true, partialChecked: false }
     }
     return keys
@@ -53,13 +53,13 @@ const selectionKeys = computed<Record<string, { checked: boolean; partialChecked
     )
     // Diff: Toggle every taxon whose membership changed (partial parents excluded).
     // Snapshot: Iterate a copy — toggleTaxon splices the live array, so a direct
-    // loop skips the element after each removal (catalogStore.ts:40).
+    // loop skips the element after each removal (useFilters.ts).
     // oxlint-disable-next-line unicorn/no-useless-spread -- false positive: the copy is required
-    for (const id of [...catalog.selectedTaxonIds]) {
-      if (!fullyChecked.has(id)) catalog.toggleTaxon(id)
+    for (const id of [...catalogFilters.selectedTaxonIds]) {
+      if (!fullyChecked.has(id)) catalogFilters.toggleTaxon(id)
     }
     for (const id of fullyChecked) {
-      if (!catalog.selectedTaxonIds.includes(id)) catalog.toggleTaxon(id)
+      if (!catalogFilters.selectedTaxonIds.includes(id)) catalogFilters.toggleTaxon(id)
     }
   },
 })

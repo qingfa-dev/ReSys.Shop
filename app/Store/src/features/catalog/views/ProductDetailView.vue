@@ -6,7 +6,7 @@ import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { formatCurrency } from '@/shared/utils/currency'
-import { useProductDetailStore } from '../stores/productDetailStore'
+import { useProductDetail } from '../composables/useProductDetail'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import { useWishlistStore } from '@/features/profile/stores/wishlistStore'
 import { useAvailabilityStore } from '@/features/inventory/stores/availabilityStore'
@@ -21,7 +21,7 @@ interface BreadcrumbItemModel extends MenuItem {
 
 const route = useRoute()
 const router = useRouter()
-const detail = useProductDetailStore()
+const detail = useProductDetail()
 const cart = useCartStore()
 const wishlist = useWishlistStore()
 const availability = useAvailabilityStore()

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
-import { useCatalogStore } from '../stores/catalogStore'
-import { useProductListStore } from '../stores/productListStore'
+import { useTaxonomy } from '../composables/useTaxonomy'
+import { useProducts } from '../composables/useProducts'
 import ProductCard from '../components/ProductCard.vue'
 
 // Title: Browser tab title for the storefront home
 usePageTitle('Home')
 
-const catalog = useCatalogStore()
-const productList = useProductListStore()
+const taxonomy = useTaxonomy()
+const productList = useProducts()
 
 // Featured: First page of products doubles as the home rail (store has no featured getter)
 const featuredProducts = computed(() => productList.items.slice(0, 8))
@@ -19,7 +19,7 @@ const featuredLoading = computed(() => productList.isInitialLoad && productList.
 const rootTaxons = computed(() => {
   const seen = new Set<string>()
   const roots: { id: string; name: string }[] = []
-  for (const group of catalog.taxonomyGroups) {
+  for (const group of taxonomy.taxonomyGroups) {
     for (const node of group.tree) {
       if (node.depth === 0 && !seen.has(node.id)) {
         seen.add(node.id)
@@ -38,8 +38,8 @@ const benefits = [
 ]
 
 onMounted(() => {
-  // Load: Taxonomy groups for the category row — store guards duplicate fetches
-  void catalog.loadTaxonomyGroups()
+  // Load: Taxonomy groups for the category row — composable guards duplicate fetches
+  void taxonomy.loadTaxonomyGroups()
   // Load: Featured rail only on first visit — products stay cached afterwards
   if (productList.isInitialLoad) void productList.fetch()
 })

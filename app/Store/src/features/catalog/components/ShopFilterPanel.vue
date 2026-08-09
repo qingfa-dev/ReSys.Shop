@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useCatalogStore } from '../stores/catalogStore'
+import { useFilters } from '../composables/useFilters'
+import { useTaxonomy } from '../composables/useTaxonomy'
 import { formatCurrency } from '@/shared/utils/currency'
 import TaxonTree from './TaxonTree.vue'
 import type { StoreOptionValueListItemResponse, TaxonTreeNode } from '../types'
 import type { WritableComputedRef } from 'vue'
 
-const catalog = useCatalogStore()
+const catalogFilters = useFilters()
+const taxonomy = useTaxonomy()
 
 // Term: Keep local taxonomy search for future use; v5 Tree filter is internal state
 // only (no filterValue prop), so TaxonTree renders its own search input instead
@@ -15,26 +17,26 @@ const taxonSearchTerm = ref('')
 // Options: Map of option value ids per type for group-scoped selection proxies
 const valueIdsByType = computed(() => {
   const map = new Map<string, Set<string>>()
-  for (const type of catalog.optionTypes) {
+  for (const type of taxonomy.optionTypes) {
     map.set(type.id, new Set(type.values.map(v => v.id)))
   }
   return map
 })
 
-// Proxy: Bridge the store's global option selection to a per-type array for widget v-model
+// Proxy: Bridge the composable's global option selection to a per-type array for widget v-model
 function optionSelection(optionTypeId: string): WritableComputedRef<string[]> {
   return computed<string[]>({
     get: () => {
       const ids = valueIdsByType.value.get(optionTypeId)
       if (!ids) return []
-      return catalog.selectedOptionValueIds.filter(id => ids.has(id))
+      return catalogFilters.selectedOptionValueIds.filter(id => ids.has(id))
     },
     set: (next) => {
       const ids = valueIdsByType.value.get(optionTypeId)
       if (!ids) return
       for (const id of ids) {
-        if (catalog.selectedOptionValueIds.includes(id) !== next.includes(id)) {
-          catalog.toggleOptionValue(id)
+        if (catalogFilters.selectedOptionValueIds.includes(id) !== next.includes(id)) {
+          catalogFilters.toggleOptionValue(id)
         }
       }
     },
@@ -50,7 +52,7 @@ interface OptionFilterGroup {
 }
 
 const optionFilterGroups = computed<OptionFilterGroup[]>(() =>
-  catalog.optionTypes.map(type => ({
+  taxonomy.optionTypes.map(type => ({
     id: type.id,
     label: type.presentation ?? type.name,
     values: type.values,
@@ -60,7 +62,7 @@ const optionFilterGroups = computed<OptionFilterGroup[]>(() =>
 
 // Helper: Resolve an option value by id for active-filter chip labels
 function findOptionValue(id: string): StoreOptionValueListItemResponse | undefined {
-  for (const type of catalog.optionTypes) {
+  for (const type of taxonomy.optionTypes) {
     const value = type.values.find(v => v.id === id)
     if (value) return value
   }
@@ -68,7 +70,7 @@ function findOptionValue(id: string): StoreOptionValueListItemResponse | undefin
 }
 
 // Helper: Resolve a taxon by id across every taxonomy group tree for chip labels
-function findTaxon(id: string, nodes: TaxonTreeNode[] = catalog.taxonomyGroups.flatMap(g => g.tree)): TaxonTreeNode | undefined {
+function findTaxon(id: string, nodes: TaxonTreeNode[] = taxonomy.taxonomyGroups.flatMap(g => g.tree)): TaxonTreeNode | undefined {
   for (const node of nodes) {
     if (node.id === id) return node
     const child = findTaxon(id, node.children)
@@ -81,9 +83,9 @@ function findTaxon(id: string, nodes: TaxonTreeNode[] = catalog.taxonomyGroups.f
 const priceBounds = { min: 0, max: 1000 }
 const priceRange = ref<[number, number]>([priceBounds.min, priceBounds.max])
 
-// Sync: Seed the local range from store prices and reset when cleared externally
+// Sync: Seed the local range from composable prices and reset when cleared externally
 watch(
-  () => [catalog.minPrice, catalog.maxPrice] as const,
+  () => [catalogFilters.minPrice, catalogFilters.maxPrice] as const,
   ([min, max]) => {
     if (min == null && max == null) {
       priceRange.value = [priceBounds.min, priceBounds.max]
@@ -95,9 +97,9 @@ watch(
   { immediate: true },
 )
 
-// Commit: Push the local slider state into the store (emits filter:changed)
+// Commit: Push the local slider state into the composable (emits filter:changed)
 function commitPrice(): void {
-  catalog.setPriceRange(priceRange.value[0], priceRange.value[1])
+  catalogFilters.setPriceRange(priceRange.value[0], priceRange.value[1])
 }
 
 // Input: Proxy the local slider bounds for the min/max number inputs
@@ -124,41 +126,41 @@ interface ActiveFilterChip {
 
 const activeChips = computed<ActiveFilterChip[]>(() => {
   const chips: ActiveFilterChip[] = []
-  for (const id of catalog.selectedTaxonIds) {
+  for (const id of catalogFilters.selectedTaxonIds) {
     const node = findTaxon(id)
     chips.push({
       id: `taxon-${id}`,
       label: node ? (node.presentation ?? node.name) : id,
-      clear: () => catalog.toggleTaxon(id),
+      clear: () => catalogFilters.toggleTaxon(id),
     })
   }
-  for (const id of catalog.selectedOptionValueIds) {
+  for (const id of catalogFilters.selectedOptionValueIds) {
     const value = findOptionValue(id)
     chips.push({
       id: `option-${id}`,
       label: value ? (value.presentation ?? value.name) : id,
-      clear: () => catalog.toggleOptionValue(id),
+      clear: () => catalogFilters.toggleOptionValue(id),
     })
   }
-  if (catalog.searchQuery) {
+  if (catalogFilters.searchQuery) {
     chips.push({
       id: 'search',
-      label: `Search: ${catalog.searchQuery}`,
-      clear: () => catalog.setSearch(''),
+      label: `Search: ${catalogFilters.searchQuery}`,
+      clear: () => catalogFilters.setSearch(''),
     })
   }
-  if (catalog.minPrice != null) {
+  if (catalogFilters.minPrice != null) {
     chips.push({
       id: 'min-price',
-      label: `From ${formatCurrency(catalog.minPrice)}`,
-      clear: () => catalog.setPriceRange(null, catalog.maxPrice),
+      label: `From ${formatCurrency(catalogFilters.minPrice)}`,
+      clear: () => catalogFilters.setPriceRange(null, catalogFilters.maxPrice),
     })
   }
-  if (catalog.maxPrice != null) {
+  if (catalogFilters.maxPrice != null) {
     chips.push({
       id: 'max-price',
-      label: `To ${formatCurrency(catalog.maxPrice)}`,
-      clear: () => catalog.setPriceRange(catalog.minPrice, null),
+      label: `To ${formatCurrency(catalogFilters.maxPrice)}`,
+      clear: () => catalogFilters.setPriceRange(catalogFilters.minPrice, null),
     })
   }
   return chips
@@ -181,7 +183,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
     <!-- Section: Taxonomy Tree — one accordion tab per taxonomy group -->
     <Accordion multiple>
       <AccordionPanel
-        v-for="group in catalog.taxonomyGroups"
+        v-for="group in taxonomy.taxonomyGroups"
         :key="group.taxonomy.id"
         :value="group.taxonomy.id"
       >
@@ -259,18 +261,18 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
     </Panel>
 
     <!-- Section: Active Filters — removable chips, clear-all and active count -->
-    <div v-if="catalog.activeFilterCount > 0" class="flex flex-col gap-3">
+    <div v-if="catalogFilters.activeFilterCount > 0" class="flex flex-col gap-3">
       <div class="flex items-center justify-between gap-2">
         <span class="text-sm font-semibold text-body">
           Active Filters
         </span>
         <div class="flex items-center gap-2">
-          <Tag :value="catalog.activeFilterCount" severity="secondary" />
+          <Tag :value="catalogFilters.activeFilterCount" severity="secondary" />
           <Button
             label="Clear all"
             variant="text"
             size="small"
-            @click="catalog.clearFilters()"
+            @click="catalogFilters.clearFilters()"
           />
         </div>
       </div>

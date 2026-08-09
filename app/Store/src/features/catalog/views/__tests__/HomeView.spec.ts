@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import HomeView from '../HomeView.vue'
 import ProductCard from '../../components/ProductCard.vue'
-import { useCatalogStore } from '../../stores/catalogStore'
-import { useProductListStore } from '../../stores/productListStore'
+import { useTaxonomy } from '../../composables/useTaxonomy'
+import { useProducts } from '../../composables/useProducts'
 import type { StoreProductListItemResponse, TaxonomyGroup } from '../../types'
 
 // Polyfill: Overlay components call matchMedia on mount; jsdom does not provide it.
@@ -25,8 +24,6 @@ function createMatchMediaStub(query: string) {
 }
 
 // Polyfill: AnimateOnScroll constructs an IntersectionObserver on mount; jsdom has none.
-// The callback never fires, so the hero stays at opacity 0 — text assertions are unaffected.
-// A plain function (not a class) so the vi.fn() mock stays constructable with methods intact.
 function createIntersectionObserverStub(): Pick<IntersectionObserver, 'observe' | 'unobserve' | 'disconnect' | 'takeRecords'> {
   return {
     observe(): void {},
@@ -110,11 +107,11 @@ function createTestRouter() {
   })
 }
 
-// Mount: PrimeVue + ToastService + stubbed pinia so mounted loads are no-ops.
+// Mount: PrimeVue + ToastService so mounted loads work.
 function mountView(router = createTestRouter()) {
   return mount(HomeView, {
     global: {
-      plugins: [PrimeVue, ToastService, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, ToastService, router],
     },
   })
 }
@@ -122,6 +119,18 @@ function mountView(router = createTestRouter()) {
 describe('HomeView', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset: Clear singleton state between tests
+    const taxonomy = useTaxonomy()
+    taxonomy.taxonomyGroups.splice(0)
+    taxonomy.optionTypes.splice(0)
+    taxonomy.collections.splice(0)
+    const list = useProducts()
+    list.items.splice(0)
+    list.totalCount = 0
+    list.page = 1
+    list.isInitialLoad = true
+    list.loading = false
+    list.error = null
   })
 
   it('renders the hero headline and a CTA linking to /shop', async () => {
@@ -142,8 +151,9 @@ describe('HomeView', () => {
     await router.isReady()
     const wrapper = mountView(router)
     await flushPromises()
-    const list = useProductListStore()
-    list.items = [product, { ...product, id: 'p-2', slug: 'linen-shirt' }]
+    const list = useProducts()
+    list.items.push(product)
+    list.items.push({ ...product, id: 'p-2', slug: 'linen-shirt' })
     list.isInitialLoad = false
     await wrapper.vm.$nextTick()
 
@@ -158,8 +168,8 @@ describe('HomeView', () => {
     await router.isReady()
     const wrapper = mountView(router)
     await flushPromises()
-    const list = useProductListStore()
-    list.items = []
+    const list = useProducts()
+    list.items.splice(0)
     list.isInitialLoad = true
     list.loading = true
     await wrapper.vm.$nextTick()
@@ -174,8 +184,8 @@ describe('HomeView', () => {
     await router.isReady()
     const wrapper = mountView(router)
     await flushPromises()
-    const catalog = useCatalogStore()
-    catalog.taxonomyGroups = [taxonomyGroup]
+    const taxonomy = useTaxonomy()
+    taxonomy.taxonomyGroups.push(taxonomyGroup)
     await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('Shop by Category')

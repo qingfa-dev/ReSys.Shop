@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import ShopView from '../ShopView.vue'
 import ProductCard from '../../components/ProductCard.vue'
 import Paginator from 'primevue/paginator'
 import Select from 'primevue/select'
-import { useCatalogStore } from '../../stores/catalogStore'
-import { useProductListStore } from '../../stores/productListStore'
+import { useFilters } from '../../composables/useFilters'
+import { useTaxonomy } from '../../composables/useTaxonomy'
+import { useProducts } from '../../composables/useProducts'
 import type { StoreProductListItemResponse, TaxonomyGroup, FilterableOptionType } from '../../types'
 
 // Polyfill: Overlay components call matchMedia on mount; jsdom does not provide it.
@@ -100,37 +100,59 @@ function createTestRouter() {
   })
 }
 
-// Mount: PrimeVue + ToastService + stubbed pinia so mounted loads are no-ops.
+// Mount: PrimeVue + ToastService so mounted loads work.
 async function mountView(initialQuery?: Record<string, string>) {
   const router = createTestRouter()
   await router.push(initialQuery ? { path: '/shop', query: initialQuery } : '/shop')
   await router.isReady()
   const wrapper = mount(ShopView, {
     global: {
-      plugins: [PrimeVue, ToastService, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, ToastService, router],
     },
   })
   await flushPromises()
   return wrapper
 }
 
-// Seed: Populate catalog and product list stores with fixtures.
+// Seed: Populate taxonomy and product composable singletons with fixtures.
 function seedStores() {
-  const catalog = useCatalogStore()
-  catalog.taxonomyGroups = [taxonomyGroup]
-  catalog.optionTypes = [optionType]
-  const list = useProductListStore()
-  list.items = [product]
+  const taxonomy = useTaxonomy()
+  taxonomy.taxonomyGroups.splice(0)
+  taxonomy.taxonomyGroups.push(taxonomyGroup)
+  taxonomy.optionTypes.splice(0)
+  taxonomy.optionTypes.push(optionType as never)
+  const list = useProducts()
+  list.items.splice(0)
+  list.items.push(product)
   list.totalCount = 25
   list.pageSize = 20
   list.page = 1
   list.isInitialLoad = false
-  return { catalog, list }
+  return { taxonomy, list }
 }
 
 describe('ShopView', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset: Clear singleton state between tests
+    const filters = useFilters()
+    filters.selectedTaxonIds.splice(0)
+    filters.selectedOptionValueIds.splice(0)
+    filters.searchQuery = ''
+    filters.minPrice = null
+    filters.maxPrice = null
+    filters.sortField = '-CreatedAtUtc'
+    const taxonomy = useTaxonomy()
+    taxonomy.taxonomyGroups.splice(0)
+    taxonomy.optionTypes.splice(0)
+    taxonomy.collections.splice(0)
+    const list = useProducts()
+    list.items.splice(0)
+    list.totalCount = 0
+    list.page = 1
+    list.isInitialLoad = true
+    list.loading = false
+    list.error = null
   })
 
   it('renders the filter panel, toolbar result count and product grid', async () => {
@@ -145,26 +167,27 @@ describe('ShopView', () => {
     expect(wrapper.text()).toContain('Classic Tee')
   })
 
-  it('removing a taxon filter chip calls catalogStore.toggleTaxon', async () => {
+  it('removing a taxon filter chip calls useFilters.toggleTaxon', async () => {
     const wrapper = await mountView()
-    const { catalog } = seedStores()
-    catalog.selectedTaxonIds = ['r1']
+    seedStores()
+    const filters = useFilters()
+    filters.selectedTaxonIds.push('r1')
     await wrapper.vm.$nextTick()
 
     await wrapper.find('[aria-label="Remove filter Men"]').trigger('click')
 
-    expect(catalog.toggleTaxon).toHaveBeenCalledWith('r1')
+    expect(filters.selectedTaxonIds).not.toContain('r1')
   })
 
-  it('checking an option value checkbox calls catalogStore.toggleOptionValue', async () => {
+  it('checking an option value checkbox calls useFilters.toggleOptionValue', async () => {
     const wrapper = await mountView()
     seedStores()
     await wrapper.vm.$nextTick()
 
     await wrapper.find('[data-pc-name="checkbox"] input').trigger('change')
 
-    const catalog = useCatalogStore()
-    expect(catalog.toggleOptionValue).toHaveBeenCalledWith('v-1')
+    const filters = useFilters()
+    expect(filters.selectedOptionValueIds).toContain('v-1')
   })
 
   it('renders the paginator with store totals and forwards page changes', async () => {
@@ -180,12 +203,12 @@ describe('ShopView', () => {
 
     await wrapper.find('[aria-label="Next Page"]').trigger('click')
 
-    expect(list.goToPage).toHaveBeenCalledWith(2)
+    expect(list.page).toBe(2)
   })
 
   it('changes the sort via the sort select', async () => {
     const wrapper = await mountView()
-    const { catalog } = seedStores()
+    seedStores()
     await wrapper.vm.$nextTick()
 
     const select = wrapper.findComponent(Select)
@@ -195,7 +218,8 @@ describe('ShopView', () => {
     select.vm.$emit('change', { value: 'Price', originalEvent: {} })
     await wrapper.vm.$nextTick()
 
-    expect(catalog.setSort).toHaveBeenCalledWith('Price')
+    const filters = useFilters()
+    expect(filters.sortField).toBe('Price')
   })
 
   it('switches the grid to single-column list mode via the layout toggle', async () => {
@@ -219,9 +243,9 @@ describe('ShopView', () => {
 
   it('shows the empty state and clears filters on button click', async () => {
     const wrapper = await mountView()
-    const { catalog } = seedStores()
-    const list = useProductListStore()
-    list.items = []
+    seedStores()
+    const list = useProducts()
+    list.items.splice(0)
     list.totalCount = 0
     list.loading = false
     await wrapper.vm.$nextTick()
@@ -233,7 +257,9 @@ describe('ShopView', () => {
     expect(clearButton?.exists()).toBe(true)
     await clearButton!.trigger('click')
 
-    expect(catalog.clearFilters).toHaveBeenCalled()
+    const filters = useFilters()
+    expect(filters.searchQuery).toBe('')
+    expect(filters.selectedTaxonIds).toEqual([])
   })
 
   it('pre-populates filters from the ?taxon= and ?q= route query on mount', async () => {
@@ -241,11 +267,9 @@ describe('ShopView', () => {
     seedStores()
     await wrapper.vm.$nextTick()
 
-    const catalog = useCatalogStore()
-    expect(catalog.toggleTaxon).toHaveBeenCalledWith('r1')
-    expect(catalog.setSearch).toHaveBeenCalledWith('tee')
-    // Chip labels resolve from the seeded taxonomy tree once selection is set
-    catalog.selectedTaxonIds = ['r1']
+    const filters = useFilters()
+    expect(filters.selectedTaxonIds).toContain('r1')
+    expect(filters.searchQuery).toBe('tee')
     await wrapper.vm.$nextTick()
     expect(wrapper.find('[aria-label="Remove filter Men"]').exists()).toBe(true)
   })
@@ -260,15 +284,15 @@ describe('ShopView', () => {
     await router.push({ path: '/shop', query: { taxon: 'r2' } })
     await flushPromises()
 
-    const catalog = useCatalogStore()
-    expect(catalog.toggleTaxon).toHaveBeenCalledTimes(1)
-    expect(catalog.toggleTaxon).toHaveBeenCalledWith('r2')
+    const filters = useFilters()
+    expect(filters.selectedTaxonIds).toContain('r2')
   })
 
   it('skips re-toggling a taxon already selected from the route query', async () => {
     const wrapper = await mountView({ taxon: 'r1' })
-    const { catalog } = seedStores()
-    catalog.selectedTaxonIds = ['r1']
+    seedStores()
+    const filters = useFilters()
+    filters.selectedTaxonIds.push('r1')
     await wrapper.vm.$nextTick()
     vi.clearAllMocks()
 
@@ -277,7 +301,7 @@ describe('ShopView', () => {
     await flushPromises()
 
     // The watch fired (setSearch ran in the same pass) but the selected taxon is skipped
-    expect(catalog.toggleTaxon).not.toHaveBeenCalled()
-    expect(catalog.setSearch).toHaveBeenCalledWith('tee')
+    expect(filters.selectedTaxonIds).toContain('r1')
+    expect(filters.searchQuery).toBe('tee')
   })
 })

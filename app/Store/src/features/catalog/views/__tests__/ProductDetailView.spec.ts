@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import Select from 'primevue/select'
 import ProductDetailView from '../ProductDetailView.vue'
 import ProductCard from '../../components/ProductCard.vue'
-import { useProductDetailStore } from '../../stores/productDetailStore'
+import { useProductDetail } from '../../composables/useProductDetail'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
 import type { StoreProductDetailResponse } from '../../types'
 
@@ -138,23 +137,23 @@ function createTestRouter() {
   })
 }
 
-// Mount: PrimeVue + ToastService + stubbed pinia so mounted loads are no-ops.
+// Mount: PrimeVue + ToastService so mounted loads work.
 async function mountView(slug = 'classic-tee') {
   const router = createTestRouter()
   await router.push(`/products/${slug}`)
   await router.isReady()
   const wrapper = mount(ProductDetailView, {
     global: {
-      plugins: [PrimeVue, ToastService, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, ToastService, router],
     },
   })
   await flushPromises()
   return wrapper
 }
 
-// Seed: Populate the detail store with the fixture product and master variant.
+// Seed: Populate the detail composable with the fixture product and master variant.
 function seedDetail() {
-  const detail = useProductDetailStore()
+  const detail = useProductDetail()
   detail.product = product
   detail.selectedVariantId = 'mv-1'
   return detail
@@ -164,6 +163,9 @@ function seedDetail() {
 describe('ProductDetailView', { timeout: 30_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset: Clear singleton detail state between tests
+    const detail = useProductDetail()
+    detail.reset()
   })
 
   it('renders the breadcrumb trail with home, shop, taxon and product entries', async () => {
@@ -218,7 +220,7 @@ describe('ProductDetailView', { timeout: 30_000 }, () => {
     expect(activePanel().text()).toContain('Spring 2026')
   })
 
-  it('switching the variant select updates the store selection', async () => {
+  it('switching the variant select updates the composable selection', async () => {
     const wrapper = await mountView()
     const detail = seedDetail()
     await wrapper.vm.$nextTick()
@@ -231,10 +233,10 @@ describe('ProductDetailView', { timeout: 30_000 }, () => {
     select.vm.$emit('change', { value: 'v-2', originalEvent: {} })
     await wrapper.vm.$nextTick()
 
-    expect(detail.selectVariant).toHaveBeenCalledWith('v-2')
+    expect(detail.selectedVariantId).toBe('v-2')
   })
 
-  it('renders the related products grid from the detail store', async () => {
+  it('renders the related products grid from the detail composable', async () => {
     const wrapper = await mountView()
     const detail = seedDetail()
     detail.relatedProducts = [product]
@@ -247,6 +249,7 @@ describe('ProductDetailView', { timeout: 30_000 }, () => {
   it('reloads the product when the route slug changes', async () => {
     const wrapper = await mountView()
     const detail = seedDetail()
+    vi.spyOn(detail, 'load')
     await wrapper.vm.$nextTick()
     vi.clearAllMocks()
 

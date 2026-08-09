@@ -2,16 +2,16 @@
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
-import { useCatalogStore } from '../stores/catalogStore'
+import { useTaxonomy } from '../composables/useTaxonomy'
 
 // Title: Browser tab title for the collections page
 usePageTitle('Collections')
 
-const catalog = useCatalogStore()
+const taxonomy = useTaxonomy()
 
 onMounted(() => {
-  // Load: Root taxons for the collection grid — store guards duplicate fetches
-  void catalog.loadTaxonomyGroups()
+  // Load: Root taxons for the collection grid — composable guards duplicate fetches
+  void taxonomy.loadTaxonomyGroups()
 })
 </script>
 
@@ -24,7 +24,7 @@ onMounted(() => {
     </h1>
 
     <!-- Section: Loading State — skeleton cards while root taxons load -->
-    <div v-if="catalog.taxonsLoading" class="grid grid-cols-2 gap-6 lg:grid-cols-4">
+    <div v-if="taxonomy.taxonsLoading" class="grid grid-cols-2 gap-6 lg:grid-cols-4">
       <div v-for="n in 8" :key="n" class="space-y-3">
         <Skeleton class="aspect-[3/4] w-full rounded-2xl" />
         <Skeleton width="60%" height="1rem" />
@@ -33,9 +33,9 @@ onMounted(() => {
     </div>
 
     <!-- Section: Collection Grid — root taxon cards linking into the shop filter -->
-    <div v-else-if="catalog.collections.length > 0" class="grid grid-cols-2 gap-6 lg:grid-cols-4">
+    <div v-else-if="taxonomy.collections.length > 0" class="grid grid-cols-2 gap-6 lg:grid-cols-4">
       <RouterLink
-        v-for="collection in catalog.collections"
+        v-for="collection in taxonomy.collections"
         :key="collection.id"
         :to="`/shop?taxon=${collection.id}`"
         class="group block"

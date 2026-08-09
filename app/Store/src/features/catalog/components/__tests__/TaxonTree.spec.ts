@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import TaxonTree from '../TaxonTree.vue'
-import { useCatalogStore } from '@/features/catalog/stores/catalogStore'
+import { useFilters } from '@/features/catalog/composables/useFilters'
 import type { TaxonTreeNode } from '@/features/catalog/types'
 
 // Polyfill: Overlay components call matchMedia on mount; jsdom does not provide it.
@@ -66,12 +65,12 @@ const taxonomyTree: TaxonTreeNode[] = [
   },
 ]
 
-// Mount: PrimeVue + stubbed pinia so store actions become spies.
+// Mount: PrimeVue so tree renders correctly.
 function mountTree() {
   return mount(TaxonTree, {
     props: { nodes: taxonomyTree },
     global: {
-      plugins: [PrimeVue, createTestingPinia()],
+      plugins: [PrimeVue],
     },
   })
 }
@@ -79,6 +78,9 @@ function mountTree() {
 describe('TaxonTree', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset: Clear singleton filter state between tests
+    const filters = useFilters()
+    filters.selectedTaxonIds.splice(0)
   })
 
   it('renders root and child labels with roots expanded by default', () => {
@@ -91,22 +93,23 @@ describe('TaxonTree', () => {
     expect(wrapper.text()).toContain('3')
   })
 
-  it('calls catalogStore.toggleTaxon with the leaf id when its checkbox is checked', async () => {
+  it('calls useFilters.toggleTaxon with the leaf id when its checkbox is checked', async () => {
     const wrapper = mountTree()
-    const catalog = useCatalogStore()
+    const filters = useFilters()
+    vi.spyOn(filters, 'toggleTaxon')
 
     const leafNode = wrapper.findAll('.p-tree-node').find(n => n.text().includes('T-Shirts'))
     expect(leafNode).toBeDefined()
 
     await leafNode!.find('.p-tree-node-checkbox').trigger('click')
 
-    expect(catalog.toggleTaxon).toHaveBeenCalledWith('leaf-1')
+    expect(filters.toggleTaxon).toHaveBeenCalledWith('leaf-1')
   })
 
   it('reflects pre-selected taxon ids as checked checkboxes', async () => {
     const wrapper = mountTree()
-    const catalog = useCatalogStore()
-    catalog.selectedTaxonIds = ['leaf-2']
+    const filters = useFilters()
+    filters.selectedTaxonIds.push('leaf-2')
     await nextTick()
 
     const leafNode = wrapper.findAll('.p-tree-node').find(n => n.text().includes('Jeans'))
@@ -115,15 +118,15 @@ describe('TaxonTree', () => {
 
   it('unchecks every selected leaf when a checked parent is unchecked', async () => {
     const wrapper = mountTree()
-    const catalog = useCatalogStore()
-    catalog.selectedTaxonIds = ['root-1', 'leaf-1', 'leaf-2', 'leaf-3']
+    const filters = useFilters()
+    filters.selectedTaxonIds.push('root-1', 'leaf-1', 'leaf-2', 'leaf-3')
     await nextTick()
-    // Mimic: Restore the real splice semantics of toggleTaxon (catalogStore.ts:40) so
+    // Mimic: Restore the real splice semantics of toggleTaxon so
     // removals mutate the live array while the setter iterates it.
-    vi.mocked(catalog.toggleTaxon).mockImplementation((id: string) => {
-      const idx = catalog.selectedTaxonIds.indexOf(id)
-      if (idx === -1) catalog.selectedTaxonIds.push(id)
-      else catalog.selectedTaxonIds.splice(idx, 1)
+    vi.spyOn(filters, 'toggleTaxon').mockImplementation((id: string) => {
+      const idx = filters.selectedTaxonIds.indexOf(id)
+      if (idx === -1) filters.selectedTaxonIds.push(id)
+      else filters.selectedTaxonIds.splice(idx, 1)
     })
 
     const rootNode = wrapper.findAll('.p-tree-node').find(n => n.text().includes('Clothing'))
@@ -131,10 +134,10 @@ describe('TaxonTree', () => {
 
     // Regression: the setter iterates a snapshot, so a cascade uncheck removes every
     // selected node instead of skipping the element after each splice.
-    expect(catalog.toggleTaxon).toHaveBeenCalledTimes(4)
-    expect(catalog.toggleTaxon).toHaveBeenCalledWith('leaf-1')
-    expect(catalog.toggleTaxon).toHaveBeenCalledWith('leaf-2')
-    expect(catalog.toggleTaxon).toHaveBeenCalledWith('leaf-3')
-    expect(catalog.selectedTaxonIds).toEqual([])
+    expect(filters.toggleTaxon).toHaveBeenCalledTimes(4)
+    expect(filters.toggleTaxon).toHaveBeenCalledWith('leaf-1')
+    expect(filters.toggleTaxon).toHaveBeenCalledWith('leaf-2')
+    expect(filters.toggleTaxon).toHaveBeenCalledWith('leaf-3')
+    expect(filters.selectedTaxonIds).toEqual([])
   })
 })

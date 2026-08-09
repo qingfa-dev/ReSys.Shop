@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
-import { on } from '@/shared/composables/useStoreEvents'
-import { useCatalogStore } from '../stores/catalogStore'
-import { useProductListStore } from '../stores/productListStore'
+import { useFilters } from '../composables/useFilters'
+import { useTaxonomy } from '../composables/useTaxonomy'
+import { useProducts } from '../composables/useProducts'
 import ProductCard from '../components/ProductCard.vue'
 import ShopFilterPanel from '../components/ShopFilterPanel.vue'
 import type { PageState } from 'primevue/paginator'
 
 usePageTitle('Shop')
 
-const catalog = useCatalogStore()
-const productList = useProductListStore()
+const filters = useFilters()
+const taxonomy = useTaxonomy()
+const productList = useProducts()
 const route = useRoute()
 
 // Layout: Grid/list presentation toggle for the product rail
@@ -45,7 +46,7 @@ const filtersOpen = ref(false)
 // Pagination: Zero-based first index for the Paginator from the 1-based store page
 const first = computed(() => (productList.page - 1) * productList.pageSize)
 
-// Page: Forward Paginator page state to the store and refetch
+// Page: Forward Paginator page state to the composable and refetch
 function onPage(event: PageState): void {
   productList.goToPage(event.page + 1)
 }
@@ -55,32 +56,24 @@ function applyRouteQuery(): void {
   const taxon = route.query.taxon
   const ids = Array.isArray(taxon) ? taxon : taxon ? [taxon] : []
   for (const id of ids) {
-    if (id && !catalog.selectedTaxonIds.includes(id)) catalog.toggleTaxon(id)
+    if (id && !filters.selectedTaxonIds.includes(id)) filters.toggleTaxon(id)
   }
   const query = route.query.q
-  if (typeof query === 'string' && query.length > 0) catalog.setSearch(query)
+  if (typeof query === 'string' && query.length > 0) filters.setSearch(query)
 }
-
-let unsubscribe: (() => void) | null = null
 
 // Watch: Re-apply route query filters on in-page navigations (e.g. category tag clicks)
 watch(() => route.query, applyRouteQuery)
 
 onMounted(() => {
-  // Load: Taxonomy and option metadata — stores guard duplicate fetches
-  void catalog.loadTaxonomyGroups()
-  void catalog.loadOptionTypes()
+  // Load: Taxonomy and option metadata — composables guard duplicate fetches
+  void taxonomy.loadTaxonomyGroups()
+  void taxonomy.loadOptionTypes()
   // Restore: Apply route query filters before the first fetch
   applyRouteQuery()
-  // Subscribe: Refetch products when the catalog store emits filter changes
-  unsubscribe = on('filter:changed', () => productList.markStale())
   // Fetch: Initial product page — skip if the home rail already loaded one
   if (productList.isInitialLoad) void productList.fetch()
   else void productList.refresh()
-})
-
-onUnmounted(() => {
-  unsubscribe?.()
 })
 </script>
 
@@ -104,7 +97,7 @@ onUnmounted(() => {
               <Button
                 class="lg:hidden"
                 icon="pi pi-filter"
-                :badge="catalog.activeFilterCount > 0 ? String(catalog.activeFilterCount) : undefined"
+                :badge="filters.activeFilterCount > 0 ? String(filters.activeFilterCount) : undefined"
                 aria-label="Open filters"
                 @click="filtersOpen = true"
               />
@@ -126,13 +119,13 @@ onUnmounted(() => {
                 </template>
               </SelectButton>
               <Select
-                :modelValue="catalog.sortField"
+                :modelValue="filters.sortField"
                 :options="sortOptions"
                 optionLabel="label"
                 optionValue="value"
                 class="w-48"
                 aria-label="Sort products"
-                @change="catalog.setSort($event.value)"
+                @change="filters.setSort($event.value)"
               />
             </div>
           </template>
@@ -164,7 +157,7 @@ onUnmounted(() => {
           <Message severity="warn" :closable="false">
             No products found. Try adjusting or clearing your filters.
           </Message>
-          <Button label="Clear filters" variant="text" @click="catalog.clearFilters()" />
+          <Button label="Clear filters" variant="text" @click="filters.clearFilters()" />
         </div>
 
         <!-- Pagination: Bound to the product list store paging state -->
