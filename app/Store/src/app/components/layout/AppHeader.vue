@@ -43,12 +43,12 @@ const userItems: MenuItem[] = [
 const userInitial = computed(() => authStore.user?.userName?.trim()?.[0]?.toUpperCase() ?? 'U')
 
 // Suggest: Flatten search results into AutoComplete options keyed by product id.
-const suggestions = computed(() => results.value.map(r => ({ id: r.id, label: r.name, slug: r.slug })))
+const suggestions = computed(() => results.value.map(r => ({ id: r.id, label: r.name })))
 
 
 // Select: Locate the chosen suggestion in the results and navigate to its product page.
 function onOptionSelect(event: AutoCompleteOptionSelectEvent): void {
-  const option = event.value as { id: string; label: string; slug: string }
+  const option = event.value as { id: string; label: string }
   const index = results.value.findIndex(r => r.id === option.id)
   if (index !== -1) navigateToResult(index)
 }
@@ -85,9 +85,6 @@ onMounted(() => {
 
       <!-- Primary Nav: Menubar with the main storefront routes on lg+ -->
       <Menubar :model="navItems" class="hidden lg:flex" />
-
-      <!-- Catalog: Direct link to /shop replacing the removed MegaMenu (TASK-010) -->
-      <Button as="router-link" to="/shop" label="Catalog" variant="text" class="hidden lg:flex" />
 
       <div class="flex-1" />
 
