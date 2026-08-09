@@ -21,7 +21,7 @@ public sealed class AssignProductOptionTypesIntegrationTests(ApiFixture fixture)
             slug = "assign-option-product"
         };
         HttpResponseMessage createProductResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createProductResult = await createProductResponse.ReadApiResponseAsync();
         createProductResult.IsSuccess.Should().BeTrue();
         var product = createProductResult.DeserializeValue<IdResponse>();
@@ -35,7 +35,7 @@ public sealed class AssignProductOptionTypesIntegrationTests(ApiFixture fixture)
             filterable = true
         };
         HttpResponseMessage createOptionTypeResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createOptionTypeRequest);
+            "/api/admin/catalog/option-types", createOptionTypeRequest);
         ApiResponse createOptionTypeResult = await createOptionTypeResponse.ReadApiResponseAsync();
         createOptionTypeResult.IsSuccess.Should().BeTrue();
         var optionType = createOptionTypeResult.DeserializeValue<IdResponse>();
@@ -48,7 +48,7 @@ public sealed class AssignProductOptionTypesIntegrationTests(ApiFixture fixture)
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-option-types/assign", assignRequest);
+            "/api/admin/catalog/product-option-types/assign", assignRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -66,7 +66,7 @@ public sealed class AssignProductOptionTypesIntegrationTests(ApiFixture fixture)
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-option-types/assign", assignRequest);
+            "/api/admin/catalog/product-option-types/assign", assignRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

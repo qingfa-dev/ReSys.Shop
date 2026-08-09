@@ -14,14 +14,14 @@ public sealed class GetOrderByIdIntegrationTests(ApiFixture fixture) : OrderingI
     public async Task GetOrderById_WhenExists_ReturnsOk()
     {
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/ordering/orders", new { });
+            "/api/admin/ordering/orders", new { });
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<CreateOrderResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/ordering/orders/{created!.Id}");
+            $"/api/admin/ordering/orders/{created!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -36,7 +36,7 @@ public sealed class GetOrderByIdIntegrationTests(ApiFixture fixture) : OrderingI
     {
         Guid nonExistentId = Guid.NewGuid();
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/ordering/orders/{nonExistentId}");
+            $"/api/admin/ordering/orders/{nonExistentId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

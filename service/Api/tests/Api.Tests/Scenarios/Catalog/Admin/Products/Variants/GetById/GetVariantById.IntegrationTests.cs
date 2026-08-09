@@ -19,14 +19,14 @@ public sealed class GetVariantByIdIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants?productId={product!.Id}");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -35,7 +35,7 @@ public sealed class GetVariantByIdIntegrationTests(ApiFixture fixture) : Catalog
         variant.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}");
+            $"/api/admin/catalog/variants/{variant!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -61,7 +61,7 @@ public sealed class GetVariantByIdIntegrationTests(ApiFixture fixture) : Catalog
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{nonexistentId}");
+            $"/api/admin/catalog/variants/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

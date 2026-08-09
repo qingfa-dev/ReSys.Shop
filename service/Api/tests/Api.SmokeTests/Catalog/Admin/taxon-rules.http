@@ -11,10 +11,10 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Create rule – success
-# POST /api/catalog/taxon-rules (TaxonId in body)
+# POST /api/admin/catalog/taxon-rules (TaxonId in body)
 # Expected: 201 Created with location header
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxon-rules
+POST {{baseUrl}}/api/admin/catalog/taxon-rules
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -27,19 +27,19 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. List rules
-# GET /api/catalog/taxon-rules?taxonId=
+# GET /api/admin/catalog/taxon-rules?taxonId=
 # Expected: 200 OK – list of taxon rules
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/taxon-rules?taxonId={{existingTaxonId}}
+GET {{baseUrl}}/api/admin/catalog/taxon-rules?taxonId={{existingTaxonId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Update rule – success
-# PUT /api/catalog/taxon-rules/{ruleId} (TaxonId in body)
+# PUT /api/admin/catalog/taxon-rules/{ruleId} (TaxonId in body)
 # Expected: 200 OK – updated rule
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/taxon-rules/{{nonExistentId}}
+PUT {{baseUrl}}/api/admin/catalog/taxon-rules/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -52,10 +52,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Delete rule – success
-# DELETE /api/catalog/taxon-rules/{ruleId} (TaxonId in body)
+# DELETE /api/admin/catalog/taxon-rules/{ruleId} (TaxonId in body)
 # Expected: 200 OK – rule removed
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/taxon-rules/{{nonExistentId}}
+DELETE {{baseUrl}}/api/admin/catalog/taxon-rules/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -65,10 +65,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Sync rules
-# POST /api/catalog/taxon-rules/sync (TaxonId in body)
+# POST /api/admin/catalog/taxon-rules/sync (TaxonId in body)
 # Expected: 200 OK – rules replaced with provided array
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxon-rules/sync
+POST {{baseUrl}}/api/admin/catalog/taxon-rules/sync
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 

@@ -1,0 +1,9 @@
+POST {{base_url}}/api/storefront/paying/confirm/{{payment_id}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "paymentMethodId": "{{bogus_payment_method_id}}"
+}
+
+### Expected: 200 OK

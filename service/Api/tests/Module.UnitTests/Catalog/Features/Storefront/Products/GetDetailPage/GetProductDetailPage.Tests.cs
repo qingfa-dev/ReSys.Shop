@@ -40,8 +40,8 @@ public class GetProductDetailPageTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should return product detail page when slug exists")]
-    public async Task Handle_ShouldReturnSuccess_WhenSlugExists()
+    [Fact(DisplayName = "Handler: Should return product detail page when ID exists")]
+    public async Task Handle_ShouldReturnSuccess_WhenIdExists()
     {
         var product = ProductMethod.Create(name: "Test Product", slug: "test-product", description: "A test product", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
@@ -52,7 +52,7 @@ public class GetProductDetailPageTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetProductDetail.Query("test-product"), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetProductDetail.Query(product.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -60,10 +60,10 @@ public class GetProductDetailPageTests : IDisposable
         result.Value.Name.Should().Be("Test Product");
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when slug not found")]
-    public async Task Handle_ShouldReturnFailure_WhenSlugNotFound()
+    [Fact(DisplayName = "Handler: Should return failure when ID not found")]
+    public async Task Handle_ShouldReturnFailure_WhenIdNotFound()
     {
-        var result = await _handler.Handle(new GetProductDetail.Query("non-existent"), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetProductDetail.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -77,7 +77,7 @@ public class GetProductDetailPageTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetProductDetail.Query("future-product"), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetProductDetail.Query(product.Id), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -97,7 +97,7 @@ public class GetProductDetailPageTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetProductDetail.Query("priced-product"), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetProductDetail.Query(product.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Variants.Should().HaveCount(2);

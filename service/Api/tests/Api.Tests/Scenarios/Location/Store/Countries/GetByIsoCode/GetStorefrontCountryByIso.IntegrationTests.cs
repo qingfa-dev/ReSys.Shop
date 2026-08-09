@@ -11,7 +11,7 @@ public sealed class GetStorefrontCountryByIsoIntegrationTests(ApiFixture fixture
     [Fact]
     public async Task GetCountryByIso_WithExistingCode_Returns200()
     {
-        HttpResponseMessage response = await Client.GetAsync("/api/store/locations/countries/by-iso/US");
+        HttpResponseMessage response = await Client.GetAsync("/api/storefront/locations/countries/by-iso/US");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -25,7 +25,7 @@ public sealed class GetStorefrontCountryByIsoIntegrationTests(ApiFixture fixture
     [Fact]
     public async Task GetCountryByIso_WithNonexistentCode_Returns404()
     {
-        HttpResponseMessage response = await Client.GetAsync("/api/store/locations/countries/by-iso/XX");
+        HttpResponseMessage response = await Client.GetAsync("/api/storefront/locations/countries/by-iso/XX");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

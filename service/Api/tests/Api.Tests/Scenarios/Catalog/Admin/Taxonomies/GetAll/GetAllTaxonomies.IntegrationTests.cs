@@ -18,9 +18,9 @@ public sealed class GetAllTaxonomiesIntegrationTests(ApiFixture fixture) : Catal
             position = 1
         };
 
-        await Client.PostAsAdminRawAsync("/api/catalog/taxonomies", request);
+        await Client.PostAsAdminRawAsync("/api/admin/catalog/taxonomies", request);
 
-        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/catalog/taxonomies?pageSize=100");
+        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/admin/catalog/taxonomies?pageSize=100");
         PagedResult<TaxonomyListItemResponse> result = await response.ReadAsPagedResultAsync<TaxonomyListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -38,13 +38,13 @@ public sealed class GetAllTaxonomiesIntegrationTests(ApiFixture fixture) : Catal
             position = 2
         };
 
-        HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync("/api/catalog/taxonomies", request);
+        HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync("/api/admin/catalog/taxonomies", request);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? created = createResult.DeserializeValue<TaxonomyDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage taxonResponse = await Client.GetAsAdminRawAsync(
-            "/api/catalog/taxons");
+            "/api/admin/catalog/taxons");
         PagedResult<TaxonListItemResponse> taxonResult = await taxonResponse.ReadAsPagedResultAsync<TaxonListItemResponse>();
 
         taxonResult.IsSuccess.Should().BeTrue();

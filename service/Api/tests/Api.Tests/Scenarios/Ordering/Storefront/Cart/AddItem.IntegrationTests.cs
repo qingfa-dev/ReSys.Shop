@@ -33,14 +33,14 @@ public sealed class AddItemIntegrationTests(ApiFixture fixture) : OrderingIntegr
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<CreateProductResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage activateResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/products/{created!.Id}/activate");
+            $"/api/admin/catalog/products/{created!.Id}/activate");
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         using (var scope = Fixture.Factory.Services.CreateScope())

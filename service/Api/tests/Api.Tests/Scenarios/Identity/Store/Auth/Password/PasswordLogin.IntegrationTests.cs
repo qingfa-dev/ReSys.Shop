@@ -16,7 +16,7 @@ public sealed class PasswordLoginIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", request);
+            "/api/storefront/identity/auth/login/password", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -30,7 +30,7 @@ public sealed class PasswordLoginIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", request);
+            "/api/storefront/identity/auth/login/password", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -44,7 +44,7 @@ public sealed class PasswordLoginIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", request);
+            "/api/storefront/identity/auth/login/password", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -53,7 +53,7 @@ public sealed class PasswordLoginIntegrationTests(ApiFixture fixture) : Identity
     public async Task PasswordLogin_WithEmptyBody_Returns422()
     {
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", new { });
+            "/api/storefront/identity/auth/login/password", new { });
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }

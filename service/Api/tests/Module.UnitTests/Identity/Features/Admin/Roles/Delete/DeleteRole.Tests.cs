@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Delete;
+using Module.Identity.Features.Shared.Admin.Roles.Delete;
 
 using Shared.Security.Identity.Domain.Roles;
 

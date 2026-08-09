@@ -20,6 +20,8 @@ jobs:
         run: bash scripts/check-feature-conventions.sh
       - name: Check cross-module references
         run: bash scripts/check-cross-module-refs.sh
+      - name: Check route conventions
+        run: bash scripts/check-route-conventions.sh
       - run: dotnet test service/Api/tests/Shared.UnitTests
       - run: dotnet test service/Api/tests/Module.UnitTests
 

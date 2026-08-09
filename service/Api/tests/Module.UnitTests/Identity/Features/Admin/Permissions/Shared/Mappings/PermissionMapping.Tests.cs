@@ -1,5 +1,5 @@
-using Module.Identity.Features.Admin.Permissions.Shared.Mappings;
-using Module.Identity.Features.Admin.Permissions.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Permissions.Shared.Mappings;
+using Module.Identity.Features.Shared.Admin.Permissions.Shared.Models;
 
 using Shared.Security.Identity.Domain.Permissions;
 

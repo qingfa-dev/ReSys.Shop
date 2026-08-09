@@ -25,7 +25,7 @@ export async function responseErrorInterceptor(
     try {
       const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
       if (refreshToken) {
-        const { data } = await axios.post<RefreshResponse>(`/api/store/identity/auth/sessions/refresh`, {
+        const { data } = await axios.post<RefreshResponse>(`/api/storefront/identity/auth/sessions/refresh`, {
           refreshToken,
         })
 

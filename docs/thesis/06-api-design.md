@@ -92,7 +92,7 @@ All failures return a consistent JSON structure:
 
 **Request**:
 ```http
-POST /api/catalog/admin/products
+POST /api/admin/catalog/admin/products
 Content-Type: application/json
 Authorization: Bearer <token>
 X-CSRF-TOKEN: <anti-forgery-token>
@@ -135,7 +135,7 @@ X-CSRF-TOKEN: <anti-forgery-token>
 
 **Request**:
 ```http
-POST /api/catalog/storefront/search-by-image
+POST /api/admin/catalog/storefront/search-by-image
 Content-Type: multipart/form-data
 
 image: <binary image data>
@@ -164,7 +164,7 @@ image: <binary image data>
 
 **Request**:
 ```http
-POST /api/ordering/storefront/cart/checkout
+POST /api/admin/ordering/storefront/cart/checkout
 Content-Type: application/json
 Authorization: Bearer <token>
 

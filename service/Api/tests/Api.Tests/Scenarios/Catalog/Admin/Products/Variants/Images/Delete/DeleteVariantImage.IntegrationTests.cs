@@ -13,7 +13,7 @@ public sealed class DeleteVariantImageIntegrationTests(ApiFixture fixture) : Cat
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/variant-images/{nonexistentId}");
+            $"/api/admin/catalog/variant-images/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

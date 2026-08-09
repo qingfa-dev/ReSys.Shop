@@ -17,8 +17,8 @@ public sealed class ModuleIsolationTests
         ["Inventory"] = ["Module.Inventory"],
         ["Location"] = ["Module.Location"],
         ["Ordering"] = ["Module.Ordering"],
-        ["Payment"] = ["Module.Payment"],
-        ["Profile"] = ["Module.Profile"],
+        ["Payment"] = ["Module.Billing"],
+        ["Profile"] = ["Module.Customer"],
         ["Shipping"] = ["Module.Shipping"],
     };
 

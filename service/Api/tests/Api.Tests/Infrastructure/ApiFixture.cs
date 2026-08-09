@@ -8,7 +8,7 @@ using Module.Catalog.Persistence;
 using Module.Inventory.Persistence.Constants;
 using Module.Location.Persistence;
 using Module.Ordering.Persistence;
-using Module.Profile.Persistence;
+using Module.Customer.Persistence;
 
 using Npgsql;
 

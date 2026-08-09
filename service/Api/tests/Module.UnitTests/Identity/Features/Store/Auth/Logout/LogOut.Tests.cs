@@ -6,7 +6,7 @@ using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Users;
 
-using static Module.Identity.Features.Storefront.Auth.Logout.Logout;
+using static Module.Identity.Features.Shared.Storefront.Auth.Logout.Logout;
 
 namespace Module.UnitTests.Identity.Features.Store.Auth.Logout;
 

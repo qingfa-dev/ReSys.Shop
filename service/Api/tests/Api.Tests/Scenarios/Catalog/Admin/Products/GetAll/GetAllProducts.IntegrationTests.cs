@@ -11,10 +11,10 @@ public sealed class GetAllProductsIntegrationTests(ApiFixture fixture) : Catalog
     public async Task GetAllProducts_ReturnsSeededProducts()
     {
         var createRequest = new { name = "Test Get Product", slug = "test-get-product" };
-        HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync("/api/catalog/products", createRequest);
+        HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync("/api/admin/catalog/products", createRequest);
         createResponse.IsSuccessStatusCode.Should().BeTrue();
 
-        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/catalog/products?pageSize=100");
+        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/admin/catalog/products?pageSize=100");
         PagedResult<ProductListItemResponse> result = await response.ReadAsPagedResultAsync<ProductListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -25,7 +25,7 @@ public sealed class GetAllProductsIntegrationTests(ApiFixture fixture) : Catalog
     [Fact]
     public async Task GetAllProducts_WithPagination_ReturnsCorrectPage()
     {
-        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/catalog/products?pageNumber=1&pageSize=5");
+        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/admin/catalog/products?pageNumber=1&pageSize=5");
         PagedResult<ProductListItemResponse> result = await response.ReadAsPagedResultAsync<ProductListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();

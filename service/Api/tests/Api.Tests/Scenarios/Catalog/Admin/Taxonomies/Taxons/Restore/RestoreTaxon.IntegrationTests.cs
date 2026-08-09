@@ -21,7 +21,7 @@ public sealed class RestoreTaxonIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -35,23 +35,23 @@ public sealed class RestoreTaxonIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", taxonRequest);
+            "/api/admin/catalog/taxons", taxonRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonDetailResponse? created = createResult.DeserializeValue<TaxonDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxons/{created!.Id}");
+            $"/api/admin/catalog/taxons/{created!.Id}");
         ApiResponse deleteResult = await deleteResponse.ReadApiResponseAsync();
         deleteResult.IsSuccess.Should().BeTrue();
 
         HttpResponseMessage restoreResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/taxons/{created.Id}/restore", null);
+            $"/api/admin/catalog/taxons/{created.Id}/restore", null);
         ApiResponse restoreResult = await restoreResponse.ReadApiResponseAsync();
         restoreResult.IsSuccess.Should().BeTrue();
 
         HttpResponseMessage getResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxons/{created.Id}");
+            $"/api/admin/catalog/taxons/{created.Id}");
         ApiResponse getResult = await getResponse.ReadApiResponseAsync();
         getResult.IsSuccess.Should().BeTrue();
         getResult.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -71,7 +71,7 @@ public sealed class RestoreTaxonIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -79,7 +79,7 @@ public sealed class RestoreTaxonIntegrationTests(ApiFixture fixture) : CatalogIn
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage restoreResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/taxons/{nonexistentId}/restore", null);
+            $"/api/admin/catalog/taxons/{nonexistentId}/restore", null);
 
         restoreResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

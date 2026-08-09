@@ -185,7 +185,7 @@ HTTP Request
 
 ```
 User uploads image
-  → Storefront SPA POST /api/catalog/storefront/search-by-image
+  → Storefront SPA POST /api/admin/catalog/storefront/search-by-image
     → Backend receives image bytes
       → HTTP POST to Python sidecar /embeddings (Aspire service discovery)
         → Sidecar loads configured model (Fashion-CLIP / ResNet-50 / EfficientNet-B0 / CLIP-generic)
@@ -226,7 +226,7 @@ Ground-truth dataset (100 images, 10 similarity groups)
 
 ```
 Cart items present
-  → POST /api/ordering/storefront/cart/checkout
+  → POST /api/admin/ordering/storefront/cart/checkout
     → CreateOrderFromCart handler
       → Validate cart not empty, items in stock
       → Generate order number inside DB transaction (RepeatableRead)

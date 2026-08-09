@@ -11,11 +11,11 @@ public sealed class GetStorefrontStateByIdIntegrationTests(ApiFixture fixture) :
     [Fact]
     public async Task GetStateById_WithSeededState_Returns200()
     {
-        HttpResponseMessage allResponse = await Client.GetAsync("/api/store/locations/states?pageSize=100");
+        HttpResponseMessage allResponse = await Client.GetAsync("/api/storefront/locations/states?pageSize=100");
         PagedResult<StateListResponse> allResult = await allResponse.ReadAsPagedResultAsync<StateListResponse>();
         string firstId = allResult.Items.First().Id.ToString();
 
-        HttpResponseMessage response = await Client.GetAsync($"/api/store/locations/states/{firstId}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/storefront/locations/states/{firstId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -32,7 +32,7 @@ public sealed class GetStorefrontStateByIdIntegrationTests(ApiFixture fixture) :
     {
         Guid nonexistentId = Guid.NewGuid();
 
-        HttpResponseMessage response = await Client.GetAsync($"/api/store/locations/states/{nonexistentId}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/storefront/locations/states/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

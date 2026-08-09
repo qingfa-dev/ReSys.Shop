@@ -13,7 +13,7 @@ public sealed class DownloadVariantImageIntegrationTests(ApiFixture fixture) : C
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variant-images/{nonexistentId}/download");
+            $"/api/admin/catalog/variant-images/{nonexistentId}/download");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

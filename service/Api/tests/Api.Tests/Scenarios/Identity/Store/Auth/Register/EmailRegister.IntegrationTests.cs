@@ -20,7 +20,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", request);
+            "/api/storefront/identity/auth/register", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -37,7 +37,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", request);
+            "/api/storefront/identity/auth/register", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -54,7 +54,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", request);
+            "/api/storefront/identity/auth/register", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -71,7 +71,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", request);
+            "/api/storefront/identity/auth/register", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -90,7 +90,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage firstResponse = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", request);
+            "/api/storefront/identity/auth/register", request);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var duplicateRequest = new
@@ -102,7 +102,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage duplicateResponse = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", duplicateRequest);
+            "/api/storefront/identity/auth/register", duplicateRequest);
 
         duplicateResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
@@ -121,7 +121,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage firstResponse = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", request);
+            "/api/storefront/identity/auth/register", request);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var duplicateRequest = new
@@ -133,7 +133,7 @@ public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage duplicateResponse = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", duplicateRequest);
+            "/api/storefront/identity/auth/register", duplicateRequest);
 
         duplicateResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }

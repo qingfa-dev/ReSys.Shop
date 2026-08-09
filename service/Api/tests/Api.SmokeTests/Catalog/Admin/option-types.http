@@ -9,10 +9,10 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Create option type – success
-# POST /api/catalog/option-types
+# POST /api/admin/catalog/option-types
 # Expected: 201 Created with location header
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/option-types
+POST {{baseUrl}}/api/admin/catalog/option-types
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -24,10 +24,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Create option type – duplicate name
-# POST /api/catalog/option-types
+# POST /api/admin/catalog/option-types
 # Expected: 409 Conflict – name already exists
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/option-types
+POST {{baseUrl}}/api/admin/catalog/option-types
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -39,10 +39,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Create option type – validation error
-# POST /api/catalog/option-types
+# POST /api/admin/catalog/option-types
 # Expected: 400 Bad Request – name is required
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/option-types
+POST {{baseUrl}}/api/admin/catalog/option-types
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -54,37 +54,37 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. List option types (paged)
-# GET /api/catalog/option-types
+# GET /api/admin/catalog/option-types
 # Expected: 200 OK – paged list of option types
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/option-types?page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/admin/catalog/option-types?page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Get option type by ID – success
-# GET /api/catalog/option-types/{id}
+# GET /api/admin/catalog/option-types/{id}
 # Expected: 200 OK – single option type
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}
+GET {{baseUrl}}/api/admin/catalog/option-types/{{existingOptionTypeId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Get option type by ID – not found
-# GET /api/catalog/option-types/{id}
+# GET /api/admin/catalog/option-types/{id}
 # Expected: 404 Not Found
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/option-types/{{nonExistentId}}
+GET {{baseUrl}}/api/admin/catalog/option-types/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 7. Update option type – success
-# PUT /api/catalog/option-types/{id}
+# PUT /api/admin/catalog/option-types/{id}
 # Expected: 200 OK – updated option type
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}
+PUT {{baseUrl}}/api/admin/catalog/option-types/{{existingOptionTypeId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -96,17 +96,17 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 8. Delete option type – success
-# DELETE /api/catalog/option-types/{id}
+# DELETE /api/admin/catalog/option-types/{id}
 # Expected: 200 OK (or 204 No Content)
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/option-types/{{existingOptionTypeId}}
+DELETE {{baseUrl}}/api/admin/catalog/option-types/{{existingOptionTypeId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 9. No authentication – 401
-# GET /api/catalog/option-types
+# GET /api/admin/catalog/option-types
 # Expected: 401 Unauthorized – missing or invalid token
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/option-types
+GET {{baseUrl}}/api/admin/catalog/option-types
 Content-Type: {{contentType}}

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Storefront.Auth.Sessions.Get;
+using Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authorization.Permissions.Services;

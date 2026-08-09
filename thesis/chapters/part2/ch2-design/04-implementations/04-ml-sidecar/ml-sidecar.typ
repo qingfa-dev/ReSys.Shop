@@ -104,7 +104,7 @@ Response shape:
 
 Six stages across four architectural layers:
 
-1. *Client Validation (Vue 3).* Validates format (JPEG, PNG, WebP) and size ($<= 10$ MB). Dispatches multipart form to `POST /api/catalog/storefront/search-by-image`.
+1. *Client Validation (Vue 3).* Validates format (JPEG, PNG, WebP) and size ($<= 10$ MB). Dispatches multipart form to `POST /api/admin/catalog/storefront/search-by-image`.
 2. *Server Validation (.NET API).* Verifies magic bytes, reapplies payload ceiling.
 3. *Vector Extraction (ML Sidecar).* Forwards image bytes to `/embeddings`; sidecar executes preprocessing and inference.
 4. *Vector Search (pgvector).* Queries via cosine distance `<=>` filtered by `model_name`; HNSW enables sub-10 ms lookup.

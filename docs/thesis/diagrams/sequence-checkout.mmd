@@ -14,7 +14,7 @@ sequenceDiagram
     participant Hangfire as Hangfire<br/>(Background Jobs)
 
     Customer->>StoreSPA: Review cart + click "Checkout"
-    StoreSPA->>Carter: POST /api/ordering/storefront/cart/checkout<br/>+ address + shipping + payment method
+    StoreSPA->>Carter: POST /api/admin/ordering/storefront/cart/checkout<br/>+ address + shipping + payment method
     Carter->>Pipeline: sender.Send(new Command(...))
     Pipeline->>Handler: Handle(Command)
 

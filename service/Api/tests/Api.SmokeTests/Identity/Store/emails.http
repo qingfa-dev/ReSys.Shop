@@ -7,7 +7,7 @@
 ### Change Email - Success (200)
 # Initiates an email change request. A verification link is sent to the new address.
 # Expect: 200 OK with confirmation message.
-POST {{baseUrl}}/api/store/identity/emails/change
+POST {{baseUrl}}/api/storefront/identity/emails/change
 Content-Type: {{contentType}}
 Authorization: Bearer {{storeToken}}
 
@@ -19,7 +19,7 @@ Authorization: Bearer {{storeToken}}
 ### Change Email - Wrong Password (400)
 # Current password does not match.
 # Expect: 400 Bad Request with invalid password error.
-POST {{baseUrl}}/api/store/identity/emails/change
+POST {{baseUrl}}/api/storefront/identity/emails/change
 Content-Type: {{contentType}}
 Authorization: Bearer {{storeToken}}
 
@@ -31,7 +31,7 @@ Authorization: Bearer {{storeToken}}
 ### Confirm Email - Success (200)
 # Confirms email ownership using userId and verification token.
 # Expect: 200 OK with email confirmed message.
-POST {{baseUrl}}/api/store/identity/emails/confirm
+POST {{baseUrl}}/api/storefront/identity/emails/confirm
 Content-Type: {{contentType}}
 
 {
@@ -42,7 +42,7 @@ Content-Type: {{contentType}}
 ### Resend Verification - Success (200)
 # Resends the email verification link.
 # Expect: 200 OK with confirmation that the email was resent.
-POST {{baseUrl}}/api/store/identity/emails/resend
+POST {{baseUrl}}/api/storefront/identity/emails/resend
 Content-Type: {{contentType}}
 Authorization: Bearer {{storeToken}}
 

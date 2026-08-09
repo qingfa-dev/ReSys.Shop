@@ -27,7 +27,9 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints()
-    .WithOtlpExporter();
+    .WithOtlpExporter()
+    .WaitFor(redis)
+    .WaitFor(postgres);
 
 #pragma warning disable ASPIRECERTIFICATES001
 builder.AddViteApp(Application.Admin, "../../../../app/Admin")

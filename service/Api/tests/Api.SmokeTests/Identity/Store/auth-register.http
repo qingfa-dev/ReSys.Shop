@@ -8,7 +8,7 @@
 # Registers a new store customer account.
 # Expect: 201 Created with userId, email, and confirmation message.
 # @name registerUser
-POST {{baseUrl}}/api/store/identity/auth/register
+POST {{baseUrl}}/api/storefront/identity/auth/register
 Content-Type: {{contentType}}
 
 {
@@ -23,7 +23,7 @@ Content-Type: {{contentType}}
 ### Register - Duplicate Email (409)
 # Attempt to register with an already-used email.
 # Expect: 409 Conflict with duplicate email error.
-POST {{baseUrl}}/api/store/identity/auth/register
+POST {{baseUrl}}/api/storefront/identity/auth/register
 Content-Type: {{contentType}}
 
 {
@@ -38,7 +38,7 @@ Content-Type: {{contentType}}
 ### Register - Weak Password (400)
 # Password is too short and lacks special characters.
 # Expect: 400 Bad Request with password policy violations.
-POST {{baseUrl}}/api/store/identity/auth/register
+POST {{baseUrl}}/api/storefront/identity/auth/register
 Content-Type: {{contentType}}
 
 {
@@ -53,7 +53,7 @@ Content-Type: {{contentType}}
 ### Register - Missing Required Fields (400)
 # Missing firstName and acceptTerm.
 # Expect: 400 Bad Request with validation errors for required fields.
-POST {{baseUrl}}/api/store/identity/auth/register
+POST {{baseUrl}}/api/storefront/identity/auth/register
 Content-Type: {{contentType}}
 
 {

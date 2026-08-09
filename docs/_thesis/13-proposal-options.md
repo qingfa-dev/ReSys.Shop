@@ -190,7 +190,7 @@ This document records every architectural and scope decision made during the ReS
 
 **Decision**: **B — Level 2 REST is sufficient**
 
-**Rationale**: The Richardson Maturity Model defines 4 levels: Level 0 (RPC over HTTP), Level 1 (Resources), Level 2 (HTTP verbs), Level 3 (Hypermedia / HATEOAS). ReSys.Shop operates at Level 2: it uses proper HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`), returns appropriate status codes (`201 Created`, `400 Validation`, `409 Conflict`), and structures URIs around resources (`/api/catalog/admin/products`). Level 3 (JSON:API, HAL) adds hypermedia links and relationship embedding — valuable for public APIs, but unnecessary for a thesis backend where the frontends are co-developed and the contract is stable.
+**Rationale**: The Richardson Maturity Model defines 4 levels: Level 0 (RPC over HTTP), Level 1 (Resources), Level 2 (HTTP verbs), Level 3 (Hypermedia / HATEOAS). ReSys.Shop operates at Level 2: it uses proper HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`), returns appropriate status codes (`201 Created`, `400 Validation`, `409 Conflict`), and structures URIs around resources (`/api/admin/catalog/admin/products`). Level 3 (JSON:API, HAL) adds hypermedia links and relationship embedding — valuable for public APIs, but unnecessary for a thesis backend where the frontends are co-developed and the contract is stable.
 
 **Evidence**: `06-api-design.md:§6.1`
 

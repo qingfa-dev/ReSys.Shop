@@ -21,14 +21,14 @@ public sealed class GetProductOptionTypesIntegrationTests(ApiFixture fixture) : 
             slug = "option-type-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/product-option-types?productId={product!.Id}");
+            $"/api/admin/catalog/product-option-types?productId={product!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -41,7 +41,7 @@ public sealed class GetProductOptionTypesIntegrationTests(ApiFixture fixture) : 
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/product-option-types?productId={nonexistentId}");
+            $"/api/admin/catalog/product-option-types?productId={nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

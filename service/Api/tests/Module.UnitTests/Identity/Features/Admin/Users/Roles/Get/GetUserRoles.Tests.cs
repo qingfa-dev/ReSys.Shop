@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Users.Roles.Get;
+using Module.Identity.Features.Shared.Admin.Users.Roles.Get;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Identity.Domain.Roles;

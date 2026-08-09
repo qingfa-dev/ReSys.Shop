@@ -10,11 +10,11 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Upload image – success
-# POST /api/catalog/variant-images (VariantId in form)
+# POST /api/admin/catalog/variant-images (VariantId in form)
 # Expected: 201 Created – image uploaded
 # Content-Type: multipart/form-data
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variant-images
+POST {{baseUrl}}/api/admin/catalog/variant-images
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 Authorization: Bearer {{adminToken}}
 
@@ -39,28 +39,28 @@ Content-Disposition: form-data; name="Position"
 
 ### ---------------------------------------------------------------------------
 ### 2. List images
-# GET /api/catalog/variant-images?variantId=
+# GET /api/admin/catalog/variant-images?variantId=
 # Expected: 200 OK – list of images for this variant
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/variant-images?variantId={{existingVariantId}}
+GET {{baseUrl}}/api/admin/catalog/variant-images?variantId={{existingVariantId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Get image by ID
-# GET /api/catalog/variant-images/{id}
+# GET /api/admin/catalog/variant-images/{id}
 # Expected: 200 OK – image metadata
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}
+GET {{baseUrl}}/api/admin/catalog/variant-images/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Update image metadata – success
-# PUT /api/catalog/variant-images/{id}
+# PUT /api/admin/catalog/variant-images/{id}
 # Expected: 200 OK – image metadata updated
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}
+PUT {{baseUrl}}/api/admin/catalog/variant-images/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -71,18 +71,18 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Delete image – success
-# DELETE /api/catalog/variant-images/{id}
+# DELETE /api/admin/catalog/variant-images/{id}
 # Expected: 200 OK – image deleted
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}
+DELETE {{baseUrl}}/api/admin/catalog/variant-images/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Download image
-# GET /api/catalog/variant-images/{id}/download
+# GET /api/admin/catalog/variant-images/{id}/download
 # Expected: 200 OK – binary image data returned
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/variant-images/{{nonExistentId}}/download
+GET {{baseUrl}}/api/admin/catalog/variant-images/{{nonExistentId}}/download
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}

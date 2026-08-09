@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { inventoryService } from '../api/inventory.api';
+import { inventoryService } from '../api/admin/inventory.api';
 import type { InventoryUnit } from '../inventory-units/types/inventory-unit.response';
 import type { StockItem } from '../stock-items/types/stock-item.response';
 import type { StockLocation } from '../stock-locations/types/stock-location.response';

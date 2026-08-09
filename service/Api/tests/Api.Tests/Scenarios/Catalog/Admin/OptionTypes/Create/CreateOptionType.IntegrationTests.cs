@@ -21,7 +21,7 @@ public sealed class CreateOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", request);
+            "/api/admin/catalog/option-types", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -46,11 +46,11 @@ public sealed class CreateOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage firstResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", request);
+            "/api/admin/catalog/option-types", request);
         firstResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", request);
+            "/api/admin/catalog/option-types", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -68,7 +68,7 @@ public sealed class CreateOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", request);
+            "/api/admin/catalog/option-types", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -87,7 +87,7 @@ public sealed class CreateOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/option-types", request);
+            "/api/admin/catalog/option-types", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

@@ -12,7 +12,7 @@ tags: [`feature`, `admin-spa`, `vue`, `typescript`, `api`, `pinia`, `zod`]
 
 ![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
-The Admin SPA (`app/Admin/`) currently implements a complete data layer only for the Catalog, Location, and Auth features. The remaining modules (Identity, Inventory, Ordering, Payment, Profile, Shipping, Dashboard) have only empty barrel `index.ts` files and placeholder views. Additionally, the Catalog feature's API services drifted from the backend after the flattened-route refactor (routes such as `api/catalog/taxons`, `api/catalog/taxon-rules`, `api/catalog/variant-prices`, `api/catalog/variant-images` replaced the old nested `api/catalog/taxonomies/taxons/...` paths).
+The Admin SPA (`app/Admin/`) currently implements a complete data layer only for the Catalog, Location, and Auth features. The remaining modules (Identity, Inventory, Ordering, Payment, Profile, Shipping, Dashboard) have only empty barrel `index.ts` files and placeholder views. Additionally, the Catalog feature's API services drifted from the backend after the flattened-route refactor (routes such as `api/admin/catalog/taxons`, `api/admin/catalog/taxon-rules`, `api/admin/catalog/variant-prices`, `api/admin/catalog/variant-images` replaced the old nested `api/admin/catalog/taxonomies/taxons/...` paths).
 
 This plan completes the Admin SPA data layer for every module by applying the canonical Catalog pattern (types → validations → API service → Pinia store → feature composable → barrel exports → tests) to every entity exposed by the backend, and reconciles the existing Catalog/Location services with the authoritative route constants. The plan is derived from a full scan of every backend `*.Endpoint.cs`, `*.Request.cs`, `*.Response.cs`, and `*Feature*.cs` route-constant file.
 
@@ -87,7 +87,7 @@ This plan completes the Admin SPA data layer for every module by applying the ca
 
 ### Implementation Phase 3 — Inventory module
 
-- GOAL-003: Implement the Inventory data layer (StockItems, StockLocations, StockMovements, StockReservations, StockTransfers, InventoryDashboard) matching every `api/inventory/**` endpoint.
+- GOAL-003: Implement the Inventory data layer (StockItems, StockLocations, StockMovements, StockReservations, StockTransfers, InventoryDashboard) matching every `api/admin/inventory/**` endpoint.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
@@ -100,11 +100,11 @@ This plan completes the Admin SPA data layer for every module by applying the ca
 | TASK-028 | Create `services/stockTransferApi.ts` (BASE `${INVENTORY}/stock-transfers`): CRUD + `transferStockTransfer(id)` (`post` `/${id}/transfer`), `receiveStockTransfer(id, request)` (`post` `/${id}/receive`), `cancelStockTransfer(id)` (`post` `/${id}/cancel`). Populate `services/index.ts`. | X | 2026-08-01 |
 | TASK-029 | Create `services/inventoryDashboardApi.ts` (`getInventoryDashboard()` -> `get(`${INVENTORY}/dashboard`)`) and `types/inventoryDashboard.ts`. Create `stores/stockItemStore.ts`, `stores/stockLocationStore.ts`, `stores/stockTransferStore.ts` per PAT-003. Populate `services/index.ts`, `stores/index.ts`, `types/index.ts`. | X | 2026-08-01 |
 | TASK-030 | Create `composables/useStockItemList.ts`, `useStockLocationList.ts`, `useStockMovementList.ts`, `useStockReservationList.ts`, `useStockTransferList.ts` per PAT-004. Populate `composables/index.ts`. | X | 2026-08-01 |
-| TASK-031 | Add `__tests__/services/*.spec.ts` for all 6 Inventory services, `__tests__/validations/stockItem|stockLocation|stockTransfer.spec.ts`, `__tests__/types/*.spec.ts`, and `__tests__/stores/stockItemStore|stockLocationStore|stockTransferStore.spec.ts` asserting exact `api/inventory/**` URLs/verbs/bodies. | X | 2026-08-01 |
+| TASK-031 | Add `__tests__/services/*.spec.ts` for all 6 Inventory services, `__tests__/validations/stockItem|stockLocation|stockTransfer.spec.ts`, `__tests__/types/*.spec.ts`, and `__tests__/stores/stockItemStore|stockLocationStore|stockTransferStore.spec.ts` asserting exact `api/admin/inventory/**` URLs/verbs/bodies. | X | 2026-08-01 |
 
 ### Implementation Phase 4 — Ordering module
 
-- GOAL-004: Implement the Ordering data layer (Orders incl. line items + OrderingDashboard) matching every `api/ordering/**` endpoint.
+- GOAL-004: Implement the Ordering data layer (Orders incl. line items + OrderingDashboard) matching every `api/admin/ordering/**` endpoint.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
@@ -113,11 +113,11 @@ This plan completes the Admin SPA data layer for every module by applying the ca
 | TASK-034 | Create `services/orderApi.ts` (BASE `${ORDERING}/orders`): `getOrders(query)` paged, `getOrder(id)`, `createOrder(request)`, `updateOrder(id, request)`, `deleteOrder(id)`; line items `getLineItems(id, query)` paged, `getLineItem(id, lineItemId)`, `addLineItem(id, request)`, `updateLineItem(id, lineItemId, request)`, `removeLineItem(id, lineItemId)`; actions `cancelOrder(id, request?)` (`post` `/${id}/cancel`), `completeOrder(id)` (`post` `/${id}/complete`), `approveOrder(id)` (`post` `/${id}/approve`), `resumeOrder(id)` (`post` `/${id}/resume`), `updateShipAddress(id, request)` (`put` `/${id}/ship-address`), `updateBillAddress(id, request)` (`put` `/${id}/bill-address`), `updateShippingMethod(id, request)` (`put` `/${id}/shipping-method`), `updateStatus(id, request)` (`put` `/${id}/status`). Populate `services/index.ts`. | X | 2026-08-01 |
 | TASK-035 | Create `services/orderingDashboardApi.ts` (`getOrderingDashboard()` -> `get(`${ORDERING}/dashboard`)`). Create `stores/orderStore.ts` per PAT-003. Populate `services/index.ts`, `stores/index.ts`. | X | 2026-08-01 |
 | TASK-036 | Create `composables/useOrderList.ts`, `useOrderDetail.ts` per PAT-004. Populate `composables/index.ts`. | X | 2026-08-01 |
-| TASK-037 | Add `__tests__/services/orderApi.spec.ts`, `orderingDashboardApi.spec.ts`; `__tests__/validations/order.spec.ts`; `__tests__/types/order.spec.ts`; `__tests__/stores/orderStore.spec.ts` asserting exact `api/ordering/**` URLs/verbs/bodies. | X | 2026-08-01 |
+| TASK-037 | Add `__tests__/services/orderApi.spec.ts`, `orderingDashboardApi.spec.ts`; `__tests__/validations/order.spec.ts`; `__tests__/types/order.spec.ts`; `__tests__/stores/orderStore.spec.ts` asserting exact `api/admin/ordering/**` URLs/verbs/bodies. | X | 2026-08-01 |
 
 ### Implementation Phase 5 — Payment module
 
-- GOAL-005: Implement the Payment data layer (PaymentMethods, Payments) matching every `api/payment/**` endpoint.
+- GOAL-005: Implement the Payment data layer (PaymentMethods, Payments) matching every `api/admin/payment/**` endpoint.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
@@ -126,7 +126,7 @@ This plan completes the Admin SPA data layer for every module by applying the ca
 | TASK-040 | Create `services/paymentMethodApi.ts` (BASE `${PAYMENT}/payment-methods`): CRUD + `activatePaymentMethod(id)` (`patch` `/${id}/activate`), `deactivatePaymentMethod(id)` (`patch` `/${id}/deactivate`); update uses `put` with `PaymentMethodUpdateRequest`. Populate `services/index.ts`. | X | 2026-08-01 |
 | TASK-041 | Create `services/paymentApi.ts` (BASE `${PAYMENT}/payments`): `getPayments(query)` paged, `getPayment(id)`, `capturePayment(id, request?)` (`post` `/${id}/capture`), `refundPayment(id, request)` (`post` `/${id}/refund`), `voidPayment(id)` (`post` `/${id}/void`). Create `stores/paymentMethodStore.ts` per PAT-003. Populate `services/index.ts`, `stores/index.ts`. | X | 2026-08-01 |
 | TASK-042 | Create `composables/usePaymentList.ts`, `usePaymentMethodList.ts`, `usePaymentMethodDetail.ts` per PAT-004. Populate `composables/index.ts`. | X | 2026-08-01 |
-| TASK-043 | Add `__tests__/services/paymentMethodApi.spec.ts`, `paymentApi.spec.ts`; `__tests__/validations/paymentMethod.spec.ts`; `__tests__/types/paymentMethod.spec.ts`; `__tests__/stores/paymentMethodStore.spec.ts` asserting exact `api/payment/**` URLs/verbs/bodies. | X | 2026-08-01 |
+| TASK-043 | Add `__tests__/services/paymentMethodApi.spec.ts`, `paymentApi.spec.ts`; `__tests__/validations/paymentMethod.spec.ts`; `__tests__/types/paymentMethod.spec.ts`; `__tests__/stores/paymentMethodStore.spec.ts` asserting exact `api/admin/payment/**` URLs/verbs/bodies. | X | 2026-08-01 |
 
 ### Implementation Phase 6 — Profile module
 
@@ -236,7 +236,7 @@ This plan completes the Admin SPA data layer for every module by applying the ca
 - **RISK-003**: DELETE-with-body endpoints (RemoveVariantPrice, DeleteTaxonRule) depend on the new `delWithBody` helper (TASK-001); if the backend rejects DELETE bodies, fall back to sending ids via query params. Assumption below documents the expected contract.
 - **RISK-004**: Large surface area (8 modules, ~60 files); parallel implementers may collide on shared barrels. Mitigation: phases are ordered by dependency, and each phase updates only its own module barrels.
 - **ASSUMPTION-001**: Backend Admin endpoints and their request/response records are stable and match the endpoint scan summarized in Section 2 (verb, route, body shape per record).
-- **ASSUMPTION-002**: Storefront/Auth endpoints (`api/store/identity`, `api/storefront/**`, `api/store/**`) are NOT in scope for the Admin data layer; the Auth feature already covers the Admin login/session flows it needs.
+- **ASSUMPTION-002**: Storefront/Auth endpoints (`api/storefront/identity`, `api/storefront/**`, `api/storefront/**`) are NOT in scope for the Admin data layer; the Auth feature already covers the Admin login/session flows it needs.
 - **ASSUMPTION-003**: The camelCase interceptor (`shared/api/interceptors/camelcase.ts`) handles JSON property-name conversion, so SPA interfaces use camelCase property names.
 - **ASSUMPTION-004**: Paged endpoints accept the shared `QueryingParameters` contract (`filter`, `search`, `searchFields`, `searchMode`, `sort`, `page`, `pageSize`), so `getPaged` + `to<Entity>QueryParams` compose correctly for every list.
 

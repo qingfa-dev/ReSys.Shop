@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 
 
-using Module.Identity.Features.Admin.Roles.Permissions.Get;
+using Module.Identity.Features.Shared.Admin.Roles.Permissions.Get;
 
 using Shared.Security.Authorization.Registry;
 using Shared.Security.Identity.Domain.Permissions;

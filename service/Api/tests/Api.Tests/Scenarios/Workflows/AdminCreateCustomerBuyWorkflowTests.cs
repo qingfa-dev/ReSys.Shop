@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Ordering.Domain.Orders;
-using Module.Profile.Domain;
+using Module.Customer.Domain;
 using Module.Shipping.Domain.ShippingMethods;
 
 using Shared.Operational.Persistence.Data;
@@ -42,14 +42,14 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
         var createBody = new { name = "Admin Workflow Product", slug, description = "Admin created" };
 
         HttpResponseMessage createResp = await client.PostAsAdminRawAsync(
-            "/api/catalog/products", createBody);
+            "/api/admin/catalog/products", createBody);
         ApiResponse createResult = await createResp.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<CreateProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage activateResp = await client.PatchAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/activate");
+            $"/api/admin/catalog/products/{product!.Id}/activate");
         activateResp.IsSuccessStatusCode.Should().BeTrue();
 
         using (var scope = Fixture.Factory.Services.CreateScope())
@@ -88,12 +88,12 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
         var registerBody = new { email, userName, password, firstName = "Buyer", lastName = "Smith" };
 
         HttpResponseMessage registerResp = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", registerBody);
+            "/api/storefront/identity/auth/register", registerBody);
         registerResp.IsSuccessStatusCode.Should().BeTrue();
 
         var loginBody = new { credential = email, password };
         HttpResponseMessage loginResp = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", loginBody);
+            "/api/storefront/identity/auth/login/password", loginBody);
         loginResp.StatusCode.Should().Be(HttpStatusCode.OK);
         ApiResponse loginResult = await loginResp.ReadApiResponseAsync();
         loginResult.IsSuccess.Should().BeTrue();
@@ -133,7 +133,7 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
         };
 
         HttpResponseMessage addressResp = await client.PostAsJsonAsync(
-            "/api/store/profiles/addresses", addressBody);
+            "/api/storefront/profiles/addresses", addressBody);
         addressResp.IsSuccessStatusCode.Should().BeTrue();
         ApiResponse addressResult = await addressResp.ReadApiResponseAsync();
         var address = addressResult.DeserializeValue<AddressIdResponse>();

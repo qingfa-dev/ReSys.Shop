@@ -3,7 +3,7 @@ import type { Wishlist, WishedItem } from '../../types/entity/wishlist.entity'
 import type { CreateWishlistRequest, UpdateWishlistRequest, AddWishlistItemRequest } from '../../types/request/wishlist.request'
 import type { Result } from '@/core/models/result'
 
-const ENDPOINT = '/api/store/profiles/wishlists'
+const ENDPOINT = '/api/storefront/profiles/wishlists'
 
 export class WishlistApiRepository extends BaseRepository {
   async getWishlists(): Promise<Result<Wishlist[]>> {

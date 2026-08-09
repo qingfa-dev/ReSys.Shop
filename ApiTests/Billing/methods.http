@@ -1,0 +1,5 @@
+GET {{base_url}}/api/storefront/paying/methods
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Expected: 200, array of payment methods (Credit Card, Bank Transfer, Test Card)

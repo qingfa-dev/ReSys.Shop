@@ -25,7 +25,7 @@ const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    const response = await httpClient.get('/api/store/identity/auth/sessions')
+    const response = await httpClient.get('/api/storefront/identity/auth/sessions')
     if (response.data?.isSuccess && response.data?.data) {
       const data = response.data.data
       sessions.value = Array.isArray(data) ? data : [data]

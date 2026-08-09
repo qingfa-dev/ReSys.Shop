@@ -21,7 +21,7 @@ public sealed class DeleteTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -35,13 +35,13 @@ public sealed class DeleteTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", taxonRequest);
+            "/api/admin/catalog/taxons", taxonRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonDetailResponse? created = createResult.DeserializeValue<TaxonDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxons/{created!.Id}");
+            $"/api/admin/catalog/taxons/{created!.Id}");
         ApiResponse result = await deleteResponse.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -58,7 +58,7 @@ public sealed class DeleteTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -66,7 +66,7 @@ public sealed class DeleteTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxons/{nonexistentId}");
+            $"/api/admin/catalog/taxons/{nonexistentId}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

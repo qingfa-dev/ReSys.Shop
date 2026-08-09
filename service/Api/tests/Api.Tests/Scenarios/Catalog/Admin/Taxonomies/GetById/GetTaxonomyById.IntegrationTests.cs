@@ -20,13 +20,13 @@ public sealed class GetTaxonomyByIdIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createRequest);
+            "/api/admin/catalog/taxonomies", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? created = createResult.DeserializeValue<TaxonomyDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{created!.Id}");
+            $"/api/admin/catalog/taxonomies/{created!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -42,7 +42,7 @@ public sealed class GetTaxonomyByIdIntegrationTests(ApiFixture fixture) : Catalo
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{nonexistentId}");
+            $"/api/admin/catalog/taxonomies/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

@@ -5,19 +5,19 @@ import type { IUserRepository } from './user.repository.interface'
 
 export class UserApiRepository extends BaseRepository implements IUserRepository {
   async getProfile(userId: string): Promise<Result<UserResponse>> {
-    return this.get<UserResponse>(`/api/store/profiles/profiles`)
+    return this.get<UserResponse>(`/api/storefront/profiles/profiles`)
   }
 
   async update(userId: string, updates: Partial<UserResponse>): Promise<Result<UserResponse>> {
-    return this.patchPartial<UserResponse>(`/api/store/profiles/profiles`, userId, updates)
+    return this.patchPartial<UserResponse>(`/api/storefront/profiles/profiles`, userId, updates)
   }
 
   async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<Result<void>> {
-    return this.post<void>('/api/store/identity/passwords/change', { userId, currentPassword, newPassword })
+    return this.post<void>('/api/storefront/identity/passwords/change', { userId, currentPassword, newPassword })
   }
 
   async requestPasswordReset(email: string): Promise<Result<void>> {
-    return this.post<void>('/api/store/identity/passwords/forgot', { email })
+    return this.post<void>('/api/storefront/identity/passwords/forgot', { email })
   }
 }
 

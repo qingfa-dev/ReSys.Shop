@@ -21,7 +21,7 @@ public sealed class RevokeProductOptionTypesIntegrationTests(ApiFixture fixture)
             slug = "revoke-option-product"
         };
         HttpResponseMessage createProductResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createProductResult = await createProductResponse.ReadApiResponseAsync();
         createProductResult.IsSuccess.Should().BeTrue();
         var product = createProductResult.DeserializeValue<IdResponse>();
@@ -35,7 +35,7 @@ public sealed class RevokeProductOptionTypesIntegrationTests(ApiFixture fixture)
             filterable = true
         };
         HttpResponseMessage createOptionTypeResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createOptionTypeRequest);
+            "/api/admin/catalog/option-types", createOptionTypeRequest);
         ApiResponse createOptionTypeResult = await createOptionTypeResponse.ReadApiResponseAsync();
         createOptionTypeResult.IsSuccess.Should().BeTrue();
         var optionType = createOptionTypeResult.DeserializeValue<IdResponse>();
@@ -47,7 +47,7 @@ public sealed class RevokeProductOptionTypesIntegrationTests(ApiFixture fixture)
             items = new[] { new { optionTypeId = optionType!.Id, position = 0 } }
         };
         HttpResponseMessage assignResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-option-types/assign", assignRequest);
+            "/api/admin/catalog/product-option-types/assign", assignRequest);
         assignResponse.IsSuccessStatusCode.Should().BeTrue();
 
         var revokeRequest = new
@@ -57,7 +57,7 @@ public sealed class RevokeProductOptionTypesIntegrationTests(ApiFixture fixture)
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-option-types/revoke", revokeRequest);
+            "/api/admin/catalog/product-option-types/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -75,7 +75,7 @@ public sealed class RevokeProductOptionTypesIntegrationTests(ApiFixture fixture)
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-option-types/revoke", revokeRequest);
+            "/api/admin/catalog/product-option-types/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

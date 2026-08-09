@@ -21,7 +21,7 @@ public sealed class UpdateOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createRequest);
+            "/api/admin/catalog/option-types", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         OptionTypeDetailResponse? created = createResult.DeserializeValue<OptionTypeDetailResponse>();
@@ -36,7 +36,7 @@ public sealed class UpdateOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/{created!.Id}", updateRequest);
+            $"/api/admin/catalog/option-types/{created!.Id}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -63,7 +63,7 @@ public sealed class UpdateOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/{nonexistentId}", request);
+            $"/api/admin/catalog/option-types/{nonexistentId}", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

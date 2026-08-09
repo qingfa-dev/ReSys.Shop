@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Users.Create;
+using Module.Identity.Features.Shared.Admin.Users.Create;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Identity.Domain.Users;

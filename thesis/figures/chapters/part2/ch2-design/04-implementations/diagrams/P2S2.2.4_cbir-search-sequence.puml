@@ -6,7 +6,7 @@ participant "Python ML\nSidecar" as ML
 database "PostgreSQL\n+ pgvector" as DB
 
 Customer -> Vue: Upload image
-Vue -> API: POST /api/catalog/storefront/search-by-image\n(multipart form data)
+Vue -> API: POST /api/admin/catalog/storefront/search-by-image\n(multipart form data)
 API -> API: Validate image\n(magic byte, extension, size)
 
 API -> ML: POST /embeddings\n(image bytes, X-API-Key)

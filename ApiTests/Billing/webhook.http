@@ -1,0 +1,11 @@
+POST {{base_url}}/api/storefront/webhooks/stripe
+Content-Type: application/json
+Stripe-Signature: t=12345,v1=fake_sig_for_test
+
+{
+  "id": "evt_fake_001",
+  "type": "payment_intent.succeeded",
+  "data": { "object": { "id": "pi_fake_test" } }
+}
+
+### Expected: 401 (invalid signature) or 200 (with valid sig via Stripe CLI)

@@ -10,7 +10,7 @@ public sealed class GetAllOptionTypesIntegrationTests(ApiFixture fixture) : Cata
     [Fact]
     public async Task GetAllOptionTypes_ReturnsSeededOptionTypes()
     {
-        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/catalog/option-types?pageSize=100");
+        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/admin/catalog/option-types?pageSize=100");
         PagedResult<OptionTypeListItemResponse> result = await response.ReadAsPagedResultAsync<OptionTypeListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();

@@ -2,9 +2,9 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Storefront.Emails.Confirm;
+using Module.Identity.Features.Shared.Storefront.Emails.Confirm;
 using Module.UnitTests.Identity.Fixtures;
-using Module.Profile.Features.Storefront.Profiles.Create;
+using Module.Customer.Features.Storefront.Profiles.Create;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;

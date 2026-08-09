@@ -9,56 +9,56 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. List states (default pagination)
-# GET /api/store/locations/states
+# GET /api/storefront/locations/states
 # Expected: 200 OK – paged list of states (public, no auth required)
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/store/locations/states?page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/storefront/locations/states?page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 2. List states filtered by country
-# GET /api/store/locations/states?countryId={id}
+# GET /api/storefront/locations/states?countryId={id}
 # Expected: 200 OK – states belonging to the specified country
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/store/locations/states?countryId={{existingCountryId}}&page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/storefront/locations/states?countryId={{existingCountryId}}&page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Get state by ID – success
-# GET /api/store/locations/states/{id}
+# GET /api/storefront/locations/states/{id}
 # Expected: 200 OK – single state
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/store/locations/states/{{existingStateId}}
+GET {{baseUrl}}/api/storefront/locations/states/{{existingStateId}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Get state by ID – not found
-# GET /api/store/locations/states/{id}
+# GET /api/storefront/locations/states/{id}
 # Expected: 404 Not Found
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/store/locations/states/{{nonExistentId}}
+GET {{baseUrl}}/api/storefront/locations/states/{{nonExistentId}}
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Get state by ISO code – success
-# GET /api/store/locations/states/by-iso/{isoCode}
+# GET /api/storefront/locations/states/by-iso/{isoCode}
 # Expected: 200 OK – single state
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/store/locations/states/by-iso/US-CA
+GET {{baseUrl}}/api/storefront/locations/states/by-iso/US-CA
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Get state by ISO code – not found
-# GET /api/store/locations/states/by-iso/{isoCode}
+# GET /api/storefront/locations/states/by-iso/{isoCode}
 # Expected: 404 Not Found
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/store/locations/states/by-iso/XX-YY
+GET {{baseUrl}}/api/storefront/locations/states/by-iso/XX-YY
 Content-Type: {{contentType}}
 
 ### ---------------------------------------------------------------------------
 ### 7. List states – custom pagination
-# GET /api/store/locations/states
+# GET /api/storefront/locations/states
 # Expected: 200 OK – paged list with page=2&pageSize=3
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/store/locations/states?page=2&pageSize=3
+GET {{baseUrl}}/api/storefront/locations/states?page=2&pageSize=3
 Content-Type: {{contentType}}

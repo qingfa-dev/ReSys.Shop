@@ -9,7 +9,7 @@ public sealed class GetStorefrontCountryPagedOrAllIntegrationTests(ApiFixture fi
     [Fact]
     public async Task GetCountryPagedOrAll_ReturnsSeededCountries()
     {
-        HttpResponseMessage response = await Client.GetAsync("/api/store/locations/countries");
+        HttpResponseMessage response = await Client.GetAsync("/api/storefront/locations/countries");
         PagedResult<CountryListItemResponse> result = await response.ReadAsPagedResultAsync<CountryListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -22,7 +22,7 @@ public sealed class GetStorefrontCountryPagedOrAllIntegrationTests(ApiFixture fi
     public async Task GetCountryPagedOrAll_WithPagination_RespectsPageSize()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/locations/countries?pageSize=1");
+            "/api/storefront/locations/countries?pageSize=1");
         PagedResult<CountryListItemResponse> result = await response.ReadAsPagedResultAsync<CountryListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -34,7 +34,7 @@ public sealed class GetStorefrontCountryPagedOrAllIntegrationTests(ApiFixture fi
     public async Task GetCountryPagedOrAll_WithFilter_IsActiveEqualsTrue()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/locations/countries?filter=IsActive=true");
+            "/api/storefront/locations/countries?filter=IsActive=true");
         PagedResult<CountryListItemResponse> result = await response.ReadAsPagedResultAsync<CountryListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -46,7 +46,7 @@ public sealed class GetStorefrontCountryPagedOrAllIntegrationTests(ApiFixture fi
     public async Task GetCountryPagedOrAll_WithSortAscending_ReturnsOrdered()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/locations/countries?sort=Name:asc");
+            "/api/storefront/locations/countries?sort=Name:asc");
         PagedResult<CountryListItemResponse> result = await response.ReadAsPagedResultAsync<CountryListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { inventoryDashboardService } from '../api/inventory-dashboard.api'
+import { inventoryDashboardService } from '../api/admin/inventory-dashboard.api'
 import type { InventoryDashboardResponse } from '../types/inventory-dashboard.types'
 
 export const useInventoryDashboardStore = defineStore('inventory-dashboard', () => {

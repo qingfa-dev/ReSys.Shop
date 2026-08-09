@@ -47,7 +47,7 @@
 ### The token is used by all subsequent requests.
 
 # @name = login
-POST {{base_url}}/api/store/identity/auth/login/password
+POST {{base_url}}/api/storefront/identity/auth/login/password
 Content-Type: application/json
 
 {
@@ -140,7 +140,7 @@ Authorization: Bearer {{token}}
 ### If the gateway or DB save fails, reservations are released.
 
 # @name = createPaymentIntent
-POST {{base_url}}/api/storefront/payment/create-intent
+POST {{base_url}}/api/storefront/paying/create-intent
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -215,7 +215,7 @@ Authorization: Bearer {{token}}
 ### reservation, reservations are released via ReleaseCartStockReservationsCommand.
 
 # @name = guardE3_StockFailure
-POST {{base_url}}/api/storefront/payment/create-intent
+POST {{base_url}}/api/storefront/paying/create-intent
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -266,7 +266,7 @@ Authorization: Bearer {{token}}
 ###
 
 # @name = guardStateMachine_SkipToPayment
-POST {{base_url}}/api/storefront/payment/create-intent
+POST {{base_url}}/api/storefront/paying/create-intent
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

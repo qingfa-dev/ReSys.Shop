@@ -10,19 +10,19 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Get classifications
-# GET /api/catalog/product-classifications?productId=
+# GET /api/admin/catalog/product-classifications?productId=
 # Expected: 200 OK – list of product classifications
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/product-classifications?productId={{existingProductId}}
+GET {{baseUrl}}/api/admin/catalog/product-classifications?productId={{existingProductId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Assign taxons – success
-# POST /api/catalog/product-classifications/assign (ProductId in body)
+# POST /api/admin/catalog/product-classifications/assign (ProductId in body)
 # Expected: 200 OK – taxons assigned to product
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/product-classifications/assign
+POST {{baseUrl}}/api/admin/catalog/product-classifications/assign
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -33,10 +33,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Revoke taxons – success
-# POST /api/catalog/product-classifications/revoke (ProductId in body)
+# POST /api/admin/catalog/product-classifications/revoke (ProductId in body)
 # Expected: 200 OK – taxons revoked from product
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/product-classifications/revoke
+POST {{baseUrl}}/api/admin/catalog/product-classifications/revoke
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -47,10 +47,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Sync classifications – success
-# PUT /api/catalog/product-classifications/sync (ProductId in body)
+# PUT /api/admin/catalog/product-classifications/sync (ProductId in body)
 # Expected: 200 OK – classifications synchronized
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/product-classifications/sync
+PUT {{baseUrl}}/api/admin/catalog/product-classifications/sync
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 

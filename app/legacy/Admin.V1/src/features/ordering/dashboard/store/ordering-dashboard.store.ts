@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { orderingDashboardService } from '../api/ordering-dashboard.api'
+import { orderingDashboardService } from '../api/admin/ordering-dashboard.api'
 import type { OrderingDashboardResponse } from '../types/ordering-dashboard.types'
 
 export const useOrderingDashboardStore = defineStore('ordering-dashboard', () => {

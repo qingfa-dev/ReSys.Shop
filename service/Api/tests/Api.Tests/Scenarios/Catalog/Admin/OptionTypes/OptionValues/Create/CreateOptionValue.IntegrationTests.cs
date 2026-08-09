@@ -21,7 +21,7 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", request);
+            "/api/admin/catalog/option-types", request);
         ApiResponse result = await response.ReadApiResponseAsync();
         result.IsSuccess.Should().BeTrue();
         OptionTypeDetailResponse? value = result.DeserializeValue<OptionTypeDetailResponse>();
@@ -42,7 +42,7 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-values", request);
+            "/api/admin/catalog/option-values", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -66,7 +66,7 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-values", request);
+            "/api/admin/catalog/option-values", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -86,7 +86,7 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/option-values", request);
+            "/api/admin/catalog/option-values", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

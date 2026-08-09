@@ -25,13 +25,13 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
             slug = "listable-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         using var activateRequest = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{productId}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{productId}/activate");
         activateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);
@@ -55,13 +55,13 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
             slug = "searchable-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         using var activateRequest = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{productId}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{productId}/activate");
         activateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);
@@ -95,7 +95,7 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", request);
+            "/api/admin/catalog/option-types", request);
         ApiResponse result = await response.ReadApiResponseAsync();
         result.IsSuccess.Should().BeTrue();
         OptionTypeDetailResponse? value = result.DeserializeValue<OptionTypeDetailResponse>();
@@ -114,7 +114,7 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
             optionTypeId = optionTypeId
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-values", request);
+            "/api/admin/catalog/option-values", request);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? value = createResult.DeserializeValue<OptionValueListItemResponse>();
@@ -156,7 +156,7 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
             optionTypeId = optionTypeId
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-values", request);
+            "/api/admin/catalog/option-values", request);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? value = createResult.DeserializeValue<OptionValueListItemResponse>();

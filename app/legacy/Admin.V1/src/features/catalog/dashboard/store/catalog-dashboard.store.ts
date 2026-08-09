@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { catalogDashboardService } from '../api/catalog-dashboard.api';
-import type { CatalogDashboardResponse } from '../api/catalog-dashboard.api';
+import { catalogDashboardService } from '../api/admin/catalog-dashboard.api';
+import type { CatalogDashboardResponse } from '../api/admin/catalog-dashboard.api';
 
 export const useCatalogDashboardStore = defineStore('catalog-dashboard', () => {
   const summary = ref<CatalogDashboardResponse | null>(null);

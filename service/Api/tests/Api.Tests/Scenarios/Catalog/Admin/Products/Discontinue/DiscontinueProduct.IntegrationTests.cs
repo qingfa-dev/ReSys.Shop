@@ -21,7 +21,7 @@ public sealed class DiscontinueProductIntegrationTests(ApiFixture fixture) : Cat
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<GetProductResponse>();
@@ -29,13 +29,13 @@ public sealed class DiscontinueProductIntegrationTests(ApiFixture fixture) : Cat
 
         string token = AuthTokenHelper.GenerateAdminToken();
         using var activateRequest = new HttpRequestMessage(
-            HttpMethod.Patch, $"/api/catalog/products/{created!.Id}/activate");
+            HttpMethod.Patch, $"/api/admin/catalog/products/{created!.Id}/activate");
         activateRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         using var discontinueRequest = new HttpRequestMessage(
-            HttpMethod.Patch, $"/api/catalog/products/{created.Id}/discontinue");
+            HttpMethod.Patch, $"/api/admin/catalog/products/{created.Id}/discontinue");
         discontinueRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         HttpResponseMessage response = await Client.SendAsync(discontinueRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
@@ -60,7 +60,7 @@ public sealed class DiscontinueProductIntegrationTests(ApiFixture fixture) : Cat
 
         string token = AuthTokenHelper.GenerateAdminToken();
         using var request = new HttpRequestMessage(
-            HttpMethod.Patch, $"/api/catalog/products/{nonexistentId}/discontinue");
+            HttpMethod.Patch, $"/api/admin/catalog/products/{nonexistentId}/discontinue");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         HttpResponseMessage response = await Client.SendAsync(request);
         ApiResponse result = await response.ReadApiResponseAsync();

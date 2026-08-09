@@ -11,10 +11,10 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Add variant – success
-# POST /api/catalog/variants (ProductId in body)
+# POST /api/admin/catalog/variants (ProductId in body)
 # Expected: 201 Created with location header
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variants
+POST {{baseUrl}}/api/admin/catalog/variants
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -28,10 +28,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Add variant – duplicate SKU
-# POST /api/catalog/variants (ProductId in body)
+# POST /api/admin/catalog/variants (ProductId in body)
 # Expected: 409 Conflict – SKU already exists
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variants
+POST {{baseUrl}}/api/admin/catalog/variants
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -45,10 +45,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Add variant – validation error
-# POST /api/catalog/variants (ProductId in body)
+# POST /api/admin/catalog/variants (ProductId in body)
 # Expected: 400 Bad Request – SKU is required
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variants
+POST {{baseUrl}}/api/admin/catalog/variants
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -62,19 +62,19 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. List variants by product (paged)
-# GET /api/catalog/variants?productId=
+# GET /api/admin/catalog/variants?productId=
 # Expected: 200 OK – paged list of variants
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/variants?productId={{existingProductId}}&page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/admin/catalog/variants?productId={{existingProductId}}&page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Update variant – success
-# PUT /api/catalog/variants/{id}
+# PUT /api/admin/catalog/variants/{id}
 # Expected: 200 OK – updated variant
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/variants/{{existingVariantId}}
+PUT {{baseUrl}}/api/admin/catalog/variants/{{existingVariantId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -87,17 +87,17 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Delete variant – success
-# DELETE /api/catalog/variants/{id}
+# DELETE /api/admin/catalog/variants/{id}
 # Expected: 200 OK – variant deleted
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/variants/{{existingVariantId}}
+DELETE {{baseUrl}}/api/admin/catalog/variants/{{existingVariantId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 7. No authentication – 401
-# GET /api/catalog/variants?productId=
+# GET /api/admin/catalog/variants?productId=
 # Expected: 401 Unauthorized – missing or invalid token
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/variants?productId={{existingProductId}}
+GET {{baseUrl}}/api/admin/catalog/variants?productId={{existingProductId}}
 Content-Type: {{contentType}}

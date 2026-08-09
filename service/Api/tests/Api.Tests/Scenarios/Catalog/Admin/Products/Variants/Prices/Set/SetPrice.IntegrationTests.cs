@@ -20,14 +20,14 @@ public sealed class SetPriceIntegrationTests(ApiFixture fixture) : CatalogIntegr
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants?productId={product!.Id}");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -43,14 +43,14 @@ public sealed class SetPriceIntegrationTests(ApiFixture fixture) : CatalogIntegr
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/variant-prices", request);
+            "/api/admin/catalog/variant-prices", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
         result.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage getResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variant-prices?variantId={variant.Id}");
+            $"/api/admin/catalog/variant-prices?variantId={variant.Id}");
         var getResult = await getResponse.ReadAsPagedResultAsync<PriceResponse>();
         getResult.IsSuccess.Should().BeTrue();
         getResult.Items.Should().Contain(p => p.Amount == 19.99m && p.Currency == "USD");
@@ -79,7 +79,7 @@ public sealed class SetPriceIntegrationTests(ApiFixture fixture) : CatalogIntegr
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/variant-prices", request);
+            "/api/admin/catalog/variant-prices", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

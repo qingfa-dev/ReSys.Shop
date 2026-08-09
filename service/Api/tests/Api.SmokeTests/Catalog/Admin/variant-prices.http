@@ -10,10 +10,10 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Set price – success
-# POST /api/catalog/variant-prices (VariantId in body)
+# POST /api/admin/catalog/variant-prices (VariantId in body)
 # Expected: 200 OK – price set
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variant-prices
+POST {{baseUrl}}/api/admin/catalog/variant-prices
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -25,10 +25,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Set price – invalid currency
-# POST /api/catalog/variant-prices (VariantId in body)
+# POST /api/admin/catalog/variant-prices (VariantId in body)
 # Expected: 400 Bad Request – invalid currency code
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variant-prices
+POST {{baseUrl}}/api/admin/catalog/variant-prices
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -40,19 +40,19 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. List prices
-# GET /api/catalog/variant-prices?variantId=
+# GET /api/admin/catalog/variant-prices?variantId=
 # Expected: 200 OK – list of prices for variant
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/variant-prices?variantId={{existingVariantId}}
+GET {{baseUrl}}/api/admin/catalog/variant-prices?variantId={{existingVariantId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Remove price – success
-# DELETE /api/catalog/variant-prices/{priceId} (VariantId in body)
+# DELETE /api/admin/catalog/variant-prices/{priceId} (VariantId in body)
 # Expected: 200 OK – price removed
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/variant-prices/{{nonExistentId}}
+DELETE {{baseUrl}}/api/admin/catalog/variant-prices/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -62,10 +62,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Sync prices – success
-# POST /api/catalog/variant-prices/sync (VariantId in body)
+# POST /api/admin/catalog/variant-prices/sync (VariantId in body)
 # Expected: 200 OK – prices synchronized
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variant-prices/sync
+POST {{baseUrl}}/api/admin/catalog/variant-prices/sync
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 

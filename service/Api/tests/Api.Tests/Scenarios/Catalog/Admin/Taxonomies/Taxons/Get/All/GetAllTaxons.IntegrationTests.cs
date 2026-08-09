@@ -21,7 +21,7 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -35,12 +35,12 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", taxonRequest);
+            "/api/admin/catalog/taxons", taxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue("the taxon should be created successfully");
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            "/api/catalog/taxons");
+            "/api/admin/catalog/taxons");
         PagedResult<TaxonListItemResponse> result = await response.ReadAsPagedResultAsync<TaxonListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -52,7 +52,7 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
     public async Task GetAllTaxons_WithoutSeed_ReturnsEmptyList()
     {
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            "/api/catalog/taxons");
+            "/api/admin/catalog/taxons");
         PagedResult<TaxonListItemResponse> result = await response.ReadAsPagedResultAsync<TaxonListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();

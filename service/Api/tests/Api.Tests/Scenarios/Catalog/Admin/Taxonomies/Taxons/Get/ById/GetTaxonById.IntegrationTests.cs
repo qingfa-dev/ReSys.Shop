@@ -21,7 +21,7 @@ public sealed class GetTaxonByIdIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -35,13 +35,13 @@ public sealed class GetTaxonByIdIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", taxonRequest);
+            "/api/admin/catalog/taxons", taxonRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonDetailResponse? created = createResult.DeserializeValue<TaxonDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxons/{created!.Id}");
+            $"/api/admin/catalog/taxons/{created!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -62,7 +62,7 @@ public sealed class GetTaxonByIdIntegrationTests(ApiFixture fixture) : CatalogIn
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -70,7 +70,7 @@ public sealed class GetTaxonByIdIntegrationTests(ApiFixture fixture) : CatalogIn
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxons/{nonexistentId}");
+            $"/api/admin/catalog/taxons/{nonexistentId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

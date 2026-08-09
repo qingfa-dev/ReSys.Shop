@@ -15,7 +15,7 @@ sequenceDiagram
     participant VariantHandler as AddVariant<br/>CommandHandler
 
     Admin->>AdminSPA: Fill form + click "Create"
-    AdminSPA->>Carter: POST /api/catalog/admin/products<br/>+ JWT Bearer + X-CSRF-TOKEN
+    AdminSPA->>Carter: POST /api/admin/catalog/admin/products<br/>+ JWT Bearer + X-CSRF-TOKEN
     Carter->>Pipeline: sender.Send(new Command(request))
     Pipeline->>ValBeh: Validate(request)
     alt Validation fails

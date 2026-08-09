@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 using Api.Tests.Scenarios.Identity.Helpers;
 
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Shared.Admin.Users.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Create;
 

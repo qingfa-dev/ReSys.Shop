@@ -19,7 +19,7 @@ public sealed class RepositionTaxonIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage taxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", taxonomyRequest);
+            "/api/admin/catalog/taxonomies", taxonomyRequest);
         ApiResponse taxonomyResult = await taxonomyResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? taxonomy = taxonomyResult.DeserializeValue<TaxonomyDetailResponse>();
         taxonomy.Should().NotBeNull();
@@ -34,7 +34,7 @@ public sealed class RepositionTaxonIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage createOneResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", taxonOneRequest);
+            "/api/admin/catalog/taxons", taxonOneRequest);
         ApiResponse createOneResult = await createOneResponse.ReadApiResponseAsync();
         TaxonDetailResponse? first = createOneResult.DeserializeValue<TaxonDetailResponse>();
         first.Should().NotBeNull();
@@ -50,7 +50,7 @@ public sealed class RepositionTaxonIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage createTwoResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", taxonTwoRequest);
+            "/api/admin/catalog/taxons", taxonTwoRequest);
         ApiResponse createTwoResult = await createTwoResponse.ReadApiResponseAsync();
         TaxonDetailResponse? second = createTwoResult.DeserializeValue<TaxonDetailResponse>();
         second.Should().NotBeNull();
@@ -62,7 +62,7 @@ public sealed class RepositionTaxonIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage repositionResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxons/{second!.Id}/reposition", repositionRequest);
+            $"/api/admin/catalog/taxons/{second!.Id}/reposition", repositionRequest);
         ApiResponse repositionResult = await repositionResponse.ReadApiResponseAsync();
 
         repositionResult.IsSuccess.Should().BeTrue();

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { paymentRepository } from '../api/payment.api'
+import { paymentRepository } from '../api/admin/payment.api'
 import type { PaymentListItemModel, PaymentDetailModel } from '../types/payment.model'
 import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 

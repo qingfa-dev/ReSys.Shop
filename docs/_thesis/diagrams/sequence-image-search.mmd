@@ -12,7 +12,7 @@ sequenceDiagram
     participant Cache as HybridCache<br/>(L1 Memory / L2 Redis)
 
     Customer->>StoreSPA: Upload fashion image
-    StoreSPA->>Carter: POST /api/catalog/storefront/search-by-image<br/>multipart/form-data
+    StoreSPA->>Carter: POST /api/admin/catalog/storefront/search-by-image<br/>multipart/form-data
     Carter->>Handler: sender.Send(new Query(imageBytes))
 
     Handler->>Cache: TryGet(cacheKey: imageHash)

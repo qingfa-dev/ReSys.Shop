@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Storefront.Emails.Change;
+using Module.Identity.Features.Shared.Storefront.Emails.Change;
 using Shared.Governance.Conventions;
 using Module.UnitTests.Identity.Fixtures;
 

@@ -30,7 +30,7 @@ public sealed class GuestRegistrationWorkflowTests(ApiFixture fixture) : Workflo
         };
 
         HttpResponseMessage registerResponse = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", registerBody);
+            "/api/storefront/identity/auth/register", registerBody);
         registerResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         ApiResponse registerResult = await registerResponse.ReadApiResponseAsync();
         registerResult.IsSuccess.Should().BeTrue();
@@ -38,7 +38,7 @@ public sealed class GuestRegistrationWorkflowTests(ApiFixture fixture) : Workflo
         // Step 2: Request email verification resend
         var resendBody = new { email };
         HttpResponseMessage resendResponse = await client.PostAsJsonAsync(
-            "/api/store/identity/emails/resend", resendBody);
+            "/api/storefront/identity/emails/resend", resendBody);
         resendResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Step 3: Confirm email — resolve token from DB and encode it
@@ -55,13 +55,13 @@ public sealed class GuestRegistrationWorkflowTests(ApiFixture fixture) : Workflo
 
         var confirmBody = new { userId = userId.ToString(), token };
         HttpResponseMessage confirmResponse = await client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", confirmBody);
+            "/api/storefront/identity/emails/confirm", confirmBody);
         confirmResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Step 4: Login
         var loginBody = new { credential = email, password };
         HttpResponseMessage loginResponse = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", loginBody);
+            "/api/storefront/identity/auth/login/password", loginBody);
         loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         ApiResponse loginResult = await loginResponse.ReadApiResponseAsync();
         loginResult.IsSuccess.Should().BeTrue();
@@ -71,7 +71,7 @@ public sealed class GuestRegistrationWorkflowTests(ApiFixture fixture) : Workflo
         accessToken.Should().NotBeNullOrEmpty();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-        HttpResponseMessage profileResponse = await client.GetAsync("/api/store/profiles/profiles");
+        HttpResponseMessage profileResponse = await client.GetAsync("/api/storefront/profiles/profiles");
         profileResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         ApiResponse profileResult = await profileResponse.ReadApiResponseAsync();
         profileResult.IsSuccess.Should().BeTrue();

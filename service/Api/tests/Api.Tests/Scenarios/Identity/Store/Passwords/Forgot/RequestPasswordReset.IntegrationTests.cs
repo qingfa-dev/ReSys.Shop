@@ -15,7 +15,7 @@ public sealed class RequestPasswordResetIntegrationTests(ApiFixture fixture) : I
         var request = new { email };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/forgot", request);
+            "/api/storefront/identity/passwords/forgot", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -26,7 +26,7 @@ public sealed class RequestPasswordResetIntegrationTests(ApiFixture fixture) : I
         var request = new { email = "nonexistent@example.com" };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/forgot", request);
+            "/api/storefront/identity/passwords/forgot", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -35,7 +35,7 @@ public sealed class RequestPasswordResetIntegrationTests(ApiFixture fixture) : I
     public async Task RequestPasswordReset_WithMissingEmail_Returns204()
     {
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/forgot", new { });
+            "/api/storefront/identity/passwords/forgot", new { });
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }

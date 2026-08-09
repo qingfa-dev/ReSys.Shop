@@ -19,7 +19,7 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
@@ -34,7 +34,7 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/variants", request);
+            "/api/admin/catalog/variants", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -59,7 +59,7 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
@@ -73,7 +73,7 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/variants", request);
+            "/api/admin/catalog/variants", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -91,7 +91,7 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/variants", request);
+            "/api/admin/catalog/variants", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

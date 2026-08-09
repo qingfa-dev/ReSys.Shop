@@ -23,12 +23,12 @@ public sealed class ForgotPasswordResetWorkflowTests(ApiFixture fixture) : Workf
         var registerBody = new { email, userName, password, firstName = "Forgot", lastName = "Pwd" };
 
         HttpResponseMessage registerResp = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", registerBody);
+            "/api/storefront/identity/auth/register", registerBody);
         registerResp.IsSuccessStatusCode.Should().BeTrue();
 
         var forgotBody = new { email };
         HttpResponseMessage forgotResp = await client.PostAsJsonAsync(
-            "/api/store/identity/passwords/forgot", forgotBody);
+            "/api/storefront/identity/passwords/forgot", forgotBody);
         forgotResp.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         Guid userId;
@@ -46,17 +46,17 @@ public sealed class ForgotPasswordResetWorkflowTests(ApiFixture fixture) : Workf
         var resetBody = new { userId = userId.ToString(), token = resetToken, newPassword };
 
         HttpResponseMessage resetResp = await client.PostAsJsonAsync(
-            "/api/store/identity/passwords/reset", resetBody);
+            "/api/storefront/identity/passwords/reset", resetBody);
         resetResp.IsSuccessStatusCode.Should().BeTrue();
 
         var loginNewBody = new { credential = email, password = newPassword };
         HttpResponseMessage loginNewResp = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", loginNewBody);
+            "/api/storefront/identity/auth/login/password", loginNewBody);
         loginNewResp.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var loginOldBody = new { credential = email, password };
         HttpResponseMessage loginOldResp = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", loginOldBody);
+            "/api/storefront/identity/auth/login/password", loginOldBody);
         loginOldResp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

@@ -13,7 +13,7 @@ public sealed class GetVariantImageByIdIntegrationTests(ApiFixture fixture) : Ca
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variant-images/{nonexistentId}");
+            $"/api/admin/catalog/variant-images/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

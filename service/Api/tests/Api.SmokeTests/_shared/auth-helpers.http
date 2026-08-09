@@ -18,7 +18,7 @@ Content-Type: {{contentType}}
 
 ### Store User Login
 # @name storeLogin
-POST {{baseUrl}}/api/store/identity/auth/login/password
+POST {{baseUrl}}/api/storefront/identity/auth/login/password
 Content-Type: {{contentType}}
 
 {
@@ -28,7 +28,7 @@ Content-Type: {{contentType}}
 
 ### Register a new store user (for signup flow testing)
 # @name storeRegister
-POST {{baseUrl}}/api/store/identity/auth/register
+POST {{baseUrl}}/api/storefront/identity/auth/register
 Content-Type: {{contentType}}
 
 {
@@ -42,7 +42,7 @@ Content-Type: {{contentType}}
 
 ### Refresh Token
 # @name refreshToken
-POST {{baseUrl}}/api/store/identity/auth/sessions/refresh
+POST {{baseUrl}}/api/storefront/identity/auth/sessions/refresh
 Content-Type: {{contentType}}
 
 {

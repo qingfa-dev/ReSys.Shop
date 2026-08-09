@@ -1,6 +1,6 @@
 using Module.Catalog.Persistence;
 using Module.Location.Persistence;
-using Module.Profile.Persistence;
+using Module.Customer.Persistence;
 
 using Shared.Security.Identity.Domain.Shared;
 

@@ -20,7 +20,7 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -41,10 +41,10 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
             position = 1
         };
 
-        await Client.PostAsAdminRawAsync("/api/catalog/taxonomies", request);
+        await Client.PostAsAdminRawAsync("/api/admin/catalog/taxonomies", request);
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -61,7 +61,7 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -79,7 +79,7 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

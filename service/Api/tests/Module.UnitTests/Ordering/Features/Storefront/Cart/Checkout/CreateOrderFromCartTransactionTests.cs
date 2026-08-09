@@ -2,8 +2,8 @@ using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
 using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
-using Module.Payment.Features.Storefront.GetPaymentForCheckout;
-using Module.Payment.Features.Storefront.MarkPaymentPaid;
+using Module.Billing.Features.Storefront.GetPaymentForCheckout;
+using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 

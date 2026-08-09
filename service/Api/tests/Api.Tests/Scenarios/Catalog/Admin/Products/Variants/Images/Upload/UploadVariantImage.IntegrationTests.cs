@@ -18,7 +18,7 @@ public sealed class UploadVariantImageIntegrationTests(ApiFixture fixture) : Cat
         formContent.Add(new StringContent("0"), "Position");
         formContent.Add(new StringContent(variantId.ToString()), "VariantId");
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/catalog/variant-images")
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/admin/catalog/variant-images")
         {
             Content = formContent
         };
