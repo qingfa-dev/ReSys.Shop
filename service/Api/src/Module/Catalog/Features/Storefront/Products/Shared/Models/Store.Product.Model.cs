@@ -23,6 +23,7 @@ public record StoreProductDetailResponse : ProductDetailResponse
     public StoreProductVariantResponse? MasterVariant { get; init; }
     public List<StoreProductVariantResponse> Variants { get; init; } = [];
     public List<StoreTaxonListItemResponse> Classifications { get; init; } = [];
+    public int VariantsCount { get; init; }
     #endregion
 }
 

@@ -28,6 +28,7 @@ public static class StoreProductMapping
                 .Select(v => v.MapToStoreVariant())
                 .ToList(),
             Classifications = taxons,
+            VariantsCount = entity.Variants.Count,
         };
     }
 

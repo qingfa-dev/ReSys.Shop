@@ -45,6 +45,10 @@ public static class StoreProductVariantMapping
                 .OrderBy(i => i.Position)
                 .Select(i => i.MapToStoreImage())
                 .ToList(),
+
+            Prices = variant.Prices
+                .Select(p => p.MapToStoreItem<StoreVariantPriceListItemRepsonse>())
+                .ToList(),
         };
     }
 
