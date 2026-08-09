@@ -28,6 +28,9 @@ function buildSearchParams(params: QueryingParameters): URLSearchParams {
   if (params.optionValueId?.length) params.optionValueId.forEach(id => sp.append('optionValueId', id))
   if (params.minPrice != null) sp.set('minPrice', String(params.minPrice))
   if (params.maxPrice != null) sp.set('maxPrice', String(params.maxPrice))
+  // Append: Product context params — bound as separate [FromQuery] on backend endpoints
+  if (params.productId) sp.set('productId', params.productId)
+  if (params.topK != null) sp.set('topK', String(params.topK))
   return sp
 }
 

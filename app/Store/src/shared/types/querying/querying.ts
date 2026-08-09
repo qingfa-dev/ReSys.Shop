@@ -28,6 +28,9 @@ export interface QueryingParameters {
   optionValueId?: string[] | null
   minPrice?: number | null
   maxPrice?: number | null
+  // Dedicated: Product context params — used by related/similar product endpoints
+  productId?: string | null
+  topK?: number | null
 }
 
 export interface QueryingModel {

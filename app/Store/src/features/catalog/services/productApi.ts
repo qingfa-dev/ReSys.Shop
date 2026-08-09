@@ -6,6 +6,7 @@ import { ProductListItemSchema, ProductDetailSchema } from '../validations/produ
 import { PagedResultSchema } from '@/shared/validations/result'
 import { failure } from '@/shared/types/result'
 import type { PagedResult, Result } from '@/shared/types'
+import type { QueryingParameters } from '@/shared/types/querying'
 import type { StoreProductListItemResponse, StoreProductDetailResponse, ProductQuery } from '../types'
 import { toProductQueryParams } from '../types'
 
@@ -56,7 +57,7 @@ export class ProductApi {
 
   static async getSimilar(productId: string, topK?: number): Promise<PagedResult<StoreProductListItemResponse & { similarityScore: number }>> {
     // Call: Catalog API — AI-powered similar product recommendations
-    const params: Record<string, unknown> = { productId }
+    const params: QueryingParameters = { productId }
     if (topK) params.topK = topK
     const result = await getPaged<unknown>(`${this.BASE}/similar`, params)
     if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse & { similarityScore: number }>
@@ -67,7 +68,7 @@ export class ProductApi {
 
   static async getRelated(productId: string, q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {
     // Call: Catalog API — paginated related products with filters
-    const params: Record<string, unknown> = { productId, ...toProductQueryParams(q) }
+    const params: QueryingParameters = { productId, ...toProductQueryParams(q) }
     const result = await getPaged<unknown>(`${this.BASE}/related`, params)
     if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse>
     // Validate: Ensure API response matches ProductListItem schema
