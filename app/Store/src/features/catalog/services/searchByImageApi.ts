@@ -1,5 +1,4 @@
 import { get, post } from '@/shared/api/client'
-import { CATALOG } from '@/shared/constants/api'
 import { VisualSearchModelSchema } from '../validations/searchByImage'
 import type { PagedResult, Result } from '@/shared/types'
 import type { SearchByImageResponse, VisualSearchModel } from '../types'
@@ -7,7 +6,7 @@ import type { SearchByImageResponse, VisualSearchModel } from '../types'
 export class SearchByImageApi {
   static async getVisualSearchModels(): Promise<Result<VisualSearchModel[]>> {
     // Call: Catalog API to fetch available visual search ML models
-    const result = await get<Result<VisualSearchModel[]>>(`${CATALOG}/products/visual-search/models`)
+    const result = await get<Result<VisualSearchModel[]>>('/api/storefront/catalog/products/visual-search/models')
     if (!result.isSuccess) return result
     // Validate: Ensure API response conforms to VisualSearchModel schema
     result.value = VisualSearchModelSchema.array().parse(result.value)
@@ -24,7 +23,7 @@ export class SearchByImageApi {
     form.append('image', file)
     if (topK) form.append('topK', String(topK))
     if (model) form.append('model', model)
-    const result = await post<PagedResult<SearchByImageResponse>>(`${CATALOG}/products/images/search`, form)
+    const result = await post<PagedResult<SearchByImageResponse>>('/api/storefront/catalog/products/images/search', form)
     return result
   }
 }

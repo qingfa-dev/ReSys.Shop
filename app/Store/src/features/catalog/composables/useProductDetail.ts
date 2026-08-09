@@ -33,12 +33,12 @@ const isInStock = computed(() => {
   return stock ? stock.availableQuantity > 0 || stock.backorderable : false
 })
 
-async function load(slug: string): Promise<void> {
+async function load(id: string): Promise<void> {
   const seq = ++_loadSeq
   loading.value = true
   error.value = null
   try {
-    const result = await ProductApi.getProductBySlug(slug)
+    const result = await ProductApi.getProductById(id)
     if (seq !== _loadSeq) return
     if (result.isSuccess) {
       product.value = result.value

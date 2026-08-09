@@ -1,5 +1,4 @@
 import { getPaged } from '@/shared/api'
-import { TAXONOMIES, TAXONS_ALL } from '@/shared/constants/api'
 import { TaxonomyListItemSchema, TaxonListItemSchema } from '../validations/taxon'
 import { PagedResultSchema } from '@/shared/validations/result'
 import type { PagedResult } from '@/shared/types'
@@ -12,14 +11,14 @@ const taxonList = PagedResultSchema(TaxonListItemSchema)
 
 export class TaxonApi {
   static async getTaxonomies(q: QueryingParameters): Promise<PagedResult<StoreTaxonomyListItem>> {
-    const result = await getPaged<unknown>(TAXONOMIES, q)
+    const result = await getPaged<unknown>('/api/storefront/catalog/taxonomies', q)
     if (!result.isSuccess) return result as PagedResult<StoreTaxonomyListItem>
     const parsed = taxonomyList.parse({ ...result, items: result.items })
     return parsed as PagedResult<StoreTaxonomyListItem>
   }
 
   static async getTaxons(q: QueryingParameters): Promise<PagedResult<StoreTaxonListItemResponse>> {
-    const result = await getPaged<unknown>(TAXONS_ALL, q)
+    const result = await getPaged<unknown>('/api/storefront/catalog/taxons', q)
     if (!result.isSuccess) return result as PagedResult<StoreTaxonListItemResponse>
     const parsed = taxonList.parse({ ...result, items: result.items })
     return parsed as PagedResult<StoreTaxonListItemResponse>

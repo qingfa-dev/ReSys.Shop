@@ -21,7 +21,7 @@ export const catalogRoutes: RouteRecordRaw[] = [
     meta: { title: 'Collections' },
   },
   {
-    path: '/products/:slug',
+    path: '/products/:id',
     name: 'product-detail',
     component: () => import('../views/ProductDetailView.vue'),
     meta: { title: 'Product' },

@@ -1,11 +1,10 @@
 import { get, put } from '@/shared/api/client'
-import { PROFILES } from '@/shared/constants/api'
 import { NotificationPreferencesSchema } from '../validations/notification'
 import type { Result } from '@/shared/types'
 import type { NotificationPreferences } from '../types'
 
 export class NotificationApi {
-  private static readonly BASE = `${PROFILES}/notifications`
+  private static readonly BASE = '/api/storefront/customer/notification-preferences'
 
   // Call: Fetch current notification channel preferences
   static async getNotificationPreferences(): Promise<Result<NotificationPreferences>> {

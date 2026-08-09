@@ -1,9 +1,8 @@
 import axios from 'axios'
 import { STORAGE_KEYS } from '@/shared/constants/storage'
-import { ENDPOINTS } from '@/shared/constants/api'
 
 // Assign: Refresh endpoint URL — configurable for different environments
-let refreshUrl: string = ENDPOINTS.sessionsRefresh
+let refreshUrl: string = '/api/storefront/identity/auth/sessions/refresh'
 // Acquire: Raw axios instance bypasses interceptors to avoid infinite refresh loop
 const rawAxios = axios.create()
 

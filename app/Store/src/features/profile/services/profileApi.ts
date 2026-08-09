@@ -1,11 +1,10 @@
 import { get, put } from '@/shared/api/client'
-import { PROFILES } from '@/shared/constants/api'
 import { ProfileDetailSchema } from '../validations/profile'
 import type { Result } from '@/shared/types'
 import type { ProfileDetail, UpdateProfileRequest } from '../types'
 
 export class ProfileApi {
-  private static readonly BASE = `${PROFILES}/profiles`
+  private static readonly BASE = '/api/storefront/customer'
 
   // Call: Fetch authenticated user profile from profile API
   static async getProfile(): Promise<Result<ProfileDetail>> {

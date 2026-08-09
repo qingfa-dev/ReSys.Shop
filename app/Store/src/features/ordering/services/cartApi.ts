@@ -1,12 +1,11 @@
 import { get, post, put, del } from '@/shared/api/client'
-import { CART } from '@/shared/constants/api'
 import { CartResponseSchema } from '../validations/cart'
 import type { Result } from '@/shared/types'
 import type { CartResponse, AddCartItemRequest, UpdateCartItemRequest } from '../types'
 
 // Service: Cart API client with runtime response validation via Zod schemas.
 export class CartApi {
-  private static readonly BASE = CART
+  private static readonly BASE = '/api/storefront/ordering/cart'
 
   static async getCart(): Promise<Result<CartResponse>> {
     const result = await get<Result<CartResponse>>(this.BASE)

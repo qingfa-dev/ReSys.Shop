@@ -1,5 +1,4 @@
 import { get, post, put, del } from '@/shared/api/client'
-import { PROFILES } from '@/shared/constants/api'
 import { WishlistListItemSchema, WishlistDetailSchema } from '../validations/wishlist'
 import { PagedResultSchema } from '@/shared/validations/result'
 import type { Result, PagedResult } from '@/shared/types'
@@ -9,7 +8,7 @@ import type { WishlistListItem, WishlistDetail, CreateWishlistRequest, UpdateWis
 const wishlistList = PagedResultSchema(WishlistListItemSchema)
 
 export class WishlistApi {
-  private static readonly BASE = `${PROFILES}/wishlists`
+  private static readonly BASE = '/api/storefront/customer/wishlists'
 
   // Call: Fetch all wishlists for the authenticated user
   static async getWishlists(): Promise<PagedResult<WishlistListItem>> {

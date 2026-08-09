@@ -3,7 +3,7 @@
 // - GetStorefrontCountryPagedOrAll.Response — CountryListItemResponse (PagedResult envelope)
 // - GetStorefrontStatePagedOrAll.Response — StateListResponse (PagedResult envelope)
 
-// Contract: GET api/storefront/locations/countries — CountryListItemResponse.
+// Contract: GET api/storefront/location/countries — CountryListItemResponse.
 export interface Country {
   id: string
   name: string
@@ -13,7 +13,7 @@ export interface Country {
   isActive: boolean
 }
 
-// Contract: GET api/storefront/locations/states — StateListResponse.
+// Contract: GET api/storefront/location/states — StateListResponse.
 // countryId is the foreign key used by useLocationCascade to filter states for a selected country.
 export interface State {
   id: string

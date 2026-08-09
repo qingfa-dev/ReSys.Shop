@@ -1,5 +1,4 @@
 import { get, post, put, del } from '@/shared/api/client'
-import { PROFILES } from '@/shared/constants/api'
 import { AddressSchema } from '../validations/address'
 import { PagedResultSchema } from '@/shared/validations/result'
 import type { Result, PagedResult } from '@/shared/types'
@@ -9,7 +8,7 @@ import type { Address, AddressInput } from '../types'
 const addressList = PagedResultSchema(AddressSchema)
 
 export class AddressApi {
-  private static readonly BASE = `${PROFILES}/addresses`
+  private static readonly BASE = '/api/storefront/customer/addresses'
 
   // Call: Fetch all addresses for the authenticated user
   static async getAddresses(): Promise<PagedResult<Address>> {

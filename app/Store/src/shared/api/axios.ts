@@ -1,6 +1,8 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 import { STORAGE_KEYS } from '@/shared/constants/storage'
+import { camelCaseInterceptor } from './interceptors/camelcase'
+import { errorInterceptor } from './interceptors/error'
 
 // State: Singleton Axios instance — lazily initialized via getApiClient()
 let apiClient: AxiosInstance | null = null
@@ -20,6 +22,9 @@ export function createApiClient(baseURL?: string): AxiosInstance {
     }
     return config
   })
+
+  // Intercept: Convert snake_case responses to camelCase and handle HTTP errors
+  apiClient.interceptors.response.use(camelCaseInterceptor, errorInterceptor)
 
   return apiClient
 }

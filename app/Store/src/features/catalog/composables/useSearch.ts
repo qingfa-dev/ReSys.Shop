@@ -55,7 +55,7 @@ function createSearch() {
     const item = results.value[index]
     if (!item) return
     close()
-    window.location.href = `/products/${item.slug}`
+    window.location.href = `/products/${item.id}`
   }
 
   return { isOpen, query, results, loading, selectedIndex, error, open, close, clear, search, navigateToResult }

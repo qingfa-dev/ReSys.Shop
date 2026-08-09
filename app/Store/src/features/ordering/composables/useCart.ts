@@ -125,9 +125,16 @@ function reset(): void {
 on('auth:login', () => associateGuestCart())
 on('auth:logout', () => reset())
 
-export function useCart() {
+let cartInstance: ReturnType<typeof createCart> | null = null
+
+function createCart() {
   return reactive({
     id, items, loading, error, itemCount, subtotal, isEmpty, cartToken,
     fetchCart, addItem, updateQuantity, removeItem, clearCart, associateGuestCart, reset,
   })
+}
+
+export function useCart() {
+  if (!cartInstance) cartInstance = createCart()
+  return cartInstance
 }

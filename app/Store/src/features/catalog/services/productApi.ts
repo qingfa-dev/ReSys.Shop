@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { get, HttpError } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
 import { PRODUCT_SORT_FIELDS, PRODUCT_SEARCH_FIELDS, PRODUCT_FILTER_FIELDS } from '@/shared/constants/product'
 import { ProductListItemSchema, ProductDetailSchema } from '../validations/product'
 import { PagedResultSchema } from '@/shared/validations/result'
@@ -17,7 +16,7 @@ const SimilarProductSchema = ProductListItemSchema.extend({ similarityScore: z.n
 const validatedSimilarList = PagedResultSchema(SimilarProductSchema)
 
 export class ProductApi {
-  private static readonly BASE = `${CATALOG}/products`
+  private static readonly BASE = '/api/storefront/catalog/products'
 
   static async getProducts(q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {
     // Call: Catalog API — paginated product list with filters, sort, search
@@ -33,10 +32,10 @@ export class ProductApi {
     return parsed as PagedResult<StoreProductListItemResponse>
   }
 
-  static async getProductBySlug(slug: string): Promise<Result<StoreProductDetailResponse>> {
+  static async getProductById(id: string): Promise<Result<StoreProductDetailResponse>> {
     try {
-      // Call: Catalog API — single product detail by SEO-friendly slug
-      const data = await get<Result<StoreProductDetailResponse>>(`${this.BASE}/${slug}`)
+      // Call: Catalog API — single product detail by ID
+      const data = await get<Result<StoreProductDetailResponse>>(`${this.BASE}/${id}`)
       if (!data.isSuccess) return data
       // Validate: Ensure API response matches ProductDetail schema
       data.value = ProductDetailSchema.parse(data.value)
