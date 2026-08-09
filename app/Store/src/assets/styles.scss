@@ -1,4 +1,4 @@
-// Storefront Aura theme overrides — Farfetch-inspired luxury fashion + teal.
+// Storefront Aura theme overrides — single light-mode token source for the Store SPA.
 //
 // PrimeVue 5 Aura emits one CSS custom property per semantic token as
 // --p-{dotted-path->kebab}, e.g. semantic primary.color -> --p-primary-color.
@@ -60,47 +60,6 @@
   // --- Legacy v4 aliases ---
   --p-surface-ground: #fafafa;
   --p-surface-card: #ffffff;
-}
-
-// --- Dark mode: invert surface/text, brighten primary ---
-.app-dark {
-  --p-surface-0: #171717;
-  --p-surface-50: #0a0a0a;
-  --p-surface-100: #171717;
-  --p-surface-200: #262626;
-  --p-surface-300: #404040;
-  --p-surface-400: #525252;
-  --p-surface-500: #737373;
-  --p-surface-600: #a3a3a3;
-  --p-surface-700: #d4d4d4;
-  --p-surface-800: #f5f5f5;
-  --p-surface-900: #fafafa;
-  --p-surface-950: #ffffff;
-
-  --p-content-background: #171717;
-  --p-content-border-color: #262626;
-  --p-text-color: #fafafa;
-  --p-text-muted-color: #737373;
-
-  --p-primary-color: #2ecfd3;
-  --p-primary-hover-color: #4dd8db;
-  --p-primary-active-color: #0d7377;
-  --p-primary-contrast-color: #022022;
-
-  --p-primary-50: #022022;
-  --p-primary-100: #043537;
-  --p-primary-200: #074a4d;
-  --p-primary-300: #095c5f;
-  --p-primary-400: #0b6569;
-  --p-primary-500: #2ecfd3;
-  --p-primary-600: #5ce0e3;
-  --p-primary-700: #80d4d6;
-  --p-primary-800: #b3e6e7;
-  --p-primary-900: #e0f5f5;
-  --p-primary-950: #f0fbfb;
-
-  --p-surface-ground: #0a0a0a;
-  --p-surface-card: #171717;
 }
 
 // --- Typography ---
