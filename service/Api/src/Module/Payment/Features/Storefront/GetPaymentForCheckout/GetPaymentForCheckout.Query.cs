@@ -1,9 +1,0 @@
-using Shared.Application.Mediators.Queries;
-
-namespace Module.Payment.Features.Storefront.GetPaymentForCheckout;
-
-public sealed record GetPaymentForCheckoutQuery : IQuery<PaymentForCheckoutResponse>
-{
-    public string PaymentIntentId { get; init; } = default!;
-    public Guid OrderId { get; init; }
-}
