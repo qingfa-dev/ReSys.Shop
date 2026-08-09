@@ -175,7 +175,7 @@ const menuItems = computed<MenuItem[]>(() => [
       </template>
 
       <template #footer>
-        <div class="flex items-center justify-end gap-1">
+        <div class="flex items-center justify-between gap-2">
           <Button
             :icon="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"
             variant="text"
@@ -185,25 +185,24 @@ const menuItems = computed<MenuItem[]>(() => [
             v-tooltip.bottom="wishlistLabel"
             @click="onToggleWishlist"
           />
-          <Button
-            icon="pi pi-shopping-cart"
-            variant="text"
-            severity="secondary"
-            rounded
-            aria-label="Add to cart"
-            v-tooltip.bottom="'Add to cart'"
-            @click="onAddToCart"
-          />
-          <Button
-            ref="quickViewButton"
-            icon="pi pi-eye"
-            variant="text"
-            severity="secondary"
-            rounded
-            aria-label="Quick view"
-            v-tooltip.bottom="'Quick view'"
-            @click="onQuickView"
-          />
+          <div class="flex items-center gap-1">
+            <Button
+              label="Add to cart"
+              icon="pi pi-shopping-cart"
+              size="small"
+              @click="onAddToCart"
+            />
+            <Button
+              ref="quickViewButton"
+              icon="pi pi-eye"
+              variant="text"
+              severity="secondary"
+              rounded
+              aria-label="Quick view"
+              v-tooltip.bottom="'Quick view'"
+              @click="onQuickView"
+            />
+          </div>
         </div>
       </template>
     </Card>

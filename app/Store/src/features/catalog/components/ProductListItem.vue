@@ -198,8 +198,8 @@ const menuItems = computed<MenuItem[]>(() => [
       </div>
     </div>
 
-    <!-- Actions: Wishlist, add-to-cart, quick-view -->
-    <div class="flex shrink-0 flex-col items-center justify-between">
+    <!-- Actions: Wishlist, add-to-cart, buy-now -->
+    <div class="flex shrink-0 flex-col items-end justify-between gap-2">
       <Button
         :icon="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"
         variant="text"
@@ -209,24 +209,19 @@ const menuItems = computed<MenuItem[]>(() => [
         v-tooltip.left="wishlistLabel"
         @click="onToggleWishlist"
       />
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-2">
         <Button
+          label="Add to cart"
           icon="pi pi-shopping-cart"
-          variant="text"
-          severity="secondary"
-          rounded
-          aria-label="Add to cart"
-          v-tooltip.left="'Add to cart'"
+          size="small"
           @click="onAddToCart"
         />
         <Button
           ref="quickViewButton"
+          label="Quick view"
           icon="pi pi-eye"
           variant="text"
-          severity="secondary"
-          rounded
-          aria-label="Quick view"
-          v-tooltip.left="'Quick view'"
+          size="small"
           @click="onQuickView"
         />
       </div>

@@ -30,13 +30,6 @@ const rootTaxons = computed(() => {
   return roots
 })
 
-// Benefits: Static trust strip copy
-const benefits = [
-  { icon: 'pi pi-truck', title: 'Free Shipping', text: 'Free standard delivery on orders over $100.' },
-  { icon: 'pi pi-shield', title: 'Easy Returns', text: '30-day hassle-free returns on every order.' },
-  { icon: 'pi pi-headset', title: 'Expert Support', text: 'Fashion specialists on hand seven days a week.' },
-]
-
 onMounted(() => {
   // Load: Taxonomy groups for the category row — composable guards duplicate fetches
   void taxonomy.loadTaxonomyGroups()
@@ -123,25 +116,6 @@ onMounted(() => {
           as="router-link"
           :to="{ path: '/shop', query: { taxon: taxon.id } }"
         />
-      </div>
-    </DeferredContent>
-
-    <!-- Section: Benefits — trust strip deferred until scrolled into view -->
-    <DeferredContent class="border-t border-surface-200 bg-surface-50">
-      <div class="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6 lg:px-8">
-        <div
-          v-for="benefit in benefits"
-          :key="benefit.title"
-          class="flex flex-col items-center gap-3 text-center"
-        >
-          <i :class="benefit.icon" class="text-3xl text-brand" />
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-heading">
-            {{ benefit.title }}
-          </h3>
-          <p class="max-w-xs text-sm text-muted">
-            {{ benefit.text }}
-          </p>
-        </div>
       </div>
     </DeferredContent>
   </div>
