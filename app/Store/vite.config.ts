@@ -22,7 +22,6 @@ export default defineConfig({
     tailwind(),
     Components({
       resolvers: [PrimeVueResolver()],
-      dirs: ['src/app/components'],
     }),
   ],
   server: {

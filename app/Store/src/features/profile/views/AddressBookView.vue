@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
+import Label from 'primevue/label'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useLocationCascade } from '@/features/location/composables/useLocationCascade'
 import { useAddresses } from '../composables/useAddresses'

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Label from 'primevue/label'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'

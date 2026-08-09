@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Label from 'primevue/label'
 import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'

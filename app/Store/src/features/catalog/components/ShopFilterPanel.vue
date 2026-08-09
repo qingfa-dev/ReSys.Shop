@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import type { TreeNode } from 'primevue/treenode'
 import { useFilters } from '../composables/useFilters'
+import Label from 'primevue/label'
 import { useTaxonomy } from '../composables/useTaxonomy'
 import { formatCurrency } from '@/shared/utils/currency'
 import type { StoreOptionValueListItemResponse, TaxonTreeNode } from '../types'

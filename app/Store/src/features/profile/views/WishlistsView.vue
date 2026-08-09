@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Label from 'primevue/label'
 import { computed, onMounted, ref, watch } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
