@@ -1,0 +1,387 @@
+kind: BuildingBlockModule
+id: profile
+name: Module.Profile
+version: "1.0.0"
+schema_version: "3.0"
+status: stable
+
+meta:
+  id: A-1
+  name: Module Metadata
+  domain: Profile
+  size: 5831 LOC
+  layer: module
+  namespace: Module.Profile
+  assembly: Module
+  dependencies:
+    - shared-application
+    - shared-security
+  providers:
+    - persistence
+    - auth
+    - observability
+
+principles:
+  - id: P-1
+    name: Single Aggregate Root
+    description: UserProfile is the sole aggregate root; all child entities operate within its consistency boundary.
+    rationale: |
+      Prevents orphaned addresses or wishlists by anchoring all mutations to the profile lifecycle.
+  - id: P-2
+    name: Feature Isolation
+    description: |
+      Each CRUD action lives in its own vertical slice (Handler + Request + Response + Endpoint + Validator).
+    rationale: |
+      Enables independent evolution, testability, and review of individual operations.
+  - id: P-3
+    name: Result Pattern
+    description: |
+      All domain operations return Result<T> — never throw exceptions for business logic failures.
+    rationale: |
+      Makes error handling explicit and composable at every layer.
+  - id: P-4
+    name: Module Isolation
+    description: |
+      Profile module never references other business modules; cross-cutting concerns use Shared abstractions only.
+    rationale: |
+      Maintains the modular monolith boundary and prevents coupling spikes.
+
+features:
+  - id: F-1
+    name: Profile Management
+    description: CRUD operations for user profiles including personal info, commerce stats, and preferences.
+    endpoints:
+      - method: GET
+        route: /api/storefront/profiles/profiles
+        description: Retrieve authenticated user's profile
+      - method: GET
+        route: /api/storefront/profiles/profiles/all
+        description: Retrieve all profiles with pagination
+      - method: POST
+        route: /api/storefront/profiles/profiles
+        description: Create a new profile
+      - method: PUT
+        route: /api/storefront/profiles/profiles
+        description: Update authenticated user's profile
+      - method: DELETE
+        route: /api/storefront/profiles/profiles
+        description: Deactivate authenticated user's profile
+
+  - id: F-2
+    name: Address Management
+    description: CRUD operations for user addresses with default billing/shipping support.
+    endpoints:
+      - method: GET
+        route: /api/storefront/profiles/addresses
+        description: Retrieve all user addresses
+      - method: GET
+        route: /api/storefront/profiles/addresses/{id:guid}
+        description: Retrieve address by ID
+      - method: POST
+        route: /api/storefront/profiles/addresses
+        description: Create a new address
+      - method: PUT
+        route: /api/storefront/profiles/addresses/{id:guid}
+        description: Update an address
+      - method: DELETE
+        route: /api/storefront/profiles/addresses/{id:guid}
+        description: Delete an address
+
+  - id: F-3
+    name: Wishlist Management
+    description: Full wishlist lifecycle including items, privacy, and default flag management.
+    endpoints:
+      - method: GET
+        route: /api/storefront/profiles/wishlists
+        description: List authenticated user's wishlists
+      - method: GET
+        route: /api/storefront/profiles/wishlists/{id:guid}
+        description: Retrieve wishlist by ID
+      - method: POST
+        route: /api/storefront/profiles/wishlists
+        description: Create a new wishlist
+      - method: PUT
+        route: /api/storefront/profiles/wishlists/{id:guid}
+        description: Update wishlist metadata
+      - method: DELETE
+        route: /api/storefront/profiles/wishlists/{id:guid}
+        description: Soft-delete a wishlist
+      - method: POST
+        route: /api/storefront/profiles/wishlists/{id:guid}/items
+        description: Add item to wishlist
+      - method: DELETE
+        route: /api/storefront/profiles/wishlists/{id:guid}/items/{itemId:guid}
+        description: Remove item from wishlist
+
+  - id: F-4
+    name: Notification Preferences
+    description: Get and update user notification delivery preferences.
+    endpoints:
+      - method: GET
+        route: /api/storefront/profiles/notification-preferences
+        description: Retrieve notification preferences
+      - method: PUT
+        route: /api/storefront/profiles/notification-preferences
+        description: Update notification preferences
+
+abstractions:
+  entities:
+    - id: A-2
+      name: UserProfile
+      type: aggregate_root
+      path: ./Domain/UserProfile.cs
+      description: User profile with personal, commerce, and preference data.
+      purpose: |
+        Central entity anchoring all profile-related data; implements Entity and IAuditable.
+
+    - id: A-3
+      name: Address
+      type: entity
+      path: ./Domain/Addresses/Address.cs
+      description: User address with type, validation, and default flags.
+      purpose: |
+        Stores physical addresses for billing and shipping; owned by UserProfile.
+
+    - id: A-4
+      name: Wishlist
+      type: entity
+      path: ./Domain/Wishlists/Wishlist.cs
+      description: Named collection of product variants with privacy control.
+      purpose: |
+        Allows users to curate and share wishlists; owned by UserProfile.
+
+    - id: A-5
+      name: WishedItem
+      type: entity
+      path: ./Domain/Wishlists/WishedItems
+      description: Individual item within a wishlist.
+      purpose: |
+        References a product variant within a wishlist context.
+
+    - id: A-6
+      name: NotificationPreferences
+      type: value_object
+      path: ./Domain/Notifications/NotificationPreferences.cs
+      description: User notification delivery channel preferences.
+      purpose: |
+        Configurable per-channel notification toggles; default value provided via NotificationPreferences.Default.
+
+    - id: A-7
+      name: UserPreferences
+      type: value_object
+      path: ./Domain/Preferences/UserPreferences.cs
+      description: General user preference settings.
+      purpose: |
+        Stores language, currency, and other non-notification preferences.
+
+  value_objects:
+    - id: A-8
+      name: UserProfileConstant
+      type: constants
+      path: ./Domain/UserProfile.Constant.cs
+      description: Constants and defaults for UserProfile entity.
+      purpose: |
+        Centralizes magic values and default configuration for profiles.
+
+    - id: A-9
+      name: AddressConstant
+      type: constants
+      path: ./Domain/Addresses/Address.Constant.cs
+      description: Constants and defaults for Address entity.
+      purpose: |
+        Centralizes magic values and default configuration for addresses.
+
+    - id: A-10
+      name: WishlistConstant
+      type: constants
+      path: ./Domain/Wishlists/Wishlist.Constant.cs
+      description: Constants and defaults for Wishlist entity.
+      purpose: |
+        Centralizes magic values and default configuration for wishlists.
+
+  infrastructure:
+    - id: A-11
+      name: ProfileSchema
+      type: persistence_schema
+      path: ./Persistence/Profile.Schema.cs
+      description: PostgreSQL schema and table name definitions for Profile module.
+      purpose: |
+        Defines snake_case table names for UserProfiles, Addresses, Wishlists, and WishedItems.
+
+    - id: A-12
+      name: ProfilesExtensions
+      type: di_registration
+      path: ./Profiles.Extensions.cs
+      description: DI extension methods for the Profile module.
+      purpose: |
+        Registers Profile module seeders (UserProfileSeeder, AddressSeeder) into the application pipeline.
+
+    - id: A-13
+      name: ProfileFeature
+      type: route_constants
+      path: ./Features/Shared/ProfileFeature.cs
+      description: Centralized route definitions for Store and Admin profile endpoints.
+      purpose: |
+        Single source of truth for all endpoint routes, descriptions, and OpenAPI tags.
+
+  features_shared:
+    - id: A-14
+      name: Profile.Mapping.Domain
+      type: mapping
+      path: ./Features/Admin/Profiles/Shared/Mappings/Profile.Mapping.Domain.cs
+      description: Mapster mappings between UserProfile entity and response/request DTOs.
+      purpose: |
+        Handles domain-to-model translation for profile endpoints.
+
+    - id: A-15
+      name: Profile.Mapping.Model
+      type: mapping
+      path: ./Features/Admin/Profiles/Shared/Mappings/Profile.Mapping.Model.cs
+      description: Mapster mappings between profile model DTOs.
+      purpose: |
+        Handles model-to-model translation for profile feature shared DTOs.
+
+    - id: A-16
+      name: Address.Mapping.Domain
+      type: mapping
+      path: ./Features/Admin/Addresses/Shared/Mappings/Address.Mapping.cs
+      description: Mapster mappings between Address entity and response/request DTOs.
+      purpose: |
+        Handles domain-to-model translation for address endpoints.
+
+    - id: A-17
+      name: Profile.Validator
+      type: validator
+      path: ./Features/Admin/Profiles/Shared/Validators/Profile.Validator.cs
+      description: Shared FluentValidation rules for profile request DTOs.
+      purpose: |
+        Validates profile create/update requests at the feature layer.
+
+    - id: A-18
+      name: Address.Validator.Parameters
+      type: validator
+      path: ./Features/Admin/Addresses/Shared/Validators/Address.Validator.cs
+      description: FluentValidation rules for address parameter DTOs.
+      purpose: |
+        Validates address create/update requests at the feature layer.
+
+technical:
+  schema:
+    id: TS-1
+    name: Database Schema
+    description: PostgreSQL schema managed by EF Core migrations.
+    tables:
+      - name: user_profiles
+        primary_key: id
+        columns:
+          - id
+          - first_name
+          - last_name
+          - email
+          - phone_number
+          - date_of_birth
+          - gender
+          - bio
+          - avatar_url
+          - preferences
+          - notifications
+          - is_active
+          - accepts_email_marketing
+          - internal_note_html
+          - default_billing_address_id
+          - default_shipping_address_id
+          - orders_count
+          - total_spent
+          - last_order_completed_at_utc
+          - created_at_utc
+          - modified_at_utc
+          - created_by
+          - modified_by
+          - user_id
+      - name: addresses
+        primary_key: id
+        columns:
+          - id
+          - street_address
+          - city
+          - state
+          - postal_code
+          - country
+          - address_type
+          - is_default
+          - profile_id
+      - name: wishlists
+        primary_key: id
+        columns:
+          - id
+          - name
+          - is_public
+          - is_default
+          - profile_id
+      - name: wished_items
+        primary_key: id
+        columns:
+          - id
+          - variant_id
+          - added_at_utc
+          - wishlist_id
+
+  orm:
+    id: TS-2
+    name: EF Core Configuration
+    description: |
+      Entity configurations in Persistence/Configurations/ map entities to PostgreSQL tables.
+    files:
+      - UserProfile.Configuration.cs
+      - Address.Configuration.cs
+      - Wishlist.Configuration.cs
+      - WishedItem.Configuration.cs
+
+anti_patterns:
+  - id: AP-1
+    name: Direct Module References
+    description: |
+      Never import or reference types from other business modules (Catalog, Inventory, etc.).
+    consequence: |
+      Circular dependencies and monolith coupling that defeats modular architecture.
+
+  - id: AP-2
+    name: Exception-Based Error Handling
+    description: |
+      Never throw exceptions for business logic failures; always return Result<T>.
+    consequence: |
+      Unpredictable control flow and hidden failure modes that complicate debugging.
+
+  - id: AP-3
+    name: God Entity Anti-Pattern
+    description: |
+      UserProfile holds commerce stats and preferences but must not accumulate unrelated responsibilities.
+    consequence: |
+      Entity bloat that breaks SRP and makes testing/migration harder.
+
+  - id: AP-4
+    name: Shared State Across Features
+    description: |
+      Feature handlers must not share static or mutable state between requests.
+    consequence: |
+      Race conditions and non-deterministic behavior under concurrent load.
+
+usage:
+  registration:
+    id: TS-3
+    name: Module Registration
+    description: |
+      Register the Profile module by calling AddProfilesModule() on WebApplicationBuilder.
+    code: |
+      builder.AddProfilesModule();
+
+  dependencies:
+    id: TS-4
+    name: Module Dependencies
+    description: |
+      Profile depends only on Shared.Application and Shared.Security — never on other modules.
+    list:
+      - Shared.Application (domain abstractions, IAuditable)
+      - Shared.Security.Identity (User entity, PermissionMetadata)
+
+tree_file: docs/codebase/profile.tree.txt
