@@ -55,7 +55,7 @@ function removeItem(lineItemId: string): void {
         />
         <div
           v-else
-          class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-surface-50 dark:bg-surface-800"
+          class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-surface-50"
         >
           <i class="pi pi-image text-xl text-surface-300" />
         </div>
@@ -92,7 +92,7 @@ function removeItem(lineItemId: string): void {
 
       <!-- Totals: Subtotal plus progress toward the free-shipping cutoff -->
       <div class="flex items-center justify-between">
-        <span class="text-sm text-surface-600 dark:text-surface-400">Subtotal</span>
+        <span class="text-sm text-surface-600">Subtotal</span>
         <span class="font-semibold">{{ formatCurrency(cart.subtotal) }}</span>
       </div>
       <div class="space-y-1">

@@ -69,7 +69,7 @@ onMounted(() => void loadPrefs())
 
       <!-- Section: Preference Rows — one toggle per channel -->
       <div v-else class="flex flex-col gap-5">
-        <div v-for="channel in channels" :key="channel.key" class="flex items-center justify-between gap-4 border-b border-surface-100 pb-4 last:border-b-0 dark:border-surface-800">
+        <div v-for="channel in channels" :key="channel.key" class="flex items-center justify-between gap-4 border-b border-surface-100 pb-4 last:border-b-0">
           <div>
             <div class="font-medium">{{ channel.label }}</div>
             <p class="mt-0.5 text-sm text-surface-500">{{ channel.description }}</p>

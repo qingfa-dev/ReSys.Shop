@@ -210,7 +210,7 @@ onMounted(() => {
         </Column>
         <Column header="Address">
           <template #body="{ data }">
-            <span class="text-sm text-surface-600 dark:text-surface-400">{{ addressLines(data) }}</span>
+            <span class="text-sm text-surface-600">{{ addressLines(data) }}</span>
           </template>
         </Column>
         <Column header="Default">
@@ -332,7 +332,7 @@ onMounted(() => {
       </div>
 
       <!-- Default Toggle: Mark the saved row as the default address -->
-      <div class="flex items-center justify-between rounded-lg border border-surface-200 px-3 py-2 dark:border-surface-800">
+      <div class="flex items-center justify-between rounded-lg border border-surface-200 px-3 py-2">
         <Label for="address-default" class="text-sm font-medium">Set as default address</Label>
         <ToggleSwitch id="address-default" v-model="isDefault" />
       </div>

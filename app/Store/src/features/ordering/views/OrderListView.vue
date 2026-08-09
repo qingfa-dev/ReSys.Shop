@@ -59,7 +59,7 @@ onMounted(() => {
           <template #body="{ data }">
             <RouterLink
               :to="`/account/orders/${data.id}`"
-              class="font-medium text-primary-700 hover:underline dark:text-primary-300"
+              class="font-medium text-primary-700 hover:underline"
             >
               {{ data.number }}
             </RouterLink>

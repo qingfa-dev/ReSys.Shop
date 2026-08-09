@@ -375,7 +375,7 @@ onUnmounted(() => {
               No active payment method is available.
             </Message>
             <!-- Card: Stripe Elements mounts the hosted card form into this container -->
-            <div ref="cardContainer" class="rounded-lg border border-surface-300 p-4 dark:border-surface-700" />
+            <div ref="cardContainer" class="rounded-lg border border-surface-300 p-4" />
             <p class="text-sm text-surface-500">
               Card details are processed securely by Stripe. Payment is confirmed when you place the order.
             </p>
@@ -405,11 +405,11 @@ onUnmounted(() => {
             </DataTable>
             <div class="flex max-w-md flex-col gap-2 text-sm">
               <div class="flex justify-between">
-                <span class="text-surface-600 dark:text-surface-400">Subtotal</span>
+                <span class="text-surface-600">Subtotal</span>
                 <span>{{ formatCurrency(cart.subtotal) }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-surface-600 dark:text-surface-400">Shipping</span>
+                <span class="text-surface-600">Shipping</span>
                 <span>{{ shippingCost === null ? 'Calculated at checkout' : formatCurrency(shippingCost) }}</span>
               </div>
               <Divider />

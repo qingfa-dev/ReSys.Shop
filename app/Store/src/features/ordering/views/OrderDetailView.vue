@@ -126,15 +126,15 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
             <template #content>
               <div class="flex flex-col gap-3 text-sm">
                 <div class="flex items-center justify-between">
-                  <span class="text-surface-600 dark:text-surface-400">Subtotal</span>
+                  <span class="text-surface-600">Subtotal</span>
                   <span>{{ formatCurrency(orders.currentOrder.itemTotal) }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-surface-600 dark:text-surface-400">Shipping</span>
+                  <span class="text-surface-600">Shipping</span>
                   <span>{{ formatCurrency(orders.currentOrder.shipmentTotal) }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-surface-600 dark:text-surface-400">Tax</span>
+                  <span class="text-surface-600">Tax</span>
                   <!-- Tax: The order DTO exposes no tax field, so the row shows a dash. -->
                   <span class="text-surface-400">—</span>
                 </div>

@@ -63,7 +63,7 @@ function clearCoupon(): void {
       <!-- Items: List of line items with quantity controls and remove actions -->
       <DataView :value="cart.items" layout="list">
         <template #list="{ items }">
-          <div v-for="item in items" :key="item.id" class="flex items-center gap-4 border-b border-surface-200 py-4 dark:border-surface-800">
+          <div v-for="item in items" :key="item.id" class="flex items-center gap-4 border-b border-surface-200 py-4">
             <Image
               v-if="item.productImageUrl"
               :src="item.productImageUrl"
@@ -72,7 +72,7 @@ function clearCoupon(): void {
             />
             <div
               v-else
-              class="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-surface-50 dark:bg-surface-800"
+              class="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-surface-50"
             >
               <i class="pi pi-image text-2xl text-surface-300" />
             </div>
@@ -111,15 +111,15 @@ function clearCoupon(): void {
         <template #content>
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between text-sm">
-              <span class="text-surface-600 dark:text-surface-400">Items ({{ cart.itemCount }})</span>
+              <span class="text-surface-600">Items ({{ cart.itemCount }})</span>
               <span>{{ formatCurrency(cart.subtotal) }}</span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-surface-600 dark:text-surface-400">Shipping</span>
+              <span class="text-surface-600">Shipping</span>
               <span class="text-surface-400">Calculated at checkout</span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-surface-600 dark:text-surface-400">Tax</span>
+              <span class="text-surface-600">Tax</span>
               <span class="text-surface-400">Calculated at checkout</span>
             </div>
 
