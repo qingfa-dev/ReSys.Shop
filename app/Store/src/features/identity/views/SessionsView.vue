@@ -97,7 +97,7 @@ onMounted(() => void loadSessions())
         <Column header="Device">
           <template #body="{ data }">
             <div class="flex items-center gap-3">
-              <i :class="deviceIcon(data)" class="text-lg text-surface-500" />
+              <i :class="deviceIcon(data)" class="text-lg text-muted" />
               <span class="font-medium">{{ data.deviceName }}</span>
               <Tag v-if="data.isCurrent" value="This device" severity="info" rounded />
             </div>

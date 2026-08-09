@@ -126,17 +126,17 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
             <template #content>
               <div class="flex flex-col gap-3 text-sm">
                 <div class="flex items-center justify-between">
-                  <span class="text-surface-600">Subtotal</span>
+                  <span class="text-muted">Subtotal</span>
                   <span>{{ formatCurrency(orders.currentOrder.itemTotal) }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-surface-600">Shipping</span>
+                  <span class="text-muted">Shipping</span>
                   <span>{{ formatCurrency(orders.currentOrder.shipmentTotal) }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-surface-600">Tax</span>
+                  <span class="text-muted">Tax</span>
                   <!-- Tax: The order DTO exposes no tax field, so the row shows a dash. -->
-                  <span class="text-surface-400">—</span>
+                  <span class="text-subtle">—</span>
                 </div>
                 <Divider />
                 <div class="flex items-center justify-between font-semibold">
@@ -156,7 +156,7 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
                 <div v-if="shipAddress.address2">{{ shipAddress.address2 }}</div>
                 <div>{{ shipAddress.city }}{{ shipAddress.zipCode ? `, ${shipAddress.zipCode}` : '' }}</div>
                 <div>{{ shipAddress.countryName }}</div>
-                <div v-if="shipAddress.phone" class="mt-1 text-surface-500">{{ shipAddress.phone }}</div>
+                <div v-if="shipAddress.phone" class="mt-1 text-muted">{{ shipAddress.phone }}</div>
               </div>
               <Message v-else severity="warn" :closable="false">
                 Shipping address unavailable for this order.
@@ -172,12 +172,12 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
   <Dialog v-model:visible="trackingOpen" header="Order Tracking" modal>
     <div v-if="timelineEvents.length > 0">
       <!-- Estimate: Show the promised delivery window above the timeline -->
-      <div v-if="tracking?.estimatedDeliveryAt" class="mb-4 text-sm text-surface-500">
+      <div v-if="tracking?.estimatedDeliveryAt" class="mb-4 text-sm text-muted">
         Estimated delivery: {{ formatDateTimeUtc(tracking.estimatedDeliveryAt) }}
       </div>
       <Timeline :value="timelineEvents" layout="vertical" align="left">
         <template #opposite="{ item }">
-          <span class="text-xs text-surface-500">{{ formatDateTimeUtc(item.date) }}</span>
+          <span class="text-xs text-muted">{{ formatDateTimeUtc(item.date) }}</span>
         </template>
         <template #content="{ item }">
           <span class="font-medium">{{ item.label }}</span>

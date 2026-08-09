@@ -23,10 +23,10 @@ function onSelect(event: FileUploadSelectEvent): void {
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Section: Page Header — breadcrumb, heading and subtitle -->
     <Breadcrumb :model="[{ label: 'Home', to: '/' }, { label: 'Visual Search' }]" class="mb-6" />
-    <h1 class="mb-2 text-2xl font-semibold tracking-tight text-surface-900">
+    <h1 class="mb-2 text-2xl font-semibold tracking-tight text-heading">
       Visual Search
     </h1>
-    <p class="mb-8 text-sm text-surface-500">
+    <p class="mb-8 text-sm text-muted">
       Find visually similar products by uploading an image
     </p>
 
@@ -42,7 +42,7 @@ function onSelect(event: FileUploadSelectEvent): void {
             :customUpload="true"
             @select="onSelect"
           />
-          <p class="text-sm text-surface-500">JPEG, PNG, WebP — max 10 MB</p>
+          <p class="text-sm text-muted">JPEG, PNG, WebP — max 10 MB</p>
         </div>
       </template>
     </Card>
@@ -55,14 +55,14 @@ function onSelect(event: FileUploadSelectEvent): void {
     <!-- Section: Loading State — spinner while the image is embedded -->
     <div v-if="vs.state === 'loading'" class="flex flex-col items-center gap-4 py-16">
       <ProgressSpinner style="width: 3rem; height: 3rem" :strokeWidth="4" />
-      <p class="text-sm text-surface-500">
+      <p class="text-sm text-muted">
         Embedding image and searching the catalog…
       </p>
     </div>
 
     <!-- Section: Results Grid — visually similar products with match tags -->
     <div v-if="vs.state === 'results'">
-      <h2 class="mb-6 text-sm font-medium uppercase tracking-wide text-surface-500">
+      <h2 class="mb-6 text-sm font-medium uppercase tracking-wide text-muted">
         Results ({{ vs.results.length }})
       </h2>
       <div class="grid grid-cols-2 gap-6 lg:grid-cols-4">

@@ -112,12 +112,12 @@ onMounted(() => {
               <DataView v-if="activeDetail" :value="activeDetail.wishedItems" layout="list">
                 <template #list="{ items }">
                   <div v-for="item in items" :key="item.id" class="flex items-center gap-4 border-b border-surface-100 py-4 last:border-b-0">
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-surface-100 text-surface-500">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-surface-100 text-muted">
                       <i class="pi pi-heart-fill" />
                     </div>
                     <div class="min-w-0 flex-1">
                       <div class="font-mono text-sm font-medium">{{ item.variantId }}</div>
-                      <div class="mt-0.5 text-sm text-surface-500">
+                      <div class="mt-0.5 text-sm text-muted">
                         Qty {{ item.quantity }} · added {{ formatDateTimeUtc(item.addedAtUtc) }}
                       </div>
                     </div>

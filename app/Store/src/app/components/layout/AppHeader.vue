@@ -102,7 +102,7 @@ onMounted(() => {
 
       <!-- Brand: Wordmark links back to the storefront home -->
       <Button as="router-link" to="/" variant="text" class="px-2" aria-label="ReSys.Shop home">
-        <i class="pi pi-sparkles text-xl text-primary-500" />
+        <i class="pi pi-sparkles text-xl text-brand" />
         <span class="ml-2 text-lg font-semibold tracking-tight">ReSys.Shop</span>
       </Button>
 
@@ -177,7 +177,7 @@ onMounted(() => {
             :label="userInitial"
             shape="circle"
             size="small"
-            class="bg-primary-100 text-primary-900"
+            class="bg-primary-100 text-brand"
           />
           <i class="pi pi-chevron-down ml-2" />
         </Button>

@@ -22,7 +22,7 @@ const secondaryAuth = computed(() =>
         <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-0/10">
           <i class="pi pi-sparkles text-3xl text-primary-100" />
         </div>
-        <span class="text-4xl font-semibold tracking-tight text-surface-0">ReSys.Shop</span>
+        <span class="text-4xl font-semibold tracking-tight text-on-brand">ReSys.Shop</span>
       </div>
       <p class="max-w-sm text-center text-lg leading-relaxed text-primary-100">
         Fashion that moves with you — curated looks, effortless checkout, delivered worldwide.
@@ -36,9 +36,9 @@ const secondaryAuth = computed(() =>
           <!-- Mobile Brand Mark: Shown below lg where the brand panel is hidden -->
           <div class="mb-8 flex flex-col items-center gap-2 lg:hidden">
             <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500/10">
-              <i class="pi pi-sparkles text-xl text-primary-500" />
+              <i class="pi pi-sparkles text-xl text-brand" />
             </div>
-            <span class="text-xl font-semibold tracking-tight text-surface-900">ReSys.Shop</span>
+            <span class="text-xl font-semibold tracking-tight text-heading">ReSys.Shop</span>
           </div>
 
           <!-- Form Slot: Fluid makes all descendant inputs full-width -->

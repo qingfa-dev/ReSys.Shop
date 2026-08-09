@@ -352,7 +352,7 @@ onUnmounted(() => {
                 <Label :for="`method-${method.id}`" class="flex w-full cursor-pointer items-center justify-between">
                   <span>{{ method.name }}</span>
                   <span v-if="methodCost(method.id) !== null" class="font-mono text-sm">{{ formatCurrency(methodCost(method.id)!) }}</span>
-                  <span v-else class="text-sm text-surface-500">Calculated at checkout</span>
+                  <span v-else class="text-sm text-muted">Calculated at checkout</span>
                 </Label>
               </div>
             </RadioButtonGroup>
@@ -376,7 +376,7 @@ onUnmounted(() => {
             </Message>
             <!-- Card: Stripe Elements mounts the hosted card form into this container -->
             <div ref="cardContainer" class="rounded-lg border border-surface-300 p-4" />
-            <p class="text-sm text-surface-500">
+            <p class="text-sm text-muted">
               Card details are processed securely by Stripe. Payment is confirmed when you place the order.
             </p>
             <ButtonGroup>
@@ -405,11 +405,11 @@ onUnmounted(() => {
             </DataTable>
             <div class="flex max-w-md flex-col gap-2 text-sm">
               <div class="flex justify-between">
-                <span class="text-surface-600">Subtotal</span>
+                <span class="text-muted">Subtotal</span>
                 <span>{{ formatCurrency(cart.subtotal) }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-surface-600">Shipping</span>
+                <span class="text-muted">Shipping</span>
                 <span>{{ shippingCost === null ? 'Calculated at checkout' : formatCurrency(shippingCost) }}</span>
               </div>
               <Divider />
@@ -435,7 +435,7 @@ onUnmounted(() => {
                 <span v-if="checkout.orderId" class="text-sm">Order number: {{ checkout.orderId }}</span>
               </div>
             </Message>
-            <p class="text-sm text-surface-500">A confirmation email has been sent to {{ checkout.email || email }}.</p>
+            <p class="text-sm text-muted">A confirmation email has been sent to {{ checkout.email || email }}.</p>
             <Button as="router-link" to="/account/orders" label="View My Orders" icon="pi pi-receipt" />
           </div>
         </StepPanel>

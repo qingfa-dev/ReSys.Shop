@@ -57,13 +57,13 @@ function removeItem(lineItemId: string): void {
           v-else
           class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-surface-50"
         >
-          <i class="pi pi-image text-xl text-surface-300" />
+          <i class="pi pi-image text-xl text-placeholder" />
         </div>
 
         <div class="min-w-0 flex-1">
           <div class="truncate text-sm font-semibold">{{ item.productName ?? item.variantName }}</div>
-          <div class="text-xs text-surface-500">{{ item.sku }}</div>
-          <div class="mt-1 text-xs text-surface-500">{{ formatCurrency(item.price) }} each</div>
+          <div class="text-xs text-muted">{{ item.sku }}</div>
+          <div class="mt-1 text-xs text-muted">{{ formatCurrency(item.price) }} each</div>
         </div>
 
         <InputNumber
@@ -92,11 +92,11 @@ function removeItem(lineItemId: string): void {
 
       <!-- Totals: Subtotal plus progress toward the free-shipping cutoff -->
       <div class="flex items-center justify-between">
-        <span class="text-sm text-surface-600">Subtotal</span>
+        <span class="text-sm text-muted">Subtotal</span>
         <span class="font-semibold">{{ formatCurrency(cart.subtotal) }}</span>
       </div>
       <div class="space-y-1">
-        <div class="text-xs text-surface-500">
+        <div class="text-xs text-muted">
           <template v-if="remainingForFreeShipping > 0">
             Add {{ formatCurrency(remainingForFreeShipping) }} more for free shipping
           </template>

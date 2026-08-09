@@ -54,10 +54,10 @@ onMounted(() => {
     >
       <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
         <div>
-          <h1 class="text-4xl font-semibold leading-tight tracking-tight text-surface-900 sm:text-5xl lg:text-6xl">
+          <h1 class="text-4xl font-semibold leading-tight tracking-tight text-heading sm:text-5xl lg:text-6xl">
             Curated fashion, intelligently found
           </h1>
-          <p class="mt-4 max-w-xl text-lg text-surface-500">
+          <p class="mt-4 max-w-xl text-lg text-muted">
             Discover pieces matched to your style through AI-powered curation and visual search.
           </p>
           <Button
@@ -78,7 +78,7 @@ onMounted(() => {
     <!-- Section: Featured — carousel rail deferred until scrolled into view -->
     <DeferredContent class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div class="mb-8 flex items-baseline justify-between gap-4">
-        <h2 class="text-2xl font-semibold tracking-tight text-surface-900">Featured</h2>
+        <h2 class="text-2xl font-semibold tracking-tight text-heading">Featured</h2>
         <Button as="router-link" to="/shop" label="View all" variant="text" />
       </div>
       <!-- Loading: Skeleton placeholders while the first page fetches -->
@@ -110,7 +110,7 @@ onMounted(() => {
 
     <!-- Section: Categories — root taxon tag row deferred until scrolled into view -->
     <DeferredContent class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-      <h2 class="mb-6 text-2xl font-semibold tracking-tight text-surface-900">Shop by Category</h2>
+      <h2 class="mb-6 text-2xl font-semibold tracking-tight text-heading">Shop by Category</h2>
       <div v-if="rootTaxons.length > 0" class="flex flex-wrap gap-2">
         <Button
           v-for="taxon in rootTaxons"
@@ -132,11 +132,11 @@ onMounted(() => {
           :key="benefit.title"
           class="flex flex-col items-center gap-3 text-center"
         >
-          <i :class="benefit.icon" class="text-3xl text-primary-500" />
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-surface-900">
+          <i :class="benefit.icon" class="text-3xl text-brand" />
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-heading">
             {{ benefit.title }}
           </h3>
-          <p class="max-w-xs text-sm text-surface-500">
+          <p class="max-w-xs text-sm text-muted">
             {{ benefit.text }}
           </p>
         </div>

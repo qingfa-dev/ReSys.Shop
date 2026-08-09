@@ -132,7 +132,7 @@ const onSubmit = handleSubmit(async values => {
     <!-- Section: Terms Consent — checkbox with link to the terms page -->
     <div class="flex items-center gap-2">
       <Checkbox inputId="agree-to-terms" v-model="agreeToTerms" binary />
-      <Label for="agree-to-terms" class="text-sm text-surface-500">I agree to the</Label>
+      <Label for="agree-to-terms" class="text-sm text-muted">I agree to the</Label>
       <Button as="router-link" to="/terms" text size="small" label="Terms of Service" />
     </div>
     <Message v-if="termsError" severity="error" size="small" variant="simple">

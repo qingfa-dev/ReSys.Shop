@@ -70,7 +70,7 @@ watch(
       <SidebarAside>
         <SidebarPanel>
           <SidebarHeader>
-            <span class="px-1 text-sm font-semibold text-surface-900">Account</span>
+            <span class="px-1 text-sm font-semibold text-heading">Account</span>
           </SidebarHeader>
           <SidebarContent>
             <PanelMenu :model="navItems">
@@ -80,8 +80,8 @@ watch(
                   :class="[
                     'flex w-full items-center gap-3 px-3 py-2 text-sm',
                     isItemActive(item.to)
-                      ? 'rounded-lg bg-primary-50 font-semibold text-primary-800'
-                      : 'text-surface-700',
+                      ? 'rounded-lg bg-primary-50 font-semibold text-brand'
+                      : 'text-body',
                   ]"
                   :aria-current="isItemActive(item.to) ? 'page' : undefined"
                   data-pc-section="headerlink"
@@ -119,8 +119,8 @@ watch(
                   :class="[
                     'flex w-full items-center gap-3 px-3 py-2 text-sm',
                     isItemActive(item.to)
-                      ? 'rounded-lg bg-primary-50 font-semibold text-primary-800'
-                      : 'text-surface-700',
+                      ? 'rounded-lg bg-primary-50 font-semibold text-brand'
+                      : 'text-body',
                   ]"
                   :aria-current="isItemActive(item.to) ? 'page' : undefined"
                   data-pc-section="headerlink"

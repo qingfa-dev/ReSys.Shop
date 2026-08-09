@@ -46,7 +46,7 @@ const onSubmit = handleSubmit(async values => {
 
   <!-- Section: Forgot Form — email field with inline validation -->
   <form v-else class="flex flex-col gap-4" novalidate @submit="onSubmit">
-    <p class="text-sm text-surface-500">
+    <p class="text-sm text-muted">
       Enter your email and we'll send you a link to reset your password.
     </p>
 

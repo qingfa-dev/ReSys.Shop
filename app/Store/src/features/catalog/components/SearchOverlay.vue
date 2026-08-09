@@ -92,7 +92,7 @@ function viewAllResults(): void {
       <!-- Footer: View-all shortcut alongside the palette keyboard hints -->
       <template #footer>
         <div class="flex w-full items-center justify-between px-1">
-          <span class="text-xs text-surface-500">↑↓ Navigate, ↵ Select</span>
+          <span class="text-xs text-muted">↑↓ Navigate, ↵ Select</span>
           <Button
             v-if="search.query.value.trim()"
             size="small"

@@ -72,7 +72,7 @@ onMounted(() => void loadPrefs())
         <div v-for="channel in channels" :key="channel.key" class="flex items-center justify-between gap-4 border-b border-surface-100 pb-4 last:border-b-0">
           <div>
             <div class="font-medium">{{ channel.label }}</div>
-            <p class="mt-0.5 text-sm text-surface-500">{{ channel.description }}</p>
+            <p class="mt-0.5 text-sm text-muted">{{ channel.description }}</p>
           </div>
           <ToggleSwitch
             :input-id="`pref-${channel.key}`"

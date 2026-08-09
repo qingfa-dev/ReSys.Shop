@@ -66,7 +66,7 @@ onMounted(() => {
           <!-- Inplace Rows: Click a display value to swap in its float-label input -->
           <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between gap-4 border-b border-surface-100 pb-3">
-              <span class="text-sm text-surface-500">First name</span>
+              <span class="text-sm text-muted">First name</span>
               <Inplace v-model:active="firstEditing">
                 <template #display>{{ firstName || 'Not set' }}</template>
                 <template #content="{ closeCallback }">
@@ -81,7 +81,7 @@ onMounted(() => {
               </Inplace>
             </div>
             <div class="flex items-center justify-between gap-4 border-b border-surface-100 pb-3">
-              <span class="text-sm text-surface-500">Last name</span>
+              <span class="text-sm text-muted">Last name</span>
               <Inplace v-model:active="lastEditing">
                 <template #display>{{ lastName || 'Not set' }}</template>
                 <template #content="{ closeCallback }">
@@ -96,7 +96,7 @@ onMounted(() => {
               </Inplace>
             </div>
             <div class="flex items-center justify-between gap-4">
-              <span class="text-sm text-surface-500">Email</span>
+              <span class="text-sm text-muted">Email</span>
               <span class="text-sm font-medium">{{ profileStore.profile?.email ?? '—' }}</span>
             </div>
           </div>
@@ -115,11 +115,11 @@ onMounted(() => {
       <template #content>
         <div class="flex flex-col gap-3 text-sm">
           <div class="flex items-center justify-between">
-            <span class="text-surface-500">Currency</span>
+            <span class="text-muted">Currency</span>
             <span>{{ preferences.currency }}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-surface-500">Language</span>
+            <span class="text-muted">Language</span>
             <span>{{ preferences.language }}</span>
           </div>
           <Divider />

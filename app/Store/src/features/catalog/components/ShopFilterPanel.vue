@@ -217,7 +217,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
           <Checkbox :inputId="`filter-${value.id}`" :value="value.id" />
           <Label
             :for="`filter-${value.id}`"
-            class="text-sm text-surface-600"
+            class="text-sm text-muted"
           >
             {{ value.presentation ?? value.name }}
           </Label>
@@ -260,7 +260,7 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
     <!-- Section: Active Filters — removable chips, clear-all and active count -->
     <div v-if="catalog.activeFilterCount > 0" class="flex flex-col gap-3">
       <div class="flex items-center justify-between gap-2">
-        <span class="text-sm font-semibold text-surface-700">
+        <span class="text-sm font-semibold text-body">
           Active Filters
         </span>
         <div class="flex items-center gap-2">

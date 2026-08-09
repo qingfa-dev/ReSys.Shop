@@ -74,13 +74,13 @@ function clearCoupon(): void {
               v-else
               class="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-surface-50"
             >
-              <i class="pi pi-image text-2xl text-surface-300" />
+              <i class="pi pi-image text-2xl text-placeholder" />
             </div>
 
             <div class="min-w-0 flex-1">
               <div class="truncate font-semibold">{{ item.productName ?? item.variantName }}</div>
-              <div class="text-sm text-surface-500">{{ item.sku }}</div>
-              <div class="mt-1 text-sm text-surface-500">{{ formatCurrency(item.price) }} each</div>
+              <div class="text-sm text-muted">{{ item.sku }}</div>
+              <div class="mt-1 text-sm text-muted">{{ formatCurrency(item.price) }} each</div>
             </div>
 
             <InputNumber
@@ -111,16 +111,16 @@ function clearCoupon(): void {
         <template #content>
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between text-sm">
-              <span class="text-surface-600">Items ({{ cart.itemCount }})</span>
+              <span class="text-muted">Items ({{ cart.itemCount }})</span>
               <span>{{ formatCurrency(cart.subtotal) }}</span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-surface-600">Shipping</span>
-              <span class="text-surface-400">Calculated at checkout</span>
+              <span class="text-muted">Shipping</span>
+              <span class="text-subtle">Calculated at checkout</span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-surface-600">Tax</span>
-              <span class="text-surface-400">Calculated at checkout</span>
+              <span class="text-muted">Tax</span>
+              <span class="text-subtle">Calculated at checkout</span>
             </div>
 
             <Divider />

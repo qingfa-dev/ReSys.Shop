@@ -210,7 +210,7 @@ onMounted(() => {
         </Column>
         <Column header="Address">
           <template #body="{ data }">
-            <span class="text-sm text-surface-600">{{ addressLines(data) }}</span>
+            <span class="text-sm text-muted">{{ addressLines(data) }}</span>
           </template>
         </Column>
         <Column header="Default">

@@ -129,7 +129,7 @@ const menuItems = computed<MenuItem[]>(() => [
             v-else
             class="flex aspect-square items-center justify-center bg-surface-50"
           >
-            <i class="pi pi-image text-3xl text-surface-300" />
+            <i class="pi pi-image text-3xl text-placeholder" />
           </div>
           <Tag
             v-if="isOnSale"
@@ -159,19 +159,19 @@ const menuItems = computed<MenuItem[]>(() => [
         <div class="mt-1 flex items-baseline gap-2">
           <span
             v-if="formattedPrice"
-            class="text-lg font-bold text-primary-600"
+            class="text-lg font-bold text-brand"
           >
             {{ formattedPrice }}
           </span>
           <span
             v-else
-            class="text-lg font-bold text-surface-400"
+            class="text-lg font-bold text-subtle"
           >
             —
           </span>
           <span
             v-if="formattedCompareAt"
-            class="text-sm text-surface-400 line-through"
+            class="text-sm text-muted line-through"
           >
             {{ formattedCompareAt }}
           </span>
@@ -229,13 +229,13 @@ const menuItems = computed<MenuItem[]>(() => [
       <div class="flex items-baseline gap-2">
         <span
           v-if="formattedPrice"
-          class="text-lg font-bold text-primary-600"
+          class="text-lg font-bold text-brand"
         >
           {{ formattedPrice }}
         </span>
         <span
           v-if="formattedCompareAt"
-          class="text-sm text-surface-400 line-through"
+          class="text-sm text-muted line-through"
         >
           {{ formattedCompareAt }}
         </span>
