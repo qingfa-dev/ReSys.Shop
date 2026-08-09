@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import type { MenuItem } from 'primevue/menuitem'
 import type Menu from 'primevue/menu'
 import type { AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
-import type { TaxonTreeNode } from '@/features/catalog/types'
 import { useSearch } from '@/features/catalog/composables/useSearch'
 import SearchOverlay from '@/features/catalog/components/SearchOverlay.vue'
 import { useCatalogStore } from '@/features/catalog/stores/catalogStore'
@@ -48,25 +47,6 @@ const userInitial = computed(() => authStore.user?.userName?.trim()?.[0]?.toUppe
 // Suggest: Flatten search results into AutoComplete options keyed by product id.
 const suggestions = computed(() => results.value.map(r => ({ id: r.id, label: r.name, slug: r.slug })))
 
-// Catalog: Recursively map a taxon node into a nested MegaMenu submenu item.
-function toTaxonItem(node: TaxonTreeNode): MenuItem {
-  return {
-    label: node.name,
-    command: () => router.push({ path: '/shop', query: { taxon: node.id } }),
-    items: node.children.length > 0 ? node.children.map(toTaxonItem) : undefined,
-  }
-}
-
-// Catalog: One MegaMenu tab per taxonomy root; children render as a single column.
-const catalogItems = computed<MenuItem[]>(() =>
-  catalogStore.taxonomyGroups.flatMap(group =>
-    group.tree.map(root => ({
-      label: root.name,
-      command: () => router.push({ path: '/shop', query: { taxon: root.id } }),
-      items: root.children.length > 0 ? [root.children.map(toTaxonItem)] : undefined,
-    })),
-  ),
-)
 
 // Select: Locate the chosen suggestion in the results and navigate to its product page.
 function onOptionSelect(event: AutoCompleteOptionSelectEvent): void {
@@ -109,8 +89,8 @@ onMounted(() => {
       <!-- Primary Nav: Menubar with the main storefront routes on lg+ -->
       <Menubar :model="navItems" class="hidden lg:flex" />
 
-      <!-- Catalog Panel: MegaMenu of taxonomy roots linking to /shop?taxon=... on lg+ -->
-      <MegaMenu :model="catalogItems" class="hidden lg:flex" />
+      <!-- Catalog: Direct link to /shop replacing the removed MegaMenu (TASK-010) -->
+      <Button as="router-link" to="/shop" label="Catalog" variant="text" class="hidden lg:flex" />
 
       <div class="flex-1" />
 

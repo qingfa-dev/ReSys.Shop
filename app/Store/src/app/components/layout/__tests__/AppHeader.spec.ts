@@ -5,8 +5,6 @@ import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import AppHeader from '../AppHeader.vue'
 import { useCartStore } from '@/features/ordering/stores/cartStore'
-import { useCatalogStore } from '@/features/catalog/stores/catalogStore'
-import type { TaxonomyGroup } from '@/features/catalog/types'
 
 // Polyfill: Menubar and MegaMenu call matchMedia on mount; jsdom does not provide it.
 function createMatchMediaStub(query: string) {
@@ -87,40 +85,14 @@ describe('AppHeader', () => {
     expect(wrapper.emitted('open-cart')).toHaveLength(1)
   })
 
-  it('renders MegaMenu tabs for taxonomy roots with children', async () => {
-    // Model: Root taxon with children must produce column arrays, not wrapped objects.
-    const group: TaxonomyGroup = {
-      taxonomy: { id: 't1', name: 'Categories', presentation: 'Categories' },
-      tree: [
-        {
-          id: 'r1',
-          name: 'Men',
-          presentation: null,
-          permalink: 'men',
-          depth: 0,
-          hasChildren: true,
-          children: [
-            {
-              id: 'c1',
-              name: 'Shirts',
-              presentation: null,
-              permalink: 'shirts',
-              depth: 1,
-              hasChildren: false,
-              children: [],
-            },
-          ],
-        },
-      ],
-    }
+  it('renders the Catalog button linking to /shop', async () => {
     const router = createTestRouter()
     await router.push('/')
     await router.isReady()
     const wrapper = mountHeader(router)
-    const catalog = useCatalogStore()
-    catalog.taxonomyGroups = [group]
-    await wrapper.vm.$nextTick()
 
-    expect(wrapper.text()).toContain('Men')
+    const catalogLink = wrapper.find('a[href="/shop"]')
+    expect(catalogLink.exists()).toBe(true)
+    expect(catalogLink.text()).toContain('Catalog')
   })
 })
