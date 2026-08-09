@@ -19,7 +19,7 @@ onMounted(() => {
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Section: Page Header — breadcrumb and heading -->
     <Breadcrumb :model="[{ label: 'Home', to: '/' }, { label: 'Collections' }]" class="mb-6" />
-    <h1 class="mb-8 text-2xl font-semibold tracking-tight text-surface-900 dark:text-surface-100">
+    <h1 class="mb-8 text-2xl font-semibold tracking-tight text-surface-900">
       Collections
     </h1>
 
@@ -50,7 +50,7 @@ onMounted(() => {
             />
             <div
               v-else
-              class="flex aspect-[3/4] items-center justify-center bg-surface-50 dark:bg-surface-800"
+              class="flex aspect-[3/4] items-center justify-center bg-surface-50"
             >
               <i class="pi pi-images text-4xl text-surface-300" />
             </div>
@@ -67,7 +67,7 @@ onMounted(() => {
 
     <!-- Section: Empty State — shown when no root taxons exist -->
     <div v-else class="py-24 text-center">
-      <p class="text-surface-500 dark:text-surface-400">No collections available yet.</p>
+      <p class="text-surface-500">No collections available yet.</p>
     </div>
   </div>
 </template>

@@ -127,7 +127,7 @@ const menuItems = computed<MenuItem[]>(() => [
           />
           <div
             v-else
-            class="flex aspect-square items-center justify-center bg-surface-50 dark:bg-surface-800"
+            class="flex aspect-square items-center justify-center bg-surface-50"
           >
             <i class="pi pi-image text-3xl text-surface-300" />
           </div>
@@ -159,7 +159,7 @@ const menuItems = computed<MenuItem[]>(() => [
         <div class="mt-1 flex items-baseline gap-2">
           <span
             v-if="formattedPrice"
-            class="text-lg font-bold text-primary-600 dark:text-primary-400"
+            class="text-lg font-bold text-primary-600"
           >
             {{ formattedPrice }}
           </span>
@@ -229,7 +229,7 @@ const menuItems = computed<MenuItem[]>(() => [
       <div class="flex items-baseline gap-2">
         <span
           v-if="formattedPrice"
-          class="text-lg font-bold text-primary-600 dark:text-primary-400"
+          class="text-lg font-bold text-primary-600"
         >
           {{ formattedPrice }}
         </span>

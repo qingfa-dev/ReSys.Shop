@@ -37,10 +37,10 @@ const sections = [
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Section: Page Header — breadcrumb, heading and updated date -->
     <Breadcrumb :model="[{ label: 'Home', to: '/' }, { label: 'Terms of Service' }]" class="mb-6" />
-    <h1 class="mb-2 text-2xl font-semibold tracking-tight text-surface-900 dark:text-surface-100">
+    <h1 class="mb-2 text-2xl font-semibold tracking-tight text-surface-900">
       Terms of Service
     </h1>
-    <p class="mb-8 text-sm text-surface-400 dark:text-surface-500">Last updated: August 8, 2026</p>
+    <p class="mb-8 text-sm text-surface-400">Last updated: August 8, 2026</p>
 
     <!-- Section: Scrollable Terms — long body inside a styled scroll panel -->
     <ScrollPanel class="max-h-[30rem]">
@@ -48,12 +48,12 @@ const sections = [
         <template #content>
           <div class="space-y-8">
             <section v-for="section in sections" :key="section.heading">
-              <h2 class="mb-3 text-lg font-semibold text-surface-900 dark:text-surface-100">
+              <h2 class="mb-3 text-lg font-semibold text-surface-900">
                 {{ section.heading }}
               </h2>
-              <p class="leading-relaxed text-surface-600 dark:text-surface-400">{{ section.body }}</p>
+              <p class="leading-relaxed text-surface-600">{{ section.body }}</p>
             </section>
-            <p class="text-sm text-surface-500 dark:text-surface-400">
+            <p class="text-sm text-surface-500">
               For questions about these terms, contact support@resys.shop.
             </p>
           </div>

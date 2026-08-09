@@ -226,7 +226,7 @@ watch(() => route.params.slug, slug => {
       <template #item="{ item, label, icon, props }">
         <span
           v-if="(item as BreadcrumbItemModel).current"
-          class="font-medium text-surface-900 dark:text-surface-100"
+          class="font-medium text-surface-900"
         >
           {{ label }}
         </span>
@@ -234,7 +234,7 @@ watch(() => route.params.slug, slug => {
           v-else
           :to="(item as BreadcrumbItemModel).to ?? '/shop'"
           v-bind="props.action"
-          class="flex items-center gap-1 text-surface-500 transition-colors hover:text-primary-600 dark:text-surface-400"
+          class="flex items-center gap-1 text-surface-500 transition-colors hover:text-primary-600"
         >
           <i v-if="typeof icon === 'string' && icon" :class="icon" />
           {{ label }}
@@ -302,7 +302,7 @@ watch(() => route.params.slug, slug => {
         <!-- Fallback: Placeholder block when the product has no images -->
         <div
           v-else
-          class="flex aspect-square items-center justify-center rounded-2xl bg-surface-50 dark:bg-surface-800"
+          class="flex aspect-square items-center justify-center rounded-2xl bg-surface-50"
         >
           <i class="pi pi-image text-4xl text-surface-300" />
         </div>
@@ -346,12 +346,12 @@ watch(() => route.params.slug, slug => {
       <!-- Purchase Panel: title, rating, price, variant, quantity, actions, stock -->
       <div class="space-y-6">
         <div>
-          <h1 class="text-3xl font-semibold tracking-tight text-surface-900 dark:text-surface-100">
+          <h1 class="text-3xl font-semibold tracking-tight text-surface-900">
             {{ detail.product.name }}
           </h1>
           <div class="mt-2 flex items-center gap-3">
             <Rating v-if="ratingAverage !== null" :modelValue="ratingAverage" readonly />
-            <span v-if="ratingCount !== null && ratingCount > 0" class="text-sm text-surface-500 dark:text-surface-400">
+            <span v-if="ratingCount !== null && ratingCount > 0" class="text-sm text-surface-500">
               {{ ratingCount }} reviews
             </span>
             <MeterGroup v-if="stockMeter" :value="stockMeter.value" :max="stockMeter.max" class="w-full max-w-64" />
@@ -362,7 +362,7 @@ watch(() => route.params.slug, slug => {
         <div class="flex flex-wrap items-center gap-3">
           <span
             v-if="formattedPrice"
-            class="text-2xl font-bold text-surface-900 dark:text-surface-100"
+            class="text-2xl font-bold text-surface-900"
           >
             {{ formattedPrice }}
           </span>
@@ -420,24 +420,24 @@ watch(() => route.params.slug, slug => {
           </TabList>
           <TabPanels>
             <TabPanel value="description">
-              <p class="text-surface-600 dark:text-surface-400">{{ description }}</p>
+              <p class="text-surface-600">{{ description }}</p>
             </TabPanel>
             <TabPanel value="details">
               <dl class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <div
                   v-for="row in detailRows"
                   :key="row.label"
-                  class="flex justify-between gap-4 border-b border-surface-100 py-2 dark:border-surface-800"
+                  class="flex justify-between gap-4 border-b border-surface-100 py-2"
                 >
-                  <dt class="text-sm text-surface-500 dark:text-surface-400">{{ row.label }}</dt>
-                  <dd class="text-sm font-medium text-surface-900 dark:text-surface-100">
+                  <dt class="text-sm text-surface-500">{{ row.label }}</dt>
+                  <dd class="text-sm font-medium text-surface-900">
                     {{ row.value }}
                   </dd>
                 </div>
               </dl>
             </TabPanel>
             <TabPanel value="reviews">
-              <p class="text-surface-600 dark:text-surface-400">
+              <p class="text-surface-600">
                 No reviews yet — check back after the first customers share their experience.
               </p>
             </TabPanel>
@@ -449,7 +449,7 @@ watch(() => route.params.slug, slug => {
           <AccordionPanel value="shipping">
             <AccordionHeader>Shipping &amp; Returns</AccordionHeader>
             <AccordionContent>
-              <p class="text-sm text-surface-600 dark:text-surface-400">
+              <p class="text-sm text-surface-600">
                 Free standard shipping on orders over $100, delivered within 3–5 business days.
                 Returns are accepted within 30 days of delivery in original condition.
               </p>
@@ -461,7 +461,7 @@ watch(() => route.params.slug, slug => {
 
     <!-- Related: Grid of related products loaded by the detail store -->
     <section v-if="detail.product && detail.relatedProducts.length > 0" class="mt-16">
-      <h2 class="mb-6 text-2xl font-semibold tracking-tight text-surface-900 dark:text-surface-100">
+      <h2 class="mb-6 text-2xl font-semibold tracking-tight text-surface-900">
         You may also like
       </h2>
       <div class="grid grid-cols-2 gap-6 lg:grid-cols-4">
