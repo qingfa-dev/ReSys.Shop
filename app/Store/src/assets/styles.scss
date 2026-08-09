@@ -38,6 +38,11 @@
   --p-surface-900: #171717;
   --p-surface-950: #0a0a0a;
 
+  // --- Semantic role map (consumed by tailwind.css @theme inline) ---
+  // heading/body -> --p-text-color; muted -> --p-text-muted-color;
+  // subtle -> --p-surface-400; placeholder -> --p-surface-300;
+  // brand -> --p-primary-color; on-brand -> --p-primary-contrast-color;
+  // success/danger/warning/info -> their --p-* color vars.
   // --- Semantic tokens ---
   --p-content-background: #ffffff;
   --p-content-border-color: #e5e5e5;
