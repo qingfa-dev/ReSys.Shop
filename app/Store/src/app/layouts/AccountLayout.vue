@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { MenuItem } from 'primevue/menuitem'
 import { useAuthStore } from '@/features/identity/stores/authStore'
-import { useOrderStore } from '@/features/ordering/stores/orderStore'
+import { useOrders } from '@/features/ordering/composables/useOrders'
 import { useMediaQuery } from '@/shared/composables/useMediaQuery'
 
 // Breakpoint: Below lg the nav moves into the overlay Sidebar drawer.
@@ -11,13 +11,13 @@ const { matches: isMobile } = useMediaQuery('(max-width: 1023px)')
 
 const route = useRoute()
 const authStore = useAuthStore()
-const orderStore = useOrderStore()
+const orders = useOrders()
 
 const mobileNavOpen = ref(false)
 
 // Count: Non-terminal orders (Draft or Placed) badge for the Orders nav item.
 const activeOrderCount = computed(
-  () => orderStore.items.filter(o => o.status !== 'Canceled' && o.status !== 'Expired').length,
+  () => orders.items.filter(o => o.status !== 'Canceled' && o.status !== 'Expired').length,
 )
 
 // Highlight: Mark the nav item matching the current route (covers order-detail too).

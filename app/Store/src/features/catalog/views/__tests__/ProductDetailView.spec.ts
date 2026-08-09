@@ -7,7 +7,7 @@ import Select from 'primevue/select'
 import ProductDetailView from '../ProductDetailView.vue'
 import ProductCard from '../../components/ProductCard.vue'
 import { useProductDetail } from '../../composables/useProductDetail'
-import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useCart } from '@/features/ordering/composables/useCart'
 import type { StoreProductDetailResponse } from '../../types'
 
 // Polyfill: Overlay components call matchMedia on mount; jsdom does not provide it.
@@ -200,7 +200,7 @@ describe('ProductDetailView', { timeout: 30_000 }, () => {
     expect(addButton?.exists()).toBe(true)
     await addButton!.trigger('click')
 
-    const cart = useCartStore()
+    const cart = useCart()
     expect(cart.addItem).toHaveBeenCalledWith('mv-1', 2)
   })
 

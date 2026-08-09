@@ -10,8 +10,8 @@ import { getPaymentMethods } from '@/features/payment/services/paymentApi'
 import { useAddressStore } from '@/features/profile/stores/addressStore'
 import type { AddressInput } from '@/features/profile/types'
 import { useShippingStore } from '@/features/shipping/stores/shippingStore'
-import { useCartStore } from '../stores/cartStore'
-import { useCheckoutStore } from '../stores/checkoutStore'
+import { useCart } from '../composables/useCart'
+import { useCheckout } from '../composables/useCheckout'
 
 usePageTitle('Checkout')
 
@@ -19,8 +19,8 @@ usePageTitle('Checkout')
 type CheckoutStep = 1 | 2 | 3 | 4 | 5
 
 const router = useRouter()
-const checkout = useCheckoutStore()
-const cart = useCartStore()
+const cart = useCart()
+const checkout = useCheckout(() => cart)
 const addresses = useAddressStore()
 const shipping = useShippingStore()
 const location = useLocationStore()

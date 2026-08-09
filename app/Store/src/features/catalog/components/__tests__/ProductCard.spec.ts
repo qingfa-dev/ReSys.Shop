@@ -6,7 +6,7 @@ import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import ProductCard from '../ProductCard.vue'
 import { useWishlistStore } from '@/features/profile/stores/wishlistStore'
-import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useCart } from '@/features/ordering/composables/useCart'
 import type { StoreProductListItemResponse } from '@/features/catalog/types'
 
 // Polyfill: Overlay components call matchMedia on mount; jsdom does not provide it.
@@ -131,7 +131,7 @@ describe('ProductCard', () => {
   it('does not navigate when the wishlist or quick-add buttons are clicked', async () => {
     const router = createTestRouter()
     const wrapper = await mountCard(router)
-    const cart = useCartStore()
+    const cart = useCart()
     vi.mocked(cart.addItem).mockResolvedValue(true)
 
     await wrapper.find('[aria-label="Add to wishlist"]').trigger('click')

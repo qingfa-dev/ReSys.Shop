@@ -1,14 +1,17 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { CheckoutApi } from '../services/checkoutApi'
-import { useCartStore } from './cartStore'
 import { useRouter } from 'vue-router'
 import { emit } from '@/shared/composables/useStoreEvents'
 
 type Step = 1 | 2 | 3 | 4 | 5
 
-// Store: 5-step checkout wizard state (Address → Delivery → Payment → Confirm → Complete).
-export const useCheckoutStore = defineStore('checkout', () => {
+interface CartRef {
+  id: string | null
+  isEmpty: boolean
+  fetchCart: () => Promise<boolean>
+}
+
+export function useCheckout(getCart: () => CartRef) {
   const currentStep = ref<Step>(1)
   const shipAddressId = ref<string | null>(null)
   const shippingMethodId = ref<string | null>(null)
@@ -20,7 +23,6 @@ export const useCheckoutStore = defineStore('checkout', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // Compute: Derive step metadata with completion and active state for the stepper UI.
   const steps = computed(() => [
     { label: 'Address', number: 1, complete: currentStep.value > 1, current: currentStep.value === 1 },
     { label: 'Delivery', number: 2, complete: currentStep.value > 2, current: currentStep.value === 2 },
@@ -30,15 +32,13 @@ export const useCheckoutStore = defineStore('checkout', () => {
   ])
 
   function init(): void {
-    const cart = useCartStore()
+    const cart = getCart()
     const router = useRouter()
-    // Guard: Redirect to cart if there are no items to checkout.
     if (cart.isEmpty) { router.push('/cart'); return }
     cart.fetchCart()
   }
 
   async function saveAddress(addressId: string, userEmail: string): Promise<boolean> {
-    // Update: Persist shipping and billing address, then advance to Delivery step.
     loading.value = true
     error.value = null
     try {
@@ -60,7 +60,6 @@ export const useCheckoutStore = defineStore('checkout', () => {
   }
 
   async function selectShippingRate(methodId: string): Promise<boolean> {
-    // Update: Select delivery method and advance to Payment step.
     loading.value = true
     error.value = null
     try {
@@ -81,11 +80,10 @@ export const useCheckoutStore = defineStore('checkout', () => {
   }
 
   async function createPaymentIntent(methodId: string): Promise<boolean> {
-    // Call: Create payment intent with gateway, store client secret for confirmation.
     loading.value = true
     error.value = null
     try {
-      const cart = useCartStore()
+      const cart = getCart()
       const result = await CheckoutApi.createPaymentIntent({ orderId: cart.id!, paymentMethodId: methodId })
       if (result.isSuccess) {
         paymentIntentId.value = result.value.responseCode ?? result.value.id
@@ -105,7 +103,6 @@ export const useCheckoutStore = defineStore('checkout', () => {
   }
 
   async function placeOrder(): Promise<boolean> {
-    // Guard: Require a payment intent before submitting the order.
     if (!paymentIntentId.value) return false
     loading.value = true
     error.value = null
@@ -114,7 +111,6 @@ export const useCheckoutStore = defineStore('checkout', () => {
       if (result.isSuccess) {
         orderId.value = result.value.id
         currentStep.value = 5
-        // Raise: Notify other stores (e.g. orderStore) that an order was placed.
         emit({ type: 'checkout:placed', orderId: result.value.id })
       } else {
         error.value = result.message
@@ -129,7 +125,6 @@ export const useCheckoutStore = defineStore('checkout', () => {
   }
 
   function reset(): void {
-    // Reset: Return checkout wizard to initial step with all fields cleared.
     currentStep.value = 1
     shipAddressId.value = null
     shippingMethodId.value = null
@@ -140,9 +135,9 @@ export const useCheckoutStore = defineStore('checkout', () => {
     error.value = null
   }
 
-  return {
+  return reactive({
     currentStep, shipAddressId, shippingMethodId, paymentMethodId, paymentIntentId,
     paymentClientSecret, orderId, email, loading, error, steps,
     init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, reset,
-  }
-})
+  })
+}

@@ -4,7 +4,7 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import AppHeader from '../AppHeader.vue'
-import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useCart } from '@/features/ordering/composables/useCart'
 
 // Polyfill: Menubar and MegaMenu call matchMedia on mount; jsdom does not provide it.
 function createMatchMediaStub(query: string) {
@@ -77,7 +77,7 @@ describe('AppHeader', () => {
     await router.push('/')
     await router.isReady()
     const wrapper = mountHeader(router)
-    const cart = useCartStore()
+    const cart = useCart()
     expect(cart.itemCount).toBe(0)
 
     await wrapper.find('[aria-label="Open cart"]').trigger('click')

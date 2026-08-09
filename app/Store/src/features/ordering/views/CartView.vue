@@ -3,11 +3,11 @@ import { computed, onMounted, ref } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { formatCurrency } from '@/shared/utils/currency'
-import { useCartStore } from '../stores/cartStore'
+import { useCart } from '../composables/useCart'
 
 usePageTitle('Cart')
 
-const cart = useCartStore()
+const cart = useCart()
 const notify = useNotify()
 
 // Promo: Local coupon entry until the cart API exposes server-side codes.

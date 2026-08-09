@@ -6,7 +6,7 @@ import type Menu from 'primevue/menu'
 import type { AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import { useSearch } from '@/features/catalog/composables/useSearch'
 import SearchOverlay from '@/features/catalog/components/SearchOverlay.vue'
-import { useCartStore } from '@/features/ordering/stores/cartStore'
+import { useCart } from '@/features/ordering/composables/useCart'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 
 // Actions: Parent layout hosts MobileNav (Task 11) and CartDrawer (Task 31).
@@ -18,7 +18,7 @@ const emit = defineEmits<{
 const router = useRouter()
 // Search: Destructure refs so template bindings unwrap them as top-level properties.
 const { query, results, loading, open, clear, search, navigateToResult } = useSearch()
-const cartStore = useCartStore()
+const cart = useCart()
 const authStore = useAuthStore()
 const userMenu = ref<InstanceType<typeof Menu> | null>(null)
 
@@ -55,7 +55,7 @@ function onOptionSelect(event: AutoCompleteOptionSelectEvent): void {
 
 // Load: Refresh the cart badge on mount.
 onMounted(() => {
-  void cartStore.fetchCart()
+  void cart.fetchCart()
 })
 </script>
 
@@ -118,7 +118,7 @@ onMounted(() => {
       />
 
       <!-- Cart: Opens the CartDrawer overlay via the parent layout (Task 31) -->
-      <OverlayBadge v-if="cartStore.itemCount > 0" :value="cartStore.itemCount" severity="danger">
+      <OverlayBadge v-if="cart.itemCount > 0" :value="cart.itemCount" severity="danger">
         <Button
           icon="pi pi-shopping-cart"
           variant="text"

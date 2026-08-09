@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import OrderDetailView from '../OrderDetailView.vue'
-import { useOrderStore } from '../../stores/orderStore'
+import { useOrders } from '../../composables/useOrders'
 import { useAddressStore } from '@/features/profile/stores/addressStore'
 import { OrderApi } from '../../services/orderApi'
 import { ok } from '@/shared/types/result'
@@ -33,10 +32,10 @@ beforeAll(() => {
 // module is mocked to return seeded tracking without a network call.
 vi.mock('../../services/orderApi', () => ({
   OrderApi: {
-    getOrders: vi.fn<() => void>(),
-    getOrder: vi.fn<() => void>(),
-    getOrderTracking: vi.fn<() => void>(),
-    cancelOrder: vi.fn<() => void>(),
+    getOrders: vi.fn(),
+    getOrder: vi.fn(),
+    getOrderTracking: vi.fn(),
+    cancelOrder: vi.fn(),
   },
 }))
 
@@ -114,14 +113,14 @@ function createTestRouter() {
   })
 }
 
-// Mount: PrimeVue + stubbed pinia; tracking comes from the mocked API module.
+// Mount: PrimeVue + memory router; tracking comes from the mocked API module.
 async function mountView(router = createTestRouter()) {
   mockedApi.getOrderTracking.mockResolvedValue(ok(tracking))
   await router.push('/account/orders/o1')
   await router.isReady()
   const wrapper = mount(OrderDetailView, {
     global: {
-      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, router],
       stubs: { teleport: true },
     },
   })
@@ -129,9 +128,9 @@ async function mountView(router = createTestRouter()) {
   return { wrapper, router }
 }
 
-// Seed: Populate the order and address stores with the detail fixtures.
+// Seed: Populate the orders composable and address store with the detail fixtures.
 function seedDetail() {
-  const orders = useOrderStore()
+  const orders = useOrders()
   orders.currentOrder = orderDetail
   const addresses = useAddressStore()
   addresses.addresses = [shippingAddress]
@@ -204,7 +203,7 @@ describe('OrderDetailView', () => {
 
   it('shows the error state with retry when the detail fetch fails', async () => {
     const { wrapper } = await mountView()
-    const orders = useOrderStore()
+    const orders = useOrders()
     orders.error = 'Failed to load order'
     await wrapper.vm.$nextTick()
 
@@ -212,7 +211,7 @@ describe('OrderDetailView', () => {
     const retry = wrapper.findAll('button').find(b => b.text() === 'Retry')
     expect(retry).toBeDefined()
     await retry!.trigger('click')
-    expect(orders.fetchOrder).toHaveBeenCalledWith('o1')
+    expect(mockedApi.getOrder).toHaveBeenCalledWith('o1')
   })
 
   it('adds no native interactive elements of its own', async () => {

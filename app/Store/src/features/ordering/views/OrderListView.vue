@@ -3,13 +3,13 @@ import { computed, onMounted } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
-import { useOrderStore } from '../stores/orderStore'
+import { useOrders } from '../composables/useOrders'
 import type { PageState } from 'primevue/paginator'
 import type { OrderStatus } from '../types'
 
 usePageTitle('Orders')
 
-const orders = useOrderStore()
+const orders = useOrders()
 
 // Count: OrderListItem carries no item count, so the table omits that column
 // (only the backend OrderDetailResponse exposes ItemCount, unused by the SPA).

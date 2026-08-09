@@ -9,7 +9,7 @@ import DefaultLayout from '../DefaultLayout.vue'
 import AuthLayout from '../AuthLayout.vue'
 import AccountLayout from '../AccountLayout.vue'
 import { useAuthStore } from '@/features/identity/stores/authStore'
-import { useOrderStore } from '@/features/ordering/stores/orderStore'
+import { useOrders } from '@/features/ordering/composables/useOrders'
 import type { OrderListItem } from '@/features/ordering/types'
 
 // Polyfill: AppHeader/Menubar, Drawer, Sidebar and PanelMenu call matchMedia on
@@ -277,8 +277,8 @@ describe('AccountLayout', () => {
   it('shows the active order count badge on the Orders item', async () => {
     const wrapper = await mountAccountLayout()
     await signIn(wrapper)
-    const orders = useOrderStore()
-    orders.$patch({ items: [draftOrder] })
+    const orders = useOrders()
+    orders.items = [draftOrder]
     await wrapper.vm.$nextTick()
 
     const ordersLink = wrapper.findAll('[data-pc-section="headerlink"]').find(a => a.text().startsWith('Orders'))

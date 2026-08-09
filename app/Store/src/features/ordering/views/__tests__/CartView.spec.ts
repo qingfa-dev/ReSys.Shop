@@ -1,14 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import InputNumber from 'primevue/inputnumber'
 import Chip from 'primevue/chip'
 import CartView from '../CartView.vue'
-import { useCartStore } from '../../stores/cartStore'
-import type { CartLineItem } from '../../types'
+import { useCart } from '../../composables/useCart'
+import { CartApi } from '../../services/cartApi'
+import { ok } from '@/shared/types/result'
+import type { CartLineItem, CartResponse } from '../../types'
+
+// Stub: CartApi so the composable does not make real HTTP calls.
+vi.mock('../../services/cartApi', () => ({
+  CartApi: {
+    getCart: vi.fn(),
+    addItem: vi.fn(),
+    updateItem: vi.fn(),
+    removeItem: vi.fn(),
+    emptyCart: vi.fn(),
+    associateCart: vi.fn(),
+  },
+}))
+
+const mockedCartApi = vi.mocked(CartApi)
 
 // Fixture: Line item matching the CartLineItem contract.
 const lineItem: CartLineItem = {
@@ -49,23 +64,23 @@ function createTestRouter() {
   })
 }
 
-// Mount: PrimeVue + ToastService + stubbed pinia so mounted loads are no-ops.
+// Mount: PrimeVue + ToastService + memory router so mounted loads are no-ops.
 async function mountView() {
   const router = createTestRouter()
   await router.push('/cart')
   await router.isReady()
   const wrapper = mount(CartView, {
     global: {
-      plugins: [PrimeVue, ToastService, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, ToastService, router],
     },
   })
   await flushPromises()
   return wrapper
 }
 
-// Seed: Populate the cart store with two line items.
+// Seed: Populate the cart composable singleton with two line items.
 function seedCart() {
-  const cart = useCartStore()
+  const cart = useCart()
   cart.items = [lineItem, lineItem2]
   return cart
 }
@@ -98,9 +113,10 @@ describe('CartView', () => {
     expect(wrapper.text()).toContain('Proceed to Checkout')
   })
 
-  it('updates the quantity via cartStore.updateQuantity', async () => {
+  it('updates the quantity via cart.updateQuantity', async () => {
     const wrapper = await mountView()
-    const cart = seedCart()
+    seedCart()
+    mockedCartApi.updateItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [{ ...lineItem, quantity: 4 }] as CartLineItem[], itemTotal: 180, total: 180, currency: 'USD', itemCount: 5, checkoutState: 'address' }))
     await wrapper.vm.$nextTick()
 
     const inputs = wrapper.findAllComponents(InputNumber)
@@ -108,19 +124,20 @@ describe('CartView', () => {
     inputs[0]!.vm.$emit('update:modelValue', 4)
     await wrapper.vm.$nextTick()
 
-    expect(cart.updateQuantity).toHaveBeenCalledWith('li-1', 4)
+    expect(mockedCartApi.updateItem).toHaveBeenCalledWith('li-1', { quantity: 4 })
   })
 
-  it('removes a line item via cartStore.removeItem', async () => {
+  it('removes a line item via cart.removeItem', async () => {
     const wrapper = await mountView()
-    const cart = seedCart()
+    seedCart()
+    mockedCartApi.removeItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [lineItem2], itemTotal: 80, total: 80, currency: 'USD', itemCount: 1, checkoutState: 'address' }))
     await wrapper.vm.$nextTick()
 
     const removeButtons = wrapper.findAll('[aria-label="Remove item"]')
     expect(removeButtons).toHaveLength(2)
     await removeButtons[0]!.trigger('click')
 
-    expect(cart.removeItem).toHaveBeenCalledWith('li-1')
+    expect(mockedCartApi.removeItem).toHaveBeenCalledWith('li-1')
   })
 
   it('applies a promo code and shows the removable chip', async () => {

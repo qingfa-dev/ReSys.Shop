@@ -4,13 +4,13 @@ import { useRoute } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
-import { useOrderStore } from '../stores/orderStore'
+import { useOrders } from '../composables/useOrders'
 import { useAddressStore } from '@/features/profile/stores/addressStore'
 import { OrderApi } from '../services'
 import type { OrderStatus, OrderTrackingResponse } from '../types'
 
 const route = useRoute()
-const orders = useOrderStore()
+const orders = useOrders()
 const addresses = useAddressStore()
 
 usePageTitle(() => (orders.currentOrder ? `Order ${orders.currentOrder.number}` : 'Order'))

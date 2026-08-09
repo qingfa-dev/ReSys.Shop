@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
 import InputNumber from 'primevue/inputnumber'
 import CartDrawer from '../CartDrawer.vue'
-import { useCartStore } from '../../stores/cartStore'
-import type { CartLineItem } from '../../types'
+import { useCart } from '../../composables/useCart'
+import { CartApi } from '../../services/cartApi'
+import { ok } from '@/shared/types/result'
+import type { CartLineItem, CartResponse } from '../../types'
 
 // Polyfill: Drawer calls matchMedia on mount; jsdom does not provide it.
 function createMatchMediaStub(query: string) {
@@ -25,6 +26,20 @@ function createMatchMediaStub(query: string) {
 beforeAll(() => {
   vi.stubGlobal('matchMedia', vi.fn<typeof createMatchMediaStub>(createMatchMediaStub))
 })
+
+// Stub: CartApi so the composable does not make real HTTP calls.
+vi.mock('../../services/cartApi', () => ({
+  CartApi: {
+    getCart: vi.fn(),
+    addItem: vi.fn(),
+    updateItem: vi.fn(),
+    removeItem: vi.fn(),
+    emptyCart: vi.fn(),
+    associateCart: vi.fn(),
+  },
+}))
+
+const mockedCartApi = vi.mocked(CartApi)
 
 // Fixture: Line item matching the CartLineItem contract.
 const lineItem: CartLineItem = {
@@ -65,13 +80,13 @@ function createTestRouter() {
   })
 }
 
-// Mount: PrimeVue + stubbed pinia so the drawer renders without network calls.
+// Mount: PrimeVue + memory router; the composable singleton holds shared state.
 // Teleport: Keep the drawer DOM inside the wrapper so assertions stay scoped.
 async function mountDrawer(router = createTestRouter(), visible = true) {
   const wrapper = mount(CartDrawer, {
     props: { visible },
     global: {
-      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, router],
       stubs: { teleport: true },
     },
   })
@@ -80,9 +95,9 @@ async function mountDrawer(router = createTestRouter(), visible = true) {
   return wrapper
 }
 
-// Seed: Populate the cart store with two line items.
+// Seed: Populate the cart composable singleton with two line items.
 function seedCart() {
-  const cart = useCartStore()
+  const cart = useCart()
   cart.items = [lineItem, lineItem2]
   return cart
 }
@@ -118,12 +133,13 @@ describe('CartDrawer', () => {
     expect(wrapper.text()).not.toContain('Your cart is empty.')
   })
 
-  it('updates the quantity via cartStore.updateQuantity', async () => {
+  it('updates the quantity via cart.updateQuantity', async () => {
     const router = createTestRouter()
     await router.push('/')
     await router.isReady()
     const wrapper = await mountDrawer(router)
-    const cart = seedCart()
+    seedCart()
+    mockedCartApi.updateItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [{ ...lineItem, quantity: 3 }] as CartLineItem[], itemTotal: 135, total: 135, currency: 'USD', itemCount: 4, checkoutState: 'address' }))
     await wrapper.vm.$nextTick()
 
     const inputs = wrapper.findAllComponents(InputNumber)
@@ -131,22 +147,23 @@ describe('CartDrawer', () => {
     inputs[0]!.vm.$emit('update:modelValue', 3)
     await wrapper.vm.$nextTick()
 
-    expect(cart.updateQuantity).toHaveBeenCalledWith('li-1', 3)
+    expect(mockedCartApi.updateItem).toHaveBeenCalledWith('li-1', { quantity: 3 })
   })
 
-  it('removes a line item via cartStore.removeItem', async () => {
+  it('removes a line item via cart.removeItem', async () => {
     const router = createTestRouter()
     await router.push('/')
     await router.isReady()
     const wrapper = await mountDrawer(router)
-    const cart = seedCart()
+    seedCart()
+    mockedCartApi.removeItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [lineItem], itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'address' }))
     await wrapper.vm.$nextTick()
 
     const removeButtons = wrapper.findAll('[aria-label="Remove item"]')
     expect(removeButtons).toHaveLength(2)
     await removeButtons[1]!.trigger('click')
 
-    expect(cart.removeItem).toHaveBeenCalledWith('li-2')
+    expect(mockedCartApi.removeItem).toHaveBeenCalledWith('li-2')
   })
 
   it('shows the checkout and view cart actions in the footer', async () => {

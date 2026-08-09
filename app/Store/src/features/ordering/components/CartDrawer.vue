@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { formatCurrency } from '@/shared/utils/currency'
-import { useCartStore } from '../stores/cartStore'
+import { useCart } from '../composables/useCart'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
@@ -9,7 +9,7 @@ const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 // Threshold: Site-wide free-shipping cutoff mirrors the HomeView benefits strip copy.
 const FREE_SHIPPING_THRESHOLD = 100
 
-const cart = useCartStore()
+const cart = useCart()
 
 // Progress: Clamp the free-shipping progress bar between 0 and 100 percent.
 const shippingProgress = computed(() => Math.min(100, Math.round((cart.subtotal / FREE_SHIPPING_THRESHOLD) * 100)))
