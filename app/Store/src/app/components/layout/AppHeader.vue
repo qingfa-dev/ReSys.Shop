@@ -177,7 +177,7 @@ onMounted(() => {
             :label="userInitial"
             shape="circle"
             size="small"
-            class="bg-primary-100 text-brand"
+            class="bg-primary-100 text-primary-900"
           />
           <i class="pi pi-chevron-down ml-2" />
         </Button>
