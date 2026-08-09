@@ -225,6 +225,18 @@ const activeChips = computed<ActiveFilterChip[]>(() => {
 
 <template>
   <div class="flex flex-col gap-6">
+    <!-- Section: Product Search — filters products by name/description -->
+    <IconField>
+      <InputIcon class="pi pi-search" />
+      <InputText
+        :model-value="catalogFilters.searchQuery"
+        type="search"
+        placeholder="Search products..."
+        class="w-full"
+        @update:model-value="catalogFilters.setSearch($event)"
+      />
+    </IconField>
+
     <!-- Section: Taxonomy Tree — checkbox tree grouped by taxonomy root, with built-in filter -->
     <Tree
       v-model:expanded-keys="expandedKeys"

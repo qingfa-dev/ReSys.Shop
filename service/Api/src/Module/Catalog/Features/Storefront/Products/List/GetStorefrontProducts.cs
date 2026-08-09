@@ -86,7 +86,14 @@ public static partial class GetStorefrontProducts
                     is var field && s.StartsWith('-') ? $"-{field}" : s)
                 .ToArray();
 
-            var resolvedParams = parameters with { Sort = resolvedSort };
+            // Price: Handle manually with LINQ — exclude from ParseAll to avoid reflection on nested navigation
+            var priceSort = resolvedSort?
+                .FirstOrDefault(s => s.Contains("Variants.Prices.Amount", StringComparison.OrdinalIgnoreCase));
+            var nonPriceSort = resolvedSort?
+                .Where(s => !s.Contains("Variants.Prices.Amount", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+
+            var resolvedParams = parameters with { Sort = nonPriceSort };
 
             var parsing = resolvedParams.ParseAll(
                 allowedFilterFields: ProductConstant.Query.AllowedFilterFields,
@@ -99,9 +106,39 @@ public static partial class GetStorefrontProducts
 
             #region Paged Result
 
-            var pagedResult = await query
-                .OrderByDescending(x => x.CreatedAtUtc)
-                .ApplyQuerying(parsing.Value)
+            // Apply filter + search first
+            query = query.ApplyFilter(parsing.Value).ApplySearch(parsing.Value);
+
+            // Apply non-Price sort from ParseAll (if any), otherwise default sort
+            IOrderedQueryable<Domain.Products.Product> orderedQuery;
+            if (parsing.Value.Sort?.Clauses is { Count: > 0 })
+            {
+                orderedQuery = (IOrderedQueryable<Domain.Products.Product>)query.ApplySort(parsing.Value);
+            }
+            else if (priceSort is null)
+            {
+                orderedQuery = query.OrderByDescending(x => x.CreatedAtUtc);
+            }
+            else
+            {
+                // No ParseAll sort, Price sort will be primary — start with default to get IOrderedQueryable
+                orderedQuery = query.OrderByDescending(x => x.CreatedAtUtc);
+            }
+
+            // Apply manual Price sort
+            if (priceSort is not null)
+            {
+                var priceDescending = priceSort.StartsWith('-');
+                orderedQuery = parsing.Value.Sort?.Clauses is { Count: > 0 }
+                    ? (priceDescending
+                        ? orderedQuery.ThenByDescending(p => p.Variants.SelectMany(v => v.Prices).Min(pr => (decimal?)pr.Amount) ?? 0m)
+                        : orderedQuery.ThenBy(p => p.Variants.SelectMany(v => v.Prices).Min(pr => (decimal?)pr.Amount) ?? 0m))
+                    : (priceDescending
+                        ? query.OrderByDescending(p => p.Variants.SelectMany(v => v.Prices).Min(pr => (decimal?)pr.Amount) ?? 0m)
+                        : query.OrderBy(p => p.Variants.SelectMany(v => v.Prices).Min(pr => (decimal?)pr.Amount) ?? 0m));
+            }
+
+            var pagedResult = await orderedQuery
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreListItem<Response>(), cancellationToken);
 
             #endregion
