@@ -4,8 +4,7 @@ import router from './app/router'
 import { registerPrimeVue } from '@providers/primevue'
 import { registerPinia } from '@providers/pinia'
 
-import '@/assets/tailwind.css'
-import '@/assets/styles.scss'
+import '@/assets/main.css'
 
 const app = createApp(App)
 

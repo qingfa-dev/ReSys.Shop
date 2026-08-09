@@ -1,17 +1,31 @@
-// Storefront Aura theme overrides — single light-mode token source for the Store SPA.
-//
-// PrimeVue 5 Aura emits one CSS custom property per semantic token as
-// --p-{dotted-path->kebab}, e.g. semantic primary.color -> --p-primary-color.
-// These :root overrides win the cascade because they appear after Aura's own
-// stylesheet injection.
+/* Fonts: self-hosted via @font-face (Phase 9) */
+
+@import 'tailwindcss';
+@plugin 'tailwindcss-primeui';
+
+@theme inline {
+  --color-heading: var(--p-text-color);
+  --color-body: var(--p-text-color);
+  --color-muted: var(--p-text-muted-color);
+  --color-subtle: var(--p-surface-400);
+  --color-placeholder: var(--p-surface-300);
+  --color-brand: var(--p-primary-color);
+  --color-on-brand: var(--p-primary-contrast-color);
+  --color-success: var(--p-success-color);
+  --color-danger: var(--p-danger-color);
+  --color-warning: var(--p-warning-color);
+  --color-info: var(--p-info-color);
+  --color-highlight: var(--p-primary-50);
+  --color-brand-subtle: var(--p-primary-100);
+  --color-brand-muted: var(--p-primary-900);
+}
 
 :root {
-  // --- Primary scale: deep teal (refined, desaturated for luxury feel) ---
+  /* Primary scale: deep teal */
   --p-primary-color: #0d7377;
   --p-primary-hover-color: #095c5f;
   --p-primary-active-color: #074a4d;
   --p-primary-contrast-color: #ffffff;
-
   --p-primary-50: #e0f5f5;
   --p-primary-100: #b3e6e7;
   --p-primary-200: #80d4d6;
@@ -24,7 +38,7 @@
   --p-primary-900: #043537;
   --p-primary-950: #022022;
 
-  // --- Surface scale: clean neutral (white → gray) ---
+  /* Surface scale: clean neutral */
   --p-surface-0: #ffffff;
   --p-surface-50: #fafafa;
   --p-surface-100: #f5f5f5;
@@ -38,12 +52,7 @@
   --p-surface-900: #171717;
   --p-surface-950: #0a0a0a;
 
-  // --- Semantic role map (consumed by tailwind.css @theme inline) ---
-  // heading/body -> --p-text-color; muted -> --p-text-muted-color;
-  // subtle -> --p-surface-400; placeholder -> --p-surface-300;
-  // brand -> --p-primary-color; on-brand -> --p-primary-contrast-color;
-  // success/danger/warning/info -> their --p-* color vars.
-  // --- Semantic tokens ---
+  /* Semantic role tokens */
   --p-content-background: #ffffff;
   --p-content-border-color: #e5e5e5;
   --p-text-color: #171717;
@@ -56,18 +65,29 @@
   --p-highlight-background: #e0f5f5;
   --p-highlight-color: #0d7377;
 
-  // --- State colors ---
+  /* State colors */
   --p-success-color: #16a34a;
   --p-warning-color: #ca8a04;
   --p-danger-color: #dc2626;
   --p-info-color: #2563eb;
 
-  // --- Legacy v4 aliases ---
+  /* Legacy v4 aliases */
   --p-surface-ground: #fafafa;
   --p-surface-card: #ffffff;
+
+  /* Component-level overrides (new — fixes Accordion, Card, Dialog colors) */
+  --p-accordion-header-background: transparent;
+  --p-accordion-header-color: var(--p-text-color);
+  --p-accordion-header-hover-background: var(--p-surface-100);
+  --p-accordion-header-active-background: var(--p-primary-50);
+  --p-accordion-content-background: var(--p-surface-0);
+  --p-accordion-content-border-color: var(--p-surface-200);
+  --p-card-background: var(--p-surface-0);
+  --p-card-border-color: var(--p-surface-200);
+  --p-card-border-radius: 0.75rem;
+  --p-dialog-background: var(--p-surface-0);
 }
 
-// --- Typography ---
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -85,20 +105,17 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
 }
 
-// --- Editorial serif for product names ---
 .font-editorial {
   font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
   font-style: italic;
 }
 
-// --- Monospace for prices ---
 .font-mono-price {
   font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   font-weight: 500;
   letter-spacing: -0.02em;
 }
 
-// --- Animations ---
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -116,7 +133,6 @@ h1, h2, h3, h4, h5, h6 {
 .animate-slideUp   { animation: slideUp 200ms ease-out; }
 .animate-slideDown { animation: slideDown 200ms ease-out; }
 
-// --- Accessibility ---
 @media (prefers-reduced-motion: reduce) {
   .animate-fadeIn,
   .animate-slideUp,
