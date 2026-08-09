@@ -123,7 +123,7 @@ Table 1 — PrimeVue coverage matrix (parsed by `scripts/check-primevue-coverage
 | Timeline | features/ordering/views/OrderDetailView.vue | via TASK-035 |
 | Toast | App.vue | via TASK-006 |
 | ToggleButton | features/profile/views/PreferencesView.vue | via TASK-041 |
-| ToggleSwitch | app/components/ThemeToggle.vue | via TASK-013 |
+| ToggleSwitch | features/profile/views/NotificationPrefsView.vue | via TASK-013 |
 | Toolbar | features/catalog/views/ShopView.vue | via TASK-017 |
 | Tree | features/catalog/components/TaxonTree.vue | via TASK-018 |
 
