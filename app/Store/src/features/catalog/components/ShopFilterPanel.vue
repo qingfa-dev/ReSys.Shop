@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useCatalogStore } from '../stores/catalogStore'
 import { formatCurrency } from '@/shared/utils/currency'
+import TaxonTree from './TaxonTree.vue'
 import type { StoreOptionValueListItemResponse, TaxonTreeNode } from '../types'
 import type { WritableComputedRef } from 'vue'
 

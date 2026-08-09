@@ -16,9 +16,8 @@ const mobileNavOpen = ref(false)
 // Cart: Drawer visibility driven by the AppHeader cart button (Task 31).
 const cartOpen = ref(false)
 
-router.beforeEach((_to, _from, next) => {
+router.beforeEach(() => {
   loading.value = true
-  next()
 })
 
 router.afterEach(() => {
