@@ -111,7 +111,7 @@ onMounted(() => {
               <!-- Section: Item Rows — wished variants with quantity and removal -->
               <DataView v-if="activeDetail" :value="activeDetail.wishedItems" layout="list">
                 <template #list="{ items }">
-                  <div v-for="item in items" :key="item.id" class="flex items-center gap-4 border-b border-surface-100 py-4 last:border-b-0">
+                  <div v-for="item in items" :key="item.id" class="flex items-center gap-4 border-b border-surface-200 py-4 last:border-b-0">
                     <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-surface-100 text-muted">
                       <i class="pi pi-heart-fill" />
                     </div>

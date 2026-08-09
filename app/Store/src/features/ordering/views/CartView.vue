@@ -72,7 +72,7 @@ function clearCoupon(): void {
             />
             <div
               v-else
-              class="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-surface-50"
+              class="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-surface-100"
             >
               <i class="pi pi-image text-2xl text-placeholder" />
             </div>

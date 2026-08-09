@@ -88,7 +88,7 @@ onMounted(async () => {
             />
           </div>
         </div>
-        <div class="flex items-center justify-between gap-4 border-t border-surface-100 pt-4">
+        <div class="flex items-center justify-between gap-4 border-t border-surface-200 pt-4">
           <div>
             <div class="font-medium">Email receipts</div>
             <p class="mt-0.5 text-sm text-muted">Receive a receipt by email for every completed order.</p>

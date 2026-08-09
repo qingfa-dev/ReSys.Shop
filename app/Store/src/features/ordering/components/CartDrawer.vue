@@ -55,7 +55,7 @@ function removeItem(lineItemId: string): void {
         />
         <div
           v-else
-          class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-surface-50"
+          class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-surface-100"
         >
           <i class="pi pi-image text-xl text-placeholder" />
         </div>

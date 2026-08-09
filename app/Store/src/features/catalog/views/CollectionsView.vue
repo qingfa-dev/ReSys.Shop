@@ -50,7 +50,7 @@ onMounted(() => {
             />
             <div
               v-else
-              class="flex aspect-[3/4] items-center justify-center bg-surface-50"
+              class="flex aspect-[3/4] items-center justify-center bg-surface-100"
             >
               <i class="pi pi-images text-4xl text-placeholder" />
             </div>

@@ -375,7 +375,7 @@ onUnmounted(() => {
               No active payment method is available.
             </Message>
             <!-- Card: Stripe Elements mounts the hosted card form into this container -->
-            <div ref="cardContainer" class="rounded-lg border border-surface-300 p-4" />
+            <div ref="cardContainer" class="rounded-lg border border-surface-200 p-4" />
             <p class="text-sm text-muted">
               Card details are processed securely by Stripe. Payment is confirmed when you place the order.
             </p>

@@ -127,7 +127,7 @@ const menuItems = computed<MenuItem[]>(() => [
           />
           <div
             v-else
-            class="flex aspect-square items-center justify-center bg-surface-50"
+            class="flex aspect-square items-center justify-center bg-surface-100"
           >
             <i class="pi pi-image text-3xl text-placeholder" />
           </div>

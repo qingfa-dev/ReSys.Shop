@@ -302,7 +302,7 @@ watch(() => route.params.slug, slug => {
         <!-- Fallback: Placeholder block when the product has no images -->
         <div
           v-else
-          class="flex aspect-square items-center justify-center rounded-2xl bg-surface-50"
+          class="flex aspect-square items-center justify-center rounded-2xl bg-surface-100"
         >
           <i class="pi pi-image text-4xl text-placeholder" />
         </div>
@@ -427,7 +427,7 @@ watch(() => route.params.slug, slug => {
                 <div
                   v-for="row in detailRows"
                   :key="row.label"
-                  class="flex justify-between gap-4 border-b border-surface-100 py-2"
+                  class="flex justify-between gap-4 border-b border-surface-200 py-2"
                 >
                   <dt class="text-sm text-muted">{{ row.label }}</dt>
                   <dd class="text-sm font-medium text-heading">

@@ -65,7 +65,7 @@ onMounted(() => {
         <div class="flex flex-col gap-5">
           <!-- Inplace Rows: Click a display value to swap in its float-label input -->
           <div class="flex flex-col gap-4">
-            <div class="flex items-center justify-between gap-4 border-b border-surface-100 pb-3">
+            <div class="flex items-center justify-between gap-4 border-b border-surface-200 pb-3">
               <span class="text-sm text-muted">First name</span>
               <Inplace v-model:active="firstEditing">
                 <template #display>{{ firstName || 'Not set' }}</template>
@@ -80,7 +80,7 @@ onMounted(() => {
                 </template>
               </Inplace>
             </div>
-            <div class="flex items-center justify-between gap-4 border-b border-surface-100 pb-3">
+            <div class="flex items-center justify-between gap-4 border-b border-surface-200 pb-3">
               <span class="text-sm text-muted">Last name</span>
               <Inplace v-model:active="lastEditing">
                 <template #display>{{ lastName || 'Not set' }}</template>
