@@ -3,7 +3,6 @@ using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared;
 using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Products.Shared.Models;
 using Module.Inventory.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.PagedOrAll;

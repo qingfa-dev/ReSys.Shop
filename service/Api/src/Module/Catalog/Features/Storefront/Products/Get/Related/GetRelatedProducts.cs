@@ -11,8 +11,6 @@ public static partial class GetRelatedProducts
 {
     public sealed record Query(Guid Id, Parameters Parameters) : IPagedQuery<Response>;
 
-    public record Parameters : QueryingParameters;
-
     public record Response : StoreProductListItemResponse;
 
     /// <summary>
