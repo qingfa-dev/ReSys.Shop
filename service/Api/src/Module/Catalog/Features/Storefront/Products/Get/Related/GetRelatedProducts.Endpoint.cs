@@ -10,7 +10,7 @@ public static partial class GetRelatedProducts
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/products/related?productId= — taxon-based related product listing
-            app.MapGet(CatalogFeature.Storefront.Products.Related.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Products.Get.Related.Route, async (
                 [FromQuery] Guid productId,
                 [AsParameters] Parameters parameters,
                 ISender sender,
@@ -22,8 +22,8 @@ public static partial class GetRelatedProducts
             })
             .WithName(nameof(GetRelatedProducts))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Products.Related.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.Related.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Get.Related.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Get.Related.Description)
             .Produces<PagedResult<Response>>();
         }
     }

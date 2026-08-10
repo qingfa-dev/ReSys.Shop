@@ -1,6 +1,5 @@
 using Module.Catalog.Domain.Variants;
-using Module.Catalog.Domain.Variants.Images;
-using Module.Catalog.Features.Storefront.Options.Shared.Models;
+using Module.Catalog.Features.Storefront.OptionTypes.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
 
 namespace Module.Catalog.Features.Storefront.Products.Shared.Mappings;
@@ -11,11 +10,11 @@ public static class StoreProductVariantMapping
 
     private const string DefaultCurrency = "USD";
 
-    public static StoreProductVariantResponse MapToStoreVariant(this Variant variant)
+    public static T MapToStoreVariant<T>(this Variant variant) where T : StoreProductVariantResponse, new()
     {
         var defaultPrice = variant.Prices.FirstOrDefault();
 
-        return new StoreProductVariantResponse
+        return new T
         {
             Id = variant.Id,
             Sku = variant.Sku ?? string.Empty,
@@ -43,7 +42,7 @@ public static class StoreProductVariantMapping
 
             Images = variant.VariantImages
                 .OrderBy(i => i.Position)
-                .Select(i => i.MapToStoreImage())
+                .Select(i => i.MapToStoreListItem<StoreVariantImageListItemResponse>())
                 .ToList(),
 
             Prices = variant.Prices
@@ -54,21 +53,7 @@ public static class StoreProductVariantMapping
 
     #endregion
 
-    #region Images
 
-    public static StoreVariantImageListItemResponse MapToStoreImage(this VariantImage image)
-    {
-        return new StoreVariantImageListItemResponse
-        {
-            Id = image.Id,
-            Url = image.Url,
-            Alt = image.Alt,
-            Position = image.Position,
-            ContentType = image.ContentType,
-        };
-    }
-
-    #endregion
 
     #region Stock
 

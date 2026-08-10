@@ -10,7 +10,7 @@ public static partial class GetProductDetail
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/products/{id} — full product detail with variants and prices
-            app.MapGet(CatalogFeature.Storefront.Products.Detail.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Products.Get.ById.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class GetProductDetail
             })
             .WithName(nameof(GetProductDetail))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Products.Detail.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.Detail.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Get.ById.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Get.ById.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

@@ -22,10 +22,10 @@ public static class StoreProductMapping
 
         return response with
         {
-            MasterVariant = masterVariant?.MapToStoreVariant(),
+            MasterVariant = masterVariant?.MapToStoreVariant<StoreProductVariantResponse>(),
             Variants = entity.Variants
                 .Where(v => !v.IsDeleted)
-                .Select(v => v.MapToStoreVariant())
+                .Select(v => v.MapToStoreVariant<StoreProductVariantResponse>())
                 .ToList(),
             Classifications = taxons,
             VariantsCount = entity.Variants.Count,
@@ -48,7 +48,7 @@ public static class StoreProductMapping
 
         return response with
         {
-            MasterVariant = masterVariant?.MapToStoreVariant(),
+            MasterVariant = masterVariant?.MapToStoreVariant<StoreProductVariantResponse>(),
             Classifications = taxons,
         };
     }

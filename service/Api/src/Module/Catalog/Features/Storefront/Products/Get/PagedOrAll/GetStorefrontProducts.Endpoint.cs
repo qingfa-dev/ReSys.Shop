@@ -10,7 +10,7 @@ public static partial class GetStorefrontProducts
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/products — paged listing with filtering, sorting, and search
-            app.MapGet(CatalogFeature.Storefront.Products.List.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Products.Get.PagedOrAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class GetStorefrontProducts
             })
             .WithName(nameof(GetStorefrontProducts))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Products.List.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.List.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Get.PagedOrAll.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Get.PagedOrAll.Description)
             .Produces<PagedResult<Response>>();
         }
     }

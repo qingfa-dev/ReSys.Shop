@@ -10,7 +10,7 @@ public static partial class GetSimilarProducts
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: GET /api/storefront/products/similar?productId= — embedding-based similarity search
-            app.MapGet(CatalogFeature.Storefront.Products.Similar.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Products.Get.Similar.Route, async (
                 [FromQuery] Guid productId,
                 ISender sender,
                 CancellationToken ct,
@@ -22,8 +22,8 @@ public static partial class GetSimilarProducts
             })
             .WithName(nameof(GetSimilarProducts))
             .WithTags(CatalogFeature.Tags.Product)
-            .WithSummary(CatalogFeature.Storefront.Products.Similar.Summary)
-            .WithDescription(CatalogFeature.Storefront.Products.Similar.Description)
+            .WithSummary(CatalogFeature.Storefront.Products.Get.Similar.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Get.Similar.Description)
             .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
