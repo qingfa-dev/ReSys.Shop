@@ -9,7 +9,7 @@ import type { QueryingParameters } from '@/shared/types/querying'
 const taxonomyList = PagedResultSchema(TaxonomyListItemSchema)
 const taxonList = PagedResultSchema(TaxonListItemSchema)
 
-export class TaxonApi {
+export class TaxonomyApi {
   static async getTaxonomies(q: QueryingParameters): Promise<PagedResult<StoreTaxonomyListItem>> {
     const result = await getPaged<unknown>('/api/storefront/catalog/taxonomies', q)
     if (!result.isSuccess) return result as PagedResult<StoreTaxonomyListItem>
@@ -18,7 +18,7 @@ export class TaxonApi {
   }
 
   static async getTaxons(q: QueryingParameters): Promise<PagedResult<StoreTaxonListItemResponse>> {
-    const result = await getPaged<unknown>('/api/storefront/catalog/taxons', q)
+    const result = await getPaged<unknown>('/api/storefront/catalog/taxonomies/taxons', q)
     if (!result.isSuccess) return result as PagedResult<StoreTaxonListItemResponse>
     const parsed = taxonList.parse({ ...result, items: result.items })
     return parsed as PagedResult<StoreTaxonListItemResponse>

@@ -21,7 +21,7 @@ export class OptionTypeApi {
 
   static async getOptionValues(q: QueryingParameters): Promise<PagedResult<StoreOptionValueListItemResponse>> {
     // Call: Catalog API — fetch option values for each option type
-    const result = await getPaged<unknown>('/api/storefront/catalog/option-values', q)
+    const result = await getPaged<unknown>('/api/storefront/catalog/option-types/values', q)
     if (!result.isSuccess) return result as PagedResult<StoreOptionValueListItemResponse>
     // Validate: Ensure option value list matches OptionValue schema
     const parsed = optionValueList.parse({ ...result, items: result.items })

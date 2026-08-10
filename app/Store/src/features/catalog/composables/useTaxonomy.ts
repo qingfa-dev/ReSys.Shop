@@ -1,5 +1,5 @@
 import { ref, reactive } from 'vue'
-import { TaxonApi } from '../services/taxonApi'
+import { TaxonomyApi } from '../services/taxonApi'
 import { OptionTypeApi } from '../services/optionTypeApi'
 import type { TaxonomyGroup, StoreOptionTypeListItem, StoreOptionValueListItemResponse, StoreTaxonListItemResponse, TaxonTreeNode } from '../types'
 
@@ -30,8 +30,8 @@ export function useTaxonomy() {
     if (taxonomyGroups.value.length > 0) return
     taxonsLoading.value = true
     const [taxonomiesResult, taxonsResult] = await Promise.all([
-      TaxonApi.getTaxonomies({ pageNumber: 1, pageSize: 50 }),
-      TaxonApi.getTaxons({ pageNumber: 1, pageSize: 500 }),
+      TaxonomyApi.getTaxonomies({ pageNumber: 1, pageSize: 50 }),
+      TaxonomyApi.getTaxons({ pageNumber: 1, pageSize: 500 }),
     ])
     if (taxonomiesResult.isSuccess && taxonsResult.isSuccess) {
       taxonomyGroups.value = taxonomiesResult.items.map(t => ({

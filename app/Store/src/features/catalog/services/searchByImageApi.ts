@@ -3,10 +3,10 @@ import { VisualSearchModelSchema } from '../validations/searchByImage'
 import type { PagedResult, Result } from '@/shared/types'
 import type { SearchByImageResponse, VisualSearchModel } from '../types'
 
-export class SearchByImageApi {
+export class CatalogImageApi {
   static async getVisualSearchModels(): Promise<Result<VisualSearchModel[]>> {
     // Call: Catalog API to fetch available visual search ML models
-    const result = await get<Result<VisualSearchModel[]>>('/api/storefront/catalog/products/visual-search/models')
+    const result = await get<Result<VisualSearchModel[]>>('/api/storefront/catalog/products/images/inferences')
     if (!result.isSuccess) return result
     // Validate: Ensure API response conforms to VisualSearchModel schema
     result.value = VisualSearchModelSchema.array().parse(result.value)

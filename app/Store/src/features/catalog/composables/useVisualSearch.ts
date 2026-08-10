@@ -1,5 +1,5 @@
 import { onUnmounted, ref, reactive } from 'vue'
-import { SearchByImageApi } from '../services/searchByImageApi'
+import { CatalogImageApi } from '../services/searchByImageApi'
 import type { SearchByImageResponse, VisualSearchModel } from '../types'
 
 export type VisualSearchState = 'empty' | 'upload' | 'loading' | 'results'
@@ -54,7 +54,7 @@ export function useVisualSearch() {
     loading.value = true
     error.value = null
     try {
-      const result = await SearchByImageApi.searchByImage(selectedFile.value, topK ?? 20, model ?? selectedModelId.value ?? undefined)
+      const result = await CatalogImageApi.searchByImage(selectedFile.value, topK ?? 20, model ?? selectedModelId.value ?? undefined)
       if (result.isSuccess) {
         results.value = result.items
         state.value = 'results'
@@ -70,7 +70,7 @@ export function useVisualSearch() {
   }
 
   async function loadModels(): Promise<void> {
-    const result = await SearchByImageApi.getVisualSearchModels()
+    const result = await CatalogImageApi.getVisualSearchModels()
     if (result.isSuccess) availableModels.value = result.value
   }
 

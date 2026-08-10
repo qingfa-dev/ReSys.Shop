@@ -1,4 +1,4 @@
 export { ProductApi } from './productApi'
-export { TaxonApi } from './taxonApi'
+export { TaxonomyApi as TaxonApi } from './taxonApi'
 export { OptionTypeApi } from './optionTypeApi'
-export { SearchByImageApi } from './searchByImageApi'
+export { CatalogImageApi as SearchByImageApi } from './searchByImageApi'
