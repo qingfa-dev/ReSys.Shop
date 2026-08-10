@@ -1,7 +1,7 @@
 
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Shared.Mappings;
+using Module.Catalog.Features.Admin.Variants.Images.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 

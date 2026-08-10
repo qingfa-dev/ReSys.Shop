@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Features.Admin.Products.Variants.Update;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Features.Admin.Variants.Update;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Update;
 

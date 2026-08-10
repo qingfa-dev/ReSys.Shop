@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.GetById;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.GetById;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Get.ById;
 
@@ -32,7 +32,7 @@ public class GetVariantImageByIdTests : IDisposable
     public async Task Handle_ShouldReturnImage_WhenFound()
     {
         var variantId = Guid.NewGuid();
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create(
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create(
             "image/jpeg", "photo.jpg", 2048,
             url: "https://cdn.test.com/photo.jpg",
             storagePath: "uploads/photo.jpg",

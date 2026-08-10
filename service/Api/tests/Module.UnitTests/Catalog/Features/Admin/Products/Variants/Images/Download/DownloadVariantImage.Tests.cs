@@ -1,6 +1,6 @@
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Download;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Download;
+using Module.Catalog.Features.Admin.Variants.Images.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Download;
 
@@ -36,7 +36,7 @@ public class DownloadVariantImageTests : IDisposable
     [Fact(DisplayName = "Handler: Should return file stream when image found")]
     public async Task Handle_ShouldReturnStream_WhenFound()
     {
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "screenshot.png", 4096,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/png", "screenshot.png", 4096,
             url: "https://cdn.test.com/screenshot.png", storagePath: "uploads/screenshot.png",
             variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);
@@ -73,7 +73,7 @@ public class DownloadVariantImageTests : IDisposable
     [Fact(DisplayName = "Handler: Should propagate storage download failure")]
     public async Task Handle_ShouldReturnFailure_WhenStorageFails()
     {
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
             url: "https://cdn.test.com/photo.jpg", storagePath: "uploads/photo.jpg",
             variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);

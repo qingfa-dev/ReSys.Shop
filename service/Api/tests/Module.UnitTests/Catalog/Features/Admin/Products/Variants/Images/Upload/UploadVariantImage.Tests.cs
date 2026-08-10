@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Upload;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Upload;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Upload;
 
@@ -212,7 +212,7 @@ public class UploadVariantImageTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         _dbContext.Set<Variant>().Add(variant);
 
-        var existing = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create(
+        var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create(
             "image/jpeg", "old.jpg", 1024,
             url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
             position: 0, type: VariantImageType.Search, variantId: variant.Id).Value;

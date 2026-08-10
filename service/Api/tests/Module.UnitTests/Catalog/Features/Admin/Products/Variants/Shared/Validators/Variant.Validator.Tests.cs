@@ -1,6 +1,6 @@
-using CatalogDomain = Module.Catalog.Domain.Products.Variants;
-using VariantFeatureSharedModels = Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
-using VariantValidator = Module.Catalog.Features.Admin.Products.Variants.Shared.Validators.VariantValidator;
+using CatalogDomain = Module.Catalog.Domain.Variants;
+using VariantFeatureSharedModels = Module.Catalog.Features.Admin.Variants.Shared.Models;
+using VariantValidator = Module.Catalog.Features.Admin.Variants.Shared.Validators.VariantValidator;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Shared.Validators;
 

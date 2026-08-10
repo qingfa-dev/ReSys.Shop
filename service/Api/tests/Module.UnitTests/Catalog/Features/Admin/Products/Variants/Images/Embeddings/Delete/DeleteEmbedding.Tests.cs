@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Delete;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
 

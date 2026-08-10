@@ -1,6 +1,6 @@
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Options;
-using Module.Catalog.Features.Admin.Products.Variants.Values.Sync;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Options;
+using Module.Catalog.Features.Admin.Variants.Values.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.OptionValues.Sync;
 

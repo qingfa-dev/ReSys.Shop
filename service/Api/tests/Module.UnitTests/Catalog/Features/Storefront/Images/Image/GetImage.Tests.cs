@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Features.Storefront.Images.Get.Image;
 using Shared.Operational.Storages.Models;
 

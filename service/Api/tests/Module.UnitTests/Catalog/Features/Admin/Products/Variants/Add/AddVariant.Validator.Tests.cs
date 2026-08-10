@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Products.Variants.Add;
+using Module.Catalog.Features.Admin.Variants.Add;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Add;
 

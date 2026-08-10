@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Dashboard.Get;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Dashboard.Get;

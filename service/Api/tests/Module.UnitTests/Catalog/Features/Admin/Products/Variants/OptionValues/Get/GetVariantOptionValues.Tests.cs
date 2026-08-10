@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Options;
-using Module.Catalog.Features.Admin.Products.Variants.Values.Get;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Options;
+using Module.Catalog.Features.Admin.Variants.Values.Get;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.OptionValues.Get;
 

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Http;
 
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Validators;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Shared.Models;
+using Module.Catalog.Features.Admin.Variants.Images.Shared.Validators;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Shared.Validators;
 

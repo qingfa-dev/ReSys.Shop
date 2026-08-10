@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Storefront.Classifications.Taxons;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Taxons.List;

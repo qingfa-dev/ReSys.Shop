@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
 using Module.Catalog.Features.Admin.Taxons.Rules.Create;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 

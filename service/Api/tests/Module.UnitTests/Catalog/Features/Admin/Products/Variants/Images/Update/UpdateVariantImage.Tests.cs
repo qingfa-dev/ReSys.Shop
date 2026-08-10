@@ -1,6 +1,6 @@
 
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Update;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Update;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Update;
 
@@ -39,7 +39,7 @@ public class UpdateVariantImageTests : IDisposable
     [Fact(DisplayName = "Handler: Should update image alt, position, and type")]
     public async Task Handle_ShouldUpdateFields_WhenValid()
     {
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
             url: "https://cdn.test.com/photo.jpg", storagePath: "u/photo.jpg",
             position: 0, alt: "Old alt", type: VariantImageType.Default).Value;
         _dbContext.Set<VariantImage>().Add(image);
@@ -83,7 +83,7 @@ public class UpdateVariantImageTests : IDisposable
     [Fact(DisplayName = "Handler: Should preserve unset fields when update only changes position")]
     public async Task Handle_ShouldPreserveUnsetFields_WhenPartialUpdate()
     {
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
             url: "https://cdn.test.com/photo.jpg", storagePath: "u/photo.jpg",
             position: 0, alt: "Original alt", type: VariantImageType.Default).Value;
         _dbContext.Set<VariantImage>().Add(image);
@@ -105,10 +105,10 @@ public class UpdateVariantImageTests : IDisposable
     public async Task Handle_ShouldDemotePriorDefault_WhenSettingNewDefault()
     {
         var variantId = Guid.NewGuid();
-        var existing = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
+        var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
             url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
             position: 0, type: VariantImageType.Default, variantId: variantId).Value;
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "new.jpg", 1024,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "new.jpg", 1024,
             url: "https://cdn.test.com/new.jpg", storagePath: "u/new.jpg",
             position: 1, type: VariantImageType.Gallery, variantId: variantId).Value;
         _dbContext.Set<VariantImage>().AddRange(existing, image);
@@ -131,10 +131,10 @@ public class UpdateVariantImageTests : IDisposable
     public async Task Handle_ShouldDemotePriorSearch_WhenSettingNewSearch()
     {
         var variantId = Guid.NewGuid();
-        var existing = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
+        var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
             url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
             position: 0, type: VariantImageType.Search, variantId: variantId).Value;
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "new.jpg", 1024,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "new.jpg", 1024,
             url: "https://cdn.test.com/new.jpg", storagePath: "u/new.jpg",
             position: 1, type: VariantImageType.Gallery, variantId: variantId).Value;
         _dbContext.Set<VariantImage>().AddRange(existing, image);

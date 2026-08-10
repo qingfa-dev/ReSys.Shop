@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Domain.Taxons.Rules;
 
 namespace Module.UnitTests.Catalog.Domain.Taxonomies.Taxons.Rules;
 

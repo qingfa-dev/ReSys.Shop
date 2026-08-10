@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
 using Module.Catalog.Features.Storefront.Products.Get.Similar;
 using Module.Catalog.Features.Storefront.Products.Shared.Services;
 

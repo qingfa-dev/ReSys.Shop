@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Get.PagedOrAll;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Get.PagedOrAll;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
 
@@ -32,13 +32,13 @@ public class ListVariantImagesTests : IDisposable
     public async Task Handle_ShouldReturnImagesOrderedByPosition()
     {
         var variantId = Guid.NewGuid();
-        var img1 = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+        var img1 = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
             url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
             position: 2, variantId: variantId).Value;
-        var img2 = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+        var img2 = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
             url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
             position: 0, variantId: variantId).Value;
-        var img3 = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
+        var img3 = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
             url: "https://cdn.test.com/3.gif", storagePath: "u/3.gif",
             position: 1, variantId: variantId).Value;
 
@@ -75,13 +75,13 @@ public class ListVariantImagesTests : IDisposable
     {
         var variantId = Guid.NewGuid();
         _dbContext.Set<VariantImage>().AddRange(
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
                 url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
                 position: 0, variantId: variantId).Value,
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
                 url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
                 position: 1, variantId: variantId).Value,
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
                 url: "https://cdn.test.com/3.gif", storagePath: "u/3.gif",
                 position: 2, variantId: variantId).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -100,13 +100,13 @@ public class ListVariantImagesTests : IDisposable
     {
         var variantId = Guid.NewGuid();
         _dbContext.Set<VariantImage>().AddRange(
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "default.jpg", 100,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "default.jpg", 100,
                 url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
                 position: 0, type: VariantImageType.Default, variantId: variantId).Value,
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "default.png", 200,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/png", "default.png", 200,
                 url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
                 position: 1, type: VariantImageType.Default, variantId: variantId).Value,
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/gif", "gallery.gif", 300,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/gif", "gallery.gif", 300,
                 url: "https://cdn.test.com/3.gif", storagePath: "u/3.gif",
                 position: 2, type: VariantImageType.Gallery, variantId: variantId).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -125,13 +125,13 @@ public class ListVariantImagesTests : IDisposable
     {
         var variantId = Guid.NewGuid();
         _dbContext.Set<VariantImage>().AddRange(
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
                 url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
                 position: 0, variantId: variantId).Value,
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
                 url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
                 position: 1, variantId: variantId).Value,
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/gif", "third.gif", 300,
                 url: "https://cdn.test.com/3.gif", storagePath: "u/3.gif",
                 position: 2, variantId: variantId).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -150,10 +150,10 @@ public class ListVariantImagesTests : IDisposable
     {
         var variantId = Guid.NewGuid();
         _dbContext.Set<VariantImage>().AddRange(
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "first.jpg", 100,
                 url: "https://cdn.test.com/1.jpg", storagePath: "u/1.jpg",
                 position: 0, variantId: variantId).Value,
-            Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
+            Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/png", "second.png", 200,
                 url: "https://cdn.test.com/2.png", storagePath: "u/2.png",
                 position: 1, variantId: variantId).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

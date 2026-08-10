@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Storefront.Products.Get.ByTaxonPermalink;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Products.By.ByTaxonPermalink;

@@ -3,8 +3,8 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
-using Module.Catalog.Features.Admin.Products.Variants.Update;
+using Module.Catalog.Features.Admin.Variants.Shared.Models;
+using Module.Catalog.Features.Admin.Variants.Update;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.Update;
 

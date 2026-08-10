@@ -2,12 +2,12 @@ using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Domain.Products.Variants.Options;
-using Module.Catalog.Domain.Products.Variants.Prices;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Domain.Variants.Options;
+using Module.Catalog.Domain.Variants.Prices;
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Storefront.Products.Get.List;
 using Module.Inventory.Services;
 

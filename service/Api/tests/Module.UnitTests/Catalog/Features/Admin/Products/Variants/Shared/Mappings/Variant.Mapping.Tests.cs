@@ -1,6 +1,6 @@
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Features.Admin.Variants.Shared.Mappings;
+using Module.Catalog.Features.Admin.Variants.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Shared.Mappings;
 

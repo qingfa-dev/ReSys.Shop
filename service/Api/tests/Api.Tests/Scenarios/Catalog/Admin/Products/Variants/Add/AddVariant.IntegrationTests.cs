@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Add;
+using Module.Catalog.Features.Admin.Variants.Add;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.Add;
 

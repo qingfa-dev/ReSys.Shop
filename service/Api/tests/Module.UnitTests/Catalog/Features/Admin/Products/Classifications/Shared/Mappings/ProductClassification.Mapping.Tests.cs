@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products.Classifications;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
 using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
 
