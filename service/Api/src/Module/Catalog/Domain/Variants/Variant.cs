@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Options;
 using Module.Catalog.Domain.Variants.Prices;

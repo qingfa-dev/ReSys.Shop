@@ -1,4 +1,4 @@
-using Module.Ordering.Domain.Adjustments;
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Calculators;
 
@@ -49,7 +49,7 @@ public static partial class UpdateCheckout
             if (addressChanged && cart.ShippingMethodId.HasValue)
             {
                 var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
-                var variantWeights = await dbContext.Set<Catalog.Domain.Products.Variants.Variant>()
+                var variantWeights = await dbContext.Set<Variant>()
                     .Where(v => variantIds.Contains(v.Id))
                     .Select(v => new { v.Id, v.Weight })
                     .ToListAsync(cancellationToken);

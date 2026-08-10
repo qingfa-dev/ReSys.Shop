@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Calculators;
 
@@ -41,7 +42,7 @@ public static partial class SelectShippingRate
 
             // Compute: Calculate total order weight from variant weights.
             var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
-            var variantWeights = await dbContext.Set<Catalog.Domain.Products.Variants.Variant>()
+            var variantWeights = await dbContext.Set<Variant>()
                 .Where(v => variantIds.Contains(v.Id))
                 .Select(v => new { v.Id, v.Weight })
                 .ToListAsync(cancellationToken);

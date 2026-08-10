@@ -1,4 +1,5 @@
 using Module.Catalog.Domain.Products.Classifications;
+using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons.Rules;
 
 using Shared.Application.Domain.Concerns.Auditable;

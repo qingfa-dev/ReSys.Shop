@@ -1,6 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Domain.Taxons.Rules;
+using Module.Catalog.Domain.Variants;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
@@ -50,7 +51,7 @@ public sealed class TaxonRuleEvaluator : ITaxonRuleEvaluator
         };
     }
 
-    private static Domain.Products.Variants.Variant? GetMasterVariant(Product product)
+    private static Variant? GetMasterVariant(Product product)
         => product.Variants.FirstOrDefault(v => v.IsMaster);
 
     private static bool CompareString(string? actual, TaxonRuleMatchPolicy policy, string expected)
