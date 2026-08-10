@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Features.Admin.Products.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.Variants.Update;
+using Module.Catalog.Features.Admin.Variants.Update;
 
 namespace Module.Catalog.Features.Admin.Products.Update;
 

@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Storefront.Classifications.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.Classifications.Taxons;

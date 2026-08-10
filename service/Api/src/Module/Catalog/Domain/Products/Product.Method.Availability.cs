@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 
 namespace Module.Catalog.Domain.Products;
 

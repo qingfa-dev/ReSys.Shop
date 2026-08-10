@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 
 using Shared.Operational.Storages.Services;

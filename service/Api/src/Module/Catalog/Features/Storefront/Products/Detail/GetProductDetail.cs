@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 using Module.Inventory.Services;

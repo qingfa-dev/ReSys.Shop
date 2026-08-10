@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
+using Module.Catalog.Features.Admin.Variants.Images.Shared.Models;
 
 namespace Module.Catalog.Features.Storefront.Products.Shared.Models;
 

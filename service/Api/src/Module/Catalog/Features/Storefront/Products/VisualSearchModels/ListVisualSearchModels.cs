@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Clients;
 
 namespace Module.Catalog.Features.Storefront.Products.VisualSearchModels;
 

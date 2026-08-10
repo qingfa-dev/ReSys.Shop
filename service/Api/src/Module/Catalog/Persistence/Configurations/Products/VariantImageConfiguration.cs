@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 
-using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Variants.Images;
 
 namespace Module.Catalog.Persistence.Configurations.Products;
 

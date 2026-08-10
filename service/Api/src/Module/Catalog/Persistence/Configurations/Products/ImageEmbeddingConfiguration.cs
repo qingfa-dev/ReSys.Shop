@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
 
 using Shared.Operational.Persistence.Configurations.Vectors;
 

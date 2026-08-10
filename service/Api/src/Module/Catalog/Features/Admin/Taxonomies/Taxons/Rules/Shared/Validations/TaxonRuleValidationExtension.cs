@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Domain.Taxons.Rules;
 using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Models;
 
 namespace Module.Catalog.Features.Admin.Taxons.Rules.Shared.Validations;

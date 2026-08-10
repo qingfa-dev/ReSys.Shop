@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 

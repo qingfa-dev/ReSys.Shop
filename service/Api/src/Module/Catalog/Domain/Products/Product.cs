@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Products.Options;
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Concerns.SoftDeletable;

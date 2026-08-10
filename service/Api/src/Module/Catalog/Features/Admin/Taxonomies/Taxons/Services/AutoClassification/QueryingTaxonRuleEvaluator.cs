@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 using Shared.Operational.Persistence.Specifications.Helpers;

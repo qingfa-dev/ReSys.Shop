@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
 
 using Pgvector;
 using Pgvector.EntityFrameworkCore;

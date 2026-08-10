@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Mappings;
 using Module.Catalog.Features.Admin.Taxons.Create;
 using Module.Catalog.Features.Admin.Taxons.Restore;
