@@ -88,7 +88,7 @@ public class ProductStoreMappingTests
         var product = CreateProduct();
         var variant = product.Variants.First(v => v.IsMaster);
 
-        var response = variant.MapToStoreVariant();
+        var response = variant.MapToStoreVariant<StoreProductVariantResponse>();
 
         response.Should().NotBeNull();
         response.Id.Should().Be(variant.Id);
@@ -108,7 +108,7 @@ public class ProductStoreMappingTests
         var product = CreateProductWithOptionValues();
         var variant = product.Variants.First(v => v.IsMaster);
 
-        var response = variant.MapToStoreVariant();
+        var response = variant.MapToStoreVariant<StoreProductVariantResponse>();
 
         response.OptionValues.Should().HaveCount(1);
         response.OptionValues[0].Name.Should().Be("Red");
@@ -120,7 +120,7 @@ public class ProductStoreMappingTests
     {
         var image = CreateImage();
 
-        var response = image.MapToStoreImage();
+        var response = image.MapToStoreListItem<StoreVariantImageListItemResponse>();
 
         response.Should().NotBeNull();
         response.Id.Should().Be(image.Id);

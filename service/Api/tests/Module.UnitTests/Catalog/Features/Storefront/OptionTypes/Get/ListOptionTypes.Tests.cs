@@ -1,18 +1,18 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Storefront.Options.Types;
+using Module.Catalog.Features.Storefront.OptionTypes.Get;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.OptionTypes.List;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Feature", "StorefrontOptionTypesList")]
-public class ListOptionTypesTests : IDisposable
+public class GetStoreOptionTypesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly GetStoreOptionTypes.PagedQueryHandler _handler;
 
-    public ListOptionTypesTests()
+    public GetStoreOptionTypesTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())

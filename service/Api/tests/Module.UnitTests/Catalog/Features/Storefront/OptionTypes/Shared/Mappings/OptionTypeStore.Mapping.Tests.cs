@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Storefront.Options.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Options.Shared.Models;
+using Module.Catalog.Features.Storefront.OptionTypes.Shared.Mappings;
+using Module.Catalog.Features.Storefront.OptionTypes.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.OptionTypes.Shared.Mappings;
 

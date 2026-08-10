@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons;
-using Module.Catalog.Features.Storefront.Classifications.Taxonomies;
+using Module.Catalog.Features.Storefront.Taxonomies.Get;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Taxonomies.GetTree;
+namespace Module.UnitTests.Catalog.Features.Storefront.Taxonomies.Get;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

@@ -1,7 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants.Images;
-using Module.Catalog.Features.Storefront.Images.Get.Image;
-using Shared.Operational.Storages.Models;
+using Module.Catalog.Features.Storefront.Products.Images.Get;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Images.Image;
 
@@ -12,7 +11,7 @@ public class GetImageTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IStorageService> _storageServiceMock;
-    private readonly GetImage.QueryHandler _handler;
+    private readonly GetImageById.QueryHandler _handler;
 
     public GetImageTests()
     {
@@ -25,7 +24,7 @@ public class GetImageTests : IDisposable
 
         _storageServiceMock = new Mock<IStorageService>();
 
-        _handler = new GetImage.QueryHandler(_dbContext, _storageServiceMock.Object);
+        _handler = new GetImageById.QueryHandler(_dbContext, _storageServiceMock.Object);
     }
 
     public void Dispose()
@@ -54,7 +53,7 @@ public class GetImageTests : IDisposable
             .ReturnsAsync(Result<DownloadResult>.Ok(new DownloadResult { Content = stream }));
 
         var result = await _handler.Handle(
-            new GetImage.Query(image.Id),
+            new GetImageById.Query(image.Id),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -66,7 +65,7 @@ public class GetImageTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenImageDoesNotExist()
     {
         var result = await _handler.Handle(
-            new GetImage.Query(Guid.NewGuid()),
+            new GetImageById.Query(Guid.NewGuid()),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -91,7 +90,7 @@ public class GetImageTests : IDisposable
             .ReturnsAsync(Result<DownloadResult>.NotFound("File not found"));
 
         var result = await _handler.Handle(
-            new GetImage.Query(image.Id),
+            new GetImageById.Query(image.Id),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -116,7 +115,7 @@ public class GetImageTests : IDisposable
             .ReturnsAsync(Result<DownloadResult>.NotFound("Path not found"));
 
         var result = await _handler.Handle(
-            new GetImage.Query(image.Id),
+            new GetImageById.Query(image.Id),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();

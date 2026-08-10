@@ -12,7 +12,7 @@ using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Storefront.Products.Get.Detail;
 using Module.Inventory.Services;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetDetailPage;
+namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.ById;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
