@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Storefront.Products.Get.List;
+namespace Module.Catalog.Features.Storefront.Products.Get.PagedOrAll;
 
 public static partial class GetStorefrontProducts
 {

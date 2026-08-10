@@ -6,7 +6,7 @@ using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
 using Module.Inventory.Services;
 
-namespace Module.Catalog.Features.Storefront.Products.Get.List;
+namespace Module.Catalog.Features.Storefront.Products.Get.PagedOrAll;
 
 public static partial class GetStorefrontProducts
 {

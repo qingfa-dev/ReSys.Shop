@@ -8,7 +8,7 @@ using Module.Catalog.Domain.Variants.Options;
 using Module.Catalog.Domain.Variants.Prices;
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons;
-using Module.Catalog.Features.Storefront.Products.Get.List;
+using Module.Catalog.Features.Storefront.Products.Get.PagedOrAll;
 using Module.Inventory.Services;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.List;
