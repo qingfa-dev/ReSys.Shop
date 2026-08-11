@@ -9,8 +9,8 @@ public static partial class UpdateCartItemQuantity
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: PUT api/storefront/cart/items/{lineItemId:guid} — update a cart line item quantity
-            app.MapPut(OrderingFeature.Storefront.Cart.UpdateItemQuantity.Route, async (
+            // Map: PATCH api/storefront/cart/items/{lineItemId:guid} — update a cart line item quantity
+            app.MapPatch(OrderingFeature.Storefront.Cart.UpdateItemQuantity.Route, async (
                 [FromRoute] Guid lineItemId, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(lineItemId, request), ct);
