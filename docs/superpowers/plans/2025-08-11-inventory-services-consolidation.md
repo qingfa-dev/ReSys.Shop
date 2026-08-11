@@ -592,7 +592,7 @@ In `StockItem.Service.Interface.cs`:
 Task<Result<Guid?>> GetStockLocationIdForVariantAsync(Guid variantId, CancellationToken ct = default);
 ```
 
-In `StockItem.Service.Implementation.cs` (simple first-match lookup):
+In `StockItem.Service.Implementation.cs` (simple first-match lookup). **Return `Result<Guid?>.Ok(null)` when no stock item exists — NOT `NotFound`.** Human decision (2026-08-11): the deleted `OrderInventoryService.RemoveAsync` silently skipped variants with no stock item (test `RemoveAsync_ShouldNotCrash_WhenNoStockLocation`), and the callers' `Value is null → continue` branch relies on success-with-null. Returning `NotFound` would abort order cancellation when any line item's variant lacks a stock item — a regression:
 
 ```csharp
 public async Task<Result<Guid?>> GetStockLocationIdForVariantAsync(Guid variantId, CancellationToken ct = default)
@@ -600,12 +600,12 @@ public async Task<Result<Guid?>> GetStockLocationIdForVariantAsync(Guid variantI
     var stockItem = await dbContext.Set<StockItem>()
         .FirstOrDefaultAsync(si => si.VariantId == variantId, ct);
     return stockItem is null
-        ? StockItemResult.Errors.NotFound(variantId)
-        : (Guid?)stockItem.StockLocationId;
+        ? Result<Guid?>.Ok(null)
+        : Result<Guid?>.Ok((Guid?)stockItem.StockLocationId);
 }
 ```
 
-(Verify the exact `StockItemResult.Errors.NotFound` signature — adapt if it takes different args or use `Guid?` null semantics.)
+(Verify `Result<T>.Ok` static constructor shape — use `(Guid?)null` or `Result<Guid?>.Ok((Guid?)stockItem.StockLocationId)` as needed.)
 
 - [ ] **Step 2: Update CancelOrder.cs (storefront)**
 
@@ -887,7 +887,8 @@ Reads X-Cart-Token from HttpContext.Items set by CartTokenMiddleware."
 **Files:**
 - Create: `service/Api/src/Module/Inventory/Features/Storefront/StockReservations/Get/GetCartReservations.Endpoint.cs`
 - Create: `service/Api/src/Module/Inventory/Features/Storefront/StockReservations/Get/GetCartReservations.Response.cs`
-- Create: `service/Api/src/Module/Inventory/Features/Storefront/StockReservations/Get/GetCartReservations.Validator.cs`
+
+**Note (implemented per AGENTS.md):** No Validator.cs — this is a read-only GET with no Request body; cartToken comes from HttpContext.Items and is validated inline via `Results.BadRequest`. Per AGENTS.md rule 3, read-only queries may omit Validator files.
 
 **Consumes:** `IStockReservationService.GetReservationsForCartAsync` (existing)
 **DECISION (pre-flight review):** The endpoint must NOT serialize the raw `StockReservation` domain entity. Define a `CartReservationStatus` response DTO (mirrors the SPA `CartReservationStatus` type in `app/Store/src/features/inventory/types/availability.ts`).
@@ -962,7 +963,7 @@ public static partial class GetCartReservations
                     RemainingSeconds = r.RemainingSeconds
                 }).ToList();
 
-                return Result.Ok(response).ToResult();
+                return Result<List<CartReservationStatus>>.Ok(response).ToResult();
             })
             .WithName(nameof(GetCartReservations))
             .WithTags(InventoryFeature.Tags.StockReservation)
