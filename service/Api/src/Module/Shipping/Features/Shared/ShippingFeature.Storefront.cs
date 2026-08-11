@@ -16,8 +16,8 @@ public static partial class ShippingFeature
             public static class Calculate
             {
                 public const string Route = "api/storefront/shipping/calculate";
-                public const string Description = "Calculate shipping cost for an order";
-                public const string Summary = "Calculate shipping";
+                public const string Description = "Calculate shipping cost for an order and method";
+                public const string Summary = "Calculate shipping cost";
             }
 
             public static class Rates
