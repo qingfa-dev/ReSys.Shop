@@ -1,9 +1,9 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 
-using Module.Inventory.Features.Storefront.Shared.Models;
-using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
 using Module.Inventory.Features.Shared;
+using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 using Shared.Application.Systems.SystemInfos;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
@@ -21,7 +21,8 @@ public static partial class AddToCart
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
         ISystemInfo systemInfo,
-        ISender sender)
+        ISender sender,
+        IStockReservationService stockReservationService)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock reservation.</summary>
@@ -67,16 +68,15 @@ public static partial class AddToCart
                 dbContext.Set<Order>().Add(cart);
             }
 
-            // Reserve: Delegate stock check + location picking to Inventory module via Shared contract.
-            var reserveResult = await sender.Send(
-                new ReserveCartStock.Command(
-                new ReserveCartStock.Request
-                {
-                    CartId = cart.Id,
-                    LineItems = [new ReserveLineItem { VariantId = request.VariantId, Quantity = request.Quantity }],
-                    TtlMinutes = InventoryFeature.Storefront.StockReservations.TtlMinutesDefault
-                }),
-                cancellationToken);
+            // Reserve: Delegate stock reservation to Inventory service.
+            // The service picks the best location(s) with available stock internally
+            // and splits the quantity across them when needed.
+            var reserveResult = await stockReservationService.ReserveForVariantAsync(
+                variantId: request.VariantId,
+                quantity: request.Quantity,
+                cartToken: cart.Id.ToString(),
+                ttlMinutes: InventoryFeature.Storefront.StockReservations.TtlMinutesDefault,
+                ct: cancellationToken);
 
             if (reserveResult.IsFailure)
                 return reserveResult.Errors;

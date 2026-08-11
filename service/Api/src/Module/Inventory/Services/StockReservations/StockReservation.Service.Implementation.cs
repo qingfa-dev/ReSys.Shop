@@ -86,6 +86,89 @@ internal sealed partial class StockReservationService(
         }
     }
 
+    public async Task<Result<StockReservation>> ReserveForVariantAsync(
+        Guid variantId,
+        int quantity,
+        string? cartToken = null,
+        int ttlMinutes = 30,
+        CancellationToken ct = default)
+    {
+        if (quantity <= 0)
+        {
+            Loggers.LogReservationFailed(logger, variantId, "Quantity must be positive");
+            return StockReservationResult.Errors.QuantityZero;
+        }
+
+        if (string.IsNullOrWhiteSpace(cartToken))
+        {
+            Loggers.LogReservationFailed(logger, variantId, "Cart token required");
+            return StockReservationResult.Errors.CartTokenRequired;
+        }
+
+        var createdReservations = new List<StockReservation>();
+
+        await using var transaction = await dbContext.BeginTransactionAsync(
+            IsolationLevel.RepeatableRead, ct);
+
+        try
+        {
+            var stockItems = await dbContext.Set<StockItem>()
+                .Where(si => si.VariantId == variantId && si.CountOnHand > 0)
+                .OrderByDescending(si => si.CountOnHand)
+                .ToListAsync(ct);
+
+            var remaining = quantity;
+
+            foreach (var stockItem in stockItems)
+            {
+                if (remaining <= 0) break;
+
+                var reserved = await dbContext.Set<StockReservation>()
+                    .Where(r => r.VariantId == variantId
+                                && r.StockLocationId == stockItem.StockLocationId
+                                && r.State == ReservationState.Reserved
+                                && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                    .SumAsync(r => r.Quantity, ct);
+
+                var available = stockItem.CountOnHand - reserved;
+                if (available <= 0) continue;
+
+                var take = Math.Min(available, remaining);
+                if (take <= 0) continue;
+
+                var result = StockReservationMethod.Reserve(
+                    variantId, take, stockItem.StockLocationId, null, ttlMinutes, cartToken: cartToken);
+
+                if (result.IsFailure)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return result.Errors;
+                }
+
+                dbContext.Set<StockReservation>().Add(result.Value);
+                createdReservations.Add(result.Value);
+                remaining -= take;
+            }
+
+            if (remaining > 0)
+            {
+                await transaction.RollbackAsync(ct);
+                return StockReservationResult.Errors.InsufficientStock;
+            }
+
+            await dbContext.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            Loggers.LogReservationCreated(logger, variantId, quantity, ttlMinutes);
+            return createdReservations[0];
+        }
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+    }
+
     public async Task<Result<int>> ReleaseReservationsAsync(
         Guid? orderId = null, string? cartToken = null, CancellationToken ct = default)
     {
