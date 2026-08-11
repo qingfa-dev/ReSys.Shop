@@ -15,13 +15,6 @@ public static partial class ProfileFeature
                 public const string Summary = "Get profile";
             }
 
-            public static class GetAll
-            {
-                public const string Route = "api/storefront/customer/all";
-                public const string Description = "Retrieve all user profiles with pagination and filtering";
-                public const string Summary = "Get all profiles";
-            }
-
             public static class Create
             {
                 public const string Route = "api/storefront/customer";
