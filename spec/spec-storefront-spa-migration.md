@@ -20,7 +20,8 @@ Update all Store SPA API consumer code to match the new storefront endpoint rout
 ### Scope
 
 - 7 API service files updated
-- 3 files deleted (availabilityApi.ts, useAvailability.ts, related type)
+- 2 files deleted (availabilityApi.ts, useAvailability.ts)
+- 1 type interface pruned (AvailabilityEntry removed from availability.ts)
 - 2 view components updated (ProductDetailView, related composable)
 - 1 TypeScript type interface extended
 - `pnpm run test:unit && pnpm run lint` must pass
@@ -84,6 +85,8 @@ Update all Store SPA API consumer code to match the new storefront endpoint rout
 DELETE app/Store/src/features/inventory/services/availabilityApi.ts
 DELETE app/Store/src/features/inventory/composables/useAvailability.ts
 ```
+
+Prune `AvailabilityEntry` interface from `app/Store/src/features/inventory/types/availability.ts` (keep `CartReservation`, `CartReservationStatus`, `ReserveStockRequest`).
 
 ### Files to Modify
 

@@ -172,7 +172,7 @@ MODIFY Ordering/Features/Storefront/Orders/Cancel/CancelOrder.cs  (IStockReserva
 MODIFY Ordering/Features/Admin/Orders/Cancel/CancelOrderAdmin.cs  (IStockReservationService DI)
 MODIFY Ordering/Features/Admin/Orders/UpdateStatus/UpdateOrderStatus.cs  (IStockReservationService DI)
 MODIFY Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs  (IStockReservationService DI, drop ReserveCartStock + ReleaseCartStockReservations MediatR calls)
-MODIFY Billing/Features/Storefront/Payment/Status/GetPaymentStatus.cs  (IStockReservationService or MediatR for Order query)
+MODIFY Billing/Features/Storefront/Payment/Status/GetPaymentStatus.cs  (replace direct Order entity query with MediatR GetCustomerOrder.Query)
 ```
 
 ### 4.7 Files to Delete
@@ -237,8 +237,8 @@ DELETE Inventory/Features/Storefront/Shared/Models/Store.StockItem.Model.cs
 
 ### Mock Strategy
 
-- Mock `IApplicationDbContext` with in-memory list of `StockItem` and `StockReservation`
-- Test `IStockReservationService` implementations with real transaction behavior (no mocking `BeginTransactionAsync`)
+- **Unit tests:** Mock `IApplicationDbContext` with in-memory list of `StockItem` and `StockReservation`. No database.
+- **Integration tests:** Use Testcontainers PostgreSQL for real transaction behavior (`Serializable` isolation, `BeginTransactionAsync`, concurrent access).
 
 ## 7. Rationale & Context
 

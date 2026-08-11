@@ -160,7 +160,7 @@ Backend developers, frontend developers, QA engineers, and platform architects i
 | POST | `/payment-methods/setup-intent` | Stripe SetupIntent |
 | POST | `/webhooks/stripe` | Stripe webhook receiver |
 
-#### Customer (`/storefront/customer`) — 19 routes
+#### Customer (`/storefront/customer`) — 18 routes
 
 | Method | Route | Purpose |
 |--------|-------|---------|
@@ -186,7 +186,7 @@ Backend developers, frontend developers, QA engineers, and platform architects i
 #### Identity (`/storefront/identity`) — 13 routes (unchanged)
 #### Location (`/storefront/location`) — 6 routes (unchanged)
 
-**Total: 77 endpoints** (was 74)
+**Total: 76 endpoints** (was 74)
 
 ### 4.2 Inventory Service Interfaces
 
@@ -427,9 +427,7 @@ app.MapPost(InventoryFeature.Storefront.StockReservations.Reserve.Route, async (
     var result = await reservationService.ReserveAsync(
         request.VariantId, request.Quantity, request.StockLocationId,
         cartToken: cartToken, ttlMinutes: request.TtlMinutes, ct: ct);
-    return result.Match(
-        success => Results.Ok(success),
-        failure => Results.BadRequest(failure));
+    return result.ToResult();
 });
 ```
 
