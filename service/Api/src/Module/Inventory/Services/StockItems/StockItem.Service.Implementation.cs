@@ -1,6 +1,7 @@
 using System.Data;
 
 using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.Models;
@@ -260,13 +261,18 @@ internal sealed partial class StockItemService(
             .Where(si => si.VariantId == variantId)
             .ToListAsync(ct);
 
-        var locations = new List<LocationStockSnapshot>();
-        var totalOnHand = 0;
-        var totalReserved = 0;
-        var backorderable = false;
+    var locations = new List<LocationStockSnapshot>();
+    var totalOnHand = 0;
+    var totalReserved = 0;
+    var backorderable = false;
 
-        foreach (var item in stockItems)
-        {
+    var locationIds = stockItems.Select(si => si.StockLocationId).Distinct().ToList();
+    var locationNames = await dbContext.Set<StockLocation>()
+        .Where(sl => locationIds.Contains(sl.Id))
+        .ToDictionaryAsync(sl => sl.Id, sl => sl.Name, ct);
+
+    foreach (var item in stockItems)
+    {
             var reservedQuery = dbContext.Set<StockReservation>()
                 .Where(r => r.VariantId == variantId
                             && r.StockLocationId == item.StockLocationId
@@ -286,7 +292,7 @@ internal sealed partial class StockItemService(
             locations.Add(new LocationStockSnapshot
             {
                 StockLocationId = item.StockLocationId,
-                StockLocationName = string.Empty,
+                StockLocationName = locationNames.GetValueOrDefault(item.StockLocationId, string.Empty),
                 CountOnHand = item.CountOnHand,
                 ReservedCount = reserved,
                 AvailableCount = item.CountOnHand - reserved,
@@ -300,7 +306,7 @@ internal sealed partial class StockItemService(
             VariantId = variantId,
             TotalOnHand = totalOnHand,
             TotalReserved = totalReserved,
-            TotalAvailable = totalOnHand - totalReserved,
+            TotalAvailable = Math.Max(totalOnHand - totalReserved, 0),
             Backorderable = backorderable,
             Locations = locations
         };
