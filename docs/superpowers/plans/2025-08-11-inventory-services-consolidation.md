@@ -94,6 +94,7 @@ Empty model file pruned."
 
 **Interfaces:**
 - Produces: `Task<Result> ConsumeForOrderAsync(Guid orderId, CancellationToken ct = default)`
+- **DECISION (pre-flight review):** Reservations are keyed by `CartToken` (= cart.Id.ToString()), NOT by `OrderId`. The caller passes `cart.Id` (the draft order id) which IS the cart token value. Implementation MUST match on `CartToken == orderId.ToString()` — never on `OrderId` (all rows have `OrderId = null`).
 
 - [ ] **Step 1: Add interface method**
 
@@ -105,13 +106,13 @@ Task<Result> ConsumeForOrderAsync(Guid orderId, CancellationToken ct = default);
 
 - [ ] **Step 2: Add implementation**
 
-In `StockReservation.Service.Implementation.cs`, add method before the closing brace of the class:
+In `StockReservation.Service.Implementation.cs`, add method before the closing brace of the class. **Match by CartToken, not OrderId** — this mirrors the deleted `ConsumeCartStockReservations` handler exactly:
 
 ```csharp
 public async Task<Result> ConsumeForOrderAsync(Guid orderId, CancellationToken ct = default)
 {
     var reservations = await dbContext.Set<StockReservation>()
-        .Where(r => r.OrderId != null && r.OrderId == orderId
+        .Where(r => r.CartToken == orderId.ToString()
                     && r.State == ReservationState.Reserved)
         .ToListAsync(ct);
 
@@ -240,7 +241,7 @@ Task<Result<VariantStockAvailability>> GetAvailabilityForCartAsync(
 
 - [ ] **Step 2: Add implementation**
 
-In `StockItem.Service.Implementation.cs`:
+In `StockItem.Service.Implementation.cs`. **NOTE (pre-flight review):** `LocationStockSnapshot` uses `StockLocationName`, `ReservedCount`, `AvailableCount`, `Active` — NOT `LocationName`/`Reserved`/`Available`/`IsAvailable`. Do NOT add new properties to the record; use the existing ones:
 
 ```csharp
 public async Task<Result<VariantStockAvailability>> GetAvailabilityForCartAsync(
@@ -276,12 +277,12 @@ public async Task<Result<VariantStockAvailability>> GetAvailabilityForCartAsync(
         locations.Add(new LocationStockSnapshot
         {
             StockLocationId = item.StockLocationId,
-            LocationName = string.Empty, // filled by caller or left empty for brevity
+            StockLocationName = string.Empty,
             CountOnHand = item.CountOnHand,
-            Reserved = reserved,
-            Available = item.CountOnHand - reserved,
+            ReservedCount = reserved,
+            AvailableCount = item.CountOnHand - reserved,
             Backorderable = item.Backorderable,
-            IsAvailable = item.CountOnHand - reserved > 0 || item.Backorderable
+            Active = item.CountOnHand - reserved > 0 || item.Backorderable
         });
     }
 
@@ -297,13 +298,13 @@ public async Task<Result<VariantStockAvailability>> GetAvailabilityForCartAsync(
 }
 ```
 
-- [ ] **Step 3: Build + fix LocationStockSnapshot property refs if needed**
+- [ ] **Step 3: Build + verify property names compile**
 
 ```bash
 dotnet build
 ```
 
-Verify `LocationStockSnapshot` type has required properties. If `LocationStockSnapshot` doesn't have `Available`/`IsAvailable`, add them to the record in `VariantStockAvailability.cs`.
+Verify `LocationStockSnapshot` (defined in `StockSnapshot.cs`, NOT `VariantStockAvailability.cs`) has the properties used above.
 
 - [ ] **Step 4: Commit**
 
@@ -374,10 +375,23 @@ auth (JWT) requests can access the cart identifier."
 **Files:**
 - Modify: `service/Api/src/Module/Ordering/Features/Storefront/Cart/AddItem/AddToCart.cs`
 
-**Consumes:** `IStockReservationService.ReserveAsync` (Task 3 — already existed)
-**Produces:** No MediatR calls to Inventory module
+**Consumes:** `IStockReservationService.ReserveForVariantAsync` (added in this task)
+**Produces:** No MediatR calls to Inventory module; no `Module.Inventory.Domain.*` reference in Ordering
+**DECISION (pre-flight review):** Add a new batch/multi-location service method `ReserveForVariantAsync` to `IStockReservationService` that ports the deleted `ReserveCartStock` handler's location-picking logic internally. This preserves multi-location splitting and avoids any cross-module domain reference from Ordering.
 
-- [ ] **Step 1: Replace MediatR reserve with service call**
+- [ ] **Step 1: Add ReserveForVariantAsync to IStockReservationService**
+
+In `StockReservation.Service.Interface.cs`:
+
+```csharp
+Task<Result<StockReservation>> ReserveForVariantAsync(
+    Guid variantId, int quantity, string? cartToken = null,
+    int ttlMinutes = 30, CancellationToken ct = default);
+```
+
+In `StockReservation.Service.Implementation.cs`, add the implementation. Port the deleted `ReserveCartStock` handler logic (loop locations ordered by `CountOnHand` descending, split `remaining` across them, `StockReservationMethod.Reserve(...)` per location with `cartToken`), using `IsolationLevel.RepeatableRead` transaction. Do NOT reference `Module.Inventory.Domain.*` from Ordering — this lives inside the Inventory module so the domain reference is fine here.
+
+- [ ] **Step 2: Replace MediatR reserve with service call**
 
 In `AddToCart.cs`:
 
@@ -385,8 +399,8 @@ Remove imports:
 ```csharp
 using Module.Inventory.Features.Storefront.Shared.Models;
 using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
-using Module.Inventory.Features.Shared;
 ```
+**KEEP** `using Module.Inventory.Features.Shared;` — AddToCart uses `InventoryFeature.Storefront.StockReservations.TtlMinutesDefault` from it (the current code already imports it for this). This is a feature-constants namespace (not a domain reference); the cross-module script's baseline tolerates the existing count.
 
 Add import:
 ```csharp
@@ -399,37 +413,26 @@ Add constructor parameter:
 IStockReservationService stockReservationService,
 ```
 
-Replace lines 70-82 (the reserve block):
+Replace lines 70-82 (the `sender.Send(new ReserveCartStock.Command(...))` block):
+
 ```csharp
 // Reserve: Delegate stock reservation to Inventory service.
-// NOTE: This picks the first location with available stock.
-// In production, location selection should use customer proximity logic.
-var stockLocations = await dbContext.Set<Module.Inventory.Domain.StockItems.StockItem>()
-    .Where(si => si.VariantId == request.VariantId && si.CountOnHand > 0)
-    .OrderByDescending(si => si.CountOnHand)
-    .Select(si => si.StockLocationId)
-    .FirstOrDefaultAsync(cancellationToken);
-
-if (stockLocations == Guid.Empty)
-{
-    // No location has stock for this variant.
-    // The ReserveAsync call below will return InsufficientStock error.
-    stockLocations = Guid.Empty;
-}
-
-var reserveResult = await stockReservationService.ReserveAsync(
+// The service picks the best location(s) with available stock internally
+// and splits the quantity across them when needed.
+var reserveResult = await stockReservationService.ReserveForVariantAsync(
     variantId: request.VariantId,
     quantity: request.Quantity,
-    stockLocationId: stockLocations != Guid.Empty ? stockLocations : Guid.NewGuid(),
     cartToken: cart.Id.ToString(),
-    ttlMinutes: 15,
+    ttlMinutes: InventoryFeature.Storefront.StockReservations.TtlMinutesDefault,
     ct: cancellationToken);
 
 if (reserveResult.IsFailure)
     return reserveResult.Errors;
 ```
 
-Note: The cart ID is used as cart token here since the handler creates/uses a cart entity with `Id`. The `IHttpContextAccessor` pattern (reading from `HttpContext.Items["CartToken"]`) is for endpoints that receive the token from the browser header. Internal handlers that already have the cart entity use the cart ID directly.
+**Note:** `InventoryFeature.Storefront.StockReservations.TtlMinutesDefault` constant remains available via the retained `using Module.Inventory.Features.Shared;` import (constant defined in `InventoryFeature.Storefront.cs` — Task 14 rewrites that file and keeps the constant). Do NOT reference `Module.Inventory.Domain.*` in this file.
+
+The cart ID is used as cart token here since the handler creates/uses a cart entity with `Id`. The `IHttpContextAccessor` pattern (reading from `HttpContext.Items["CartToken"]`) is for endpoints that receive the token from the browser header. Internal handlers that already have the cart entity use the cart ID directly.
 
 - [ ] **Step 2: Build**
 
@@ -503,49 +506,86 @@ git commit -m "refactor(ordering): switch Checkout to IStockReservationService.C
 - Modify: `service/Api/src/Module/Ordering/Features/Admin/Orders/Cancel/CancelOrderAdmin.cs`
 - Modify: `service/Api/src/Module/Ordering/Features/Admin/Orders/UpdateStatus/UpdateOrderStatus.cs`
 
-**Consumes:** `IStockReservationService.ReleaseReservationsAsync` (already existed), `IStockItemService.AdjustStockAsync` (already existed)
+**Consumes:** `IStockItemService.AdjustStockAsync` (existing), `IStockItemService.GetStockLocationIdForVariantAsync` (added in this task)
+**DECISION (pre-flight review):** For placed orders, reservations are already `Fulfilled` at cancel time, so `ReleaseReservationsAsync` would find nothing. The current `OrderInventoryService.RemoveAsync` correctly returns stock via `AdjustStockAsync(+qty)`. Replace the wrapper with an inlined per-line-item `AdjustStockAsync` call. To determine the stock location WITHOUT a `Module.Inventory.Domain.*` reference from Ordering, add a small location-lookup method to `IStockItemService`.
 
-- [ ] **Step 1: Update CancelOrder.cs (storefront)**
+- [ ] **Step 1: Add GetStockLocationIdForVariantAsync to IStockItemService**
 
-Remove `using Module.Inventory.Services;` (the IStockItemService import used by OrderInventoryService).
-Remove `OrderInventoryService` usage.
+In `StockItem.Service.Interface.cs`:
+
+```csharp
+Task<Result<Guid?>> GetStockLocationIdForVariantAsync(Guid variantId, CancellationToken ct = default);
+```
+
+In `StockItem.Service.Implementation.cs` (simple first-match lookup):
+
+```csharp
+public async Task<Result<Guid?>> GetStockLocationIdForVariantAsync(Guid variantId, CancellationToken ct = default)
+{
+    var stockItem = await dbContext.Set<StockItem>()
+        .FirstOrDefaultAsync(si => si.VariantId == variantId, ct);
+    return stockItem is null
+        ? StockItemResult.Errors.NotFound(variantId)
+        : (Guid?)stockItem.StockLocationId;
+}
+```
+
+(Verify the exact `StockItemResult.Errors.NotFound` signature — adapt if it takes different args or use `Guid?` null semantics.)
+
+- [ ] **Step 2: Update CancelOrder.cs (storefront)**
+
+Remove `using Module.Inventory.Services;`? **NO — keep it**: `IStockItemService` lives in `Module.Inventory.Services` and is still needed. Remove only `using Module.Ordering.Services;` (the `OrderInventoryService` namespace) and the `OrderInventoryService` usage.
+
+Keep constructor parameter `IStockItemService stockItem` (do NOT remove it).
 
 Replace the inventory release block (currently constructs `new OrderInventoryService(entity, lineItem, dbContext, stockItem)` then calls `.RemoveAsync()`) with:
 
 ```csharp
-// Release: Compensating transaction — release reserved inventory.
-await stockReservationService.ReleaseReservationsAsync(
-    orderId: entity.Id, ct: cancellationToken);
+// Release: Return consumed stock for previously placed orders.
+if (wasPlaced)
+{
+    foreach (var lineItem in entity.LineItems)
+    {
+        var locationResult = await stockItem.GetStockLocationIdForVariantAsync(lineItem.VariantId, cancellationToken);
+        if (locationResult.IsFailure)
+            return locationResult.Errors;
+        if (locationResult.Value is null)
+            continue;
+
+        var adjustResult = await stockItem.AdjustStockAsync(
+            lineItem.VariantId, lineItem.Quantity, locationResult.Value.Value, entity.Id, cancellationToken);
+        if (adjustResult.IsFailure)
+            return adjustResult.Errors;
+    }
+}
 ```
 
-Add constructor parameter: `IStockReservationService stockReservationService,`
-Remove constructor parameter: `IStockItemService stockItem,`
+- [ ] **Step 3: Same change for CancelOrderAdmin.cs**
 
-- [ ] **Step 2: Same change for CancelOrderAdmin.cs**
+Apply identical pattern: keep `IStockItemService stockItem`, remove `OrderInventoryService` wrapper, call `GetStockLocationIdForVariantAsync` + `AdjustStockAsync` per line item. Remove `using Module.Ordering.Services;`.
 
-Apply identical pattern: inject `IStockReservationService`, call `ReleaseReservationsAsync(orderId)`, remove `IStockItemService` and `OrderInventoryService`.
+- [ ] **Step 4: Same change for UpdateOrderStatus.cs**
 
-- [ ] **Step 3: Same change for UpdateOrderStatus.cs**
+Apply identical pattern in the `OrderStatus.Canceled` branch.
 
-Apply identical pattern.
-
-- [ ] **Step 4: Build**
+- [ ] **Step 5: Build**
 
 ```bash
 dotnet build
 ```
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add service/Api/src/Module/Ordering/Features/Storefront/Orders/Cancel/CancelOrder.cs
 git add service/Api/src/Module/Ordering/Features/Admin/Orders/Cancel/CancelOrderAdmin.cs
 git add service/Api/src/Module/Ordering/Features/Admin/Orders/UpdateStatus/UpdateOrderStatus.cs
-git commit -m "refactor(ordering): switch Cancel/UpdateStatus to IStockReservationService
+git commit -m "refactor(ordering): inline AdjustStockAsync, drop OrderInventoryService wrapper
 
-Replace OrderInventoryService + IStockItemService DI with
-IStockReservationService.ReleaseReservationsAsync. Drops the last
-cross-module namespace reference from Ordering to Inventory domain entities."
+Cancel/UpdateStatus now return stock via IStockItemService.AdjustStockAsync
+per line item (location resolved via GetStockLocationIdForVariantAsync),
+replacing the OrderInventoryService wrapper and its direct StockItem
+entity access."
 ```
 
 ### Task 10: Update Billing.CreatePaymentIntent to Use Service
@@ -553,7 +593,8 @@ cross-module namespace reference from Ordering to Inventory domain entities."
 **Files:**
 - Modify: `service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs`
 
-**Consumes:** `IStockReservationService.ReserveAsync`, `IStockReservationService.ReleaseReservationsAsync`
+**Consumes:** `IStockReservationService.ReserveForVariantAsync` (Task 7), `IStockReservationService.ReleaseReservationsAsync` (existing, called with `cartToken`)
+**DECISION (pre-flight review):** Reservations are keyed by `CartToken`. `command.OrderId` is the cart/order id and its string form is used as the cart token. Do NOT pass `orderId:` to `ReserveAsync`/`ReleaseReservationsAsync` — always pass `cartToken: command.OrderId.ToString()`. No `Module.Inventory.Domain.*` reference from Billing.
 
 - [ ] **Step 1: Replace MediatR reserve/release with service calls**
 
@@ -575,22 +616,16 @@ Add constructor parameter:
 IStockReservationService stockReservationService,
 ```
 
-Replace the reserve block (lines 48-59):
+Replace the reserve block (lines 48-59 — the `sender.Send(new ReserveCartStock.Command(...))` call):
+
 ```csharp
 // Reserve: Stock batched via Inventory service before gateway call
 foreach (var li in cart.LineItems)
 {
-    var stockLocations = await dbContext.Set<Module.Inventory.Domain.StockItems.StockItem>()
-        .Where(si => si.VariantId == li.VariantId && si.CountOnHand > 0)
-        .OrderByDescending(si => si.CountOnHand)
-        .Select(si => si.StockLocationId)
-        .FirstOrDefaultAsync(cancellationToken);
-
-    var reserveResult = await stockReservationService.ReserveAsync(
+    var reserveResult = await stockReservationService.ReserveForVariantAsync(
         variantId: li.VariantId,
         quantity: li.Quantity,
-        stockLocationId: stockLocations != Guid.Empty ? stockLocations : Guid.NewGuid(),
-        orderId: command.OrderId,
+        cartToken: command.OrderId.ToString(),
         ttlMinutes: 30,
         ct: cancellationToken);
 
@@ -601,7 +636,7 @@ foreach (var li in cart.LineItems)
 Replace the release block(s) — find `await sender.Send(new ReleaseCartStockReservations.Command(...))` and replace with:
 ```csharp
 await stockReservationService.ReleaseReservationsAsync(
-    orderId: command.OrderId, ct: CancellationToken.None);
+    cartToken: command.OrderId.ToString(), ct: CancellationToken.None);
 ```
 
 There are two release locations: one after gateway failure, one in the catch block. Replace both.
@@ -619,8 +654,8 @@ git add service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/
 git commit -m "refactor(billing): switch CreatePaymentIntent to IStockReservationService
 
 Replace ReserveCartStock + ReleaseCartStockReservations MediatR commands
-with direct IStockReservationService.ReserveAsync/ReleaseReservationsAsync.
-Removes cross-module namespace imports."
+with direct service calls keyed on cartToken. Removes cross-module
+namespace imports and direct StockItem entity access."
 ```
 
 ### Task 11: Create Inventory Storefront Endpoints — ReserveStockReservation
@@ -734,11 +769,38 @@ Reads X-Cart-Token from HttpContext.Items set by CartTokenMiddleware."
 
 **Files:**
 - Create: `service/Api/src/Module/Inventory/Features/Storefront/StockReservations/Get/GetCartReservations.Endpoint.cs`
+- Create: `service/Api/src/Module/Inventory/Features/Storefront/StockReservations/Get/GetCartReservations.Response.cs`
 - Create: `service/Api/src/Module/Inventory/Features/Storefront/StockReservations/Get/GetCartReservations.Validator.cs`
 
 **Consumes:** `IStockReservationService.GetReservationsForCartAsync` (existing)
+**DECISION (pre-flight review):** The endpoint must NOT serialize the raw `StockReservation` domain entity. Define a `CartReservationStatus` response DTO (mirrors the SPA `CartReservationStatus` type in `app/Store/src/features/inventory/types/availability.ts`).
 
-- [ ] **Step 1: Create Endpoint**
+- [ ] **Step 1: Create Response DTO**
+
+```csharp
+// GetCartReservations.Response.cs
+namespace Module.Inventory.Features.Storefront.StockReservations.Get;
+
+public static partial class GetCartReservations
+{
+    public sealed record CartReservationStatus
+    {
+        public Guid Id { get; init; }
+        public Guid VariantId { get; init; }
+        public Guid? StockLocationId { get; init; }
+        public Guid? OrderId { get; init; }
+        public int Quantity { get; init; }
+        public string State { get; init; } = string.Empty;
+        public DateTimeOffset? ExpiresAtUtc { get; init; }
+        public string? Reason { get; init; }
+        public DateTimeOffset CreatedAtUtc { get; init; }
+        public DateTimeOffset? ModifiedAtUtc { get; init; }
+        public int RemainingSeconds { get; init; }
+    }
+}
+```
+
+- [ ] **Step 2: Create Endpoint**
 
 ```csharp
 // GetCartReservations.Endpoint.cs
@@ -765,32 +827,51 @@ public static partial class GetCartReservations
                         Error.BadRequest("CartToken.Required", "X-Cart-Token header is required")));
 
                 var result = await reservationService.GetReservationsForCartAsync(cartToken, ct);
-                return result.ToResult();
+                if (result.IsFailure)
+                    return result.ToResult();
+
+                var response = result.Value.Select(r => new CartReservationStatus
+                {
+                    Id = r.Reservation.Id,
+                    VariantId = r.Reservation.VariantId,
+                    StockLocationId = r.Reservation.StockLocationId,
+                    OrderId = r.Reservation.OrderId,
+                    Quantity = r.Reservation.Quantity,
+                    State = r.Reservation.State.ToString(),
+                    ExpiresAtUtc = r.Reservation.ExpiresAtUtc,
+                    Reason = r.Reservation.Reason,
+                    CreatedAtUtc = r.Reservation.CreatedAtUtc,
+                    ModifiedAtUtc = r.Reservation.ModifiedAtUtc,
+                    RemainingSeconds = r.RemainingSeconds
+                }).ToList();
+
+                return Result.Ok(response).ToResult();
             })
             .WithName(nameof(GetCartReservations))
             .WithTags(InventoryFeature.Tags.StockReservation)
             .WithSummary(InventoryFeature.Storefront.StockReservations.Get.Summary)
             .WithDescription(InventoryFeature.Storefront.StockReservations.Get.Description)
-            .Produces<Result<List<(StockReservation, int)>>>()
+            .Produces<Result<List<CartReservationStatus>>>()
             .Produces<Result>(StatusCodes.Status400BadRequest);
         }
     }
 }
 ```
 
-- [ ] **Step 2: Build**
+- [ ] **Step 3: Build**
 
 ```bash
 dotnet build
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add service/Api/src/Module/Inventory/Features/Storefront/StockReservations/Get/
 git commit -m "feat(inventory): add GET /inventory/stock-reservations endpoint
 
-Returns active reservations for the cart identified by X-Cart-Token header."
+Returns active reservations (mapped to CartReservationStatus DTO) for the
+cart identified by X-Cart-Token header."
 ```
 
 ### Task 13: Create Inventory Storefront Endpoints — ReleaseStockReservation + GetStockAvailability

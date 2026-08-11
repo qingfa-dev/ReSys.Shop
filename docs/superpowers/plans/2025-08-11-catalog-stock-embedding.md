@@ -17,56 +17,36 @@
 
 ---
 
-### Task 1: Add Stock Fields to Catalog DTO
+### Task 1: Verify Stock Already Embedded — Align DTOs if Needed
 
 **Files:**
-- Modify: `service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/Models/Store.Variant.Model.cs`
-- Modify: `service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/Mappings/Store.Variant.Mapping.cs`
+- Read: `service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/Models/Store.Variant.Model.cs`
+- Read: `service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/Mappings/Store.Variant.Mapping.cs`
 
-- [ ] **Step 1: Add stock fields to StoreVariantResponse**
+**FINDING (pre-flight review):** Stock is ALREADY embedded in both list and detail responses. `StoreProductVariantResponse` has a nested `Stock` property of type `StoreVariantStockInfo` (TotalOnHand/TotalReserved/TotalAvailable/Backorderable/Locations), populated by `MapToStockInfo()` in both `GetProductDetail.cs:71` and `GetStorefrontProducts.cs:178`. Both handlers already call `GetStockAvailabilityAsync`. **Do NOT add flat `InStock/AvailableQuantity/Backorderable` fields to the variant record** — that would duplicate the existing `Stock` object and diverge the API contract from the SPA.
 
-Read the current variant model:
+- [ ] **Step 1: Verify the existing contract**
 
 ```bash
-rg "public record Store" service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/Models/Store.Variant.Model.cs
+rg "MapToStockInfo|Stock = " service/Api/src/Module/Catalog/Features/Storefront/Products/Get/ById/GetProductDetail.cs service/Api/src/Module/Catalog/Features/Storefront/Products/Get/PagedOrAll/GetStorefrontProducts.cs
 ```
 
-Add these fields to the record:
+Expected: both handlers populate `Stock` on the variant DTO. The backend half of this feature is complete — no C# changes required in this task. If a handler is found that does NOT populate `Stock`, add the `GetStockAvailabilityAsync` + `MapToStockInfo` block exactly as the other handler does.
 
-```csharp
-// Stock embedded — populated from IStockItemService.GetStockAvailabilityAsync
-public bool InStock { get; init; }
-public int AvailableQuantity { get; init; }
-public bool Backorderable { get; init; }
-```
-
-- [ ] **Step 2: Update variant mapping to populate stock**
-
-In `Store.Variant.Mapping.cs`, the mapping method likely receives variant + product data. Add parameter for `IReadOnlyList<VariantStockAvailability>` or accept it via overload.
-
-Find the mapping method called by both `GetStorefrontProducts` handler and `GetProductDetail` handler. Add stock field population:
-
-```csharp
-var availability = availabilityList?.FirstOrDefault(a => a.VariantId == variant.Id);
-result.InStock = (availability?.TotalAvailable ?? 0) > 0 || (availability?.Backorderable ?? false);
-result.AvailableQuantity = availability?.TotalAvailable ?? 0;
-result.Backorderable = availability?.Backorderable ?? false;
-```
-
-- [ ] **Step 3: Build**
+- [ ] **Step 2: Build (confirms nothing broke)**
 
 ```bash
 dotnet build
 ```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add service/Api/src/Module/Catalog/Features/Storefront/Products/Shared/
-git commit -m "feat(catalog): add InStock, AvailableQuantity, Backorderable to variant DTO
+git commit --allow-empty -m "verify(catalog): confirm stock already embedded in list + detail DTOs
 
-Embedded in both product list and detail responses. Populated from
-IStockItemService.GetStockAvailabilityAsync which both handlers already call."
+StoreProductVariantResponse.Stock is populated by MapToStockInfo in both
+GetProductDetail and GetStorefrontProducts handlers. No backend changes
+needed — SPA-side cleanup is the remaining work."
 ```
 
 ### Task 2: Remove Legacy Inferences Endpoint
@@ -143,44 +123,56 @@ availability API call no longer needed."
 - Modify: `app/Store/src/features/catalog/composables/useProductDetail.ts`
 - Modify: `app/Store/src/features/catalog/views/ProductDetailView.vue`
 
-- [ ] **Step 1: Add stock fields to TypeScript type**
+**FINDING (pre-flight review):** The backend `StoreVariantStockInfo` (C#) serializes as `totalOnHand`, `totalReserved`, `totalAvailable`, `backorderable`, `locations` (camelCase). The current TS type has `availableQuantity`/`backorderable` — `availableQuantity` does NOT match the backend. Fix the TS type to mirror the C# DTO exactly, then read `totalAvailable`.
+
+- [ ] **Step 1: Fix TypeScript type to mirror backend DTO**
 
 ```typescript
-// product.ts — add to StoreVariantStockInfo
+// product.ts — StoreVariantStockInfo mirrors Module.Catalog StoreVariantStockInfo
 export interface StoreVariantStockInfo {
-  availableQuantity: number
+  totalOnHand: number
+  totalReserved: number
+  totalAvailable: number
   backorderable: boolean
-  inStock: boolean
+  locations: StoreStockLocationInfo[]
+}
+
+export interface StoreStockLocationInfo {
+  stockLocationId: string
+  stockLocationName: string | null
+  countOnHand: number
+  reservedCount: number
+  availableCount: number
+  backorderable: boolean
 }
 ```
 
 - [ ] **Step 2: Update useProductDetail composable**
 
-Remove `import { useAvailability } from '@/features/inventory/composables/useAvailability'`.
+Remove `import { useAvailability } from '@/features/inventory/composables/useAvailability'` (check current import source — ProductDetailView imports it via `@/features/inventory/composables` barrel; ensure the barrel export is removed in Task 3).
 
-Replace stock label computation to read from variant DTO:
+Replace stock label computation to read from variant DTO (uses `totalAvailable`):
 
 ```typescript
 const stockLabel = computed(() => {
-  const variant = currentVariant.value
-  if (!variant) return ''
-  if (variant.stockInfo?.availableQuantity === 0 && !variant.stockInfo?.backorderable)
-    return 'Out of stock'
-  if ((variant.stockInfo?.availableQuantity ?? 0) <= 5)
-    return `Only ${variant.stockInfo?.availableQuantity} left`
-  if (variant.stockInfo?.backorderable)
-    return 'Available for backorder'
-  return 'In stock'
+  const stock = selectedVariant.value?.stock
+  if (!stock) return null
+  if (stock.totalAvailable > 5) return null
+  if (stock.totalAvailable > 0) return `Only ${stock.totalAvailable} left`
+  if (stock.backorderable) return 'Available for backorder'
+  return 'Out of stock'
 })
 ```
 
+The composable already reads `selectedVariant.value?.stock.availableQuantity` — rename those reads to `totalAvailable` and remove the `useAvailability` import if present.
+
 - [ ] **Step 3: Update ProductDetailView.vue**
 
-Remove `useAvailability` usage. Display stock from `variant.stockInfo` directly:
+Remove `import { useAvailability } from '@/features/inventory/composables'` and the `const availability = useAvailability()` line. Display stock from `selectedVariant?.stock` directly:
 
 ```vue
 <!-- Section: Stock Status -->
-<div v-if="currentVariant?.stockInfo?.availableQuantity != null">
+<div v-if="stockLabel">
   {{ stockLabel }}
 </div>
 ```
@@ -200,7 +192,8 @@ pnpm run build
 git add app/Store/src/features/catalog/
 git commit -m "refactor(store-spa): read stock from product DTO, drop availability API
 
-ProductDetailView now reads variant.availableQuantity and
-variant.backorderable from the product detail response.
-Eliminates N+1 API calls (separate availability check per variant)."
+ProductDetailView reads variant.stock.totalAvailable and
+variant.stock.backorderable from the product detail response. TS type
+aligned to the actual backend StoreVariantStockInfo contract. Eliminates
+separate availability API call."
 ```

@@ -161,14 +161,17 @@ static async cancelOrder(id: string): Promise<Result<null>> {
 
 - [ ] **Step 2: Update shippingApi.ts**
 
+Current file only has `getShippingMethods` and `getShippingRates` (both GET) — there is NO existing POST-based calculate function to remove. Add the GET-based calculate function:
+
 ```typescript
-// Add calculateShipping function using GET
+import { get } from '@/shared/api/client'
+
 export function calculateShipping(shippingMethodId: string, orderId: string): Promise<Result<ShippingCost>> {
   return get<Result<ShippingCost>>(`/api/storefront/shipping/calculate?shippingMethodId=${shippingMethodId}&orderId=${orderId}`)
 }
 ```
 
-Remove any existing POST-based calculate call.
+Verify `get` is exported from `@/shared/api/client` (it is). Add `ShippingCost` to the shipping types if it doesn't exist yet (`../types/shipping`).
 
 - [ ] **Step 3: Update paymentApi.ts**
 

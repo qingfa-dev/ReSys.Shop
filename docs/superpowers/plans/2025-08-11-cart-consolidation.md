@@ -156,30 +156,6 @@ public static partial class OrderingFeature
                 public const string Description = "Select a shipping rate for the order";
                 public const string Summary = "Select shipping rate";
             }
-
-            public static class Payment
-            {
-                public static class CreateIntent
-                {
-                    public const string Route = "api/storefront/cart/payment/intent";
-                    public const string Description = "Create a payment intent for the current cart";
-                    public const string Summary = "Create payment intent";
-                }
-
-                public static class GetIntent
-                {
-                    public const string Route = "api/storefront/cart/payment/intent";
-                    public const string Description = "Get active payment session for the current cart";
-                    public const string Summary = "Get payment session";
-                }
-
-                public static class Confirm
-                {
-                    public const string Route = "api/storefront/cart/payment/intent/{paymentId:guid}/confirm";
-                    public const string Description = "Confirm a payment for the current cart";
-                    public const string Summary = "Confirm payment";
-                }
-            }
         }
 
         public static class Orders
@@ -215,6 +191,8 @@ public static partial class OrderingFeature
     }
 }
 ```
+
+**NOTE (pre-flight review, decision E):** The `Cart.Payment` sub-resource constants (CreateIntent/GetIntent/Confirm) are NOT added to this file. Payment feature files stay in the Billing module (see Task 5) — their route constants are updated in `BillingFeature.Storefront.cs` to the `/cart/payment/intent` URLs. This avoids creating Ordering→Billing cross-module references.
 
 - [ ] **Step 2: Build — expect compile errors from endpoint files referencing old constant names**
 
@@ -371,7 +349,7 @@ Orders route prefix: ordering/orders → orders.
 Cancel order: PUT → POST."
 ```
 
-### Task 5: Update BillingFeature.Storefront.cs — Remove Moved Routes
+### Task 5: Update Payment Routes in Billing — Keep Files in Place
 
 **Files:**
 - Modify: `service/Api/src/Module/Billing/Features/Shared/BillingFeature.Storefront.cs`
@@ -379,71 +357,72 @@ Cancel order: PUT → POST."
 - Modify: `service/Api/src/Module/Billing/Features/Storefront/Payment/Status/GetPaymentStatus.Endpoint.cs`
 - Modify: `service/Api/src/Module/Billing/Features/Storefront/Payment/Confirm/ConfirmPayment.Endpoint.cs`
 
-- [ ] **Step 1: Remove Payments.CreateIntent, Confirm, Status from BillingFeature.Storefront.cs**
+**DECISION (pre-flight review, E):** Do NOT move payment files into Ordering. Keep all payment feature files in `Module.Billing.Features.Storefront.Payment.*` and change only their route constant values. "Payment under cart" is achieved via the URL (`/cart/payment/intent`), not file location. This preserves module isolation (no new Ordering→Billing references).
 
-Remove lines 8-29 (the entire `Payments` nested class with CreateIntent, Confirm, Status).
+- [ ] **Step 1: Update BillingFeature.Storefront.cs route constants**
 
-Keep: `PaymentMethods` (GetAll, SetupIntent) and `Webhooks.Stripe`.
+In `BillingFeature.Storefront.cs`, change the `Payments` class constants:
 
-- [ ] **Step 2: Move payment endpoint files to Cart/Payment/**
+```csharp
+public static class Payments
+{
+    public static class CreateIntent
+    {
+        public const string Route = "api/storefront/cart/payment/intent";
+        public const string Description = "Create a payment intent for the current cart";
+        public const string Summary = "Create payment intent";
+    }
 
-Create directories:
-```bash
-mkdir -p service/Api/src/Module/Ordering/Features/Storefront/Cart/Payment/CreateIntent
-mkdir -p service/Api/src/Module/Ordering/Features/Storefront/Cart/Payment/GetIntent
-mkdir -p service/Api/src/Module/Ordering/Features/Storefront/Cart/Payment/Confirm
+    public static class Confirm
+    {
+        public const string Route = "api/storefront/cart/payment/intent/{paymentId:guid}/confirm";
+        public const string Description = "Confirm a payment for the current cart";
+        public const string Summary = "Confirm payment";
+    }
+
+    public static class Status
+    {
+        public const string Route = "api/storefront/cart/payment/intent/{orderId:guid}";
+        public const string Description = "Retrieve payment status for an order";
+        public const string Summary = "Get payment status";
+    }
+}
 ```
 
-Copy and update the 3 endpoint files from Billing:
+Keep `PaymentMethods` (GetAll, SetupIntent) and `Webhooks.Stripe` unchanged.
+
+- [ ] **Step 2: Update GetPaymentStatus endpoint — POST→GET + route**
+
+The `GetPaymentStatus.Endpoint.cs` should already use `.MapGet`. Verify:
 ```bash
-cp service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.Endpoint.cs \
-   service/Api/src/Module/Ordering/Features/Storefront/Cart/Payment/CreateIntent/CreatePaymentIntent.Endpoint.cs
-cp service/Api/src/Module/Billing/Features/Storefront/Payment/Status/GetPaymentStatus.Endpoint.cs \
-   service/Api/src/Module/Ordering/Features/Storefront/Cart/Payment/GetIntent/GetPaymentIntent.Endpoint.cs
-cp service/Api/src/Module/Billing/Features/Storefront/Payment/Confirm/ConfirmPayment.Endpoint.cs \
-   service/Api/src/Module/Ordering/Features/Storefront/Cart/Payment/Confirm/ConfirmPayment.Endpoint.cs
+rg "MapGet|MapPost" service/Api/src/Module/Billing/Features/Storefront/Payment/Status/GetPaymentStatus.Endpoint.cs
 ```
 
-- [ ] **Step 3: Update the moved endpoint files**
+If it uses `.MapPost`, change to `.MapGet` (payment status is a read). Route reference stays `BillingFeature.Storefront.Payments.Status.Route`.
 
-Update route references and namespaces:
+- [ ] **Step 3: Verify CreatePaymentIntent + ConfirmPayment endpoints**
 
-`CreatePaymentIntent.Endpoint.cs`:
-- namespace → `Module.Ordering.Features.Storefront.Cart.Payment.CreateIntent`
-- route → `OrderingFeature.Storefront.Cart.Payment.CreateIntent.Route`
-- tag → `OrderingFeature.Tags.Cart` (or keep "Payment")
+These endpoints reference `BillingFeature.Storefront.Payments.CreateIntent.Route` and `BillingFeature.Storefront.Payments.Confirm.Route` — the class names are unchanged, only the constant values changed, so no code edits needed in the endpoint files. Verify with:
+```bash
+rg "BillingFeature.Storefront.Payments" service/Api/src/Module/Billing/Features/Storefront/Payment/
+```
 
-`GetPaymentIntent.Endpoint.cs`:
-- namespace → `Module.Ordering.Features.Storefront.Cart.Payment.GetIntent`
-- route → `OrderingFeature.Storefront.Cart.Payment.GetIntent.Route`
-
-`ConfirmPayment.Endpoint.cs`:
-- namespace → `Module.Ordering.Features.Storefront.Cart.Payment.Confirm`
-- route → `OrderingFeature.Storefront.Cart.Payment.Confirm.Route`
-
-- [ ] **Step 4: Update handlers to read cart from HttpContext.Items**
-
-In each payment handler (the `.cs` file, not just `.Endpoint.cs`):
-- Inject `IHttpContextAccessor`
-- Replace `command.OrderId` lookup with cart resolved from `HttpContext.Items["CartToken"]` or current user
-- The `CreatePaymentIntent.cs` handler (already modified in Task 10 of inventory plan) now receives the cart from context instead of from `command.OrderId` route param
-
-- [ ] **Step 5: Build**
+- [ ] **Step 4: Build**
 
 ```bash
 dotnet build
 ```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add service/Api/src/Module/Billing/Features/Shared/BillingFeature.Storefront.cs
-git add service/Api/src/Module/Ordering/Features/Storefront/Cart/Payment/
-git commit -m "refactor: move payment endpoints under Cart, update Billing storefront routes
+git add service/Api/src/Module/Billing/Features/Storefront/Payment/
+git commit -m "refactor(billing): move payment routes under /cart/payment/intent
 
-CreateIntent, Confirm, Status routes removed from BillingFeature.Storefront.
-Payment endpoints moved to Ordering/Features/Storefront/Cart/Payment/.
-Cart identified via HttpContext.Items[CartToken] from CartTokenMiddleware."
+Route constants changed in place — payment feature files stay in Billing
+module (no cross-module refs created). CreateIntent/Status/Confirm now
+under api/storefront/cart/payment/intent."
 ```
 
 ### Task 6: Full Build + Cross-Module Ref Check

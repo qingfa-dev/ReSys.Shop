@@ -132,56 +132,52 @@ Profile, address, wishlist, notification preferences — all accept
 partial updates (not full replacement). PATCH is correct."
 ```
 
-### Task 4: Move GET /customer/all to Admin with Permission
+### Task 4: Remove Storefront GET /customer/all — Admin Endpoint Already Exists
 
 **Files:**
-- Modify: `service/Api/src/Module/Customer/Features/Shared/ProfileFeature.Storefront.cs` (remove `/all` route)
-- Modify: `service/Api/src/Module/Customer/Features/Shared/ProfileFeature.Admin.cs` (add route)
-- Verify: handler file for list-all-customers has admin auth applied
+- Modify: `service/Api/src/Module/Customer/Features/Shared/ProfileFeature.Storefront.cs` (remove orphaned `/all` route constant)
+- Modify: `service/Api/src/Module/Customer/Features/Admin/Profiles/Get/PagedOrAll/GetUserProfilesPagedOrAll.Endpoint.cs` (fix metadata refs)
 
-- [ ] **Step 1: Remove from storefront**
+**FINDING (pre-flight review):** The admin endpoint `GET /api/admin/customer/all` ALREADY EXISTS in `GetUserProfilesPagedOrAll.Endpoint.cs` with `.RequireAuthorization()` + `.HasPermission(ProfileFeature.Admin.Profiles.GetAll.Permission)`. The storefront `Profiles.GetAll` route constant (`api/storefront/customer/all`) is ORPHANED — no endpoint file references it, so the data-leak endpoint does not actually exist at runtime. The security fix is to delete the dead constant and fix the admin endpoint's metadata which incorrectly points at the storefront constants.
 
-In `ProfileFeature.Storefront.cs`, find and remove the class block that defines `All` or `GetAll` route constant.
+- [ ] **Step 1: Remove orphaned storefront GetAll constant**
 
-- [ ] **Step 2: Add to admin**
+In `ProfileFeature.Storefront.cs`, delete the `public static class GetAll` block (the one with `Route = "api/storefront/customer/all"`). The route was never wired to an endpoint, so removing it closes the theoretical exposure with zero runtime behavior change.
 
-In `ProfileFeature.Admin.cs`:
+- [ ] **Step 2: Fix admin endpoint metadata references**
+
+In `GetUserProfilesPagedOrAll.Endpoint.cs`, lines 35-36 currently read:
 
 ```csharp
-public static class GetAll
-{
-    public const string Route = "api/admin/customer";
-    public const string Description = "Retrieve all customers with paging, sorting, and filtering";
-    public const string Summary = "Get all customers";
-    public static PermissionMetadata Permission => DashboardFeatureMetadata.Customer.List;
-}
+.WithSummary(ProfileFeature.Storefront.Profiles.GetAll.Summary)
+.WithDescription(ProfileFeature.Storefront.Profiles.GetAll.Description)
 ```
 
-- [ ] **Step 3: Verify handler has admin auth**
+After deleting the storefront constant, these references break. Change them to use the Admin constants (which already exist in `ProfileFeature.Admin.cs`):
 
-Read the handler file for the list-all-customers endpoint. If it lacks `RequireAuthorization()`, add it. If the route was in storefront with no auth, the handler needs `.RequireAuthorization()` and `.HasPermission()` added. The simplest approach: move the endpoint file to Admin features.
-
-```bash
-rg "MapGet.*customer.*all\|MapGet.*all" service/Api/src/Module/Customer/Features/ --no-heading
+```csharp
+.WithSummary(ProfileFeature.Admin.Profiles.GetAll.Summary)
+.WithDescription(ProfileFeature.Admin.Profiles.GetAll.Description)
 ```
 
-- [ ] **Step 4: Build + verify admin route**
+- [ ] **Step 3: Build**
 
 ```bash
 dotnet build
 ```
 
-Verify at runtime (manual): `GET /api/storefront/customer/all` returns 404. `GET /api/admin/customer` with admin JWT returns 200 with paged customers.
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add service/Api/src/Module/Customer/Features/Shared/
-git commit -m "fix(customer): move GET /customer/all to admin with permission
+git add service/Api/src/Module/Customer/Features/Shared/ProfileFeature.Storefront.cs
+git add service/Api/src/Module/Customer/Features/Admin/Profiles/Get/PagedOrAll/GetUserProfilesPagedOrAll.Endpoint.cs
+git commit -m "fix(customer): remove orphaned storefront /customer/all route
 
-Security fix — the endpoint was exposed on storefront without admin
-auth check, potentially leaking all customer data. Now under
-/api/admin/customer with DashboardFeatureMetadata.Customer.List."
+Admin endpoint GET /api/admin/customer/all already exists with
+RequireAuthorization + HasPermission. The storefront constant was
+dead code exposing a route never wired to a handler. Deleted it and
+fixed the admin endpoint's summary/description to reference Admin
+constants. Security posture unchanged at runtime — no data leak existed."
 ```
 
 ### Task 5: Full Build + Tests
