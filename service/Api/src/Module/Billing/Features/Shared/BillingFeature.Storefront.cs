@@ -9,21 +9,21 @@ public sealed partial class BillingFeature
         {
             public static class CreateIntent
             {
-                public const string Route = "api/storefront/billing/payments/create-intent";
-                public const string Description = "Create a payment intent for an order";
+                public const string Route = "api/storefront/cart/payment/intent";
+                public const string Description = "Create a payment intent for the current cart";
                 public const string Summary = "Create payment intent";
             }
 
             public static class Confirm
             {
-                public const string Route = "api/storefront/billing/payments/confirm/{paymentId:guid}";
-                public const string Description = "Confirm a payment";
+                public const string Route = "api/storefront/cart/payment/intent/{paymentId:guid}/confirm";
+                public const string Description = "Confirm a payment for the current cart";
                 public const string Summary = "Confirm payment";
             }
 
             public static class Status
             {
-                public const string Route = "api/storefront/billing/payments/status/{orderId:guid}";
+                public const string Route = "api/storefront/cart/payment/intent/{orderId:guid}";
                 public const string Description = "Retrieve payment status for an order";
                 public const string Summary = "Get payment status";
             }
