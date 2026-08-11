@@ -41,6 +41,15 @@ internal sealed partial class StockItemService(
         return await IncrementInternalAsync(stockItem, delta, orderId, previousCount);
     }
 
+    public async Task<Result<Guid?>> GetStockLocationIdForVariantAsync(Guid variantId, CancellationToken ct = default)
+    {
+        var stockItem = await dbContext.Set<StockItem>()
+            .FirstOrDefaultAsync(si => si.VariantId == variantId, ct);
+        return stockItem is null
+            ? StockItemResult.Errors.NotFound(variantId)
+            : (Guid?)stockItem.StockLocationId;
+    }
+
     public async Task<Result<RestockResult>> RestockAsync(
         Guid stockItemId, int quantity, string? reference = null, string? reason = null, CancellationToken ct = default)
     {

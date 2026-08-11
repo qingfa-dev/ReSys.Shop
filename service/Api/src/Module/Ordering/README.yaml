@@ -129,7 +129,7 @@ features:
     type: integration
     description: >
       Coordinates stock decrement on shipment and increment on cancellation
-      via OrderInventoryService for completed orders.
+      via IStockItemService.AdjustStockAsync for previously placed orders.
 
 abstractions:
   - category: Core Domain Entities
@@ -365,17 +365,6 @@ abstractions:
           Handles guest-to-user cart consolidation on login, ensuring no
           duplicate line items for the same variant.
       - id: B4
-        name: OrderInventoryService
-        type: class
-        path: ./Features/Shared/Services/OrderInventoryService.cs
-        description: >
-          Synchronizes inventory units for completed orders when line item
-          quantities change. Handles stock decrement on shipment and
-          increment on return or cancellation.
-        purpose: >
-          Bridges the Ordering and Inventory modules via IStockQuantityService
-          for stock-level coordination on order state changes.
-      - id: B5
         name: OrderResult
         type: class
         path: ./Domain/Orders/Order.Result.cs

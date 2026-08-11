@@ -1,6 +1,5 @@
 using Module.Inventory.Services;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Services;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -61,13 +60,21 @@ public static partial class CancelOrder
                 OrderLoggers.VoidPaymentsFailed(logger, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
-            // Compensate: Release inventory back to stock for previously placed orders.
+            // Release: Return consumed stock for previously placed orders.
             if (wasPlaced)
             {
                 foreach (var lineItem in entity.LineItems)
                 {
-                    var orderInventory = new OrderInventoryService(entity, lineItem, dbContext, stockItem);
-                    await orderInventory.RemoveAsync(lineItem.Quantity, cancellationToken);
+                    var locationResult = await stockItem.GetStockLocationIdForVariantAsync(lineItem.VariantId, cancellationToken);
+                    if (locationResult.IsFailure)
+                        return locationResult.Errors;
+                    if (locationResult.Value is null)
+                        continue;
+
+                    var adjustResult = await stockItem.AdjustStockAsync(
+                        lineItem.VariantId, lineItem.Quantity, locationResult.Value.Value, entity.Id, cancellationToken);
+                    if (adjustResult.IsFailure)
+                        return adjustResult.Errors;
                 }
             }
 

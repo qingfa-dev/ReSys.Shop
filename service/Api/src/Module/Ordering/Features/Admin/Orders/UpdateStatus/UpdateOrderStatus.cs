@@ -1,7 +1,6 @@
 using Module.Inventory.Services;
 
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Services;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
@@ -51,11 +50,19 @@ public static partial class UpdateOrderStatus
                     if (cancelResult.IsFailure)
                         return cancelResult.Errors;
 
-                    // Compensate: Release reserved inventory — the order will not be fulfilled.
-                    foreach (var li in entity.LineItems)
+                    // Release: Return consumed stock for previously placed orders.
+                    foreach (var lineItem in entity.LineItems)
                     {
-                        var orderInventory = new OrderInventoryService(entity, li, dbContext, stockItem);
-                        await orderInventory.RemoveAsync(li.Quantity, cancellationToken);
+                        var locationResult = await stockItem.GetStockLocationIdForVariantAsync(lineItem.VariantId, cancellationToken);
+                        if (locationResult.IsFailure)
+                            return locationResult.Errors;
+                        if (locationResult.Value is null)
+                            continue;
+
+                        var adjustResult = await stockItem.AdjustStockAsync(
+                            lineItem.VariantId, lineItem.Quantity, locationResult.Value.Value, entity.Id, cancellationToken);
+                        if (adjustResult.IsFailure)
+                            return adjustResult.Errors;
                     }
                     break;
                 default:
