@@ -101,10 +101,12 @@ const stockMeter = computed(() => {
   }
 })
 
-// Stock: Severity and message derive from the DTO stock label and availability
+// Stock: Severity derives from the DTO variant stock so out-of-stock renders error
 const stockSeverity = computed<'success' | 'warn' | 'error'>(() => {
-  if (detail.isInStock) return 'success'
-  return detail.stockLabel ? 'warn' : 'error'
+  const stock = detail.selectedVariant?.stock
+  if (!stock) return 'error'
+  if (stock.totalAvailable > 0) return 'success'
+  return stock.backorderable ? 'warn' : 'error'
 })
 const stockMessage = computed(() => detail.stockLabel ?? (detail.isInStock ? 'In stock' : 'Out of stock'))
 
