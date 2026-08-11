@@ -53,7 +53,7 @@ const product: StoreProductListItemResponse = {
     optionValues: [],
     images: [{ id: 'img-1', url: '/img/tee.jpg', alt: 'Classic Tee', position: 0 }],
     prices: [{ id: 'pr-1', amount: 45, currency: 'USD', compareAtAmount: 60, countryIso: 'US' }],
-    stock: { availableQuantity: 5, backorderable: false },
+    stock: { totalOnHand: 5, totalReserved: 0, totalAvailable: 5, backorderable: false, locations: [] },
   },
   classifications: [],
 }

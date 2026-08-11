@@ -9,8 +9,6 @@ import { formatCurrency } from '@/shared/utils/currency'
 import { useProductDetail } from '../composables/useProductDetail'
 import { useCart } from '@/features/ordering/composables/useCart'
 import { useWishlists } from '@/features/profile/composables/useWishlists'
-import { useAvailability } from '@/features/inventory/composables'
-import type { AvailabilityEntry } from '@/features/inventory/types/availability'
 import ProductGridCard from '../components/ProductGridCard.vue'
 
 // Type: Breadcrumb trail items carry a router target and a current-page marker
@@ -24,7 +22,6 @@ const router = useRouter()
 const detail = useProductDetail()
 const cart = useCart()
 const wishlist = useWishlists()
-const availability = useAvailability()
 const notify = useNotify()
 const { handleError } = useApiErrorHandler()
 
@@ -40,9 +37,6 @@ const activeTab = ref('description')
 
 // Accordion: Shipping panel open by default
 const shippingOpen = ref<string | null>('shipping')
-
-// Stock: Per-variant availability entry from the inventory sidecar — null until resolved
-const stockEntry = ref<AvailabilityEntry | null>(null)
 
 // Rating: DTO exposes no rating fields — block stays dormant until the API adds them
 const ratingAverage = ref<number | null>(null)
@@ -94,39 +88,25 @@ const variantOptions = computed(() =>
   })),
 )
 
-// Meter: Stock level from the availability entry — available vs reserved split
+// Meter: Stock level aggregated from the DTO's per-location stock
 const stockMeter = computed(() => {
-  const entry = stockEntry.value
-  if (!entry || entry.countOnHand <= 0) return null
+  const stock = detail.selectedVariant?.stock
+  if (!stock || stock.totalOnHand <= 0) return null
   return {
-    max: entry.countOnHand,
+    max: stock.totalOnHand,
     value: [
-      { label: 'Available', value: entry.availableCount, color: 'var(--p-primary-color)' },
-      { label: 'Reserved', value: entry.reservedCount, color: 'var(--p-surface-300)' },
+      { label: 'Available', value: stock.totalAvailable, color: 'var(--p-primary-color)' },
+      { label: 'Reserved', value: stock.totalReserved, color: 'var(--p-surface-300)' },
     ],
   }
 })
 
-// Stock: Message prefers the availability entry, falling back to the DTO stock label
+// Stock: Severity and message derive from the DTO stock label and availability
 const stockSeverity = computed<'success' | 'warn' | 'error'>(() => {
-  const entry = stockEntry.value
-  if (entry) {
-    if (entry.available) return 'success'
-    if (entry.backorderable) return 'warn'
-    return 'error'
-  }
   if (detail.isInStock) return 'success'
   return detail.stockLabel ? 'warn' : 'error'
 })
-const stockMessage = computed(() => {
-  const entry = stockEntry.value
-  if (entry) {
-    if (entry.available) return 'In stock'
-    if (entry.backorderable) return 'Available for backorder'
-    return 'Out of stock'
-  }
-  return detail.stockLabel ?? (detail.isInStock ? 'In stock' : 'Out of stock')
-})
+const stockMessage = computed(() => detail.stockLabel ?? (detail.isInStock ? 'In stock' : 'Out of stock'))
 
 // Tabs: Details rows are rendered only for populated DTO fields
 const detailRows = computed(() => {
@@ -160,7 +140,6 @@ function loadProduct(id: string): void {
   if (!id) return
   galleryActiveIndex.value = 0
   activeTab.value = 'description'
-  stockEntry.value = null
   void detail.load(id)
 }
 
@@ -198,15 +177,6 @@ async function addToWishlist(): Promise<void> {
   if (ok) notify.success('Added to wishlist')
   else handleError(new Error(wishlist.error ?? 'Failed to update wishlist'))
 }
-
-// Watch: Refresh availability when the selected variant changes
-watch(() => detail.selectedVariantId, async id => {
-  stockEntry.value = null
-  if (!id) return
-  const entry = await availability.check(id)
-  // Guard: Ignore stale responses after rapid variant switches
-  if (entry && detail.selectedVariantId === id) stockEntry.value = entry
-})
 
 onMounted(() => {
   const id = route.params.id
@@ -404,7 +374,7 @@ watch(() => route.params.id, id => {
           />
         </div>
 
-        <!-- Stock: Availability message from the inventory sidecar entry -->
+        <!-- Stock: Availability message from the product DTO variant stock -->
         <Message :severity="stockSeverity" :closable="false">
           {{ stockMessage }}
         </Message>

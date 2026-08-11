@@ -22,15 +22,15 @@ const selectedVariant = computed<StoreProductVariantResponse | null>(() =>
 const stockLabel = computed(() => {
   const stock = selectedVariant.value?.stock
   if (!stock) return null
-  if (stock.availableQuantity > 5) return null
-  if (stock.availableQuantity > 0) return `Only ${stock.availableQuantity} left`
+  if (stock.totalAvailable > 5) return null
+  if (stock.totalAvailable > 0) return `Only ${stock.totalAvailable} left`
   if (stock.backorderable) return 'Available for backorder'
   return 'Out of stock'
 })
 
 const isInStock = computed(() => {
   const stock = selectedVariant.value?.stock
-  return stock ? stock.availableQuantity > 0 || stock.backorderable : false
+  return stock ? stock.totalAvailable > 0 || stock.backorderable : false
 })
 
 async function load(id: string): Promise<void> {

@@ -1,13 +1,25 @@
 import type { StoreTaxonListItemResponse } from './taxon'
 
+// StoreVariantStockInfo mirrors Module.Catalog StoreVariantStockInfo
 export interface StoreVariantStockInfo {
-  availableQuantity: number
+  totalOnHand: number
+  totalReserved: number
+  totalAvailable: number
+  backorderable: boolean
+  locations: StoreStockLocationInfo[]
+}
+
+export interface StoreStockLocationInfo {
+  stockLocationId: string
+  stockLocationName: string | null
+  countOnHand: number
+  reservedCount: number
+  availableCount: number
   backorderable: boolean
 }
 
 export interface StoreVariantOptionValueResponse {
   id: string
-  variantOptionValueId: string
   name: string
   presentation: string | null
   position: number
