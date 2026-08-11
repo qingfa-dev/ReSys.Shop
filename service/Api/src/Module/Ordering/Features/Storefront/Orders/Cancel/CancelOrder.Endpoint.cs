@@ -9,8 +9,8 @@ public static partial class CancelOrder
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: PUT api/storefront/orders/{id:guid}/cancel — cancel an order
-            app.MapPut(OrderingFeature.Storefront.Orders.Cancel.Route, async (
+            // Map: POST api/storefront/orders/{id:guid}/cancel — cancel an order
+            app.MapPost(OrderingFeature.Storefront.Orders.Cancel.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
