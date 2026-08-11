@@ -31,14 +31,6 @@ export interface ShippingCost {
   isFreeShipping: boolean
 }
 
-export interface ShippingCalculation {
-  shippingMethodId: string
-  methodName: string
-  cost: number
-  currency: string
-  isFreeShipping: boolean
-}
-
 // Contract: GET api/storefront/shipping/rates — rate with weight thresholds.
 export interface ShippingRate {
   id: string

@@ -1,1 +1,1 @@
-export type { ShippingMethod, ShippingRate, CalculateShippingRequest, ShippingCalculation } from './shipping'
+export type { ShippingMethod, ShippingRate, CalculateShippingRequest, ShippingCost } from './shipping'

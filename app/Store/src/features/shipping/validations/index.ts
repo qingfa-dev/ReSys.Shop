@@ -1,1 +1,1 @@
-export { ShippingMethodSchema, CalculateShippingRequestSchema, ShippingCalculationSchema, ShippingRateSchema } from './shipping'
+export { ShippingMethodSchema, CalculateShippingRequestSchema, ShippingRateSchema } from './shipping'

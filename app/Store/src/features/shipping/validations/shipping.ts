@@ -16,15 +16,6 @@ export const CalculateShippingRequestSchema = z.object({
   shippingMethodId: z.string(),
 })
 
-// Validate: Shipping calculation response including free-shipping flag.
-export const ShippingCalculationSchema = z.object({
-  shippingMethodId: z.string(),
-  methodName: z.string(),
-  cost: z.number(),
-  currency: z.string(),
-  isFreeShipping: z.boolean(),
-})
-
 // Validate: Shipping rate with weight thresholds and free-shipping cutoff.
 export const ShippingRateSchema = z.object({
   id: z.string(),
