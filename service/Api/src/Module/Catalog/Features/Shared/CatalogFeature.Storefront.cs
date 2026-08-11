@@ -52,13 +52,6 @@ public static partial class CatalogFeature
                     public const string Description = "Search products by uploading an image for visual similarity";
                     public const string Summary = "Search by image upload";
                 }
-
-                public static class Inferences
-                {
-                    public const string Route = "api/storefront/catalog/products/images/inferences";
-                    public const string Description = "List available visual search embedding models";
-                    public const string Summary = "List visual search models";
-                }
             }
         }
 
