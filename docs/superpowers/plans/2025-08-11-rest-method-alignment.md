@@ -68,10 +68,25 @@ public static class Calculate
 
 - [ ] **Step 2: Update CalculateShipping.Endpoint.cs**
 
-Change `.MapPost(...)` to `.MapGet(...)`.
-Change request body parameters to query parameters:
-- `shippingMethodId` → `[FromQuery] Guid shippingMethodId`
-- `orderId` → `[FromQuery] Guid orderId`
+Change `.MapPost(...)` to `.MapGet(...)`. The endpoint currently binds `[FromBody] Request request` (Request has `OrderId` + `ShippingMethodId`). Change to query parameters and construct the Request before sending the Command:
+
+```csharp
+app.MapGet(ShippingFeature.Storefront.Shipping.Calculate.Route, async (
+    [FromQuery] Guid shippingMethodId,
+    [FromQuery] Guid orderId,
+    ISender sender,
+    CancellationToken ct) =>
+{
+    var result = await sender.Send(new Command(new Request
+    {
+        ShippingMethodId = shippingMethodId,
+        OrderId = orderId
+    }), ct);
+    return result.ToResult();
+})
+```
+
+Keep `.RequireAuthorization()` and the rest of the metadata chain unchanged. `CalculateShipping.Request` and `Command` are unchanged.
 
 - [ ] **Step 3: Build**
 
@@ -90,10 +105,16 @@ Shipping calculation is an idempotent computation — GET is correct.
 Query params: shippingMethodId, orderId."
 ```
 
-### Task 3: Fix Customer Account — PUT → PATCH for 5 Endpoints
+### Task 3: Fix Customer Account — PUT → PATCH for 4 Endpoints
 
 **Files:**
-- Modify: `service/Api/src/Module/Customer/Features/Storefront/` — find all PUT-based endpoint files
+- Modify: `service/Api/src/Module/Customer/Features/Storefront/` — the PUT-based endpoint files
+
+**NOTE (pre-flight verification):** The design doc listed 5 PUT→PATCH endpoints, but there is NO separate `Addresses/SetDefault` write endpoint in the code — address "default" is a label flag handled inside Update/Delete handlers. Verified: exactly 4 endpoints use `MapPut`:
+- `Profiles/Update/UpdateProfile.Endpoint.cs`
+- `Addresses/Update/UpdateAddress.Endpoint.cs`
+- `Wishlists/Update/UpdateWishlist.Endpoint.cs`
+- `NotificationPreferences/Update/UpdateNotificationPreferences.Endpoint.cs`
 
 - [ ] **Step 1: Find all customer endpoints using PUT**
 
@@ -101,7 +122,7 @@ Query params: shippingMethodId, orderId."
 rg "MapPut" service/Api/src/Module/Customer/Features/Storefront/ --no-heading
 ```
 
-Expected results: profile update, address create (POST, OK), address update, address set-default, wishlist update, notification preferences update.
+Expected: exactly the 4 files above.
 
 - [ ] **Step 2: Change PUT → PATCH on each**
 
@@ -110,11 +131,10 @@ For each `.MapPut(...)` in customer storefront endpoints:
 - No handler or route constant changes needed
 
 Files to modify:
-- `Customer/Update/UpdateCustomer.Endpoint.cs` (or similar name)
-- `Addresses/Update/*.Endpoint.cs`
-- `Addresses/SetDefault/*.Endpoint.cs` — also change PUT → PATCH
-- `Wishlists/Update/*.Endpoint.cs`
-- `NotificationPreferences/Update/*.Endpoint.cs` — also change PUT → PATCH
+- `Profiles/Update/UpdateProfile.Endpoint.cs`
+- `Addresses/Update/UpdateAddress.Endpoint.cs`
+- `Wishlists/Update/UpdateWishlist.Endpoint.cs`
+- `NotificationPreferences/Update/UpdateNotificationPreferences.Endpoint.cs`
 
 - [ ] **Step 3: Build**
 
@@ -126,7 +146,7 @@ dotnet build
 
 ```bash
 git add service/Api/src/Module/Customer/Features/Storefront/
-git commit -m "fix(customer): change 5 PUT endpoints to PATCH
+git commit -m "fix(customer): change 4 PUT endpoints to PATCH
 
 Profile, address, wishlist, notification preferences — all accept
 partial updates (not full replacement). PATCH is correct."
