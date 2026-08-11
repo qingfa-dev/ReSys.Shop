@@ -1,11 +1,11 @@
-import { get, post, put, del } from '@/shared/api/client'
+import { get, post, patch, del } from '@/shared/api/client'
 import { CartResponseSchema } from '../validations/cart'
 import type { Result } from '@/shared/types'
 import type { CartResponse, AddCartItemRequest, UpdateCartItemRequest } from '../types'
 
 // Service: Cart API client with runtime response validation via Zod schemas.
 export class CartApi {
-  private static readonly BASE = '/api/storefront/ordering/cart'
+  private static readonly BASE = '/api/storefront/cart'
 
   static async getCart(): Promise<Result<CartResponse>> {
     const result = await get<Result<CartResponse>>(this.BASE)
@@ -23,7 +23,7 @@ export class CartApi {
   }
 
   static async updateItem(lineItemId: string, req: UpdateCartItemRequest): Promise<Result<CartResponse>> {
-    const result = await put<Result<CartResponse>>(`${this.BASE}/items/${lineItemId}`, req)
+    const result = await patch<Result<CartResponse>>(`${this.BASE}/items/${lineItemId}`, req)
     if (!result.isSuccess) return result
     result.value = CartResponseSchema.parse(result.value)
     return result
@@ -37,7 +37,7 @@ export class CartApi {
   }
 
   static async emptyCart(): Promise<Result<null>> {
-    return await post<Result<null>>(`${this.BASE}/empty`)
+    return await del<Result<null>>(`${this.BASE}/items`)
   }
 
   // Call: Link guest cart to authenticated user — triggers server-side merge.
