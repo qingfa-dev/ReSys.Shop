@@ -46,7 +46,7 @@ internal sealed partial class StockItemService(
         var stockItem = await dbContext.Set<StockItem>()
             .FirstOrDefaultAsync(si => si.VariantId == variantId, ct);
         return stockItem is null
-            ? StockItemResult.Errors.NotFound(variantId)
+            ? (Guid?)null
             : (Guid?)stockItem.StockLocationId;
     }
 
