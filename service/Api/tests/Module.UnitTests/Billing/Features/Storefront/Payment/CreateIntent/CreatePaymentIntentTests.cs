@@ -11,8 +11,9 @@ using Module.Billing.Domain.PaymentMethods;
 using Module.Billing.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
-using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
-using Module.Inventory.Features.Storefront.StockReservations.ReleaseCart;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 
 using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
@@ -30,6 +31,7 @@ public class CreatePaymentIntentTests : IDisposable
     private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
 
     private readonly Mock<IPaymentProcessingService> _processingServiceMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly Mock<ISender> _senderMock;
     private readonly CreatePaymentIntent.CommandHandler _handler;
 
@@ -61,10 +63,19 @@ public class CreatePaymentIntentTests : IDisposable
         _senderMock = new Mock<ISender>();
         SetupDefaultSenderResponses();
 
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock.Setup(s => s.ReserveForVariantAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(StockReservationMethod.Reserve(
+                Guid.NewGuid(), 1, Guid.NewGuid(), null, 30, cartToken: "test"));
+        _reservationServiceMock.Setup(s => s.ReleaseReservationsAsync(
+                It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<int>.Ok(1));
+
         _processingServiceMock = new Mock<IPaymentProcessingService>();
         _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentProcessingResult());
-        _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object, _senderMock.Object);
+        _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object, _reservationServiceMock.Object, _senderMock.Object);
     }
 
     public void Dispose()
@@ -221,19 +232,6 @@ public class CreatePaymentIntentTests : IDisposable
             }));
 
         _senderMock.Setup(x => x.Send(
-            It.Is<ReserveCartStock.Command>(c => c.Request.CartId == cartId),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response
-            {
-                ReservationIds = [Guid.NewGuid()]
-            }));
-
-        _senderMock.Setup(x => x.Send(
-            It.Is<ReleaseCartStockReservations.Command>(c => c.Request.CartId == cartId),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok());
-
-        _senderMock.Setup(x => x.Send(
             It.Is<AdvanceCheckoutStateCommand>(c => c.CartId == cartId),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
@@ -253,19 +251,6 @@ public class CreatePaymentIntentTests : IDisposable
             }));
 
         _senderMock.Setup(x => x.Send(
-            It.IsAny<ReserveCartStock.Command>(),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response
-            {
-                ReservationIds = [Guid.NewGuid()]
-            }));
-
-        _senderMock.Setup(x => x.Send(
-            It.IsAny<ReleaseCartStockReservations.Command>(),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok());
-
-        _senderMock.Setup(x => x.Send(
             It.IsAny<AdvanceCheckoutStateCommand>(),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
@@ -278,7 +263,7 @@ public class CreatePaymentIntentTests : IDisposable
     }
 
     private CreatePaymentIntent.CommandHandler CreateHandler()
-        => new(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object, _senderMock.Object);
+        => new(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object, _reservationServiceMock.Object, _senderMock.Object);
 
     private void VerifyPaymentNotAddedToStore()
     {
