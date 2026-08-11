@@ -1,1 +1,1 @@
-export type { AvailabilityEntry, ReserveStockRequest, CartReservation, CartReservationStatus } from './availability'
+export type { ReserveStockRequest, CartReservation, CartReservationStatus } from './availability'

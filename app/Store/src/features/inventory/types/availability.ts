@@ -1,22 +1,10 @@
 // Types mirror the storefront inventory DTOs exactly (camelCase JSON).
 // Contracts pinned from Module.Inventory.Features.Storefront:
-// - Availability: GetStockAvailability.Response (PagedResult of per-location availability)
 // - Reserve:      ReserveCartStock.Request / ReserveCartStock.Response (Result)
 // - Release:      ReleaseCartReservation (bare Result — no value payload)
 // - Status:       GetCartReservations.Response (PagedResult)
 // Guid fields serialize as strings; DateTimeOffset fields as ISO-8601 strings;
 // ReservationState serializes as a string (e.g. "Reserved").
-
-// Contract: GET api/storefront/availability/{variantId} — per-location stock availability.
-export interface AvailabilityEntry {
-  stockLocationId: string
-  locationName: string
-  countOnHand: number
-  reservedCount: number
-  availableCount: number
-  backorderable: boolean
-  available: boolean
-}
 
 // Contract: POST api/storefront/cart/reserve — reserve stock request.
 // CartToken is not sent by the client — the backend derives it from the X-Cart-Token header.
