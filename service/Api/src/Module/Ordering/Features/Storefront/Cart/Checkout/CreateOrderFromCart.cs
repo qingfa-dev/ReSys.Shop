@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
-using Module.Inventory.Features.Storefront.StockReservations.ConsumeCart;
+using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
@@ -21,7 +22,8 @@ public static partial class CreateOrderFromCart
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
         INotificationService notificationService,
-        ISender sender)
+        ISender sender,
+        IStockReservationService stockReservationService)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Validates checkout prerequisites, verifies payment, consumes stock reservations, places the order, publishes an event, and sends a notification.</summary>
@@ -63,10 +65,9 @@ public static partial class CreateOrderFromCart
             // Mark: Payment as paid via ISender (replaces domain MarkPaymentAsPaid).
             await sender.Send(new MarkPaymentPaidCommand { OrderId = cart.Id, PaymentIntentId = paymentIntentId }, cancellationToken);
 
-            // Consume: Existing stock reservations via ISender (replaces inline stock deduction).
-            var consumeResult = await sender.Send(
-                new ConsumeCartStockReservations.Command(
-                new ConsumeCartStockReservations.Request { CartId = cart.Id }), cancellationToken);
+            // Consume: Stock reservations via Inventory service (replaces inline CQRS handler).
+            var consumeResult = await stockReservationService.ConsumeForOrderAsync(
+                cart.Id, cancellationToken);
             if (consumeResult.IsFailure)
                 return consumeResult.Errors;
 

@@ -3,7 +3,7 @@ using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Storefront.StockReservations.ConsumeCart;
+using Module.Inventory.Services.StockReservations;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
@@ -21,6 +21,7 @@ public class CreateOrderFromCartTests : IDisposable
     private readonly Mock<ILogger<CreateOrderFromCart.CommandHandler>> _loggerMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly Mock<ISender> _senderMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly CreateOrderFromCart.CommandHandler _handler;
 
     public CreateOrderFromCartTests()
@@ -47,7 +48,12 @@ public class CreateOrderFromCartTests : IDisposable
         _senderMock = new Mock<ISender>();
         SetupDefaultSenderResponses();
 
-        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object, _senderMock.Object);
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object, _senderMock.Object, _reservationServiceMock.Object);
     }
 
     private void SetupDefaultSenderResponses()
@@ -57,9 +63,6 @@ public class CreateOrderFromCartTests : IDisposable
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
         _senderMock
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok());
-        _senderMock
-            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
     }
 
@@ -235,8 +238,8 @@ public class CreateOrderFromCartTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Setup: Reservation consumption fails
-        _senderMock
-            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
+        _reservationServiceMock
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(StockReservationResult.Errors.NoActiveReservations));
 
         // Act

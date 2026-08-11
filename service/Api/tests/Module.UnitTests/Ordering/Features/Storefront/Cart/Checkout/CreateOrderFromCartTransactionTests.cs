@@ -1,7 +1,7 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
-using Module.Inventory.Features.Storefront.StockReservations.ConsumeCart;
+using Module.Inventory.Services.StockReservations;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
@@ -13,8 +13,8 @@ namespace Module.UnitTests.Ordering.Features.Storefront.Cart.Checkout;
 [Trait("Module", "Ordering")]
 public class CreateOrderFromCartTransactionTests
 {
-    [Fact(DisplayName = "CreateOrderFromCart: delegates stock consumption to ISender")]
-    public async Task Handle_DelegatesStockConsumption_ToSender()
+    [Fact(DisplayName = "CreateOrderFromCart: delegates stock consumption to IStockReservationService")]
+    public async Task Handle_DelegatesStockConsumption_ToService()
     {
         var opts = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -54,11 +54,13 @@ public class CreateOrderFromCartTransactionTests
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
         sender.Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
-        sender.Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
+
+        var reservationService = new Mock<IStockReservationService>();
+        reservationService.Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         var sut = new CreateOrderFromCart.CommandHandler(
-            db, logger.Object, currentUser.Object, notificationService.Object, sender.Object);
+            db, logger.Object, currentUser.Object, notificationService.Object, sender.Object, reservationService.Object);
 
         var result = await sut.Handle(
             new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
@@ -66,9 +68,7 @@ public class CreateOrderFromCartTransactionTests
 
         result.IsSuccess.Should().BeTrue();
 
-        // Verify ConsumeCartStockReservations.Command was sent
-        sender.Verify(s => s.Send(
-            It.IsAny<ConsumeCartStockReservations.Command>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+        // Verify reservations were consumed for the order
+        reservationService.Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
