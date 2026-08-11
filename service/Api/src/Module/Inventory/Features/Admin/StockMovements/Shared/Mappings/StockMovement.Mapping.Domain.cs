@@ -1,4 +1,4 @@
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockMovements;
 
 namespace Module.Inventory.Features.Admin.StockMovements.Shared.Mappings;
 

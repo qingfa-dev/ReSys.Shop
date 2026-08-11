@@ -9,7 +9,7 @@ public static partial class StockLocationValidator
     {
         return ruleBuilder
             .MaximumLength(StockLocationConstant.Constraints.CityMaxLength)
-            .WithErrorCode(StockLocationResult.Failure.CityTooLong.Code)
-            .WithMessage(StockLocationResult.Failure.CityTooLong.Message);
+            .WithErrorCode(StockLocationResult.Errors.CityTooLong.Code)
+            .WithMessage(StockLocationResult.Errors.CityTooLong.Message);
     }
 }

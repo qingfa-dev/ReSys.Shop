@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
-using Module.Inventory.Services.Abstractions;
-using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Inventory.Features.Storefront.StockReservations.ConsumeCart;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
@@ -65,7 +64,9 @@ public static partial class CreateOrderFromCart
             await sender.Send(new MarkPaymentPaidCommand { OrderId = cart.Id, PaymentIntentId = paymentIntentId }, cancellationToken);
 
             // Consume: Existing stock reservations via ISender (replaces inline stock deduction).
-            var consumeResult = await sender.Send(new ConsumeCartStockReservationsCommand { CartId = cart.Id }, cancellationToken);
+            var consumeResult = await sender.Send(
+                new ConsumeCartStockReservations.Command(
+                new ConsumeCartStockReservations.Request { CartId = cart.Id }), cancellationToken);
             if (consumeResult.IsFailure)
                 return consumeResult.Errors;
 

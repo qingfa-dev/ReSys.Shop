@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 
 namespace Module.Inventory.Persistence.Seeders;
 

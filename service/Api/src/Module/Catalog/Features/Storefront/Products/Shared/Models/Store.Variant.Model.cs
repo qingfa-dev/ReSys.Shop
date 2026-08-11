@@ -5,10 +5,21 @@ namespace Module.Catalog.Features.Storefront.Products.Shared.Models;
 
 public record StoreVariantStockInfo
 {
-    #region Stock
-    public int AvailableQuantity { get; init; }
+    public int TotalOnHand { get; init; }
+    public int TotalReserved { get; init; }
+    public int TotalAvailable { get; init; }
     public bool Backorderable { get; init; }
-    #endregion
+    public List<StoreStockLocationInfo> Locations { get; init; } = [];
+}
+
+public record StoreStockLocationInfo
+{
+    public Guid StockLocationId { get; init; }
+    public string? StockLocationName { get; init; } = string.Empty;
+    public int CountOnHand { get; init; }
+    public int ReservedCount { get; init; }
+    public int AvailableCount { get; init; }
+    public bool Backorderable { get; init; }
 }
 
 public record StoreProductVariantResponse : VariantListItemResponse

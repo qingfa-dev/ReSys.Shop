@@ -31,7 +31,7 @@ public static class StockLocationResult
     /// <summary>
     /// Contains error factory methods for stock location operations.
     /// </summary>
-    public static class Failure
+    public static class Errors
     {
         #region Validation
         /// <summary>Error when stock location name is not provided.</summary>

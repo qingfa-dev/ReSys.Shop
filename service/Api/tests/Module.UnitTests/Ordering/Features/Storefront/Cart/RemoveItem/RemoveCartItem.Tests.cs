@@ -1,4 +1,4 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.RemoveItem;
 

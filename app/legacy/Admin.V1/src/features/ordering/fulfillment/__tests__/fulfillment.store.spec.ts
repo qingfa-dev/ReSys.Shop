@@ -28,7 +28,7 @@ function makeOrderListItem(overrides: Partial<OrderListItemModel> = {}): OrderLi
   return {
     id: '1', number: 'ORD-1', status: 0, checkoutState: 0, currency: 'USD', email: null,
     itemCount: 0, itemTotal: 0, total: 0, outstandingBalance: 0,
-    paymentState: null, shipmentState: null, createdAtUtc: '', userId: null, storeId: null,
+    paymentState: null, shipmentState: null, createdAtUtc: '', userId: null,
     totalDisplay: '$0.00', statusLabel: 'Draft', paymentStateLabel: null, shipmentStateLabel: null,
     ...overrides,
   }

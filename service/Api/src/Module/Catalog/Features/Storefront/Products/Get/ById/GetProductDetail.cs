@@ -19,7 +19,7 @@ public static partial class GetProductDetail
     public sealed class QueryHandler(
         IApplicationDbContext dbContext,
         ILogger<QueryHandler> logger,
-        IStockAvailabilityCalculator calculator) : IQueryHandler<Query, Response>
+        IStockItemService stockItem) : IQueryHandler<Query, Response>
     {
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
@@ -58,18 +58,17 @@ public static partial class GetProductDetail
                 variantIds.Add(response.MasterVariant.Id);
             variantIds.AddRange(response.Variants.Select(v => v.Id));
 
-            var availableByVariant = await calculator.GetAvailableByVariantAsync(variantIds, cancellationToken);
-            var backorderableByVariant = await calculator.GetBackorderableByVariantAsync(variantIds, cancellationToken);
+            var availabilityResult = await stockItem.GetStockAvailabilityAsync(variantIds, cancellationToken);
+            var availabilityMap = availabilityResult.Value.ToDictionary(a => a.VariantId);
 
             if (response.MasterVariant is not null)
             {
-                var available = availableByVariant.GetValueOrDefault(response.MasterVariant.Id, 0);
-                var backorderable = backorderableByVariant.GetValueOrDefault(response.MasterVariant.Id, false);
+                var entry = availabilityMap.GetValueOrDefault(response.MasterVariant.Id);
                 response = response with
                 {
                     MasterVariant = response.MasterVariant with
                     {
-                        Stock = (available, backorderable).MapToStockInfo()
+                        Stock = entry?.MapToStockInfo() ?? new()
                     }
                 };
             }
@@ -78,9 +77,8 @@ public static partial class GetProductDetail
             {
                 Variants = response.Variants.Select(v =>
                 {
-                    var available = availableByVariant.GetValueOrDefault(v.Id, 0);
-                    var backorderable = backorderableByVariant.GetValueOrDefault(v.Id, false);
-                    return v with { Stock = (available, backorderable).MapToStockInfo() };
+                    var entry = availabilityMap.GetValueOrDefault(v.Id);
+                    return v with { Stock = entry?.MapToStockInfo() ?? new() };
                 }).ToList()
             };
 

@@ -39,7 +39,6 @@ export interface OrderDetail extends OrderRequest {
   paymentState?: string
   shipmentState?: string
   userId?: string
-  storeId?: string
   itemCount: number
   approvedById?: string
   approvedAtUtc?: string
@@ -77,7 +76,6 @@ export const ORDER_FILTER_FIELDS = [
   'checkoutState',
   'currency',
   'userId',
-  'storeId',
   'isDeleted',
 ]
 
@@ -96,9 +94,6 @@ export function toOrderQueryParams(query: OrderQuery): QueryingParameters {
   }
   if (query.currency !== undefined && query.currency !== '') {
     filters.push(`currency=${query.currency}`)
-  }
-  if (query.storeId !== undefined && query.storeId !== '') {
-    filters.push(`storeId=${query.storeId}`)
   }
 
   let sort: string[] | null = null

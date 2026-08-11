@@ -1,4 +1,4 @@
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Services;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Services;
 
@@ -15,7 +15,7 @@ public static partial class CancelOrder
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        IStockQuantityService stockChecker,
+        IStockItemService stockItem,
         ISender sender,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
@@ -66,7 +66,7 @@ public static partial class CancelOrder
             {
                 foreach (var lineItem in entity.LineItems)
                 {
-                    var orderInventory = new OrderInventoryService(entity, lineItem, dbContext, stockChecker);
+                    var orderInventory = new OrderInventoryService(entity, lineItem, dbContext, stockItem);
                     await orderInventory.RemoveAsync(lineItem.Quantity, cancellationToken);
                 }
             }

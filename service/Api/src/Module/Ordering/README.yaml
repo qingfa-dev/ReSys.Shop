@@ -746,7 +746,7 @@ testing:
         [Fact]
         public void AdvanceCheckout_FromAddress_ToDelivery_WhenAddressesSet()
         {
-            var order = OrderMethod.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId).Value;
             order.BillAddressId = addressId;
             order.ShipAddressId = addressId;
 
@@ -759,7 +759,7 @@ testing:
         [Fact]
         public void AdvanceCheckout_FromAddress_ToDelivery_WhenNoAddresses_Rejects()
         {
-            var order = OrderMethod.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId).Value;
 
             var result = order.AdvanceCheckout();
 

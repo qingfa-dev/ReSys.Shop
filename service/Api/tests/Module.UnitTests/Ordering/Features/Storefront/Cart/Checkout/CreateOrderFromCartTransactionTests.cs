@@ -1,7 +1,7 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
-using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Inventory.Features.Storefront.StockReservations.ConsumeCart;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
@@ -54,7 +54,7 @@ public class CreateOrderFromCartTransactionTests
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
         sender.Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
-        sender.Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
+        sender.Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         var sut = new CreateOrderFromCart.CommandHandler(
@@ -66,9 +66,9 @@ public class CreateOrderFromCartTransactionTests
 
         result.IsSuccess.Should().BeTrue();
 
-        // Verify ConsumeCartStockReservationsCommand was sent
+        // Verify ConsumeCartStockReservations.Command was sent
         sender.Verify(s => s.Send(
-            It.IsAny<ConsumeCartStockReservationsCommand>(),
+            It.IsAny<ConsumeCartStockReservations.Command>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

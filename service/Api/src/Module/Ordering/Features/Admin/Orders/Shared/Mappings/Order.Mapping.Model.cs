@@ -36,7 +36,6 @@ public static partial class OrderMapping
             PaymentState = entity.PaymentState,
             ShipmentState = entity.ShipmentState,
             UserId = entity.UserId,
-            StoreId = entity.StoreId,
             ItemCount = entity.ItemCount,
             ApprovedById = entity.ApprovedById,
             ApprovedAtUtc = entity.ApprovedAtUtc,

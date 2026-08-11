@@ -1,6 +1,6 @@
 using Shared.Operational.Persistence.Specifications.Sorting;
 
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.GetAll;

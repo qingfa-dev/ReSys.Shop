@@ -43,11 +43,13 @@ public record OrderListItemResponse : OrderParameters
 public record LineItemResponse
 {
     public Guid Id { get; init; }
-    public Guid VariantId { get; init; }
-    public int Quantity { get; init; }
-    public decimal Price { get; init; }
-    public decimal Total { get; init; }
-    public decimal AdjustmentTotal { get; init; }
-    public string Currency { get; init; } = string.Empty;
+    public int Quantity { get; set; }
+    public decimal Price { get; set; }
+    public decimal Total { get; set; }
+    public decimal AdjustmentTotal { get; set; }
+    public string Currency { get; set; } = OrderConstant.Defaults.Currency;
+
+    public Guid OrderId { get; set; }
+    public Guid? VariantId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; init; }
 }

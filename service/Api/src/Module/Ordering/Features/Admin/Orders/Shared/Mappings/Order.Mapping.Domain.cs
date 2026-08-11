@@ -19,8 +19,7 @@ public static partial class OrderMapping
         // Create: Build order domain entity with configured defaults (currency, timestamps).
         return OrderMethod.Create(
             currency: request.Currency,
-            userId: userId,
-            storeId: storeId);
+            userId: userId);
     }
 
     /// <summary>Maps an OrderRequest DTO to an existing Order domain entity using patch semantics.</summary>

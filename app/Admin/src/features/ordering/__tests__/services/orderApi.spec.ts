@@ -60,7 +60,7 @@ describe('OrderApi.getOrders', () => {
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['status', 'checkoutState', 'currency', 'userId', 'storeId', 'isDeleted'],
+        allowedFilterFields: ['status', 'checkoutState', 'currency', 'userId', 'isDeleted'],
         allowedSortFields: ['number', 'total', 'completedAtUtc', 'createdAtUtc', 'status'],
         allowedSearchFields: ['number', 'email'],
       }),

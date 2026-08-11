@@ -1,7 +1,5 @@
 using Module.Location.Domain.Countries;
 
-using Shared.Application.Mediators.Queries;
-
 namespace Module.Location.Features.Shared.Queries;
 
 public sealed record CountryExistsByIsoQuery(string IsoCode) : IQuery<bool>;

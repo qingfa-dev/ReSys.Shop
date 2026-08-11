@@ -1,6 +1,6 @@
 using System.Globalization;
 
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 
 namespace Module.Inventory.Features.Admin.StockItems.Import;
 

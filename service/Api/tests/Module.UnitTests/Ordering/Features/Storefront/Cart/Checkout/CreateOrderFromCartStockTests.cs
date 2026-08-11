@@ -2,7 +2,7 @@ using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Inventory.Features.Storefront.StockReservations.ConsumeCart;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
@@ -51,7 +51,7 @@ public class CreateOrderFromCartStockTests : IDisposable
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _senderMock
-            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object, _senderMock.Object);
@@ -89,7 +89,7 @@ public class CreateOrderFromCartStockTests : IDisposable
 
         // Setup: Reservation consumption returns failure (simulates insufficient stock)
         _senderMock
-            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(StockReservationResult.Errors.InsufficientStock));
 
         // Act
@@ -100,7 +100,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         result.Errors[0].Code.Should().Be(StockReservationResult.Errors.InsufficientStock.Code);
     }
 
-    [Fact(DisplayName = "Stock: Should verify ConsumeCartStockReservationsCommand is sent with correct cart ID")]
+    [Fact(DisplayName = "Stock: Should verify ConsumeCartStockReservations.Command is sent with correct cart ID")]
     public async Task Handle_ShouldSendCorrectCartId_ToConsumeReservations()
     {
         // Arrange: Create a draft cart
@@ -129,7 +129,7 @@ public class CreateOrderFromCartStockTests : IDisposable
 
         // Assert: Verify the command was sent with the correct cart ID
         _senderMock.Verify(s => s.Send(
-            It.Is<ConsumeCartStockReservationsCommand>(c => c.CartId == cart.Id),
+            It.Is<ConsumeCartStockReservations.Command>(c => c.Request.CartId == cart.Id),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

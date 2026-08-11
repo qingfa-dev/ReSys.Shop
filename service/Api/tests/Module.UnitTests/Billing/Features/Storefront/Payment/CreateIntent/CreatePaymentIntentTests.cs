@@ -11,8 +11,8 @@ using Module.Billing.Domain.PaymentMethods;
 using Module.Billing.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
-using Module.Inventory.Features.Storefront.ReserveCartStock;
-using Module.Inventory.Features.Storefront.ReleaseCartStockReservations;
+using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
+using Module.Inventory.Features.Storefront.StockReservations.ReleaseCart;
 using Module.Ordering.Domain.Orders;
 
 using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
@@ -221,15 +221,15 @@ public class CreatePaymentIntentTests : IDisposable
             }));
 
         _senderMock.Setup(x => x.Send(
-            It.Is<ReserveCartStockCommand>(c => c.CartId == cartId),
+            It.Is<ReserveCartStock.Command>(c => c.Request.CartId == cartId),
             It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ReserveCartStockResponse>.Ok(new ReserveCartStockResponse
+            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response
             {
                 ReservationIds = [Guid.NewGuid()]
             }));
 
         _senderMock.Setup(x => x.Send(
-            It.Is<ReleaseCartStockReservationsCommand>(c => c.CartId == cartId),
+            It.Is<ReleaseCartStockReservations.Command>(c => c.Request.CartId == cartId),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
@@ -253,15 +253,15 @@ public class CreatePaymentIntentTests : IDisposable
             }));
 
         _senderMock.Setup(x => x.Send(
-            It.IsAny<ReserveCartStockCommand>(),
+            It.IsAny<ReserveCartStock.Command>(),
             It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ReserveCartStockResponse>.Ok(new ReserveCartStockResponse
+            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response
             {
                 ReservationIds = [Guid.NewGuid()]
             }));
 
         _senderMock.Setup(x => x.Send(
-            It.IsAny<ReleaseCartStockReservationsCommand>(),
+            It.IsAny<ReleaseCartStockReservations.Command>(),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 

@@ -1,4 +1,4 @@
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Services;
 
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Services;
@@ -14,7 +14,7 @@ public static partial class UpdateOrderStatus
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        IStockQuantityService stockChecker)
+        IStockItemService stockItem)
         : ICommandHandler<Command>
     {
         /// <summary>Applies a status transition (currently only cancel) to an order with inventory release and logging.</summary>
@@ -54,7 +54,7 @@ public static partial class UpdateOrderStatus
                     // Compensate: Release reserved inventory — the order will not be fulfilled.
                     foreach (var li in entity.LineItems)
                     {
-                        var orderInventory = new OrderInventoryService(entity, li, dbContext, stockChecker);
+                        var orderInventory = new OrderInventoryService(entity, li, dbContext, stockItem);
                         await orderInventory.RemoveAsync(li.Quantity, cancellationToken);
                     }
                     break;

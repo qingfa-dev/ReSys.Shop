@@ -1,7 +1,7 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
-using Module.Inventory.Features.Storefront.CheckVariantAvailability;
+using Module.Inventory.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 /// <summary>Updates the quantity of a line item in the current user's draft cart after validating stock availability.</summary>
@@ -13,7 +13,7 @@ public static partial class UpdateCartItemQuantity
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        ISender sender)
+        IStockItemService stockItem)
         : ICommandHandler<Command>
     {
         /// <summary>Validates stock via Inventory module, updates the line item quantity and total, and recalculates cart totals.</summary>
@@ -43,17 +43,11 @@ public static partial class UpdateCartItemQuantity
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(command.LineItemId);
 
-            // Validate: Stock availability via Inventory module's reservation-aware query.
-            var stockResult = await sender.Send(
-                new CheckVariantAvailabilityQuery(
-                    lineItem.VariantId,
-                    command.Request.Quantity),
-                cancellationToken);
+            // Validate: Check reservation-aware stock availability directly via service
+            var availableResult = await stockItem.IsAvailableAsync(
+                lineItem.VariantId, command.Request.Quantity, ct: cancellationToken);
 
-            if (stockResult.IsFailure)
-                return stockResult.Errors;
-
-            if (!stockResult.Value.IsAvailable)
+            if (!availableResult.IsSuccess || !availableResult.Value)
                 return OrderResult.Errors.CartQuantityInvalid;
 
             // Update: Modify quantity and total.

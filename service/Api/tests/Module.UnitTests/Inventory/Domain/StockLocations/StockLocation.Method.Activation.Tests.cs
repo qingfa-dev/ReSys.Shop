@@ -59,7 +59,7 @@ public class StockLocationMethodActivationTests
         var result = location.Deactivate();
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(StockLocationResult.Failure.CannotDeactivateDefault);
+        result.Errors[0].Should().Be(StockLocationResult.Errors.CannotDeactivateDefault);
         location.Active.Should().BeTrue();
     }
 
@@ -104,7 +104,7 @@ public class StockLocationMethodActivationTests
         var result = location.Update(active: false);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(StockLocationResult.Failure.CannotDeactivateDefault);
+        result.Errors[0].Should().Be(StockLocationResult.Errors.CannotDeactivateDefault);
         location.Active.Should().BeTrue();
     }
 }

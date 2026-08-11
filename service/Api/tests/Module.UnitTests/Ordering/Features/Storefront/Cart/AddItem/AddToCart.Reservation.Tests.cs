@@ -1,11 +1,11 @@
 using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
 
-using Module.Inventory.Features.Storefront.ReserveCartStock;
+using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
 using Shared.Application.Systems.SystemInfos;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
@@ -66,9 +66,9 @@ public class AddToCartReservationTests : IDisposable
 
         _senderMock
             .Setup(x => x.Send(
-                It.Is<ReserveCartStockCommand>(c => c.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
+                It.Is<ReserveCartStock.Command>(c => c.Request.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ReserveCartStockResponse>.Ok(new ReserveCartStockResponse
+            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response
             {
                 ReservationIds = [Guid.NewGuid()]
             }));
@@ -81,7 +81,7 @@ public class AddToCartReservationTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         _senderMock.Verify(
             x => x.Send(
-                It.Is<ReserveCartStockCommand>(c => c.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
+                It.Is<ReserveCartStock.Command>(c => c.Request.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -110,7 +110,7 @@ public class AddToCartReservationTests : IDisposable
 
         _senderMock
             .Setup(x => x.Send(
-                It.Is<ReserveCartStockCommand>(c => c.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
+                It.Is<ReserveCartStock.Command>(c => c.Request.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(StockReservationResult.Errors.InsufficientStock);
 

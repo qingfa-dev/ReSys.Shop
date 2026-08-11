@@ -92,6 +92,11 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
             .WithOne(ovv => ovv.Variant)
             .HasForeignKey(ovv => ovv.VariantId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.LineItems)
+            .WithOne(ovv => ovv.Variant)
+            .HasForeignKey(ovv => ovv.VariantId)
+            .OnDelete(DeleteBehavior.NoAction);
         #endregion
 
         #region Indexes

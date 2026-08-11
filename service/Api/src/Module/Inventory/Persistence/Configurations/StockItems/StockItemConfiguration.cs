@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Inventory.Persistence.Constants;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 
 namespace Module.Inventory.Persistence.Configurations.StockItems;
 

@@ -14,7 +14,8 @@ public static class StockReservationMethod
         Guid? orderId,
         int ttlMinutes,
         string? cartToken = null,
-        string? createdBy = null)
+        string? createdBy = null,
+        Guid? id = null)
     {
         // Validate: Reservation quantity must be positive
         if (quantity <= 0)
@@ -26,7 +27,7 @@ public static class StockReservationMethod
         // Create: Stock reservation with expiry
         var reservation = new StockReservation
         {
-            Id = Guid.NewGuid(),
+            Id = id ?? Guid.NewGuid(),
             VariantId = variantId,
             Quantity = quantity,
             StockLocationId = stockLocationId,

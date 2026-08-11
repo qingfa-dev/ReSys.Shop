@@ -3,7 +3,7 @@ using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
+using Module.Inventory.Features.Storefront.StockReservations.ConsumeCart;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
@@ -59,7 +59,7 @@ public class CreateOrderFromCartTests : IDisposable
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _senderMock
-            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
     }
 
@@ -236,7 +236,7 @@ public class CreateOrderFromCartTests : IDisposable
 
         // Setup: Reservation consumption fails
         _senderMock
-            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservationsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(StockReservationResult.Errors.NoActiveReservations));
 
         // Act

@@ -19,7 +19,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.List;
 public class ListProductsTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<IStockAvailabilityCalculator> _calculatorMock;
+    private readonly Mock<IStockItemService> _stockItemMock;
     private readonly GetStorefrontProducts.PagedQueryHandler _handler;
 
     public ListProductsTests()
@@ -31,14 +31,11 @@ public class ListProductsTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _calculatorMock = new Mock<IStockAvailabilityCalculator>();
-        _calculatorMock
-            .Setup(c => c.GetAvailableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, int>());
-        _calculatorMock
-            .Setup(c => c.GetBackorderableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, bool>());
-        _handler = new GetStorefrontProducts.PagedQueryHandler(_dbContext, _calculatorMock.Object);
+        _stockItemMock = new Mock<IStockItemService>();
+        _stockItemMock
+            .Setup(s => s.GetStockAvailabilityAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<VariantStockAvailability>());
+        _handler = new GetStorefrontProducts.PagedQueryHandler(_dbContext, _stockItemMock.Object);
     }
 
     public void Dispose()
@@ -122,7 +119,9 @@ public class ListProductsTests : IDisposable
             taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts",
             null, null, null, false, null, null, false, null, null).Value;
         taxonomy.Taxons.Add(taxon);
-        product.Classifications.Add(ClassificationMethod.Create(product.Id, taxon.Id).Value);
+        var classification = ClassificationMethod.Create(product.Id, taxon.Id).Value;
+        classification.Taxon = taxon;
+        product.Classifications.Add(classification);
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Product>().Add(product);
@@ -135,10 +134,10 @@ public class ListProductsTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         var item = result.Items.First();
         item.Classifications.Should().HaveCount(1);
-        item.Classifications[0].Name.Should().Be("Shirts");
+        item.Classifications[0].Name.Should().Be("shirts");
         item.Classifications[0].Slug.Should().Be("shirts");
         item.Classifications[0].Breadcrumb.Should().NotBeEmpty();
-        item.Classifications[0].Breadcrumb[0].Name.Should().Be("Shirts");
+        item.Classifications[0].Breadcrumb[0].Name.Should().Be("shirts");
     }
 
     [Fact(DisplayName = "Handler: Should exclude discontinued products")]

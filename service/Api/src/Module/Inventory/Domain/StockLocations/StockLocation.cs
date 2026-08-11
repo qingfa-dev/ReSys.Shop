@@ -3,8 +3,8 @@ using Shared.Application.Domain.Concerns.Parameterizable;
 using Shared.Application.Domain.Concerns.SoftDeletable;
 using Shared.Application.Domain.Models;
 
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 
 namespace Module.Inventory.Domain.StockLocations;
 

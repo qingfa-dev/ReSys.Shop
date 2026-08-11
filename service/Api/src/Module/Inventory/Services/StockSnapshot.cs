@@ -15,10 +15,10 @@ public sealed record StockSnapshot
 public sealed record LocationStockSnapshot
 {
     public Guid StockLocationId { get; init; }
-    public string LocationName { get; init; } = default!;
+    public string? StockLocationName { get; init; } = default!;
     public int CountOnHand { get; init; }
     public int ReservedCount { get; init; }
     public int AvailableCount { get; init; }
-    public bool Active { get; init; }
+    public bool? Active { get; init; }
     public bool Backorderable { get; init; }
 }

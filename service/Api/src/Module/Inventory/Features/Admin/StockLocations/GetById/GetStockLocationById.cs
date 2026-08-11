@@ -22,7 +22,7 @@ public static partial class GetStockLocationById
 
             // Check: Return not-found if no location matches
             if (entity is null)
-                return StockLocationResult.Failure.NotFound;
+                return StockLocationResult.Errors.NotFound;
 
             // Transform: Map domain entity to response DTO
             return entity.MapToDetail<Response>();

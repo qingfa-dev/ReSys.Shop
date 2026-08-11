@@ -24,7 +24,7 @@ public static partial class SetDefaultStockLocation
 
             // Check: Reject if location does not exist
             if (entity is null)
-                return StockLocationResult.Failure.NotFound;
+                return StockLocationResult.Errors.NotFound;
 
             // Load: Find the currently-default location to unmark it
             var currentDefault = await dbContext.Set<StockLocation>()

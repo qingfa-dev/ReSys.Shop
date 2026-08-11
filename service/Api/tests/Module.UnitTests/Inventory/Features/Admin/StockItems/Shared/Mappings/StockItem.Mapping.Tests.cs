@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 using Module.Inventory.Features.Admin.StockItems.Shared.Models;
 using Module.Inventory.Services.Models;

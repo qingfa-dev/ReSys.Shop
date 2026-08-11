@@ -1,6 +1,7 @@
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Features.Storefront.OptionTypes.Shared.Models;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
+using Module.Inventory.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 
@@ -57,12 +58,23 @@ public static class StoreProductVariantMapping
 
     #region Stock
 
-    public static StoreVariantStockInfo MapToStockInfo(this (int Available, bool Backorderable) stock)
+    public static StoreVariantStockInfo MapToStockInfo(this VariantStockAvailability stock)
     {
         return new StoreVariantStockInfo
         {
-            AvailableQuantity = stock.Available,
+            TotalOnHand = stock.TotalOnHand,
+            TotalReserved = stock.TotalReserved,
+            TotalAvailable = stock.TotalAvailable,
             Backorderable = stock.Backorderable,
+            Locations = stock.Locations.Select(l => new StoreStockLocationInfo
+            {
+                StockLocationId = l.StockLocationId,
+                StockLocationName = l.StockLocationName,
+                CountOnHand = l.CountOnHand,
+                ReservedCount = l.ReservedCount,
+                AvailableCount = l.AvailableCount,
+                Backorderable = l.Backorderable,
+            }).ToList(),
         };
     }
 

@@ -30,7 +30,9 @@ public static partial class CompleteOrder
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the updated entity as response.
-            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Completed(order.Id, currentUser.UserName ?? "System"));
+            return Result<Response>.Ok(
+                order.MapToDetail<Response>(),
+                OrderResult.Success.Completed(order.Id, currentUser.UserName ?? "System"));
         }
     }
 }

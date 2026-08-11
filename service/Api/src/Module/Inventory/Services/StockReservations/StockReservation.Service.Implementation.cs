@@ -1,0 +1,179 @@
+using System.Data;
+
+using Microsoft.EntityFrameworkCore;
+
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Services.StockReservations;
+
+namespace Module.Inventory.Services;
+
+internal sealed partial class StockReservationService(
+    IApplicationDbContext dbContext,
+    ILogger<StockReservationService> logger)
+    : IStockReservationService
+{
+    public async Task<Result<StockReservation>> ReserveAsync(
+        Guid variantId, 
+        int quantity, 
+        Guid stockLocationId,
+        Guid? orderId = null, 
+        string? cartToken = null, 
+        int ttlMinutes = 30,
+        CancellationToken ct = default)
+    {
+        if (quantity <= 0)
+        {
+            Loggers.LogReservationFailed(logger, variantId, "Quantity must be positive");
+            return StockReservationResult.Errors.QuantityZero;
+        }
+
+        if (orderId is null && string.IsNullOrWhiteSpace(cartToken))
+        {
+            Loggers.LogReservationFailed(logger, variantId, "OrderId or CartToken required");
+            return StockReservationResult.Errors.QuantityZero;
+        }
+
+        await using var transaction = await dbContext.BeginTransactionAsync(
+            IsolationLevel.Serializable, ct);
+
+        try
+        {
+            var stockItem = await dbContext.Set<StockItem>()
+                .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, ct);
+
+            if (stockItem is null)
+            {
+                await transaction.RollbackAsync(ct);
+                Loggers.LogReservationFailed(logger, variantId, "Stock item not found");
+                return StockReservationResult.Errors.InsufficientStock;
+            }
+
+            var reserved = await dbContext.Set<StockReservation>()
+                .Where(r => r.VariantId == variantId
+                            && r.StockLocationId == stockLocationId
+                            && r.State == ReservationState.Reserved
+                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                .SumAsync(r => r.Quantity, ct);
+
+            if (stockItem.CountOnHand - reserved < quantity)
+            {
+                await transaction.RollbackAsync(ct);
+                Loggers.LogReservationFailed(logger, variantId, "Insufficient stock");
+                return StockReservationResult.Errors.InsufficientStock;
+            }
+
+            var result = StockReservationMethod.Reserve(
+                variantId, quantity, stockLocationId, orderId, ttlMinutes, cartToken: cartToken);
+
+            if (result.IsFailure)
+            {
+                await transaction.RollbackAsync(ct);
+                return result;
+            }
+
+            dbContext.Set<StockReservation>().Add(result.Value);
+            await dbContext.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            Loggers.LogReservationCreated(logger, variantId, quantity, ttlMinutes);
+            return result.Value;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+    }
+
+    public async Task<Result<int>> ReleaseReservationsAsync(
+        Guid? orderId = null, string? cartToken = null, CancellationToken ct = default)
+    {
+        IQueryable<StockReservation> query = dbContext.Set<StockReservation>()
+            .Where(r => r.State == ReservationState.Reserved);
+
+        if (orderId.HasValue)
+            query = query.Where(r => r.OrderId == orderId.Value);
+        else if (!string.IsNullOrWhiteSpace(cartToken))
+            query = query.Where(r => r.CartToken == cartToken);
+        else
+            return 0;
+
+        var reservations = await query.ToListAsync(ct);
+
+        foreach (var r in reservations)
+        {
+            var releaseResult = r.Release();
+            if (releaseResult.IsFailure) continue;
+            r.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+            if (r.StockLocationId is not null)
+            {
+                var stockItem = await dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, ct);
+
+                if (stockItem is not null)
+                    stockItem.CountOnHand += r.Quantity;
+            }
+        }
+
+        if (reservations.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(ct);
+            Loggers.LogReservationsReleased(logger, reservations.Count);
+        }
+
+        return reservations.Count;
+    }
+
+    public async Task<Result<int>> ExpireReservationsAsync(CancellationToken ct = default)
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        var expired = await dbContext.Set<StockReservation>()
+            .Where(r => r.State == ReservationState.Reserved && r.ExpiresAtUtc <= now)
+            .ToListAsync(ct);
+
+        foreach (var r in expired)
+        {
+            var expireResult = r.Expire();
+            if (expireResult.IsFailure) continue;
+            r.ModifiedAtUtc = now;
+
+            if (r.StockLocationId is not null)
+            {
+                var stockItem = await dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, ct);
+
+                if (stockItem is not null)
+                    stockItem.CountOnHand += r.Quantity;
+            }
+        }
+
+        if (expired.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(ct);
+            Loggers.LogReservationsExpired(logger, expired.Count);
+        }
+
+        return expired.Count;
+    }
+
+
+    public async Task<Result<List<(StockReservation Reservation, int RemainingSeconds)>>> GetReservationsForCartAsync(
+        string cartToken, CancellationToken ct = default)
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        var reservations = await dbContext.Set<StockReservation>()
+            .Where(r => r.CartToken == cartToken
+                        && r.State == ReservationState.Reserved
+                        && r.ExpiresAtUtc != null
+                        && r.ExpiresAtUtc > now)
+            .ToListAsync(ct);
+
+        return reservations
+            .Select(r => (r, (int)(r.ExpiresAtUtc!.Value - now).TotalSeconds))
+            .ToList();
+    }
+}

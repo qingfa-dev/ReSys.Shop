@@ -1,4 +1,5 @@
-using Module.Inventory.Services.Abstractions;
+using Module.Billing.Features.Shared.Commands;
+using Module.Inventory.Services;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 using Module.Ordering.Services;
@@ -19,7 +20,7 @@ public static partial class CancelOrderAdmin
         INotificationService notificationService,
         ILogger<CommandHandler> logger,
         ISender sender,
-        IStockQuantityService stockChecker) : ICommandHandler<Command, Response>
+        IStockItemService stockItem) : ICommandHandler<Command, Response>
     {
         /// <summary>Voids payments, releases inventory for placed orders, persists the cancellation, and notifies the customer.</summary>
         /// <param name="command">The command containing the order ID and cancellation details.</param>
@@ -43,7 +44,7 @@ public static partial class CancelOrderAdmin
 
             // Call: Void pending payments via Payment module — fire-and-forget on failure.
             var voidResult = await sender.Send(
-                new Module.Billing.Features.Shared.Commands.VoidOrderPaymentsCommand
+                new VoidOrderPaymentsCommand
                 {
                     OrderId = order.Id,
                     Reason = OrderConstant.CancelReasons.Admin
@@ -60,7 +61,7 @@ public static partial class CancelOrderAdmin
                 // Compensate: Release reserved inventory — order will not be fulfilled.
                 foreach (var lineItem in order.LineItems)
                 {
-                    var orderInventory = new OrderInventoryService(order, lineItem, dbContext, stockChecker);
+                    var orderInventory = new OrderInventoryService(order, lineItem, dbContext, stockItem);
                     await orderInventory.RemoveAsync(lineItem.Quantity, cancellationToken);
                 }
             }

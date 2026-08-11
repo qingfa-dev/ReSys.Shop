@@ -19,7 +19,7 @@ public static partial class GetStorefrontProducts
 
     public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,
-        IStockAvailabilityCalculator calculator)
+        IStockItemService stockItem)
         : IPagedQueryHandler<Query, Response>
     {
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
@@ -150,8 +150,8 @@ public static partial class GetStorefrontProducts
                 .Distinct()
                 .ToList();
 
-            var availableByVariant = await calculator.GetAvailableByVariantAsync(masterVariantIds, cancellationToken);
-            var backorderableByVariant = await calculator.GetBackorderableByVariantAsync(masterVariantIds, cancellationToken);
+            var availabilityResult = await stockItem.GetStockAvailabilityAsync(masterVariantIds, cancellationToken);
+            var availabilityMap = availabilityResult.Value.ToDictionary(a => a.VariantId);
 
             #endregion
 
@@ -170,13 +170,12 @@ public static partial class GetStorefrontProducts
             {
                 if (item.MasterVariant is not null)
                 {
-                    var available = availableByVariant.GetValueOrDefault(item.MasterVariant.Id, 0);
-                    var backorderable = backorderableByVariant.GetValueOrDefault(item.MasterVariant.Id, false);
+                    var entry = availabilityMap.GetValueOrDefault(item.MasterVariant.Id);
                     item = item with
                     {
                         MasterVariant = item.MasterVariant with
                         {
-                            Stock = (available, backorderable).MapToStockInfo()
+                            Stock = entry?.MapToStockInfo() ?? new()
                         }
                     };
                 }

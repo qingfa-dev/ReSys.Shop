@@ -86,7 +86,7 @@ This thesis addresses the **dual contribution** of (a) architectural design and 
 | **Dockerfiles / Container Images** | Aspire manages containers for local development only | Production containerization is a deployment extension, not a design contribution | `README.md:177` |
 | **Recommendation Engine (Collaborative Filtering)** | CBIR with model comparison is the primary ML contribution; collaborative filtering is orthogonal | Listed as Future Work in Chapter 11 | `Chapter 11 — Evaluation` |
 | **Payment Provider Beyond Stripe + Bogus** | Two providers (real + dev stand-in) demonstrate the Strategy pattern adequately | No architectural gap | `Module/Payment/Services/Provider/` |
-| **Multi-tenancy / Multi-store** | Current schema has `StoreId` columns but single-store logic | Database is forward-compatible; business logic extension is Future Work | `Order.cs:55` |
+| **Multi-tenancy / Multi-store**  | Database is forward-compatible; business logic extension is Future Work | `Order.cs:55` |
 | **Mobile Native Apps** | Responsive web SPAs are the only client surfaces | Mobile is a separate client implementation using the same API | `app/Admin/`, `app/Store/` |
 | **Custom model training / fine-tuning** | Using pretrained models only; training requires GPU cluster and dataset curation beyond thesis scope | Evaluation focuses on model *selection*, not model *creation* | `service/Embedding/pyproject.toml` |
 

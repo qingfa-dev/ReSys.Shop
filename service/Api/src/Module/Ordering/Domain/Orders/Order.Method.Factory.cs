@@ -8,7 +8,6 @@ public static partial class OrderMethod
     public static Result<Order> Create(
         string currency,
         Guid? userId,
-        Guid storeId,
         Guid? id = null,
         string? sessionId = null,
         Guid? shipAddressId = null)
@@ -23,7 +22,6 @@ public static partial class OrderMethod
             CheckoutState = CheckoutState.Address,
             Currency = currency,
             UserId = userId,
-            StoreId = storeId,
             ShipAddressId = shipAddressId,
             ItemTotal = 0m,
             AdjustmentTotal = 0m,

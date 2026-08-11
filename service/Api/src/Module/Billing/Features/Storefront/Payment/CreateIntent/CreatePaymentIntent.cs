@@ -1,8 +1,8 @@
 using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
 
-using Module.Inventory.Features.Storefront.ReleaseCartStockReservations;
-using Module.Inventory.Features.Storefront.ReserveCartStock;
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Features.Storefront.Shared.Models;
+using Module.Inventory.Features.Storefront.StockReservations.ReleaseCart;
+using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
 
@@ -47,7 +47,7 @@ public static partial class CreatePaymentIntent
 
             // Reserve: Stock atomically before gateway call
             var reserveResult = await sender.Send(
-                new ReserveCartStockCommand
+                new ReserveCartStock.Command(new ReserveCartStock.Request
                 {
                     CartId = command.OrderId,
                     LineItems = cart.LineItems.Select(li => new ReserveLineItem
@@ -55,7 +55,7 @@ public static partial class CreatePaymentIntent
                         VariantId = li.VariantId,
                         Quantity = li.Quantity
                     }).ToList()
-                }, cancellationToken);
+                }), cancellationToken);
             if (reserveResult.IsFailure) return reserveResult.Errors;
 
             // Load: First active payment method
@@ -109,7 +109,8 @@ public static partial class CreatePaymentIntent
             {
                 // Release reservations on gateway failure
                 await sender.Send(
-                    new ReleaseCartStockReservationsCommand { CartId = command.OrderId }, CancellationToken.None);
+                    new ReleaseCartStockReservations.Command(
+                    new ReleaseCartStockReservations.Request { CartId = command.OrderId }), CancellationToken.None);
                 return processResult.Errors;
             }
 
@@ -123,7 +124,8 @@ public static partial class CreatePaymentIntent
                 // E3: Gateway succeeded but save failed — void payment and release reservations
                 await processingService.VoidAsync(payment, gateway, options, CancellationToken.None);
                 await sender.Send(
-                    new ReleaseCartStockReservationsCommand { CartId = command.OrderId }, CancellationToken.None);
+                    new ReleaseCartStockReservations.Command(
+                    new ReleaseCartStockReservations.Request { CartId = command.OrderId }), CancellationToken.None);
                 throw;
             }
 

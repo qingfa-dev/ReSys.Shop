@@ -93,7 +93,6 @@ public static class OrderConstant
             nameof(Order.CheckoutState),
             nameof(Order.Currency),
             nameof(Order.UserId),
-            nameof(Order.StoreId),
             nameof(Order.IsDeleted)
         ];
     }

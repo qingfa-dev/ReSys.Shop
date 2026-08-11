@@ -4,6 +4,7 @@ using Shared.Application.Domain.Models;
 
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
+using Module.Shipping.Domain.ShippingMethods;
 namespace Module.Ordering.Domain.Orders;
 
 /// <summary>
@@ -35,16 +36,22 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     #endregion Contact
 
     #region Timestamps
-    public DateTimeOffset? CompletedAtUtc { get; set; }
-    public DateTimeOffset? CanceledAtUtc { get; set; }
-    public DateTimeOffset? ApprovedAtUtc { get; set; }
+    #region Payment State
     public DateTimeOffset? PaymentProcessingAt { get; set; }
     public DateTimeOffset? PaymentCompletedAt { get; set; }
     public DateTimeOffset? PaymentFailedAt { get; set; }
+    #endregion
+
+    #region Order State
+    public DateTimeOffset? CompletedAtUtc { get; set; }
+    public DateTimeOffset? CanceledAtUtc { get; set; }
+    public DateTimeOffset? ApprovedAtUtc { get; set; }
     public DateTimeOffset? ShippedAt { get; set; }
     public DateTimeOffset? DeliveredAt { get; set; }
     public DateTimeOffset? DeliveryExceptionAt { get; set; }
     public DateTimeOffset? EstimatedDeliveryAt { get; set; }
+    #endregion
+
     #endregion Timestamps
 
     #region Approval & Cancel
@@ -59,11 +66,11 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
 
     #region Relationships
     public Guid? UserId { get; set; }
-    public Guid? StoreId { get; set; }
     public Guid? ShippingMethodId { get; set; }
     #endregion Relationships
 
     #region Navigation
+    public ShippingMethod? ShippingMethod { get; set; }
     public ICollection<LineItem> LineItems { get; set; } = [];
     public ICollection<Adjustment> Adjustments { get; set; } = [];
     #endregion Navigation

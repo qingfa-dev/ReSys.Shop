@@ -28,7 +28,7 @@ public sealed class ModuleIsolationTests
     // cross-module API in the plan/spec.
     private static readonly HashSet<string> AllowedServiceContracts = new(StringComparer.Ordinal)
     {
-        "Module.Inventory.Services.IStockAvailabilityCalculator",
+        "Module.Inventory.Services.IStockItemService",
     };
 
     private static bool IsAllowedServiceContract(Type t) =>

@@ -38,7 +38,7 @@ export class OrderApi {
     return get<Result<OrderDetail>>(`${OrderApi.BASE}/${id}`)
   }
 
-  static createOrder(request: OrderRequest & { storeId: string }): Promise<Result<OrderDetail>> {
+  static createOrder(request: OrderRequest ): Promise<Result<OrderDetail>> {
     return post<Result<OrderDetail>>(OrderApi.BASE, request)
   }
 

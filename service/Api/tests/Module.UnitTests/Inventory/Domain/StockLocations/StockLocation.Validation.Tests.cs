@@ -25,7 +25,7 @@ public class StockLocationValidationNameTests
         var result = validator.TestValidate(new TestModel { Name = name });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StockLocationResult.Failure.NameRequired.Code);
+            .WithErrorCode(StockLocationResult.Errors.NameRequired.Code);
     }
 
     [Fact(DisplayName = "Name: Should fail when exceeding max length")]
@@ -35,7 +35,7 @@ public class StockLocationValidationNameTests
         var result = validator.TestValidate(new TestModel { Name = new string('a', StockLocationConstant.Constraints.NameMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StockLocationResult.Failure.NameTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.NameTooLong.Code);
     }
 
     [Fact(DisplayName = "Name: Should pass with valid name")]
@@ -67,7 +67,7 @@ public class StockLocationValidationCodeTests
         var result = validator.TestValidate(new TestModel { Code = new string('a', StockLocationConstant.Constraints.CodeMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.Code)
-            .WithErrorCode(StockLocationResult.Failure.CodeTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.CodeTooLong.Code);
     }
 
     [Theory(DisplayName = "Code: Should pass with valid values")]
@@ -102,7 +102,7 @@ public class StockLocationValidationAddressTests
         var result = validator.TestValidate(new TestModel { Address1 = new string('a', StockLocationConstant.Constraints.AddressMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.Address1)
-            .WithErrorCode(StockLocationResult.Failure.AddressTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.AddressTooLong.Code);
     }
 
     [Theory(DisplayName = "Address: Should pass with valid values")]
@@ -137,7 +137,7 @@ public class StockLocationValidationCityTests
         var result = validator.TestValidate(new TestModel { City = new string('a', StockLocationConstant.Constraints.CityMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.City)
-            .WithErrorCode(StockLocationResult.Failure.CityTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.CityTooLong.Code);
     }
 
     [Theory(DisplayName = "City: Should pass with valid values")]
@@ -172,7 +172,7 @@ public class StockLocationValidationPhoneTests
         var result = validator.TestValidate(new TestModel { Phone = new string('a', StockLocationConstant.Constraints.PhoneMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.Phone)
-            .WithErrorCode(StockLocationResult.Failure.PhoneTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.PhoneTooLong.Code);
     }
 
     [Theory(DisplayName = "Phone: Should pass with valid values")]
@@ -207,7 +207,7 @@ public class StockLocationValidationPostalCodeTests
         var result = validator.TestValidate(new TestModel { PostalCode = new string('a', StockLocationConstant.Constraints.PostalCodeMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.PostalCode)
-            .WithErrorCode(StockLocationResult.Failure.PostalCodeTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.PostalCodeTooLong.Code);
     }
 
     [Theory(DisplayName = "PostalCode: Should pass with valid values")]
@@ -242,7 +242,7 @@ public class StockLocationValidationAdminNameTests
         var result = validator.TestValidate(new TestModel { AdminName = new string('a', StockLocationConstant.Constraints.AdminNameMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.AdminName)
-            .WithErrorCode(StockLocationResult.Failure.AdminNameTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.AdminNameTooLong.Code);
     }
 
     [Theory(DisplayName = "AdminName: Should pass with valid values")]
@@ -277,7 +277,7 @@ public class StockLocationValidationPresentationTests
         var result = validator.TestValidate(new TestModel { Presentation = new string('a', StockLocationConstant.Constraints.PresentationMaxLength + 1) });
 
         result.ShouldHaveValidationErrorFor(x => x.Presentation)
-            .WithErrorCode(StockLocationResult.Failure.PresentationTooLong.Code);
+            .WithErrorCode(StockLocationResult.Errors.PresentationTooLong.Code);
     }
 
     [Theory(DisplayName = "Presentation: Should pass with valid values")]

@@ -38,7 +38,7 @@ public class ProductStoreMappingTests
         response.VariantsCount.Should().Be(2);
         response.MasterVariant.Should().NotBeNull();
         response.MasterVariant!.Id.Should().Be(product.Variants.First(v => v.IsMaster).Id);
-        response.Variants.Should().HaveCount(1);
+        response.Variants.Should().HaveCount(2);
         response.Classifications.Should().HaveCount(1);
     }
 
@@ -78,7 +78,7 @@ public class ProductStoreMappingTests
         response.Classifications.Should().HaveCount(1);
         var classification = response.Classifications[0];
         classification.Id.Should().Be(product.Classifications.First().Taxon!.Id);
-        classification.Name.Should().Be("Clothing");
+        classification.Name.Should().Be("clothing");
         classification.Slug.Should().Be("clothing");
     }
 
@@ -152,7 +152,7 @@ public class ProductStoreMappingTests
         response.AvailableOn.Should().Be(product.AvailableOn);
         response.VariantsCount.Should().Be(2);
         response.Classifications.Should().HaveCount(1);
-        response.Classifications[0].Name.Should().Be("Clothing");
+        response.Classifications[0].Name.Should().Be("clothing");
     }
 
     [Fact(DisplayName = "MapToStoreListItem: Should handle missing master variant")]
@@ -230,11 +230,14 @@ public class ProductStoreMappingTests
         var optionValueResult = OptionValueMethod.Create(optionType.Id, "Red", "Red");
         optionValueResult.IsSuccess.Should().BeTrue();
         var optionValue = optionValueResult.Value;
+        optionValue.OptionType = optionType;
         optionType.OptionValues.Add(optionValue);
 
         var ovdResult = OptionValueVariantMethod.Create(variant.Id, optionValue.Id);
         ovdResult.IsSuccess.Should().BeTrue();
-        variant.OptionValueVariants.Add(ovdResult.Value);
+        var ovd = ovdResult.Value;
+        ovd.OptionValue = optionValue;
+        variant.OptionValueVariants.Add(ovd);
 
         return product;
     }

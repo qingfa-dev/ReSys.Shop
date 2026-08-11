@@ -28,7 +28,7 @@ public static partial class UpdateStockLocation
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
-                return StockLocationResult.Failure.NotFound;
+                return StockLocationResult.Errors.NotFound;
 
             // Update: Map the request to update the entity.
             var result = request.MapToDomain(entity);

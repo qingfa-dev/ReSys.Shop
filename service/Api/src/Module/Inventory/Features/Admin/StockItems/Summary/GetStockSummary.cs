@@ -1,4 +1,4 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Admin.StockItems.Shared.Models;
 

@@ -1,4 +1,4 @@
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Services;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
@@ -12,7 +12,7 @@ public class UpdateOrderStatusTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<UpdateOrderStatus.CommandHandler>> _loggerMock;
-    private readonly Mock<IStockQuantityService> _stockCheckerMock;
+    private readonly Mock<IStockItemService> _stockItemMock;
     private readonly UpdateOrderStatus.CommandHandler _handler;
 
     public UpdateOrderStatusTests()
@@ -29,9 +29,9 @@ public class UpdateOrderStatusTests : IDisposable
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
         _loggerMock = new Mock<ILogger<UpdateOrderStatus.CommandHandler>>();
-        _stockCheckerMock = new Mock<IStockQuantityService>();
+        _stockItemMock = new Mock<IStockItemService>();
 
-        _handler = new UpdateOrderStatus.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _stockCheckerMock.Object);
+        _handler = new UpdateOrderStatus.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _stockItemMock.Object);
     }
 
     public void Dispose()

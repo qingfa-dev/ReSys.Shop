@@ -1,7 +1,9 @@
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Services;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
@@ -54,7 +56,7 @@ public class CancelOrderStockRestoreTests : IDisposable
             .ReturnsAsync(Result.Ok());
 
         _handler = new CancelOrderHandler.CommandHandler(
-            _dbContext, new StockQuantityService(_dbContext), _senderMock.Object,
+            _dbContext, new StockItemService(_dbContext, NullLogger<StockItemService>.Instance), _senderMock.Object,
             _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
 

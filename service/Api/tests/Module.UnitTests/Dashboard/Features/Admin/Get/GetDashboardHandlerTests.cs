@@ -4,8 +4,8 @@ using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons;
 using Module.Dashboard.Features.Admin.Get;
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Ordering.Domain.Orders;
 
 namespace Module.UnitTests.Dashboard.Features.Admin.Get;

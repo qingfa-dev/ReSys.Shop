@@ -15,7 +15,7 @@ public class StockLocationMethodDeletionTests
         var result = location.SoftDelete();
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(StockLocationResult.Failure.CannotDeleteActive);
+        result.Errors[0].Should().Be(StockLocationResult.Errors.CannotDeleteActive);
         location.IsDeleted.Should().BeFalse();
     }
 

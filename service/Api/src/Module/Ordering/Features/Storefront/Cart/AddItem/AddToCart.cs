@@ -1,7 +1,9 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 
-using Module.Inventory.Features.Storefront.ReserveCartStock;
+using Module.Inventory.Features.Storefront.Shared.Models;
+using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
+using Module.Inventory.Features.Shared;
 using Shared.Application.Systems.SystemInfos;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
@@ -67,12 +69,13 @@ public static partial class AddToCart
 
             // Reserve: Delegate stock check + location picking to Inventory module via Shared contract.
             var reserveResult = await sender.Send(
-                new ReserveCartStockCommand
+                new ReserveCartStock.Command(
+                new ReserveCartStock.Request
                 {
                     CartId = cart.Id,
                     LineItems = [new ReserveLineItem { VariantId = request.VariantId, Quantity = request.Quantity }],
-                    TtlMinutes = Module.Inventory.Features.Shared.InventoryFeature.Storefront.Cart.TtlMinutesDefault
-                },
+                    TtlMinutes = InventoryFeature.Storefront.StockReservations.TtlMinutesDefault
+                }),
                 cancellationToken);
 
             if (reserveResult.IsFailure)
