@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/shared/api/client'
+import { get, post, patch, del } from '@/shared/api/client'
 import { AddressSchema } from '../validations/address'
 import { PagedResultSchema } from '@/shared/validations/result'
 import type { Result, PagedResult } from '@/shared/types'
@@ -37,7 +37,7 @@ export class AddressApi {
 
   // Call: Update an existing address by id
   static async updateAddress(id: string, req: AddressInput): Promise<Result<Address>> {
-    const result = await put<Result<Address>>(`${this.BASE}/${id}`, req)
+    const result = await patch<Result<Address>>(`${this.BASE}/${id}`, req)
     if (!result.isSuccess) return result
     result.value = AddressSchema.parse(result.value)
     return result

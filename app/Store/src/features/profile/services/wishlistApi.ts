@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/shared/api/client'
+import { get, post, patch, del } from '@/shared/api/client'
 import { WishlistListItemSchema, WishlistDetailSchema } from '../validations/wishlist'
 import { PagedResultSchema } from '@/shared/validations/result'
 import type { Result, PagedResult } from '@/shared/types'
@@ -37,7 +37,7 @@ export class WishlistApi {
 
   // Call: Update wishlist metadata (name, privacy, default flag)
   static async updateWishlist(id: string, req: UpdateWishlistRequest): Promise<Result<WishlistListItem>> {
-    const result = await put<Result<WishlistListItem>>(`${this.BASE}/${id}`, req)
+    const result = await patch<Result<WishlistListItem>>(`${this.BASE}/${id}`, req)
     if (!result.isSuccess) return result
     result.value = WishlistListItemSchema.parse(result.value)
     return result

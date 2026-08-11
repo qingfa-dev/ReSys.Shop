@@ -1,4 +1,4 @@
-import { get, put } from '@/shared/api/client'
+import { get, put, patch } from '@/shared/api/client'
 import { ProfileDetailSchema } from '../validations/profile'
 import type { Result } from '@/shared/types'
 import type { ProfileDetail, UpdateProfileRequest } from '../types'
@@ -17,7 +17,7 @@ export class ProfileApi {
 
   // Call: Submit profile changes to profile API
   static async updateProfile(req: UpdateProfileRequest): Promise<Result<ProfileDetail>> {
-    const result = await put<Result<ProfileDetail>>(this.BASE, req)
+    const result = await patch<Result<ProfileDetail>>(this.BASE, req)
     if (!result.isSuccess) return result
     // Transform: Validate updated profile response
     result.value = ProfileDetailSchema.parse(result.value)
