@@ -35,8 +35,6 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         if (users.Count == 0 || variants.Count == 0 || addresses.Count == 0 || shippingMethod is null || creditCard is null)
             return Result.Ok();
 
-        var storeId = Guid.Empty;
-
         var admin = users.FirstOrDefault(u => u.Email == "admin@resys.shop");
         var user1 = users.FirstOrDefault(u => u.Email == "user1@resys.shop");
         var user2 = users.FirstOrDefault(u => u.Email == "user2@resys.shop");
@@ -44,9 +42,9 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
             return Result.Ok();
 
         // Create: Seed orders for admin and test users with randomized line items and full payment lifecycle
-        await CreateOrder(admin, "DICKY", "DY", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
-        await CreateOrder(user1, "USER1", "U1", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
-        await CreateOrder(user2, "USER2", "U2", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
+        await CreateOrder(admin, "DICKY", "DY", shippingMethod, creditCard, addresses, variants, cancellationToken);
+        await CreateOrder(user1, "USER1", "U1", shippingMethod, creditCard, addresses, variants, cancellationToken);
+        await CreateOrder(user2, "USER2", "U2", shippingMethod, creditCard, addresses, variants, cancellationToken);
 
         await SaveChangesWithIdempotencyAsync(cancellationToken);
 
@@ -59,7 +57,6 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         string initials,
         ShippingMethod shippingMethod,
         PaymentMethod creditCard,
-        Guid storeId,
         List<Address> addresses,
         List<Variant> variants,
         CancellationToken ct)
@@ -72,7 +69,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         if (address is null)
             return;
 
-        var orderResult = OrderMethod.Create(OrderConstant.Defaults.Currency, user.Id, storeId);
+        var orderResult = OrderMethod.Create(OrderConstant.Defaults.Currency, user.Id);
         var order = orderResult.Value;
         order.BillAddressId = address.Id;
         order.ShipAddressId = address.Id;

@@ -20,7 +20,6 @@ public static partial class CreateCart
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var userId = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : (Guid?)null;
-            var storeId = Guid.Empty;
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             // Check: Return existing draft cart if one already exists — avoids duplicates.
@@ -39,7 +38,7 @@ public static partial class CreateCart
             }
 
             // Create: New draft cart with default currency and session tracking.
-            var createResult = OrderMethod.Create(OrderConstant.Defaults.Currency, userId, storeId, sessionId: sessionId);
+            var createResult = OrderMethod.Create(OrderConstant.Defaults.Currency, userId, sessionId: sessionId);
             if (createResult.IsFailure) return (Result<Response>)createResult.Errors;
 
             var order = createResult.Value;

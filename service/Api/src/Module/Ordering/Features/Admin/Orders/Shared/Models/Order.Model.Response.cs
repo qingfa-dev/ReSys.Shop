@@ -17,7 +17,6 @@ public record OrderDetailResponse : OrderParameters
     public string? PaymentState { get; init; }
     public string? ShipmentState { get; init; }
     public Guid? UserId { get; init; }
-    public Guid? StoreId { get; init; }
     public int ItemCount { get; init; }
     public Guid? ApprovedById { get; init; }
     public DateTimeOffset? ApprovedAtUtc { get; init; }

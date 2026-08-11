@@ -10,13 +10,11 @@ public class OrderMethodTests
     [Fact]
     public void Create_WithValidParams_ShouldReturnOrder()
     {
-        var storeId = Guid.NewGuid();
-        var result = OrderMethod.Create("USD", Guid.NewGuid(), storeId);
+        var result = OrderMethod.Create("USD", Guid.NewGuid());
         var order = result.Value;
         result.IsSuccess.Should().BeTrue();
         order.Currency.Should().Be("USD");
         order.Status.Should().Be(OrderStatus.Draft);
-        order.StoreId.Should().Be(storeId);
         order.ItemTotal.Should().Be(0);
         order.Total.Should().Be(0);
     }
@@ -24,7 +22,7 @@ public class OrderMethodTests
     [Fact]
     public void Finalize_WithItems_ShouldSucceed()
     {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        var order = OrderMethod.Create("USD", null).Value;
         order.LineItems.Add(new() { Quantity = 1, Price = 10 });
         var r = order.Finalize();
         r.IsSuccess.Should().BeTrue();

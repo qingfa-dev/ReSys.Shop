@@ -37,7 +37,7 @@ public class ResumeOrderTests : IDisposable
     [Fact(DisplayName = "Handler: Should resume a canceled order")]
     public async Task Handle_ShouldResumeCanceledOrder()
     {
-        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         _dbContext.Set<Order>().Add(order);

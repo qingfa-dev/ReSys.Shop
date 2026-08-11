@@ -13,20 +13,18 @@ public class OrderMappingTests
     public void ToDomain_ShouldMapRequestToEntity()
     {
         var userId = Guid.NewGuid();
-        var storeId = Guid.NewGuid();
         var request = new OrderRequest
         {
             Currency = "USD",
         };
 
-        var result = request.MapToDomain(userId, storeId);
+        var result = request.MapToDomain(userId);
         var order = result.Value;
 
         result.IsSuccess.Should().BeTrue();
         order.Should().NotBeNull();
         order.Currency.Should().Be(request.Currency);
         order.UserId.Should().Be(userId);
-        order.StoreId.Should().Be(storeId);
         order.Status.Should().Be(OrderStatus.Draft);
     }
 
@@ -57,7 +55,6 @@ public class OrderMappingTests
         response.PaymentState.Should().Be(order.PaymentState);
         response.ShipmentState.Should().Be(order.ShipmentState);
         response.UserId.Should().Be(order.UserId);
-        response.StoreId.Should().Be(order.StoreId);
         response.ItemCount.Should().Be(order.ItemCount);
         response.ApprovedById.Should().Be(order.ApprovedById);
         response.ApprovedAtUtc.Should().Be(order.ApprovedAtUtc);
@@ -134,8 +131,7 @@ public class OrderMappingTests
     {
         var order = OrderMethod.Create(
             currency: "USD",
-            userId: Guid.NewGuid(),
-            storeId: Guid.NewGuid()).Value;
+            userId: Guid.NewGuid()).Value;
         order.Email = "test@example.com";
         order.SpecialInstructions = "Leave at door";
         order.BillAddressId = Guid.NewGuid();

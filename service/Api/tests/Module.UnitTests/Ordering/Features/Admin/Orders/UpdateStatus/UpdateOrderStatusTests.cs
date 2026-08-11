@@ -44,7 +44,7 @@ public class UpdateOrderStatusTests : IDisposable
     public async Task Handle_ShouldPlaceOrder_WhenDraftToPlaced()
     {
         // Arrange
-        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid()).Value;
         order.LineItems.Add(new() { Id = Guid.NewGuid(), Quantity = 1, Price = 10, VariantId = Guid.NewGuid(), OrderId = order.Id });
         order.BillAddressId = Guid.NewGuid();
         order.ShipAddressId = Guid.NewGuid();
@@ -73,7 +73,7 @@ public class UpdateOrderStatusTests : IDisposable
     public async Task Handle_ShouldCancelOrder_WhenPlaced()
     {
         // Arrange: Create a placed order
-        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         _dbContext.Set<Order>().Add(order);

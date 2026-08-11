@@ -68,7 +68,6 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.BillAddressId);
         builder.Property(x => x.ShipAddressId);
         builder.Property(x => x.UserId);
-        builder.Property(x => x.StoreId);
         builder.Property(x => x.ShippingMethodId);
         #endregion
 
