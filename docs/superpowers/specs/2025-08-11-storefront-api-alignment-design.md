@@ -324,7 +324,14 @@ GET    /storefront/catalog/option-types/values          Option value list
 
 `POST /products/images/inferences` removed — it was a legacy debug endpoint listing ML models available for image inference. Not needed in production.
 
-**Stock embedding:** `GetStorefrontProducts` and `GetProductDetail` handlers already call `IStockItemService.GetStockAvailabilityAsync` internally. The response DTO gains `inStock`, `availableQuantity`, `backorderable` fields at both product and variant level. The store SPA drops its separate `checkAvailability()` API call from `useAvailability` composable — the product list/detail responses already carry stock status.
+**Stock embedding — both list and detail endpoints get stock fields:**
+
+| Endpoint | Stock Fields Added |
+|----------|--------------------|
+| `GET /products` (list) | Each `StoreProductListItemResponse` gains `inStock: bool`, `availableQuantity: int`, `backorderable: bool` |
+| `GET /products/{id}` (detail) | Each variant in `StoreProductDetailResponse.variants[]` gains `inStock: bool`, `availableQuantity: int`, `backorderable: bool` |
+
+Both `GetStorefrontProducts` and `GetProductDetail` handlers already call `IStockItemService.GetStockAvailabilityAsync` internally. The mapping only needs to populate the DTO fields — no new queries. The store SPA drops its separate `checkAvailability()` API call entirely: `useAvailability` composable and `availabilityApi.ts` removed. The `useProductDetail` composable and `ProductDetailView` read stock from the product variant DTO directly.
 
 #### Customer Account — 19 routes (3 method changes)
 
@@ -491,10 +498,23 @@ Storefront/
 ### 5.3 Add CartTokenMiddleware
 
 File: `Shared/Security/Cart/CartTokenMiddleware.cs`
-- Reads `X-Cart-Token` header
-- Sets `HttpContext.Items["CartToken"]` as string
-- Registered in `Program.cs` before auth middleware
-- No-op if header absent (auth users don't need cart token)
+
+```csharp
+// CartTokenMiddleware — extract X-Cart-Token header into HttpContext.Items
+// Runs before auth middleware so both guest (cart token) and auth (JWT) requests
+// can access the cart token from Items["CartToken"].
+```
+
+**Auth flow:**
+- Guest users: `X-Cart-Token` header is the only identifier. Handlers use it to look up the cart.
+- Authenticated users: JWT Bearer token identifies the user. Cart linked by `UserId`.
+- Mixed: Auth token present + `X-Cart-Token` for associate flow (guest → user). Middleware sets Items, handlers decide which to use.
+- Cart handlers check `HttpContext.Items["CartToken"]` first; if null and user is authenticated, look up cart by `UserId`.
+
+Registration in `Program.cs`:
+```csharp
+app.UseMiddleware<CartTokenMiddleware>(); // Before UseAuthentication, after UseRouting
+```
 
 ### 5.4 Cross-Module Reference Fixes
 
@@ -504,7 +524,7 @@ File: `Shared/Security/Cart/CartTokenMiddleware.cs`
 | `Ordering.CancelOrder` uses `OrderInventoryService` | Replace with MediatR command `ReleaseCartStockReservations.Command` via `ISender` |
 | `Ordering.CancelOrderAdmin` uses `OrderInventoryService` | Same as above |
 | `Ordering.UpdateOrderStatus` uses `OrderInventoryService` | Same as above |
-| `Billing.GetPaymentStatus` references `Module.Ordering.Domain.Orders.Order` | Query order existence via MediatR `GetOrderExistence.Query` or accept that the Domain reference is unavoidable (same assembly?) — verify |
+| `Billing.GetPaymentStatus` references `Module.Ordering.Domain.Orders.Order` | Replace direct EF query with MediatR `GetCustomerOrder.Query` via `ISender` — reuses existing storefront Ordering handler, eliminates namespace import |
 
 ### 5.5 Implementation Phases
 
@@ -536,13 +556,15 @@ File: `Shared/Security/Cart/CartTokenMiddleware.cs`
 **Phase 4: Cross-Module Reference Fixes**
 - Replace `IStockItemService` DI in Ordering handlers with MediatR queries
 - Remove `OrderInventoryService` — replace with MediatR commands
-- Verify Billing.Order domain reference
-- Remove `Module.Inventory.Services` and `Module.Inventory.Domain` imports from Ordering
+- Replace `GetPaymentStatus` handler's direct `Order` entity query with MediatR `GetCustomerOrder.Query`
+- Remove all `using Module.Inventory.*` and `using Module.Ordering.*` imports from cross-module handlers (keep only MediatR-dispatched commands/queries)
 
-**Phase 5: Catalog Stock Embedding**
-- Add stock fields to `StoreVariant.Model.cs` DTO
-- Update `Store.Variant.Mapping.cs` to include stock from `IStockItemService.GetStockAvailabilityAsync`
-- Update Store SPA: remove `useAvailability` separate API call, read from product response
+**Phase 5: Catalog Stock Embedding — Both List and Detail**
+- Add `inStock`, `availableQuantity`, `backorderable` fields to `StoreVariant.Model.cs` DTO
+- Update `Store.Variant.Mapping.cs` — populate stock fields from `IStockItemService.GetStockAvailabilityAsync` for both list and detail mappings
+- Verify both `GetStorefrontProducts` (list) and `GetProductDetail` (detail) responses include stock per variant
+- Update Store SPA: remove `useAvailability` composable and `availabilityApi.ts`; `ProductDetailView` reads stock from variant DTO
+- Run catalog endpoint tests to verify response shape
 
 **Phase 6: Customer Account Method Fixes**
 - Change `PUT /customer` → `PATCH /storefront/customer`
@@ -550,12 +572,26 @@ File: `Shared/Security/Cart/CartTokenMiddleware.cs`
 - Change `PUT /customer/wishlists/{id}` → `PATCH /storefront/customer/wishlists/{id}`
 - Review `GET /customer/all` for removal or move to admin
 
+**Decision on `GET /customer/all`:** This endpoint exposes all customers without admin permission. The route lives under `ProfileFeature.Storefront.cs` but queries unfiltered customers — a security concern. Investigation needed: if the handler requires admin auth, the route should be in `ProfileFeature.Admin.cs`. If not, it should be removed. Marked for audit in Phase 6.
+
 **Phase 7: Store SPA Alignment**
-- Update all frontend API service calls to new routes
-- Update types/interfaces to match new DTO shapes
-- Remove `availabilityApi.ts` and `useAvailability.ts` composable (embedded in product)
-- Update `checkoutApi.ts` routes for cart/payment/webhook changes
-- Update `cartApi.ts` routes for cart changes
+
+Backend changes are complete. Now update all frontend API consumers:
+
+| Frontend File | Change |
+|---------------|--------|
+| `app/Store/src/features/ordering/services/cartApi.ts` | Update `BASE` from `/api/storefront/ordering/cart` to `/api/storefront/cart` |
+| `app/Store/src/features/ordering/services/checkoutApi.ts` | Update routes: `ordering/cart` → `cart`, `ordering/cart/checkout` → `cart/checkout`, `ordering/cart/validate` → `cart/checkout` (GET), `ordering/cart/shipping-rate` → `cart/shipping-rate`, `billing/payments/create-intent` → `cart/payment/intent` |
+| `app/Store/src/features/ordering/services/orderApi.ts` | Update `BASE` from `/api/storefront/ordering/orders` to `/api/storefront/orders` |
+| `app/Store/src/features/inventory/services/availabilityApi.ts` | Remove file — availability now embedded in product response |
+| `app/Store/src/features/inventory/services/cartReservationApi.ts` | Update `reserveStock` route to `POST /api/storefront/inventory/stock-reservations`. Update `getCartReservations` route to `GET /api/storefront/inventory/stock-reservations`. Update `releaseReservation` route to `DELETE /api/storefront/inventory/stock-reservations/{id}` |
+| `app/Store/src/features/inventory/composables/useAvailability.ts` | Remove file — replaced by stock fields in product response |
+| `app/Store/src/features/payment/services/paymentApi.ts` | Update `confirmPayment` route to `POST /cart/payment/intent/{id}/confirm` |
+| `app/Store/src/features/shipping/services/shippingApi.ts` | Calculate method changed from POST to GET |
+| `app/Store/src/features/catalog/types/product.ts` | Add `availableQuantity: number`, `backorderable: boolean` to `StoreVariantStockInfo` |
+| `app/Store/src/features/catalog/composables/useProductDetail.ts` | Read stock from product/variant DTO; remove `useAvailability` import |
+| `app/Store/src/features/catalog/views/ProductDetailView.vue` | Remove `useAvailability` usage; display variant-level `availableQuantity` and `backorderable` from product response |
+| Verification | Run `pnpm run test:unit && pnpm run lint` |
 
 ---
 
