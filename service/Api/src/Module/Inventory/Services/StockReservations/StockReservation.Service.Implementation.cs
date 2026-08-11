@@ -193,6 +193,26 @@ internal sealed partial class StockReservationService(
         return Result.Ok();
     }
 
+    public async Task<Result> ReleaseReservationAsync(Guid reservationId, CancellationToken ct = default)
+    {
+        var reservation = await dbContext.Set<StockReservation>()
+            .FirstOrDefaultAsync(r => r.Id == reservationId, ct);
+
+        if (reservation is null)
+            return StockReservationResult.Errors.NotFound(reservationId);
+
+        if (reservation.State != ReservationState.Reserved)
+            return StockReservationResult.Errors.InvalidStateTransition;
+
+        var releaseResult = reservation.Release();
+        if (releaseResult.IsFailure)
+            return releaseResult.Errors;
+
+        reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        await dbContext.SaveChangesAsync(ct);
+        return Result.Ok();
+    }
+
     public async Task<Result<List<(StockReservation Reservation, int RemainingSeconds)>>> GetReservationsForCartAsync(
         string cartToken, CancellationToken ct = default)
     {
