@@ -15,7 +15,7 @@ export function getPaymentMethods(params: QueryingParameters = {}): Promise<Page
 
 // Call: Storefront payment API - confirm payment by ID (no request body)
 export function confirmPayment(paymentId: string): Promise<Result<ConfirmPaymentResponse>> {
-  return post<Result<ConfirmPaymentResponse>>(`/api/storefront/billing/payments/confirm/${paymentId}`)
+  return post<Result<ConfirmPaymentResponse>>(`/api/storefront/cart/payment/intent/${paymentId}/confirm`)
 }
 
 // Call: Storefront payment API - create Stripe SetupIntent for saving payment method

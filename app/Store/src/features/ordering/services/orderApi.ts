@@ -1,4 +1,4 @@
-import { get, put } from '@/shared/api/client'
+import { get, post } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 import { OrderListItemSchema, OrderDetailSchema, OrderTrackingResponseSchema } from '../validations/order'
 import { PagedResultSchema } from '@/shared/validations/result'
@@ -9,7 +9,7 @@ const orderListSchema = PagedResultSchema(OrderListItemSchema)
 
 // Service: Order API client for list, detail, tracking, and cancellation.
 export class OrderApi {
-  private static readonly BASE = '/api/storefront/ordering/orders'
+  private static readonly BASE = '/api/storefront/orders'
 
   // Call: Fetch paginated order list — validates both items and paged envelope.
   static async getOrders(params: Record<string, unknown>): Promise<PagedResult<OrderListItem>> {
@@ -35,6 +35,6 @@ export class OrderApi {
   }
 
   static async cancelOrder(id: string): Promise<Result<null>> {
-    return await put<Result<null>>(`${this.BASE}/${id}/cancel`)
+    return await post<Result<null>>(`${this.BASE}/${id}/cancel`)
   }
 }

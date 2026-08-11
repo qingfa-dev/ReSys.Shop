@@ -15,14 +15,22 @@ export interface ShippingMethod {
   position: number
 }
 
-// Contract: POST api/storefront/shipping/calculate — cost computation request.
-// Backend computes cost from order line-item weights; both IDs are required.
+// Contract: GET api/storefront/shipping/calculate — cost computation request.
+// Backend computes cost from order line-item weights; both IDs are query params.
 export interface CalculateShippingRequest {
   orderId: string
   shippingMethodId: string
 }
 
-// Contract: POST api/storefront/shipping/calculate — cost computation response.
+// Contract: GET api/storefront/shipping/calculate — cost computation response.
+export interface ShippingCost {
+  shippingMethodId: string
+  methodName: string
+  cost: number
+  currency: string
+  isFreeShipping: boolean
+}
+
 export interface ShippingCalculation {
   shippingMethodId: string
   methodName: string
