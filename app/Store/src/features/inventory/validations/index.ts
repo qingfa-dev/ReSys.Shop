@@ -1,1 +1,1 @@
-export { AvailabilityEntrySchema, ReserveStockRequestSchema, CartReservationSchema, CartReservationStatusSchema } from './availability'
+export { ReserveStockRequestSchema, CartReservationSchema, CartReservationStatusSchema } from './availability'

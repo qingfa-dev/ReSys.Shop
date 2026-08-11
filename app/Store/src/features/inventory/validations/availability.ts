@@ -1,16 +1,5 @@
 import { z } from 'zod'
 
-// Validate: Per-location stock availability shape matches storefront DTO.
-export const AvailabilityEntrySchema = z.object({
-  stockLocationId: z.string(),
-  locationName: z.string(),
-  countOnHand: z.number().int(),
-  reservedCount: z.number().int(),
-  availableCount: z.number().int(),
-  backorderable: z.boolean(),
-  available: z.boolean(),
-})
-
 // Validate: Stock reservation request — quantity must be a positive integer.
 export const ReserveStockRequestSchema = z.object({
   variantId: z.string(),
