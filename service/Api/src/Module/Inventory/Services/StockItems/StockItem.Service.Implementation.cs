@@ -244,6 +244,59 @@ internal sealed partial class StockItemService(
         }).ToList();
     }
 
+    public async Task<Result<VariantStockAvailability>> GetAvailabilityForCartAsync(
+        Guid variantId, string? cartToken, CancellationToken ct = default)
+    {
+        var stockItems = await dbContext.Set<StockItem>()
+            .Where(si => si.VariantId == variantId)
+            .ToListAsync(ct);
+
+        var locations = new List<LocationStockSnapshot>();
+        var totalOnHand = 0;
+        var totalReserved = 0;
+        var backorderable = false;
+
+        foreach (var item in stockItems)
+        {
+            var reservedQuery = dbContext.Set<StockReservation>()
+                .Where(r => r.VariantId == variantId
+                            && r.StockLocationId == item.StockLocationId
+                            && r.State == ReservationState.Reserved
+                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow);
+
+            // Exclude this cart's own reservations from the "reserved" count
+            if (!string.IsNullOrWhiteSpace(cartToken))
+                reservedQuery = reservedQuery.Where(r => r.CartToken != cartToken);
+
+            var reserved = await reservedQuery.SumAsync(r => r.Quantity, ct);
+
+            totalOnHand += item.CountOnHand;
+            totalReserved += reserved;
+            if (item.Backorderable) backorderable = true;
+
+            locations.Add(new LocationStockSnapshot
+            {
+                StockLocationId = item.StockLocationId,
+                StockLocationName = string.Empty,
+                CountOnHand = item.CountOnHand,
+                ReservedCount = reserved,
+                AvailableCount = item.CountOnHand - reserved,
+                Backorderable = item.Backorderable,
+                Active = item.CountOnHand - reserved > 0 || item.Backorderable
+            });
+        }
+
+        return new VariantStockAvailability
+        {
+            VariantId = variantId,
+            TotalOnHand = totalOnHand,
+            TotalReserved = totalReserved,
+            TotalAvailable = totalOnHand - totalReserved,
+            Backorderable = backorderable,
+            Locations = locations
+        };
+    }
+
     public async Task<Result<List<VariantStockSummary>>> GetStockSummaryAsync(CancellationToken ct = default)
     {
         var now = DateTimeOffset.UtcNow;

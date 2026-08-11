@@ -10,5 +10,7 @@ public interface IStockItemService
     Task<Result<bool>> IsAvailableAsync(Guid variantId, int quantity, Guid? stockLocationId = null, CancellationToken ct = default);
     Task<Result<StockSnapshot>> GetSnapshotForVariantAsync(Guid variantId, CancellationToken ct = default);
     Task<Result<IReadOnlyList<VariantStockAvailability>>> GetStockAvailabilityAsync(IEnumerable<Guid> variantIds, CancellationToken ct = default);
+    Task<Result<VariantStockAvailability>> GetAvailabilityForCartAsync(
+        Guid variantId, string? cartToken, CancellationToken ct = default);
     Task<Result<List<VariantStockSummary>>> GetStockSummaryAsync(CancellationToken ct = default);
 }
