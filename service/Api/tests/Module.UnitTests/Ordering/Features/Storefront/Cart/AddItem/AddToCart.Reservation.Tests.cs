@@ -2,10 +2,10 @@ using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
 
-using Module.Inventory.Features.Storefront.StockReservations.ReserveCart;
 using Shared.Application.Systems.SystemInfos;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
@@ -16,7 +16,7 @@ namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
 public class AddToCartReservationTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ISender> _senderMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly Mock<ILogger<AddToCart.CommandHandler>> _loggerMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ISystemInfo> _systemInfoMock;
@@ -30,20 +30,20 @@ public class AddToCartReservationTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Order).Assembly, typeof(StockItem).Assembly, typeof(Variant).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _senderMock = new Mock<ISender>();
+        _reservationServiceMock = new Mock<IStockReservationService>();
         _loggerMock = new Mock<ILogger<AddToCart.CommandHandler>>();
         _currentUserMock = new Mock<ICurrentUser>();
         _systemInfoMock = new Mock<ISystemInfo>();
         _systemInfoMock.Setup(x => x.DefaultCurrency).Returns("USD");
 
         _handler = new AddToCart.CommandHandler(
-            _dbContext, _loggerMock.Object, _currentUserMock.Object, _systemInfoMock.Object, _senderMock.Object);
+            _dbContext, _loggerMock.Object, _currentUserMock.Object, _systemInfoMock.Object, _reservationServiceMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
 
-    [Fact(DisplayName = "AddToCart: Dispatches ReserveCartStock when stock location exists")]
-    public async Task Handle_ShouldDispatchReserveCartStock_WhenStockLocationExists()
+    [Fact(DisplayName = "AddToCart: Reserves via IStockReservationService when stock location exists")]
+    public async Task Handle_ShouldReserveViaService_WhenStockLocationExists()
     {
         var variantId = Guid.NewGuid();
         var locationId = Guid.NewGuid();
@@ -64,14 +64,11 @@ public class AddToCartReservationTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("test");
         _systemInfoMock.Setup(x => x.DefaultCurrency).Returns("USD");
 
-        _senderMock
-            .Setup(x => x.Send(
-                It.Is<ReserveCartStock.Command>(c => c.Request.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response
-            {
-                ReservationIds = [Guid.NewGuid()]
-            }));
+        _reservationServiceMock
+            .Setup(x => x.ReserveForVariantAsync(
+                variantId, 1, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(StockReservationMethod.Reserve(
+                variantId, 1, locationId, null, 15, cartToken: "test"));
 
         var request = new AddToCart.Request { VariantId = variantId, Quantity = 1 };
 
@@ -79,10 +76,9 @@ public class AddToCartReservationTests : IDisposable
             new AddToCart.Command(request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        _senderMock.Verify(
-            x => x.Send(
-                It.Is<ReserveCartStock.Command>(c => c.Request.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
-                It.IsAny<CancellationToken>()),
+        _reservationServiceMock.Verify(
+            x => x.ReserveForVariantAsync(
+                variantId, 1, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -108,10 +104,9 @@ public class AddToCartReservationTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("test");
         _systemInfoMock.Setup(x => x.DefaultCurrency).Returns("USD");
 
-        _senderMock
-            .Setup(x => x.Send(
-                It.Is<ReserveCartStock.Command>(c => c.Request.LineItems.Any(li => li.VariantId == variantId && li.Quantity == 1)),
-                It.IsAny<CancellationToken>()))
+        _reservationServiceMock
+            .Setup(x => x.ReserveForVariantAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(StockReservationResult.Errors.InsufficientStock);
 
         var request = new AddToCart.Request { VariantId = variantId, Quantity = 1 };

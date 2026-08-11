@@ -21,7 +21,6 @@ public static partial class AddToCart
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
         ISystemInfo systemInfo,
-        ISender sender,
         IStockReservationService stockReservationService)
         : ICommandHandler<Command, Response>
     {
