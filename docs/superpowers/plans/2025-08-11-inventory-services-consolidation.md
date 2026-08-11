@@ -179,7 +179,7 @@ Task<Result> ReleaseReservationAsync(Guid reservationId, CancellationToken ct = 
 
 - [ ] **Step 2: Add implementation**
 
-In `StockReservation.Service.Implementation.cs`:
+In `StockReservation.Service.Implementation.cs`. **NOTE:** `StockReservationResult.Errors.NotFound` takes a `Guid` argument (`NotFound(reservationId)`), and `InvalidStateTransition` is a parameterless property (not a method) — use them accordingly:
 
 ```csharp
 public async Task<Result> ReleaseReservationAsync(Guid reservationId, CancellationToken ct = default)
@@ -188,11 +188,10 @@ public async Task<Result> ReleaseReservationAsync(Guid reservationId, Cancellati
         .FirstOrDefaultAsync(r => r.Id == reservationId, ct);
 
     if (reservation is null)
-        return StockReservationResult.Errors.NotFound;
+        return StockReservationResult.Errors.NotFound(reservationId);
 
     if (reservation.State != ReservationState.Reserved)
-        return StockReservationResult.Errors.InvalidStateTransition(
-            reservation.State, ReservationState.Released);
+        return StockReservationResult.Errors.InvalidStateTransition;
 
     var releaseResult = reservation.Release();
     if (releaseResult.IsFailure)
@@ -320,11 +319,11 @@ excluded from the reserved count. Used by GET /inventory/stock-items/{id}/availa
 
 **Files:**
 - Create: `service/Api/src/Shared/Security/Cart/CartTokenMiddleware.cs`
-- Modify: `service/Api/src/Api/Program.cs`
+- Modify: `service/Api/src/Shared/Security/Security.Extension.cs`
 
 **Interfaces:**
 - Produces: ASP.NET middleware setting `HttpContext.Items["CartToken"]` = string | null
-- Registration: `app.UseMiddleware<CartTokenMiddleware>()` after `UseRouting()`, before `UseAuthentication()`
+- Registration: inside `SecurityExtension.UseSecurity()`, BEFORE `app.UseApplicationAuthentication()`
 
 - [ ] **Step 1: Create middleware**
 
@@ -345,12 +344,20 @@ public sealed class CartTokenMiddleware(RequestDelegate next)
 }
 ```
 
-- [ ] **Step 2: Register in Program.cs**
+- [ ] **Step 2: Register in SecurityExtension.UseSecurity()**
 
-Find `app.UseAuthentication()` in `Program.cs`. Add before it:
+**NOTE (pre-flight review):** `Program.cs` does NOT call `app.UseAuthentication()` inline — the pipeline is abstracted into `UseSecurity()` in `service/Api/src/Shared/Security/Security.Extension.cs`, which calls `UseApplicationAuthentication()` → `UseAuthentication()`. Register the middleware there, before `UseApplicationAuthentication()`:
 
 ```csharp
-app.UseMiddleware<Shared.Security.Cart.CartTokenMiddleware>();
+public static WebApplication UseSecurity(this WebApplication app)
+{
+    app.UseSecurityHeaders();
+    app.UseSecurityCors();
+    app.UseMiddleware<Shared.Security.Cart.CartTokenMiddleware>();
+    app.UseApplicationAuthentication();
+    app.UseApplicationAuthorization();
+    return app;
+}
 ```
 
 - [ ] **Step 3: Build**
@@ -362,12 +369,12 @@ dotnet build
 - [ ] **Step 4: Commit**
 
 ```bash
-git add service/Api/src/Shared/Security/Cart/ service/Api/src/Api/Program.cs
+git add service/Api/src/Shared/Security/Cart/ service/Api/src/Shared/Security/Security.Extension.cs
 git commit -m "feat(security): add CartTokenMiddleware
 
 Extracts X-Cart-Token header into HttpContext.Items['CartToken'].
-Registered before UseAuthentication so both guest (cart token) and
-auth (JWT) requests can access the cart identifier."
+Registered in UseSecurity before UseAuthentication so both guest
+(cart token) and auth (JWT) requests can access the cart identifier."
 ```
 
 ### Task 7: Update Ordering.AddToCart to Use IStockReservationService
@@ -413,6 +420,8 @@ Add constructor parameter:
 IStockReservationService stockReservationService,
 ```
 
+**Also remove the now-dead `ISender sender` constructor parameter** — the `sender.Send(new ReserveCartStock.Command(...))` call was the handler's ONLY use of `ISender`. The handler no longer dispatches any MediatR command. Remove `ISender sender,` from the constructor (and verify no other `sender.` usage remains in the file).
+
 Replace lines 70-82 (the `sender.Send(new ReserveCartStock.Command(...))` block):
 
 ```csharp
@@ -434,7 +443,39 @@ if (reserveResult.IsFailure)
 
 The cart ID is used as cart token here since the handler creates/uses a cart entity with `Id`. The `IHttpContextAccessor` pattern (reading from `HttpContext.Items["CartToken"]`) is for endpoints that receive the token from the browser header. Internal handlers that already have the cart entity use the cart ID directly.
 
-- [ ] **Step 2: Build**
+- [ ] **Step 2: Update AddToCart unit tests (plan amendment — pre-flight review found the deleted CQRS types are referenced by 7 test files)**
+
+Three test files mock/verify `sender.Send(new ReserveCartStock.Command(...))` from AddToCart. They must be updated to mock `IStockReservationService.ReserveForVariantAsync` instead:
+
+- `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/AddItem/AddToCartTests.cs`
+- `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/AddItem/AddToCartDefaultsTests.cs`
+- `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/AddItem/AddToCart.Reservation.Tests.cs`
+
+Pattern: replace the `sender.Setup(...).ReturnsAsync(Result<ReserveCartStock.Response>.Ok(...))` mock with an `IStockReservationService` mock:
+
+```csharp
+// BEFORE
+sender.Setup(s => s.Send(It.IsAny<IRequest<Result<ReserveCartStock.Response>>>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response()));
+
+// AFTER
+var reservationService = new Mock<IStockReservationService>();
+reservationService.Setup(s => s.ReserveForVariantAsync(
+        It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result<StockReservation>.Ok(StockReservationMethod.Reserve(
+        Guid.NewGuid(), 1, Guid.NewGuid(), null, 15, cartToken: "test")));
+```
+
+And replace any `Verify(s => s.Send(...ReserveCartStock.Command...))` with a `Verify(s => s.ReserveForVariantAsync(...))` on the service mock. The handler's constructor gains `IStockReservationService` — pass the mock in the handler construction within tests.
+
+Run tests:
+```bash
+dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~AddToCart"
+```
+
+Note: `Module.UnitTests` may not compile until Tasks 8-10 fix the remaining handler references. If the test project won't build yet, verify by building the test project and confirm the ONLY remaining test-compile errors are in the other 4 test files (CreateOrderFromCart ×3, CreatePaymentIntent ×1) that are fixed by Tasks 8/10. Report this precisely.
+
+- [ ] **Step 3: Build**
 
 ```bash
 dotnet build
@@ -442,14 +483,16 @@ dotnet build
 
 If build fails with "Module.Inventory.Features.Storefront.StockReservations not found", verify imports are updated.
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add service/Api/src/Module/Ordering/Features/Storefront/Cart/AddItem/AddToCart.cs
+git add service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/AddItem/
 git commit -m "refactor(ordering): switch AddToCart to IStockReservationService
 
 Replace MediatR ReserveCartStock command with direct service call.
-Removes cross-module namespace import from Ordering to Inventory features."
+Removes cross-module namespace import from Ordering to Inventory features.
+Updates AddToCart unit tests to mock ReserveForVariantAsync."
 ```
 
 ### Task 8: Update Ordering.CreateOrderFromCart to Use IStockReservationService
@@ -486,17 +529,49 @@ if (consumeResult.IsFailure)
     return consumeResult.Errors;
 ```
 
-- [ ] **Step 2: Build**
+- [ ] **Step 2: Update CreateOrderFromCart unit tests (plan amendment)**
+
+Three test files mock/verify `sender.Send(new ConsumeCartStockReservations.Command(...))` from CreateOrderFromCart. Update them to mock `IStockReservationService.ConsumeForOrderAsync`:
+
+- `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCartTests.cs`
+- `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCartStockTests.cs`
+- `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCartTransactionTests.cs`
+
+Pattern:
+```csharp
+// BEFORE
+sender.Setup(s => s.Send(It.IsAny<ConsumeCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result.Ok());
+
+// AFTER
+var reservationService = new Mock<IStockReservationService>();
+reservationService.Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result.Ok());
+```
+
+And replace any `Verify(s => s.Send(...ConsumeCartStockReservations.Command...))` with `Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<CancellationToken>()))` on the service mock.
+
+Run tests:
+```bash
+dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~CreateOrderFromCart"
+```
+
+Note: `Module.UnitTests` may not compile until Task 10 fixes CreatePaymentIntent. If so, verify by building the test project and confirm the ONLY remaining test-compile error is in CreatePaymentIntentTests.cs.
+
+- [ ] **Step 3: Build**
 
 ```bash
 dotnet build
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs
-git commit -m "refactor(ordering): switch Checkout to IStockReservationService.ConsumeForOrderAsync"
+git add service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/
+git commit -m "refactor(ordering): switch Checkout to IStockReservationService.ConsumeForOrderAsync
+
+Updates CreateOrderFromCart unit tests to mock ConsumeForOrderAsync."
 ```
 
 ### Task 9: Update Ordering.CancelOrder + Admin Cancel/UpdateStatus to Use Service
@@ -574,18 +649,29 @@ Apply identical pattern in the `OrderStatus.Canceled` branch.
 dotnet build
 ```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Delete OrderInventoryServiceTests.cs (plan amendment)**
+
+Task 2 deleted `OrderInventoryService.cs`, but `service/Api/tests/Module.UnitTests/Ordering/Features/Shared/Services/OrderInventoryServiceTests.cs` still constructs `new OrderInventoryService(...)` — it will break `Module.UnitTests` compilation. Delete it (the wrapper class it tests no longer exists; its coverage is replaced by the inlined `AdjustStockAsync` behavior):
+
+```bash
+rm service/Api/tests/Module.UnitTests/Ordering/Features/Shared/Services/OrderInventoryServiceTests.cs
+```
+
+Also check `service/Api/src/Module/Ordering/README.yaml` for a stale `OrderInventoryService` reference and remove it if present.
+
+- [ ] **Step 7: Commit**
 
 ```bash
 git add service/Api/src/Module/Ordering/Features/Storefront/Orders/Cancel/CancelOrder.cs
 git add service/Api/src/Module/Ordering/Features/Admin/Orders/Cancel/CancelOrderAdmin.cs
 git add service/Api/src/Module/Ordering/Features/Admin/Orders/UpdateStatus/UpdateOrderStatus.cs
+git add service/Api/tests/Module.UnitTests/Ordering/Features/Shared/Services/OrderInventoryServiceTests.cs
 git commit -m "refactor(ordering): inline AdjustStockAsync, drop OrderInventoryService wrapper
 
 Cancel/UpdateStatus now return stock via IStockItemService.AdjustStockAsync
 per line item (location resolved via GetStockLocationIdForVariantAsync),
 replacing the OrderInventoryService wrapper and its direct StockItem
-entity access."
+entity access. Deletes OrderInventoryServiceTests (tested removed class)."
 ```
 
 ### Task 10: Update Billing.CreatePaymentIntent to Use Service
@@ -641,21 +727,52 @@ await stockReservationService.ReleaseReservationsAsync(
 
 There are two release locations: one after gateway failure, one in the catch block. Replace both.
 
-- [ ] **Step 2: Build**
+- [ ] **Step 2: Update CreatePaymentIntent unit tests (plan amendment)**
+
+`service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs` mocks/verifies `sender.Send(new ReserveCartStock.Command(...))` and `sender.Send(new ReleaseCartStockReservations.Command(...))`. Update it to mock `IStockReservationService.ReserveForVariantAsync` and `.ReleaseReservationsAsync`:
+
+```csharp
+// BEFORE
+sender.Setup(s => s.Send(It.Is<ReserveCartStock.Command>(c => c.Request.CartId == cartId), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response()));
+sender.Setup(s => s.Send(It.IsAny<ReleaseCartStockReservations.Command>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result.Ok());
+
+// AFTER
+var reservationService = new Mock<IStockReservationService>();
+reservationService.Setup(s => s.ReserveForVariantAsync(
+        It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result<StockReservation>.Ok(StockReservationMethod.Reserve(
+        Guid.NewGuid(), 1, Guid.NewGuid(), null, 30, cartToken: "test")));
+reservationService.Setup(s => s.ReleaseReservationsAsync(
+        It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(Result<int>.Ok(1));
+```
+
+Replace the `Verify` calls on the sender for these commands with service-mock verifies. The handler constructor gains `IStockReservationService` — pass the mock.
+
+Run tests:
+```bash
+dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~CreatePaymentIntent"
+```
+
+- [ ] **Step 3: Build**
 
 ```bash
 dotnet build
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs
+git add service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs
 git commit -m "refactor(billing): switch CreatePaymentIntent to IStockReservationService
 
 Replace ReserveCartStock + ReleaseCartStockReservations MediatR commands
 with direct service calls keyed on cartToken. Removes cross-module
-namespace imports and direct StockItem entity access."
+namespace imports and direct StockItem entity access. Updates
+CreatePaymentIntent unit tests to mock the service methods."
 ```
 
 ### Task 11: Create Inventory Storefront Endpoints — ReserveStockReservation
