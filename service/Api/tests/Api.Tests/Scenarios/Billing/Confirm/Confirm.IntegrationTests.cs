@@ -10,7 +10,7 @@ public sealed class ConfirmPaymentIntegrationTests(ApiFixture fixture) : Payment
     public async Task ConfirmPayment_WithoutAuth_Returns401()
     {
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            $"/api/storefront/paying/confirm/{Guid.NewGuid()}", new { });
+            $"/api/storefront/cart/payment/intent/{Guid.NewGuid()}/confirm", new { });
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

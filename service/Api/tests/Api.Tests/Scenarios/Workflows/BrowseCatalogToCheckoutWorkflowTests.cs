@@ -171,7 +171,7 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
             billAddressId = shipAddressId,
             shipAddressId = shipAddressId
         };
-        HttpResponseMessage updateCartResp = await client.PutAsJsonAsync(
+        HttpResponseMessage updateCartResp = await client.PatchAsJsonAsync(
             "/api/storefront/cart", updateCartBody);
         updateCartResp.IsSuccessStatusCode.Should().BeTrue();
 

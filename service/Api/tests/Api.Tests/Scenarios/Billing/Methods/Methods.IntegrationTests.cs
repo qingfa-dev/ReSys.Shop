@@ -11,7 +11,7 @@ public sealed class PaymentMethodsIntegrationTests(ApiFixture fixture) : Payment
     public async Task ListPaymentMethods_WithAuth_ReturnsOk()
     {
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            "/api/storefront/paying/methods");
+            "/api/storefront/billing/payment-methods");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
@@ -19,7 +19,7 @@ public sealed class PaymentMethodsIntegrationTests(ApiFixture fixture) : Payment
     public async Task ListPaymentMethods_WithoutAuth_Returns401()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/storefront/paying/methods");
+            "/api/storefront/billing/payment-methods");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

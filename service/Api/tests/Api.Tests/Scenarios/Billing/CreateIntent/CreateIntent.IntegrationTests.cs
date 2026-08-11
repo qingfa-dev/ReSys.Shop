@@ -11,7 +11,7 @@ public sealed class CreateIntentIntegrationTests(ApiFixture fixture) : PaymentIn
     {
         var request = new { orderId = Guid.NewGuid() };
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/storefront/paying/create-intent", request);
+            "/api/storefront/cart/payment/intent", request);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }
