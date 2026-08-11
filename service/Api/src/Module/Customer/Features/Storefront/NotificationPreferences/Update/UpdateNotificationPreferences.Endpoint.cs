@@ -10,7 +10,7 @@ public static partial class UpdateNotificationPreferences
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(ProfileFeature.Storefront.NotificationPreferences.Update.Route, async (
+            app.MapPatch(ProfileFeature.Storefront.NotificationPreferences.Update.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 ICurrentUser currentUser,

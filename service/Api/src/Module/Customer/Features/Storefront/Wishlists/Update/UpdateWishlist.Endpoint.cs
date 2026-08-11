@@ -10,7 +10,7 @@ public static partial class UpdateWishlist
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(ProfileFeature.Storefront.Wishlists.Update.Route, async (
+            app.MapPatch(ProfileFeature.Storefront.Wishlists.Update.Route, async (
                     [FromRoute] Guid id,
                     [FromBody] Request request,
                     ISender sender,

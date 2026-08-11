@@ -10,7 +10,7 @@ public static partial class UpdateAddress
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(ProfileFeature.Storefront.Addresses.Update.Route, async (
+            app.MapPatch(ProfileFeature.Storefront.Addresses.Update.Route, async (
                     [FromRoute] Guid id,
                     [FromBody] Request request,
                     ISender sender,

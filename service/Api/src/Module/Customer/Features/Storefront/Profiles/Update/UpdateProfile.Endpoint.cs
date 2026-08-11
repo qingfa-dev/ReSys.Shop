@@ -15,8 +15,8 @@ public static partial class UpdateProfile
         /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a PUT endpoint for updating the authenticated user's profile.
-            app.MapPut(ProfileFeature.Storefront.Profiles.Update.Route, async (
+            // Map: Defines a PATCH endpoint for updating the authenticated user's profile.
+            app.MapPatch(ProfileFeature.Storefront.Profiles.Update.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 ICurrentUser currentUser,
