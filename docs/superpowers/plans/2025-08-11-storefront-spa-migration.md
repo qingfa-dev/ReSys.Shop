@@ -48,6 +48,15 @@ static async emptyCart(): Promise<Result<null>> {
 
 No other method changes — `get`, `post`, `del` calls on `this.BASE`, `this.BASE/items`, `this.BASE/associate` are correct. The BASE change covers all.
 
+**PLAN AMENDMENT (pre-flight verification):** `updateItem` currently uses `put` (`${this.BASE}/items/${lineItemId}`) but the backend `UpdateItemQuantity` endpoint was changed to PATCH (cart-consolidation plan Task 3: `MapPatch`). Fix it too:
+```typescript
+static async updateItem(lineItemId: string, req: UpdateCartItemRequest): Promise<Result<CartResponse>> {
+  const result = await patch<Result<CartResponse>>(`${this.BASE}/items/${lineItemId}`, req)
+  ...
+}
+```
+Add `patch` to the `@/shared/api/client` import in cartApi.ts. Verify `patch` is exported from `client.ts` (it is, line 53).
+
 - [ ] **Step 2: Run tests**
 
 ```bash
