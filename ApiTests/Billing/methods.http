@@ -1,4 +1,4 @@
-GET {{base_url}}/api/storefront/paying/methods
+GET {{base_url}}/api/storefront/billing/payment-methods
 Accept: application/json
 Authorization: Bearer {{token}}
 
