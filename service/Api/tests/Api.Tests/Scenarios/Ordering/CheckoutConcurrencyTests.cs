@@ -148,7 +148,6 @@ public sealed class CheckoutConcurrencyTests(ApiFixture fixture) : OrderingInteg
         Result<Order> orderResult = OrderMethod.Create(
             currency: "USD",
             userId: userId,
-            storeId: Guid.Empty,
             shipAddressId: Guid.NewGuid());
         orderResult.IsSuccess.Should().BeTrue();
 

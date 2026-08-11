@@ -8,6 +8,7 @@ using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockTransfers;
 using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 
 using Shared.Operational.Persistence.Data;
 
