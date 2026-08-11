@@ -18,6 +18,9 @@ export interface StoreStockLocationInfo {
   backorderable: boolean
 }
 
+// Note: variantOptionValueId removed from this response — aligns with the
+// backend StoreOptionValueListItemResponse change (VariantOptionValueId
+// dropped). The SPA identifies option values by id + name only.
 export interface StoreVariantOptionValueResponse {
   id: string
   name: string
