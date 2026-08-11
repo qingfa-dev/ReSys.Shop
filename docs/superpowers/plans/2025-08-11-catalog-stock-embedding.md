@@ -168,14 +168,62 @@ The composable already reads `selectedVariant.value?.stock.availableQuantity` �
 
 - [ ] **Step 3: Update ProductDetailView.vue**
 
-Remove `import { useAvailability } from '@/features/inventory/composables'` and the `const availability = useAvailability()` line. Display stock from `selectedVariant?.stock` directly:
+**FINDING (pre-flight review):** ProductDetailView.vue has more availability wiring than a simple label. It contains: `const availability = useAvailability()`, a `stockEntry` ref (type `AvailabilityEntry`), a `stockMeter` computed (MeterGroup in template), `stockSeverity`/`stockMessage` computeds that prefer `stockEntry`, a `watch(selectedVariantId)` that calls `availability.check(id)`, and `stockEntry.value = null` resets in `loadProduct`. All of this must be removed/replaced.
 
-```vue
-<!-- Section: Stock Status -->
-<div v-if="stockLabel">
-  {{ stockLabel }}
-</div>
+Do the following:
+1. Remove `import { useAvailability } from '@/features/inventory/composables'` and `import type { AvailabilityEntry } from '@/features/inventory/types/availability'` (that type is deleted in Task 3).
+2. Remove `const availability = useAvailability()` and the `stockEntry` ref declaration.
+3. Remove the `watch(() => detail.selectedVariantId, async id => { ... availability.check(id) ... })` block entirely (no more per-variant availability fetch).
+4. Remove `stockEntry.value = null` resets from `loadProduct` and the watch.
+5. Rewrite `stockMeter` to read from the DTO variant stock instead (or remove the MeterGroup if the DTO lacks the split). The backend `StoreVariantStockInfo` has `locations[]` with `availableCount`/`reservedCount` per location, so the meter can aggregate them:
+   ```typescript
+   // Meter: Stock level aggregated from the DTO's per-location stock
+   const stockMeter = computed(() => {
+     const stock = detail.selectedVariant?.stock
+     if (!stock || stock.totalOnHand <= 0) return null
+     return {
+       max: stock.totalOnHand,
+       value: [
+         { label: 'Available', value: stock.totalAvailable, color: 'var(--p-primary-color)' },
+         { label: 'Reserved', value: stock.totalReserved, color: 'var(--p-surface-300)' },
+       ],
+     }
+   })
+   ```
+6. Rewrite `stockSeverity`/`stockMessage` to use only `detail.stockLabel`/`detail.isInStock` (drop the `stockEntry` branches):
+   ```typescript
+   const stockSeverity = computed<'success' | 'warn' | 'error'>(() => {
+     if (detail.isInStock) return 'success'
+     return detail.stockLabel ? 'warn' : 'error'
+   })
+   const stockMessage = computed(() => detail.stockLabel ?? (detail.isInStock ? 'In stock' : 'Out of stock'))
+   ```
+7. Keep the template's `<MeterGroup v-if="stockMeter" .../>` and `<Message :severity="stockSeverity" ...>` — they now read from the DTO-derived computeds.
+
+**NOTE:** `useProductDetail.ts` (the `detail` composable) already exposes `stockLabel` and `isInStock` (and `selectedVariant`) — the view's `detail` is that composable's reactive state, so `detail.selectedVariant?.stock`, `detail.stockLabel`, `detail.isInStock` all resolve.
+
+- [ ] **Step 3a: Update the Zod validation schema to match the new TS type**
+
+`app/Store/src/features/catalog/validations/product.ts` has `VariantStockInfoSchema = z.object({ availableQuantity: z.number().int().min(0), backorderable: z.boolean() })` — `availableQuantity` does NOT match the backend. Update it to mirror the new TS type:
+
+```typescript
+const VariantStockInfoSchema = z.object({
+  totalOnHand: z.number().int().min(0),
+  totalReserved: z.number().int().min(0),
+  totalAvailable: z.number().int().min(0),
+  backorderable: z.boolean(),
+  locations: z.array(z.object({
+    stockLocationId: z.string(),
+    stockLocationName: z.string().nullable(),
+    countOnHand: z.number().int().min(0),
+    reservedCount: z.number().int().min(0),
+    availableCount: z.number().int().min(0),
+    backorderable: z.boolean(),
+  })),
+})
 ```
+
+This keeps runtime validation consistent with the response contract the backend actually sends.
 
 - [ ] **Step 4: Build + test SPA**
 
