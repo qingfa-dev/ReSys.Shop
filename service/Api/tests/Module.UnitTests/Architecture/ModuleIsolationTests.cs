@@ -29,6 +29,7 @@ public sealed class ModuleIsolationTests
     private static readonly HashSet<string> AllowedServiceContracts = new(StringComparer.Ordinal)
     {
         "Module.Inventory.Services.IStockItemService",
+        "Module.Inventory.Services.StockReservations.IStockReservationService",
     };
 
     private static bool IsAllowedServiceContract(Type t) =>

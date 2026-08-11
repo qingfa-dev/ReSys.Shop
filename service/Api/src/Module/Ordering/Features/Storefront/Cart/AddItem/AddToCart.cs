@@ -59,7 +59,7 @@ public static partial class AddToCart
             {
                 // Create: New draft cart with default currency from system info.
                 var currency = systemInfo.DefaultCurrency;
-                var createResult = OrderMethod.Create(currency, userId, Guid.Empty, sessionId: sessionId, shipAddressId: null);
+                var createResult = OrderMethod.Create(currency, userId, sessionId: sessionId, shipAddressId: null);
                 if (createResult.IsFailure)
                     return createResult.Errors;
 

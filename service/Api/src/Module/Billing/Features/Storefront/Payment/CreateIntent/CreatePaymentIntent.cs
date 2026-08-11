@@ -1,5 +1,6 @@
 using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
 
+using Module.Inventory.Features.Shared;
 using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
@@ -52,10 +53,16 @@ public static partial class CreatePaymentIntent
                     variantId: li.VariantId,
                     quantity: li.Quantity,
                     cartToken: command.OrderId.ToString(),
-                    ttlMinutes: 30,
+                    ttlMinutes: InventoryFeature.Storefront.StockReservations.TtlMinutesDefault,
                     ct: cancellationToken);
 
-                if (reserveResult.IsFailure) return reserveResult.Errors;
+                if (reserveResult.IsFailure)
+                {
+                    // Compensate: release reservations already made in this loop
+                    await stockReservationService.ReleaseReservationsAsync(
+                        cartToken: command.OrderId.ToString(), ct: CancellationToken.None);
+                    return reserveResult.Errors;
+                }
             }
 
             // Load: First active payment method
