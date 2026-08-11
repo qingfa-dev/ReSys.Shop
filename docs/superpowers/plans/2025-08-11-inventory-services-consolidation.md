@@ -1173,7 +1173,76 @@ Define routes for 4 inventory storefront endpoints:
 StockItems/GetAvailability, StockReservations/{Reserve, Get, Release}"
 ```
 
-### Task 15: Verify Cross-Module References and Full Build
+### Task 15: Remove Order.StoreId Across Module (pre-existing defect fix)
+
+> **Pre-flight/human decision (2026-08-11):** `Order.StoreId` was a partially-implemented feature at baseline (`109bb4939 "Before big big"`) that never had its property/factory param completed. It blocks a clean `dotnet test` (Task 16). The human chose to REMOVE all `StoreId` references rather than complete the feature.
+
+**Files:**
+- Modify: `service/Api/src/Module/Ordering/Persistence/Configurations/OrderConfiguration.cs` — remove `builder.Property(x => x.StoreId);` (line 71)
+- Modify: `service/Api/src/Module/Ordering/Features/Storefront/Cart/CreateCart/CreateCart.cs` — remove `var storeId = Guid.Empty;` and drop the `storeId` positional arg from `OrderMethod.Create`
+- Modify: `service/Api/src/Module/Ordering/Persistence/Seeders/Order.Seeder.cs` — remove `storeId` local, the `CreateOrder(..., Guid storeId, ...)` param, the 3 call-site args, and the `OrderMethod.Create` arg
+- Modify: `service/Api/src/Module/Ordering/Features/Admin/Orders/Create/CreateOrder.Request.cs` — remove `public Guid StoreId { get; set; }`
+- Modify: `service/Api/src/Module/Ordering/Features/Admin/Orders/Create/CreateOrder.cs` — remove `storeId: request.StoreId` from `MapToDomain`
+- Modify: `service/Api/src/Module/Ordering/Features/Admin/Orders/Shared/Mappings/Order.Mapping.Domain.cs` — remove the `Guid storeId` parameter from `MapToDomain`
+- Modify: `service/Api/src/Module/Ordering/Features/Admin/Orders/Shared/Models/Order.Model.Response.cs` — remove `public Guid? StoreId { get; init; }`
+- Tests: `Order.Method.Tests.cs`, `Order.Mapping.Tests.cs`, `ApproveOrderTests.cs`, `ResumeOrderTests.cs`, `UpdateOrderStatusTests.cs`, `GetOrderLineItemByIdTests.cs`, `EventHandlerInvocationTests.cs`
+
+**KEY FACTS (verified):** `OrderMethod.Create` signature is `Create(string currency, Guid? userId, Guid? id = null, string? sessionId = null, Guid? shipAddressId = null)` — the 3rd positional param is `id`, NOT `storeId`. The current callers pass `storeId` positionally into `id`, and the mapping's `MapToDomain` `storeId` param is unused (its body only passes `currency` + `userId`). So removal is purely deleting the stray references; the factory keeps its `id` param.
+
+- [ ] **Step 1: Remove StoreId from domain/configuration**
+
+In `OrderConfiguration.cs`, delete line `builder.Property(x => x.StoreId);`.
+
+- [ ] **Step 2: Remove StoreId from storefront cart creation**
+
+In `CreateCart.cs`:
+- Delete `var storeId = Guid.Empty;`
+- Change `OrderMethod.Create(OrderConstant.Defaults.Currency, userId, storeId, sessionId: sessionId)` → `OrderMethod.Create(OrderConstant.Defaults.Currency, userId, sessionId: sessionId)`
+
+- [ ] **Step 3: Remove StoreId from seeder**
+
+In `Order.Seeder.cs`:
+- Delete `var storeId = Guid.Empty;`
+- Remove `storeId` from the 3 `CreateOrder(...)` call-site args (keep `addresses, variants, cancellationToken`)
+- Remove `Guid storeId,` from the `CreateOrder` private method signature
+- Change `OrderMethod.Create(OrderConstant.Defaults.Currency, user.Id, storeId)` → `OrderMethod.Create(OrderConstant.Defaults.Currency, user.Id)`
+
+- [ ] **Step 4: Remove StoreId from admin create order flow**
+
+In `CreateOrder.Request.cs`: delete `public Guid StoreId { get; set; }`
+In `CreateOrder.cs`: change `request.MapToDomain(userId: Guid.Empty, storeId: request.StoreId)` → `request.MapToDomain(userId: Guid.Empty)`
+In `Order.Mapping.Domain.cs`: change signature `MapToDomain<T>(this T request, Guid userId, Guid storeId)` → `MapToDomain<T>(this T request, Guid userId)` and remove the `storeId` `<param>` doc line
+In `Order.Model.Response.cs`: delete `public Guid? StoreId { get; init; }`
+
+- [ ] **Step 5: Remove StoreId from unit tests**
+
+- `Order.Method.Tests.cs` (`Create_WithValidParams_ShouldReturnOrder`): delete `var storeId = Guid.NewGuid();`, `order.StoreId.Should().Be(storeId);`, and change `OrderMethod.Create("USD", Guid.NewGuid(), storeId)` → `OrderMethod.Create("USD", Guid.NewGuid())`. In `Finalize_WithItems_ShouldSucceed`, `OrderMethod.Create("USD", null, Guid.NewGuid())` → `OrderMethod.Create("USD", null)` (the `Guid.NewGuid()` was the stray storeId/id positional arg — dropping it uses the factory's default id).
+- `Order.Mapping.Tests.cs`: `ToDomain_ShouldMapRequestToEntity` — delete `var storeId = Guid.NewGuid();`, `request.MapToDomain(userId, storeId)` → `request.MapToDomain(userId)`, delete `order.StoreId.Should().Be(storeId);`. In `CreateOrder` helper, `storeId: Guid.NewGuid()` arg removed from `OrderMethod.Create(...)`.
+- `ApproveOrderTests.cs`, `ResumeOrderTests.cs`, `UpdateOrderStatusTests.cs` (×2), `GetOrderLineItemByIdTests.cs` (×2), `EventHandlerInvocationTests.cs`: change `OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty)` → `OrderMethod.Create("USD", userId: Guid.NewGuid())`.
+
+- [ ] **Step 6: Build + run Ordering tests**
+
+```bash
+dotnet build
+dotnet test service/Api/tests/Module.UnitTests --filter-class "OrderMethod|OrderMapping|ApproveOrder|ResumeOrder|UpdateOrderStatus|GetOrderLineItemById|EventHandlerInvocation"
+```
+
+If `Module` still fails on the 3 pre-existing namespace errors (Tasks 8-10 must be done first), verify with the temp-stub method used in Task 7: confirm your changed files have zero errors and the ONLY remaining test errors are the known masked ones.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add service/Api/src/Module/Ordering/
+git add service/Api/tests/Module.UnitTests/Ordering/
+git commit -m "fix(ordering): remove partially-implemented Order.StoreId feature
+
+StoreId was referenced in config/callers/tests but never added to the
+Order entity or OrderMethod.Create. Removing all stray references
+across the module (source + tests). OrderMethod.Create keeps its id
+param; callers that passed storeId positionally now omit it."
+```
+
+### Task 16: Verify Cross-Module References and Full Build
 
 - [ ] **Step 1: Run cross-module ref check**
 
