@@ -69,9 +69,13 @@ public static partial class SelectShippingRate
 
             cart.RegressCheckoutIfAmountChanged(previousTotal);
 
-            var stateResult = cart.AdvanceCheckoutState(CheckoutState.Delivery);
-            if (stateResult.IsFailure)
-                return stateResult.Errors;
+            // Advance: Address → Delivery only; later states either already passed Delivery or regressed here.
+            if (cart.CheckoutState == CheckoutState.Address)
+            {
+                var stateResult = cart.AdvanceCheckoutState(CheckoutState.Delivery);
+                if (stateResult.IsFailure)
+                    return stateResult.Errors;
+            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok(OrderResult.Success.ShippingRateSelected(cart.Id));

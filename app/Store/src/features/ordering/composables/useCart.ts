@@ -56,6 +56,11 @@ async function addItem(variantId: string, quantity = 1): Promise<boolean> {
     if (result.isSuccess) {
       id.value = result.value.id
       items.value = result.value.items
+      // State: Sync the checkout prefill fields from the updated cart response.
+      checkoutState.value = result.value.checkoutState
+      shippingMethodId.value = result.value.shippingMethodId
+      shipAddressId.value = result.value.shipAddressId
+      email.value = result.value.email
       lastFetchedAt.value = Date.now()
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     } else {
@@ -77,6 +82,11 @@ async function updateQuantity(lineItemId: string, quantity: number): Promise<boo
     const result = await CartApi.updateItem(lineItemId, { quantity })
     if (result.isSuccess) {
       items.value = result.value.items
+      // State: Sync the checkout prefill fields from the updated cart response.
+      checkoutState.value = result.value.checkoutState
+      shippingMethodId.value = result.value.shippingMethodId
+      shipAddressId.value = result.value.shipAddressId
+      email.value = result.value.email
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     } else if (prev) {
       const refresh = await CartApi.getCart()
@@ -101,6 +111,11 @@ async function removeItem(lineItemId: string): Promise<boolean> {
       error.value = result.message
       await fetchCart()
     } else {
+      // State: Sync the checkout prefill fields from the updated cart response.
+      checkoutState.value = result.value.checkoutState
+      shippingMethodId.value = result.value.shippingMethodId
+      shipAddressId.value = result.value.shipAddressId
+      email.value = result.value.email
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     }
     return result.isSuccess
@@ -115,6 +130,11 @@ async function clearCart(): Promise<void> {
   await CartApi.emptyCart()
   items.value = []
   id.value = null
+  // State: Reset the checkout prefill fields with the cleared cart.
+  checkoutState.value = null
+  shippingMethodId.value = null
+  shipAddressId.value = null
+  email.value = null
   emit({ type: 'cart:updated', itemCount: 0 })
 }
 
@@ -129,6 +149,11 @@ function reset(): void {
   items.value = []
   id.value = null
   error.value = null
+  // State: Reset the checkout prefill fields with the cart.
+  checkoutState.value = null
+  shippingMethodId.value = null
+  shipAddressId.value = null
+  email.value = null
 }
 
 // Subscribe: Re-associate guest cart on login, clear on logout.

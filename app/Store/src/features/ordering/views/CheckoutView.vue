@@ -243,7 +243,8 @@ async function advanceToReview(): Promise<void> {
   }
   const validOk = await checkout.validateCheckout()
   checkout.loading = false
-  if (validOk) {
+  // Gate: Only land on Review when the re-synced backend is still at Payment with a live intent.
+  if (validOk && checkout.backendStep === 3 && checkout.paymentClientSecret) {
     checkout.displayStep = 4
   }
 }
