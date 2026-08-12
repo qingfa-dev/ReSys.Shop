@@ -78,10 +78,6 @@ public static partial class UpdateCheckout
             if (recalcResult.IsFailure)
                 return recalcResult.Errors;
 
-            var stateResult = cart.AdvanceCheckoutState(CheckoutState.Address);
-            if (stateResult.IsFailure)
-                return stateResult.Errors;
-
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok(OrderResult.Success.CheckoutUpdated(cart.Id));
