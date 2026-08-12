@@ -50,6 +50,7 @@ builder.AddInventoryModule();
 builder.AddOrderingModule();
 builder.AddBillingModule();
 builder.AddShippingModule();
+builder.AddDashboardModule();
 
 // Initialize: Register database init state, hosted service, and health check
 builder.Services.AddSingleton<IDatabaseInitializationState, DatabaseInitializationState>();
