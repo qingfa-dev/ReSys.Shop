@@ -2,7 +2,6 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 
 using Module.Inventory.Features.Shared;
-using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
 using Shared.Application.Systems.SystemInfos;
 using Module.Ordering.Domain.LineItems;
@@ -80,6 +79,9 @@ public static partial class AddToCart
             if (reserveResult.IsFailure)
                 return reserveResult.Errors;
 
+            // Snapshot: Total before any mutation — any total change regresses checkout state.
+            var previousTotal = cart.Total;
+
             // Merge: Variant already in cart — add to existing line item quantity.
             var existingLine = cart.LineItems.FirstOrDefault(li => li.VariantId == request.VariantId);
             if (existingLine is not null)
@@ -94,6 +96,7 @@ public static partial class AddToCart
                 var recalcResult = cart.RecalculateTotals();
                 if (recalcResult.IsFailure)
                     return recalcResult.Errors;
+                cart.RegressCheckoutIfAmountChanged(previousTotal);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
                 var itemLookup = await BuildCartItemLookupAsync(dbContext, variantIds, cancellationToken);
@@ -112,6 +115,7 @@ public static partial class AddToCart
             if (addRecalcResult.IsFailure)
                 return addRecalcResult.Errors;
 
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record the new line item in audit log.
