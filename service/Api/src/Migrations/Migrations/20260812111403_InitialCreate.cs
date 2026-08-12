@@ -9,7 +9,7 @@ using Pgvector;
 namespace Api.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class IntialCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -1025,7 +1025,6 @@ namespace Api.Migrations.Migrations
                     currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false, defaultValue: "USD"),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     variant_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    variant_id1 = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -1047,13 +1046,6 @@ namespace Api.Migrations.Migrations
                         principalSchema: "catalog",
                         principalTable: "variants",
                         principalColumn: "id");
-                    table.ForeignKey(
-                        name: "fk_line_items_variants_variant_id1",
-                        column: x => x.variant_id1,
-                        principalSchema: "catalog",
-                        principalTable: "variants",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1413,12 +1405,6 @@ namespace Api.Migrations.Migrations
                 schema: "ordering",
                 table: "line_items",
                 column: "variant_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_line_items_variant_id1",
-                schema: "ordering",
-                table: "line_items",
-                column: "variant_id1");
 
             migrationBuilder.CreateIndex(
                 name: "ix_option_value_variants_option_value_id",

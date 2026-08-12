@@ -41,13 +41,17 @@ public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
         #endregion
 
         #region Relationships
+        // Relationship: Order → LineItems (owned by the Order aggregate)
         builder.HasOne(x => x.Order)
             .WithMany(o => o.LineItems)
             .HasForeignKey(x => x.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // VariantId: anonymous FK to the Catalog Variant. LineItem declares no
+        // Variant navigation and Variant declares no LineItems collection, so a
+        // single anonymous relationship maps one FK column with no shadow duplicate.
         builder.HasOne<Variant>()
-            .WithMany(m => m.LineItems)
+            .WithMany()
             .HasForeignKey(x => x.VariantId)
             .OnDelete(DeleteBehavior.NoAction);
         #endregion

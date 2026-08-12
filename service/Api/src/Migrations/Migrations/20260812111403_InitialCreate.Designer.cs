@@ -14,8 +14,8 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260811105901_IntialCreate")]
-    partial class IntialCreate
+    [Migration("20260812111403_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2381,10 +2381,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("variant_id");
 
-                    b.Property<Guid>("VariantId1")
-                        .HasColumnType("uuid")
-                        .HasColumnName("variant_id1");
-
                     b.HasKey("Id")
                         .HasName("pk_line_items");
 
@@ -2393,9 +2389,6 @@ namespace Api.Migrations.Migrations
 
                     b.HasIndex("VariantId")
                         .HasDatabaseName("ix_line_items_variant_id");
-
-                    b.HasIndex("VariantId1")
-                        .HasDatabaseName("ix_line_items_variant_id1");
 
                     b.ToTable("line_items", "ordering");
                 });
@@ -3651,22 +3644,13 @@ namespace Api.Migrations.Migrations
                         .HasConstraintName("fk_line_items_order_order_id");
 
                     b.HasOne("Module.Catalog.Domain.Variants.Variant", null)
-                        .WithMany("LineItems")
+                        .WithMany()
                         .HasForeignKey("VariantId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("fk_line_items_variants_variant_id");
 
-                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
-                        .WithMany()
-                        .HasForeignKey("VariantId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_line_items_variants_variant_id1");
-
                     b.Navigation("Order");
-
-                    b.Navigation("Variant");
                 });
 
             modelBuilder.Entity("Module.Ordering.Domain.Orders.Order", b =>
@@ -3831,8 +3815,6 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Catalog.Domain.Variants.Variant", b =>
                 {
-                    b.Navigation("LineItems");
-
                     b.Navigation("OptionValueVariants");
 
                     b.Navigation("Prices");

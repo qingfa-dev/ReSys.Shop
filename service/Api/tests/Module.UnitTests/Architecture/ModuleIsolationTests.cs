@@ -60,12 +60,13 @@ public sealed class ModuleIsolationTests
             }
         }
 
-        violations.Should().HaveCount(4,
-            "Exactly 4 known pre-existing cross-module references are documented and tracked. " +
+        violations.Should().HaveCount(2,
+            "Exactly 2 known pre-existing cross-module references are documented and tracked. " +
             "Do NOT increase this count — any new violation requires explicit approval and a baseline update. " +
             "Known violations: (1) Catalog.StoreProductVariantMapping → Inventory.Services.VariantStockAvailability, " +
-            "(2) Catalog.Variant → Ordering.LineItem, (3) Ordering.Order → Shipping.ShippingMethod, " +
-            "(4) Ordering.LineItem → Catalog.Variant. " +
+            "(2) Ordering.Order → Shipping.ShippingMethod. " +
+            "(Removed 2026-08-12: Catalog.Variant → Ordering.LineItem and Ordering.LineItem → Catalog.Variant " +
+            "— the cross-module LineItem/Variant navigations were deleted; LineItem.VariantId is now a plain FK.) " +
             $"Current violations:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
     }
 

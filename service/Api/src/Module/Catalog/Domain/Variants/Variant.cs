@@ -2,7 +2,6 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Options;
 using Module.Catalog.Domain.Variants.Prices;
-using Module.Ordering.Domain.LineItems;
 
 using Shared.Application.Domain.Concerns.SoftDeletable;
 using Shared.Application.Domain.Models;
@@ -59,7 +58,6 @@ public sealed partial class Variant : Entity, ISoftDeletable
     public ICollection<Price> Prices { get; set; } = [];
     public ICollection<OptionValueVariant> OptionValueVariants { get; set; } = [];
     public ICollection<VariantImage> VariantImages { get; set; } = [];
-    public ICollection<LineItem> LineItems { get; set; } = [];
     #endregion Relationships
 
     #region Constructor
