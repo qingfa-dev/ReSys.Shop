@@ -183,6 +183,12 @@ async function mountView(seedCart = true) {
 describe('CheckoutView', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset: Singleton cart refs persist across tests in this module.
+    const cart = useCart()
+    cart.checkoutState = null
+    cart.shippingMethodId = null
+    cart.shipAddressId = null
+    cart.email = null
   })
 
   it('renders the five wizard steps in order', async () => {
@@ -251,7 +257,7 @@ describe('CheckoutView', () => {
     const { wrapper } = await mountView(true)
 
     const vm = wrapper.vm as unknown as {
-      checkout: { paymentClientSecret: string | null; currentStep: number }
+      checkout: { paymentClientSecret: string | null; displayStep: number }
       advanceToReview: () => Promise<void>
     }
     vm.checkout.paymentClientSecret = 'cs-test'
@@ -259,6 +265,109 @@ describe('CheckoutView', () => {
 
     expect(mockedCartApi.getCart).toHaveBeenCalled()
     expect(mockedCheckoutApi.validateCheckout).toHaveBeenCalledTimes(1)
-    expect(vm.checkout.currentStep).toBe(4)
+    expect(vm.checkout.displayStep).toBe(4)
+  })
+
+  // Hydrate: Backend 'Delivery' state drives the delivery panel on mount.
+  it('hydrates the delivery panel from the backend checkout state', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Delivery', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+    )
+    const cart = useCart()
+    cart.checkoutState = 'Delivery'
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as { checkout: { displayStep: number } }
+    expect(vm.checkout.displayStep).toBe(2)
+    expect(wrapper.text()).toContain('Continue to Payment')
+  })
+
+  // Select: Re-choosing a shipping method on the delivery step succeeds.
+  it('allows re-selecting a shipping method on the same step', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Delivery', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+    )
+    mockedCheckoutApi.selectShippingRate.mockResolvedValue(ok(undefined))
+    const cart = useCart()
+    cart.checkoutState = 'Delivery'
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as {
+      checkout: { displayStep: number; selectShippingRate: (id: string) => Promise<boolean> }
+      goToStep: (value: number) => void
+    }
+
+    await vm.checkout.selectShippingRate('sm-standard')
+    expect(vm.checkout.displayStep).toBe(3)
+
+    vm.goToStep(2)
+    expect(vm.checkout.displayStep).toBe(2)
+
+    await vm.checkout.selectShippingRate('sm-express')
+    expect(vm.checkout.displayStep).toBe(3)
+    expect(mockedCheckoutApi.selectShippingRate).toHaveBeenCalledTimes(2)
+  })
+
+  // Regression: A backend step-back to Delivery clears the payment intent.
+  it('clears payment intent refs when the backend moves Payment back to Delivery', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Payment', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+    )
+    const cart = useCart()
+    cart.checkoutState = 'Payment'
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as {
+      checkout: {
+        displayStep: number
+        paymentClientSecret: string | null
+        paymentIntentId: string | null
+        paymentMethodId: string | null
+      }
+    }
+    vm.checkout.paymentClientSecret = 'cs'
+    vm.checkout.paymentIntentId = 'pi'
+    vm.checkout.paymentMethodId = 'pm'
+
+    cart.checkoutState = 'Delivery'
+    await wrapper.vm.$nextTick()
+
+    expect(vm.checkout.paymentClientSecret).toBeNull()
+    expect(vm.checkout.paymentIntentId).toBeNull()
+    expect(vm.checkout.paymentMethodId).toBeNull()
+    expect(vm.checkout.displayStep).toBe(2)
+  })
+
+  // Navigate: The wizard cannot advance ahead of the backend step.
+  it('blocks goToStep from advancing beyond the backend step', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Delivery', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+    )
+    const cart = useCart()
+    cart.checkoutState = 'Delivery'
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as {
+      checkout: { displayStep: number }
+      goToStep: (value: number) => void
+    }
+
+    vm.goToStep(4)
+    expect(vm.checkout.displayStep).toBe(2)
+
+    vm.goToStep(2)
+    expect(vm.checkout.displayStep).toBe(2)
+  })
+
+  // Bounce: Empty-cart redirect is skipped when the backend is at Complete.
+  it('skips the empty-cart redirect on the confirmation step', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 0, total: 0, currency: 'USD', itemCount: 0, checkoutState: 'Complete', shippingMethodId: null, shipAddressId: null, email: null, items: [] }),
+    )
+    const { wrapper, router } = await mountView(false)
+
+    const vm = wrapper.vm as unknown as { checkout: { displayStep: number } }
+    expect(router.currentRoute.value.path).toBe('/checkout')
+    expect(vm.checkout.displayStep).toBe(5)
   })
 })
