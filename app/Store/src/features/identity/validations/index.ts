@@ -10,5 +10,7 @@ export {
   EmailSchema,
   LoginFormSchema,
   RegisterFormSchema,
+  ResetPasswordFormSchema,
+  ChangePasswordFormSchema,
 } from './auth'
-export type { LoginForm, RegisterForm } from './auth'
+export type { LoginForm, RegisterForm, ResetPasswordForm, ChangePasswordForm } from './auth'

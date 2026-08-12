@@ -4,31 +4,17 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
-import { z } from 'zod'
+import FieldMessage from '@/shared/components/FieldMessage.vue'
 import { useAuthStore } from '../stores/authStore'
-import { ResetPasswordSchema } from '../validations'
+import { ResetPasswordFormSchema, type ResetPasswordForm } from '../validations'
 import { usePasswordStrength } from '../composables/usePasswordStrength'
 
 // Store: Auth store owns the reset request; route carries the emailed token.
 const auth = useAuthStore()
 const route = useRoute()
 
-// Form: Extend the shared reset schema with the confirm field so the mirror
-// check participates in form-level validation (vee-validate skips standalone
-// useField rules when a validationSchema is set — same fix as ChangePasswordView).
-const ResetPasswordFormSchema = ResetPasswordSchema.extend({
-  confirmPassword: z.string(),
-}).refine(d => d.confirmPassword === d.newPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-})
-
 const token = typeof route.query.token === 'string' ? route.query.token : ''
-const { handleSubmit, isSubmitting, errors, defineField } = useForm<{
-  token: string
-  newPassword: string
-  confirmPassword: string
-}>({
+const { handleSubmit, isSubmitting, errors, defineField } = useForm<ResetPasswordForm>({
   validationSchema: toFormValidator(ResetPasswordFormSchema),
   initialValues: { token, newPassword: '', confirmPassword: '' },
 })
@@ -76,9 +62,7 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="newPassword">New password</Label>
     </FloatLabel>
-    <Message v-if="errors.newPassword" severity="error" size="small" variant="simple">
-      {{ errors.newPassword }}
-    </Message>
+    <FieldMessage :error="errors.newPassword" />
 
     <!-- Section: Strength Meter — live feedback as the password improves -->
     <div v-if="strengthInfo" class="flex flex-col gap-1">
@@ -104,9 +88,7 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="confirmPassword">Confirm password</Label>
     </FloatLabel>
-    <Message v-if="errors.confirmPassword" severity="error" size="small" variant="simple">
-      {{ errors.confirmPassword }}
-    </Message>
+    <FieldMessage :error="errors.confirmPassword" />
 
     <!-- Section: Feedback — inline message for API errors -->
     <Message v-if="apiError" severity="error" :closable="false">{{ apiError }}</Message>

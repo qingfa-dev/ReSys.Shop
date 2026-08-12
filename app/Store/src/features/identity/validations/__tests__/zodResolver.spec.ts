@@ -41,9 +41,10 @@ describe('zodResolver with Zod 4 schemas (@primevue/forms/resolvers/zod)', () =>
   it('surfaces a cross-field refine error on confirmPassword', async () => {
     const result = await zodResolver(RegisterFormSchema)({
       values: {
-        fullName: 'Jane Doe',
+        firstName: 'Jane',
+        lastName: 'Doe',
         email: 'jane@example.com',
-        password: 'password123',
+        password: 'password1234',
         confirmPassword: 'different',
       },
     })
@@ -56,10 +57,11 @@ describe('zodResolver with Zod 4 schemas (@primevue/forms/resolvers/zod)', () =>
   it('passes a valid register payload with no errors', async () => {
     const result = await zodResolver(RegisterFormSchema)({
       values: {
-        fullName: 'Jane Doe',
+        firstName: 'Jane',
+        lastName: 'Doe',
         email: 'jane@example.com',
-        password: 'password123',
-        confirmPassword: 'password123',
+        password: 'password1234',
+        confirmPassword: 'password1234',
       },
     })
 

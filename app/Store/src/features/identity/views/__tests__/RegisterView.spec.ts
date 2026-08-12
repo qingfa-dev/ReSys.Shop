@@ -35,11 +35,14 @@ async function mountView() {
 
 // Fill: Complete a valid registration form and agree to the terms.
 async function fillValidForm(wrapper: VueWrapper) {
-  await wrapper.find('#fullName').setValue('Alice Example')
+  await wrapper.find('#firstName').setValue('Alice')
+  await wrapper.find('#lastName').setValue('Example')
   await wrapper.find('#email').setValue('alice@example.com')
   await wrapper.find('#password').setValue('Sup3rsecret!')
   await wrapper.find('#confirmPassword').setValue('Sup3rsecret!')
   await wrapper.find('[data-pc-name="checkbox"] input').trigger('change')
+  // Settle: Flush the checkbox v-model before submit so the terms rule passes.
+  await flushPromises()
 }
 
 describe('RegisterView', () => {
@@ -50,14 +53,15 @@ describe('RegisterView', () => {
   it('renders all registration fields and the terms consent', async () => {
     const { wrapper } = await mountView()
 
-    expect(wrapper.text()).toContain('Full name')
+    expect(wrapper.text()).toContain('First name')
+    expect(wrapper.text()).toContain('Last name')
     expect(wrapper.text()).toContain('Email')
     expect(wrapper.text()).toContain('Password')
     expect(wrapper.text()).toContain('Confirm password')
     expect(wrapper.text()).toContain('Terms of Service')
     expect(wrapper.text()).toContain('Create Account')
     expect(wrapper.text()).toContain('Sign in')
-    expect(wrapper.findAll('[data-pc-name="inputtext"]')).toHaveLength(2)
+    expect(wrapper.findAll('[data-pc-name="inputtext"]')).toHaveLength(3)
     expect(wrapper.findAll('[data-pc-name="pcinputtext"]')).toHaveLength(2)
     expect(wrapper.findAll('[data-pc-name="checkbox"]')).toHaveLength(1)
   })
@@ -65,8 +69,8 @@ describe('RegisterView', () => {
   it('adds no native interactive elements of its own', async () => {
     const { wrapper } = await mountView()
 
-    // Inputs and the submit control come only from PrimeVue: 4 text inputs + 1 checkbox input.
-    expect(wrapper.findAll('input')).toHaveLength(5)
+    // Inputs and the submit control come only from PrimeVue: 5 text inputs + 1 checkbox input.
+    expect(wrapper.findAll('input')).toHaveLength(6)
     expect(wrapper.findAll('button')).toHaveLength(1)
   })
 
@@ -91,9 +95,12 @@ describe('RegisterView', () => {
     await flushPromises()
 
     expect(auth.register).toHaveBeenCalledWith({
-      fullName: 'Alice Example',
       email: 'alice@example.com',
+      userName: 'alice',
       password: 'Sup3rsecret!',
+      firstName: 'Alice',
+      lastName: 'Example',
+      acceptTerm: true,
     })
     expect(wrapper.find('form').exists()).toBe(false)
     expect(wrapper.text()).toContain('Account created. Please sign in.')

@@ -20,9 +20,13 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  fullName: string
   email: string
+  userName: string
   password: string
+  firstName: string
+  lastName: string
+  phone?: string
+  acceptTerm: boolean
 }
 
 export interface SessionUser {

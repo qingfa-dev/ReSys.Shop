@@ -3,6 +3,7 @@ import Label from 'primevue/label'
 import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
+import FieldMessage from '@/shared/components/FieldMessage.vue'
 import { useAuthStore } from '../stores/authStore'
 import { ForgotPasswordSchema } from '../validations'
 
@@ -63,9 +64,7 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="email">Email</Label>
     </FloatLabel>
-    <Message v-if="errors.email" severity="error" size="small" variant="simple">
-      {{ errors.email }}
-    </Message>
+    <FieldMessage :error="errors.email" />
 
     <!-- Section: Feedback — inline message for API errors -->
     <Message v-if="apiError" severity="error" :closable="false">{{ apiError }}</Message>

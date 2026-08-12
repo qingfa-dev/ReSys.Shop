@@ -3,10 +3,10 @@ import Label from 'primevue/label'
 import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
-import { z } from 'zod'
+import FieldMessage from '@/shared/components/FieldMessage.vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useAuthStore } from '@/features/identity/stores/authStore'
-import { ChangePasswordSchema } from '@/features/identity/validations'
+import { ChangePasswordFormSchema, type ChangePasswordForm } from '@/features/identity/validations'
 import { usePasswordStrength } from '@/features/identity/composables/usePasswordStrength'
 
 usePageTitle('Change Password')
@@ -14,22 +14,7 @@ usePageTitle('Change Password')
 // Store: Auth store owns the change-password request.
 const auth = useAuthStore()
 
-// Form: Extend the shared change-password schema with the confirm field so the
-// mirror check participates in form-level validation (vee-validate skips
-// standalone useField rules when a validationSchema is set — RegisterFormSchema
-// uses the same extend-and-refine pattern).
-const ChangePasswordFormSchema = ChangePasswordSchema.extend({
-  confirmPassword: z.string(),
-}).refine(d => d.confirmPassword === d.newPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-})
-
-const { handleSubmit, isSubmitting, errors, defineField } = useForm<{
-  currentPassword: string
-  newPassword: string
-  confirmPassword: string
-}>({
+const { handleSubmit, isSubmitting, errors, defineField } = useForm<ChangePasswordForm>({
   validationSchema: toFormValidator(ChangePasswordFormSchema),
   initialValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
 })
@@ -83,9 +68,7 @@ const onSubmit = handleSubmit(async values => {
             />
             <Label for="currentPassword">Current password</Label>
           </FloatLabel>
-          <Message v-if="errors.currentPassword" severity="error" size="small" variant="simple">
-            {{ errors.currentPassword }}
-          </Message>
+          <FieldMessage :error="errors.currentPassword" />
 
           <FloatLabel variant="on">
             <InputPassword
@@ -98,9 +81,7 @@ const onSubmit = handleSubmit(async values => {
             />
             <Label for="newPassword">New password</Label>
           </FloatLabel>
-          <Message v-if="errors.newPassword" severity="error" size="small" variant="simple">
-            {{ errors.newPassword }}
-          </Message>
+          <FieldMessage :error="errors.newPassword" />
 
           <!-- Section: Strength Meter — live feedback as the password improves -->
           <div v-if="strengthInfo" class="flex flex-col gap-1">
@@ -126,9 +107,7 @@ const onSubmit = handleSubmit(async values => {
             />
             <Label for="confirmPassword">Confirm new password</Label>
           </FloatLabel>
-          <Message v-if="errors.confirmPassword" severity="error" size="small" variant="simple">
-            {{ errors.confirmPassword }}
-          </Message>
+          <FieldMessage :error="errors.confirmPassword" />
 
           <!-- Section: Feedback — inline message for API errors -->
           <Message v-if="apiError" severity="error" :closable="false">{{ apiError }}</Message>
