@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { zodMessages } from '@/shared/validations/messages'
+
 // Validate: Address type limited to canonical Shipping/Billing/Other values
 export const AddressTypeSchema = z.enum(['Shipping', 'Billing', 'Other'])
 
@@ -26,17 +28,17 @@ export const AddressSchema = z.object({
 // Enforce: Required fields for create/update; optional fields have max-length constraints
 export const AddressInputSchema = z.object({
   addressType: AddressTypeSchema,
-  firstName: z.string().min(1).max(200),
-  lastName: z.string().max(200).optional(),
-  address1: z.string().min(1).max(500),
-  address2: z.string().max(500).optional(),
-  city: z.string().min(1).max(200),
-  zipCode: z.string().max(20).optional(),
-  phone: z.string().max(30).optional(),
-  label: z.string().max(100).optional(),
+  firstName: z.string().min(1, zodMessages.required('First name')).max(200, zodMessages.maxLength('First name', 200)),
+  lastName: z.string().max(200, zodMessages.maxLength('Last name', 200)).optional(),
+  address1: z.string().min(1, zodMessages.required('Street address')).max(500, zodMessages.maxLength('Street address', 500)),
+  address2: z.string().max(500, zodMessages.maxLength('Address line 2', 500)).optional(),
+  city: z.string().min(1, zodMessages.required('City')).max(200, zodMessages.maxLength('City', 200)),
+  zipCode: z.string().max(20, zodMessages.maxLength('ZIP code', 20)).optional(),
+  phone: z.string().max(30, zodMessages.maxLength('Phone', 30)).optional(),
+  label: z.string().max(100, zodMessages.maxLength('Label', 100)).optional(),
   isDefault: z.boolean(),
-  countryName: z.string().min(1).max(200),
-  stateProvince: z.string().max(200).optional(),
-  countryCode: z.string().max(10).optional(),
-  stateCode: z.string().max(10).optional(),
+  countryName: z.string().min(1, zodMessages.required('Country')).max(200, zodMessages.maxLength('Country', 200)),
+  stateProvince: z.string().max(200, zodMessages.maxLength('State / Province', 200)).optional(),
+  countryCode: z.string().max(10, zodMessages.maxLength('Country code', 10)).optional(),
+  stateCode: z.string().max(10, zodMessages.maxLength('State code', 10)).optional(),
 })
