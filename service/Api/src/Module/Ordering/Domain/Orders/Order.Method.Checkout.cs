@@ -115,6 +115,14 @@ public sealed partial class Order
         return Result.Ok();
     }
 
+    // Enforce: Regress a Draft order's checkout step to Delivery when a payment-affecting change alters the total
+    public Result RegressCheckoutIfAmountChanged(decimal previousTotal)
+    {
+        if (Status == OrderStatus.Draft && CheckoutState >= CheckoutState.Payment && Total != previousTotal)
+            CheckoutState = CheckoutState.Delivery;
+        return Result.Ok();
+    }
+
     // Validate: Ensure none of the order's line item variants are discontinued
     internal bool EnsureLineItemVariantsAreNotDiscontinued(HashSet<Guid> discontinuedVariantIds)
     {
