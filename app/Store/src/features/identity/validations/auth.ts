@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { zodMessages } from '@/shared/validations/messages'
 
 export const LoginRequestSchema = z.object({
   credential: z.string().min(1),
@@ -6,9 +7,13 @@ export const LoginRequestSchema = z.object({
 })
 
 export const RegisterRequestSchema = z.object({
-  fullName: z.string().min(1).max(200),
   email: z.string().email(),
-  password: z.string().min(8),
+  userName: z.string().min(3).max(32),
+  password: z.string().min(12),
+  firstName: z.string().min(1).max(50),
+  lastName: z.string().min(1).max(50),
+  phone: z.string().max(15).optional(),
+  acceptTerm: z.literal(true),
 })
 
 export const TokenPairSchema = z.object({
@@ -34,17 +39,24 @@ export const SessionInfoSchema = z.object({
   isCurrent: z.boolean(),
 })
 
-export const ForgotPasswordSchema = z.object({ email: z.string().email() })
-export const ResetPasswordSchema = z.object({ token: z.string(), newPassword: z.string().min(8) })
-export const ChangePasswordSchema = z.object({ currentPassword: z.string(), newPassword: z.string().min(8) })
+export const ForgotPasswordSchema = z.object({ email: z.string().email(zodMessages.email) })
+export const ResetPasswordSchema = z.object({ token: z.string(), newPassword: z.string().min(8, zodMessages.minLength('New password', 8)) })
+export const ChangePasswordSchema = z.object({ currentPassword: z.string().min(1, zodMessages.required('Current password')), newPassword: z.string().min(8, zodMessages.minLength('New password', 8)) })
 export const EmailSchema = z.object({ email: z.string().email() })
 
-export const LoginFormSchema = z.object({ credential: z.string().min(1), password: z.string().min(1) })
+export const LoginFormSchema = z.object({ credential: z.string().min(1, zodMessages.required('Email or username')), password: z.string().min(1, zodMessages.required('Password')) })
 export type LoginForm = z.infer<typeof LoginFormSchema>
 export const RegisterFormSchema = z.object({
-  fullName: z.string().min(1).max(200),
-  email: z.string().email(),
-  password: z.string().min(8),
+  firstName: z.string().min(1, zodMessages.required('First name')).max(50, zodMessages.maxLength('First name', 50)),
+  lastName: z.string().min(1, zodMessages.required('Last name')).max(50, zodMessages.maxLength('Last name', 50)),
+  email: z.string().email(zodMessages.email),
+  password: z.string().min(12, zodMessages.passwordRules),
   confirmPassword: z.string(),
-}).refine(d => d.password === d.confirmPassword, { message: 'Passwords do not match', path: ['confirmPassword'] })
+}).refine(d => d.password === d.confirmPassword, { message: zodMessages.passwordsMatch, path: ['confirmPassword'] })
 export type RegisterForm = z.infer<typeof RegisterFormSchema>
+
+export const ResetPasswordFormSchema = ResetPasswordSchema.extend({ confirmPassword: z.string() }).refine(d => d.confirmPassword === d.newPassword, { message: zodMessages.passwordsMatch, path: ['confirmPassword'] })
+export type ResetPasswordForm = z.infer<typeof ResetPasswordFormSchema>
+
+export const ChangePasswordFormSchema = ChangePasswordSchema.extend({ confirmPassword: z.string() }).refine(d => d.confirmPassword === d.newPassword, { message: zodMessages.passwordsMatch, path: ['confirmPassword'] })
+export type ChangePasswordForm = z.infer<typeof ChangePasswordFormSchema>
