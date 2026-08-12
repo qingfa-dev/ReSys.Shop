@@ -227,9 +227,17 @@ function goToStep(value: number): void {
   }
 }
 
-// Navigate: Advance to the review panel once a payment intent is ready.
-function advanceToReview(): void {
-  if (checkout.paymentClientSecret) checkout.currentStep = 4
+// Navigate: Refresh cart state and confirm readiness before showing the review panel.
+async function advanceToReview(): Promise<void> {
+  if (!checkout.paymentClientSecret) return
+  checkout.loading = true
+  checkout.error = null
+  const cartOk = await cart.fetchCart()
+  const validOk = cartOk ? await checkout.validateCheckout() : false
+  checkout.loading = false
+  if (cartOk && validOk) {
+    checkout.currentStep = 4
+  }
 }
 
 onMounted(async () => {
