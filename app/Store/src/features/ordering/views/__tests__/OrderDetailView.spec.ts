@@ -42,7 +42,7 @@ vi.mock('../../services/orderApi', () => ({
 
 const mockedApi = vi.mocked(OrderApi)
 
-// Fixture: Order detail matching the OrderDetail contract — totals only, no items.
+// Fixture: Order detail matching the OrderDetail contract with two line items.
 const orderDetail: OrderDetail = {
   id: 'o1',
   number: 'ORD-1001',
@@ -68,6 +68,10 @@ const orderDetail: OrderDetail = {
   completedAtUtc: null,
   canceledAtUtc: null,
   modifiedAtUtc: null,
+  lineItems: [
+    { id: 'li-1', variantId: 'v-1', quantity: 2, price: 50, total: 100, currency: 'USD', createdAtUtc: '2026-08-01T09:00:00Z' },
+    { id: 'li-2', variantId: 'v-2', quantity: 1, price: 20, total: 20, currency: 'USD', createdAtUtc: '2026-08-01T09:01:00Z' },
+  ],
 }
 
 // Fixture: Tracking with placed + approved events and an estimated delivery.
@@ -154,12 +158,15 @@ describe('OrderDetailView', () => {
     expect(buttons.some(b => b.text() === 'Reorder')).toBe(true)
   })
 
-  it('shows the line-items empty message because the API exposes totals only', async () => {
+  it('renders the order line items with variant ids, quantities and totals', async () => {
     const { wrapper } = await mountView()
     seedDetail()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.text()).toContain('Line items are not exposed by the order API yet')
+    expect(wrapper.text()).toContain('v-1')
+    expect(wrapper.text()).toContain('v-2')
+    expect(wrapper.text()).toContain('$100.00')
+    expect(wrapper.text()).toContain('$20.00')
   })
 
   it('renders summary totals and the shipping address', async () => {

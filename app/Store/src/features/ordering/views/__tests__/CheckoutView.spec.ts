@@ -12,6 +12,7 @@ import { CartApi } from '../../services/cartApi'
 import { CheckoutApi } from '../../services/checkoutApi'
 import type { CartLineItem } from '../../types'
 import type { ShippingMethod, ShippingRate } from '@/features/shipping/types/shipping'
+import { ok } from '@/shared/types/result'
 
 // Polyfill: Select calls matchMedia on mount; jsdom does not provide it.
 function createMatchMediaStub(query: string) {
@@ -240,5 +241,24 @@ describe('CheckoutView', () => {
 
     // The review panel is step 4; we verify the DataTable exists in the template.
     expect(wrapper.text()).toContain('Continue to Delivery')
+  })
+
+  it('force-refreshes the cart and validates checkout when advancing to review', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Payment', items: [lineItem] }),
+    )
+    mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as {
+      checkout: { paymentClientSecret: string | null; currentStep: number }
+      advanceToReview: () => Promise<void>
+    }
+    vm.checkout.paymentClientSecret = 'cs-test'
+    await vm.advanceToReview()
+
+    expect(mockedCartApi.getCart).toHaveBeenCalled()
+    expect(mockedCheckoutApi.validateCheckout).toHaveBeenCalledTimes(1)
+    expect(vm.checkout.currentStep).toBe(4)
   })
 })

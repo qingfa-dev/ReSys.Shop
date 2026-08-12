@@ -15,9 +15,9 @@ const itemCount = computed(() => items.value.reduce((s, i) => s + i.quantity, 0)
 const subtotal = computed(() => items.value.reduce((s, i) => s + i.total, 0))
 const isEmpty = computed(() => items.value.length === 0)
 
-async function fetchCart(): Promise<boolean> {
+async function fetchCart(force = false): Promise<boolean> {
   if (loading.value) return false
-  if (Date.now() - lastFetchedAt.value < 30_000 && items.value.length > 0) return true
+  if (!force && Date.now() - lastFetchedAt.value < 30_000 && items.value.length > 0) return true
   loading.value = true
   error.value = null
   try {

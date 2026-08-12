@@ -227,15 +227,20 @@ function goToStep(value: number): void {
   }
 }
 
-// Navigate: Refresh cart state and confirm readiness before showing the review panel.
+// Navigate: Force-refresh cart state and confirm readiness before showing the review panel.
 async function advanceToReview(): Promise<void> {
   if (!checkout.paymentClientSecret) return
   checkout.loading = true
   checkout.error = null
-  const cartOk = await cart.fetchCart()
-  const validOk = cartOk ? await checkout.validateCheckout() : false
+  const cartOk = await cart.fetchCart(true)
+  if (!cartOk) {
+    checkout.error = 'Could not refresh the cart. Please try again.'
+    checkout.loading = false
+    return
+  }
+  const validOk = await checkout.validateCheckout()
   checkout.loading = false
-  if (cartOk && validOk) {
+  if (validOk) {
     checkout.currentStep = 4
   }
 }
@@ -390,7 +395,7 @@ onUnmounted(() => {
             </p>
             <ButtonGroup>
               <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(2)" />
-              <Button label="Continue to Review" icon="pi pi-arrow-right" iconPos="right" :disabled="!checkout.paymentClientSecret" @click="advanceToReview" />
+              <Button label="Continue to Review" icon="pi pi-arrow-right" iconPos="right" :disabled="!checkout.paymentClientSecret" :loading="checkout.loading" @click="advanceToReview" />
             </ButtonGroup>
           </div>
         </StepPanel>

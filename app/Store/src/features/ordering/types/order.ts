@@ -9,6 +9,16 @@ export interface OrderListItem {
   createdAtUtc: string
 }
 
+export interface OrderLineItem {
+  id: string
+  variantId: string | null
+  quantity: number
+  price: number
+  total: number
+  currency: string
+  createdAtUtc: string
+}
+
 export interface OrderDetail extends OrderListItem {
   checkoutState: CheckoutState
   currency: string
@@ -29,6 +39,7 @@ export interface OrderDetail extends OrderListItem {
   completedAtUtc: string | null
   canceledAtUtc: string | null
   modifiedAtUtc: string | null
+  lineItems?: OrderLineItem[]
 }
 
 export interface OrderTrackingResponse {

@@ -67,8 +67,7 @@ async function loadOrder(): Promise<void> {
 
 watch(() => route.params.id, () => void loadOrder(), { immediate: true })
 
-// Reorder: cartStore has no reorder action and the order API exposes no line
-// items, so no payload can be built — the button stays disabled until then.
+// Reorder: cartStore has no reorder action, so the button stays disabled until then.
 </script>
 
 <template>
@@ -101,20 +100,33 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
               severity="secondary"
               variant="text"
               disabled
-              v-tooltip.bottom="'Line items are not exposed by the order API yet'"
+              v-tooltip.bottom="'Reorder is not available yet'"
             />
           </div>
         </div>
 
-        <!-- Section: Line Items — backend exposes totals only, so the table renders its empty state -->
-        <DataTable :value="[]" dataKey="id" tableStyle="min-width: 40rem" class="mb-6">
-          <Column field="productName" header="Item" />
-          <Column header="Qty" />
-          <Column header="Unit Price" />
-          <Column header="Line Total" />
+        <!-- Section: Line Items — ordered items with quantity, price and line total -->
+        <DataTable
+          :value="orders.currentOrder.lineItems ?? []"
+          dataKey="id"
+          tableStyle="min-width: 40rem"
+          class="mb-6"
+        >
+          <Column header="Item">
+            <template #body="{ data }">{{ data.variantId ?? 'Unknown' }}</template>
+          </Column>
+          <Column header="Qty">
+            <template #body="{ data }">{{ data.quantity }}</template>
+          </Column>
+          <Column header="Unit Price">
+            <template #body="{ data }">{{ formatCurrency(data.price) }}</template>
+          </Column>
+          <Column header="Line Total">
+            <template #body="{ data }">{{ formatCurrency(data.total) }}</template>
+          </Column>
           <template #empty>
             <Message severity="info" :closable="false">
-              Line items are not exposed by the order API yet — only order totals are available.
+              No line items on this order.
             </Message>
           </template>
         </DataTable>
