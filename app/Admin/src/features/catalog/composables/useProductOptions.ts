@@ -19,9 +19,9 @@ export function useProductOptions() {
     try {
       const result = await ProductApi.getProducts({
         search: term,
-        page: 1,
+        pageNumber: 1,
         pageSize: PAGE_SIZE,
-        sortBy: 'name',
+        sort: ['name:asc'],
       })
       if (seq !== requestSeq) return
       if (result.isSuccess) {

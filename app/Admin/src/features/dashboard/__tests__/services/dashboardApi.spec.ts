@@ -54,7 +54,7 @@ describe('DashboardApi.getDashboard', () => {
 
     await DashboardApi.getDashboard()
 
-    expect(mockGet).toHaveBeenCalledWith('api/admin/dashboard')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/dashboard')
   })
 
   it('resolves the dashboard summary result', async () => {

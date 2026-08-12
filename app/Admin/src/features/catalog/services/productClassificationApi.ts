@@ -1,25 +1,23 @@
 import { getPaged } from '@/shared/api'
 import { post, put } from '@/shared/api/client'
 
-import type { Result, PagedResult } from '@/shared/types'
+import type { Result, PagedResult, QueryingParameters } from '@/shared/types'
 import type { ClassificationAssignment, ProductClassificationAssignmentRequest } from '../types/productClassification'
 
 export class ProductClassificationApi {
-  private static readonly BASE = 'api/admin/catalog/product-classifications'
-
-  static getClassifications(productId: string): Promise<PagedResult<ClassificationAssignment>> {
-    return getPaged<ClassificationAssignment>(`${ProductClassificationApi.BASE}?productId=${productId}`, {})
+  static getClassifications(productId: string, params: QueryingParameters = {}): Promise<PagedResult<ClassificationAssignment>> {
+    return getPaged<ClassificationAssignment>(`/api/admin/catalog/product-classifications?productId=${productId}`, params)
   }
 
   static syncClassifications(request: ProductClassificationAssignmentRequest): Promise<Result<void>> {
-    return put<Result<void>>(`${ProductClassificationApi.BASE}/sync`, request)
+    return put<Result<void>>('/api/admin/catalog/product-classifications/sync', request)
   }
 
   static assignClassifications(request: ProductClassificationAssignmentRequest): Promise<Result<void>> {
-    return post<Result<void>>(`${ProductClassificationApi.BASE}/assign`, request)
+    return post<Result<void>>('/api/admin/catalog/product-classifications/assign', request)
   }
 
   static revokeClassifications(request: ProductClassificationAssignmentRequest): Promise<Result<void>> {
-    return post<Result<void>>(`${ProductClassificationApi.BASE}/revoke`, request)
+    return post<Result<void>>('/api/admin/catalog/product-classifications/revoke', request)
   }
 }

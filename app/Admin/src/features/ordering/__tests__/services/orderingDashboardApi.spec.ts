@@ -18,6 +18,6 @@ describe('OrderingDashboardApi.getOrderingDashboard', () => {
   it('calls GET with dashboard URL', async () => {
     mockGet.mockResolvedValue({ value: {}, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await OrderingDashboardApi.getOrderingDashboard()
-    expect(mockGet).toHaveBeenCalledWith('api/admin/ordering/dashboard')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/ordering/dashboard')
   })
 })

@@ -3,6 +3,16 @@ import type { Ref, ComputedRef } from 'vue'
 import type { QueryingParameters } from '@/shared/types/querying'
 import type { PagedResult } from '@/shared/types/result'
 import { getPaged } from '@/shared/api'
+import type { PagedRequestOptions } from '@/shared/api'
+
+export type PagedFetcher<T> = (
+  params: QueryingParameters,
+  options?: PagedRequestOptions,
+) => Promise<PagedResult<T>>
+
+function isPagedFetcher<T>(fn: (() => string) | PagedFetcher<T>): fn is PagedFetcher<T> {
+  return fn.length >= 1
+}
 
 export interface UsePagedQueryOptions {
   defaultPageSize?: number
@@ -43,7 +53,7 @@ export interface PagedQueryState<T> {
 }
 
 export function usePagedQuery<T>(
-  url: string | (() => string),
+  source: string | (() => string) | PagedFetcher<T>,
   options?: UsePagedQueryOptions,
 ): PagedQueryState<T> {
   const items = ref<T[]>([]) as Ref<T[]>
@@ -67,7 +77,6 @@ export function usePagedQuery<T>(
     loading.value = true
     error.value = null
 
-    const resolvedUrl = typeof url === 'function' ? url() : url
     const params: QueryingParameters = {
       filter: filter.value || null,
       sort: sort.value.length > 0 ? sort.value : null,
@@ -77,12 +86,22 @@ export function usePagedQuery<T>(
       pageNumber: page.value,
       pageSize: pageSize.value,
     }
-
-    const result = await getPaged<T>(resolvedUrl, params, {
+    const opts: PagedRequestOptions = {
       allowedFilterFields: options?.allowedFilterFields,
       allowedSortFields: options?.allowedSortFields,
       allowedSearchFields: options?.allowedSearchFields,
-    })
+    }
+
+    let result: PagedResult<T>
+    if (typeof source === 'function') {
+      if (isPagedFetcher(source)) {
+        result = await source(params, opts)
+      } else {
+        result = await getPaged<T>(source(), params, opts)
+      }
+    } else {
+      result = await getPaged<T>(source, params, opts)
+    }
 
     if (result.isSuccess) {
       items.value = result.items

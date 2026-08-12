@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { usePagedQuery } from '../usePagedQuery'
+import type { PagedFetcher } from '../usePagedQuery'
 import type { PagedResult } from '@/shared/types/result'
 
 const { mockGetPaged } = vi.hoisted(() => ({ mockGetPaged: vi.fn<(...args: unknown[]) => unknown>() }))
@@ -22,6 +23,15 @@ function okResult(overrides: Partial<PagedResult<{ id: string; name: string }>> 
     metadata: null,
     ...overrides,
   }
+}
+
+function makeFetcher(): {
+  spy: ReturnType<typeof vi.fn<PagedFetcher<{ id: string; name: string }>>>
+  fetcher: PagedFetcher<{ id: string; name: string }>
+} {
+  const spy = vi.fn<PagedFetcher<{ id: string; name: string }>>()
+  const fetcher: PagedFetcher<{ id: string; name: string }> = (params, opts) => spy(params, opts)
+  return { spy, fetcher }
 }
 
 beforeEach(() => {
@@ -154,6 +164,81 @@ describe('usePagedQuery', () => {
     await vi.waitFor(() => {
       expect(items.value).toHaveLength(1)
     })
+  })
+
+  it('accepts a fetcher and awaits it with assembled QueryingParameters', async () => {
+    const { spy, fetcher } = makeFetcher()
+    spy.mockResolvedValue(okResult())
+    const { items } = usePagedQuery<{ id: string; name: string }>(fetcher)
+
+    await vi.waitFor(() => {
+      expect(items.value).toHaveLength(1)
+      expect(items.value[0]!.name).toBe('Test')
+    })
+
+    expect(spy).toHaveBeenCalledWith(
+      {
+        filter: null,
+        sort: null,
+        search: null,
+        searchFields: null,
+        searchMode: null,
+        pageNumber: 1,
+        pageSize: 20,
+      },
+      {
+        allowedFilterFields: undefined,
+        allowedSortFields: undefined,
+        allowedSearchFields: undefined,
+      },
+    )
+  })
+
+  it('fetcher updates items on success result', async () => {
+    mockGetPaged.mockRejectedValue(new Error('must not be called'))
+    const { spy, fetcher } = makeFetcher()
+    spy.mockResolvedValue(okResult({ totalCount: 42 }))
+    const { items, totalCount } = usePagedQuery<{ id: string; name: string }>(fetcher)
+
+    await vi.waitFor(() => {
+      expect(items.value).toHaveLength(1)
+      expect(totalCount.value).toBe(42)
+    })
+    expect(mockGetPaged).not.toHaveBeenCalled()
+  })
+
+  it('setPage triggers a new fetcher call with updated params', async () => {
+    const { spy, fetcher } = makeFetcher()
+    spy.mockResolvedValue(okResult({ page: 2 }))
+    const { setPage } = usePagedQuery<{ id: string; name: string }>(fetcher, { immediate: false })
+
+    setPage(2)
+    await vi.waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ pageNumber: 2 }),
+      expect.any(Object),
+    )
+  })
+
+  it('setFilter resets page to 1 and refetches via the fetcher', async () => {
+    const { spy, fetcher } = makeFetcher()
+    spy.mockResolvedValue(okResult())
+    const { setFilter, filter, page } = usePagedQuery<{ id: string; name: string }>(fetcher, { immediate: false })
+
+    setFilter('name=bolt')
+    await vi.waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    expect(filter.value).toBe('name=bolt')
+    expect(page.value).toBe(1)
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ filter: 'name=bolt', pageNumber: 1 }),
+      expect.any(Object),
+    )
   })
 
   it('passes allowedSearchFields to getPaged', async () => {

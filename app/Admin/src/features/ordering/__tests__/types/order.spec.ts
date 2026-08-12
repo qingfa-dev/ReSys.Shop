@@ -61,7 +61,6 @@ describe('ORDER_FILTER_FIELDS', () => {
       'checkoutState',
       'currency',
       'userId',
-      'storeId',
       'isDeleted',
     ])
   })

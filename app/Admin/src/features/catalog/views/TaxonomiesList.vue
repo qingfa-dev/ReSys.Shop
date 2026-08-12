@@ -10,7 +10,6 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { TaxonomyApi } from '../services/taxonomyApi'
 import type { TaxonomyListItem } from '../types/taxonomy'
-import { TAXONOMY_FILTER_FIELDS, TAXONOMY_SORT_FIELDS } from '../types/taxonomy'
 
 const router = useRouter()
 const confirm = useConfirm()
@@ -32,10 +31,7 @@ const {
   setPageSize,
   setSort,
   refresh,
-} = usePagedQuery<TaxonomyListItem>('api/admin/catalog/taxonomies', {
-  allowedFilterFields: TAXONOMY_FILTER_FIELDS,
-  allowedSortFields: TAXONOMY_SORT_FIELDS,
-  allowedSearchFields,
+} = usePagedQuery<TaxonomyListItem>((params) => TaxonomyApi.getTaxonomies(params), {
   defaultSearchFields: allowedSearchFields,
   defaultSearchMode: 'any',
   defaultSort: ['name'],

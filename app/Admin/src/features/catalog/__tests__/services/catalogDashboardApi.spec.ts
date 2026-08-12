@@ -33,6 +33,6 @@ describe('CatalogDashboardApi.getCatalogDashboard', () => {
       metadata: null,
     })
     await CatalogDashboardApi.getCatalogDashboard()
-    expect(mockGet).toHaveBeenCalledWith('api/admin/catalog/dashboard')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/catalog/dashboard')
   })
 })

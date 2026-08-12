@@ -42,7 +42,7 @@ describe('ImageEmbeddingApi.create', () => {
     const req = { variantImageId: 'img-1', modelName: 'openclip-vit-b-32' }
     mockPost.mockResolvedValue(embeddingResult)
     await ImageEmbeddingApi.create(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/variant-image-embeddings', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/catalog/variant-image-embeddings', req)
   })
 })
 
@@ -51,7 +51,7 @@ describe('ImageEmbeddingApi.regenerate', () => {
     const req = { variantImageId: 'img-1', modelName: 'openclip-vit-b-32', modelVersion: 'v1' }
     mockPut.mockResolvedValue(embeddingResult)
     await ImageEmbeddingApi.regenerate(req)
-    expect(mockPut).toHaveBeenCalledWith('api/admin/catalog/variant-image-embeddings/regenerate', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/catalog/variant-image-embeddings/regenerate', req)
   })
 })
 
@@ -60,7 +60,7 @@ describe('ImageEmbeddingApi.get', () => {
     const result = { value: embeddingResult.value, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null }
     mockGet.mockResolvedValue(result)
     await ImageEmbeddingApi.get('img-1')
-    expect(mockGet).toHaveBeenCalledWith('api/admin/catalog/variant-image-embeddings/img-1')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/catalog/variant-image-embeddings/img-1')
   })
 })
 
@@ -68,6 +68,6 @@ describe('ImageEmbeddingApi.deleteEmbedding', () => {
   it('calls DELETE with variantImageId path', async () => {
     mockDel.mockResolvedValue({ isSuccess: true, statusCode: 200, message: 'Deleted', errors: [], metadata: null })
     await ImageEmbeddingApi.deleteEmbedding('img-1')
-    expect(mockDel).toHaveBeenCalledWith('api/admin/catalog/variant-image-embeddings/img-1')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/catalog/variant-image-embeddings/img-1')
   })
 })

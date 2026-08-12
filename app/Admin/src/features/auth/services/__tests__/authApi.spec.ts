@@ -29,7 +29,7 @@ describe('login', () => {
 
     const result = await login({ credential: 'admin', password: 'pass' })
 
-    expect(mockPost).toHaveBeenCalledWith('api/storefront/identity/auth/login/password', {
+    expect(mockPost).toHaveBeenCalledWith('/api/storefront/identity/auth/login/password', {
       credential: 'admin',
       password: 'pass',
     })
@@ -64,7 +64,7 @@ describe('logout', () => {
     })
 
     await logout({ revokeAll: true })
-    expect(mockPost).toHaveBeenCalledWith('api/storefront/identity/auth/logout', { revokeAll: true })
+    expect(mockPost).toHaveBeenCalledWith('/api/storefront/identity/auth/logout', { revokeAll: true })
   })
 
   it('calls POST logout with empty body when no args', async () => {
@@ -78,7 +78,7 @@ describe('logout', () => {
     })
 
     await logout()
-    expect(mockPost).toHaveBeenCalledWith('api/storefront/identity/auth/logout', undefined)
+    expect(mockPost).toHaveBeenCalledWith('/api/storefront/identity/auth/logout', undefined)
   })
 })
 
@@ -94,7 +94,7 @@ describe('getSession', () => {
     })
 
     const result = await getSession()
-    expect(mockGet).toHaveBeenCalledWith('api/storefront/identity/auth/sessions')
+    expect(mockGet).toHaveBeenCalledWith('/api/storefront/identity/auth/sessions')
     expect(result.isSuccess).toBe(true)
     expect(result.value.roles).toEqual(['Admin'])
   })
@@ -105,7 +105,7 @@ describe('forgotPassword', () => {
     mockPost.mockResolvedValue(undefined)
 
     await forgotPassword({ email: 'user@example.com' })
-    expect(mockPost).toHaveBeenCalledWith('api/storefront/identity/passwords/forgot', {
+    expect(mockPost).toHaveBeenCalledWith('/api/storefront/identity/passwords/forgot', {
       email: 'user@example.com',
     })
   })
@@ -129,7 +129,7 @@ describe('resetPassword', () => {
       newPassword: 'newpass123',
     })
 
-    expect(mockPost).toHaveBeenCalledWith('api/storefront/identity/passwords/reset', {
+    expect(mockPost).toHaveBeenCalledWith('/api/storefront/identity/passwords/reset', {
       email: 'u@e.com',
       userId: 'uid',
       token: 'tok',

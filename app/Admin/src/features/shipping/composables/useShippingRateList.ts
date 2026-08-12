@@ -1,14 +1,11 @@
 import { usePagedQuery } from '@/shared/composables'
 import type { UsePagedQueryOptions } from '@/shared/composables'
 
-import { SHIPPING_RATE_FILTER_FIELDS, SHIPPING_RATE_SORT_FIELDS, SHIPPING_RATE_SEARCH_FIELDS } from '../types/shippingRate'
+import { ShippingRateApi } from '../services/shippingRateApi'
 import type { ShippingRateListItem } from '../types/shippingRate'
 
 export function useShippingRateList(options?: UsePagedQueryOptions) {
-  return usePagedQuery<ShippingRateListItem>(`api/admin/shipping/shipping-rates`, {
-    allowedFilterFields: SHIPPING_RATE_FILTER_FIELDS,
-    allowedSortFields: SHIPPING_RATE_SORT_FIELDS,
-    allowedSearchFields: SHIPPING_RATE_SEARCH_FIELDS,
+  return usePagedQuery<ShippingRateListItem>((params) => ShippingRateApi.getShippingRates(params), {
     ...options,
   })
 }

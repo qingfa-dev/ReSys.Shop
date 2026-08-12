@@ -3,10 +3,16 @@ import { ref } from 'vue'
 import { useTaxonList } from '../useTaxonList'
 import type { PagedResult } from '@/shared/types/result'
 
-const { mockGetPaged } = vi.hoisted(() => ({ mockGetPaged: vi.fn<(...args: unknown[]) => unknown>() }))
+const { mockGetList, mockGetTaxons } = vi.hoisted(() => ({
+  mockGetList: vi.fn<(...args: unknown[]) => unknown>(),
+  mockGetTaxons: vi.fn<(...args: unknown[]) => unknown>(),
+}))
 
-vi.mock('@/shared/api', () => ({
-  getPaged: mockGetPaged,
+vi.mock('../../services/taxonApi', () => ({
+  TaxonApi: {
+    getList: mockGetList,
+    getTaxons: mockGetTaxons,
+  },
 }))
 
 function okResult(overrides: Partial<PagedResult<{ id: string; name: string }>> = {}): PagedResult<{ id: string; name: string }> {
@@ -30,63 +36,49 @@ beforeEach(() => {
 })
 
 describe('useTaxonList', () => {
-  it('fetches the taxonomy-scoped URL when a taxonomyId ref is set', async () => {
-    mockGetPaged.mockResolvedValue(okResult())
+  it('fetches the taxonomy-scoped list when a taxonomyId ref is set', async () => {
+    mockGetList.mockResolvedValue(okResult())
     const taxonomyId = ref<string | null>('tax1')
     const { fetch } = useTaxonList(taxonomyId, { immediate: false })
 
     await fetch()
 
-    expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/catalog/taxons/list?taxonomyId=tax1',
-      expect.objectContaining({ pageNumber: 1 }),
-      expect.any(Object),
-    )
+    expect(mockGetList).toHaveBeenCalledWith('tax1', expect.objectContaining({ pageNumber: 1 }))
   })
 
-  it('fetches the unscoped URL when taxonomyId ref is null', async () => {
-    mockGetPaged.mockResolvedValue(okResult())
+  it('fetches the unscoped list when taxonomyId ref is null', async () => {
+    mockGetTaxons.mockResolvedValue(okResult())
     const taxonomyId = ref<string | null>(null)
     const { fetch } = useTaxonList(taxonomyId, { immediate: false })
 
     await fetch()
 
-    expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/catalog/taxons',
-      expect.objectContaining({ pageNumber: 1 }),
-      expect.any(Object),
-    )
+    expect(mockGetTaxons).toHaveBeenCalledWith(expect.objectContaining({ pageNumber: 1 }))
   })
 
-  it('switches to the scoped URL when taxonomyId ref changes to a new value', async () => {
-    mockGetPaged.mockResolvedValue(okResult())
+  it('switches to the scoped list when taxonomyId ref changes to a new value', async () => {
+    mockGetTaxons.mockResolvedValue(okResult())
     const taxonomyId = ref<string | null>(null)
     const { fetch } = useTaxonList(taxonomyId, { immediate: false })
 
     await fetch()
     taxonomyId.value = 'tax2'
+    mockGetList.mockResolvedValue(okResult())
     await fetch()
 
-    expect(mockGetPaged).toHaveBeenLastCalledWith(
-      'api/admin/catalog/taxons/list?taxonomyId=tax2',
-      expect.objectContaining({ pageNumber: 1 }),
-      expect.any(Object),
-    )
+    expect(mockGetList).toHaveBeenLastCalledWith('tax2', expect.objectContaining({ pageNumber: 1 }))
   })
 
-  it('switches back to the unscoped URL when taxonomyId ref is cleared', async () => {
-    mockGetPaged.mockResolvedValue(okResult())
+  it('switches back to the unscoped list when taxonomyId ref is cleared', async () => {
+    mockGetList.mockResolvedValue(okResult())
     const taxonomyId = ref<string | null>('tax1')
     const { fetch } = useTaxonList(taxonomyId, { immediate: false })
 
     await fetch()
     taxonomyId.value = null
+    mockGetTaxons.mockResolvedValue(okResult())
     await fetch()
 
-    expect(mockGetPaged).toHaveBeenLastCalledWith(
-      'api/admin/catalog/taxons',
-      expect.objectContaining({ pageNumber: 1 }),
-      expect.any(Object),
-    )
+    expect(mockGetTaxons).toHaveBeenLastCalledWith(expect.objectContaining({ pageNumber: 1 }))
   })
 })

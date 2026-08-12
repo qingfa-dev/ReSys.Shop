@@ -1,7 +1,6 @@
 // Feature: location
 // Barrel re-exports
 export * from './components'
-export * from './composables'
 export * from './routes'
 export * from './validations'
 export * from './services'

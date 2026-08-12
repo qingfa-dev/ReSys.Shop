@@ -28,7 +28,7 @@ describe('useProductOptions', () => {
     const { options, loadInitial } = useProductOptions()
     await loadInitial()
     expect(mockGetProducts).toHaveBeenCalledWith(
-      expect.objectContaining({ search: '', page: 1, pageSize: 25, sortBy: 'name' }),
+      expect.objectContaining({ search: '', pageNumber: 1, pageSize: 25, sort: ['name:asc'] }),
     )
     expect(options.value).toHaveLength(1)
   })
@@ -41,7 +41,7 @@ describe('useProductOptions', () => {
     vi.advanceTimersByTime(300)
     await vi.advanceTimersByTimeAsync(0)
     expect(mockGetProducts).toHaveBeenCalledWith(
-      expect.objectContaining({ search: 'shirt', page: 1, pageSize: 25 }),
+      expect.objectContaining({ search: 'shirt', pageNumber: 1, pageSize: 25 }),
     )
     expect(options.value).toHaveLength(1)
   })

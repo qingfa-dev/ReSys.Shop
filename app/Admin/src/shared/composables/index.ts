@@ -1,5 +1,5 @@
 export { usePagedQuery } from './usePagedQuery'
-export type { UsePagedQueryOptions, PagedQueryState } from './usePagedQuery'
+export type { UsePagedQueryOptions, PagedQueryState, PagedFetcher } from './usePagedQuery'
 export { useActiveList } from './useActiveList'
 export type { ActiveListState, UseActiveListOptions } from './useActiveList'
 export { useApiErrorHandler } from './useApiErrorHandler'

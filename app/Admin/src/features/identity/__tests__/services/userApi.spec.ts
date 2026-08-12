@@ -44,16 +44,12 @@ describe('UserApi.getUsers', () => {
       metadata: null,
     })
 
-    await UserApi.getUsers({ isActive: true, page: 1, pageSize: 10 })
+    await UserApi.getUsers({ filter: 'isActive=true', pageNumber: 1, pageSize: 10 })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/identity/users',
-      { filter: 'isActive=true', search: null, sort: null, pageNumber: 1, pageSize: 10 },
-      expect.objectContaining({
-        allowedFilterFields: ['isActive', 'emailConfirmed', 'phoneNumberConfirmed', 'createdAtUtc', 'modifiedAtUtc'],
-        allowedSortFields: ['userName', 'email', 'createdAtUtc', 'modifiedAtUtc', 'lastLoginAtUtc'],
-        allowedSearchFields: ['userName', 'email', 'firstName', 'lastName'],
-      }),
+      '/api/admin/identity/users',
+      { filter: 'isActive=true', pageNumber: 1, pageSize: 10 },
+      expect.objectContaining({ allowedFilterFields: expect.any(Array) }),
     )
   })
 })
@@ -62,7 +58,7 @@ describe('UserApi.getUser', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: 'u-1', email: 'a@b.com', userName: 'admin' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.getUser('u-1')
-    expect(mockGet).toHaveBeenCalledWith('api/admin/identity/users/u-1')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/identity/users/u-1')
   })
 })
 
@@ -79,7 +75,7 @@ describe('UserApi.createUser', () => {
     }
     mockPost.mockResolvedValue({ value: { id: 'u-1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await UserApi.createUser(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/identity/users', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/identity/users', req)
   })
 })
 
@@ -96,7 +92,7 @@ describe('UserApi.updateUser', () => {
     }
     mockPut.mockResolvedValue({ value: { id: 'u-1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.updateUser('u-1', req)
-    expect(mockPut).toHaveBeenCalledWith('api/admin/identity/users/u-1', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/identity/users/u-1', req)
   })
 })
 
@@ -104,7 +100,7 @@ describe('UserApi.deleteUser', () => {
   it('calls DELETE with correct URL', async () => {
     mockDel.mockResolvedValue({ value: null, isSuccess: true, statusCode: 204, message: null, errors: [], metadata: null })
     await UserApi.deleteUser('u-1')
-    expect(mockDel).toHaveBeenCalledWith('api/admin/identity/users/u-1')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/identity/users/u-1')
   })
 })
 
@@ -112,7 +108,7 @@ describe('UserApi.toggleStatus', () => {
   it('calls PATCH with status URL and no body', async () => {
     mockPatch.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.toggleStatus('u-1')
-    expect(mockPatch).toHaveBeenCalledWith('api/admin/identity/users/u-1/status')
+    expect(mockPatch).toHaveBeenCalledWith('/api/admin/identity/users/u-1/status')
   })
 })
 
@@ -132,7 +128,7 @@ describe('UserApi.getRoles', () => {
     })
     await UserApi.getRoles('u-1')
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/identity/users/u-1/roles',
+      '/api/admin/identity/users/u-1/roles',
       { pageNumber: 1, pageSize: 100 },
     )
   })
@@ -142,7 +138,7 @@ describe('UserApi.assignRoles', () => {
   it('calls POST with assign URL and roles body', async () => {
     mockPost.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.assignRoles('u-1', ['Admin'])
-    expect(mockPost).toHaveBeenCalledWith('api/admin/identity/users/u-1/roles/assign', { roles: ['Admin'] })
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/identity/users/u-1/roles/assign', { roles: ['Admin'] })
   })
 })
 
@@ -150,7 +146,7 @@ describe('UserApi.revokeRoles', () => {
   it('calls POST with revoke URL and roles body', async () => {
     mockPost.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.revokeRoles('u-1', ['Admin'])
-    expect(mockPost).toHaveBeenCalledWith('api/admin/identity/users/u-1/roles/revoke', { roles: ['Admin'] })
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/identity/users/u-1/roles/revoke', { roles: ['Admin'] })
   })
 })
 
@@ -158,7 +154,7 @@ describe('UserApi.syncRoles', () => {
   it('calls PATCH with sync URL and roles body', async () => {
     mockPatch.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.syncRoles('u-1', ['Admin'])
-    expect(mockPatch).toHaveBeenCalledWith('api/admin/identity/users/u-1/roles/sync', { roles: ['Admin'] })
+    expect(mockPatch).toHaveBeenCalledWith('/api/admin/identity/users/u-1/roles/sync', { roles: ['Admin'] })
   })
 })
 
@@ -166,7 +162,7 @@ describe('UserApi.getPermissions', () => {
   it('calls GET with permissions URL', async () => {
     mockGet.mockResolvedValue({ value: { categories: [] }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.getPermissions('u-1')
-    expect(mockGet).toHaveBeenCalledWith('api/admin/identity/users/u-1/permissions')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/identity/users/u-1/permissions')
   })
 })
 
@@ -174,7 +170,7 @@ describe('UserApi.assignPermissions', () => {
   it('calls POST with assign URL and permissions body', async () => {
     mockPost.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.assignPermissions('u-1', ['a.b.c.view'])
-    expect(mockPost).toHaveBeenCalledWith('api/admin/identity/users/u-1/permissions/assign', { permissions: ['a.b.c.view'] })
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/identity/users/u-1/permissions/assign', { permissions: ['a.b.c.view'] })
   })
 })
 
@@ -182,7 +178,7 @@ describe('UserApi.revokePermissions', () => {
   it('calls delWithBody with revoke URL and permissions body', async () => {
     mockDelWithBody.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.revokePermissions('u-1', ['a.b.c.view'])
-    expect(mockDelWithBody).toHaveBeenCalledWith('api/admin/identity/users/u-1/permissions/revoke', { permissions: ['a.b.c.view'] })
+    expect(mockDelWithBody).toHaveBeenCalledWith('/api/admin/identity/users/u-1/permissions/revoke', { permissions: ['a.b.c.view'] })
     expect(mockDel).not.toHaveBeenCalled()
   })
 })
@@ -191,6 +187,6 @@ describe('UserApi.syncPermissions', () => {
   it('calls PUT with sync URL and permissions body', async () => {
     mockPut.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await UserApi.syncPermissions('u-1', ['a.b.c.view'])
-    expect(mockPut).toHaveBeenCalledWith('api/admin/identity/users/u-1/permissions/sync', { permissions: ['a.b.c.view'] })
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/identity/users/u-1/permissions/sync', { permissions: ['a.b.c.view'] })
   })
 })

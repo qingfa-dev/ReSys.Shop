@@ -5,6 +5,6 @@ import { StockLocationApi } from '../services/stockLocationApi'
 export function useActiveStockLocations() {
   // Call: Inventory service — active stock locations for filter and form Selects
   return useActiveList<StockLocationListItem>(() =>
-    StockLocationApi.getStockLocations({ pageSize: 100, sortBy: 'name', sortDirection: 'asc' }),
+    StockLocationApi.getStockLocations({ sort: ['name'], pageSize: 100 }),
   )
 }

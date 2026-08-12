@@ -39,7 +39,7 @@ describe('ProductClassificationApi.getClassifications', () => {
     await ProductClassificationApi.getClassifications('abc-123')
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/catalog/product-classifications?productId=abc-123',
+      '/api/admin/catalog/product-classifications?productId=abc-123',
       {},
     )
   })
@@ -50,7 +50,7 @@ describe('ProductClassificationApi.syncClassifications', () => {
     const req = { productId: 'prod-1', items: [{ taxonId: 'tx-1', position: 0 }] }
     mockPut.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductClassificationApi.syncClassifications(req)
-    expect(mockPut).toHaveBeenCalledWith('api/admin/catalog/product-classifications/sync', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/catalog/product-classifications/sync', req)
   })
 })
 
@@ -59,7 +59,7 @@ describe('ProductClassificationApi.assignClassifications', () => {
     const req = { productId: 'prod-1', items: [{ taxonId: 'tx-1', position: 0 }] }
     mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductClassificationApi.assignClassifications(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/product-classifications/assign', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/catalog/product-classifications/assign', req)
   })
 })
 
@@ -68,6 +68,6 @@ describe('ProductClassificationApi.revokeClassifications', () => {
     const req = { productId: 'prod-1', items: [{ taxonId: 'tx-1', position: 0 }] }
     mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductClassificationApi.revokeClassifications(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/product-classifications/revoke', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/catalog/product-classifications/revoke', req)
   })
 })

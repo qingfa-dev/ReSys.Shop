@@ -23,6 +23,7 @@ import { PaymentApi } from '@/features/payment/services/paymentApi'
 import type { Result } from '@/shared/types'
 import type { OrderDetail, OrderStatus, LineItem, ShipmentState } from '../types/order'
 import type { PaymentListItem } from '@/features/payment/types/payment'
+import { toPaymentQueryParams } from '@/features/payment/types/payment'
 import { SHIPMENT_STATE_OPTIONS } from '../types/order'
 
 const route = useRoute()
@@ -184,7 +185,7 @@ async function loadPayments() {
   if (paymentsLoaded.value || paymentsLoading.value) return
   paymentsLoading.value = true
   // Load: Fetch payments lazily when the payments tab opens.
-  const result = await PaymentApi.getPayments({ orderId: orderId.value, pageSize: 100 })
+  const result = await PaymentApi.getPayments(toPaymentQueryParams({ orderId: orderId.value, pageSize: 100 }))
   paymentsLoading.value = false
   if (result.isSuccess) {
     payments.value = result.items

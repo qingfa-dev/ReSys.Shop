@@ -39,7 +39,7 @@ describe('ProductOptionTypeApi.getOptionTypes', () => {
     await ProductOptionTypeApi.getOptionTypes('abc-123')
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/catalog/product-option-types?productId=abc-123',
+      '/api/admin/catalog/product-option-types?productId=abc-123',
       {},
     )
   })
@@ -50,7 +50,7 @@ describe('ProductOptionTypeApi.syncOptionTypes', () => {
     const req = { productId: 'prod-1', items: [{ optionTypeId: 'ot-1', position: 0 }] }
     mockPut.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductOptionTypeApi.syncOptionTypes(req)
-    expect(mockPut).toHaveBeenCalledWith('api/admin/catalog/product-option-types/sync', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/catalog/product-option-types/sync', req)
   })
 })
 
@@ -59,7 +59,7 @@ describe('ProductOptionTypeApi.assignOptionTypes', () => {
     const req = { productId: 'prod-1', items: [{ optionTypeId: 'ot-1', position: 0 }] }
     mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductOptionTypeApi.assignOptionTypes(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/product-option-types/assign', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/catalog/product-option-types/assign', req)
   })
 })
 
@@ -68,6 +68,6 @@ describe('ProductOptionTypeApi.revokeOptionTypes', () => {
     const req = { productId: 'prod-1', items: [{ optionTypeId: 'ot-1', position: 0 }] }
     mockPost.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ProductOptionTypeApi.revokeOptionTypes(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/product-option-types/revoke', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/catalog/product-option-types/revoke', req)
   })
 })

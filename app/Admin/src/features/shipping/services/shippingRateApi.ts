@@ -1,15 +1,13 @@
 import { post, get, put, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
 
-import type { Result, PagedResult } from '@/shared/types'
-import type { ShippingRateRequest, ShippingRateListItem, ShippingRateDetail, ShippingRateQuery } from '../types/shippingRate'
-import { toShippingRateQueryParams, SHIPPING_RATE_FILTER_FIELDS, SHIPPING_RATE_SORT_FIELDS, SHIPPING_RATE_SEARCH_FIELDS } from '../types/shippingRate'
+import type { Result, PagedResult, QueryingParameters } from '@/shared/types'
+import type { ShippingRateRequest, ShippingRateListItem, ShippingRateDetail } from '../types/shippingRate'
+import { SHIPPING_RATE_FILTER_FIELDS, SHIPPING_RATE_SORT_FIELDS, SHIPPING_RATE_SEARCH_FIELDS } from '../types/shippingRate'
 
 export class ShippingRateApi {
-  private static readonly BASE = 'api/admin/shipping/shipping-rates'
-
-  static getShippingRates(query: ShippingRateQuery): Promise<PagedResult<ShippingRateListItem>> {
-    return getPaged<ShippingRateListItem>(ShippingRateApi.BASE, toShippingRateQueryParams(query), {
+  static getShippingRates(params: QueryingParameters): Promise<PagedResult<ShippingRateListItem>> {
+    return getPaged<ShippingRateListItem>('/api/admin/shipping/shipping-rates', params, {
       allowedFilterFields: SHIPPING_RATE_FILTER_FIELDS,
       allowedSortFields: SHIPPING_RATE_SORT_FIELDS,
       allowedSearchFields: SHIPPING_RATE_SEARCH_FIELDS,
@@ -17,18 +15,18 @@ export class ShippingRateApi {
   }
 
   static getShippingRate(id: string): Promise<Result<ShippingRateDetail>> {
-    return get<Result<ShippingRateDetail>>(`${ShippingRateApi.BASE}/${id}`)
+    return get<Result<ShippingRateDetail>>(`/api/admin/shipping/shipping-rates/${id}`)
   }
 
   static createShippingRate(request: ShippingRateRequest): Promise<Result<ShippingRateDetail>> {
-    return post<Result<ShippingRateDetail>>(ShippingRateApi.BASE, request)
+    return post<Result<ShippingRateDetail>>('/api/admin/shipping/shipping-rates', request)
   }
 
   static updateShippingRate(id: string, request: ShippingRateRequest): Promise<Result<ShippingRateDetail>> {
-    return put<Result<ShippingRateDetail>>(`${ShippingRateApi.BASE}/${id}`, request)
+    return put<Result<ShippingRateDetail>>(`/api/admin/shipping/shipping-rates/${id}`, request)
   }
 
   static deleteShippingRate(id: string): Promise<Result<void>> {
-    return del<Result<void>>(`${ShippingRateApi.BASE}/${id}`)
+    return del<Result<void>>(`/api/admin/shipping/shipping-rates/${id}`)
   }
 }

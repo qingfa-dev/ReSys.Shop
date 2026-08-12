@@ -1,19 +1,17 @@
 import { getPaged } from '@/shared/api'
 import { get, post, put, del } from '@/shared/api/client'
-import type { Result, PagedResult } from '@/shared/types'
-import type { AddressQuery, AddressRequest, AddressResponse } from '../types/address'
+
+import type { Result, PagedResult, QueryingParameters } from '@/shared/types'
+import type { AddressRequest, AddressResponse } from '../types/address'
 import {
-  toAddressQueryParams,
   ADDRESS_FILTER_FIELDS,
   ADDRESS_SORT_FIELDS,
   ADDRESS_SEARCH_FIELDS,
 } from '../types/address'
 
 export class AddressApi {
-  private static readonly BASE = 'api/admin/customer/addresses'
-
-  static getAddresses(userId: string, query: AddressQuery): Promise<PagedResult<AddressResponse>> {
-    return getPaged<AddressResponse>(`${AddressApi.BASE}?userId=${userId}`, toAddressQueryParams(query), {
+  static getAddresses(userId: string, params: QueryingParameters): Promise<PagedResult<AddressResponse>> {
+    return getPaged<AddressResponse>(`/api/admin/customer/addresses?userId=${userId}`, params, {
       allowedFilterFields: ADDRESS_FILTER_FIELDS,
       allowedSortFields: ADDRESS_SORT_FIELDS,
       allowedSearchFields: ADDRESS_SEARCH_FIELDS,
@@ -21,18 +19,18 @@ export class AddressApi {
   }
 
   static getAddress(userId: string, id: string): Promise<Result<AddressResponse>> {
-    return get<Result<AddressResponse>>(`${AddressApi.BASE}/${id}?userId=${userId}`)
+    return get<Result<AddressResponse>>(`/api/admin/customer/addresses/${id}?userId=${userId}`)
   }
 
   static createAddress(request: AddressRequest): Promise<Result<AddressResponse>> {
-    return post<Result<AddressResponse>>(AddressApi.BASE, request)
+    return post<Result<AddressResponse>>('/api/admin/customer/addresses', request)
   }
 
   static updateAddress(id: string, request: AddressRequest): Promise<Result<AddressResponse>> {
-    return put<Result<AddressResponse>>(`${AddressApi.BASE}/${id}`, request)
+    return put<Result<AddressResponse>>(`/api/admin/customer/addresses/${id}`, request)
   }
 
   static deleteAddress(userId: string, id: string): Promise<Result<{ id: string; label: string }>> {
-    return del<Result<{ id: string; label: string }>>(`${AddressApi.BASE}/${id}?userId=${userId}`)
+    return del<Result<{ id: string; label: string }>>(`/api/admin/customer/addresses/${id}?userId=${userId}`)
   }
 }

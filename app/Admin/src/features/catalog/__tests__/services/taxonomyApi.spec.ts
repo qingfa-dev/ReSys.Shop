@@ -35,11 +35,11 @@ describe('TaxonomyApi.getTaxonomies', () => {
       isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null,
     })
 
-    await TaxonomyApi.getTaxonomies({ name: 'Categories', page: 1, pageSize: 10 })
+    await TaxonomyApi.getTaxonomies({ filter: 'name*=Categories', pageNumber: 1, pageSize: 10 })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/catalog/taxonomies',
-      { filter: 'name*=Categories', search: null, sort: null, pageNumber: 1, pageSize: 10 },
+      '/api/admin/catalog/taxonomies',
+      { filter: 'name*=Categories', pageNumber: 1, pageSize: 10 },
       expect.objectContaining({ allowedFilterFields: expect.any(Array) }),
     )
   })
@@ -49,7 +49,7 @@ describe('TaxonomyApi.getTaxonomy', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'Categories' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonomyApi.getTaxonomy('abc-123')
-    expect(mockGet).toHaveBeenCalledWith('api/admin/catalog/taxonomies/abc-123')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/catalog/taxonomies/abc-123')
   })
 })
 
@@ -58,7 +58,7 @@ describe('TaxonomyApi.createTaxonomy', () => {
     const req = { name: 'Categories', presentation: 'Categories', position: 1 }
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await TaxonomyApi.createTaxonomy(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/catalog/taxonomies', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/catalog/taxonomies', req)
   })
 })
 
@@ -67,7 +67,7 @@ describe('TaxonomyApi.updateTaxonomy', () => {
     const req = { name: 'Categories', presentation: 'Categories', position: 2 }
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonomyApi.updateTaxonomy('abc-123', req)
-    expect(mockPut).toHaveBeenCalledWith('api/admin/catalog/taxonomies/abc-123', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/catalog/taxonomies/abc-123', req)
   })
 })
 
@@ -75,7 +75,7 @@ describe('TaxonomyApi.deleteTaxonomy', () => {
   it('calls DELETE with correct URL', async () => {
     mockDel.mockResolvedValue({ value: { id: '1', name: 'Categories' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonomyApi.deleteTaxonomy('abc-123')
-    expect(mockDel).toHaveBeenCalledWith('api/admin/catalog/taxonomies/abc-123')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/catalog/taxonomies/abc-123')
   })
 })
 
@@ -83,6 +83,6 @@ describe('TaxonomyApi.restoreTaxonomy', () => {
   it('calls PATCH restore with correct URL and no body', async () => {
     mockPatch.mockResolvedValue({ isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await TaxonomyApi.restoreTaxonomy('abc-123')
-    expect(mockPatch).toHaveBeenCalledWith('api/admin/catalog/taxonomies/abc-123/restore')
+    expect(mockPatch).toHaveBeenCalledWith('/api/admin/catalog/taxonomies/abc-123/restore')
   })
 })

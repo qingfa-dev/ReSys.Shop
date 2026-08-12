@@ -7,7 +7,6 @@ import { useAuthStore } from '../stores/authStore'
 import { RegisterFormSchema } from '../validations'
 import type { RegisterForm } from '../validations'
 import { usePasswordStrength } from '../composables/usePasswordStrength'
-import FieldMessage from '@/shared/components/FieldMessage.vue'
 
 // Store: Auth store owns the registration request.
 const auth = useAuthStore()
@@ -93,8 +92,12 @@ const onSubmit = handleSubmit(async values => {
       </FloatLabel>
     </div>
     <div class="flex flex-col gap-1">
-      <FieldMessage :error="errors.firstName" />
-      <FieldMessage :error="errors.lastName" />
+      <Message v-if="errors.firstName" severity="error" size="small" variant="simple">
+        {{ errors.firstName }}
+      </Message>
+      <Message v-if="errors.lastName" severity="error" size="small" variant="simple">
+        {{ errors.lastName }}
+      </Message>
     </div>
 
     <FloatLabel variant="on">
@@ -109,7 +112,9 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="email">Email</Label>
     </FloatLabel>
-    <FieldMessage :error="errors.email" />
+    <Message v-if="errors.email" severity="error" size="small" variant="simple">
+      {{ errors.email }}
+    </Message>
 
     <FloatLabel variant="on">
       <InputPassword
@@ -122,7 +127,9 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="password">Password</Label>
     </FloatLabel>
-    <FieldMessage :error="errors.password" />
+    <Message v-if="errors.password" severity="error" size="small" variant="simple">
+      {{ errors.password }}
+    </Message>
 
     <!-- Section: Strength Meter — live feedback as the password improves -->
     <div v-if="strengthInfo" class="flex flex-col gap-1">
@@ -148,7 +155,9 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="confirmPassword">Confirm password</Label>
     </FloatLabel>
-    <FieldMessage :error="errors.confirmPassword" />
+    <Message v-if="errors.confirmPassword" severity="error" size="small" variant="simple">
+      {{ errors.confirmPassword }}
+    </Message>
 
     <!-- Section: Terms Consent — checkbox with link to the terms page -->
     <div class="flex items-center gap-2">
@@ -156,7 +165,9 @@ const onSubmit = handleSubmit(async values => {
       <Label for="agree-to-terms" class="text-sm text-muted">I agree to the</Label>
       <Button as="router-link" to="/terms" text size="small" label="Terms of Service" />
     </div>
-    <FieldMessage :error="termsError" />
+    <Message v-if="termsError" severity="error" size="small" variant="simple">
+      {{ termsError }}
+    </Message>
 
     <!-- Section: Feedback — inline message for API errors -->
     <Message v-if="apiError" severity="error" :closable="false">{{ apiError }}</Message>

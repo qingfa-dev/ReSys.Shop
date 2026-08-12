@@ -42,26 +42,11 @@ describe('PaymentMethodApi.getPaymentMethods', () => {
       metadata: null,
     })
 
-    await PaymentMethodApi.getPaymentMethods({
-      active: true,
-      providerKey: 'stripe',
-      autoCapture: true,
-      sortBy: 'name',
-      sortDirection: 'desc',
-      page: 1,
-      pageSize: 10,
-    })
+    await PaymentMethodApi.getPaymentMethods({ filter: 'active=true,providerKey=stripe,autoCapture=true', pageNumber: 1, pageSize: 10 })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/admin/billing/payment-methods',
-      {
-        filter: 'active=true,providerKey=stripe,autoCapture=true',
-        search: null,
-        searchFields: ['name', 'code', 'description'],
-        sort: ['-name'],
-        pageNumber: 1,
-        pageSize: 10,
-      },
+      '/api/admin/billing/payment-methods',
+      { filter: 'active=true,providerKey=stripe,autoCapture=true', pageNumber: 1, pageSize: 10 },
       expect.objectContaining({
         allowedFilterFields: ['active', 'providerKey', 'autoCapture', 'displayOn', 'isDeleted'],
         allowedSortFields: ['name', 'position', 'createdAtUtc'],
@@ -75,7 +60,7 @@ describe('PaymentMethodApi.getPaymentMethod', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: 'pm-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await PaymentMethodApi.getPaymentMethod('pm-1')
-    expect(mockGet).toHaveBeenCalledWith('api/admin/billing/payment-methods/pm-1')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/billing/payment-methods/pm-1')
   })
 })
 
@@ -92,7 +77,7 @@ describe('PaymentMethodApi.createPaymentMethod', () => {
     }
     mockPost.mockResolvedValue({ value: { id: 'pm-1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await PaymentMethodApi.createPaymentMethod(req)
-    expect(mockPost).toHaveBeenCalledWith('api/admin/billing/payment-methods', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/billing/payment-methods', req)
   })
 })
 
@@ -101,7 +86,7 @@ describe('PaymentMethodApi.updatePaymentMethod', () => {
     const req = { name: 'Card Updated' }
     mockPut.mockResolvedValue({ value: { id: 'pm-1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await PaymentMethodApi.updatePaymentMethod('pm-1', req)
-    expect(mockPut).toHaveBeenCalledWith('api/admin/billing/payment-methods/pm-1', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/billing/payment-methods/pm-1', req)
   })
 })
 
@@ -109,7 +94,7 @@ describe('PaymentMethodApi.deletePaymentMethod', () => {
   it('calls DELETE with correct URL', async () => {
     mockDel.mockResolvedValue({ value: null, isSuccess: true, statusCode: 204, message: null, errors: [], metadata: null })
     await PaymentMethodApi.deletePaymentMethod('pm-1')
-    expect(mockDel).toHaveBeenCalledWith('api/admin/billing/payment-methods/pm-1')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/billing/payment-methods/pm-1')
   })
 })
 
@@ -117,7 +102,7 @@ describe('PaymentMethodApi.activatePaymentMethod', () => {
   it('calls PATCH with activate URL', async () => {
     mockPatch.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await PaymentMethodApi.activatePaymentMethod('pm-1')
-    expect(mockPatch).toHaveBeenCalledWith('api/admin/billing/payment-methods/pm-1/activate')
+    expect(mockPatch).toHaveBeenCalledWith('/api/admin/billing/payment-methods/pm-1/activate')
   })
 })
 
@@ -125,6 +110,6 @@ describe('PaymentMethodApi.deactivatePaymentMethod', () => {
   it('calls PATCH with deactivate URL', async () => {
     mockPatch.mockResolvedValue({ value: null, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await PaymentMethodApi.deactivatePaymentMethod('pm-1')
-    expect(mockPatch).toHaveBeenCalledWith('api/admin/billing/payment-methods/pm-1/deactivate')
+    expect(mockPatch).toHaveBeenCalledWith('/api/admin/billing/payment-methods/pm-1/deactivate')
   })
 })

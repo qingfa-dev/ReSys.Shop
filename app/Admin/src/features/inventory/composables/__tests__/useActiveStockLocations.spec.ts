@@ -25,7 +25,7 @@ describe('useActiveStockLocations', () => {
 
     await load()
 
-    expect(mockGetStockLocations).toHaveBeenCalledWith({ pageSize: 100, sortBy: 'name', sortDirection: 'asc' })
+    expect(mockGetStockLocations).toHaveBeenCalledWith({ sort: ['name'], pageSize: 100 })
     expect(items.value).toHaveLength(1)
   })
 })

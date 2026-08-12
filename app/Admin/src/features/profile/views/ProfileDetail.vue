@@ -82,7 +82,7 @@ async function loadAddresses() {
   if (addressesLoaded.value) return
   addressesLoading.value = true
   const userId = route.params.id as string
-  const result = await AddressApi.getAddresses(userId, { userId, pageSize: 100 })
+  const result = await AddressApi.getAddresses(userId, { pageSize: 100 })
   addressesLoading.value = false
   if (result.isSuccess) {
     addresses.value = result.items
