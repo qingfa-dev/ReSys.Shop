@@ -1,4 +1,4 @@
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { CheckoutApi } from '../services/checkoutApi'
 import { useRouter } from 'vue-router'
 import { emit } from '@/shared/composables/useStoreEvents'
@@ -8,11 +8,25 @@ type Step = 1 | 2 | 3 | 4 | 5
 interface CartRef {
   id: string | null
   isEmpty: boolean
-  fetchCart: () => Promise<boolean>
+  checkoutState: string | null
+  fetchCart: (force?: boolean) => Promise<boolean>
+}
+
+// Map: Translate the backend checkout state into its wizard step (PAT-001).
+function stepOf(state: string | null): Step {
+  switch (state) {
+    case 'Address': return 1
+    case 'Delivery': return 2
+    case 'Payment': return 3
+    case 'Confirm': return 4
+    case 'Complete': return 5
+    default: return 1
+  }
 }
 
 export function useCheckout(getCart: () => CartRef) {
-  const currentStep = ref<Step>(1)
+  const displayStep = ref<Step>(1)
+  const backendStep = computed<Step>(() => stepOf(getCart().checkoutState))
   const shipAddressId = ref<string | null>(null)
   const shippingMethodId = ref<string | null>(null)
   const paymentMethodId = ref<string | null>(null)
@@ -24,11 +38,11 @@ export function useCheckout(getCart: () => CartRef) {
   const error = ref<string | null>(null)
 
   const steps = computed(() => [
-    { label: 'Address', number: 1, complete: currentStep.value > 1, current: currentStep.value === 1 },
-    { label: 'Delivery', number: 2, complete: currentStep.value > 2, current: currentStep.value === 2 },
-    { label: 'Payment', number: 3, complete: currentStep.value > 3, current: currentStep.value === 3 },
-    { label: 'Confirm', number: 4, complete: currentStep.value > 4, current: currentStep.value === 4 },
-    { label: 'Complete', number: 5, complete: currentStep.value === 5, current: currentStep.value === 5 },
+    { label: 'Address', number: 1, complete: backendStep.value > 1, current: displayStep.value === 1 },
+    { label: 'Delivery', number: 2, complete: backendStep.value > 2, current: displayStep.value === 2 },
+    { label: 'Payment', number: 3, complete: backendStep.value > 3, current: displayStep.value === 3 },
+    { label: 'Confirm', number: 4, complete: backendStep.value > 4, current: displayStep.value === 4 },
+    { label: 'Complete', number: 5, complete: backendStep.value === 5, current: displayStep.value === 5 },
   ])
 
   function init(): void {
@@ -46,7 +60,9 @@ export function useCheckout(getCart: () => CartRef) {
       if (result.isSuccess) {
         shipAddressId.value = addressId
         email.value = userEmail
-        currentStep.value = 2
+        displayStep.value = 2
+        await getCart().fetchCart(true)
+        return true
       } else {
         error.value = result.message
       }
@@ -66,7 +82,9 @@ export function useCheckout(getCart: () => CartRef) {
       const result = await CheckoutApi.selectShippingRate({ shippingMethodId: methodId })
       if (result.isSuccess) {
         shippingMethodId.value = methodId
-        currentStep.value = 3
+        displayStep.value = 3
+        await getCart().fetchCart(true)
+        return true
       } else {
         error.value = result.message
       }
@@ -109,7 +127,7 @@ export function useCheckout(getCart: () => CartRef) {
       const result = await CheckoutApi.placeOrder({ paymentIntentId: paymentIntentId.value })
       if (result.isSuccess) {
         orderId.value = result.value.id
-        currentStep.value = 5
+        displayStep.value = 5
         emit({ type: 'checkout:placed', orderId: result.value.id })
       } else {
         error.value = result.message
@@ -141,8 +159,25 @@ export function useCheckout(getCart: () => CartRef) {
     }
   }
 
+  // Watch: Regress the wizard when the backend state moves backwards or clears the intent.
+  watch(
+    () => getCart().checkoutState,
+    (cur, prev) => {
+      const prevStep = stepOf(prev)
+      const curStep = stepOf(cur)
+      if (prev === 'Payment' && cur === 'Delivery') {
+        paymentClientSecret.value = null
+        paymentIntentId.value = null
+        paymentMethodId.value = null
+      }
+      if (curStep >= 2 && curStep < (prevStep >= 2 ? prevStep : Number.MAX_SAFE_INTEGER)) {
+        displayStep.value = curStep
+      }
+    },
+  )
+
   function reset(): void {
-    currentStep.value = 1
+    displayStep.value = 1
     shipAddressId.value = null
     shippingMethodId.value = null
     paymentMethodId.value = null
@@ -153,7 +188,7 @@ export function useCheckout(getCart: () => CartRef) {
   }
 
   return reactive({
-    currentStep, shipAddressId, shippingMethodId, paymentMethodId, paymentIntentId,
+    backendStep, displayStep, shipAddressId, shippingMethodId, paymentMethodId, paymentIntentId,
     paymentClientSecret, orderId, email, loading, error, steps,
     init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, validateCheckout, reset,
   })

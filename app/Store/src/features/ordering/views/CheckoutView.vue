@@ -195,17 +195,20 @@ async function mountCard(): Promise<void> {
 
 // Watch: Prepare the payment intent and card form on entry to the payment panel.
 watch(
-  () => checkout.currentStep,
+  () => checkout.displayStep,
   async (step) => {
     if (step !== 3) {
       payment.unmount()
       return
     }
     await resolvePaymentMethod()
-    // Guard: Create the intent lazily; the store advances to review on success, so hold here.
+    // Guard: Create the intent lazily; skip it on a reload where the backend is already at Payment.
     if (!checkout.paymentClientSecret && paymentMethodId.value) {
-      await checkout.createPaymentIntent(paymentMethodId.value)
-      checkout.currentStep = 3
+      if (checkout.backendStep === 2) {
+        await checkout.createPaymentIntent(paymentMethodId.value)
+      } else if (checkout.backendStep === 3) {
+        checkout.error = 'Payment needs to be re-initiated. Go back and re-save your shipping method.'
+      }
     }
     await mountCard()
   },
@@ -222,8 +225,8 @@ async function onPlaceOrder(): Promise<void> {
 
 // Navigate: Allow stepping back through completed panels; forward flow is action-driven.
 function goToStep(value: number): void {
-  if (value >= 1 && value <= checkout.currentStep) {
-    checkout.currentStep = value as CheckoutStep
+  if (value >= 1 && value <= Math.max(checkout.displayStep, checkout.backendStep)) {
+    checkout.displayStep = value as CheckoutStep
   }
 }
 
@@ -241,7 +244,7 @@ async function advanceToReview(): Promise<void> {
   const validOk = await checkout.validateCheckout()
   checkout.loading = false
   if (validOk) {
-    checkout.currentStep = 4
+    checkout.displayStep = 4
   }
 }
 
@@ -251,9 +254,12 @@ onMounted(async () => {
   void location.loadAll()
   void shipping.fetchMethods()
   await cart.fetchCart()
+  checkout.displayStep = Math.min(5, checkout.backendStep) as CheckoutStep
+  selectedShippingId.value = cart.shippingMethodId
+  email.value = cart.email ?? auth.user?.email ?? ''
   if (cart.id) void shipping.fetchRates(cart.id)
   // Guard: Bounce empty carts back to the cart page unless an order was just confirmed.
-  if (cart.isEmpty && checkout.currentStep !== 5) {
+  if (cart.isEmpty && checkout.displayStep !== 5) {
     await router.push('/cart')
   }
 })
@@ -270,7 +276,7 @@ onUnmounted(() => {
     <h1 class="mb-8 text-2xl font-bold">Checkout</h1>
 
     <!-- Section: Wizard — five-panel stepper driven by the checkout store -->
-    <Stepper :value="checkout.currentStep" @update:value="goToStep($event)">
+    <Stepper :value="checkout.displayStep" @update:value="goToStep($event)">
       <StepList>
         <Step :value="1">Shipping</Step>
         <Step :value="2">Delivery</Step>
