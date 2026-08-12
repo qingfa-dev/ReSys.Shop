@@ -97,12 +97,16 @@ export function useCheckout(getCart: () => CartRef) {
     }
   }
 
-  async function createPaymentIntent(methodId: string): Promise<boolean> {
+  async function createPaymentIntent(methodId: string, paymentMethodToken?: string): Promise<boolean> {
     loading.value = true
     error.value = null
     try {
       const cart = getCart()
-      const result = await CheckoutApi.createPaymentIntent({ orderId: cart.id!, paymentMethodId: methodId })
+      const result = await CheckoutApi.createPaymentIntent({
+        orderId: cart.id!,
+        paymentMethodId: methodId,
+        paymentMethodToken,
+      })
       if (result.isSuccess) {
         paymentIntentId.value = result.value.responseCode ?? result.value.id
         paymentClientSecret.value = result.value.clientSecret

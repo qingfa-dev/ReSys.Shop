@@ -12,6 +12,7 @@ export interface SelectShippingRateRequest {
 export interface CreatePaymentIntentRequest {
   orderId: string
   paymentMethodId: string
+  paymentMethodToken?: string
   returnUrl?: string
 }
 

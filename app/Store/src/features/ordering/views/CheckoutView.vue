@@ -186,14 +186,19 @@ async function resolvePaymentMethod(): Promise<void> {
 }
 
 // Mount: Attach the Stripe Elements card form to the payment panel container.
+// A bare card (no client secret yet) still lets the user enter details; the
+// secret is passed once the intent is created.
 async function mountCard(): Promise<void> {
   await nextTick()
-  if (!checkout.paymentClientSecret || !cardContainer.value) return
+  if (!cardContainer.value) return
   payment.unmount()
-  await payment.mount(checkout.paymentClientSecret, cardContainer.value)
+  await payment.mount(checkout.paymentClientSecret ?? undefined, cardContainer.value)
 }
 
-// Watch: Prepare the payment intent and card form on entry to the payment panel.
+// Watch: Mount the card form on entry to the payment panel. The intent is NOT
+// created here — the Stripe PaymentMethod token (needed by the backend at intent
+// creation) can only be collected after the user fills the card, so it happens
+// on the Continue-to-Review action instead.
 watch(
   () => checkout.displayStep,
   async (step) => {
@@ -202,18 +207,30 @@ watch(
       return
     }
     await resolvePaymentMethod()
-    // Guard: Create the intent lazily; skip it on a reload where the backend is already at Payment.
-    if (!checkout.paymentClientSecret && paymentMethodId.value) {
-      if (checkout.backendStep === 2) {
-        await checkout.createPaymentIntent(paymentMethodId.value)
-      } else if (checkout.backendStep === 3) {
-        checkout.error = 'Payment needs to be re-initiated. Go back and re-save your shipping method.'
-      }
-    }
     await mountCard()
   },
   { immediate: true },
 )
+
+// Action: Collect the card token, create the payment intent, then open review.
+async function onContinueToReview(): Promise<void> {
+  if (!paymentMethodId.value) return
+  if (!checkout.paymentClientSecret) {
+    checkout.loading = true
+    checkout.error = null
+    // Token: Stripe PaymentMethod from the mounted card — required by the backend
+    // at intent creation (Payment.Processing.SourceRequired otherwise).
+    const token = await payment.createPaymentMethod()
+    if (!token) {
+      checkout.error = payment.error.value ?? 'Unable to collect card details.'
+      checkout.loading = false
+      return
+    }
+    const ok = await checkout.createPaymentIntent(paymentMethodId.value, token)
+    if (!ok) return
+  }
+  await advanceToReview()
+}
 
 // Total: Subtotal plus the selected shipping rate; tax is not modelled yet.
 const total = computed(() => cart.subtotal + (shippingCost.value ?? 0))
@@ -402,7 +419,7 @@ onUnmounted(() => {
             </p>
             <ButtonGroup>
               <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(2)" />
-              <Button label="Continue to Review" icon="pi pi-arrow-right" iconPos="right" :disabled="!checkout.paymentClientSecret" :loading="checkout.loading" @click="advanceToReview" />
+              <Button label="Continue to Review" icon="pi pi-arrow-right" iconPos="right" :disabled="!paymentMethodId" :loading="checkout.loading" @click="onContinueToReview" />
             </ButtonGroup>
           </div>
         </StepPanel>

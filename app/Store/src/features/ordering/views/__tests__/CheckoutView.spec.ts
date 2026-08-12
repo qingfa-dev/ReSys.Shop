@@ -41,6 +41,7 @@ vi.mock('@/features/payment/composables/usePayment', () => ({
     stripePromise: { value: null },
     init: vi.fn<() => void>(),
     mount: vi.fn<() => Promise<null>>().mockResolvedValue(null),
+    createPaymentMethod: vi.fn<() => Promise<string | null>>().mockResolvedValue('pm_mock_token'),
     unmount: vi.fn<() => void>(),
   }),
 }))
@@ -48,24 +49,39 @@ vi.mock('@/features/payment/composables/usePayment', () => ({
 // Stub: CartApi so the composable does not make real HTTP calls.
 vi.mock('../../services/cartApi', () => ({
   CartApi: {
-    getCart: vi.fn(),
-    addItem: vi.fn(),
-    updateItem: vi.fn(),
-    removeItem: vi.fn(),
-    emptyCart: vi.fn(),
-    associateCart: vi.fn(),
+    getCart: vi.fn<() => Promise<unknown>>(),
+    addItem: vi.fn<() => Promise<unknown>>(),
+    updateItem: vi.fn<() => Promise<unknown>>(),
+    removeItem: vi.fn<() => Promise<unknown>>(),
+    emptyCart: vi.fn<() => Promise<unknown>>(),
+    associateCart: vi.fn<() => Promise<unknown>>(),
   },
 }))
 
 // Stub: CheckoutApi so the composable does not make real HTTP calls.
 vi.mock('../../services/checkoutApi', () => ({
   CheckoutApi: {
-    updateCheckout: vi.fn(),
-    selectShippingRate: vi.fn(),
-    validateCheckout: vi.fn(),
-    createPaymentIntent: vi.fn(),
-    placeOrder: vi.fn(),
+    updateCheckout: vi.fn<() => Promise<{ isSuccess: boolean }>>(),
+    selectShippingRate: vi.fn<() => Promise<{ isSuccess: boolean }>>(),
+    validateCheckout: vi.fn<() => Promise<{ isSuccess: boolean }>>(),
+    createPaymentIntent: vi.fn<() => Promise<{ isSuccess: boolean }>>(),
+    placeOrder: vi.fn<() => Promise<{ isSuccess: boolean }>>(),
   },
+}))
+
+// Stub: Payment method lookup so the payment panel can resolve an active method.
+vi.mock('@/features/payment/services/paymentApi', () => ({
+  getPaymentMethods: vi.fn<() => Promise<{ isSuccess: boolean; statusCode: number; message: null; errors: never[]; items: { id: string; name: string; providerKey: string; active: boolean }[]; page: number; pageSize: number; totalCount: number; totalPages: number }>>().mockResolvedValue({
+    isSuccess: true,
+    statusCode: 200,
+    message: null,
+    errors: [],
+    items: [{ id: 'pm-1', name: 'Credit Card', providerKey: 'stripe', active: true }],
+    page: 1,
+    pageSize: 50,
+    totalCount: 1,
+    totalPages: 1,
+  }),
 }))
 
 const mockedCartApi = vi.mocked(CartApi)
@@ -266,6 +282,35 @@ describe('CheckoutView', () => {
     expect(mockedCartApi.getCart).toHaveBeenCalled()
     expect(mockedCheckoutApi.validateCheckout).toHaveBeenCalledTimes(1)
     expect(vm.checkout.displayStep).toBe(4)
+  })
+
+  // Regression: The Stripe PaymentMethod token is collected from the card and
+  // passed to createPaymentIntent so the backend never sees a missing source.
+  it('passes the Stripe card token to createPaymentIntent on Continue to Review', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Delivery', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+    )
+    mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
+      ok({ id: 'pi-1', clientSecret: 'cs-test', responseCode: 'pi-1' }),
+    )
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as {
+      checkout: { displayStep: number; paymentClientSecret: string | null }
+      onContinueToReview: () => Promise<void>
+    }
+    // Drive the wizard to the payment panel (backend Delivery -> display step 3).
+    vm.checkout.displayStep = 3
+    await wrapper.vm.$nextTick()
+    await vm.onContinueToReview()
+    await wrapper.vm.$nextTick()
+
+    expect(mockedCheckoutApi.createPaymentIntent).toHaveBeenCalledWith({
+      orderId: 'cart-1',
+      paymentMethodId: 'pm-1',
+      paymentMethodToken: 'pm_mock_token',
+    })
+    expect(vm.checkout.paymentClientSecret).toBe('cs-test')
   })
 
   // Hydrate: Backend 'Delivery' state drives the delivery panel on mount.
