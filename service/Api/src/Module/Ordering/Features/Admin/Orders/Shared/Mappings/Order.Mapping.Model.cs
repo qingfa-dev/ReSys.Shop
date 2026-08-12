@@ -44,6 +44,7 @@ public static partial class OrderMapping
             CreatedAtUtc = entity.CreatedAtUtc,
             ModifiedAtUtc = entity.ModifiedAtUtc,
             LineItems = entity.LineItems
+                .OrderBy(li => li.CreatedAtUtc)
                 .Select(li => li.MapToLineItemResponse<LineItemResponse>())
                 .ToList(),
         };
