@@ -39,6 +39,7 @@ public static partial class UpdateCheckout
             var addressChanged = req.ShipAddressId.HasValue && req.ShipAddressId != cart.ShipAddressId;
 
             // Update: Apply partial checkout field updates (email, addresses, instructions).
+            var previousTotal = cart.Total;
             var updateResult = cart.UpdateDetails(
                 req.Email, req.SpecialInstructions,
                 req.BillAddressId, req.ShipAddressId, null);
@@ -77,6 +78,16 @@ public static partial class UpdateCheckout
             var recalcResult = cart.RecalculateTotals();
             if (recalcResult.IsFailure)
                 return recalcResult.Errors;
+
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
+
+            // Advance: Address → Delivery once both addresses are set (fresh checkout).
+            if (cart.HasAddresses() && cart.CheckoutState == CheckoutState.Address)
+            {
+                var adv = cart.AdvanceCheckoutState(CheckoutState.Delivery);
+                if (adv.IsFailure)
+                    return adv.Errors;
+            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
