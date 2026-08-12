@@ -18,6 +18,7 @@ dotnet user-secrets set "GatewayProviders:SettingsEncryptionKey" "$ENC_KEY" --pr
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "$DB_CONNECTION" --project "$PROJECT"
 
 if [ -n "${STRIPE_SECRET_KEY:-}" ]; then
+  dotnet user-secrets set "GatewayProviders:stripe:Enabled" "true" --project "$PROJECT"
   dotnet user-secrets set "GatewayProviders:stripe:SecretKey" "$STRIPE_SECRET_KEY" --project "$PROJECT"
   dotnet user-secrets set "GatewayProviders:stripe:WebhookSecret" "${STRIPE_WEBHOOK_SECRET:-}" --project "$PROJECT"
   dotnet user-secrets set "GatewayProviders:stripe:PublishableKey" "${STRIPE_PUBLISHABLE_KEY:-}" --project "$PROJECT"
