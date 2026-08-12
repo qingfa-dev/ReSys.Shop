@@ -38,7 +38,7 @@ public class UpdateCheckoutTests : IDisposable
     [Fact(DisplayName = "Handler: Should update address details on a cart already in the Address state")]
     public async Task Handle_ShouldUpdateCheckout_WhenCartAtAddressState()
     {
-        // A fresh cart starts in CheckoutState.Address — the address step must not 409.
+        // Saving both addresses advances the cart from Address to Delivery — REQ-005.
         var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.CheckoutState = CheckoutState.Address;
         _dbContext.Set<Order>().Add(cart);
@@ -59,6 +59,6 @@ public class UpdateCheckoutTests : IDisposable
         var cartAfter = await _dbContext.Set<Order>()
             .FirstAsync(o => o.Id == cart.Id, TestContext.Current.CancellationToken);
         cartAfter.Email.Should().Be("customer@example.com");
-        cartAfter.CheckoutState.Should().Be(CheckoutState.Address);
+        cartAfter.CheckoutState.Should().Be(CheckoutState.Delivery);
     }
 }
