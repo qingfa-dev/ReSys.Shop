@@ -9,6 +9,11 @@ const items = ref<CartLineItem[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const lastFetchedAt = ref(0)
+// State: Checkout prefill fields persisted from the cart response.
+const checkoutState = ref<string | null>(null)
+const shippingMethodId = ref<string | null>(null)
+const shipAddressId = ref<string | null>(null)
+const email = ref<string | null>(null)
 const cartToken = crypto.randomUUID()
 
 const itemCount = computed(() => items.value.reduce((s, i) => s + i.quantity, 0))
@@ -25,6 +30,10 @@ async function fetchCart(force = false): Promise<boolean> {
     if (result.isSuccess) {
       id.value = result.value.id
       items.value = result.value.items
+      checkoutState.value = result.value.checkoutState
+      shippingMethodId.value = result.value.shippingMethodId
+      shipAddressId.value = result.value.shipAddressId
+      email.value = result.value.email
       lastFetchedAt.value = Date.now()
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     } else {
@@ -131,6 +140,7 @@ let cartInstance: ReturnType<typeof createCart> | null = null
 function createCart() {
   return reactive({
     id, items, loading, error, itemCount, subtotal, isEmpty, cartToken,
+    checkoutState, shippingMethodId, shipAddressId, email,
     fetchCart, addItem, updateQuantity, removeItem, clearCart, associateGuestCart, reset,
   })
 }
