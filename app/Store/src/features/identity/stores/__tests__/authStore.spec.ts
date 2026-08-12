@@ -4,6 +4,7 @@ import { setActivePinia } from 'pinia'
 import { useAuthStore } from '../authStore'
 import { AuthApi } from '../../services/authApi'
 import * as tokenService from '../../services/tokenService'
+import { emit } from '@/shared/composables/useStoreEvents'
 import type { TokenPair, SessionUser } from '../../types/auth'
 
 vi.mock('../../services/authApi', () => ({
@@ -28,7 +29,7 @@ vi.mock('../../services/tokenService', () => ({
 }))
 
 vi.mock('@/shared/composables/useStoreEvents', () => ({
-  emit: vi.fn<() => void>(),
+  emit: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
   on: vi.fn<() => void>(),
   off: vi.fn<() => void>(),
 }))
@@ -84,6 +85,38 @@ describe('authStore', () => {
       isAuthenticated: true,
     })
     expect(store.isAuthenticated).toBe(true)
+    expect(store.errors).toEqual([])
+  })
+
+  it('login awaits the auth:login handlers so cart association settles before navigation', async () => {
+    const store = useAuthStore()
+    mockedAuthApi.login.mockResolvedValue(ok(tokenPair))
+    mockedAuthApi.getSession.mockResolvedValue(ok(sessionUser))
+
+    // Deferred emit: resolve only when login() has already returned would let the
+    // caller navigate before the guest-cart association completes — the race we fix.
+    let resolveEmit: () => void
+    const emitPromise = new Promise<void>(resolve => {
+      resolveEmit = resolve
+    })
+    const mockedEmit = vi.mocked(emit)
+    mockedEmit.mockReturnValueOnce(emitPromise)
+
+    const loginPromise = store.login('u1@example.com', 'password')
+
+    // Before the emit settles, login must NOT have resolved.
+    let settled = false
+    void loginPromise.then(() => {
+      settled = true
+    })
+    await Promise.resolve()
+    expect(settled).toBe(false)
+
+    resolveEmit!()
+    const success = await loginPromise
+
+    expect(success).toBe(true)
+    expect(mockedEmit).toHaveBeenCalledWith({ type: 'auth:login', userId: sessionUser.id })
   })
 
   it('login failure sets error and stays unauthenticated', async () => {
@@ -97,9 +130,34 @@ describe('authStore', () => {
     expect(success).toBe(false)
     expect(store.status).toBe('error')
     expect(store.error).toBe('Invalid credentials')
+    expect(store.errors).toEqual([
+      { code: 'Auth.InvalidCredentials', message: 'Invalid credentials', type: 401 },
+    ])
     expect(store.isAuthenticated).toBe(false)
     expect(store.user).toBeNull()
     expect(mockedTokenService.setTokens).not.toHaveBeenCalled()
+  })
+
+  it('register failure populates the errors ref', async () => {
+    const store = useAuthStore()
+    mockedAuthApi.register.mockResolvedValue(
+      failure({ code: 'Auth.Register.Email.Exists', message: 'Email already registered', type: 422 }),
+    )
+
+    const success = await store.register({
+      email: 'u1@example.com',
+      userName: 'u1',
+      password: 'password1234',
+      firstName: 'User',
+      lastName: 'One',
+      acceptTerm: true,
+    })
+
+    expect(success).toBe(false)
+    expect(store.status).toBe('error')
+    expect(store.errors).toEqual([
+      { code: 'Auth.Register.Email.Exists', message: 'Email already registered', type: 422 },
+    ])
   })
 
   it('init hydrates the user when a valid token exists', async () => {

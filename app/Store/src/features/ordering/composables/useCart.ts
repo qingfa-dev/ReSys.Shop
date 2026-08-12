@@ -112,7 +112,8 @@ async function clearCart(): Promise<void> {
 async function associateGuestCart(): Promise<void> {
   if (!id.value || id.value === '00000000-0000-0000-0000-000000000000') return
   await CartApi.associateCart(id.value)
-  await fetchCart()
+  // Force: association may merge into a different user cart id, so bypass the cache.
+  await fetchCart(true)
 }
 
 function reset(): void {

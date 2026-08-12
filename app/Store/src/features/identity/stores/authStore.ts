@@ -33,7 +33,7 @@ export const useAuthStore = defineStore("auth", () => {
           isAuthenticated: true,
         };
         status.value = "authenticated";
-        emit({ type: "auth:login", userId: result.value.id });
+        await emit({ type: "auth:login", userId: result.value.id });
       } else {
         clearTokens();
         status.value = "error";
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore("auth", () => {
           isAuthenticated: true,
         };
         status.value = "authenticated";
-        emit({ type: "auth:login", userId: session.value.id });
+        await emit({ type: "auth:login", userId: session.value.id });
         return true;
       }
     }

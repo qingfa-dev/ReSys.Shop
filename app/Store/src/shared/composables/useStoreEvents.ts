@@ -1,15 +1,17 @@
-type EventHandler = (event: Record<string, unknown>) => void
+type EventHandler = (event: Record<string, unknown>) => void | Promise<void>
 
 // Cache: Module-level event bus — singleton shared across all stores and composables
 const handlers = new Map<string, Set<EventHandler>>()
 
-export function emit(event: Record<string, unknown>): void {
+// Emit: Dispatch to all handlers. Async handlers are awaited so callers can
+// gate navigation on their completion (e.g. cart association before checkout).
+export async function emit(event: Record<string, unknown>): Promise<void> {
   const type = event.type as string
   // Guard: Skip emission if event type is missing
   if (!type) return
   const typeHandlers = handlers.get(type)
   if (typeHandlers) {
-    typeHandlers.forEach(h => h(event))
+    await Promise.all([...typeHandlers].map(h => h(event)))
   }
 }
 
