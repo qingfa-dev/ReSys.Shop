@@ -71,12 +71,15 @@ public static partial class UpdateCartItemQuantity
                 return reserveResult.Errors;
 
             // Update: Modify quantity and total.
+            var previousTotal = cart.Total;
             var updateResult = lineItem.UpdateQuantity(command.Request.Quantity);
             if (updateResult.IsFailure)
                 return updateResult.Errors;
             var recalcResult = cart.RecalculateTotals();
             if (recalcResult.IsFailure)
                 return recalcResult.Errors;
+
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
