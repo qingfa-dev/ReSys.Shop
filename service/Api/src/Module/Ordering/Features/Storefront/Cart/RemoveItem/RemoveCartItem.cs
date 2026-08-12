@@ -49,11 +49,13 @@ public static partial class RemoveCartItem
                 return LineItemResult.Errors.NotFound(command.LineItemId);
 
             // Remove: Use domain method to remove from collection and recalculate, then delete from database for EF tracking.
+            var previousTotal = cart.Total;
             var removeResult = cart.RemoveLineItem(command.LineItemId);
             if (removeResult.IsFailure)
                 return removeResult.Errors;
 
             dbContext.Set<LineItem>().Remove(removeResult.Value);
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Release: Free the removed item's stock reservation for this cart.
