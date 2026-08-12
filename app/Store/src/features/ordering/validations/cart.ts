@@ -20,6 +20,9 @@ export const CartResponseSchema = z.object({
   currency: z.string(),
   itemCount: z.number().int().min(0),
   checkoutState: z.string(),
+  shippingMethodId: z.string().nullable(),
+  shipAddressId: z.string().nullable(),
+  email: z.string().nullable(),
   items: z.array(CartLineItemSchema),
 })
 

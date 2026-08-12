@@ -17,6 +17,9 @@ export interface CartResponse {
   currency: string
   itemCount: number
   checkoutState: string
+  shippingMethodId: string | null
+  shipAddressId: string | null
+  email: string | null
   items: CartLineItem[]
 }
 

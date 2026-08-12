@@ -245,7 +245,7 @@ describe('CheckoutView', () => {
 
   it('force-refreshes the cart and validates checkout when advancing to review', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Payment', items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Payment', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
     )
     mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
     const { wrapper } = await mountView(true)
