@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
+import { createTestingPinia } from '@pinia/testing'
 import OrderDetailView from '../OrderDetailView.vue'
 import { useOrders } from '../../composables/useOrders'
 import { useAddresses } from '@/features/profile/composables/useAddresses'
@@ -62,7 +63,6 @@ const orderDetail: OrderDetail = {
   paymentState: 'Paid',
   shipmentState: null,
   userId: 'u1',
-  storeId: null,
   approvedById: null,
   approvedAtUtc: null,
   completedAtUtc: null,
@@ -120,7 +120,7 @@ async function mountView(router = createTestRouter()) {
   await router.isReady()
   const wrapper = mount(OrderDetailView, {
     global: {
-      plugins: [PrimeVue, router],
+      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), router],
       stubs: { teleport: true },
     },
   })

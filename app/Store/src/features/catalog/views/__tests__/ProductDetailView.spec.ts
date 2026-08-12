@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { createRouter, createMemoryHistory } from "vue-router";
 import PrimeVue from "primevue/config";
+import { createTestingPinia } from '@pinia/testing'
 import ToastService from "primevue/toastservice";
 import Select from "primevue/select";
 import MeterGroup from "primevue/metergroup";
@@ -147,7 +148,7 @@ async function mountView(id = "p-1") {
   await router.isReady();
   const wrapper = mount(ProductDetailView, {
     global: {
-      plugins: [PrimeVue, ToastService, router],
+      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), ToastService, router],
     },
   });
   await flushPromises();

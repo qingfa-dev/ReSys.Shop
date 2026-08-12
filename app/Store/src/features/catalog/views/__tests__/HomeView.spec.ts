@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
+import { createTestingPinia } from '@pinia/testing'
 import ToastService from 'primevue/toastservice'
 import HomeView from '../HomeView.vue'
 import ProductGridCard from '../../components/ProductGridCard.vue'
@@ -111,7 +112,7 @@ function createTestRouter() {
 function mountView(router = createTestRouter()) {
   return mount(HomeView, {
     global: {
-      plugins: [PrimeVue, ToastService, router],
+      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), ToastService, router],
     },
   })
 }

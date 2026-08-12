@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
+import { createTestingPinia } from '@pinia/testing'
 import CheckoutView from '../CheckoutView.vue'
 import { useCart } from '../../composables/useCart'
 import { useShipping } from '@/features/shipping/composables'
@@ -171,7 +172,7 @@ async function mountView(seedCart = true) {
   await router.isReady()
   const wrapper = mount(CheckoutView, {
     global: {
-      plugins: [PrimeVue, router],
+      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), router],
     },
   })
   await flushPromises()

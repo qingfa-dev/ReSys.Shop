@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
+import { createTestingPinia } from '@pinia/testing'
 import InputNumber from 'primevue/inputnumber'
 import CartDrawer from '../CartDrawer.vue'
 import { useCart } from '../../composables/useCart'
@@ -86,7 +87,7 @@ async function mountDrawer(router = createTestRouter(), visible = true) {
   const wrapper = mount(CartDrawer, {
     props: { visible },
     global: {
-      plugins: [PrimeVue, router],
+      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), router],
       stubs: { teleport: true },
     },
   })
