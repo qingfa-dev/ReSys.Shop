@@ -97,6 +97,9 @@ public sealed partial class Order
     // Enforce: Advance checkout state with strict transition validation
     public Result AdvanceCheckoutState(CheckoutState target)
     {
+        if (target == CheckoutState)
+            return Result.Ok();
+
         var validTransition = (CheckoutState, target) switch
         {
             (CheckoutState.Address, CheckoutState.Delivery) => true,
