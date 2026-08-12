@@ -17,4 +17,10 @@ public abstract record CartResponseBase
     public int ItemCount { get; init; }
     /// <summary>Current checkout step (e.g. address, delivery, payment, confirm, complete).</summary>
     public string CheckoutState { get; init; } = string.Empty;
+    /// <summary>Selected shipping method id, if any.</summary>
+    public Guid? ShippingMethodId { get; init; }
+    /// <summary>Shipping address id, if any.</summary>
+    public Guid? ShipAddressId { get; init; }
+    /// <summary>Checkout email, if any.</summary>
+    public string? Email { get; init; }
 }

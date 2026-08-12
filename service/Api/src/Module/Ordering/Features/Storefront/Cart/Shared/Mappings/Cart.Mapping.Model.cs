@@ -23,6 +23,9 @@ public static partial class CartMapping
             Currency = entity.Currency,
             ItemCount = entity.ItemCount,
             CheckoutState = entity.CheckoutState.ToString(),
+            ShippingMethodId = entity.ShippingMethodId,
+            ShipAddressId = entity.ShipAddressId,
+            Email = entity.Email,
         };
     }
 
