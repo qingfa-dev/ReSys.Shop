@@ -7,6 +7,7 @@ import { useAuthStore } from '../stores/authStore'
 import { RegisterFormSchema } from '../validations'
 import type { RegisterForm } from '../validations'
 import { usePasswordStrength } from '../composables/usePasswordStrength'
+import FieldMessage from '@/shared/components/FieldMessage.vue'
 
 // Store: Auth store owns the registration request.
 const auth = useAuthStore()
@@ -14,11 +15,12 @@ const auth = useAuthStore()
 // Form: Wire vee-validate to the existing zod register schema.
 const { handleSubmit, isSubmitting, errors, defineField } = useForm<RegisterForm>({
   validationSchema: toFormValidator(RegisterFormSchema),
-  initialValues: { fullName: '', email: '', password: '', confirmPassword: '' },
+  initialValues: { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' },
 })
 
 // Fields: Two-way model refs with per-field attrs for the inputs.
-const [fullName, fullNameAttrs] = defineField('fullName')
+const [firstName, firstNameAttrs] = defineField('firstName')
+const [lastName, lastNameAttrs] = defineField('lastName')
 const [email, emailAttrs] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
 const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
@@ -37,13 +39,23 @@ const strengthInfo = usePasswordStrength(password)
 const apiError = ref<string | null>(null)
 const registered = ref(false)
 
+// UserName: Sanitize the email local part to the backend username pattern.
+function deriveUserName(email: string): string {
+  const local = (email.split('@')[0] ?? '').replace(/[^a-zA-Z0-9._-]/g, '').replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '')
+  if (local.length >= 3) return local.slice(0, 32)
+  return `user${Math.random().toString(36).slice(2, 10)}`
+}
+
 // Submit: Delegate to the store; keep the form until the user signs in.
 const onSubmit = handleSubmit(async values => {
   apiError.value = null
   const ok = await auth.register({
-    fullName: values.fullName,
     email: values.email,
+    userName: deriveUserName(values.email),
     password: values.password,
+    firstName: values.firstName,
+    lastName: values.lastName,
+    acceptTerm: agreeToTerms.value === true,
   })
   if (ok) {
     registered.value = true
@@ -56,20 +68,34 @@ const onSubmit = handleSubmit(async values => {
 <template>
   <form v-if="!registered" class="flex flex-col gap-4" novalidate @submit="onSubmit">
     <!-- Section: Form Fields — name, email and passwords with float labels -->
-    <FloatLabel variant="on">
-      <InputText
-        id="fullName"
-        v-model="fullName"
-        v-bind="fullNameAttrs"
-        fluid
-        autocomplete="name"
-        :invalid="!!errors.fullName"
-      />
-      <Label for="fullName">Full name</Label>
-    </FloatLabel>
-    <Message v-if="errors.fullName" severity="error" size="small" variant="simple">
-      {{ errors.fullName }}
-    </Message>
+    <div class="flex gap-3">
+      <FloatLabel variant="on" class="w-full">
+        <InputText
+          id="firstName"
+          v-model="firstName"
+          v-bind="firstNameAttrs"
+          fluid
+          autocomplete="given-name"
+          :invalid="!!errors.firstName"
+        />
+        <Label for="firstName">First name</Label>
+      </FloatLabel>
+      <FloatLabel variant="on" class="w-full">
+        <InputText
+          id="lastName"
+          v-model="lastName"
+          v-bind="lastNameAttrs"
+          fluid
+          autocomplete="family-name"
+          :invalid="!!errors.lastName"
+        />
+        <Label for="lastName">Last name</Label>
+      </FloatLabel>
+    </div>
+    <div class="flex flex-col gap-1">
+      <FieldMessage :error="errors.firstName" />
+      <FieldMessage :error="errors.lastName" />
+    </div>
 
     <FloatLabel variant="on">
       <InputText
@@ -83,9 +109,7 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="email">Email</Label>
     </FloatLabel>
-    <Message v-if="errors.email" severity="error" size="small" variant="simple">
-      {{ errors.email }}
-    </Message>
+    <FieldMessage :error="errors.email" />
 
     <FloatLabel variant="on">
       <InputPassword
@@ -98,9 +122,7 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="password">Password</Label>
     </FloatLabel>
-    <Message v-if="errors.password" severity="error" size="small" variant="simple">
-      {{ errors.password }}
-    </Message>
+    <FieldMessage :error="errors.password" />
 
     <!-- Section: Strength Meter — live feedback as the password improves -->
     <div v-if="strengthInfo" class="flex flex-col gap-1">
@@ -126,9 +148,7 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="confirmPassword">Confirm password</Label>
     </FloatLabel>
-    <Message v-if="errors.confirmPassword" severity="error" size="small" variant="simple">
-      {{ errors.confirmPassword }}
-    </Message>
+    <FieldMessage :error="errors.confirmPassword" />
 
     <!-- Section: Terms Consent — checkbox with link to the terms page -->
     <div class="flex items-center gap-2">
@@ -136,9 +156,7 @@ const onSubmit = handleSubmit(async values => {
       <Label for="agree-to-terms" class="text-sm text-muted">I agree to the</Label>
       <Button as="router-link" to="/terms" text size="small" label="Terms of Service" />
     </div>
-    <Message v-if="termsError" severity="error" size="small" variant="simple">
-      {{ termsError }}
-    </Message>
+    <FieldMessage :error="termsError" />
 
     <!-- Section: Feedback — inline message for API errors -->
     <Message v-if="apiError" severity="error" :closable="false">{{ apiError }}</Message>
