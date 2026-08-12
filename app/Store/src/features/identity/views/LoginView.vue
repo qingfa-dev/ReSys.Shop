@@ -9,6 +9,7 @@ import Label from 'primevue/label'
 import { useAuthStore } from '../stores/authStore'
 import { LoginFormSchema } from '../validations'
 import type { LoginForm } from '../validations'
+import FieldMessage from '@/shared/components/FieldMessage.vue'
 import { validateRedirect } from '@/shared/utils/postLoginRedirect'
 
 // Stores: Auth store owns session state; router resumes the guarded target.
@@ -63,9 +64,7 @@ const onSubmit = handleSubmit(async values => {
       />
       <Label for="credential">Email or Username</Label>
     </FloatLabel>
-    <Message v-if="errors.credential" severity="error" size="small" variant="simple">
-      {{ errors.credential }}
-    </Message>
+    <FieldMessage :error="errors.credential" />
 
     <FloatLabel variant="on">
       <IconField>
@@ -85,9 +84,7 @@ const onSubmit = handleSubmit(async values => {
       </IconField>
       <Label for="password">Password</Label>
     </FloatLabel>
-    <Message v-if="errors.password" severity="error" size="small" variant="simple">
-      {{ errors.password }}
-    </Message>
+    <FieldMessage :error="errors.password" />
 
     <!-- Section: Form Actions — remember me, forgot-password link and submit -->
     <div class="flex items-center justify-between gap-4">
