@@ -24,6 +24,7 @@ public record OrderDetailResponse : OrderParameters
     public DateTimeOffset? CanceledAtUtc { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
     public DateTimeOffset? ModifiedAtUtc { get; init; }
+    public List<LineItemResponse> LineItems { get; init; } = [];
 }
 
 public record OrderListItemResponse : OrderParameters

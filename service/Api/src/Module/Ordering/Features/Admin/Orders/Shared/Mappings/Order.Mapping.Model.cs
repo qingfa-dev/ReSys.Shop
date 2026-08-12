@@ -43,6 +43,9 @@ public static partial class OrderMapping
             CanceledAtUtc = entity.CanceledAtUtc,
             CreatedAtUtc = entity.CreatedAtUtc,
             ModifiedAtUtc = entity.ModifiedAtUtc,
+            LineItems = entity.LineItems
+                .Select(li => li.MapToLineItemResponse<LineItemResponse>())
+                .ToList(),
         };
     }
 
