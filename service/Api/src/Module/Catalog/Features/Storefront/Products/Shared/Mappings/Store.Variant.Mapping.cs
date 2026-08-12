@@ -31,7 +31,6 @@ public static class StoreProductVariantMapping
                 .OrderBy(ov => ov.OptionValue!.OptionType?.Position)
                 .Select(ov => new StoreOptionValueListItemResponse
                 {
-                    VariantOptionValueId = ov.Id,
                     Id = ov.OptionValueId,
                     Name = ov.OptionValue!.Name,
                     Presentation = ov.OptionValue.Presentation,
