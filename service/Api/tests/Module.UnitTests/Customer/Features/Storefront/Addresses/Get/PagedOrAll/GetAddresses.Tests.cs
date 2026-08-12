@@ -48,6 +48,7 @@ public class GetAddressesTests : IDisposable
 
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(2);
+        result.Items.Should().OnlyContain(i => i.UserId == _userId);
     }
 
     [Fact(DisplayName = "Handle: Should return empty when profile doesn't exist")]

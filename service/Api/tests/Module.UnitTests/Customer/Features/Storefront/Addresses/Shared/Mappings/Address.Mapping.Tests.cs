@@ -1,3 +1,4 @@
+using Module.Customer.Domain;
 using Module.Customer.Domain.Addresses;
 using Module.Customer.Features.Shared.Addresses.Mappings;
 using Module.Customer.Features.Shared.Addresses.Models;
@@ -76,6 +77,17 @@ public class AddressMappingTests
         address.StateProvince.Should().BeNull();
         address.CountryCode.Should().BeNull();
         address.StateCode.Should().BeNull();
+    }
+
+    [Fact(DisplayName = "ToResponse: Should map UserId from owning profile")]
+    public void ToResponse_ShouldMapUserIdFromOwningProfile()
+    {
+        var userId = Guid.NewGuid();
+        var address = CreateAddress(a => a.UserProfile = new UserProfile { UserId = userId });
+
+        var response = address.ToResponse<AddressResponse>();
+
+        response.UserId.Should().Be(userId);
     }
 
     [Fact(DisplayName = "ToResponse: Should map entity to response")]

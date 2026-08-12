@@ -10,6 +10,7 @@ public static class AddressMapping
         return new T
         {
             Id = address.Id,
+            UserId = address.UserProfile?.UserId ?? Guid.Empty,
             AddressType = address.AddressType,
             FirstName = address.FirstName,
             LastName = address.LastName,

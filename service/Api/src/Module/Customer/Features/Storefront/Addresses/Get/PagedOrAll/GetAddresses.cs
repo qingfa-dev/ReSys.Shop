@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Customer.Domain;
 using Module.Customer.Domain.Addresses;
 using Module.Customer.Features.Shared.Addresses.Mappings;
@@ -31,6 +33,7 @@ public static partial class GetAddresses
 
             // Load: Query addresses scoped to the current user
             var addresses = dbContext.Set<Address>()
+                .Include(a => a.UserProfile)
                 .Where(a => a.UserProfile!.UserId == request.Parameters.UserId);
 
             // Transform: Apply paging, filtering, sorting and map to response DTOs
