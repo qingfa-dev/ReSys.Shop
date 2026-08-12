@@ -1,4 +1,5 @@
 using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.RemoveItem;
 
@@ -11,6 +12,7 @@ public class RemoveCartItemTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly RemoveCartItem.CommandHandler _handler;
     private readonly Guid _userId;
 
@@ -31,7 +33,13 @@ public class RemoveCartItemTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("customer");
         _currentUserMock.Setup(x => x.UserId).Returns(_userId.ToString());
 
-        _handler = new RemoveCartItem.CommandHandler(_dbContext, _currentUserMock.Object);
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock
+            .Setup(x => x.ReleaseCartReservationsAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<int>.Ok(0));
+
+        _handler = new RemoveCartItem.CommandHandler(
+            _dbContext, _currentUserMock.Object, _reservationServiceMock.Object);
     }
 
     public void Dispose()
@@ -70,6 +78,9 @@ public class RemoveCartItemTests : IDisposable
             .Include(x => x.LineItems)
             .FirstAsync(o => o.Id == cart.Id, TestContext.Current.CancellationToken);
         cartAfter.LineItems.Should().BeEmpty();
+        _reservationServiceMock.Verify(
+            x => x.ReleaseCartReservationsAsync(cart.Id.ToString(), lineItem.VariantId, TestContext.Current.CancellationToken),
+            Times.Once);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when item not found")]

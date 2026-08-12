@@ -1,4 +1,6 @@
+using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
@@ -12,6 +14,7 @@ public class UpdateCartItemQuantityTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IStockItemService> _stockItemMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<UpdateCartItemQuantity.CommandHandler>> _loggerMock;
     private readonly UpdateCartItemQuantity.CommandHandler _handler;
@@ -37,9 +40,17 @@ public class UpdateCartItemQuantityTests : IDisposable
         _currentUserMock.Setup(x => x.UserId).Returns(_userId.ToString());
 
         _stockItemMock = new Mock<IStockItemService>();
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock
+            .Setup(x => x.ReleaseCartReservationsAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<int>.Ok(0));
+        _reservationServiceMock
+            .Setup(x => x.ReserveForVariantAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(StockReservationMethod.Reserve(_variantId, 5, null, null, 15, cartToken: "cart"));
+
         _loggerMock = new Mock<ILogger<UpdateCartItemQuantity.CommandHandler>>();
         _handler = new UpdateCartItemQuantity.CommandHandler(
-            _dbContext, _loggerMock.Object, _currentUserMock.Object, _stockItemMock.Object);
+            _dbContext, _loggerMock.Object, _currentUserMock.Object, _stockItemMock.Object, _reservationServiceMock.Object);
     }
 
     public void Dispose()
@@ -73,6 +84,12 @@ public class UpdateCartItemQuantityTests : IDisposable
             .FirstAsync(li => li.Id == _lineItemId, TestContext.Current.CancellationToken);
         lineItem.Quantity.Should().Be(5);
         lineItem.Total.Should().Be(19.99m * 5);
+        _reservationServiceMock.Verify(
+            x => x.ReleaseCartReservationsAsync(cart.Id.ToString(), _variantId, TestContext.Current.CancellationToken),
+            Times.Once);
+        _reservationServiceMock.Verify(
+            x => x.ReserveForVariantAsync(_variantId, 5, cart.Id.ToString(), It.IsAny<int>(), TestContext.Current.CancellationToken),
+            Times.Once);
     }
 
     [Fact(DisplayName = "Handler: Should fail when quantity exceeds stock")]

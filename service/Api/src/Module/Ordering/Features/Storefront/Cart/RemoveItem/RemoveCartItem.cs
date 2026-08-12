@@ -4,20 +4,22 @@ using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
+using Module.Inventory.Services.StockReservations;
 
 namespace Module.Ordering.Features.Storefront.Cart.RemoveItem;
 
-/// <summary>Removes a line item from the current user's draft cart and recalculates order totals.</summary>
+/// <summary>Removes a line item from the current user's draft cart, releases its stock reservation, and recalculates order totals.</summary>
 public static partial class RemoveCartItem
 {
     public sealed record Command(Guid LineItemId) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IStockReservationService stockReservationService)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Finds the user's draft cart, removes the specified line item, and recalculates totals.</summary>
+        /// <summary>Finds the user's draft cart, removes the specified line item, releases its stock reservation, and recalculates totals.</summary>
         /// <param name="command">The command containing the line item ID to remove.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The result of the operation.</returns>
@@ -53,6 +55,12 @@ public static partial class RemoveCartItem
 
             dbContext.Set<LineItem>().Remove(removeResult.Value);
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Release: Free the removed item's stock reservation for this cart.
+            var releaseResult = await stockReservationService.ReleaseCartReservationsAsync(
+                cart.Id.ToString(), lineItem.VariantId, cancellationToken);
+            if (releaseResult.IsFailure)
+                return releaseResult.Errors;
 
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
             var itemLookup = await BuildCartItemLookupAsync(dbContext, variantIds, cancellationToken);

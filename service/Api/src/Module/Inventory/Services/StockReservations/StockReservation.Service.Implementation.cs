@@ -1,7 +1,5 @@
 using System.Data;
 
-using Microsoft.EntityFrameworkCore;
-
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.StockReservations;
@@ -49,12 +47,17 @@ internal sealed partial class StockReservationService(
                 return StockReservationResult.Errors.InsufficientStock;
             }
 
-            var reserved = await dbContext.Set<StockReservation>()
+            var reservedQuery = dbContext.Set<StockReservation>()
                 .Where(r => r.VariantId == variantId
                             && r.StockLocationId == stockLocationId
                             && r.State == ReservationState.Reserved
-                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
-                .SumAsync(r => r.Quantity, ct);
+                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow);
+
+            // Exclude this cart's own reservations from the "reserved" count so a cart can re-add its own line
+            if (!string.IsNullOrWhiteSpace(cartToken))
+                reservedQuery = reservedQuery.Where(r => r.CartToken != cartToken);
+
+            var reserved = await reservedQuery.SumAsync(r => r.Quantity, ct);
 
             if (stockItem.CountOnHand - reserved < quantity)
             {
@@ -123,12 +126,17 @@ internal sealed partial class StockReservationService(
             {
                 if (remaining <= 0) break;
 
-                var reserved = await dbContext.Set<StockReservation>()
+                var reservedQuery = dbContext.Set<StockReservation>()
                     .Where(r => r.VariantId == variantId
                                 && r.StockLocationId == stockItem.StockLocationId
                                 && r.State == ReservationState.Reserved
-                                && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
-                    .SumAsync(r => r.Quantity, ct);
+                                && r.ExpiresAtUtc > DateTimeOffset.UtcNow);
+
+                // Exclude this cart's own reservations so a cart can re-add its own line or reserve more
+                if (!string.IsNullOrWhiteSpace(cartToken))
+                    reservedQuery = reservedQuery.Where(r => r.CartToken != cartToken);
+
+                var reserved = await reservedQuery.SumAsync(r => r.Quantity, ct);
 
                 var available = stockItem.CountOnHand - reserved;
                 if (available <= 0) continue;
@@ -198,6 +206,36 @@ internal sealed partial class StockReservationService(
                 if (stockItem is not null)
                     stockItem.CountOnHand += r.Quantity;
             }
+        }
+
+        if (reservations.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(ct);
+            Loggers.LogReservationsReleased(logger, reservations.Count);
+        }
+
+        return reservations.Count;
+    }
+
+    public async Task<Result<int>> ReleaseCartReservationsAsync(
+        string cartToken, Guid? variantId = null, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(cartToken))
+            return 0;
+
+        IQueryable<StockReservation> query = dbContext.Set<StockReservation>()
+            .Where(r => r.CartToken == cartToken && r.State == ReservationState.Reserved);
+
+        if (variantId.HasValue)
+            query = query.Where(r => r.VariantId == variantId.Value);
+
+        var reservations = await query.ToListAsync(ct);
+
+        foreach (var r in reservations)
+        {
+            var releaseResult = r.Release();
+            if (releaseResult.IsFailure) continue;
+            r.ModifiedAtUtc = DateTimeOffset.UtcNow;
         }
 
         if (reservations.Count > 0)

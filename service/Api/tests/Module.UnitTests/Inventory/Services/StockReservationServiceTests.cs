@@ -194,6 +194,62 @@ public class StockReservationServiceTests : IDisposable
 
     #endregion
 
+    #region ReserveForVariantAsync — Cart
+
+    [Fact(DisplayName = "ReserveForVariantAsync: Should reserve across locations when stock is sufficient")]
+    public async Task ReserveForVariantAsync_ShouldReserve_WhenStockSufficient()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(5);
+
+        var result = await _service.ReserveForVariantAsync(_variantId, 3, cartToken: _cartToken, ct: ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Quantity.Should().Be(3);
+        result.Value.CartToken.Should().Be(_cartToken);
+    }
+
+    [Fact(DisplayName = "ReserveForVariantAsync: Should return failure when stock insufficient")]
+    public async Task ReserveForVariantAsync_ShouldFail_WhenStockInsufficient()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(2);
+
+        var result = await _service.ReserveForVariantAsync(_variantId, 5, cartToken: _cartToken, ct: ct);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(f => f.Code == "StockReservation.InsufficientStock");
+    }
+
+    [Fact(DisplayName = "ReserveForVariantAsync: Should exclude this cart's own reservations from availability")]
+    public async Task ReserveForVariantAsync_ShouldExcludeOwnCartReservations()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        // On-hand 1, cart already holds 1 from a prior add — re-adding qty 1 must succeed.
+        await SeedStockItem(1);
+        await SeedCartReservation(1, _cartToken);
+
+        var result = await _service.ReserveForVariantAsync(_variantId, 1, cartToken: _cartToken, ct: ct);
+
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "ReserveForVariantAsync: Should still count another cart's reservations against availability")]
+    public async Task ReserveForVariantAsync_ShouldCountOtherCartsReservations()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        // On-hand 1, another cart holds the only unit — this cart must be blocked.
+        await SeedStockItem(1);
+        await SeedCartReservation(1, "other-cart");
+
+        var result = await _service.ReserveForVariantAsync(_variantId, 1, cartToken: _cartToken, ct: ct);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(f => f.Code == "StockReservation.InsufficientStock");
+    }
+
+    #endregion
+
     #region ReleaseReservationsAsync
 
     [Fact(DisplayName = "ReleaseReservationsAsync: Should release cart reservations and restore stock")]
@@ -264,6 +320,67 @@ public class StockReservationServiceTests : IDisposable
         await SeedStockItem(10);
 
         var result = await _service.ReleaseReservationsAsync(cartToken: "nonexistent", ct: ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(0);
+    }
+
+    #endregion
+
+    #region ReleaseCartReservationsAsync
+
+    [Fact(DisplayName = "ReleaseCartReservationsAsync: Should release a cart's reservations without inflating on-hand")]
+    public async Task ReleaseCartReservationsAsync_ShouldReleaseWithoutInflatingOnHand()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        // On-hand 5 with 2 reserved for this cart. Reserve never decremented on-hand
+        // (availability = on-hand - active reservations), so release must NOT add back.
+        await SeedStockItem(5);
+        await SeedCartReservation(2);
+
+        var result = await _service.ReleaseCartReservationsAsync(_cartToken, ct: ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(1);
+
+        var reservations = await _dbContext.Set<StockReservation>()
+            .Where(r => r.CartToken == _cartToken).ToListAsync(ct);
+        reservations.Should().AllSatisfy(r => r.State.Should().Be(ReservationState.Released));
+
+        var stockItem = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
+        stockItem.CountOnHand.Should().Be(5);
+    }
+
+    [Fact(DisplayName = "ReleaseCartReservationsAsync: Should release only the matching variant when specified")]
+    public async Task ReleaseCartReservationsAsync_ShouldReleaseOnlyMatchingVariant()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        await SeedCartReservation(2);
+        var otherVariant = Guid.NewGuid();
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            otherVariant, 3, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            _stockLocationId, _orderId, _cartToken, DateTimeOffset.UtcNow));
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.ReleaseCartReservationsAsync(_cartToken, variantId: _variantId, ct: ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(1);
+
+        var kept = await _dbContext.Set<StockReservation>()
+            .FirstAsync(r => r.VariantId == otherVariant, ct);
+        kept.State.Should().Be(ReservationState.Reserved);
+    }
+
+    [Fact(DisplayName = "ReleaseCartReservationsAsync: Should return zero for unknown cart token")]
+    public async Task ReleaseCartReservationsAsync_ShouldReturnZero_WhenNoMatches()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(5);
+
+        var result = await _service.ReleaseCartReservationsAsync("nonexistent", ct: ct);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be(0);

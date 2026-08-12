@@ -1,3 +1,4 @@
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using OrderingEmptyCart = Module.Ordering.Features.Storefront.Cart.EmptyCart;
 
@@ -10,6 +11,7 @@ public class EmptyCartTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly OrderingEmptyCart.EmptyCart.CommandHandler _handler;
     private readonly Guid _userId;
 
@@ -26,7 +28,13 @@ public class EmptyCartTests : IDisposable
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserId).Returns(_userId.ToString());
 
-        _handler = new OrderingEmptyCart.EmptyCart.CommandHandler(_dbContext, _currentUserMock.Object);
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock
+            .Setup(x => x.ReleaseCartReservationsAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<int>.Ok(0));
+
+        _handler = new OrderingEmptyCart.EmptyCart.CommandHandler(
+            _dbContext, _currentUserMock.Object, _reservationServiceMock.Object);
     }
 
     public void Dispose()
@@ -55,6 +63,9 @@ public class EmptyCartTests : IDisposable
             .FirstAsync(o => o.Id == cart.Id, TestContext.Current.CancellationToken);
         cartAfter.LineItems.Should().BeEmpty();
         cartAfter.ItemTotal.Should().Be(0);
+        _reservationServiceMock.Verify(
+            x => x.ReleaseCartReservationsAsync(cart.Id.ToString(), null, TestContext.Current.CancellationToken),
+            Times.Once);
     }
 
     [Fact(DisplayName = "Handler: Should return ok when no cart exists")]

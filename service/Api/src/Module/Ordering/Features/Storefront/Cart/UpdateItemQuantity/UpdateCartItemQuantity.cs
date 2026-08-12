@@ -5,7 +5,9 @@ using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 
+using Module.Inventory.Features.Shared;
 using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 /// <summary>Updates the quantity of a line item in the current user's draft cart after validating stock availability.</summary>
@@ -17,10 +19,11 @@ public static partial class UpdateCartItemQuantity
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        IStockItemService stockItem)
+        IStockItemService stockItem,
+        IStockReservationService stockReservationService)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Validates stock via Inventory module, updates the line item quantity and total, and recalculates cart totals.</summary>
+        /// <summary>Validates stock via Inventory module, releases the prior reservation, re-reserves the new quantity, updates the line item, and recalculates cart totals.</summary>
         /// <param name="command">The command containing the line item ID and new quantity.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The result of the operation.</returns>
@@ -53,6 +56,19 @@ public static partial class UpdateCartItemQuantity
 
             if (!availableResult.IsSuccess || !availableResult.Value)
                 return OrderResult.Errors.CartQuantityInvalid;
+
+            // Release: Free the line item's prior reservation so the re-reserve reflects the new quantity.
+            var releaseResult = await stockReservationService.ReleaseCartReservationsAsync(
+                cart.Id.ToString(), lineItem.VariantId, cancellationToken);
+            if (releaseResult.IsFailure)
+                return releaseResult.Errors;
+
+            // Reserve: Hold the updated quantity for this cart.
+            var reserveResult = await stockReservationService.ReserveForVariantAsync(
+                lineItem.VariantId, command.Request.Quantity, cartToken: cart.Id.ToString(),
+                ttlMinutes: InventoryFeature.Storefront.StockReservations.TtlMinutesDefault, ct: cancellationToken);
+            if (reserveResult.IsFailure)
+                return reserveResult.Errors;
 
             // Update: Modify quantity and total.
             var updateResult = lineItem.UpdateQuantity(command.Request.Quantity);
