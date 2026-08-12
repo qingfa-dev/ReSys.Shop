@@ -224,10 +224,12 @@ public static partial class OrderMethod
         if (order.Status != OrderStatus.Draft)
             return OrderResult.Errors.NotDraftForShippingMethod;
 
+        var previousTotal = order.Total;
         order.ShippingMethodId = methodId;
         order.ShipmentTotal = 0m;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
         order.RecalculateTotals();
+        order.RegressCheckoutIfAmountChanged(previousTotal);
 
         return Result.Ok(OrderResult.Success.Updated(order.Id));
     }
