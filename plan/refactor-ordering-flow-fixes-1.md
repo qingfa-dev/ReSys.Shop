@@ -23,11 +23,11 @@ Fix 8 quality gaps in the Ordering backend and Store SPA checkout flow identifie
 - **REQ-005**: Only one cart-expiry mechanism may remain active (Hangfire `CartExpiryJobScheduler`)
 - **REQ-006**: `useCheckout.createPaymentIntent()` must not set `currentStep` — the view controls all step transitions
 - **REQ-007**: The Review step must call `cart.fetchCart()` and `CheckoutApi.validateCheckout()` before advancing to step 4
-- **SEC-001**: No new cross-module namespace references may be introduced
+- **SEC-001**: No new cross-module namespace references beyond the accepted Ordering→Catalog enrichment refs (CartMapping shared helper + UpdateItemQuantity/RemoveItem handlers, per human decision 2026-08-12)
 - **CON-001**: No database schema changes, no EF Core migrations
 - **CON-002**: All changes are additive — existing HTTP consumers remain unaffected
 - **CON-003**: Do NOT change backend `CheckoutState` enum (Review stays UI-only)
-- **GUD-001**: Follow the existing `AddToCart` handler pattern (`BuildCartItemLookupAsync` + `MapToDetailWithItems<Response>`) for cart-mutation handlers
+- **GUD-001**: Follow the existing `AddToCart` handler pattern for cart-mutation handlers — enrichment via shared `CartMapping.BuildCartItemLookupAsync` + `MapToDetailWithItems<Response>` (extracted to one shared helper, not duplicated)
 - **GUD-002**: Vertical slice feature files — `static partial class` split across Handler/Request/Response/Endpoint/Validator
 - **PAT-001**: Feature response records inherit `CartDetailResponse` (see `AddToCart.Response.cs`)
 - **PAT-002**: Registration removals use the existing `Ordering.Extension.cs` boundary — no domain logic in DI registration
@@ -40,8 +40,8 @@ Fix 8 quality gaps in the Ordering backend and Store SPA checkout flow identifie
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | Add `UpdateCartItemQuantity.Response : CartDetailResponse`; change handler to `ICommandHandler<Command, Response>` returning `Task<Result<Response>>`; after save, build `CartItemLookup` via a private `BuildCartItemLookupAsync` helper and return `cart.MapToDetailWithItems<Response>(itemLookup)`; update endpoint `.Produces<Result<Response>>()`. Files: `service/Api/src/Module/Ordering/Features/Storefront/Cart/UpdateItemQuantity/UpdateCartItemQuantity.cs`, new `UpdateCartItemQuantity.Response.cs`, `UpdateCartItemQuantity.Endpoint.cs`. | ⬜ | |
-| TASK-002 | Add `RemoveCartItem.Response : CartDetailResponse`; change handler to `ICommandHandler<Command, Response>` returning `Task<Result<Response>>`; after save, return full cart via `BuildCartItemLookupAsync` + `MapToDetailWithItems<Response>`; update endpoint `.Produces<Result<Response>>()`. Files: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.cs`, new `RemoveCartItem.Response.cs`, `RemoveCartItem.Endpoint.cs`. | ⬜ | |
+| TASK-001 | Extract `BuildCartItemLookupAsync` into the shared `CartMapping` partial class (`Features/Storefront/Cart/Shared/Mappings/Cart.Mapping.Model.cs`), refactor `AddToCart.cs` and `GetCart.cs` to call the shared version and delete their private copies. Add `UpdateCartItemQuantity.Response : CartDetailResponse`; change handler to `ICommandHandler<Command, Response>` returning `Task<Result<Response>>`; after save, call shared `CartMapping.BuildCartItemLookupAsync` and return `cart.MapToDetailWithItems<Response>(itemLookup)`; update endpoint `.Produces<Result<Response>>()`. Files: `Cart.Mapping.Model.cs`, `AddToCart.cs`, `GetCart.cs`, `UpdateCartItemQuantity.cs`, new `UpdateCartItemQuantity.Response.cs`, `UpdateCartItemQuantity.Endpoint.cs`. | ⬜ | |
+| TASK-002 | Add `RemoveCartItem.Response : CartDetailResponse`; change handler to `ICommandHandler<Command, Response>` returning `Task<Result<Response>>`; after save, call shared `CartMapping.BuildCartItemLookupAsync` + `MapToDetailWithItems<Response>`; update endpoint `.Produces<Result<Response>>()`. Files: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.cs`, new `RemoveCartItem.Response.cs`, `RemoveCartItem.Endpoint.cs`. | ⬜ | |
 
 ### Implementation Phase 2
 
@@ -79,27 +79,30 @@ Fix 8 quality gaps in the Ordering backend and Store SPA checkout flow identifie
 ## 4. Dependencies
 
 - **DEP-001**: Storefront API Alignment spec (2025-08-11) — cart routes and methods already aligned; this plan only fixes remaining response/state gaps.
-- **DEP-002**: `CartMapping.MapToDetailWithItems<T>()` + `CartItemLookup` already exist in `Features/Storefront/Cart/Shared/Mappings/Cart.Mapping.Model.cs` (used by `AddToCart`).
+- **DEP-002**: `CartMapping.MapToDetailWithItems<T>()` + `CartItemLookup` already exist in `Features/Storefront/Cart/Shared/Mappings/Cart.Mapping.Model.cs`; `BuildCartItemLookupAsync` is extracted into this same file (currently private in `AddToCart.cs` + `GetCart.cs`)
 - **DEP-003**: `OrderMapping.MapToLineItemResponse<T>()` and `LineItemResponse` already exist in `Features/Admin/Orders/Shared/`.
 - **DEP-004**: Hangfire `CartExpiryJobScheduler` + `CartExpiryJob` are registered and functional — removing the BackgroundService fallback is safe.
 
 ## 5. Files
 
-- **FILE-001**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/UpdateItemQuantity/UpdateCartItemQuantity.cs` — TASK-001 (handler → `Result<Response>`)
-- **FILE-002**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/UpdateItemQuantity/UpdateCartItemQuantity.Response.cs` — TASK-001 (new)
-- **FILE-003**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/UpdateItemQuantity/UpdateCartItemQuantity.Endpoint.cs` — TASK-001 (Produces)
-- **FILE-004**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.cs` — TASK-002 (handler → `Result<Response>`)
-- **FILE-005**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.Response.cs` — TASK-002 (new)
-- **FILE-006**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.Endpoint.cs` — TASK-002 (Produces)
-- **FILE-007**: `service/Api/src/Module/Ordering/Features/Admin/Orders/Shared/Models/Order.Model.Response.cs` — TASK-003 (LineItems property)
-- **FILE-008**: `service/Api/src/Module/Ordering/Features/Admin/Orders/Shared/Mappings/Order.Mapping.Model.cs` — TASK-003 (MapToDetail line items)
-- **FILE-009**: `service/Api/src/Module/Ordering/Services/CartExpiryService.cs` — TASK-004 (delete)
-- **FILE-010**: `service/Api/src/Module/Ordering/Services/CartExpiryService.Loggers.cs` — TASK-004 (delete)
-- **FILE-011**: `service/Api/src/Module/Ordering/Ordering.Extension.cs` — TASK-004 (remove registration)
-- **FILE-012**: `service/Api/src/Module/Ordering/Domain/Orders/Order.Method.Checkout.cs` — TASK-005 (remove TODO)
-- **FILE-013**: `app/Store/src/features/ordering/composables/useCheckout.ts` — TASK-006 (step race + validateCheckout)
-- **FILE-014**: `app/Store/src/features/ordering/views/CheckoutView.vue` — TASK-007 (advanceToReview)
-- **FILE-015**: `docs/superpowers/plans/2026-08-12-ordering-flow-fixes.md` — source plan (superseded by this file)
+- **FILE-001**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/Shared/Mappings/Cart.Mapping.Model.cs` — TASK-001 (extract shared `BuildCartItemLookupAsync`)
+- **FILE-002**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/AddItem/AddToCart.cs` — TASK-001 (use shared helper, delete private copy)
+- **FILE-003**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/Get/GetCart.cs` — TASK-001 (use shared helper, delete private copy)
+- **FILE-004**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/UpdateItemQuantity/UpdateCartItemQuantity.cs` — TASK-001 (handler → `Result<Response>`)
+- **FILE-005**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/UpdateItemQuantity/UpdateCartItemQuantity.Response.cs` — TASK-001 (new)
+- **FILE-006**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/UpdateItemQuantity/UpdateCartItemQuantity.Endpoint.cs` — TASK-001 (Produces)
+- **FILE-007**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.cs` — TASK-002 (handler → `Result<Response>`)
+- **FILE-008**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.Response.cs` — TASK-002 (new)
+- **FILE-009**: `service/Api/src/Module/Ordering/Features/Storefront/Cart/RemoveItem/RemoveCartItem.Endpoint.cs` — TASK-002 (Produces)
+- **FILE-010**: `service/Api/src/Module/Ordering/Features/Admin/Orders/Shared/Models/Order.Model.Response.cs` — TASK-003 (LineItems property)
+- **FILE-011**: `service/Api/src/Module/Ordering/Features/Admin/Orders/Shared/Mappings/Order.Mapping.Model.cs` — TASK-003 (MapToDetail line items)
+- **FILE-012**: `service/Api/src/Module/Ordering/Services/CartExpiryService.cs` — TASK-004 (delete)
+- **FILE-013**: `service/Api/src/Module/Ordering/Services/CartExpiryService.Loggers.cs` — TASK-004 (delete)
+- **FILE-014**: `service/Api/src/Module/Ordering/Ordering.Extension.cs` — TASK-004 (remove registration)
+- **FILE-015**: `service/Api/src/Module/Ordering/Domain/Orders/Order.Method.Checkout.cs` — TASK-005 (remove TODO)
+- **FILE-016**: `app/Store/src/features/ordering/composables/useCheckout.ts` — TASK-006 (step race + validateCheckout)
+- **FILE-017**: `app/Store/src/features/ordering/views/CheckoutView.vue` — TASK-007 (advanceToReview)
+- **FILE-018**: `docs/superpowers/plans/2026-08-12-ordering-flow-fixes.md` — source plan (superseded by this file)
 
 ## 6. Testing
 
