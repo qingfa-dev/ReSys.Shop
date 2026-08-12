@@ -65,8 +65,6 @@ public sealed partial class Order
     // Validate: Whether the order has at least one line item (checkout prerequisite)
     public bool CheckoutAllowed() => LineItems.Count != 0;
 
-    // TODO: Implement product-type-based delivery check (physical vs digital).
-    //       Currently hardcoded true — all orders require delivery.
     public static bool DeliveryRequired() => true;
 
     // Validate: Whether payment is required (free orders skip payment)
