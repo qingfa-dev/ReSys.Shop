@@ -9,6 +9,7 @@ using Module.Ordering;
 using Module.Billing;
 using Module.Customer;
 using Module.Shipping;
+using Module.Dashboard;
 
 using ReSys.ServiceDefaults;
 
