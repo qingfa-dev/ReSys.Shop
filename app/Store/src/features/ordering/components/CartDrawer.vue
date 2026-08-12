@@ -70,7 +70,7 @@ function removeItem(lineItemId: string): void {
           <Button
             icon="pi pi-trash"
             variant="text"
-            severity="secondary"
+            severity="contrast"
             rounded
             size="small"
             aria-label="Remove item"

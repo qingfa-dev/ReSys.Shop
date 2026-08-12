@@ -89,6 +89,7 @@ function onSearch(): void {
               placeholder="Select model"
               class="w-full"
             />
+            <p class="text-xs text-muted">Embedding model used to encode your image into a vector for similarity search.</p>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -110,6 +111,7 @@ function onSearch(): void {
                 :inputStyle="{ width: '3rem', textAlign: 'center' }"
               />
             </div>
+            <p class="text-xs text-muted">Maximum number of similar products to return (1-50).</p>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -130,6 +132,7 @@ function onSearch(): void {
                 :inputStyle="{ width: '4rem', textAlign: 'center' }"
               />
             </div>
+            <p class="text-xs text-muted">Client-side filter: hide results below this similarity percentage.</p>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -151,6 +154,7 @@ function onSearch(): void {
                 :inputStyle="{ width: '4rem', textAlign: 'center' }"
               />
             </div>
+            <p class="text-xs text-muted">Multiplier applied to similarity scores before threshold filtering (default 1.0).</p>
           </div>
         </div>
 

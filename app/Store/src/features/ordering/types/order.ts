@@ -24,7 +24,6 @@ export interface OrderDetail extends OrderListItem {
   paymentState: string | null
   shipmentState: string | null
   userId: string | null
-  storeId: string | null
   approvedById: string | null
   approvedAtUtc: string | null
   completedAtUtc: string | null

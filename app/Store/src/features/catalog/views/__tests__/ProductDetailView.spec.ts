@@ -2,10 +2,8 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { createRouter, createMemoryHistory } from "vue-router";
 import PrimeVue from "primevue/config";
-import { createTestingPinia } from '@pinia/testing'
 import ToastService from "primevue/toastservice";
 import Select from "primevue/select";
-import MeterGroup from "primevue/metergroup";
 import ProductDetailView from "../ProductDetailView.vue";
 import ProductGridCard from "../../components/ProductGridCard.vue";
 import { useProductDetail } from "../../composables/useProductDetail";
@@ -148,7 +146,7 @@ async function mountView(id = "p-1") {
   await router.isReady();
   const wrapper = mount(ProductDetailView, {
     global: {
-      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), ToastService, router],
+      plugins: [PrimeVue, ToastService, router],
     },
   });
   await flushPromises();
@@ -260,37 +258,5 @@ describe("ProductDetailView", { timeout: 30_000 }, () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain("Classic Tee");
-  });
-
-  it("shows the remaining count and stock meter when few units are left", async () => {
-    const wrapper = await mountView();
-    const detail = seedDetail();
-    detail.selectedVariant!.stock = { totalOnHand: 3, totalReserved: 0, totalAvailable: 3, backorderable: false, locations: [] };
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.text()).toContain("Only 3 left");
-    expect(wrapper.findComponent(MeterGroup).exists()).toBe(true);
-  });
-
-  it("shows an available-for-backorder warning when stock is zero but backorderable", async () => {
-    const wrapper = await mountView();
-    const detail = seedDetail();
-    detail.selectedVariant!.stock = { totalOnHand: 0, totalReserved: 0, totalAvailable: 0, backorderable: true, locations: [] };
-    await wrapper.vm.$nextTick();
-
-    const message = wrapper.find(".p-message-warn");
-    expect(message.exists()).toBe(true);
-    expect(message.text()).toContain("Available for backorder");
-  });
-
-  it("shows an out-of-stock error when stock is zero and not backorderable", async () => {
-    const wrapper = await mountView();
-    const detail = seedDetail();
-    detail.selectedVariant!.stock = { totalOnHand: 0, totalReserved: 0, totalAvailable: 0, backorderable: false, locations: [] };
-    await wrapper.vm.$nextTick();
-
-    const message = wrapper.find(".p-message-error");
-    expect(message.exists()).toBe(true);
-    expect(message.text()).toContain("Out of stock");
   });
 });

@@ -5,10 +5,8 @@ import type { CartResponse, AddCartItemRequest, UpdateCartItemRequest } from '..
 
 // Service: Cart API client with runtime response validation via Zod schemas.
 export class CartApi {
-  private static readonly BASE = '/api/storefront/cart'
-
   static async getCart(): Promise<Result<CartResponse>> {
-    const result = await get<Result<CartResponse>>(this.BASE)
+    const result = await get<Result<CartResponse>>('/api/storefront/cart')
     if (!result.isSuccess) return result
     // Validate: Parse API response against CartResponseSchema for type safety.
     result.value = CartResponseSchema.parse(result.value)
@@ -16,33 +14,34 @@ export class CartApi {
   }
 
   static async addItem(req: AddCartItemRequest): Promise<Result<CartResponse>> {
-    const result = await post<Result<CartResponse>>(`${this.BASE}/items`, req)
+    const result = await post<Result<CartResponse>>('/api/storefront/cart/items', req)
     if (!result.isSuccess) return result
     result.value = CartResponseSchema.parse(result.value)
     return result
   }
 
   static async updateItem(lineItemId: string, req: UpdateCartItemRequest): Promise<Result<CartResponse>> {
-    const result = await patch<Result<CartResponse>>(`${this.BASE}/items/${lineItemId}`, req)
+    const result = await patch<Result<CartResponse>>(`/api/storefront/cart/items/${lineItemId}`, req)
     if (!result.isSuccess) return result
     result.value = CartResponseSchema.parse(result.value)
     return result
   }
 
   static async removeItem(lineItemId: string): Promise<Result<CartResponse>> {
-    const result = await del<Result<CartResponse>>(`${this.BASE}/items/${lineItemId}`)
+    const result = await del<Result<CartResponse>>(`/api/storefront/cart/items/${lineItemId}`)
     if (!result.isSuccess) return result
     result.value = CartResponseSchema.parse(result.value)
     return result
   }
 
+  // Call: Remove all items from the cart — backend maps to DELETE api/storefront/cart/items.
   static async emptyCart(): Promise<Result<null>> {
-    return await del<Result<null>>(`${this.BASE}/items`)
+    return await del<Result<null>>('/api/storefront/cart/items')
   }
 
   // Call: Link guest cart to authenticated user — triggers server-side merge.
   static async associateCart(guestOrderId: string): Promise<Result<CartResponse>> {
-    const result = await post<Result<CartResponse>>(`${this.BASE}/associate`, { guestOrderId })
+    const result = await post<Result<CartResponse>>('/api/storefront/cart/associate', { guestOrderId })
     if (!result.isSuccess) return result
     result.value = CartResponseSchema.parse(result.value)
     return result

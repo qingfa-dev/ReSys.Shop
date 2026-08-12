@@ -17,12 +17,10 @@ const SimilarProductSchema = ProductListItemSchema.extend({ similarityScore: z.n
 const validatedSimilarList = PagedResultSchema(SimilarProductSchema)
 
 export class ProductApi {
-  private static readonly BASE = '/api/storefront/catalog/products'
-
   static async getProducts(q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {
     // Call: Catalog API — paginated product list with filters, sort, search
     const params = toProductQueryParams(q)
-    const result = await getPaged<unknown>(this.BASE, params, {
+    const result = await getPaged<unknown>('/api/storefront/catalog/products', params, {
       allowedSortFields: [...PRODUCT_SORT_FIELDS],
       allowedSearchFields: [...PRODUCT_SEARCH_FIELDS],
       allowedFilterFields: [...PRODUCT_FILTER_FIELDS],
@@ -36,7 +34,7 @@ export class ProductApi {
   static async getProductById(id: string): Promise<Result<StoreProductDetailResponse>> {
     try {
       // Call: Catalog API — single product detail by ID
-      const data = await get<Result<StoreProductDetailResponse>>(`${this.BASE}/${id}`)
+      const data = await get<Result<StoreProductDetailResponse>>(`/api/storefront/catalog/products/${id}`)
       if (!data.isSuccess) return data
       // Validate: Ensure API response matches ProductDetail schema
       data.value = ProductDetailSchema.parse(data.value)
@@ -59,7 +57,7 @@ export class ProductApi {
     // Call: Catalog API — AI-powered similar product recommendations
     const params: QueryingParameters = { productId }
     if (topK) params.topK = topK
-    const result = await getPaged<unknown>(`${this.BASE}/similar`, params)
+    const result = await getPaged<unknown>('/api/storefront/catalog/products/similar', params)
     if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse & { similarityScore: number }>
     // Validate: Ensure API response matches SimilarProduct schema with similarity score
     const parsed = validatedSimilarList.parse({ ...result, items: result.items })
@@ -69,7 +67,7 @@ export class ProductApi {
   static async getRelated(productId: string, q: ProductQuery): Promise<PagedResult<StoreProductListItemResponse>> {
     // Call: Catalog API — paginated related products with filters
     const params: QueryingParameters = { productId, ...toProductQueryParams(q) }
-    const result = await getPaged<unknown>(`${this.BASE}/related`, params)
+    const result = await getPaged<unknown>('/api/storefront/catalog/products/related', params)
     if (!result.isSuccess) return result as PagedResult<StoreProductListItemResponse>
     // Validate: Ensure API response matches ProductListItem schema
     const parsed = validatedPagedList.parse({ ...result, items: result.items })

@@ -227,7 +227,7 @@ onMounted(() => {
               <Button
                 icon="pi pi-pencil"
                 variant="text"
-                severity="secondary"
+                severity="contrast"
                 rounded
                 aria-label="Edit address"
                 v-tooltip.bottom="'Edit address'"

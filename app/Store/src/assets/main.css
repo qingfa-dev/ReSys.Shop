@@ -53,6 +53,9 @@
 }
 
 :root {
+  /* Light-only app: force light branch for Aura theme light-dark() tokens */
+  color-scheme: light;
+
   /* Primary scale: deep teal */
   --p-primary-color: #0d7377;
   --p-primary-hover-color: #095c5f;

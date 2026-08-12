@@ -101,12 +101,10 @@ const stockMeter = computed(() => {
   }
 })
 
-// Stock: Severity derives from the DTO variant stock so out-of-stock renders error
+// Stock: Severity and message derive from the DTO stock label and availability
 const stockSeverity = computed<'success' | 'warn' | 'error'>(() => {
-  const stock = detail.selectedVariant?.stock
-  if (!stock) return 'error'
-  if (stock.totalAvailable > 0) return 'success'
-  return stock.backorderable ? 'warn' : 'error'
+  if (detail.isInStock) return 'success'
+  return detail.stockLabel ? 'warn' : 'error'
 })
 const stockMessage = computed(() => detail.stockLabel ?? (detail.isInStock ? 'In stock' : 'Out of stock'))
 
@@ -376,7 +374,7 @@ watch(() => route.params.id, id => {
           />
         </div>
 
-        <!-- Stock: Availability message from the product DTO variant stock -->
+        <!-- Stock: Availability message from the inventory sidecar entry -->
         <Message :severity="stockSeverity" :closable="false">
           {{ stockMessage }}
         </Message>

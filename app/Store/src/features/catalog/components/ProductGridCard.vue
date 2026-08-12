@@ -179,7 +179,7 @@ const menuItems = computed<MenuItem[]>(() => [
           <Button
             :icon="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"
             variant="text"
-            :severity="isWishlisted ? 'danger' : 'secondary'"
+            :severity="isWishlisted ? 'danger' : 'contrast'"
             rounded
             :aria-label="wishlistLabel"
             v-tooltip.bottom="wishlistLabel"
@@ -197,7 +197,7 @@ const menuItems = computed<MenuItem[]>(() => [
               ref="quickViewButton"
               icon="pi pi-eye"
               variant="text"
-              severity="secondary"
+              severity="contrast"
               rounded
               aria-label="Quick view"
               v-tooltip.bottom="'Quick view'"

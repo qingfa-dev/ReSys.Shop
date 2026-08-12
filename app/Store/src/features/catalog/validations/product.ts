@@ -1,19 +1,21 @@
 import { z } from 'zod'
 
 // Validate: Zod schemas mirror server API response contracts for runtime type safety
+const StockLocationInfoSchema = z.object({
+  stockLocationId: z.string(),
+  stockLocationName: z.string().nullable(),
+  countOnHand: z.number().int().min(0),
+  reservedCount: z.number().int().min(0),
+  availableCount: z.number().int().min(0),
+  backorderable: z.boolean(),
+})
+
 const VariantStockInfoSchema = z.object({
   totalOnHand: z.number().int().min(0),
   totalReserved: z.number().int().min(0),
   totalAvailable: z.number().int().min(0),
   backorderable: z.boolean(),
-  locations: z.array(z.object({
-    stockLocationId: z.string(),
-    stockLocationName: z.string().nullable(),
-    countOnHand: z.number().int().min(0),
-    reservedCount: z.number().int().min(0),
-    availableCount: z.number().int().min(0),
-    backorderable: z.boolean(),
-  })),
+  locations: z.array(StockLocationInfoSchema),
 })
 
 const VariantOptionValueSchema = z.object({

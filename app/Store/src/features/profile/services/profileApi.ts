@@ -4,11 +4,9 @@ import type { Result } from '@/shared/types'
 import type { ProfileDetail, UpdateProfileRequest } from '../types'
 
 export class ProfileApi {
-  private static readonly BASE = '/api/storefront/customer'
-
   // Call: Fetch authenticated user profile from profile API
   static async getProfile(): Promise<Result<ProfileDetail>> {
-    const result = await get<Result<ProfileDetail>>(this.BASE)
+    const result = await get<Result<ProfileDetail>>('/api/storefront/customer')
     if (!result.isSuccess) return result
     // Transform: Validate server response against ProfileDetailSchema
     result.value = ProfileDetailSchema.parse(result.value)
@@ -17,7 +15,7 @@ export class ProfileApi {
 
   // Call: Submit profile changes to profile API
   static async updateProfile(req: UpdateProfileRequest): Promise<Result<ProfileDetail>> {
-    const result = await patch<Result<ProfileDetail>>(this.BASE, req)
+    const result = await patch<Result<ProfileDetail>>('/api/storefront/customer', req)
     if (!result.isSuccess) return result
     // Transform: Validate updated profile response
     result.value = ProfileDetailSchema.parse(result.value)
@@ -26,6 +24,6 @@ export class ProfileApi {
 
   // Call: Send profile deletion request
   static async deleteProfile(): Promise<Result<void>> {
-    return await put<Result<void>>(`${this.BASE}/delete`, {})
+    return await put<Result<void>>('/api/storefront/customer/delete', {})
   }
 }

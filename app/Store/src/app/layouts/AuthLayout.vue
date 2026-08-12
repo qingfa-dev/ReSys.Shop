@@ -29,7 +29,7 @@ const secondaryAuth = computed(() =>
       </p>
     </aside>
 
-    <!-- Form Panel: Centered auth card; routed views render inside the Fluid slot -->
+    <!-- Form Panel: Centered auth card; routed views render inside the Fluid wrapper -->
     <main class="flex w-full items-center justify-center p-4 lg:w-1/2">
       <Card class="w-full max-w-md">
         <template #content>
@@ -41,9 +41,9 @@ const secondaryAuth = computed(() =>
             <span class="text-xl font-semibold tracking-tight text-heading">ReSys.Shop</span>
           </div>
 
-          <!-- Form Slot: Fluid makes all descendant inputs full-width -->
+          <!-- Form View: Fluid makes all descendant inputs full-width -->
           <Fluid class="w-full">
-            <slot />
+            <RouterView />
           </Fluid>
 
           <Divider align="center" />

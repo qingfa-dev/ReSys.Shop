@@ -85,7 +85,7 @@ export function useVisualSearch() {
 
   async function loadModels(): Promise<void> {
     const result = await CatalogImageApi.getVisualSearchModels()
-    if (result.isSuccess) availableModels.value = result.value
+    if (result.isSuccess) availableModels.value = result.items
   }
 
   function reset(): void {

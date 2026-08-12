@@ -10,11 +10,20 @@ function extractErrors(
 ): ApiError[] {
   // Check: Backend structured error envelope (validation errors array)
   if (data?.errors && Array.isArray(data.errors)) {
-    return (data.errors as Array<{ code: string; message: string; type?: number }>).map(e => ({
-      code: e.code,
-      message: e.message,
-      type: e.type ?? status,
-    }))
+    return (data.errors as Array<{
+      code: string
+      message: string
+      type?: number
+      metadata?: Array<{ key: string; value: unknown }>
+    }>).map(e => {
+      const field = e.metadata?.find(m => m.key === 'propertyName' || m.key === 'Field')
+      return {
+        code: e.code,
+        message: e.message,
+        type: e.type ?? status,
+        field: typeof field?.value === 'string' ? field.value : undefined,
+      }
+    })
   }
 
   // Check: Backend error-as-object format (title + code)

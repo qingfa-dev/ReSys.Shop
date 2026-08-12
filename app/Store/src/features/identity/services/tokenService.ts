@@ -1,21 +1,20 @@
+import { STORAGE_KEYS } from '@/shared/constants/storage'
 import type { TokenPair } from '../types'
 
-const ACCESS_KEY = 'accessToken'
-const REFRESH_KEY = 'refreshToken'
 const ACCESS_EXPIRY_KEY = 'accessTokenExpiresAt'
 const REFRESH_EXPIRY_KEY = 'refreshTokenExpiresAt'
 
 export function getAccessToken(): string | null {
-  return localStorage.getItem(ACCESS_KEY)
+  return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
 }
 
 export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_KEY)
+  return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
 }
 
 export function setTokens(pair: TokenPair): void {
-  localStorage.setItem(ACCESS_KEY, pair.accessToken)
-  localStorage.setItem(REFRESH_KEY, pair.refreshToken)
+  localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, pair.accessToken)
+  localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, pair.refreshToken)
   const accessExpiresAt = Date.now() + pair.accessTokenExpiresIn * 1000
   const refreshExpiresAt = Date.now() + pair.refreshTokenExpiresIn * 1000
   localStorage.setItem(ACCESS_EXPIRY_KEY, String(accessExpiresAt))
@@ -23,8 +22,8 @@ export function setTokens(pair: TokenPair): void {
 }
 
 export function clearTokens(): void {
-  localStorage.removeItem(ACCESS_KEY)
-  localStorage.removeItem(REFRESH_KEY)
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
   localStorage.removeItem(ACCESS_EXPIRY_KEY)
   localStorage.removeItem(REFRESH_EXPIRY_KEY)
 }
