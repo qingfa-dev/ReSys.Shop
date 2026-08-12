@@ -89,7 +89,6 @@ export function useCheckout(getCart: () => CartRef) {
         paymentIntentId.value = result.value.responseCode ?? result.value.id
         paymentClientSecret.value = result.value.clientSecret
         paymentMethodId.value = methodId
-        currentStep.value = 4
       } else {
         error.value = result.message
       }
@@ -124,6 +123,24 @@ export function useCheckout(getCart: () => CartRef) {
     }
   }
 
+  // Guard: Ask the backend whether the cart is ready to place the order.
+  async function validateCheckout(): Promise<boolean> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await CheckoutApi.validateCheckout()
+      if (!result.isSuccess) {
+        error.value = result.message
+      }
+      loading.value = false
+      return result.isSuccess
+    } catch {
+      error.value = 'Failed to validate checkout'
+      loading.value = false
+      return false
+    }
+  }
+
   function reset(): void {
     currentStep.value = 1
     shipAddressId.value = null
@@ -138,6 +155,6 @@ export function useCheckout(getCart: () => CartRef) {
   return reactive({
     currentStep, shipAddressId, shippingMethodId, paymentMethodId, paymentIntentId,
     paymentClientSecret, orderId, email, loading, error, steps,
-    init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, reset,
+    init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, validateCheckout, reset,
   })
 }
