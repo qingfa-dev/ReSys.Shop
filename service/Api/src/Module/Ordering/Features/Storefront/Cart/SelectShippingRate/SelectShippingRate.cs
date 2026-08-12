@@ -36,6 +36,7 @@ public static partial class SelectShippingRate
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
             // Update: Set shipping method on cart via domain method.
+            var previousTotal = cart.Total;
             var methodResult = cart.SetShippingMethod(command.Request.ShippingMethodId);
             if (methodResult.IsFailure)
                 return methodResult.Errors;
@@ -65,6 +66,8 @@ public static partial class SelectShippingRate
             var shippingResult = cart.ReplaceShippingAdjustment(cost, command.Request.ShippingMethodId);
             if (shippingResult.IsFailure)
                 return shippingResult.Errors;
+
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
 
             var stateResult = cart.AdvanceCheckoutState(CheckoutState.Delivery);
             if (stateResult.IsFailure)
