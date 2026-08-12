@@ -21,7 +21,7 @@ public static partial class UpdateCartItemQuantity
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.UpdateItemQuantity.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.UpdateItemQuantity.Description)
-            .Produces<Result>()
+            .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

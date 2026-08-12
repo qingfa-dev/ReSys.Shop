@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 
 using Module.Inventory.Services;
 
@@ -7,21 +8,21 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 /// <summary>Updates the quantity of a line item in the current user's draft cart after validating stock availability.</summary>
 public static partial class UpdateCartItemQuantity
 {
-    public sealed record Command(Guid LineItemId, Request Request) : ICommand;
+    public sealed record Command(Guid LineItemId, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
         IStockItemService stockItem)
-        : ICommandHandler<Command>
+        : ICommandHandler<Command, Response>
     {
         /// <summary>Validates stock via Inventory module, updates the line item quantity and total, and recalculates cart totals.</summary>
         /// <param name="command">The command containing the line item ID and new quantity.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The result of the operation.</returns>
         /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
-        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
@@ -63,7 +64,9 @@ public static partial class UpdateCartItemQuantity
             // Log: Record quantity change in audit log.
             LineItemLoggers.QuantityUpdated(logger, Id: lineItem.Id, OrderId: cart.Id, Quantity: lineItem.Quantity, ActionBy: currentUser.UserName);
 
-            return Result.Ok();
+            var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
+            var itemLookup = await CartMapping.BuildCartItemLookupAsync(dbContext, variantIds, cancellationToken);
+            return Result<Response>.Ok(cart.MapToDetailWithItems<Response>(itemLookup));
         }
     }
 }
