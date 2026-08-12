@@ -12,6 +12,16 @@ export const OrderListItemSchema = z.object({
   createdAtUtc: z.string(),
 })
 
+export const OrderLineItemSchema = z.object({
+  id: z.string(),
+  variantId: z.string().nullable(),
+  quantity: z.number(),
+  price: z.number(),
+  total: z.number(),
+  currency: z.string(),
+  createdAtUtc: z.string(),
+})
+
 export const OrderDetailSchema = z.object({
   id: z.string(),
   number: z.string(),
@@ -38,6 +48,7 @@ export const OrderDetailSchema = z.object({
   completedAtUtc: z.string().nullable(),
   canceledAtUtc: z.string().nullable(),
   modifiedAtUtc: z.string().nullable(),
+  lineItems: z.array(OrderLineItemSchema),
 })
 
 export const OrderTrackingResponseSchema = z.object({

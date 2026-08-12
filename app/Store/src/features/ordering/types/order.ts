@@ -39,7 +39,7 @@ export interface OrderDetail extends OrderListItem {
   completedAtUtc: string | null
   canceledAtUtc: string | null
   modifiedAtUtc: string | null
-  lineItems?: OrderLineItem[]
+  lineItems: OrderLineItem[]
 }
 
 export interface OrderTrackingResponse {
