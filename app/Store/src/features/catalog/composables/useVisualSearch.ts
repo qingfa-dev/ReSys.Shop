@@ -1,4 +1,4 @@
-import { onUnmounted, ref, reactive } from 'vue'
+import { computed, onUnmounted, ref, reactive } from 'vue'
 import { CatalogImageApi } from '../services/searchByImageApi'
 import type { SearchByImageResponse, VisualSearchModel } from '../types'
 
@@ -19,6 +19,9 @@ export function useVisualSearch() {
   const loading = ref(false)
   const error = ref<string | null>(null)
   const validationError = ref<string | null>(null)
+  const topK = ref(20)
+  const minSimilarity = ref(0)
+  const scoreWeight = ref(1.0)
 
   // Release: Revoke object URL on unmount to prevent memory leak
   onUnmounted(() => {
@@ -69,6 +72,17 @@ export function useVisualSearch() {
     loading.value = false
   }
 
+  const filteredResults = computed(() => {
+    const weight = scoreWeight.value
+    const threshold = minSimilarity.value / 100
+    return results.value
+      .map(item => ({
+        ...item,
+        adjustedScore: Math.min(item.similarityScore * weight, 1),
+      }))
+      .filter(item => item.adjustedScore >= threshold)
+  })
+
   async function loadModels(): Promise<void> {
     const result = await CatalogImageApi.getVisualSearchModels()
     if (result.isSuccess) availableModels.value = result.value
@@ -82,11 +96,15 @@ export function useVisualSearch() {
     results.value = []
     error.value = null
     validationError.value = null
+    topK.value = 20
+    minSimilarity.value = 0
+    scoreWeight.value = 1.0
     state.value = 'empty'
   }
 
   return reactive({
     state, selectedFile, previewUrl, selectedModelId, availableModels, results,
+    topK, minSimilarity, scoreWeight, filteredResults,
     loading, error, validationError,
     validateFile, selectFile, search, loadModels, reset,
   })
