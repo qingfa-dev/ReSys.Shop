@@ -467,4 +467,78 @@ public class OrderMethodTests
         order.Finalize();
         order.CanModifyLineItems().Should().BeFalse();
     }
+
+    [Fact]
+    public void AdvanceCheckoutState_SameState_IsIdempotentNoOp()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.AdvanceCheckoutState(CheckoutState.Payment);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Payment);
+    }
+
+    [Fact]
+    public void RegressCheckoutIfAmountChanged_TotalDiffersAtPayment_RegressesToDelivery()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.RecalculateTotals();
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.RegressCheckoutIfAmountChanged(5m);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+    }
+
+    [Fact]
+    public void RegressCheckoutIfAmountChanged_TotalUnchanged_KeepsState()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.RecalculateTotals();
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.RegressCheckoutIfAmountChanged(order.Total);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Payment);
+    }
+
+    [Fact]
+    public void RegressCheckoutIfAmountChanged_WhenNotDraft_DoesNotRegress()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.RecalculateTotals();
+        order.Status = OrderStatus.Placed;
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.RegressCheckoutIfAmountChanged(5m);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Payment);
+    }
+
+    [Fact]
+    public void SetShippingMethod_ChangedRateAtPayment_RegressesToDelivery()
+    {
+        var methodA = Guid.NewGuid();
+        var methodB = Guid.NewGuid();
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.ReplaceShippingAdjustment(5m, methodA);
+        order.ShippingMethodId = methodA;
+        order.CheckoutState = CheckoutState.Payment;
+
+        var previousTotal = order.Total;
+        order.SetShippingMethod(methodB).IsSuccess.Should().BeTrue();
+        order.ReplaceShippingAdjustment(8m, methodB).IsSuccess.Should().BeTrue();
+        order.RegressCheckoutIfAmountChanged(previousTotal).IsSuccess.Should().BeTrue();
+
+        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+    }
 }
