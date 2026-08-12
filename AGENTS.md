@@ -12,6 +12,7 @@ domain boundaries, principles, quality baselines.
 3. **Vertical slice feature files** — every C# feature action is `static partial class` split across files in `Features/{Admin|Storefront}/{Feature}/{Action}/`, each with Handler, Request, Response, Endpoint, Validator. Subdirectory always `Storefront` (not `Store`). Read-only queries may omit Request/Validator files.
 4. **Warnings-as-errors** — `TreatWarningsAsErrors=true` globally. Any warning fails build.
 5. **Forward-only dependency** — `Shared` depends on nothing within `service/`. `Module` depends only on `Shared`. `Api` composes both.
+6. **NO git stash / worktree / revert / restore / checkout -- without human permission** — never run `git stash`, `git checkout <ref> -- <path>`, `git restore`, `git revert`, `git reset --hard`, or any command that moves/rewrites/loses working-tree changes, unless the human explicitly asked for it and you got an explicit "yes" to run that specific command. If your tooling or hooks auto-stash or reset the working tree, STOP and report it immediately — do not silently continue. Recover lost changes only after the human confirms. Uncommitted work is precious and irreplaceable.
 
 ## Repository Map
 
