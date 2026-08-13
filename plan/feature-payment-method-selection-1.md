@@ -698,7 +698,7 @@ Add `using Module.Billing.Domain.PaymentCaptures;` (for `PaymentRecordState`) an
 
 - [ ] **Step 4: Run the tests**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests --filter-query "//*CreatePaymentIntent*"`
+Run: `dotnet test service/Api/tests/Module.UnitTests --filter-query "///*CreatePaymentIntent*"`
 Expected: 3/3 pass.
 
 - [ ] **Step 5: Commit TASK-010 + TASK-011 together**
@@ -932,8 +932,8 @@ Expected: Build succeeds (unused for now — consumed by TASK-015/TASK-016).
 ```csharp
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
-using Module.Ordering.Features.Storefront.GetPaymentForCheckout;
-using Module.Ordering.Features.Storefront.MarkPaymentPaid;
+using Module.Billing.Features.Storefront.GetPaymentForCheckout;
+using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Module.Ordering.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
