@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Ordering.Persistence.Seeders;
+using Module.Ordering.Services;
 
 namespace Module.Ordering;
 
@@ -18,6 +19,9 @@ public static class OrderingExtension
         // Register: Cart expiry background components (Hangfire scheduler; BackgroundService removed)
         builder.Services.AddScoped<Backgrounds.CartExpiryJob>();
         builder.Services.AddHostedService<Backgrounds.CartExpiryJobScheduler>();
+
+        // Register: Order placement pipeline service
+        builder.Services.AddScoped<CheckoutPlacementService>();
 
         // Register: Seeders for development database initialization
         builder.AddSeeder<OrderSeeder>();

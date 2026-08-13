@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
+using Module.Ordering.Services;
 
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.StockReservations;
@@ -17,7 +18,7 @@ public class CreateOrderFromCartStockTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
-    private readonly Mock<ILogger<CreateOrderFromCart.CommandHandler>> _loggerMock;
+    private readonly Mock<ILogger<CheckoutPlacementService>> _loggerMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly Mock<ISender> _senderMock;
     private readonly Mock<IStockReservationService> _reservationServiceMock;
@@ -38,7 +39,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("customer");
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
-        _loggerMock = new Mock<ILogger<CreateOrderFromCart.CommandHandler>>();
+        _loggerMock = new Mock<ILogger<CheckoutPlacementService>>();
         _notificationServiceMock = new Mock<INotificationService>();
         _notificationServiceMock
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
@@ -57,7 +58,10 @@ public class CreateOrderFromCartStockTests : IDisposable
             .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
-        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object, _senderMock.Object, _reservationServiceMock.Object);
+        var placementService = new CheckoutPlacementService(
+            _dbContext, _reservationServiceMock.Object, _notificationServiceMock.Object, _loggerMock.Object);
+
+        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _currentUserMock.Object, _senderMock.Object, placementService);
     }
 
     public void Dispose()

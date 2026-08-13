@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
+using Module.Ordering.Services;
 
 using Module.Inventory.Services.StockReservations;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
@@ -40,7 +41,7 @@ public class CreateOrderFromCartTransactionTests
         });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var logger = new Mock<ILogger<CreateOrderFromCart.CommandHandler>>();
+        var logger = new Mock<ILogger<CheckoutPlacementService>>();
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(x => x.UserId).Returns(userId.ToString());
         currentUser.Setup(x => x.UserName).Returns("tester");
@@ -59,8 +60,11 @@ public class CreateOrderFromCartTransactionTests
         reservationService.Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
+        var placementService = new CheckoutPlacementService(
+            db, reservationService.Object, notificationService.Object, logger.Object);
+
         var sut = new CreateOrderFromCart.CommandHandler(
-            db, logger.Object, currentUser.Object, notificationService.Object, sender.Object, reservationService.Object);
+            db, currentUser.Object, sender.Object, placementService);
 
         var result = await sut.Handle(
             new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
