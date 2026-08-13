@@ -115,7 +115,7 @@ export function useCheckout(getCart: () => CartRef) {
         paymentIntentId.value = result.value.id
         checkoutUrl.value = result.value.checkoutUrl ?? null
         paymentState.value = result.value.state ?? null
-        paymentClientSecret.value = result.value.clientSecret
+        paymentClientSecret.value = result.value.clientSecret ?? null
         paymentMethodId.value = methodId
       } else {
         error.value = result.message

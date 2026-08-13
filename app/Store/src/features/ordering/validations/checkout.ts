@@ -29,7 +29,7 @@ export const PlaceOrderResponseSchema = z.object({
 
 export const PaymentIntentResponseSchema = z.object({
   id: z.string(),
-  clientSecret: z.string(),
+  clientSecret: z.string().nullable().optional(),
   responseCode: z.string().optional(),
   checkoutUrl: z.string().optional(),
   state: z.string().optional(),

@@ -24,7 +24,7 @@ export interface PlaceOrderRequest {
 export interface PlaceOrderResponse { id: string }
 export interface PaymentIntentResponse {
   id: string
-  clientSecret: string
+  clientSecret?: string | null
   responseCode?: string
   checkoutUrl?: string
   state?: string

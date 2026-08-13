@@ -226,7 +226,7 @@ function goToStep(value: number): void {
 
 // Navigate: Force-refresh cart state and confirm readiness before showing the review panel.
 async function advanceToReview(): Promise<void> {
-  if (!checkout.paymentClientSecret) return
+  if (!checkout.paymentIntentId) return
   checkout.loading = true
   checkout.error = null
   const cartOk = await cart.fetchCart(true)
@@ -238,7 +238,7 @@ async function advanceToReview(): Promise<void> {
   const validOk = await checkout.validateCheckout()
   checkout.loading = false
   // Gate: Only land on Review when the re-synced backend is still at Payment with a live intent.
-  if (validOk && checkout.backendStep === 3 && checkout.paymentClientSecret) {
+  if (validOk && checkout.backendStep === 3 && checkout.paymentIntentId) {
     checkout.displayStep = 4
   }
 }

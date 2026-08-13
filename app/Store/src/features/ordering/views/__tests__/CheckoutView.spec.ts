@@ -301,10 +301,10 @@ describe('CheckoutView', () => {
     const { wrapper } = await mountView(true)
 
     const vm = wrapper.vm as unknown as {
-      checkout: { paymentClientSecret: string | null; displayStep: number }
+      checkout: { paymentIntentId: string | null; displayStep: number }
       advanceToReview: () => Promise<void>
     }
-    vm.checkout.paymentClientSecret = 'cs-test'
+    vm.checkout.paymentIntentId = 'pi-1'
     await vm.advanceToReview()
 
     expect(mockedCartApi.getCart).toHaveBeenCalled()
@@ -367,7 +367,7 @@ describe('CheckoutView', () => {
       ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Payment', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
     )
     mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
-      ok({ id: 'pi-1', clientSecret: 'cs-test' }),
+      ok({ id: 'pi-1', clientSecret: null }),
     )
     mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
     const { wrapper } = await mountView(true)
