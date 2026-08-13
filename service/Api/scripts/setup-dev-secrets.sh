@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Note: the AppHost "stripe-listen" resource additionally requires
+# STRIPE_SECRET_KEY as a process env of the terminal that starts the AppHost.
+
 PROJECT="service/Api/src/Api/Api.csproj"
 
 if ! grep -q "UserSecretsId" "$PROJECT"; then

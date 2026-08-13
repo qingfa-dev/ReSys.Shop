@@ -2,8 +2,12 @@
 
 ## Stripe webhooks (local)
 
-1. Set `STRIPE_SECRET_KEY=sk_test_...` for the AppHost, then start the app:
-   `dotnet run --project infra/Aspire/src/ReSys.AppHost` (API on `https://localhost:5001`).
+1. The terminal that runs `dotnet run --project infra/Aspire/src/ReSys.AppHost`
+   must have `export STRIPE_SECRET_KEY=sk_test_...` set as a process
+   environment variable. This is separate from the user-secrets `SecretKey`
+   written by `./scripts/setup-dev-secrets.sh`; the AppHost reads only the
+   process env var. Without it the `stripe-listen` resource is not created.
+   Then start the app (API on `https://localhost:5001`).
 2. The AppHost starts the `stripe-listen` resource automatically when
    `STRIPE_SECRET_KEY` is set, forwarding to
    `https://localhost:5001/api/storefront/billing/webhooks/stripe`.

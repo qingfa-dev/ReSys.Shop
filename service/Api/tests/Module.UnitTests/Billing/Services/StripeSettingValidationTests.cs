@@ -14,7 +14,9 @@ public class StripeSettingValidationTests
 
     public StripeSettingValidationTests()
     {
-        _validator = new StripeSettingValidation(new Mock<IHostEnvironment>().Object);
+        var environment = new Mock<IHostEnvironment>();
+        environment.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+        _validator = new StripeSettingValidation(environment.Object);
     }
 
     [Fact(DisplayName = "Validation passes when Stripe is disabled with empty secrets")]

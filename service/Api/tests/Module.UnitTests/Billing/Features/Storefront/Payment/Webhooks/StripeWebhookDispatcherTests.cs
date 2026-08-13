@@ -97,4 +97,27 @@ public class StripeWebhookDispatcherTests
 
         result.Should().BeFalse();
     }
+
+    [Fact(DisplayName = "Dispatcher: Development with a configured secret still verifies a valid signature")]
+    public void ValidateSignature_DevelopmentWithSecret_StillVerifies()
+    {
+        var dispatcher = CreateDispatcher(WebhookSecret, Environments.Development);
+        string header = BuildSignatureHeader(Payload, WebhookSecret);
+
+        var result = dispatcher.ValidateSignature(Payload, header);
+
+        result.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Dispatcher: Development with a configured secret rejects a tampered signature")]
+    public void ValidateSignature_DevelopmentWithSecret_Tampered_Rejects()
+    {
+        var dispatcher = CreateDispatcher(WebhookSecret, Environments.Development);
+        string header = BuildSignatureHeader(Payload, WebhookSecret);
+        string tamperedHeader = header.Replace("v1=", "v1=deadbeef");
+
+        var result = dispatcher.ValidateSignature(Payload, tamperedHeader);
+
+        result.Should().BeFalse();
+    }
 }
