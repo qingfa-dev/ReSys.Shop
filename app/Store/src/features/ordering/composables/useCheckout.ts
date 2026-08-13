@@ -32,6 +32,8 @@ export function useCheckout(getCart: () => CartRef) {
   const paymentMethodId = ref<string | null>(null)
   const paymentIntentId = ref<string | null>(null)
   const paymentClientSecret = ref<string | null>(null)
+  const checkoutUrl = ref<string | null>(null)
+  const paymentState = ref<string | null>(null)
   const orderId = ref<string | null>(null)
   const email = ref('')
   const loading = ref(false)
@@ -97,7 +99,7 @@ export function useCheckout(getCart: () => CartRef) {
     }
   }
 
-  async function createPaymentIntent(methodId: string, paymentMethodToken?: string): Promise<boolean> {
+  async function createPaymentIntent(methodId: string, opts: { returnUrl?: string; cancelUrl?: string } = {}): Promise<boolean> {
     loading.value = true
     error.value = null
     try {
@@ -105,10 +107,14 @@ export function useCheckout(getCart: () => CartRef) {
       const result = await CheckoutApi.createPaymentIntent({
         orderId: cart.id!,
         paymentMethodId: methodId,
-        paymentMethodToken,
+        returnUrl: opts.returnUrl,
+        cancelUrl: opts.cancelUrl,
       })
       if (result.isSuccess) {
-        paymentIntentId.value = result.value.responseCode ?? result.value.id
+        // Payment id is the PaymentCapture.Id — stable across COD and gateway paths.
+        paymentIntentId.value = result.value.id
+        checkoutUrl.value = result.value.checkoutUrl ?? null
+        paymentState.value = result.value.state ?? null
         paymentClientSecret.value = result.value.clientSecret
         paymentMethodId.value = methodId
       } else {
@@ -173,6 +179,8 @@ export function useCheckout(getCart: () => CartRef) {
         paymentClientSecret.value = null
         paymentIntentId.value = null
         paymentMethodId.value = null
+        checkoutUrl.value = null
+        paymentState.value = null
       }
       if (curStep >= 2 && curStep < (prevStep >= 2 ? prevStep : Number.MAX_SAFE_INTEGER)) {
         displayStep.value = curStep
@@ -187,13 +195,15 @@ export function useCheckout(getCart: () => CartRef) {
     paymentMethodId.value = null
     paymentIntentId.value = null
     paymentClientSecret.value = null
+    checkoutUrl.value = null
+    paymentState.value = null
     orderId.value = null
     error.value = null
   }
 
   return reactive({
     backendStep, displayStep, shipAddressId, shippingMethodId, paymentMethodId, paymentIntentId,
-    paymentClientSecret, orderId, email, loading, error, steps,
+    paymentClientSecret, checkoutUrl, paymentState, orderId, email, loading, error, steps,
     init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, validateCheckout, reset,
   })
 }
