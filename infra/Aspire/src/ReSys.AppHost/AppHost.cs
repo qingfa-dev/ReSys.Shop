@@ -26,6 +26,7 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WithReference(embedding)
     .WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))
     .WithHttpHealthCheck("/health")
+    .WithHttpsEndpoint(port: 5001, name: "https")
     .WithExternalHttpEndpoints()
     .WithOtlpExporter()
     .WaitFor(redis)
