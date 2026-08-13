@@ -44,13 +44,14 @@ var stripeApiKey = builder.Configuration["Stripe:ApiKey"]
     ?? Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 if (!string.IsNullOrEmpty(stripeApiKey))
 {
-    var forwardUrl = $"{api.GetEndpoint("https")}/api/storefront/billing/webhooks/stripe";
-    builder.AddExecutable("stripe-listen", "stripe", Environment.CurrentDirectory,
-            "listen",
-            "--forward-to", forwardUrl)
+    // The forward URL must be resolved lazily by Aspire at runtime — interpolating
+    // api.GetEndpoint("https") directly yields the EndpointReference type name.
+    builder.AddExecutable("stripe-listen", "stripe", Environment.CurrentDirectory)
         .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
+        .WithArgs("listen", "--forward-to",
+            api.GetEndpoint("https") + "/api/storefront/billing/webhooks/stripe")
         .WaitFor(api);
-    Console.WriteLine($"[stripe] stripe-listen resource added (forwarding to {forwardUrl}).");
+    Console.WriteLine("[stripe] stripe-listen resource added (forwarding to https://localhost:5001/api/storefront/billing/webhooks/stripe).");
 }
 else
 {
