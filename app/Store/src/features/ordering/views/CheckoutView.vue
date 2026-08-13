@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import Label from 'primevue/label'
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { formatCurrency } from '@/shared/utils/currency'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 import { useLocation } from '@/features/location/composables'
-import { usePayment } from '@/features/payment/composables/usePayment'
 import { getPaymentMethods } from '@/features/payment/services/paymentApi'
+import type { PaymentMethod } from '@/features/payment/types/payment'
 import { useAddresses } from '@/features/profile/composables/useAddresses'
 import type { AddressInput } from '@/features/profile/types'
 import { useShipping } from '@/features/shipping/composables'
@@ -26,14 +26,17 @@ const addresses = useAddresses()
 const shipping = useShipping()
 const location = useLocation()
 const auth = useAuthStore()
-const payment = usePayment()
 
-// Stripe: Load the SDK so Elements can mount the hosted card form later.
-payment.init()
+// Methods: Customer-facing payment methods for the payment panel.
+const paymentMethods = ref<PaymentMethod[]>([])
+const selectedPaymentMethodId = ref<string | null>(null)
 
-// Card: The Stripe Elements card form mounts into this container on the payment panel.
-const cardContainer = ref<HTMLElement | null>(null)
-const paymentMethodId = ref<string | null>(null)
+// Load: Fetch active, customer-facing payment methods for selection.
+async function loadPaymentMethods(): Promise<void> {
+  const result = await getPaymentMethods({ pageSize: 50 })
+  paymentMethods.value = result.isSuccess ? result.items : []
+  selectedPaymentMethodId.value = paymentMethods.value[0]?.id ?? null
+}
 
 // Address: Form state for the shipping panel; email pre-filled from the session.
 const selectedAddressId = ref<string | null>(null)
@@ -177,57 +180,31 @@ async function continueToPayment(): Promise<void> {
   await checkout.selectShippingRate(selectedShippingId.value)
 }
 
-// Resolve: Pick the active gateway method (e.g. Credit Card) for the payment intent.
-async function resolvePaymentMethod(): Promise<void> {
-  if (paymentMethodId.value) return
-  const result = await getPaymentMethods({ pageSize: 50 })
-  const method = result.isSuccess ? (result.items.find((m) => m.active) ?? result.items[0]) : undefined
-  paymentMethodId.value = method?.id ?? null
-}
-
-// Mount: Attach the Stripe Elements card form to the payment panel container.
-// A bare card (no client secret yet) still lets the user enter details; the
-// secret is passed once the intent is created.
-async function mountCard(): Promise<void> {
-  await nextTick()
-  if (!cardContainer.value) return
-  payment.unmount()
-  await payment.mount(checkout.paymentClientSecret ?? undefined, cardContainer.value)
-}
-
-// Watch: Mount the card form on entry to the payment panel. The intent is NOT
-// created here — the Stripe PaymentMethod token (needed by the backend at intent
-// creation) can only be collected after the user fills the card, so it happens
-// on the Continue-to-Review action instead.
+// Watch: Load payment methods when entering the payment panel.
 watch(
   () => checkout.displayStep,
   async (step) => {
-    if (step !== 3) {
-      payment.unmount()
-      return
-    }
-    await resolvePaymentMethod()
-    await mountCard()
+    if (step === 3) await loadPaymentMethods()
   },
   { immediate: true },
 )
 
-// Action: Collect the card token, create the payment intent, then open review.
-async function onContinueToReview(): Promise<void> {
-  if (!paymentMethodId.value) return
-  if (!checkout.paymentClientSecret) {
-    checkout.loading = true
-    checkout.error = null
-    // Token: Stripe PaymentMethod from the mounted card — required by the backend
-    // at intent creation (Payment.Processing.SourceRequired otherwise).
-    const token = await payment.createPaymentMethod()
-    if (!token) {
-      checkout.error = payment.error.value ?? 'Unable to collect card details.'
-      checkout.loading = false
-      return
-    }
-    const ok = await checkout.createPaymentIntent(paymentMethodId.value, token)
-    if (!ok) return
+// Action: Card → create intent and redirect to Stripe; COD → advance to review.
+async function onContinueFromPayment(): Promise<void> {
+  const method = paymentMethods.value.find((m) => m.id === selectedPaymentMethodId.value)
+  if (!method) return
+
+  const origin = window.location.origin
+  const ok = await checkout.createPaymentIntent(method.id, {
+    returnUrl: `${origin}/checkout/return`,
+    cancelUrl: `${origin}/checkout`,
+  })
+  if (!ok) return
+
+  // Card: hosted checkout redirect. COD: continue to review + place order.
+  if (checkout.checkoutUrl) {
+    window.location.href = checkout.checkoutUrl
+    return
   }
   await advanceToReview()
 }
@@ -280,11 +257,6 @@ onMounted(async () => {
   if (cart.isEmpty && checkout.displayStep !== 5) {
     await router.push('/cart')
   }
-})
-
-onUnmounted(() => {
-  // Dispose: Detach the Stripe card element when leaving the view.
-  payment.unmount()
 })
 </script>
 
@@ -404,22 +376,30 @@ onUnmounted(() => {
           </div>
         </StepPanel>
 
-        <!-- Panel: Payment — Stripe Elements card form bound to the payment intent -->
+        <!-- Panel: Payment — customer-facing payment method selection and redirect -->
         <StepPanel :value="3">
           <div class="max-w-xl space-y-5">
             <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
-            <Message v-if="payment.error" severity="error" :closable="false">{{ payment.error }}</Message>
-            <Message v-if="!paymentMethodId && !checkout.loading" severity="warn" :closable="false">
-              No active payment method is available.
+            <Message v-if="paymentMethods.length === 0 && !checkout.loading" severity="warn" :closable="false">
+              No payment methods are available.
             </Message>
-            <!-- Card: Stripe Elements mounts the hosted card form into this container -->
-            <div ref="cardContainer" class="rounded-lg border border-surface-200 p-4" />
-            <p class="text-sm text-muted">
-              Card details are processed securely by Stripe. Payment is confirmed when you place the order.
-            </p>
+            <!-- Section: Payment Methods — radio list of customer-facing methods -->
+            <RadioButtonGroup v-model="selectedPaymentMethodId" class="flex flex-col gap-3">
+              <div v-for="method in paymentMethods" :key="method.id" class="flex items-center gap-3">
+                <RadioButton :input-id="`pm-${method.id}`" :value="method.id" />
+                <Label :for="`pm-${method.id}`" class="cursor-pointer">{{ method.name }}</Label>
+              </div>
+            </RadioButtonGroup>
             <ButtonGroup>
               <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(2)" />
-              <Button label="Continue to Review" icon="pi pi-arrow-right" iconPos="right" :disabled="!paymentMethodId" :loading="checkout.loading" @click="onContinueToReview" />
+              <Button
+                label="Continue"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                :disabled="!selectedPaymentMethodId"
+                :loading="checkout.loading"
+                @click="onContinueFromPayment"
+              />
             </ButtonGroup>
           </div>
         </StepPanel>

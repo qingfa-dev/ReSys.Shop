@@ -12,6 +12,7 @@ import { CartApi } from '../../services/cartApi'
 import { CheckoutApi } from '../../services/checkoutApi'
 import type { CartLineItem } from '../../types'
 import type { ShippingMethod, ShippingRate } from '@/features/shipping/types/shipping'
+import type { PaymentMethod } from '@/features/payment/types/payment'
 import { ok } from '@/shared/types/result'
 
 // Polyfill: Select calls matchMedia on mount; jsdom does not provide it.
@@ -31,20 +32,6 @@ function createMatchMediaStub(query: string) {
 beforeAll(() => {
   vi.stubGlobal('matchMedia', vi.fn<typeof createMatchMediaStub>(createMatchMediaStub))
 })
-
-// Stub: Stripe Elements needs browser APIs and a publishable key, so the payment
-// composable is replaced with a no-op harness for the checkout tests.
-vi.mock('@/features/payment/composables/usePayment', () => ({
-  usePayment: () => ({
-    loading: { value: false },
-    error: { value: null },
-    stripePromise: { value: null },
-    init: vi.fn<() => void>(),
-    mount: vi.fn<() => Promise<null>>().mockResolvedValue(null),
-    createPaymentMethod: vi.fn<() => Promise<string | null>>().mockResolvedValue('pm_mock_token'),
-    unmount: vi.fn<() => void>(),
-  }),
-}))
 
 // Stub: CartApi so the composable does not make real HTTP calls.
 vi.mock('../../services/cartApi', () => ({
@@ -69,17 +56,49 @@ vi.mock('../../services/checkoutApi', () => ({
   },
 }))
 
-// Stub: Payment method lookup so the payment panel can resolve an active method.
+// Stub: Payment methods for the payment panel — a card gateway and a COD method.
 vi.mock('@/features/payment/services/paymentApi', () => ({
-  getPaymentMethods: vi.fn<() => Promise<{ isSuccess: boolean; statusCode: number; message: null; errors: never[]; items: { id: string; name: string; providerKey: string; active: boolean }[]; page: number; pageSize: number; totalCount: number; totalPages: number }>>().mockResolvedValue({
+  getPaymentMethods: vi.fn<() => Promise<{
+    isSuccess: boolean; statusCode: number; message: null; errors: never[]
+    items: PaymentMethod[]; page: number; pageSize: number; totalCount: number; totalPages: number
+  }>>().mockResolvedValue({
     isSuccess: true,
     statusCode: 200,
     message: null,
     errors: [],
-    items: [{ id: 'pm-1', name: 'Credit Card', providerKey: 'stripe', active: true }],
+    items: [
+      {
+        id: 'pm-stripe',
+        name: 'Credit Card',
+        code: null,
+        description: null,
+        providerKey: 'stripe',
+        preferences: null,
+        active: true,
+        autoCapture: true,
+        displayOn: 'Frontend',
+        position: 1,
+        presentation: null,
+        webhookEnabled: true,
+      },
+      {
+        id: 'pm-cod',
+        name: 'Cash on Delivery',
+        code: null,
+        description: null,
+        providerKey: 'cod',
+        preferences: null,
+        active: true,
+        autoCapture: false,
+        displayOn: 'Both',
+        position: 2,
+        presentation: null,
+        webhookEnabled: false,
+      },
+    ],
     page: 1,
     pageSize: 50,
-    totalCount: 1,
+    totalCount: 2,
     totalPages: 1,
   }),
 }))
@@ -199,6 +218,15 @@ async function mountView(seedCart = true) {
 describe('CheckoutView', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Location: Provide a writable location so the Stripe redirect can be asserted
+    // without jsdom attempting a real navigation.
+    vi.stubGlobal('location', {
+      origin: 'http://localhost',
+      href: 'http://localhost/checkout',
+      pathname: '/checkout',
+      search: '',
+      hash: '',
+    })
     // Reset: Singleton cart refs persist across tests in this module.
     const cart = useCart()
     cart.checkoutState = null
@@ -284,33 +312,81 @@ describe('CheckoutView', () => {
     expect(vm.checkout.displayStep).toBe(4)
   })
 
-  // Regression: The Stripe PaymentMethod token is collected from the card and
-  // passed to createPaymentIntent so the backend never sees a missing source.
-  it('passes the Stripe card token to createPaymentIntent on Continue to Review', async () => {
+  // Methods: The payment panel lists customer-facing methods and preselects the first.
+  it('renders the payment method radio list on the payment panel', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Delivery', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+    )
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as { checkout: { displayStep: number } }
+    vm.checkout.displayStep = 3
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Credit Card')
+    expect(wrapper.text()).toContain('Cash on Delivery')
+    expect(wrapper.findAll('[data-pc-name="radiobutton"]').length).toBeGreaterThanOrEqual(2)
+  })
+
+  // Redirect: A card method creates a hosted-checkout intent and navigates to Stripe.
+  it('redirects to the Stripe hosted checkout when a card method is selected', async () => {
     mockedCartApi.getCart.mockResolvedValue(
       ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Delivery', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
     )
     mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
-      ok({ id: 'pi-1', clientSecret: 'cs-test', responseCode: 'pi-1' }),
+      ok({ id: 'pi-1', clientSecret: 'cs-test', checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_123' }),
     )
     const { wrapper } = await mountView(true)
 
     const vm = wrapper.vm as unknown as {
-      checkout: { displayStep: number; paymentClientSecret: string | null }
-      onContinueToReview: () => Promise<void>
+      checkout: {
+        displayStep: number
+        createPaymentIntent: (methodId: string, opts?: { returnUrl?: string; cancelUrl?: string }) => Promise<boolean>
+      }
+      selectedPaymentMethodId: string | null
+      onContinueFromPayment: () => Promise<void>
     }
     // Drive the wizard to the payment panel (backend Delivery -> display step 3).
     vm.checkout.displayStep = 3
-    await wrapper.vm.$nextTick()
-    await vm.onContinueToReview()
-    await wrapper.vm.$nextTick()
+    await flushPromises()
+    vm.selectedPaymentMethodId = 'pm-stripe'
+    await vm.onContinueFromPayment()
 
     expect(mockedCheckoutApi.createPaymentIntent).toHaveBeenCalledWith({
       orderId: 'cart-1',
-      paymentMethodId: 'pm-1',
-      paymentMethodToken: 'pm_mock_token',
+      paymentMethodId: 'pm-stripe',
+      returnUrl: 'http://localhost/checkout/return',
+      cancelUrl: 'http://localhost/checkout',
     })
-    expect(vm.checkout.paymentClientSecret).toBe('cs-test')
+    expect(window.location.href).toBe('https://checkout.stripe.com/c/pay/cs_test_123')
+  })
+
+  // COD: No hosted checkout URL, so continuing advances to the review panel.
+  it('advances to review for a COD method without a hosted checkout', async () => {
+    mockedCartApi.getCart.mockResolvedValue(
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Payment', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+    )
+    mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
+      ok({ id: 'pi-1', clientSecret: 'cs-test' }),
+    )
+    mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
+    const { wrapper } = await mountView(true)
+
+    const vm = wrapper.vm as unknown as {
+      checkout: {
+        displayStep: number
+        createPaymentIntent: (methodId: string, opts?: { returnUrl?: string; cancelUrl?: string }) => Promise<boolean>
+      }
+      selectedPaymentMethodId: string | null
+      onContinueFromPayment: () => Promise<void>
+    }
+    vm.checkout.displayStep = 3
+    await flushPromises()
+    vm.selectedPaymentMethodId = 'pm-cod'
+    await vm.onContinueFromPayment()
+
+    expect(window.location.href).toBe('http://localhost/checkout')
+    expect(vm.checkout.displayStep).toBe(4)
   })
 
   // Hydrate: Backend 'Delivery' state drives the delivery panel on mount.
