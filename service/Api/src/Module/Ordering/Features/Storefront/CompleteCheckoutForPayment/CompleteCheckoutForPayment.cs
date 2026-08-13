@@ -7,7 +7,8 @@ namespace Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
 public sealed class CompleteCheckoutForPaymentCommandHandler(
     IApplicationDbContext dbContext,
     ISender sender,
-    CheckoutPlacementService placementService)
+    CheckoutPlacementService placementService,
+    ILogger<CompleteCheckoutForPaymentCommandHandler> logger)
     : ICommandHandler<CompleteCheckoutForPaymentCommand, CompleteCheckoutForPaymentResponse>
 {
     public async Task<Result<CompleteCheckoutForPaymentResponse>> Handle(
@@ -17,6 +18,8 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
             .Include(x => x.LineItems)
             .Where(x => x.Id == command.CartId && x.Status == OrderStatus.Draft)
             .FirstOrDefaultAsync(cancellationToken);
+
+        logger.LogDebug("CompleteCheckoutForPayment: CartId={CartId}, PaymentId={PaymentId}, CartFound={Found}", command.CartId, command.PaymentId, cart is not null);
 
         // Idempotency: a no-longer-draft order was already placed by an earlier retry.
         if (cart is null)
@@ -37,8 +40,12 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
 
         var placeResult = await placementService.PlaceAsync(cart, "System", cancellationToken);
         if (placeResult.IsFailure)
+        {
+            logger.LogWarning("Webhook auto-placement failed: CartId={CartId}: {Message}", command.CartId, placeResult.Message);
             return placeResult.Errors;
+        }
 
+        logger.LogInformation("Order auto-placed from webhook: CartId={CartId}", command.CartId);
         return new CompleteCheckoutForPaymentResponse { OrderId = cart.Id };
     }
 }

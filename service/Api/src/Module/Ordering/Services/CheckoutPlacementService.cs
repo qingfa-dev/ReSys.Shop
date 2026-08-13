@@ -16,6 +16,8 @@ public sealed class CheckoutPlacementService(
 {
     public async Task<Result<Order>> PlaceAsync(Order cart, string actor, CancellationToken ct)
     {
+        logger.LogInformation("Placing order {OrderId} (actor={Actor})", cart.Id, actor);
+
         var consumeResult = await stockReservationService.ConsumeForOrderAsync(cart.Id, ct);
         if (consumeResult.IsFailure) return consumeResult.Errors;
 
