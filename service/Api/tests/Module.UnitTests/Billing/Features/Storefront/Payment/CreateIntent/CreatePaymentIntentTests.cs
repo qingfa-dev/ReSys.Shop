@@ -1,12 +1,10 @@
 using IPaymentGatewayActionProvider = Module.Billing.Services.Provider.IPaymentGatewayActionProvider;
 using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
-using IPaymentProcessingService = Module.Billing.Services.Processing.IPaymentProcessingService;
-using PaymentProcessingResult = Module.Billing.Services.Processing.PaymentProcessingResult;
 using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
 using PaymentGatewayResponse = Module.Billing.Services.Provider.PaymentGatewayResponse;
 
 using Module.Billing.Services.Provider;
-using Module.Billing.Services.Processing;
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Domain.PaymentMethods;
 using Module.Billing.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
@@ -15,8 +13,6 @@ using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
-
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.CreateIntent;
 
@@ -30,7 +26,6 @@ public class CreatePaymentIntentTests : IDisposable
     private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
     private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
 
-    private readonly Mock<IPaymentProcessingService> _processingServiceMock;
     private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly Mock<ISender> _senderMock;
     private readonly CreatePaymentIntent.CommandHandler _handler;
@@ -52,9 +47,8 @@ public class CreatePaymentIntentTests : IDisposable
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
-        _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
-        _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse("bogus"));
+        _gatewayMock.Setup(x => x.CreateCheckoutSessionAsync(It.IsAny<decimal>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentGatewayResponse("stripe", authorization: "cs_test_1", checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_1"));
 
         _gatewayRegistryMock = new Mock<IGatewayRegistry>();
         _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
@@ -72,10 +66,9 @@ public class CreatePaymentIntentTests : IDisposable
                 It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<int>.Ok(1));
 
-        _processingServiceMock = new Mock<IPaymentProcessingService>();
-        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentProcessingResult());
-        _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object, _reservationServiceMock.Object, _senderMock.Object);
+        _handler = new CreatePaymentIntent.CommandHandler(
+            _dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object,
+            _reservationServiceMock.Object, _senderMock.Object);
     }
 
     public void Dispose()
@@ -84,146 +77,71 @@ public class CreatePaymentIntentTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should create payment intent for an order")]
-    public async Task Handle_ShouldCreatePayment_WhenOrderExists()
+    [Fact(DisplayName = "Handler: COD method creates a Pending payment with no gateway call")]
+    public async Task Handle_CodMethod_CreatesPendingPayment_NoGateway()
     {
         var order = CreateOrder();
-        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
+        var pm = new PaymentMethod { Name = "Cash on Delivery", Code = "cash_on_delivery",
+            ProviderKey = GatewayConstants.Providers.CashOnDelivery, Active = true };
         _dbContext.Set<PaymentMethod>().Add(pm);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         SetupCartForCheckout(order.Id, 100.00m);
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id }),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request
+                { OrderId = order.Id, PaymentMethodId = pm.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-        result.Value.Id.Should().NotBeEmpty();
+        result.Value.State.Should().Be(PaymentRecordState.Pending.ToString());
+        result.Value.ResponseCode.Should().BeNull();
+        result.Value.CheckoutUrl.Should().BeNull();
+        _gatewayMock.Verify(x => x.CreateCheckoutSessionAsync(It.IsAny<decimal>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()), Times.Never);
+        _dbContext.Set<PaymentCapture>().Single().ProviderKey.Should().Be(GatewayConstants.Providers.CashOnDelivery);
     }
 
-    [Fact(DisplayName = "Handler: Should default an empty currency to USD when calling the gateway")]
-    public async Task Handle_ShouldDefaultEmptyCurrency_ToUsd()
+    [Fact(DisplayName = "Handler: Stripe method creates a Checkout Session and maps CheckoutUrl")]
+    public async Task Handle_StripeMethod_CreatesCheckoutSession()
     {
-        // Regression: PaymentParameters.Currency defaults to "" (not null), so
-        // `command.Currency ?? Usd` passed "" to Stripe -> "Invalid currency:".
-        string? capturedCurrency = null;
-        _processingServiceMock
-            .Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .Callback<PaymentCapture, IPaymentGatewayActionProvider, GatewayOptions, CancellationToken>(
-                (_, _, options, _) => capturedCurrency = options.Currency)
-            .ReturnsAsync(new PaymentProcessingResult());
-
         var order = CreateOrder();
-        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card",
+            ProviderKey = GatewayConstants.Providers.Stripe, Active = true };
         _dbContext.Set<PaymentMethod>().Add(pm);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         SetupCartForCheckout(order.Id, 100.00m);
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, Currency = string.Empty }),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request
+                { OrderId = order.Id, PaymentMethodId = pm.Id, ReturnUrl = "https://store.test/checkout/return" }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        capturedCurrency.Should().Be("USD");
+        result.Value.ResponseCode.Should().Be("cs_test_1");
+        result.Value.CheckoutUrl.Should().Be("https://checkout.stripe.com/c/pay/cs_test_1");
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when gateway declines authorization")]
-    public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
+    [Fact(DisplayName = "Handler: does NOT persist PaymentCapture when session creation fails")]
+    public async Task Handle_SessionFails_NoPaymentPersisted()
     {
-        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card declined."));
+        _gatewayMock.Setup(x => x.CreateCheckoutSessionAsync(It.IsAny<decimal>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Error.BadRequest("Stripe.Error", "Session creation failed."));
 
         var order = CreateOrder();
-        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card",
+            ProviderKey = GatewayConstants.Providers.Stripe, Active = true };
         _dbContext.Set<PaymentMethod>().Add(pm);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         SetupCartForCheckout(order.Id, 100.00m);
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id }),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = pm.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-    }
-
-    [Fact(DisplayName = "Handler: Should return client secret when gateway provides one")]
-    public async Task Handle_Should_Return_ClientSecret()
-    {
-        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .Callback<PaymentCapture, IPaymentGatewayActionProvider, GatewayOptions, CancellationToken>(
-                (p, _, _, _) => p.IntentClientSecret = "pi_secret_test123")
-            .ReturnsAsync(new PaymentProcessingResult());
-
-        var order = CreateOrder();
-        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "bogus", Active = true };
-        _dbContext.Set<PaymentMethod>().Add(pm);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        SetupCartForCheckout(order.Id, 100.00m);
-
-        var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id }),
-            TestContext.Current.CancellationToken);
-
-        result.IsSuccess.Should().BeTrue();
-        result.Value.ClientSecret.Should().NotBeNullOrEmpty();
-    }
-
-    [Fact(DisplayName = "Handler: Should use specific PaymentMethodId when provided")]
-    public async Task Handle_ShouldUseSpecificPaymentMethod()
-    {
-        var order = CreateOrder();
-        var pmA = new PaymentMethod { Name = "Provider A", Code = "provider_a", ProviderKey = "stripe" };
-        var pmB = new PaymentMethod { Name = "Provider B", Code = "provider_b", ProviderKey = "bogus" };
-        _dbContext.Set<PaymentMethod>().Add(pmA);
-        _dbContext.Set<PaymentMethod>().Add(pmB);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        SetupCartForCheckout(order.Id, 100.00m);
-
-        var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = pmB.Id }),
-            TestContext.Current.CancellationToken);
-
-        result.IsSuccess.Should().BeTrue();
-        _gatewayRegistryMock.Verify(x => x.GetGateway("bogus"), Times.Once);
-    }
-
-    [Fact(DisplayName = "Handler: Should return failure when order not found")]
-    public async Task Handle_ShouldReturnFailure_WhenOrderNotFound()
-    {
-        var notFoundId = Guid.NewGuid();
-        _senderMock.Setup(x => x.Send(
-            It.Is<GetCartForCheckoutQuery>(q => q.CartId == notFoundId),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<GetCartForCheckoutResponse>.NotFound(
-                errors: [OrderResult.Errors.NotFound(notFoundId)]));
-
-        var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = notFoundId }),
-            TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-    }
-
-    [Fact(DisplayName = "Handler: does NOT persist PaymentCapture when gateway call fails")]
-    public async Task Handle_GatewayFails_NoPaymentPersisted()
-    {
-        var order = CreateOrder();
-        var paymentMethod = CreatePaymentMethod();
-        SetupGatewayThatThrows();
-        SetupCartForCheckout(order.Id, 100.00m);
-
-        var handler = CreateHandler();
-        var command = new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = paymentMethod.Id });
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        VerifyPaymentNotAddedToStore();
+        _dbContext.Set<PaymentCapture>().Count().Should().Be(0);
     }
 
     private Order CreateOrder()
@@ -235,14 +153,6 @@ public class CreatePaymentIntentTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         _dbContext.SaveChanges();
         return order;
-    }
-
-    private PaymentMethod CreatePaymentMethod()
-    {
-        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
-        _dbContext.Set<PaymentMethod>().Add(pm);
-        _dbContext.SaveChanges();
-        return pm;
     }
 
     private void SetupCartForCheckout(Guid cartId, decimal total)
@@ -281,19 +191,5 @@ public class CreatePaymentIntentTests : IDisposable
             It.IsAny<AdvanceCheckoutStateCommand>(),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
-    }
-
-    private void SetupGatewayThatThrows()
-    {
-        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card declined."));
-    }
-
-    private CreatePaymentIntent.CommandHandler CreateHandler()
-        => new(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object, _reservationServiceMock.Object, _senderMock.Object);
-
-    private void VerifyPaymentNotAddedToStore()
-    {
-        _dbContext.Set<PaymentCapture>().Count().Should().Be(0);
     }
 }

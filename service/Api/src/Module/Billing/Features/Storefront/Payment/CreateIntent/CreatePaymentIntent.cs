@@ -10,7 +10,6 @@ using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Domain.PaymentMethods;
 using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
-using IPaymentProcessingService = Module.Billing.Services.Processing.IPaymentProcessingService;
 
 using Module.Billing.Services.Provider;
 
@@ -25,7 +24,6 @@ public static partial class CreatePaymentIntent
         IApplicationDbContext dbContext,
         ICurrentUser currentUser,
         IGatewayRegistry gatewayRegistry,
-        IPaymentProcessingService processingService,
         IStockReservationService stockReservationService,
         ISender sender)
         : ICommandHandler<Command, Response>
@@ -64,7 +62,7 @@ public static partial class CreatePaymentIntent
                 }
             }
 
-            // Load: First active payment method
+            // Load: Active payment method — explicit id if provided, else first active
             var paymentMethod = command.Request.PaymentMethodId.HasValue
                 ? await dbContext.Set<PaymentMethod>()
                     .FirstOrDefaultAsync(c => c.Id == command.Request.PaymentMethodId.Value && c.Active && !c.IsDeleted, cancellationToken)
@@ -73,53 +71,63 @@ public static partial class CreatePaymentIntent
             if (paymentMethod is null)
                 return PaymentCaptureResult.Failure.NotFound;
 
-            // Create: PaymentCapture entity with order total, method, and order
-            var createResult = Domain.PaymentCaptures.PaymentCaptureMethod.Create(
+            var isOffline = GatewayConstants.Providers.IsOffline(paymentMethod.ProviderKey);
+
+            // Create: PaymentCapture with no source — offline methods and Checkout Sessions
+            // are both source-less; the gateway correlates via ResponseCode afterwards.
+            var createResult = PaymentCaptureMethod.Create(
                 amount: cart.Total,
                 paymentMethodId: (Guid)paymentMethod.Id,
                 orderId: command.Request.OrderId,
-                sourceId: paymentMethod.ProviderKey == GatewayConstants.Providers.Bogus
-                    ? command.Request.CardNumber
-                    : command.Request.PaymentMethodToken,
-                sourceType: paymentMethod.ProviderKey == GatewayConstants.Providers.Bogus
-                    ? (command.Request.CardNumber is null ? null : GatewayConstants.SourceTypes.Card)
-                    : (command.Request.PaymentMethodToken is null ? null : GatewayConstants.SourceTypes.PaymentMethod));
+                sourceId: null,
+                sourceType: null);
             if (createResult.IsFailure) return createResult.Errors;
 
             var payment = createResult.Value;
+            payment.ProviderKey = paymentMethod.ProviderKey;
             dbContext.Set<PaymentCapture>().Add(payment);
 
-            // Check: Gateway must be registered
-            var gatewayResult = gatewayRegistry.GetGateway(paymentMethod.ProviderKey);
-            if (gatewayResult.IsFailure)
-                return PaymentCaptureResult.Failure.ProviderNotRegistered(paymentMethod.ProviderKey);
-            var gateway = gatewayResult.Value;
-
-            // Build: Gateway options with order and payment identifiers
-            var options = new GatewayOptions
+            if (isOffline)
             {
-                Email = cart.Email ?? string.Empty,
-                Customer = cart.Email ?? string.Empty,
-                CustomerId = currentUser.UserId,
-                // Replace with OrderNumber Generator
-                OrderId = $"{command.Request.OrderId}-{payment.Number}",
-                PaymentId = payment.Number,
-                IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
-                StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
-                SuccessUrl = command.Request.ReturnUrl,
-                Currency = string.IsNullOrWhiteSpace(command.Request.Currency)
-                    ? GatewayConstants.Currency.Usd
-                    : command.Request.Currency,
-            };
-
-            // Call: Gateway process (authorize or purchase depending on AutoCapture)
-            var processResult = await processingService.ProcessAsync(payment, gateway, options, cancellationToken);
-            if (processResult.IsFailure)
+                // COD: transition straight to Pending — no gateway, no source.
+                payment.Process();
+                payment.Pend();
+            }
+            else
             {
-                // Release reservations on gateway failure
-                await stockReservationService.ReleaseReservationsAsync(
-                    cartToken: command.Request.OrderId.ToString(), ct: CancellationToken.None);
-                return processResult.Errors;
+                var gatewayResult = gatewayRegistry.GetGateway(paymentMethod.ProviderKey);
+                if (gatewayResult.IsFailure)
+                    return PaymentCaptureResult.Failure.ProviderNotRegistered(paymentMethod.ProviderKey);
+                var gateway = gatewayResult.Value;
+
+                var options = new GatewayOptions
+                {
+                    Email = cart.Email ?? string.Empty,
+                    Customer = cart.Email ?? string.Empty,
+                    CustomerId = currentUser.UserId,
+                    OrderId = $"{command.Request.OrderId}-{payment.Number}",
+                    PaymentId = payment.Number,
+                    IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
+                    StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
+                    SuccessUrl = BuildSuccessUrl(command.Request.ReturnUrl, command.Request.OrderId),
+                    CancelUrl = command.Request.CancelUrl,
+                    Currency = string.IsNullOrWhiteSpace(command.Request.Currency)
+                        ? GatewayConstants.Currency.Usd
+                        : command.Request.Currency,
+                };
+
+                // Call: create hosted Checkout Session — no charge yet; webhook completes it.
+                var sessionResult = await gateway.CreateCheckoutSessionAsync(cart.Total, options, cancellationToken);
+                if (sessionResult.IsFailure)
+                {
+                    await stockReservationService.ReleaseReservationsAsync(
+                        cartToken: command.Request.OrderId.ToString(), ct: CancellationToken.None);
+                    return sessionResult.Errors;
+                }
+
+                payment.ResponseCode = sessionResult.Value.Authorization;
+                payment.CheckoutUrl = sessionResult.Value.CheckoutUrl;
+                payment.Process();
             }
 
             // Save: PaymentCapture to database
@@ -129,8 +137,7 @@ public static partial class CreatePaymentIntent
             }
             catch
             {
-                // E3: Gateway succeeded but save failed — void payment and release reservations
-                await processingService.VoidAsync(payment, gateway, options, CancellationToken.None);
+                // Gateway session may have been created; it auto-expires in 24h. Release stock.
                 await stockReservationService.ReleaseReservationsAsync(
                     cartToken: command.Request.OrderId.ToString(), ct: CancellationToken.None);
                 throw;
@@ -144,4 +151,7 @@ public static partial class CreatePaymentIntent
             return payment.MapToStoreDetail<Response>();
         }
     }
+
+    private static string? BuildSuccessUrl(string? returnUrl, Guid orderId)
+        => string.IsNullOrWhiteSpace(returnUrl) ? null : $"{returnUrl}?order={orderId}";
 }
