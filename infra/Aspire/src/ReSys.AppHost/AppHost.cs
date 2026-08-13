@@ -45,17 +45,22 @@ var stripeApiKey = builder.Configuration["Stripe:ApiKey"]
 if (!string.IsNullOrEmpty(stripeApiKey))
 {
     // Runs the host `stripe` binary (NOT a container): the container approach cannot
-    // reach the host API via localhost on Linux. The forward URL is resolved lazily
-    // by Aspire at runtime (interpolating api.GetEndpoint("https") directly yields
-    // the EndpointReference type name); --skip-verify is required for the dev cert.
+    // reach the host API via localhost on Linux. --forward-to is resolved inside a
+    // WithArgs callback that runs after Aspire has allocated the API's endpoints, so
+    // AllocatedEndpoint yields the real https://localhost:5001 URL (the object[] and
+    // $"" forms both stringify the EndpointReference to its type name). --skip-verify
+    // is required for the Aspire dev certificate.
     builder.AddExecutable("stripe-listen", "stripe", Environment.CurrentDirectory)
         .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
-        .WithArgs("listen",
-            "--skip-verify",
-            "--events",
-            "payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,payment_intent.processing,payment_intent.canceled,checkout.session.completed,checkout.session.expired,charge.refunded,charge.dispute.created",
-            "--forward-to",
-            api.GetEndpoint("https") + "/api/storefront/billing/webhooks/stripe")
+        .WithArgs(context =>
+        {
+            context.Args.Add("listen");
+            context.Args.Add("--skip-verify");
+            context.Args.Add("--events");
+            context.Args.Add("payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,payment_intent.processing,payment_intent.canceled,checkout.session.completed,checkout.session.expired,charge.refunded,charge.dispute.created");
+            context.Args.Add("--forward-to");
+            context.Args.Add($"{api.GetEndpoint("https").EndpointAnnotation.AllocatedEndpoint}/api/storefront/billing/webhooks/stripe");
+        })
         .WaitFor(api);
     Console.WriteLine("[stripe] stripe-listen resource added (forwarding to https://localhost:5001/api/storefront/billing/webhooks/stripe, --skip-verify).");
 }
