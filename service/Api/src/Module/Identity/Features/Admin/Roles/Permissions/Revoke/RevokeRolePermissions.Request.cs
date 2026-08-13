@@ -3,6 +3,7 @@ namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Revoke;
 /// <summary>
 /// Represents the request contract for revoking permissions from a role.
 /// </summary>
+// EXCEPTION: standalone legacy request, no shared base type exists.
 public record Request
 {
     /// <summary>

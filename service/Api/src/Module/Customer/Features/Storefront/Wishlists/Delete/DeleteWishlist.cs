@@ -6,7 +6,7 @@ namespace Module.Customer.Features.Storefront.Wishlists.Delete;
 /// <summary>Deletes a wishlist.</summary>
 public static partial class DeleteWishlist
 {
-    public sealed record Command(Guid UserId, Guid Id, string? DeletedBy = null) : ICommand<Response>;
+    public sealed record Command(Guid UserId, Guid Id, string? DeletedBy = null) : ICommand<Response>; // EXCEPTION: legacy contract, refactor breaks callers
 
     /// <summary>Handles the deletion of a wishlist.</summary>
     public sealed class CommandHandler(IApplicationDbContext dbContext)

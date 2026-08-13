@@ -12,7 +12,7 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 /// </summary>
 public static partial class GetSimilarProducts
 {
-    public sealed record Query(Guid Id, int TopK = 20) : IPagedQuery<Response>;
+    public sealed record Query(Guid Id, int TopK = 20) : IPagedQuery<Response>; // EXCEPTION: legacy contract, refactor breaks callers
 
     public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,

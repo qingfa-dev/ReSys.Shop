@@ -53,7 +53,7 @@ fi
 # AC-002: No standalone Response records (must inherit from base type or have // EXCEPTION)
 echo "--- AC-002: Response must inherit from base type ---"
 violations=$(rg -n 'public (sealed )?record Response\b' -g '*.cs' "$MODULE_DIR" \
-  | rg -v 'Response\s*:' || true)
+  | rg -v 'Response\s*\(?\)?\s*:' || true)
 # Filter out lines where the preceding line or same line has // EXCEPTION
 real_violations=""
 while IFS= read -r line; do

@@ -2,6 +2,7 @@ namespace Module.Dashboard.Features.Admin.Get;
 
 public static partial class GetDashboard
 {
+    // EXCEPTION: standalone dashboard aggregate response, no shared base type exists.
     public sealed record Response
     {
         public SalesSummaryData Sales { get; init; } = new();

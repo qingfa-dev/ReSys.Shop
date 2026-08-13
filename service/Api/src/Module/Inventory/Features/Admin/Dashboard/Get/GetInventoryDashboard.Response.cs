@@ -2,6 +2,7 @@ namespace Module.Inventory.Features.Admin.Dashboard.Get;
 
 public static partial class GetInventoryDashboard
 {
+    // EXCEPTION: standalone dashboard aggregate response, no shared base type exists.
     public sealed record Response
     {
         public int TotalSkusTracked { get; init; }

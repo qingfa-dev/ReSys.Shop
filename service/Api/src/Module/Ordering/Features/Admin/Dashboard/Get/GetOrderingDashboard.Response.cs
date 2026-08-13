@@ -2,6 +2,7 @@ namespace Module.Ordering.Features.Admin.Dashboard.Get;
 
 public static partial class GetOrderingDashboard
 {
+    // EXCEPTION: standalone dashboard aggregate response, no shared base type exists.
     public sealed record Response
     {
         public int TotalOrders { get; init; }

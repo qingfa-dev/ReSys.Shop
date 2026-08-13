@@ -2,6 +2,7 @@ namespace Module.Ordering.Features.Storefront.Orders.GetTracking;
 
 public static partial class GetOrderTracking
 {
+    // EXCEPTION: standalone tracking aggregate response, no shared base type exists.
     public sealed record Response
     {
         public Guid OrderId { get; init; }
