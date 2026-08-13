@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 
 using Stripe;
+using Stripe.Checkout;
 
 namespace Module.Billing.Services.Provider.Stripe;
 
@@ -12,6 +13,7 @@ public sealed class StripeGateway : Gateway
     private readonly PaymentIntentService _paymentIntentService = new();
     private readonly RefundService _refundService = new();
     private readonly SetupIntentService _setupIntentService = new();
+    private readonly SessionService _sessionService = new();
 
     public override string ProviderKey => GatewayConstants.Providers.Stripe;
     public override bool AutoCapture => true;
@@ -164,6 +166,48 @@ public sealed class StripeGateway : Gateway
             var intent = await _setupIntentService.CreateAsync(options, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                 setupIntentClientSecret: intent.ClientSecret);
+        }
+        catch (StripeException ex) { return MapStripeException(ex); }
+    }
+
+    public override async Task<Result<PaymentGatewayResponse>> CreateCheckoutSessionAsync(
+        decimal amount, GatewayOptions options, CancellationToken ct = default)
+    {
+        try
+        {
+            var so = new SessionCreateOptions
+            {
+                Mode = "payment",
+                CustomerEmail = options.Customer,
+                SuccessUrl = options.SuccessUrl,
+                CancelUrl = options.CancelUrl,
+                Metadata = new Dictionary<string, string>
+                {
+                    [GatewayConstants.Metadata.OrderIdKey] = options.OrderId,
+                    [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
+                },
+                LineItems =
+                [
+                    new SessionLineItemOptions
+                    {
+                        Quantity = 1,
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            Currency = options.Currency.ToLowerInvariant(),
+                            UnitAmount = checked((long)Math.Round(
+                                amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = $"Order {options.OrderId}"
+                            }
+                        }
+                    }
+                ]
+            };
+            var ro = BuildRequestOptions(options);
+            var session = await _sessionService.CreateAsync(so, ro, ct).ConfigureAwait(false);
+            return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
+                authorization: session.Id, checkoutUrl: session.Url);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }

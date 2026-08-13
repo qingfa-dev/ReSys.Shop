@@ -73,6 +73,10 @@ public interface IPaymentGatewayActionProvider
     Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default);
 
+    /// <summary>Creates a hosted checkout session for the amount, returning a redirect URL.</summary>
+    Task<Result<PaymentGatewayResponse>> CreateCheckoutSessionAsync(
+        decimal amount, GatewayOptions options, CancellationToken ct = default);
+
     /// <summary>Gets the payment status from a response code.</summary>
     /// <param name="responseCode">The gateway response code.</param>
     /// <param name="ct">Cancellation token.</param>

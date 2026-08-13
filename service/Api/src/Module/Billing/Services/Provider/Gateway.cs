@@ -29,6 +29,9 @@ public abstract class Gateway : IPaymentGatewayActionProvider
     public abstract Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default);
 
+    public abstract Task<Result<PaymentGatewayResponse>> CreateCheckoutSessionAsync(
+        decimal amount, GatewayOptions options, CancellationToken ct = default);
+
     public abstract Task<string> GetPaymentStatusAsync(
         string responseCode, CancellationToken ct = default);
 

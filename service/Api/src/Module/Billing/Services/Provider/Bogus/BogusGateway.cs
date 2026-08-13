@@ -61,6 +61,16 @@ public sealed class BogusGateway : Gateway
                 setupIntentClientSecret: $"{GatewayConstants.Bogus.SetupIntentSecretPrefix}{Guid.NewGuid():N}")));
     }
 
+    public override Task<Result<PaymentGatewayResponse>> CreateCheckoutSessionAsync(
+        decimal amount, GatewayOptions options, CancellationToken ct = default)
+    {
+        var sessionId = $"cs_fake_{Guid.NewGuid():N}";
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
+            new PaymentGatewayResponse(GatewayConstants.Providers.Bogus,
+                authorization: sessionId,
+                checkoutUrl: $"{options.SuccessUrl}?session_id={sessionId}")));
+    }
+
     private readonly ConcurrentDictionary<string, string> _intentStatuses = new();
 
     public override Task<string> GetPaymentStatusAsync(string responseCode, CancellationToken ct = default)
