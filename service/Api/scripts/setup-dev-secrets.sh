@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Note: the AppHost "stripe-listen" resource additionally requires
-# STRIPE_SECRET_KEY as a process env of the terminal that starts the AppHost.
+# Note: the AppHost "stripe-listen" resource reads its Stripe key from the
+# AppHost project's user-secrets ("Stripe:ApiKey"), falling back to the
+# STRIPE_SECRET_KEY process env. The API's GatewayProviders:stripe:WebhookSecret
+# must match the signing secret printed by `stripe listen` (whsec_...); pass it
+# via STRIPE_WEBHOOK_SECRET below, or leave it empty to bypass verification in Development.
 
 PROJECT="service/Api/src/Api/Api.csproj"
 
