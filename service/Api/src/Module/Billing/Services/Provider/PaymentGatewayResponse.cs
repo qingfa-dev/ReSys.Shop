@@ -8,6 +8,7 @@ public sealed record PaymentGatewayResponse
     public string? ClientSecret { get; }
     public string? SetupIntentClientSecret { get; }
     public string? PaymentStatus { get; }
+    public string? CheckoutUrl { get; }
     public string? AvsResultCode { get; }
     public string? CvvResultCode { get; }
     public string? CvvResultMessage { get; }
@@ -19,6 +20,7 @@ public sealed record PaymentGatewayResponse
         string? clientSecret = null,
         string? setupIntentClientSecret = null,
         string? paymentStatus = null,
+        string? checkoutUrl = null,
         Dictionary<string, object?>? properties = null,
         string? avsResultCode = null,
         string? cvvResultCode = null,
@@ -29,6 +31,7 @@ public sealed record PaymentGatewayResponse
         ClientSecret = clientSecret;
         SetupIntentClientSecret = setupIntentClientSecret;
         PaymentStatus = paymentStatus;
+        CheckoutUrl = checkoutUrl;
         Properties = properties ?? new Dictionary<string, object?>();
         AvsResultCode = avsResultCode;
         CvvResultCode = cvvResultCode;
