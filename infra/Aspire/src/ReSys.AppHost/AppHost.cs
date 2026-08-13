@@ -1,6 +1,12 @@
+using Microsoft.Extensions.Configuration;
+
 using ReSys.ServiceDefaults.Constants;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
+
+// Load this AppHost project's user-secrets (UserSecretsId in the csproj) so the
+// Stripe key can be configured once via `dotnet user-secrets` instead of a shell export.
+builder.Configuration.AddUserSecrets<Program>();
 
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
     .WithImage(Images.Pgvector.Optimized);
@@ -32,7 +38,10 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WaitFor(redis)
     .WaitFor(postgres);
 
-var stripeApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+// Resolve the Stripe key from user-secrets ("Stripe:ApiKey") with the process
+// env var as a fallback, so both `dotnet user-secrets set` and shell export work.
+var stripeApiKey = builder.Configuration["Stripe:ApiKey"]
+    ?? Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 if (!string.IsNullOrEmpty(stripeApiKey))
 {
     var forwardUrl = $"{api.GetEndpoint("https")}/api/storefront/billing/webhooks/stripe";
