@@ -28,6 +28,8 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
         GatewayConstants.WebhookEvents.Stripe.PaymentIntentRequiresAction,
         GatewayConstants.WebhookEvents.Stripe.PaymentIntentProcessing,
         GatewayConstants.WebhookEvents.Stripe.PaymentIntentCanceled,
+        GatewayConstants.WebhookEvents.Stripe.CheckoutSessionCompleted,
+        GatewayConstants.WebhookEvents.Stripe.CheckoutSessionExpired,
         GatewayConstants.WebhookEvents.Stripe.ChargeRefunded,
         GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated
     ];
