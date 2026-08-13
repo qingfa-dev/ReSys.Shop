@@ -44,4 +44,10 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Information,
         Message = "Stripe webhook event ignored (no handler): {EventType}")]
     public static partial void EventIgnored(ILogger logger, string EventType);
+
+    [LoggerMessage(
+        EventId = 5013,
+        Level = LogLevel.Warning,
+        Message = "Cannot place order for payment {PaymentId} after checkout session completed: {Message}")]
+    public static partial void CannotPlaceOrder(ILogger logger, Guid PaymentId, string? Message);
 }

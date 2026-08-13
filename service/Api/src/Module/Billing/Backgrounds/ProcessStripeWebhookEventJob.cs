@@ -233,6 +233,11 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Dedup: skip only if this exact Stripe event was fully processed before.
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
 
+        // Store the PaymentIntent id so admin refund/void and charge.* webhooks can
+        // correlate against it (the cs_... session id is rejected by Stripe operations).
+        if (!string.IsNullOrEmpty(session.PaymentIntentId))
+            payment.ResponseCode = session.PaymentIntentId;
+
         if (payment.State != PaymentRecordState.Completed)
         {
             var complete = payment.Complete();
@@ -254,6 +259,10 @@ public sealed partial class ProcessStripeWebhookEventJob
         {
             payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
             await SaveWithRollbackAsync(payment, ct);
+        }
+        else
+        {
+            ProcessStripeWebhookEventJobLoggers.CannotPlaceOrder(_logger, payment.Id, placeResult.Message);
         }
     }
 
