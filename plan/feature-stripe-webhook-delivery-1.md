@@ -1,11 +1,11 @@
 ---
-goal: Make completed Stripe Checkout payments reflect locally via browser success_url verification (primary) and Stripe CLI webhook delivery (dev pipeline).
-version: 1.0
+goal: Deliver real Stripe webhook events to the local dev API via Stripe CLI and add diagnostic logging across the payment flow so a checkout can be traced end-to-end.
+version: 2.0
 date_created: 2026-08-13
 last_updated: 2026-08-13
 owner: Billing / Ordering / Store SPA / Aspire
 status: 'Planned'
-tags: [feature, billing, stripe, webhook, checkout, store]
+tags: [feature, billing, stripe, webhook, logging, checkout, store]
 ---
 
 # Introduction
@@ -15,366 +15,70 @@ tags: [feature, billing, stripe, webhook, checkout, store]
 A Stripe Checkout payment succeeds on Stripe's hosted page, but the local app
 never advances: the `PaymentCapture` stays `Processing` and the order is not
 auto-placed, because Stripe's servers cannot reach `localhost` (no webhook
-delivery) and the return page only polls local state. This plan fixes both ends:
+delivery). Per the thesis (PAY-FR-04: "verify and process incoming gateway
+webhooks using HMAC signatures"; UC-STR-PAY E3: "webhook updates state"), the
+**webhook is the single source of truth** for payment-state updates. This plan:
 
-- **Verify on return (`success_url`)**: a new authenticated storefront endpoint
-  `POST api/storefront/cart/payment/intent/verify-session` verifies the returned
-  Checkout Session against Stripe and, when the PaymentIntent is `succeeded`,
-  completes the payment and auto-places the order. The `/checkout/return` page
-  calls it with the `session_id` Stripe appends to the success URL.
-- **Stripe CLI webhook delivery**: pin the API HTTPS port and add a
-  `stripe listen` forwarder so the real `checkout.session.completed` /
-  `checkout.session.expired` events reach the dev API (the production-shaped
-  path, including expiry regression).
+1. **Delivers the webhook locally** via the Stripe CLI (`stripe listen`), pinned
+   to a stable API HTTPS port (5001) so the real `checkout.session.completed` /
+   `checkout.session.expired` events reach the dev API.
+2. **Adds diagnostic structured logging** at every boundary of the payment flow
+   (intent creation, webhook receipt + signature, session lookup, completion,
+   order placement, expiry regression, SPA return polling) so the flow can be
+   traced end-to-end and the failing stage identified immediately.
 
-Both paths are idempotent with each other via the existing `Complete()` state
-guard, `ProcessedStripeEventIds`, and the non-Draft no-op in
-`CompleteCheckoutForPayment`.
+The success_url return page continues to poll local state (which the webhook
+updates); no completion happens from the browser return. This matches the
+thesis and keeps a single completion source.
 
 ## 1. Requirements & Constraints
 
-- **REQ-001**: A new storefront endpoint verifies a Checkout Session by `session_id` and, when its PaymentIntent is `succeeded`, completes the `PaymentCapture` and places the order.
-- **REQ-002**: The `/checkout/return` SPA page calls the verify endpoint once when `session_id` is present and stops polling when the payment is completed; it keeps the existing 2s/30-attempt poll as a fallback for async/3DS and the webhook path.
-- **REQ-003**: A `stripe listen` forwarder delivers real Stripe events to the local API webhook endpoint so the full webhook pipeline (completion, expiry regression) can be tested locally.
-- **SEC-001**: The verify endpoint is `RequireAuthorization()` + `RequireRateLimiting("payment")`; it only completes the payment whose `ResponseCode` matches the supplied `session_id` and whose `OrderId` matches the caller's order.
-- **SEC-002**: Never trust the client-provided success alone — the backend always confirms the PaymentIntent status via Stripe (secret key) before completing.
+- **REQ-001**: A `stripe listen` forwarder delivers real Stripe webhook events to the local API webhook endpoint (`api/storefront/billing/webhooks/stripe`).
+- **REQ-002**: The API HTTPS port is pinned to a stable value (5001) so the forward URL never changes between Aspire runs.
+- **REQ-003**: Structured `[LoggerMessage]` logs exist at every payment-flow boundary: intent creation, webhook receipt, signature validation, session lookup, payment completion, order placement, expiry regression, and SPA return polling.
+- **REQ-004**: The `/checkout/return` SPA page logs each polling attempt (order id, `isCompleted`, attempt count) to the browser console.
+- **SEC-001**: Webhook signature validation stays mandatory (HMAC via `GatewayProviders:stripe:WebhookSecret`); no logging emits secrets, API keys, or `whsec_...` values.
 - **CON-001**: `TreatWarningsAsErrors=true` — any C# warning fails the build.
-- **CON-002**: Stripe operations go through the gateway abstraction (`IPaymentGatewayActionProvider` / `Gateway`); no direct `SessionService` usage outside `StripeGateway`.
-- **CON-003**: Store SPA comments follow `app/Store/AGENTS.md` (`// Label: Sentence.`, `<!-- Section: Title — purpose -->`); lines under 100 chars.
-- **CON-004**: Aspire orchestrates local dev; the API HTTPS port is pinned to 5001 for a stable webhook forward URL.
-- **GUD-001**: The verify path reuses the existing cross-module `CompleteCheckoutForPaymentCommand` (via `ISender`) exactly like the webhook handler.
-- **GUD-002**: On verification success, `ResponseCode` is rewritten to the PaymentIntent id so admin refund/void and `charge.*` webhooks correlate correctly (same behavior as the webhook handler).
-- **PAT-001**: Gateway capability additions follow the existing pattern — abstract method on `Gateway` + interface, real impl in `StripeGateway`, fake impl in `BogusGateway`.
+- **CON-002**: Structured logs use the existing `[LoggerMessage]` source-generated partial-logger pattern (`*Loggers.cs`), with `EventId`s continuing the 5001+/6001+ numbering.
+- **CON-003**: Aspire pins the API HTTPS port to 5001; `.WithExternalHttpEndpoints()` is retained.
+- **CON-004**: Store SPA comments follow `app/Store/AGENTS.md` (`// Label: Sentence.`); lines under 100 chars.
+- **GUD-001**: The webhook remains the single source of truth for payment-state updates (thesis PAY-FR-04 / E3); no success_url completion path is added.
+- **PAT-001**: Logging calls follow the existing `ProcessStripeWebhookEventJobLoggers` / `StripeWebhookDispatcherLoggers` partial-class pattern; handler constructors gain `ILogger<T>` only where logging is added.
 
 ## 2. Implementation Steps
 
-### Implementation Phase 1: Gateway session→PaymentIntent resolution
+### Implementation Phase 1: Stripe CLI webhook delivery
 
-- GOAL-001: Add a gateway capability to resolve a Checkout Session id to its PaymentIntent id so the verify endpoint can check the payment status.
-
-| Task | Description | Completed | Date |
-|------|-------------|-----------|------|
-| TASK-001 | Add `GetSessionPaymentIntentIdAsync` to `IPaymentGatewayActionProvider` + abstract `Gateway`. | | |
-| TASK-002 | Implement `GetSessionPaymentIntentIdAsync` in `StripeGateway`. | | |
-| TASK-003 | Implement `GetSessionPaymentIntentIdAsync` in `BogusGateway`. | | |
-
-#### TASK-001: Gateway contract method
-
-**Files:**
-- Modify: `service/Api/src/Module/Billing/Services/Provider/IPaymentGatewayActionProvider.cs` (after `GetPaymentStatusAsync`)
-- Modify: `service/Api/src/Module/Billing/Services/Provider/Gateway.cs` (after `GetPaymentStatusAsync`)
-
-**Interfaces:**
-- Produces: `Task<Result<string?>> GetSessionPaymentIntentIdAsync(string sessionId, CancellationToken ct = default)`.
-
-- [ ] Add to the interface:
-```csharp
-/// <summary>Resolves a hosted Checkout Session id to its PaymentIntent id.</summary>
-Task<Result<string?>> GetSessionPaymentIntentIdAsync(
-    string sessionId, CancellationToken ct = default);
-```
-- [ ] Add the matching abstract method to `Gateway`.
-- [ ] Verify: `dotnet build service/Api/src/Api/Api.csproj` — expected FAIL (CS0534) until TASK-002/003 land; commit with TASK-002/003.
-
-#### TASK-002: StripeGateway implementation
-
-**Files:**
-- Modify: `service/Api/src/Module/Billing/Services/Provider/Stripe/StripeGateway.cs` (after `GetPaymentStatusAsync`)
-
-**Consumes:** `_sessionService` (already a field), `_options.SecretKey`.
-
-- [ ] Add:
-```csharp
-public override async Task<Result<string?>> GetSessionPaymentIntentIdAsync(
-    string sessionId, CancellationToken ct = default)
-{
-    try
-    {
-        var ro = new RequestOptions { ApiKey = _options.SecretKey };
-        var session = await _sessionService.GetAsync(sessionId, null, ro, ct).ConfigureAwait(false);
-        return Result<string?>.Ok(session.PaymentIntentId);
-    }
-    catch (StripeException ex) { return MapStripeException(ex); }
-}
-```
-- [ ] Keep the existing `using Stripe.Checkout;`.
-
-#### TASK-003: BogusGateway implementation
-
-**Files:**
-- Modify: `service/Api/src/Module/Billing/Services/Provider/Bogus/BogusGateway.cs` (after `GetPaymentStatusAsync`)
-
-- [ ] Add:
-```csharp
-public override Task<Result<string?>> GetSessionPaymentIntentIdAsync(
-    string sessionId, CancellationToken ct = default)
-    => Task.FromResult(Result<string?>.Ok($"pi_fake_{Guid.NewGuid():N}"));
-```
-- [ ] Verify: `dotnet build service/Api/src/Api/Api.csproj` — 0 warnings.
-- [ ] Commit all three files: `git add service/Api/src/Module/Billing/Services/Provider/IPaymentGatewayActionProvider.cs service/Api/src/Module/Billing/Services/Provider/Gateway.cs service/Api/src/Module/Billing/Services/Provider/Stripe/StripeGateway.cs service/Api/src/Module/Billing/Services/Provider/Bogus/BogusGateway.cs` then `git commit -m "feat(billing): resolve checkout session to payment intent id on gateways"`.
-
-### Implementation Phase 2: VerifySession backend feature
-
-- GOAL-002: Add the authenticated `verify-session` endpoint that completes the payment and auto-places the order when the PaymentIntent succeeded.
+- GOAL-001: Deliver real Stripe events to the local API for testing the webhook pipeline.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-004 | Add route constant + Request/Response DTOs for `VerifySession`. | | |
-| TASK-005 | Add `VerifySession` handler (verify → complete → place). | | |
-| TASK-006 | Add `VerifySession` endpoint (`POST .../verify-session`, auth + rate limit). | | |
+| TASK-001 | Pin the API HTTPS port to 5001 in the Aspire AppHost. | | |
+| TASK-002 | Add `scripts/dev-stripe-listen.sh` + README documenting the two-terminal flow and webhook-secret wiring. | | |
 
-#### TASK-004: Route constant + DTOs
-
-**Files:**
-- Modify: `service/Api/src/Module/Billing/Features/Shared/BillingFeature.Storefront.cs` (inside `Payments`)
-- Create: `service/Api/src/Module/Billing/Features/Storefront/Payment/VerifySession/VerifySession.Request.cs`
-- Create: `service/Api/src/Module/Billing/Features/Storefront/Payment/VerifySession/VerifySession.Response.cs`
-
-**Interfaces:**
-- Produces: `VerifySession.Request { Guid OrderId; string SessionId }`, `VerifySession.Response : StorePaymentDetailResponse { bool IsCompleted }`, route `api/storefront/cart/payment/intent/verify-session`.
-
-- [ ] Add to `BillingFeature.Storefront.Payments`:
-```csharp
-public static class VerifySession
-{
-    public const string Route = "api/storefront/cart/payment/intent/verify-session";
-    public const string Description = "Verify a Stripe Checkout Session on return and complete the payment";
-    public const string Summary = "Verify payment session";
-}
-```
-- [ ] `VerifySession.Request.cs`:
-```csharp
-namespace Module.Billing.Features.Storefront.Payment.VerifySession;
-
-public static partial class VerifySession
-{
-    public sealed record Request
-    {
-        public Guid OrderId { get; init; }
-        public string SessionId { get; init; } = string.Empty;
-    }
-}
-```
-- [ ] `VerifySession.Response.cs`:
-```csharp
-using Module.Billing.Features.Storefront.Payment.Shared.Models;
-
-namespace Module.Billing.Features.Storefront.Payment.VerifySession;
-
-public static partial class VerifySession
-{
-    public sealed record Response : StorePaymentDetailResponse
-    {
-        public bool IsCompleted { get; init; }
-    }
-}
-```
-
-#### TASK-005: VerifySession handler
-
-**Files:**
-- Create: `service/Api/src/Module/Billing/Features/Storefront/Payment/VerifySession/VerifySession.cs`
-
-**Consumes:** `CompleteCheckoutForPaymentCommand`, `IGatewayRegistry`, `PaymentCaptureMethod`, `PaymentStoreMapping.MapToStoreDetail<Response>`, `GatewayConstants`.
-
-- [ ] Add:
-```csharp
-using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
-using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
-
-using Module.Billing.Domain.PaymentCaptures;
-using Module.Billing.Services.Provider;
-
-namespace Module.Billing.Features.Storefront.Payment.VerifySession;
-
-/// <summary>Verifies a Stripe Checkout Session on return and, when succeeded, completes the payment and places the order.</summary>
-public static partial class VerifySession
-{
-    public sealed record Command(Request Request) : ICommand<Response>;
-
-    public sealed class CommandHandler(
-        IApplicationDbContext dbContext,
-        IGatewayRegistry gatewayRegistry,
-        ISender sender)
-        : ICommandHandler<Command, Response>
-    {
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
-        {
-            var payment = await dbContext.Set<PaymentCapture>()
-                .FirstOrDefaultAsync(p => p.ResponseCode == command.Request.SessionId
-                                       && p.OrderId == command.Request.OrderId, cancellationToken);
-            if (payment is null)
-                return PaymentCaptureResult.Failure.NotFound;
-
-            // Idempotent: already completed (webhook may have beaten us).
-            if (payment.State == PaymentRecordState.Completed)
-                return Map(payment);
-
-            var gatewayResult = gatewayRegistry.GetGateway(GatewayConstants.Providers.Stripe);
-            if (gatewayResult.IsFailure)
-                return PaymentCaptureResult.Failure.ProviderNotRegistered(GatewayConstants.Providers.Stripe);
-            var gateway = gatewayResult.Value;
-
-            // Verify with Stripe — never trust the client's return alone (SEC-002).
-            var piResult = await gateway.GetSessionPaymentIntentIdAsync(command.Request.SessionId, cancellationToken);
-            if (piResult.IsFailure) return piResult.Errors;
-            var paymentIntentId = piResult.Value;
-            if (string.IsNullOrEmpty(paymentIntentId))
-                return PaymentCaptureResult.Failure.NotFound;
-
-            var status = await gateway.GetPaymentStatusAsync(paymentIntentId, cancellationToken);
-            if (!string.Equals(status, GatewayConstants.Stripe.IntentStatus.Succeeded, StringComparison.Ordinal))
-                return Map(payment); // not ready — SPA keeps polling
-
-            // Correlate refunds/disputes against the PaymentIntent id.
-            payment.ResponseCode = paymentIntentId;
-            var complete = payment.Complete();
-            if (complete.IsFailure) return complete.Errors;
-            await dbContext.SaveChangesAsync(cancellationToken);
-
-            await sender.Send(
-                new CompleteCheckoutForPaymentCommand { CartId = payment.OrderId, PaymentId = payment.Id }, cancellationToken);
-
-            return Map(payment);
-        }
-
-        private static Response Map(PaymentCapture payment)
-        {
-            var detail = payment.MapToStoreDetail<Response>();
-            return detail with { IsCompleted = payment.State == PaymentRecordState.Completed };
-        }
-    }
-}
-```
-
-#### TASK-006: VerifySession endpoint
-
-**Files:**
-- Create: `service/Api/src/Module/Billing/Features/Storefront/Payment/VerifySession/VerifySession.Endpoint.cs`
-
-**Consumes:** `BillingFeature.Storefront.Payments.VerifySession.Route`, `Module.Billing.Features.Shared`.
-
-- [ ] Add:
-```csharp
-using Module.Billing.Features.Shared;
-
-namespace Module.Billing.Features.Storefront.Payment.VerifySession;
-
-public static partial class VerifySession
-{
-    public class Endpoint : ICarterModule
-    {
-        public void AddRoutes(IEndpointRouteBuilder app)
-        {
-            app.MapPost(BillingFeature.Storefront.Payments.VerifySession.Route, async (
-                [FromBody] Request request,
-                ISender sender,
-                CancellationToken ct) =>
-            {
-                var result = await sender.Send(new Command(request), ct);
-                return result.ToResult();
-            })
-            .RequireAuthorization()
-            .RequireRateLimiting("payment")
-            .WithName(nameof(VerifySession))
-            .WithTags(BillingFeature.Tags.Payment)
-            .WithSummary(BillingFeature.Storefront.Payments.VerifySession.Summary)
-            .WithDescription(BillingFeature.Storefront.Payments.VerifySession.Description)
-            .Produces<Result<Response>>()
-            .Produces<Result>(StatusCodes.Status400BadRequest)
-            .Produces<Result<Response>>(StatusCodes.Status404NotFound);
-        }
-    }
-}
-```
-- [ ] Verify: `dotnet build service/Api/src/Api/Api.csproj` — 0 warnings.
-- [ ] Commit: `git add service/Api/src/Module/Billing/Features/Shared/BillingFeature.Storefront.cs service/Api/src/Module/Billing/Features/Storefront/Payment/VerifySession/` then `git commit -m "feat(billing): verify checkout session on return and complete payment"`.
-
-### Implementation Phase 3: Store SPA return verification
-
-- GOAL-003: Have `/checkout/return` verify the session once and fall back to polling.
-
-| Task | Description | Completed | Date |
-|------|-------------|-----------|------|
-| TASK-007 | Add `verifyPaymentSession` API client function + type. | | |
-| TASK-008 | Update `CheckoutReturnView.vue` to call verify once when `session_id` present. | | |
-
-#### TASK-007: SPA verify API
-
-**Files:**
-- Modify: `app/Store/src/features/payment/services/paymentApi.ts`
-- Modify: `app/Store/src/features/payment/types/payment.ts`
-
-**Interfaces:**
-- Produces: `verifyPaymentSession({ orderId, sessionId }): Promise<Result<PaymentStatusResponse>>`.
-
-- [ ] In `paymentApi.ts`:
-```ts
-// Call: Storefront payment API - verify a Stripe Checkout Session on return.
-export function verifyPaymentSession(req: { orderId: string; sessionId: string }): Promise<Result<PaymentStatusResponse>> {
-  return post<Result<PaymentStatusResponse>>('/api/storefront/cart/payment/intent/verify-session', req)
-}
-```
-(`post` is already imported; `PaymentStatusResponse` already imported.)
-
-#### TASK-008: CheckoutReturnView verification call
-
-**Files:**
-- Modify: `app/Store/src/features/ordering/views/CheckoutReturnView.vue`
-
-**Consumes:** `verifyPaymentSession`, `route.query.session_id`.
-
-- [ ] Import and add a verify step in `onMounted` (before starting the poll):
-```ts
-import { getPaymentStatus, verifyPaymentSession } from '@/features/payment/services/paymentApi'
-
-// Verify: Ask the backend to confirm the session with Stripe on first load.
-async function verifyOnce(): Promise<void> {
-  const orderId = typeof route.query.order === 'string' ? route.query.order : null
-  const sessionId = typeof route.query.session_id === 'string' ? route.query.session_id : null
-  if (!orderId || !sessionId) return
-  const result = await verifyPaymentSession({ orderId, sessionId })
-  if (result.isSuccess && result.value.isCompleted) {
-    status.value = 'completed'
-    stopPolling()
-  }
-}
-```
-- [ ] Call `await verifyOnce()` at the top of `onMounted` before starting the interval.
-- [ ] Verify from `app/Store`: `pnpm run build-only` (0 warnings) and targeted lint on the two files.
-- [ ] Commit: `git add app/Store/src/features/payment/services/paymentApi.ts app/Store/src/features/ordering/views/CheckoutReturnView.vue` then `git commit -m "feat(store): verify stripe session on checkout return"`.
-
-### Implementation Phase 4: Stripe CLI webhook delivery
-
-- GOAL-004: Deliver real Stripe webhook events to the local API for testing the full pipeline.
-
-| Task | Description | Completed | Date |
-|------|-------------|-----------|------|
-| TASK-009 | Pin the API HTTPS port to 5001 in the Aspire AppHost. | | |
-| TASK-010 | Add `scripts/dev-stripe-listen.sh` + document the whsec wiring. | | |
-
-#### TASK-009: Pin API HTTPS port
+#### TASK-001: Pin API HTTPS port
 
 **Files:**
 - Modify: `infra/Aspire/src/ReSys.AppHost/AppHost.cs` (the `api` resource)
 
-- [ ] On the `api` builder add a fixed HTTPS endpoint (keep `.WithExternalHttpEndpoints()`):
+- [ ] On the `api` builder, add a fixed HTTPS endpoint (keep `.WithExternalHttpEndpoints()`):
 ```csharp
     .WithHttpsEndpoint(port: 5001, name: "https")
     .WithExternalHttpEndpoints()
 ```
-- [ ] Verify: `dotnet build infra/Aspire/src/ReSys.AppHost` — 0 warnings; the API is reachable at `https://localhost:5001`.
+- [ ] Verify: `dotnet build infra/Aspire/src/ReSys.AppHost` — 0 warnings; after `dotnet run --project infra/Aspire/src/ReSys.AppHost`, the API is reachable at `https://localhost:5001` (health check `/health` returns 200).
 
-#### TASK-010: stripe listen script + docs
+#### TASK-002: stripe listen script + docs
 
 **Files:**
-- Create: `scripts/dev-stripe-listen.sh` (executable)
-- Modify: `service/Api/README.md` (or `service/Api/src/Migrations/GUIDE.yaml` sibling README) — add a "Stripe webhooks (local)" section
+- Create: `scripts/dev-stripe-listen.sh` (executable, `chmod +x`)
+- Modify: `service/Api/README.md` — add a "Stripe webhooks (local)" section
 
 - [ ] `scripts/dev-stripe-listen.sh`:
 ```bash
 #!/usr/bin/env bash
-# Forward real Stripe webhook events to the local API (Aspire pins the API HTTPS port to 5001).
+# Forward real Stripe webhook events to the local API.
+# Aspire pins the API HTTPS port to 5001 (see infra/Aspire/src/ReSys.AppHost/AppHost.cs).
 # Usage: STRIPE_SECRET_KEY=sk_test_... ./scripts/dev-stripe-listen.sh
 set -euo pipefail
 if [ -z "${STRIPE_SECRET_KEY:-}" ]; then
@@ -382,93 +86,242 @@ if [ -z "${STRIPE_SECRET_KEY:-}" ]; then
   exit 1
 fi
 echo "Forwarding Stripe events to https://localhost:5001/api/storefront/billing/webhooks/stripe"
-echo "Copy the printed 'webhook signing secret' (whsec_...) into GatewayProviders:stripe:WebhookSecret:"
+echo ""
+echo "Copy the printed 'webhook signing secret' (whsec_...) into the API, then restart the API:"
 echo "  dotnet user-secrets set \"GatewayProviders:stripe:WebhookSecret\" \"<whsec_...>\" --project service/Api/src/Api/Api.csproj"
-echo "The secret is per stripe listen run - keep this process running and re-set it if you restart."
+echo ""
+echo "NOTE: the secret is per 'stripe listen' run. Keep this process running; if you restart it, re-set the secret."
 stripe listen --forward-to https://localhost:5001/api/storefront/billing/webhooks/stripe --api-key "$STRIPE_SECRET_KEY"
 ```
-- [ ] README section: run `scripts/dev-stripe-listen.sh`, set the printed `whsec_...` via `dotnet user-secrets set` (or `STRIPE_WEBHOOK_SECRET` in `setup-dev-secrets.sh`), restart the API; abandoned sessions now fire `checkout.session.expired` (cart regresses to `Delivery`) and paid sessions fire `checkout.session.completed` (auto-place).
-- [ ] Commit: `git add scripts/dev-stripe-listen.sh service/Api/README.md infra/Aspire/src/ReSys.AppHost/AppHost.cs` then `git commit -m "chore: pin api https port and add stripe listen dev script"`.
+- [ ] README section:
+  1. Start the app: `dotnet run --project infra/Aspire/src/ReSys.AppHost` (API on `https://localhost:5001`).
+  2. `STRIPE_SECRET_KEY=sk_test_... ./scripts/dev-stripe-listen.sh`.
+  3. Copy the printed `whsec_...` into `dotnet user-secrets set "GatewayProviders:stripe:WebhookSecret" "<whsec_...>" --project service/Api/src/Api/Api.csproj`, then restart the API resource.
+  4. Pay via a Checkout Session: `checkout.session.completed` fires → payment `Completed` → order auto-placed. Abandon a session: `checkout.session.expired` fires → payment `Void` + stock released + cart regresses to `Delivery`.
+- [ ] Commit: `git add infra/Aspire/src/ReSys.AppHost/AppHost.cs scripts/dev-stripe-listen.sh service/Api/README.md` then `git commit -m "chore: pin api https port and add stripe listen dev script"`.
 
-### Implementation Phase 5: Tests + verification
+### Implementation Phase 2: Diagnostic logging — webhook delivery path
 
-- GOAL-005: Cover the verify handler and gateway capability with unit tests, then run the full verification suite.
+- GOAL-002: Add structured logs at every boundary so a checkout can be traced end-to-end and the failing stage is obvious.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-011 | Add unit tests for `VerifySession` handler + `GetSessionPaymentIntentIdAsync`. | | |
-| TASK-012 | Run full backend + SPA + convention verification. | | |
+| TASK-003 | Add dispatcher logs: webhook-secret missing, event received, signature verified. | | |
+| TASK-004 | Add webhook-job logs: event routed, session lookup, completed, order placed, expired, cart regressed. | | |
+| TASK-005 | Add `CreatePaymentIntent` logs: session created, COD created, retry voided stale. | | |
+| TASK-006 | Add auto-place logs in `CompleteCheckoutForPayment` + `CheckoutPlacementService`. | | |
+| TASK-007 | Add `console.debug` polling logs to `CheckoutReturnView.vue`. | | |
 
-#### TASK-011: Unit tests
+#### TASK-003: StripeWebhookDispatcherLoggers additions
 
 **Files:**
-- Create: `service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/VerifySession/VerifySessionTests.cs`
-- Modify: `service/Api/tests/Module.UnitTests/Billing/Backgrounds/ProcessStripeWebhookEventJobTests.cs` (no change — gateway methods covered here or in the new file)
+- Modify: `service/Api/src/Module/Billing/Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.Loggers.cs`
+- Modify: `service/Api/src/Module/Billing/Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.cs`
 
-**Tests (InMemory db, Mock<IGatewayRegistry> + Mock<IPaymentGatewayActionProvider> + Mock<ISender>, mirror `CreatePaymentIntentTests` fixtures):**
-- [ ] `Handle_SessionSucceeded_CompletesAndPlacesOrder` — seed a `PaymentCapture` (`ProviderKey=stripe`, `ResponseCode="cs_verify_1"`, `State=Processing`, `OrderId=X`); mock `GetSessionPaymentIntentIdAsync` → `"pi_verify_1"`, `GetPaymentStatusAsync` → `"succeeded"`; assert payment becomes `Completed`, `ResponseCode == "pi_verify_1"`, and `CompleteCheckoutForPaymentCommand { CartId = X, PaymentId = payment.Id }` sent once.
-- [ ] `Handle_SessionNotSucceeded_ReturnsPending` — `GetPaymentStatusAsync` → `"requires_payment_method"`; assert payment stays `Processing` and no command sent.
-- [ ] `Handle_AlreadyCompleted_IsIdempotent` — seed `State=Completed`; assert no gateway call and no command sent.
-- [ ] `Handle_MissingPayment_ReturnsNotFound` — no matching capture; assert failure.
-- [ ] `StripeGateway.GetSessionPaymentIntentIdAsync` — covered via the mock contract in the handler tests; add a `BogusGateway` direct test asserting it returns a non-empty `pi_fake_...` (optional).
+- [ ] Add to `StripeWebhookDispatcherLoggers`:
+```csharp
+[LoggerMessage(
+    EventId = 5012,
+    Level = LogLevel.Warning,
+    Message = "Stripe webhook secret is not configured (GatewayProviders:stripe:WebhookSecret); all webhooks will be rejected.")]
+public static partial void WebhookSecretMissing(ILogger logger);
 
-#### TASK-012: Full verification
+[LoggerMessage(
+    EventId = 5013,
+    Level = LogLevel.Information,
+    Message = "Stripe webhook signature verified.")]
+public static partial void SignatureVerified(ILogger logger);
+
+[LoggerMessage(
+    EventId = 5014,
+    Level = LogLevel.Information,
+    Message = "Stripe webhook event received: {EventType}")]
+public static partial void WebhookEventReceived(ILogger logger, string EventType);
+```
+- [ ] Wire into `StripeWebhookDispatcher`:
+  - In `ValidateSignature`: when `WebhookSecret` is empty → `WebhookSecretMissing(_logger); return false;`. On successful `EventUtility.ValidateSignature` → `SignatureVerified(_logger); return true;`.
+  - In `ParseEvent`: after a successful parse, `WebhookEventReceived(_logger, parsed.Type);` (only when `parsed` is non-null).
+
+#### TASK-004: ProcessStripeWebhookEventJobLoggers additions
+
+**Files:**
+- Modify: `service/Api/src/Module/Billing/Backgrounds/ProcessStripeWebhookEventJob.Loggers.cs`
+- Modify: `service/Api/src/Module/Billing/Backgrounds/ProcessStripeWebhookEventJob.cs`
+
+- [ ] Add to `ProcessStripeWebhookEventJobLoggers`:
+```csharp
+[LoggerMessage(
+    EventId = 5014,
+    Level = LogLevel.Information,
+    Message = "Stripe webhook event routed to handler: {EventType}")]
+public static partial void EventRouted(ILogger logger, string EventType);
+
+[LoggerMessage(
+    EventId = 5015,
+    Level = LogLevel.Debug,
+    Message = "Checkout session lookup: SessionId={SessionId}, PaymentFound={Found}, PaymentId={PaymentId}")]
+public static partial void SessionLookup(ILogger logger, string SessionId, bool Found, Guid? PaymentId);
+
+[LoggerMessage(
+    EventId = 5016,
+    Level = LogLevel.Information,
+    Message = "Checkout session completed: PaymentId={PaymentId}, PaymentIntentId={PaymentIntentId}")]
+public static partial void CheckoutSessionCompleted(ILogger logger, Guid PaymentId, string? PaymentIntentId);
+
+[LoggerMessage(
+    EventId = 5017,
+    Level = LogLevel.Information,
+    Message = "Order placed after checkout session completed: PaymentId={PaymentId}")]
+public static partial void OrderPlaced(ILogger logger, Guid PaymentId);
+
+[LoggerMessage(
+    EventId = 5018,
+    Level = LogLevel.Information,
+    Message = "Checkout session expired: PaymentId={PaymentId}, SessionId={SessionId}")]
+public static partial void CheckoutSessionExpired(ILogger logger, Guid PaymentId, string SessionId);
+
+[LoggerMessage(
+    EventId = 5019,
+    Level = LogLevel.Information,
+    Message = "Cart regressed to Delivery after session expiry: CartId={CartId}")]
+public static partial void CartRegressedToDelivery(ILogger logger, Guid CartId);
+```
+- [ ] Wire into `ProcessStripeWebhookEventJob`:
+  - In `ExecuteAsync`, after the parse-null guard: `EventRouted(_logger, stripeEvent.Type);`.
+  - In `HandleCheckoutSessionCompleted`: after the lookup → `SessionLookup(_logger, session.Id, payment is not null, payment?.Id);`; after `payment.ResponseCode = session.PaymentIntentId` → `CheckoutSessionCompleted(_logger, payment.Id, session.PaymentIntentId);`; inside `if (placeResult.IsSuccess)` after recording the event → `OrderPlaced(_logger, payment.Id);`.
+  - In `HandleCheckoutSessionExpired`: after the lookup → `SessionLookup(_logger, session.Id, payment is not null, payment?.Id);`; after `Void()` succeeds → `CheckoutSessionExpired(_logger, payment.Id, session.Id);`; after sending `RegressCheckoutStateCommand` → `CartRegressedToDelivery(_logger, payment.OrderId);`.
+
+#### TASK-005: CreatePaymentIntent logging
+
+**Files:**
+- Create: `service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.Loggers.cs`
+- Modify: `service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs`
+- Modify: `service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs`
+
+- [ ] `CreatePaymentIntent.Loggers.cs`:
+```csharp
+using Microsoft.Extensions.Logging;
+
+namespace Module.Billing.Features.Storefront.Payment.CreateIntent;
+
+public static partial class CreatePaymentIntentLoggers
+{
+    [LoggerMessage(
+        EventId = 6001,
+        Level = LogLevel.Information,
+        Message = "Stripe Checkout session created: PaymentId={PaymentId}, SessionId={SessionId}, CheckoutUrl={CheckoutUrl}")]
+    public static partial void SessionCreated(ILogger logger, Guid PaymentId, string? SessionId, string? CheckoutUrl);
+
+    [LoggerMessage(
+        EventId = 6002,
+        Level = LogLevel.Information,
+        Message = "COD payment intent created: PaymentId={PaymentId}, State=Pending")]
+    public static partial void CodIntentCreated(ILogger logger, Guid PaymentId);
+
+    [LoggerMessage(
+        EventId = 6003,
+        Level = LogLevel.Information,
+        Message = "Retry at Payment: voided {Count} stale capture(s) for OrderId={OrderId}")]
+    public static partial void RetryVoidedStale(ILogger logger, int Count, Guid OrderId);
+}
+```
+- [ ] `CreatePaymentIntent.cs`: add `ILogger<CreatePaymentIntent> logger` to the `CommandHandler` primary-constructor parameter list (after `ISender sender`). Call:
+  - In the retry-at-`Payment` block, after the void loop: `CreatePaymentIntentLoggers.RetryVoidedStale(logger, stale.Count, command.Request.OrderId);`
+  - In the offline branch after `payment.Pend()`: `CreatePaymentIntentLoggers.CodIntentCreated(logger, payment.Id);`
+  - In the Stripe branch after `payment.CheckoutUrl = sessionResult.Value.CheckoutUrl;`: `CreatePaymentIntentLoggers.SessionCreated(logger, payment.Id, sessionResult.Value.Authorization, sessionResult.Value.CheckoutUrl);`
+- [ ] `CreatePaymentIntentTests.cs`: update the `CommandHandler` constructor calls (constructor + any helper that builds the handler) to pass `Microsoft.Extensions.Logging.Abstractions.NullLogger<CreatePaymentIntent>.Instance`. Do not change test assertions.
+
+#### TASK-006: Auto-place logging
+
+**Files:**
+- Modify: `service/Api/src/Module/Ordering/Features/Storefront/CompleteCheckoutForPayment/CompleteCheckoutForPayment.cs`
+- Modify: `service/Api/src/Module/Ordering/Services/CheckoutPlacementService.cs`
+
+- [ ] `CompleteCheckoutForPayment.cs`: add `ILogger<CompleteCheckoutForPaymentCommandHandler> logger` to the handler constructor and log the outcome (the handler currently has no logger):
+  - After loading the draft cart (null branch is the idempotent no-op): `logger.LogDebug("CompleteCheckoutForPayment: CartId={CartId}, PaymentId={PaymentId}, CartFound={Found}", command.CartId, command.PaymentId, cart is not null);`
+  - On successful placement: `logger.LogInformation("Order auto-placed from webhook: CartId={CartId}", command.CartId);`
+  - On placement failure, before `return placeResult.Errors;`: `logger.LogWarning("Webhook auto-placement failed: CartId={CartId}: {Message}", command.CartId, placeResult.Message);`
+- [ ] `CheckoutPlacementService.cs`: at the top of `PlaceAsync`, log placement start: `logger.LogInformation("Placing order {OrderId} (actor={Actor})", cart.Id, actor);` (the service already has `ILogger<CheckoutPlacementService>`).
+
+#### TASK-007: SPA return polling logs
+
+**Files:**
+- Modify: `app/Store/src/features/ordering/views/CheckoutReturnView.vue`
+
+- [ ] In `poll()` add a debug log before the result check:
+```ts
+// Debug: Trace the return-page poll in the browser console for local dev.
+console.debug(`[checkout/return] poll order=${orderId} isCompleted=${result.value.isCompleted}`)
+```
+- [ ] Add a mount log: `console.debug('[checkout/return] mounted, starting poll')` at the top of `onMounted`.
+- [ ] Verify from `app/Store`: `pnpm run build-only` (0 warnings) and targeted lint on the file.
+- [ ] Commit Phase 2: `git add service/Api/src/Module/Billing/Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.Loggers.cs service/Api/src/Module/Billing/Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.cs service/Api/src/Module/Billing/Backgrounds/ProcessStripeWebhookEventJob.Loggers.cs service/Api/src/Module/Billing/Backgrounds/ProcessStripeWebhookEventJob.cs service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.Loggers.cs service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs service/Api/src/Module/Ordering/Features/Storefront/CompleteCheckoutForPayment/CompleteCheckoutForPayment.cs service/Api/src/Module/Ordering/Services/CheckoutPlacementService.cs app/Store/src/features/ordering/views/CheckoutReturnView.vue` then `git commit -m "feat: add diagnostic logging across the payment flow"`.
+
+### Implementation Phase 3: Tests + verification
+
+- GOAL-003: Verify the build/tests and smoke the webhook flow locally.
+
+| Task | Description | Completed | Date |
+|------|-------------|-----------|------|
+| TASK-008 | Run full backend + SPA + convention verification and a manual `stripe listen` smoke. | | |
+
+#### TASK-008: Full verification
 
 - [ ] `dotnet build` — 0 warnings.
-- [ ] `dotnet test service/Api/tests/Module.UnitTests` — all pass.
-- [ ] `cd app/Store && pnpm run lint && pnpm run build-only && pnpm run test:unit` — 0 lint errors, build 0 warnings (the 41 pre-existing test failures in unrelated files remain documented; not introduced here).
+- [ ] `dotnet test service/Api/tests/Module.UnitTests` — all pass (CreatePaymentIntentTests updated in TASK-005).
+- [ ] `cd app/Store && pnpm run lint && pnpm run build-only` — 0 lint errors, build 0 warnings (the 41 pre-existing test failures in unrelated files remain documented; not introduced here).
 - [ ] `bash scripts/check-feature-conventions.sh` — all PASS.
-- [ ] Manual smoke (requires Stripe keys): run AppHost (API on 5001), `scripts/dev-stripe-listen.sh`, pay via Checkout → `/checkout/return` verifies + order placed; abandon a session → cart regresses to `Delivery`.
+- [ ] Manual smoke (requires Stripe keys): run AppHost (API on 5001) + `scripts/dev-stripe-listen.sh` with the whsec set; in the API log trace: intent created (SessionCreated) → pay on Stripe → EventRouted(`checkout.session.completed`) → SessionLookup(Found=true) → CheckoutSessionCompleted → OrderPlaced → order visible. Abandon a session → EventRouted(`checkout.session.expired`) → CheckoutSessionExpired → CartRegressedToDelivery → cart returns to the Delivery step in the SPA.
 - [ ] Commit any final fixes.
 
 ## 3. Alternatives
 
-- **ALT-001**: Webhook-only (Stripe CLI), no return verification — rejected: local dev would stay blocked until the CLI + secret wiring is complete, and the return page gives no fast confirmation.
-- **ALT-002**: Trust the `success_url` return without calling Stripe — rejected (SEC-002): a forged/old return could mark a payment complete without an actual charge.
-- **ALT-003**: Rely on the SPA calling the storefront `ConfirmPayment` endpoint instead of a Stripe-verified session check — rejected: `ConfirmPayment` only inspects local state and does not confirm against Stripe.
+- **ALT-001**: success_url / return-page verification (completes + places from the browser return) — rejected: not described in the thesis (PAY-FR-04 mandates the webhook as the completion source; UC-STR-PAY E3 says "webhook updates state"), and it would create a second, divergent completion path.
+- **ALT-002**: Public tunnel (ngrok/cloudflared) + dashboard webhook endpoint — rejected: exposes the dev API publicly and needs a stable public URL; `stripe listen` forwards signed events locally with no public exposure.
 
 ## 4. Dependencies
 
-- **DEP-001**: Stripe.net 52.1.0 — `SessionService.GetAsync` (existing package).
-- **DEP-002**: `IGatewayRegistry` / `IPaymentGatewayActionProvider` (existing) — new session→PI method.
-- **DEP-003**: `CompleteCheckoutForPaymentCommand` (Ordering, existing) — auto-place via `ISender`.
-- **DEP-004**: `PaymentStoreMapping.MapToStoreDetail<Response>` (existing) — response mapping.
-- **DEP-005**: Stripe CLI (`stripe listen`) — dev-only webhook forwarding.
-- **DEP-006**: Aspire — pinned API HTTPS port 5001.
+- **DEP-001**: Stripe CLI (`stripe listen`) — dev-only webhook forwarding.
+- **DEP-002**: Aspire — pinned API HTTPS port 5001 (`.WithHttpsEndpoint`).
+- **DEP-003**: `ILogger` + `[LoggerMessage]` source generator (built-in) — structured logging.
+- **DEP-004**: `service/Api/scripts/setup-dev-secrets.sh` — `STRIPE_WEBHOOK_SECRET` env passthrough for `GatewayProviders:stripe:WebhookSecret`.
+- **DEP-005**: `dotnet user-secrets` (id `resys.shop.api`) — per-run `whsec_...` wiring.
 
 ## 5. Files
 
-- **FILE-001**: `service/Api/src/Module/Billing/Services/Provider/IPaymentGatewayActionProvider.cs` — `GetSessionPaymentIntentIdAsync`.
-- **FILE-002**: `service/Api/src/Module/Billing/Services/Provider/Gateway.cs` — abstract method.
-- **FILE-003**: `service/Api/src/Module/Billing/Services/Provider/Stripe/StripeGateway.cs` — session→PI impl.
-- **FILE-004**: `service/Api/src/Module/Billing/Services/Provider/Bogus/BogusGateway.cs` — fake impl.
-- **FILE-005**: `service/Api/src/Module/Billing/Features/Shared/BillingFeature.Storefront.cs` — `VerifySession` route.
-- **FILE-006**: `service/Api/src/Module/Billing/Features/Storefront/Payment/VerifySession/` (new) — Request/Response/Command/Endpoint/Handler.
-- **FILE-007**: `app/Store/src/features/payment/services/paymentApi.ts` — `verifyPaymentSession`.
-- **FILE-008**: `app/Store/src/features/ordering/views/CheckoutReturnView.vue` — verify-once on return.
-- **FILE-009**: `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — pinned HTTPS port 5001.
-- **FILE-010**: `scripts/dev-stripe-listen.sh` (new) + `service/Api/README.md` docs.
-- **FILE-011**: `service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/VerifySession/VerifySessionTests.cs` (new).
+- **FILE-001**: `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — pinned HTTPS port 5001.
+- **FILE-002**: `scripts/dev-stripe-listen.sh` (new) — forward + whsec instructions.
+- **FILE-003**: `service/Api/README.md` — "Stripe webhooks (local)" section.
+- **FILE-004**: `service/Api/src/Module/Billing/Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.Loggers.cs` — `WebhookSecretMissing`, `SignatureVerified`, `WebhookEventReceived`.
+- **FILE-005**: `service/Api/src/Module/Billing/Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.cs` — new log calls.
+- **FILE-006**: `service/Api/src/Module/Billing/Backgrounds/ProcessStripeWebhookEventJob.Loggers.cs` — event/session/completion/expiry/regress logs.
+- **FILE-007**: `service/Api/src/Module/Billing/Backgrounds/ProcessStripeWebhookEventJob.cs` — new log calls.
+- **FILE-008**: `service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.Loggers.cs` (new).
+- **FILE-009**: `service/Api/src/Module/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs` — `ILogger` + log calls.
+- **FILE-010**: `service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs` — constructor `NullLogger` arg.
+- **FILE-011**: `service/Api/src/Module/Ordering/Features/Storefront/CompleteCheckoutForPayment/CompleteCheckoutForPayment.cs` — outcome logs.
+- **FILE-012**: `service/Api/src/Module/Ordering/Services/CheckoutPlacementService.cs` — placement-start log.
+- **FILE-013**: `app/Store/src/features/ordering/views/CheckoutReturnView.vue` — `console.debug` polling logs.
 
 ## 6. Testing
 
-- **TEST-001**: `VerifySessionTests` — succeeded → completed + order placed; not-succeeded → pending; already-completed → idempotent; missing → NotFound.
-- **TEST-002**: Gateway `GetSessionPaymentIntentIdAsync` — Stripe (session→PI) and Bogus (fake) contracts via handler tests / direct Bogus test.
-- **TEST-003**: SPA — `CheckoutReturnView` verify-once path (mock `verifyPaymentSession` returning `isCompleted: true` → completed state).
-- **TEST-004**: Manual — `stripe listen` forwards `checkout.session.completed`/`expired`; paid session auto-places order; abandoned session regresses cart to `Delivery`.
+- **TEST-001**: `dotnet build` — 0 warnings (`TreatWarningsAsErrors`).
+- **TEST-002**: `Module.UnitTests` full suite — all pass (constructor change in `CreatePaymentIntentTests` uses `NullLogger`).
+- **TEST-003**: SPA `build-only` + lint — 0 warnings/errors.
+- **TEST-004**: Manual `stripe listen` smoke — trace the full log chain (intent → event → lookup → completed → placed) and the expiry path (expired → regress).
 
 ## 7. Risks & Assumptions
 
-- **RISK-001**: The `whsec_...` from `stripe listen` is per-run; restarting the CLI invalidates the configured secret until re-set.
-- **RISK-002**: Pinning port 5001 could collide with another local service; choose a free port if needed.
-- **RISK-003**: Verify + webhook racing is safe (state guard, event-id, non-Draft no-op) but both completing must remain idempotent — covered by tests.
-- **ASSUMPTION-001**: The Store SPA can reach the API's verify route with the same auth used for `create-intent`.
-- **ASSUMPTION-002**: For card Checkout Sessions the PaymentIntent is `succeeded` immediately on completion; async methods keep polling.
-- **ASSUMPTION-003**: The API HTTPS port 5001 is acceptable for local dev.
+- **RISK-001**: The `whsec_...` from `stripe listen` is per-run; restarting the CLI invalidates the configured secret until re-set (documented in the script).
+- **RISK-002**: Pinning port 5001 could collide with another local service; choose a free port if needed (update the script + README to match).
+- **RISK-003**: Logging must never include secret keys or full webhook payloads; log only ids, states, and event types.
+- **RISK-004**: `ILogger<T>` constructor additions touch tests (CreatePaymentIntentTests) — handled in TASK-005 with `NullLogger`.
+- **ASSUMPTION-001**: The API HTTPS port 5001 is acceptable for local dev.
+- **ASSUMPTION-002**: The webhook is the single completion source; the return page only polls local state (thesis-aligned).
 
 ## 8. Related Specifications / Further Reading
 
 - [Payment method selection design](docs/superpowers/specs/2026-08-13-payment-method-selection-design.md)
+- [Thesis PAY-FR-04 / UC-STR-PAY E3](thesis/chapters/part2/ch2-design/01-requirements/01-functional-requirements.typ)
 - [Stripe webhooks](https://docs.stripe.com/webhooks)
 - [Stripe CLI listen](https://docs.stripe.com/stripe-cli)
-- [Stripe.net SessionService](https://github.com/stripe/stripe-dotnet)
