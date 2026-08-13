@@ -15,19 +15,19 @@ public static partial class StripeWebhookDispatcherLoggers
     public static partial void EventParseFailed(ILogger logger, Exception ex, string ErrorMessage, int PayloadLength);
 
     [LoggerMessage(
-        EventId = 5012,
+        EventId = 5020,
         Level = LogLevel.Warning,
         Message = "Stripe webhook secret is not configured (GatewayProviders:stripe:WebhookSecret); all webhooks will be rejected.")]
     public static partial void WebhookSecretMissing(ILogger logger);
 
     [LoggerMessage(
-        EventId = 5013,
+        EventId = 5021,
         Level = LogLevel.Information,
         Message = "Stripe webhook signature verified.")]
     public static partial void SignatureVerified(ILogger logger);
 
     [LoggerMessage(
-        EventId = 5014,
+        EventId = 5022,
         Level = LogLevel.Information,
         Message = "Stripe webhook event received: {EventType}")]
     public static partial void WebhookEventReceived(ILogger logger, string EventType);

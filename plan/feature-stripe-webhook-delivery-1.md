@@ -121,19 +121,19 @@ stripe listen --forward-to https://localhost:5001/api/storefront/billing/webhook
 - [ ] Add to `StripeWebhookDispatcherLoggers`:
 ```csharp
 [LoggerMessage(
-    EventId = 5012,
+    EventId = 5020,
     Level = LogLevel.Warning,
     Message = "Stripe webhook secret is not configured (GatewayProviders:stripe:WebhookSecret); all webhooks will be rejected.")]
 public static partial void WebhookSecretMissing(ILogger logger);
 
 [LoggerMessage(
-    EventId = 5013,
+    EventId = 5021,
     Level = LogLevel.Information,
     Message = "Stripe webhook signature verified.")]
 public static partial void SignatureVerified(ILogger logger);
 
 [LoggerMessage(
-    EventId = 5014,
+    EventId = 5022,
     Level = LogLevel.Information,
     Message = "Stripe webhook event received: {EventType}")]
 public static partial void WebhookEventReceived(ILogger logger, string EventType);
@@ -207,21 +207,21 @@ namespace Module.Billing.Features.Storefront.Payment.CreateIntent;
 public static partial class CreatePaymentIntentLoggers
 {
     [LoggerMessage(
-        EventId = 6001,
-        Level = LogLevel.Information,
-        Message = "Stripe Checkout session created: PaymentId={PaymentId}, SessionId={SessionId}, CheckoutUrl={CheckoutUrl}")]
+    EventId = 6010,
+    Level = LogLevel.Information,
+    Message = "Stripe Checkout session created: PaymentId={PaymentId}, SessionId={SessionId}, CheckoutUrl={CheckoutUrl}")]
     public static partial void SessionCreated(ILogger logger, Guid PaymentId, string? SessionId, string? CheckoutUrl);
 
     [LoggerMessage(
-        EventId = 6002,
-        Level = LogLevel.Information,
-        Message = "COD payment intent created: PaymentId={PaymentId}, State=Pending")]
+    EventId = 6011,
+    Level = LogLevel.Information,
+    Message = "COD payment intent created: PaymentId={PaymentId}, State=Pending")]
     public static partial void CodIntentCreated(ILogger logger, Guid PaymentId);
 
     [LoggerMessage(
-        EventId = 6003,
-        Level = LogLevel.Information,
-        Message = "Retry at Payment: voided {Count} stale capture(s) for OrderId={OrderId}")]
+    EventId = 6012,
+    Level = LogLevel.Information,
+    Message = "Retry at Payment: voided {Count} stale capture(s) for OrderId={OrderId}")]
     public static partial void RetryVoidedStale(ILogger logger, int Count, Guid OrderId);
 }
 ```
