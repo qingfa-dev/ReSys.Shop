@@ -15,7 +15,7 @@ NC='\033[0m'
 
 # Expected baseline: 38 violations as of 2026-08-07 (contracts moved from Shared to modules).
 # Reduce this number as violations are removed. Set to 0 when fully clean.
-EXPECTED_BASELINE=38
+EXPECTED_BASELINE=33
 FAIL=0
 
 MODULES=(
