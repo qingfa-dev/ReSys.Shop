@@ -51,6 +51,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             return;
         }
 
+        ProcessStripeWebhookEventJobLoggers.EventRouted(_logger, stripeEvent.Type);
+
         // Route: Dispatch to handler by event type
         switch (stripeEvent.Type)
         {
@@ -235,6 +237,7 @@ public sealed partial class ProcessStripeWebhookEventJob
                 p => p.ResponseCode == session.Id
                      || (session.PaymentIntentId != null && p.ResponseCode == session.PaymentIntentId),
                 ct);
+        ProcessStripeWebhookEventJobLoggers.SessionLookup(_logger, session.Id, payment is not null, payment?.Id);
         if (payment is null) return;
 
         // Dedup: skip only if this exact Stripe event was fully processed before.
@@ -243,7 +246,10 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Store the PaymentIntent id so admin refund/void and charge.* webhooks can
         // correlate against it (the cs_... session id is rejected by Stripe operations).
         if (!string.IsNullOrEmpty(session.PaymentIntentId))
+        {
             payment.ResponseCode = session.PaymentIntentId;
+            ProcessStripeWebhookEventJobLoggers.CheckoutSessionCompleted(_logger, payment.Id, session.PaymentIntentId);
+        }
 
         if (payment.State != PaymentRecordState.Completed)
         {
@@ -266,6 +272,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         {
             payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
             await SaveWithRollbackAsync(payment, ct);
+            ProcessStripeWebhookEventJobLoggers.OrderPlaced(_logger, payment.Id);
         }
         else
         {
@@ -280,6 +287,7 @@ public sealed partial class ProcessStripeWebhookEventJob
 
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == session.Id, ct);
+        ProcessStripeWebhookEventJobLoggers.SessionLookup(_logger, session.Id, payment is not null, payment?.Id);
         if (payment is null) return;
 
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
@@ -292,6 +300,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             return;
         }
 
+        ProcessStripeWebhookEventJobLoggers.CheckoutSessionExpired(_logger, payment.Id, session.Id);
+
         payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
         await SaveWithRollbackAsync(payment, ct);
 
@@ -300,6 +310,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Un-stick: regress the cart Payment → Delivery so the customer can re-pick a payment method.
         await _sender.Send(
             new RegressCheckoutStateCommand { CartId = payment.OrderId, TargetState = "Delivery" }, ct);
+        ProcessStripeWebhookEventJobLoggers.CartRegressedToDelivery(_logger, payment.OrderId);
     }
 
     /// <summary>Persists changes. On DB failure, lets exception propagate — Hangfire retries with fresh scoped context.</summary>

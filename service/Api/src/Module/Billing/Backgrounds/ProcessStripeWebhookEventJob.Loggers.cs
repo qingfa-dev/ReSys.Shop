@@ -50,4 +50,40 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Warning,
         Message = "Cannot place order for payment {PaymentId} after checkout session completed: {Message}")]
     public static partial void CannotPlaceOrder(ILogger logger, Guid PaymentId, string? Message);
+
+    [LoggerMessage(
+        EventId = 5014,
+        Level = LogLevel.Information,
+        Message = "Stripe webhook event routed to handler: {EventType}")]
+    public static partial void EventRouted(ILogger logger, string EventType);
+
+    [LoggerMessage(
+        EventId = 5015,
+        Level = LogLevel.Debug,
+        Message = "Checkout session lookup: SessionId={SessionId}, PaymentFound={Found}, PaymentId={PaymentId}")]
+    public static partial void SessionLookup(ILogger logger, string SessionId, bool Found, Guid? PaymentId);
+
+    [LoggerMessage(
+        EventId = 5016,
+        Level = LogLevel.Information,
+        Message = "Checkout session completed: PaymentId={PaymentId}, PaymentIntentId={PaymentIntentId}")]
+    public static partial void CheckoutSessionCompleted(ILogger logger, Guid PaymentId, string? PaymentIntentId);
+
+    [LoggerMessage(
+        EventId = 5017,
+        Level = LogLevel.Information,
+        Message = "Order placed after checkout session completed: PaymentId={PaymentId}")]
+    public static partial void OrderPlaced(ILogger logger, Guid PaymentId);
+
+    [LoggerMessage(
+        EventId = 5018,
+        Level = LogLevel.Information,
+        Message = "Checkout session expired: PaymentId={PaymentId}, SessionId={SessionId}")]
+    public static partial void CheckoutSessionExpired(ILogger logger, Guid PaymentId, string SessionId);
+
+    [LoggerMessage(
+        EventId = 5019,
+        Level = LogLevel.Information,
+        Message = "Cart regressed to Delivery after session expiry: CartId={CartId}")]
+    public static partial void CartRegressedToDelivery(ILogger logger, Guid CartId);
 }
