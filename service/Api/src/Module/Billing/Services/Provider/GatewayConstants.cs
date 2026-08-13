@@ -10,6 +10,9 @@ public static class GatewayConstants
     {
         public const string Stripe = "stripe";
         public const string Bogus = "bogus";
+        public const string CashOnDelivery = "cash_on_delivery";
+
+        public static bool IsOffline(string providerKey) => providerKey == CashOnDelivery;
     }
 
     // Const: Payment source type discriminators.
@@ -125,6 +128,8 @@ public static class GatewayConstants
             public const string PaymentIntentRequiresAction = "payment_intent.requires_action";
             public const string PaymentIntentProcessing = "payment_intent.processing";
             public const string PaymentIntentCanceled = "payment_intent.canceled";
+            public const string CheckoutSessionCompleted = "checkout.session.completed";
+            public const string CheckoutSessionExpired = "checkout.session.expired";
         }
     }
 
