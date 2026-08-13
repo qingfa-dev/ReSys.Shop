@@ -95,12 +95,39 @@ public class CreatePaymentIntentTests : IDisposable
         SetupCartForCheckout(order.Id, 100.00m);
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(order.Id),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
         result.Value.Id.Should().NotBeEmpty();
+    }
+
+    [Fact(DisplayName = "Handler: Should default an empty currency to USD when calling the gateway")]
+    public async Task Handle_ShouldDefaultEmptyCurrency_ToUsd()
+    {
+        // Regression: PaymentParameters.Currency defaults to "" (not null), so
+        // `command.Currency ?? Usd` passed "" to Stripe -> "Invalid currency:".
+        string? capturedCurrency = null;
+        _processingServiceMock
+            .Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .Callback<PaymentCapture, IPaymentGatewayActionProvider, GatewayOptions, CancellationToken>(
+                (_, _, options, _) => capturedCurrency = options.Currency)
+            .ReturnsAsync(new PaymentProcessingResult());
+
+        var order = CreateOrder();
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
+        _dbContext.Set<PaymentMethod>().Add(pm);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        SetupCartForCheckout(order.Id, 100.00m);
+
+        var result = await _handler.Handle(
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, Currency = string.Empty }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        capturedCurrency.Should().Be("USD");
     }
 
     [Fact(DisplayName = "Handler: Should return failure when gateway declines authorization")]
@@ -117,7 +144,7 @@ public class CreatePaymentIntentTests : IDisposable
         SetupCartForCheckout(order.Id, 100.00m);
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(order.Id),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -139,7 +166,7 @@ public class CreatePaymentIntentTests : IDisposable
         SetupCartForCheckout(order.Id, 100.00m);
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(order.Id),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -159,7 +186,7 @@ public class CreatePaymentIntentTests : IDisposable
         SetupCartForCheckout(order.Id, 100.00m);
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(order.Id, PaymentMethodId: pmB.Id),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = pmB.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -177,7 +204,7 @@ public class CreatePaymentIntentTests : IDisposable
                 errors: [OrderResult.Errors.NotFound(notFoundId)]));
 
         var result = await _handler.Handle(
-            new CreatePaymentIntent.Command(notFoundId),
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = notFoundId }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -192,7 +219,7 @@ public class CreatePaymentIntentTests : IDisposable
         SetupCartForCheckout(order.Id, 100.00m);
 
         var handler = CreateHandler();
-        var command = new CreatePaymentIntent.Command(order.Id, paymentMethod.Id);
+        var command = new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = paymentMethod.Id });
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();

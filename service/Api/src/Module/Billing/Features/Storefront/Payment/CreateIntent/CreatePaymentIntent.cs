@@ -1,7 +1,6 @@
 using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
 
 using Module.Inventory.Features.Shared;
-using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
@@ -20,7 +19,7 @@ namespace Module.Billing.Features.Storefront.Payment.CreateIntent;
 /// <summary>Creates a payment intent for checkout.</summary>
 public static partial class CreatePaymentIntent
 {
-    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null, string? PaymentMethodToken = null, string? ReturnUrl = null, string? CardNumber = null, string? Currency = null) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -37,7 +36,7 @@ public static partial class CreatePaymentIntent
         {
             // Validate: Cart state must be Delivery
             var cartResult = await sender.Send(
-                new GetCartForCheckoutQuery { CartId = command.OrderId }, cancellationToken);
+                new GetCartForCheckoutQuery { CartId = command.Request.OrderId }, cancellationToken);
             if (cartResult.IsFailure) return cartResult.Errors;
             var cart = cartResult.Value;
 
@@ -52,7 +51,7 @@ public static partial class CreatePaymentIntent
                 var reserveResult = await stockReservationService.ReserveForVariantAsync(
                     variantId: li.VariantId,
                     quantity: li.Quantity,
-                    cartToken: command.OrderId.ToString(),
+                    cartToken: command.Request.OrderId.ToString(),
                     ttlMinutes: InventoryFeature.Storefront.StockReservations.TtlMinutesDefault,
                     ct: cancellationToken);
 
@@ -60,15 +59,15 @@ public static partial class CreatePaymentIntent
                 {
                     // Compensate: release reservations already made in this loop
                     await stockReservationService.ReleaseReservationsAsync(
-                        cartToken: command.OrderId.ToString(), ct: CancellationToken.None);
+                        cartToken: command.Request.OrderId.ToString(), ct: CancellationToken.None);
                     return reserveResult.Errors;
                 }
             }
 
             // Load: First active payment method
-            var paymentMethod = command.PaymentMethodId.HasValue
+            var paymentMethod = command.Request.PaymentMethodId.HasValue
                 ? await dbContext.Set<PaymentMethod>()
-                    .FirstOrDefaultAsync(c => c.Id == command.PaymentMethodId.Value && c.Active && !c.IsDeleted, cancellationToken)
+                    .FirstOrDefaultAsync(c => c.Id == command.Request.PaymentMethodId.Value && c.Active && !c.IsDeleted, cancellationToken)
                 : await dbContext.Set<PaymentMethod>()
                     .FirstOrDefaultAsync(c => c.Active && !c.IsDeleted, cancellationToken);
             if (paymentMethod is null)
@@ -78,13 +77,13 @@ public static partial class CreatePaymentIntent
             var createResult = Domain.PaymentCaptures.PaymentCaptureMethod.Create(
                 amount: cart.Total,
                 paymentMethodId: (Guid)paymentMethod.Id,
-                orderId: command.OrderId,
+                orderId: command.Request.OrderId,
                 sourceId: paymentMethod.ProviderKey == GatewayConstants.Providers.Bogus
-                    ? command.CardNumber
-                    : command.PaymentMethodToken,
+                    ? command.Request.CardNumber
+                    : command.Request.PaymentMethodToken,
                 sourceType: paymentMethod.ProviderKey == GatewayConstants.Providers.Bogus
-                    ? (command.CardNumber is null ? null : GatewayConstants.SourceTypes.Card)
-                    : (command.PaymentMethodToken is null ? null : GatewayConstants.SourceTypes.PaymentMethod));
+                    ? (command.Request.CardNumber is null ? null : GatewayConstants.SourceTypes.Card)
+                    : (command.Request.PaymentMethodToken is null ? null : GatewayConstants.SourceTypes.PaymentMethod));
             if (createResult.IsFailure) return createResult.Errors;
 
             var payment = createResult.Value;
@@ -102,12 +101,15 @@ public static partial class CreatePaymentIntent
                 Email = cart.Email ?? string.Empty,
                 Customer = cart.Email ?? string.Empty,
                 CustomerId = currentUser.UserId,
-                OrderId = $"{command.OrderId}-{payment.Number}",
+                // Replace with OrderNumber Generator
+                OrderId = $"{command.Request.OrderId}-{payment.Number}",
                 PaymentId = payment.Number,
                 IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
                 StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
-                SuccessUrl = command.ReturnUrl,
-                Currency = command.Currency ?? GatewayConstants.Currency.Usd,
+                SuccessUrl = command.Request.ReturnUrl,
+                Currency = string.IsNullOrWhiteSpace(command.Request.Currency)
+                    ? GatewayConstants.Currency.Usd
+                    : command.Request.Currency,
             };
 
             // Call: Gateway process (authorize or purchase depending on AutoCapture)
@@ -116,7 +118,7 @@ public static partial class CreatePaymentIntent
             {
                 // Release reservations on gateway failure
                 await stockReservationService.ReleaseReservationsAsync(
-                    cartToken: command.OrderId.ToString(), ct: CancellationToken.None);
+                    cartToken: command.Request.OrderId.ToString(), ct: CancellationToken.None);
                 return processResult.Errors;
             }
 
@@ -130,13 +132,13 @@ public static partial class CreatePaymentIntent
                 // E3: Gateway succeeded but save failed — void payment and release reservations
                 await processingService.VoidAsync(payment, gateway, options, CancellationToken.None);
                 await stockReservationService.ReleaseReservationsAsync(
-                    cartToken: command.OrderId.ToString(), ct: CancellationToken.None);
+                    cartToken: command.Request.OrderId.ToString(), ct: CancellationToken.None);
                 throw;
             }
 
             // Advance: Cart state to Payment
             await sender.Send(
-                new AdvanceCheckoutStateCommand { CartId = command.OrderId, TargetState = "Payment" }, cancellationToken);
+                new AdvanceCheckoutStateCommand { CartId = command.Request.OrderId, TargetState = "Payment" }, cancellationToken);
 
             // Map: Payment → storefront response DTO
             return payment.MapToStoreDetail<Response>();
