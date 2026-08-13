@@ -17,7 +17,7 @@ function createSearch() {
 
   function open(): void {
     // Blur: Release focus from the trigger element before the Dialog auto-focuses its input.
-    document.activeElement instanceof HTMLElement && document.activeElement.blur()
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
     isOpen.value = true
     selectedIndex.value = 0
   }

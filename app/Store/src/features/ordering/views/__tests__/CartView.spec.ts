@@ -15,12 +15,12 @@ import type { CartLineItem, CartResponse } from '../../types'
 // Stub: CartApi so the composable does not make real HTTP calls.
 vi.mock('../../services/cartApi', () => ({
   CartApi: {
-    getCart: vi.fn(),
-    addItem: vi.fn(),
-    updateItem: vi.fn(),
-    removeItem: vi.fn(),
-    emptyCart: vi.fn(),
-    associateCart: vi.fn(),
+    getCart: vi.fn<() => Promise<unknown>>(),
+    addItem: vi.fn<() => Promise<unknown>>(),
+    updateItem: vi.fn<() => Promise<unknown>>(),
+    removeItem: vi.fn<() => Promise<unknown>>(),
+    emptyCart: vi.fn<() => Promise<unknown>>(),
+    associateCart: vi.fn<() => Promise<unknown>>(),
   },
 }))
 

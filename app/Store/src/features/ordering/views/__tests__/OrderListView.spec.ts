@@ -12,10 +12,10 @@ import type { OrderListItem } from '../../types'
 // Stub: OrderApi so the composable does not make real HTTP calls.
 vi.mock('../../services/orderApi', () => ({
   OrderApi: {
-    getOrders: vi.fn(),
-    getOrder: vi.fn(),
-    getOrderTracking: vi.fn(),
-    cancelOrder: vi.fn(),
+    getOrders: vi.fn<() => Promise<unknown>>(),
+    getOrder: vi.fn<() => Promise<unknown>>(),
+    getOrderTracking: vi.fn<() => Promise<unknown>>(),
+    cancelOrder: vi.fn<() => Promise<unknown>>(),
   },
 }))
 

@@ -277,13 +277,11 @@ describe('CheckoutView', () => {
     await wrapper.vm.$nextTick()
 
     const cascade = wrapper.findComponent({ name: 'CascadeSelect' })
-    if (cascade.exists()) {
-      cascade.vm.$emit('update:modelValue', 's2')
-      await wrapper.vm.$nextTick()
+    cascade.vm.$emit('update:modelValue', 's2')
+    await wrapper.vm.$nextTick()
 
-      expect(location.selectedCountryId).toBe('c1')
-      expect(location.selectedStateId).toBe('s2')
-    }
+    expect(location.selectedCountryId).toBe('c1')
+    expect(location.selectedStateId).toBe('s2')
   })
 
   it('shows the review panel with cart items', async () => {

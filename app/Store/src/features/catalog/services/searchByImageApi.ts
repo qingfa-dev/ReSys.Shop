@@ -1,6 +1,6 @@
 import { get, post } from '@/shared/api/client'
 import { VisualSearchModelSchema } from '../validations/searchByImage'
-import type { PagedResult, Result } from '@/shared/types'
+import type { PagedResult } from '@/shared/types'
 import type { SearchByImageResponse, VisualSearchModel } from '../types'
 
 export class CatalogImageApi {

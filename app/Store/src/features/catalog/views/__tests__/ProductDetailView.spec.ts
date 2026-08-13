@@ -8,7 +8,6 @@ import ProductDetailView from "../ProductDetailView.vue";
 import ProductGridCard from "../../components/ProductGridCard.vue";
 import { useProductDetail } from "../../composables/useProductDetail";
 import { useCart } from "@/features/ordering/composables/useCart";
-import { CartApi } from "@/features/ordering/services/cartApi";
 import type { StoreProductDetailResponse } from "../../types";
 
 // Polyfill: Overlay components call matchMedia on mount; jsdom does not provide it.
@@ -194,7 +193,7 @@ describe("ProductDetailView", { timeout: 30_000 }, () => {
 
   it("adds the selected variant and quantity to the cart from the SplitButton", async () => {
     const cart = useCart();
-    cart.addItem = vi.fn().mockResolvedValue(true);
+    cart.addItem = vi.fn<() => Promise<boolean>>().mockResolvedValue(true);
     const wrapper = await mountView();
     const detail = seedDetail();
     detail.quantity = 2;
