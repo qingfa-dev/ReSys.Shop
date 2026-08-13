@@ -8,19 +8,24 @@ public sealed class MarkPaymentPaidCommandHandler(IApplicationDbContext dbContex
     public async Task<Result> Handle(
         MarkPaymentPaidCommand command, CancellationToken cancellationToken)
     {
+        Guid? parsedId = Guid.TryParse(command.PaymentIntentId, out var g) ? g : null;
+
         var payment = await dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(
-                p => p.ResponseCode == command.PaymentIntentId
-                     && p.OrderId == command.OrderId,
+                p => p.OrderId == command.OrderId
+                     && ((parsedId.HasValue && p.Id == parsedId.Value)
+                          || p.ResponseCode == command.PaymentIntentId),
                 cancellationToken);
 
         if (payment is null)
             return PaymentCaptureResult.Failure.NotFound;
 
-        payment.State = PaymentRecordState.Completed;
-        payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
-
-        await dbContext.SaveChangesAsync(cancellationToken);
+        if (payment.State != PaymentRecordState.Completed)
+        {
+            payment.State = PaymentRecordState.Completed;
+            payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
 
         return Result.Ok();
     }
