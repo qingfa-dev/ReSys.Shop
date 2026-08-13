@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using Module.Billing.Backgrounds;
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Services.Webhook;
+using Module.Inventory.Services.StockReservations;
+using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
 
 using Stripe;
 
@@ -19,6 +21,8 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IStripeWebhookService> _webhookMock;
     private readonly Mock<ILogger<ProcessStripeWebhookEventJob>> _loggerMock;
+    private readonly Mock<ISender> _senderMock;
+    private readonly Mock<IStockReservationService> _stockServiceMock;
     private readonly ProcessStripeWebhookEventJob _job;
 
     public ProcessStripeWebhookEventJobTests()
@@ -31,7 +35,18 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
 
         _webhookMock = new Mock<IStripeWebhookService>();
         _loggerMock = new Mock<ILogger<ProcessStripeWebhookEventJob>>();
-        _job = new ProcessStripeWebhookEventJob(_dbContext, _webhookMock.Object, _loggerMock.Object);
+        _senderMock = new Mock<ISender>();
+        _senderMock.Setup(x => x.Send(
+                It.IsAny<CompleteCheckoutForPaymentCommand>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<CompleteCheckoutForPaymentResponse>.Ok(new CompleteCheckoutForPaymentResponse()));
+        _stockServiceMock = new Mock<IStockReservationService>();
+        _stockServiceMock.Setup(s => s.ReleaseReservationsAsync(
+                It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<int>.Ok(1));
+        _job = new ProcessStripeWebhookEventJob(
+            _dbContext, _webhookMock.Object, _loggerMock.Object,
+            _senderMock.Object, _stockServiceMock.Object);
     }
 
     public void Dispose()

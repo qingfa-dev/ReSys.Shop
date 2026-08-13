@@ -3,8 +3,11 @@ using Hangfire;
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Services.Provider;
 using Module.Billing.Services.Webhook;
+using Module.Inventory.Services.StockReservations;
+using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
 
 using Stripe;
+using Stripe.Checkout;
 
 using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
@@ -17,15 +20,21 @@ public sealed partial class ProcessStripeWebhookEventJob
     private readonly IApplicationDbContext _dbContext;
     private readonly IStripeWebhookService _webhookService;
     private readonly ILogger<ProcessStripeWebhookEventJob> _logger;
+    private readonly ISender _sender;
+    private readonly IStockReservationService _stockReservationService;
 
     public ProcessStripeWebhookEventJob(
         IApplicationDbContext dbContext,
         IStripeWebhookService webhookService,
-        ILogger<ProcessStripeWebhookEventJob> logger)
+        ILogger<ProcessStripeWebhookEventJob> logger,
+        ISender sender,
+        IStockReservationService stockReservationService)
     {
         _dbContext = dbContext;
         _webhookService = webhookService;
         _logger = logger;
+        _sender = sender;
+        _stockReservationService = stockReservationService;
     }
 
     /// <summary>Entry point — parses the Stripe event and routes to type-specific handler.</summary>
@@ -64,6 +73,12 @@ public sealed partial class ProcessStripeWebhookEventJob
                 break;
             case GatewayConstants.WebhookEvents.Stripe.PaymentIntentCanceled:
                 await HandlePaymentIntentCanceled(stripeEvent, ct);
+                break;
+            case GatewayConstants.WebhookEvents.Stripe.CheckoutSessionCompleted:
+                await HandleCheckoutSessionCompleted(stripeEvent, ct);
+                break;
+            case GatewayConstants.WebhookEvents.Stripe.CheckoutSessionExpired:
+                await HandleCheckoutSessionExpired(stripeEvent, ct);
                 break;
         }
     }
@@ -204,6 +219,67 @@ public sealed partial class ProcessStripeWebhookEventJob
 
         payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
         await SaveWithRollbackAsync(payment, ct);
+    }
+
+    private async Task HandleCheckoutSessionCompleted(Event stripeEvent, CancellationToken ct)
+    {
+        var session = stripeEvent.Data.Object as Session;
+        if (session is null) return;
+
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.ResponseCode == session.Id, ct);
+        if (payment is null) return;
+
+        // Dedup: skip only if this exact Stripe event was fully processed before.
+        if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
+
+        if (payment.State != PaymentRecordState.Completed)
+        {
+            var complete = payment.Complete();
+            if (complete.IsFailure && payment.State != PaymentRecordState.Completed)
+            {
+                ProcessStripeWebhookEventJobLoggers.CannotCompletePayment(_logger, payment.Id, payment.State.ToString(), complete.Message);
+                return;
+            }
+            await SaveWithRollbackAsync(payment, ct);
+        }
+
+        // Place the order. Idempotent: a no-longer-draft cart is a no-op on retry.
+        var placeResult = await _sender.Send(
+            new CompleteCheckoutForPaymentCommand { CartId = payment.OrderId, PaymentId = payment.Id }, ct);
+
+        // Record the event as processed only after placement succeeds, so a Hangfire
+        // retry re-attempts placement (and does not re-complete, due to the state guard).
+        if (placeResult.IsSuccess)
+        {
+            payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+            await SaveWithRollbackAsync(payment, ct);
+        }
+    }
+
+    private async Task HandleCheckoutSessionExpired(Event stripeEvent, CancellationToken ct)
+    {
+        var session = stripeEvent.Data.Object as Session;
+        if (session is null) return;
+
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.ResponseCode == session.Id, ct);
+        if (payment is null) return;
+
+        if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
+        if (payment.State is PaymentRecordState.Void or PaymentRecordState.Completed) return;
+
+        var voidResult = payment.Void();
+        if (voidResult.IsFailure)
+        {
+            ProcessStripeWebhookEventJobLoggers.CannotVoidPayment(_logger, payment.Id, payment.State.ToString(), voidResult.Message);
+            return;
+        }
+
+        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+        await SaveWithRollbackAsync(payment, ct);
+
+        await _stockReservationService.ReleaseReservationsAsync(orderId: payment.OrderId, ct: ct);
     }
 
     /// <summary>Persists changes. On DB failure, lets exception propagate — Hangfire retries with fresh scoped context.</summary>
