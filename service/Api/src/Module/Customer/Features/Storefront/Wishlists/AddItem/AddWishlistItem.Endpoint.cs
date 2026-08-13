@@ -1,7 +1,5 @@
 using Module.Customer.Features.Shared;
 
-using Shared.Security.Identity.Domain.Users;
-
 namespace Module.Customer.Features.Storefront.Wishlists.AddItem;
 
 public static partial class AddWishlistItem

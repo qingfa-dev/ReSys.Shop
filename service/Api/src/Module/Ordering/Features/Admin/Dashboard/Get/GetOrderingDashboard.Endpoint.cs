@@ -1,8 +1,4 @@
-using Carter;
-using MediatR;
 using Module.Ordering.Features.Shared;
-using Shared.Application.Extensions.Results;
-using Shared.Security.Authorization.Attributes;
 
 namespace Module.Ordering.Features.Admin.Dashboard.Get;
 

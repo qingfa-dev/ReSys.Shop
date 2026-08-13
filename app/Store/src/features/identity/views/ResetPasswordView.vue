@@ -5,16 +5,18 @@ import { useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
 import FieldMessage from '@/shared/components/FieldMessage.vue'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { useAuthStore } from '../stores/authStore'
 import { ResetPasswordFormSchema, type ResetPasswordForm } from '../validations'
 import { usePasswordStrength } from '../composables/usePasswordStrength'
 
 // Store: Auth store owns the reset request; route carries the emailed token.
 const auth = useAuthStore()
+const { applyFieldErrors } = useApiErrorHandler()
 const route = useRoute()
 
 const token = typeof route.query.token === 'string' ? route.query.token : ''
-const { handleSubmit, isSubmitting, errors, defineField } = useForm<ResetPasswordForm>({
+const { handleSubmit, isSubmitting, errors, defineField, setFieldError } = useForm<ResetPasswordForm>({
   validationSchema: toFormValidator(ResetPasswordFormSchema),
   initialValues: { token, newPassword: '', confirmPassword: '' },
 })
@@ -37,7 +39,9 @@ const onSubmit = handleSubmit(async values => {
   if (ok) {
     resetSuccess.value = true
   } else {
-    apiError.value = auth.error ?? 'Invalid or expired reset token'
+    // Map: Push field-scoped backend errors into their inputs
+    const remaining = applyFieldErrors(auth.errors, (f, m) => setFieldError(f, m))
+    apiError.value = remaining.length > 0 ? remaining.map(e => e.message).join(' ') : (auth.error ?? 'Invalid or expired reset token')
   }
 })
 </script>

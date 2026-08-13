@@ -181,6 +181,7 @@ const menuItems = computed<MenuItem[]>(() => [
             variant="text"
             :severity="isWishlisted ? 'danger' : 'contrast'"
             rounded
+            class="text-muted! hover:text-brand!"
             :aria-label="wishlistLabel"
             v-tooltip.bottom="wishlistLabel"
             @click="onToggleWishlist"
@@ -199,6 +200,7 @@ const menuItems = computed<MenuItem[]>(() => [
               variant="text"
               severity="contrast"
               rounded
+              class="text-muted! hover:text-brand!"
               aria-label="Quick view"
               v-tooltip.bottom="'Quick view'"
               @click="onQuickView"

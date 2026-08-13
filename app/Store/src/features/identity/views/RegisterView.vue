@@ -7,12 +7,14 @@ import { useAuthStore } from '../stores/authStore'
 import { RegisterFormSchema } from '../validations'
 import type { RegisterForm } from '../validations'
 import { usePasswordStrength } from '../composables/usePasswordStrength'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 
 // Store: Auth store owns the registration request.
 const auth = useAuthStore()
+const { applyFieldErrors } = useApiErrorHandler()
 
 // Form: Wire vee-validate to the existing zod register schema.
-const { handleSubmit, isSubmitting, errors, defineField } = useForm<RegisterForm>({
+const { handleSubmit, isSubmitting, errors, defineField, setFieldError } = useForm<RegisterForm>({
   validationSchema: toFormValidator(RegisterFormSchema),
   initialValues: { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' },
 })
@@ -59,7 +61,9 @@ const onSubmit = handleSubmit(async values => {
   if (ok) {
     registered.value = true
   } else {
-    apiError.value = auth.error ?? 'Registration failed'
+    // Map: Push field-scoped backend errors into their inputs
+    const remaining = applyFieldErrors(auth.errors, (f, m) => setFieldError(f, m))
+    apiError.value = remaining.length > 0 ? remaining.map(e => e.message).join(' ') : (auth.error ?? 'Registration failed')
   }
 })
 </script>

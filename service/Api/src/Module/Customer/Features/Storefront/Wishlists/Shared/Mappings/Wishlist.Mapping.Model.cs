@@ -1,5 +1,4 @@
 using Module.Customer.Domain.Wishlists;
-using Module.Customer.Domain.Wishlists.WishedItems;
 using Module.Customer.Features.Storefront.Wishlists.Shared.Models;
 
 namespace Module.Customer.Features.Storefront.Wishlists.Shared.Mappings;

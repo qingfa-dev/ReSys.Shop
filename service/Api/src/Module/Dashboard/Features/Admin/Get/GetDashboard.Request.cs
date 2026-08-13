@@ -1,5 +1,3 @@
-using Shared.Application.Mediators.Queries;
-
 namespace Module.Dashboard.Features.Admin.Get;
 
 public static partial class GetDashboard

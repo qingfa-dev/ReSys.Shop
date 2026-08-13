@@ -32,6 +32,7 @@
   src: url('./fonts/JetBrainsMono-Medium.woff2') format('woff2');
 }
 
+@import 'primeicons/primeicons.css';
 @import 'tailwindcss';
 @plugin 'tailwindcss-primeui';
 

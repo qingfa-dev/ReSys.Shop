@@ -5,6 +5,7 @@ import { usePageTitle } from '@/shared/composables/usePageTitle'
 import Label from 'primevue/label'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useLocationCascade } from '@/features/location/composables/useLocationCascade'
+import FieldMessage from '@/shared/components/FieldMessage.vue'
 import { useAddresses } from '../composables/useAddresses'
 import { AddressInputSchema } from '../validations'
 import type { Address, AddressInput } from '../types'
@@ -32,6 +33,13 @@ const zipCode = ref('')
 const phone = ref('')
 const isDefault = ref(false)
 const formError = ref<string | null>(null)
+
+// Errors: Per-field Zod validation messages for the address dialog.
+const firstNameError = ref<string | null>(null)
+const lastNameError = ref<string | null>(null)
+const address1Error = ref<string | null>(null)
+const cityError = ref<string | null>(null)
+const countryError = ref<string | null>(null)
 
 // Cascade: Leaf value of the CascadeSelect — the state id when a state is chosen,
 // otherwise the country id (PrimeVue v5 emits only the leaf optionValue).
@@ -72,6 +80,15 @@ watch(cascadeValue, (leaf) => {
   cascade.selectedStateId.value = null
 })
 
+// Clear: Reset all per-field errors before a fresh validate or dialog open.
+function clearFieldErrors(): void {
+  firstNameError.value = null
+  lastNameError.value = null
+  address1Error.value = null
+  cityError.value = null
+  countryError.value = null
+}
+
 // Open: Seed the dialog from an existing address, or reset it for a new row.
 function openDialog(address: Address | null): void {
   editing.value = address
@@ -88,6 +105,7 @@ function openDialog(address: Address | null): void {
   const state = address?.stateProvince ? cascade.states.value.find((s) => s.name === address.stateProvince) : undefined
   cascadeValue.value = state?.id ?? country?.id ?? null
   formError.value = null
+  clearFieldErrors()
   dialogOpen.value = true
   // Load: Fetch the location catalog lazily on first dialog use.
   void cascade.loadCountries()
@@ -113,7 +131,16 @@ async function saveAddress(): Promise<void> {
   }
   const parsed = AddressInputSchema.safeParse(input)
   if (!parsed.success) {
-    formError.value = 'Complete the required fields: name, address, city and country.'
+    // Map: Assign each Zod issue to its dialog field for inline display
+    clearFieldErrors()
+    for (const issue of parsed.error.issues) {
+      const field = issue.path[0]
+      if (field === 'firstName') firstNameError.value = issue.message
+      if (field === 'lastName') lastNameError.value = issue.message
+      if (field === 'address1') address1Error.value = issue.message
+      if (field === 'city') cityError.value = issue.message
+      if (field === 'countryName') countryError.value = issue.message
+    }
     return
   }
   const ok = editing.value
@@ -229,6 +256,7 @@ onMounted(() => {
                 variant="text"
                 severity="contrast"
                 rounded
+                class="text-muted! hover:text-brand!"
                 aria-label="Edit address"
                 v-tooltip.bottom="'Edit address'"
                 @click="openDialog(data)"
@@ -286,6 +314,10 @@ onMounted(() => {
           <Label for="address-last-name">Last name</Label>
         </FloatLabel>
       </div>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <FieldMessage :error="firstNameError" />
+        <FieldMessage :error="lastNameError" />
+      </div>
       <FloatLabel variant="on">
         <InputText id="address-label" v-model="label" fluid />
         <Label for="address-label">Label (e.g. Home)</Label>
@@ -294,6 +326,7 @@ onMounted(() => {
         <InputText id="address-address1" v-model="address1" fluid />
         <Label for="address-address1">Street address</Label>
       </FloatLabel>
+      <FieldMessage :error="address1Error" />
       <FloatLabel variant="on">
         <Textarea id="address-address2" v-model="address2" rows="2" fluid />
         <Label for="address-address2">Notes (apartment, landmark…)</Label>
@@ -307,6 +340,9 @@ onMounted(() => {
           <InputText id="address-zip" v-model="zipCode" fluid />
           <Label for="address-zip">ZIP / postal code</Label>
         </FloatLabel>
+      </div>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <FieldMessage :error="cityError" />
       </div>
       <FloatLabel variant="on">
         <InputMask id="address-phone" v-model="phone" mask="(999) 999-9999" fluid />
@@ -331,6 +367,7 @@ onMounted(() => {
           <template #value="{ placeholder }">{{ cascadeLabel || placeholder }}</template>
         </CascadeSelect>
       </div>
+      <FieldMessage :error="countryError" />
 
       <!-- Default Toggle: Mark the saved row as the default address -->
       <div class="flex items-center justify-between rounded-lg border border-surface-200 px-3 py-2">

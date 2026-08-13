@@ -1,7 +1,5 @@
 using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
-using PaymentMethod = Module.Billing.Domain.PaymentMethods.PaymentMethod;
-
 namespace Module.Billing.Features.Admin.Payments.Shared.Mappings;
 
 public static class PaymentModelMapping

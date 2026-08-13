@@ -1,8 +1,6 @@
 using Module.Location.Domain.States;
 using Module.Location.Features.Shared.States.Mappings;
 
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-
 namespace Module.Location.Features.Storefront.States.GetPagedOrAll;
 
 /// <summary>Retrieves paged states for the storefront with filtering and sorting.</summary>

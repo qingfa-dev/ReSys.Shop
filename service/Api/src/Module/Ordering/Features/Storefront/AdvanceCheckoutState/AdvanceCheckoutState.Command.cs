@@ -1,5 +1,3 @@
-using Shared.Application.Mediators.Commands;
-
 namespace Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 
 public sealed record AdvanceCheckoutStateCommand : ICommand

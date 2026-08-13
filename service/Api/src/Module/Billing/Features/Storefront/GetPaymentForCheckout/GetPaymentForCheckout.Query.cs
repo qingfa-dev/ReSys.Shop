@@ -1,5 +1,3 @@
-using Shared.Application.Mediators.Queries;
-
 namespace Module.Billing.Features.Storefront.GetPaymentForCheckout;
 
 public sealed record GetPaymentForCheckoutQuery : IQuery<PaymentForCheckoutResponse>

@@ -2,8 +2,6 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons;
-using Shared.Application.Mediators.Queries;
-using Shared.Operational.Persistence.Data;
 
 namespace Module.Catalog.Features.Admin.Dashboard.Get;
 

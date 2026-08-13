@@ -1,4 +1,3 @@
-using Carter;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Shared;
 using Module.Inventory.Services.StockReservations;

@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Inventory.Features.Storefront.StockReservations.Reserve;
 
 public static partial class ReserveStockReservation

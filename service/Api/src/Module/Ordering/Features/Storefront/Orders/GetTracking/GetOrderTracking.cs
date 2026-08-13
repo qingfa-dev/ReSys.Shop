@@ -1,5 +1,4 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Storefront.Orders.GetTracking;
 

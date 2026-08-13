@@ -1,5 +1,3 @@
-using Module.Ordering.Domain.Orders;
-
 namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 
 public static partial class AssociateCartWithUser

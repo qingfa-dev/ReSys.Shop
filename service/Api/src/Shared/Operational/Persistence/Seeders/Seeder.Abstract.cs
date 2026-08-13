@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 
-using Shared.Application.Models.Errors;
 using Shared.Operational.Persistence.Data;
 
 namespace Shared.Operational.Persistence.Seeders;

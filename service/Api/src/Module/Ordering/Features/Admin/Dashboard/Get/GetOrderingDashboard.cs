@@ -1,6 +1,4 @@
 using Module.Ordering.Domain.Orders;
-using Shared.Application.Mediators.Queries;
-using Shared.Operational.Persistence.Data;
 
 namespace Module.Ordering.Features.Admin.Dashboard.Get;
 

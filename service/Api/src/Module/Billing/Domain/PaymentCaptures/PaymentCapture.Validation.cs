@@ -1,4 +1,3 @@
-using FluentValidation;
 using Shared.Application.Domain.Currencies;
 
 namespace Module.Billing.Domain.PaymentCaptures;

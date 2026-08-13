@@ -1,10 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-
-using Module.Customer.Domain;
 using Module.Customer.Domain.Addresses;
 using Module.Customer.Features.Shared.Addresses.Mappings;
-
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
 
 namespace Module.Customer.Features.Storefront.Addresses.Get.PagedOrAll;
 

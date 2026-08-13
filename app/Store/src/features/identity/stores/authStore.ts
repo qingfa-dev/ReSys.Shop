@@ -4,11 +4,14 @@ import { AuthApi, EmailApi } from "../services";
 import { getAccessToken, setTokens, clearTokens } from "../services/tokenService";
 import { emit } from "@/shared/composables/useStoreEvents";
 import type { AuthUser, RegisterRequest } from "../types";
+import type { ApiError } from "@/shared/types/error";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<AuthUser | null>(null);
   const status = ref<"idle" | "loading" | "authenticated" | "error">("idle");
   const error = ref<string | null>(null);
+  // Errors: Field-scoped backend validation errors for form mapping.
+  const errors = ref<ApiError[]>([]);
   const _initialized = ref(false);
 
   const isAuthenticated = computed(() => status.value === "authenticated" && user.value !== null);
@@ -48,6 +51,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function login(credential: string, password: string): Promise<boolean> {
     status.value = "loading";
     error.value = null;
+    errors.value = [];
     const result = await AuthApi.login({ credential, password });
     if (result.isSuccess) {
       setTokens(result.value);
@@ -67,6 +71,7 @@ export const useAuthStore = defineStore("auth", () => {
       }
     }
     error.value = result.message ?? "Login failed";
+    errors.value = result.errors ?? [];
     status.value = "error";
     return false;
   }
@@ -82,12 +87,14 @@ export const useAuthStore = defineStore("auth", () => {
   async function register(req: RegisterRequest): Promise<boolean> {
     status.value = "loading";
     error.value = null;
+    errors.value = [];
     const result = await AuthApi.register(req);
     if (result.isSuccess) {
       status.value = "idle";
       return true;
     }
     error.value = result.message ?? "Registration failed";
+    errors.value = result.errors ?? [];
     status.value = "error";
     return false;
   }
@@ -103,13 +110,28 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function changePassword(current: string, newPwd: string): Promise<boolean> {
-    return (await AuthApi.changePassword(current, newPwd)).isSuccess;
+    const result = await AuthApi.changePassword(current, newPwd);
+    if (!result.isSuccess) {
+      error.value = result.message;
+      errors.value = result.errors ?? [];
+    }
+    return result.isSuccess;
   }
   async function forgotPassword(email: string): Promise<boolean> {
-    return (await AuthApi.forgotPassword(email)).isSuccess;
+    const result = await AuthApi.forgotPassword(email);
+    if (!result.isSuccess) {
+      error.value = result.message;
+      errors.value = result.errors ?? [];
+    }
+    return result.isSuccess;
   }
   async function resetPassword(token: string, newPwd: string): Promise<boolean> {
-    return (await AuthApi.resetPassword(token, newPwd)).isSuccess;
+    const result = await AuthApi.resetPassword(token, newPwd);
+    if (!result.isSuccess) {
+      error.value = result.message;
+      errors.value = result.errors ?? [];
+    }
+    return result.isSuccess;
   }
   async function changeEmail(newEmail: string): Promise<boolean> {
     return (await EmailApi.changeEmail(newEmail)).isSuccess;
@@ -125,6 +147,7 @@ export const useAuthStore = defineStore("auth", () => {
     user,
     status,
     error,
+    errors,
     isAuthenticated,
     init,
     login,

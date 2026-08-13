@@ -113,7 +113,7 @@ function createAccountRouter(): Router {
   return createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/account/profile', component: { template: '<div class="profile-stub">Profile Stub</div>' } },
+      { path: '/account/profile', component: { template: '<div class="profile-stub">Profile Stub</div>' }, meta: { title: 'Profile' } },
       { path: '/account/addresses', component: { template: '<div />' } },
       { path: '/account/wishlists', component: { template: '<div />' } },
       { path: '/account/notifications', component: { template: '<div />' } },
@@ -309,5 +309,24 @@ describe('AccountLayout', () => {
     expect(wrapper.find('select').exists()).toBe(false)
     expect(wrapper.find('label').exists()).toBe(false)
     expect(wrapper.find('textarea').exists()).toBe(false)
+  })
+
+  it('renders the profile summary with the signed-in user identity', async () => {
+    const wrapper = await mountAccountLayout()
+    await signIn(wrapper)
+
+    expect(wrapper.find('[data-pc-name="avatar"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('ada@test.dev')
+    expect(wrapper.text()).toContain('Ada')
+  })
+
+  it('renders the page header with the route title and My Account eyebrow', async () => {
+    const wrapper = await mountAccountLayout()
+    await signIn(wrapper)
+
+    const heading = wrapper.find('h1')
+    expect(heading.exists()).toBe(true)
+    expect(heading.text()).toBe('Profile')
+    expect(wrapper.text()).toContain('My Account')
   })
 })

@@ -1,20 +1,27 @@
 import { useToast } from 'primevue/usetoast'
 import { HttpError } from '@/shared/api'
+import type { ApiError } from '@/shared/types/error'
 
 type ResultLike = {
   isSuccess: boolean
   statusCode?: number
   message?: string | null
-  errors: Array<{ code: string; message: string }>
+  errors: Array<ApiError>
 }
+
+type FieldErrorSetter = (field: never, message: string) => void
 
 export function useApiErrorHandler() {
   const toast = useToast()
 
   function handleError(error: unknown): void {
     if (error instanceof HttpError) {
-      // Map: HTTP 5xx = error severity, 4xx = warn severity for user-facing toast
-      const severity = error.statusCode >= 500 ? 'error' : 'warn'
+      // Guard: 5xx already toasted by the interceptor — avoid a duplicate toast
+      if (error.statusCode >= 500) {
+        return
+      }
+      // Map: HTTP 4xx = warn severity for user-facing toast
+      const severity = 'warn'
       toast.add({
         severity,
         summary: error.message,
@@ -43,6 +50,16 @@ export function useApiErrorHandler() {
     })
   }
 
+  function applyFieldErrors(errors: ApiError[], setFieldError: FieldErrorSetter): ApiError[] {
+    // Map: Push each field-scoped error into the matching form field
+    const fieldErrors = errors.filter((e): e is ApiError & { field: string } => typeof e.field === 'string' && e.field.length > 0)
+    for (const error of fieldErrors) {
+      setFieldError(error.field as never, error.message)
+    }
+    // Return: Only the remaining (field-less) errors for a general error surface
+    return errors.filter((e) => typeof e.field !== 'string' || e.field.length === 0)
+  }
+
   function handleResult(result: ResultLike): void {
     // Guard: Only show toast for failed results with error details
     if (!result.isSuccess && result.errors.length > 0) {
@@ -57,5 +74,5 @@ export function useApiErrorHandler() {
     }
   }
 
-  return { handleError, handleResult }
+  return { handleError, handleResult, applyFieldErrors }
 }

@@ -10,15 +10,17 @@ import { useAuthStore } from '../stores/authStore'
 import { LoginFormSchema } from '../validations'
 import type { LoginForm } from '../validations'
 import FieldMessage from '@/shared/components/FieldMessage.vue'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { validateRedirect } from '@/shared/utils/postLoginRedirect'
 
 // Stores: Auth store owns session state; router resumes the guarded target.
 const auth = useAuthStore()
+const { applyFieldErrors } = useApiErrorHandler()
 const router = useRouter()
 const route = useRoute()
 
 // Form: Wire vee-validate to the existing zod login schema.
-const { handleSubmit, isSubmitting, errors, defineField } = useForm<LoginForm>({
+const { handleSubmit, isSubmitting, errors, defineField, setFieldError } = useForm<LoginForm>({
   validationSchema: toFormValidator(LoginFormSchema),
   initialValues: { credential: '', password: '' },
 })
@@ -44,7 +46,9 @@ const onSubmit = handleSubmit(async values => {
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : null
     await router.replace(validateRedirect(redirect))
   } else {
-    apiError.value = auth.error ?? 'Invalid credentials'
+    // Map: Push field-scoped backend errors into their inputs
+    const remaining = applyFieldErrors(auth.errors, (f, m) => setFieldError(f, m))
+    apiError.value = remaining.length > 0 ? remaining.map(e => e.message).join(' ') : (auth.error ?? 'Invalid credentials')
   }
 })
 </script>

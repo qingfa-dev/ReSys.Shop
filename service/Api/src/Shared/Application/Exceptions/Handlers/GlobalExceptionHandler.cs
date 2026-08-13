@@ -3,8 +3,6 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
-using Shared.Application.Extensions.Exceptions;
-
 namespace Shared.Application.Exceptions.Handlers;
 
 /// <summary>Global exception handler that catches unhandled exceptions and returns structured JSON error responses.</summary>

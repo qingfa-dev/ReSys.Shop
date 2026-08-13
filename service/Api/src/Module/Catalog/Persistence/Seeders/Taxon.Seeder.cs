@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.Taxons;
 
 namespace Module.Catalog.Persistence.Seeders;

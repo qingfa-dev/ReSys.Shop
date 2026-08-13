@@ -1,8 +1,6 @@
 using Module.Customer.Domain;
 using Module.Customer.Features.Shared.Profiles.Mappings;
 
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-
 namespace Module.Customer.Features.Admin.Profiles.Get.PagedOrAll;
 
 /// <summary>Retrieves all user profiles with pagination, filtering, and sorting.</summary>

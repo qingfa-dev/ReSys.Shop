@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Billing.Features.Storefront.Payment.Shared.Validators;
 
 public static class PaymentParametersValidatorExtensions

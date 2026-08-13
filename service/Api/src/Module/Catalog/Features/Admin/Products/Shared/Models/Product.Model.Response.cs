@@ -1,5 +1,3 @@
-using Module.Catalog.Domain.Products;
-
 namespace Module.Catalog.Features.Admin.Products.Shared.Models;
 
 public record ProductDetailResponse : ProductParameters

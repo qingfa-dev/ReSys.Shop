@@ -1,5 +1,3 @@
-using System.IO;
-
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Features.Admin.Variants.Images.Shared.Models;
 

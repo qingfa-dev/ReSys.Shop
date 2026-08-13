@@ -1,5 +1,3 @@
-using Module.Ordering.Domain.Orders;
-
 namespace Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
 /// <summary>Line item within a cart response — identifies the variant, quantity, and computed totals.</summary>

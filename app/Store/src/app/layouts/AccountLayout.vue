@@ -37,6 +37,20 @@ const navItems = computed<MenuItem[]>(() => [
   { label: 'Orders', icon: 'pi pi-shopping-bag', to: '/account/orders', badge: activeOrderCount.value },
 ])
 
+// Profile: Monogram initials from the user's name, fallback for missing data.
+const profileInitials = computed(() => {
+  const name = authStore.user?.userName?.trim()
+  if (!name) return 'U'
+  const parts = name.split(/\s+/).filter(Boolean)
+  return parts.slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('') || 'U'
+})
+// Profile: Display name for the account nav header.
+const profileName = computed(() => authStore.user?.userName || 'My Account')
+// Profile: Email for the account nav header.
+const profileEmail = computed(() => authStore.user?.email || '')
+// Title: Section heading derived from the active route meta.
+const pageTitle = computed(() => (typeof route.meta.title === 'string' ? route.meta.title : 'Account'))
+
 // Close: Dismiss the mobile drawer once navigation reaches the target route.
 watch(
   () => route.path,
@@ -70,7 +84,18 @@ watch(
       <SidebarAside>
         <SidebarPanel>
           <SidebarHeader>
-            <span class="px-1 text-sm font-semibold text-heading">Account</span>
+            <div class="flex items-center gap-3">
+              <Avatar
+                :label="profileInitials"
+                size="large"
+                shape="circle"
+                class="bg-brand text-on-brand"
+              />
+              <div class="min-w-0">
+                <div class="truncate text-sm font-semibold text-heading">{{ profileName }}</div>
+                <div class="truncate text-xs text-muted">{{ profileEmail }}</div>
+              </div>
+            </div>
           </SidebarHeader>
           <SidebarContent>
             <PanelMenu :model="navItems">
@@ -104,41 +129,66 @@ watch(
 
     <!-- Desktop Grid: Sticky nav aside beside the routed views -->
     <SidebarMain>
-      <div class="flex min-h-svh flex-col">
-        <!-- Mobile Top Bar: Opens the drawer below lg -->
+      <div class="flex flex-col">
+        <!-- Mobile Top Bar: Opens the account-nav drawer below lg -->
         <header class="flex items-center border-b border-surface-200 px-4 py-3 lg:hidden">
           <Button icon="pi pi-bars" label="Menu" severity="secondary" variant="text" @click="mobileNavOpen = true" />
         </header>
 
-        <div class="grid flex-1 lg:grid-cols-[16rem_1fr] lg:items-start">
-          <aside class="hidden border-r border-surface-200 p-4 lg:sticky lg:top-0 lg:block lg:h-svh lg:overflow-y-auto lg:bg-surface-50">
-            <PanelMenu :model="navItems">
-              <template #item="{ item }">
-                <RouterLink
-                  :to="item.to"
-                  :class="[
-                    'flex w-full items-center gap-3 px-3 py-2 text-sm',
-                    isItemActive(item.to)
-                      ? 'rounded-lg bg-highlight font-semibold text-brand'
-                      : 'text-body',
-                  ]"
-                  :aria-current="isItemActive(item.to) ? 'page' : undefined"
-                  data-pc-section="headerlink"
-                >
-                  <i :class="item.icon" />
-                  <span class="flex-1">{{ item.label }}</span>
-                  <Tag
-                    v-if="item.badge !== undefined && item.badge > 0"
-                    :value="String(item.badge)"
-                    severity="secondary"
-                    rounded
-                  />
-                </RouterLink>
+        <div class="grid flex-1 gap-6 p-4 lg:grid-cols-[16rem_1fr] lg:items-start lg:p-8">
+          <!-- Desktop Nav: Card panel with profile summary and account navigation -->
+          <aside class="hidden lg:sticky lg:top-16 lg:block">
+            <Card>
+              <template #content>
+                <div class="flex flex-col gap-4">
+                  <!-- Profile: Monogram, display name and email for the signed-in user -->
+                  <div class="flex items-center gap-3">
+                    <Avatar
+                      :label="profileInitials"
+                      size="large"
+                      shape="circle"
+                      class="bg-brand text-on-brand"
+                    />
+                    <div class="min-w-0">
+                      <div class="truncate text-sm font-semibold text-heading">{{ profileName }}</div>
+                      <div class="truncate text-xs text-muted">{{ profileEmail }}</div>
+                    </div>
+                  </div>
+                  <PanelMenu :model="navItems">
+                    <template #item="{ item }">
+                      <RouterLink
+                        :to="item.to"
+                        :class="[
+                          'flex w-full items-center gap-3 px-3 py-2 text-sm',
+                          isItemActive(item.to)
+                            ? 'rounded-lg bg-highlight font-semibold text-brand'
+                            : 'text-body',
+                        ]"
+                        :aria-current="isItemActive(item.to) ? 'page' : undefined"
+                        data-pc-section="headerlink"
+                      >
+                        <i :class="item.icon" />
+                        <span class="flex-1">{{ item.label }}</span>
+                        <Tag
+                          v-if="item.badge !== undefined && item.badge > 0"
+                          :value="String(item.badge)"
+                          severity="secondary"
+                          rounded
+                        />
+                      </RouterLink>
+                    </template>
+                  </PanelMenu>
+                </div>
               </template>
-            </PanelMenu>
+            </Card>
           </aside>
 
-          <main class="min-w-0 p-4 lg:p-8">
+          <main class="min-w-0">
+            <!-- Section: Page Header — section title and eyebrow above the routed view -->
+            <div class="mb-6">
+              <div class="text-xs font-medium uppercase tracking-wide text-muted">My Account</div>
+              <h1 class="mt-1 text-2xl font-bold text-heading">{{ pageTitle }}</h1>
+            </div>
             <RouterView />
           </main>
         </div>

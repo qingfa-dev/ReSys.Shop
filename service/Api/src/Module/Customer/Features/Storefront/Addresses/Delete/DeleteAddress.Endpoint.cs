@@ -1,7 +1,5 @@
 using Module.Customer.Features.Shared;
 
-using Shared.Security.Identity.Domain.Users;
-
 namespace Module.Customer.Features.Storefront.Addresses.Delete;
 
 public static partial class DeleteAddress

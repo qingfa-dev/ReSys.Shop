@@ -1,6 +1,5 @@
 using Hangfire;
 using Hangfire.States;
-using Microsoft.EntityFrameworkCore;
 
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Images.Embeddings;

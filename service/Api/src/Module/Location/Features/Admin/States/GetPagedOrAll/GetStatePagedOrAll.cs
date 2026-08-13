@@ -1,8 +1,6 @@
 using Module.Location.Domain.States;
 using Module.Location.Features.Shared.States.Mappings;
 
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-
 namespace Module.Location.Features.Admin.States.GetPagedOrAll;
 
 /// <summary>Retrieves a paged or all list of states with country include and sorting.</summary>

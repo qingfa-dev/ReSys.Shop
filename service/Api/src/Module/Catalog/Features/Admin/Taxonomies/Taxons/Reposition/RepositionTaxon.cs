@@ -1,4 +1,3 @@
-using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 

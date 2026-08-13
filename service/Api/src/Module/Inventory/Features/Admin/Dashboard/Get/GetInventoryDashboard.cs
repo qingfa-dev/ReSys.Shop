@@ -1,8 +1,6 @@
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockMovements;
-using Shared.Application.Mediators.Queries;
-using Shared.Operational.Persistence.Data;
 
 namespace Module.Inventory.Features.Admin.Dashboard.Get;
 

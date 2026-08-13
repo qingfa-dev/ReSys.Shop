@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Options;

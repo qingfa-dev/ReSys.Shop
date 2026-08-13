@@ -1,5 +1,3 @@
-using Shared.Application.Mediators.Commands;
-
 namespace Module.Billing.Features.Storefront.MarkPaymentPaid;
 
 public sealed record MarkPaymentPaidCommand : ICommand

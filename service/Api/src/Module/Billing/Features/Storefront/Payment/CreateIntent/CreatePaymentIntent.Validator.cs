@@ -1,5 +1,3 @@
-using Module.Billing.Features.Storefront.Payment.Shared.Validators;
-
 namespace Module.Billing.Features.Storefront.Payment.CreateIntent;
 
 public static partial class CreatePaymentIntent

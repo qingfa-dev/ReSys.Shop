@@ -4,6 +4,7 @@ import { onMounted, ref, watch } from 'vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { usePreferences } from '@/shared/composables/usePreferences'
+import FieldMessage from '@/shared/components/FieldMessage.vue'
 import { useProfile } from '../composables/useProfile'
 import { UpdateProfileRequestSchema } from '../validations'
 
@@ -17,6 +18,10 @@ const { preferences } = usePreferences()
 // Draft: Editable name fields committed by the save button.
 const firstName = ref('')
 const lastName = ref('')
+
+// Errors: Per-field Zod validation messages for the name drafts.
+const firstNameError = ref<string | null>(null)
+const lastNameError = ref<string | null>(null)
 
 // Editing: Per-row Inplace open state so only one row edits at a time.
 const firstEditing = ref(false)
@@ -36,13 +41,19 @@ watch(
 
 // Save: Validate the draft against the shared schema, persist, toast the result.
 async function onSave(): Promise<void> {
+  firstNameError.value = null
+  lastNameError.value = null
   const parsed = UpdateProfileRequestSchema.safeParse({
     firstName: firstName.value,
     lastName: lastName.value,
     email: profileStore.profile?.email ?? '',
   })
   if (!parsed.success) {
-    notify.error('Enter both first and last name')
+    // Map: Assign each Zod issue to its field for inline display
+    for (const issue of parsed.error.issues) {
+      if (issue.path[0] === 'firstName') firstNameError.value = issue.message
+      if (issue.path[0] === 'lastName') lastNameError.value = issue.message
+    }
     return
   }
   const ok = await profileStore.updateProfile(parsed.data)
@@ -71,12 +82,15 @@ onMounted(() => {
               <Inplace v-model:active="firstEditing">
                 <template #display>{{ firstName || 'Not set' }}</template>
                 <template #content="{ closeCallback }">
-                  <div class="flex items-center gap-2">
-                    <FloatLabel variant="on">
-                      <InputText id="profile-first-name" v-model="firstName" class="w-56" />
-                      <Label for="profile-first-name">First name</Label>
-                    </FloatLabel>
-                    <Button size="small" label="Done" variant="text" @click="closeCallback" />
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2">
+                      <FloatLabel variant="on">
+                        <InputText id="profile-first-name" v-model="firstName" class="w-56" />
+                        <Label for="profile-first-name">First name</Label>
+                      </FloatLabel>
+                      <Button size="small" label="Done" variant="text" @click="closeCallback" />
+                    </div>
+                    <FieldMessage :error="firstNameError" />
                   </div>
                 </template>
               </Inplace>
@@ -86,12 +100,15 @@ onMounted(() => {
               <Inplace v-model:active="lastEditing">
                 <template #display>{{ lastName || 'Not set' }}</template>
                 <template #content="{ closeCallback }">
-                  <div class="flex items-center gap-2">
-                    <FloatLabel variant="on">
-                      <InputText id="profile-last-name" v-model="lastName" class="w-56" />
-                      <Label for="profile-last-name">Last name</Label>
-                    </FloatLabel>
-                    <Button size="small" label="Done" variant="text" @click="closeCallback" />
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2">
+                      <FloatLabel variant="on">
+                        <InputText id="profile-last-name" v-model="lastName" class="w-56" />
+                        <Label for="profile-last-name">Last name</Label>
+                      </FloatLabel>
+                      <Button size="small" label="Done" variant="text" @click="closeCallback" />
+                    </div>
+                    <FieldMessage :error="lastNameError" />
                   </div>
                 </template>
               </Inplace>

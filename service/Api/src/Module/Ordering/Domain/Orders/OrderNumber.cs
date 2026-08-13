@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Ordering.Domain.Orders;
 
 // Generate: Unique order numbers with prefix format R{yyyMMdd}-{random} — up to MaxAttempts retries on collision

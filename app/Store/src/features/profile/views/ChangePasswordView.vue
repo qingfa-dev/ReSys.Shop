@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
 import FieldMessage from '@/shared/components/FieldMessage.vue'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { useAuthStore } from '@/features/identity/stores/authStore'
 import { ChangePasswordFormSchema, type ChangePasswordForm } from '@/features/identity/validations'
 import { usePasswordStrength } from '@/features/identity/composables/usePasswordStrength'
@@ -13,8 +14,9 @@ usePageTitle('Change Password')
 
 // Store: Auth store owns the change-password request.
 const auth = useAuthStore()
+const { applyFieldErrors } = useApiErrorHandler()
 
-const { handleSubmit, isSubmitting, errors, defineField } = useForm<ChangePasswordForm>({
+const { handleSubmit, isSubmitting, errors, defineField, setFieldError } = useForm<ChangePasswordForm>({
   validationSchema: toFormValidator(ChangePasswordFormSchema),
   initialValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
 })
@@ -38,7 +40,9 @@ const onSubmit = handleSubmit(async values => {
   if (ok) {
     changed.value = true
   } else {
-    apiError.value = auth.error ?? 'Current password is incorrect'
+    // Map: Push field-scoped backend errors into their inputs
+    const remaining = applyFieldErrors(auth.errors, (f, m) => setFieldError(f, m))
+    apiError.value = remaining.length > 0 ? remaining.map(e => e.message).join(' ') : (auth.error ?? 'Current password is incorrect')
   }
 })
 </script>

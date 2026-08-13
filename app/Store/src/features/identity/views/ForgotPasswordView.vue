@@ -4,14 +4,16 @@ import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toFormValidator } from '@vee-validate/zod'
 import FieldMessage from '@/shared/components/FieldMessage.vue'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { useAuthStore } from '../stores/authStore'
 import { ForgotPasswordSchema } from '../validations'
 
 // Store: Auth store owns the reset-link request.
 const auth = useAuthStore()
+const { applyFieldErrors } = useApiErrorHandler()
 
 // Form: Wire vee-validate to the existing zod forgot-password schema.
-const { handleSubmit, isSubmitting, errors, defineField } = useForm<{ email: string }>({
+const { handleSubmit, isSubmitting, errors, defineField, setFieldError } = useForm<{ email: string }>({
   validationSchema: toFormValidator(ForgotPasswordSchema),
   initialValues: { email: '' },
 })
@@ -32,7 +34,9 @@ const onSubmit = handleSubmit(async values => {
     submitted.value = true
     submittedEmail.value = values.email
   } else {
-    apiError.value = auth.error ?? 'Could not send the reset link'
+    // Map: Push field-scoped backend errors into their inputs
+    const remaining = applyFieldErrors(auth.errors, (f, m) => setFieldError(f, m))
+    apiError.value = remaining.length > 0 ? remaining.map(e => e.message).join(' ') : (auth.error ?? 'Could not send the reset link')
   }
 })
 </script>

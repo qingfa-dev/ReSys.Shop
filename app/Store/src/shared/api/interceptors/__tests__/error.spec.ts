@@ -63,6 +63,48 @@ describe('errorInterceptor', () => {
     expect(mockedNotify).toHaveBeenCalledWith('Boom')
   })
 
+  it('maps metadata.propertyName to the error field', async () => {
+    const caught = await capture(
+      errorInterceptor(
+        axiosLikeError(422, {
+          errors: [
+            {
+              code: 'Auth.Login.Invalid',
+              message: 'Invalid credential',
+              type: 422,
+              metadata: [{ key: 'propertyName', value: 'credential' }],
+            },
+          ],
+        }),
+      ),
+    )
+
+    expect(caught).toBeInstanceOf(HttpError)
+    expect((caught as HttpError).errors[0]?.field).toBe('credential')
+    expect(mockedNotify).not.toHaveBeenCalled()
+  })
+
+  it('falls back to metadata.Field for the error field', async () => {
+    const caught = await capture(
+      errorInterceptor(
+        axiosLikeError(422, {
+          errors: [
+            {
+              code: 'Auth.Register.FirstName.Required',
+              message: 'First name is required',
+              type: 422,
+              metadata: [{ key: 'Field', value: 'firstName' }],
+            },
+          ],
+        }),
+      ),
+    )
+
+    expect(caught).toBeInstanceOf(HttpError)
+    expect((caught as HttpError).errors[0]?.field).toBe('firstName')
+    expect(mockedNotify).not.toHaveBeenCalled()
+  })
+
   it('does not notify on 4xx responses', async () => {
     const caught = await capture(errorInterceptor(axiosLikeError(400, { title: 'Bad Request' })))
 

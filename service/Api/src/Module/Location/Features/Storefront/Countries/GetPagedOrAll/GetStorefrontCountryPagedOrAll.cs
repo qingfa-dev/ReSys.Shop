@@ -1,8 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Shared.Countries.Mappings;
 
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-
 namespace Module.Location.Features.Storefront.Countries.GetPagedOrAll;
 
 /// <summary>Retrieves paged countries for the storefront with filtering and sorting.</summary>

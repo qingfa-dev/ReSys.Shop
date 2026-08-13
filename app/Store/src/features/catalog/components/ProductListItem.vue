@@ -205,6 +205,7 @@ const menuItems = computed<MenuItem[]>(() => [
         variant="text"
         :severity="isWishlisted ? 'danger' : 'contrast'"
         rounded
+        class="text-muted! hover:text-brand!"
         :aria-label="wishlistLabel"
         v-tooltip.left="wishlistLabel"
         @click="onToggleWishlist"
@@ -224,6 +225,7 @@ const menuItems = computed<MenuItem[]>(() => [
           variant="text"
           severity="contrast"
           size="small"
+          class="text-muted! hover:text-brand!"
           @click="onQuickView"
         />
       </div>

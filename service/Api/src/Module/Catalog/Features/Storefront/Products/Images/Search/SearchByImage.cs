@@ -1,11 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Clients;
 using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Products.Shared.Services;
+
 using Pgvector;
 
 namespace Module.Catalog.Features.Storefront.Products.Images.Search;

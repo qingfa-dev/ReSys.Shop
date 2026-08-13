@@ -1,4 +1,3 @@
-using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxons.Shared.Validators;
 
 namespace Module.Catalog.Features.Admin.Taxons.Update;

@@ -1,8 +1,6 @@
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Features.Admin.Variants.Shared.Mappings;
 
-using Shared.Operational.Persistence.Specifications.Sorting;
-
 namespace Module.Catalog.Features.Admin.Variants.Get.PagedOrAll;
 
 /// <summary>

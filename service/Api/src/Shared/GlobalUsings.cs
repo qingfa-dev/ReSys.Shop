@@ -5,6 +5,5 @@ global using Shared.Application.Extensions.Results;
 global using Shared.Application.Models.Descriptors;
 global using Shared.Application.Models.Errors;
 global using Shared.Application.Models.Results;
-global using Shared.Application.Models.Parameters;
 global using Shared.Operational.Persistence.Specifications.Querying;
 global using Shared.Security.Authentication.Contexts.Services;
