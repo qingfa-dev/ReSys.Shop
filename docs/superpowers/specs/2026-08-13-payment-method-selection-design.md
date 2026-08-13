@@ -65,13 +65,20 @@ placement** via a new cross-module Ordering command.
 - `StripeGateway` implements it via `SessionService`:
   - `Mode = payment`, `CustomerEmail = options.Customer`, single line item of
     `amount` + `currency`, metadata `order_id`/`payment_id`,
-    `SuccessUrl = options.SuccessUrl`, `CancelUrl = options.CancelUrl`.
+    `CancelUrl = options.CancelUrl`.
+  - `SuccessUrl` is `{ReturnUrl}?order={OrderId}` (the backend appends the cart
+    id as a query param). Stripe appends `session_id={CHECKOUT_SESSION_ID}` on
+    top of it automatically; the SPA ignores `session_id` and keys off `order`
+    so it can poll our own status endpoint (see §6).
 - `BogusGateway` returns a fake session (`cs_fake_...` id + a fake URL) so the
   demo/test path stays gateway-free.
 
 ### 3. CreatePaymentIntent branching
 
-`CreatePaymentIntent.CommandHandler` branches on the loaded method's provider key:
+`CreatePaymentIntent.CommandHandler` branches on the loaded method's provider key.
+Both branches set `payment.ProviderKey = paymentMethod.ProviderKey` (so offline
+detection never relies on the `PaymentMethod` navigation, which is
+`SetNull`-deletable):
 
 - **`cash_on_delivery`:** create `PaymentCapture` (Checkout), `Process()`,
   `Pend()`, `SourceId`/`SourceType` null, no `ResponseCode`; reserve stock;
@@ -95,6 +102,12 @@ populated. `StorePaymentDetailResponse` and `MapToStoreDetail` gain `CheckoutUrl
   - `checkout.session.expired` → find payment; `Void()` and release stock
     reservations (via `IStockReservationService`), matching the existing
     compensate-on-failure pattern.
+- Because `ResponseCode` now stores the Checkout Session id (`cs_...`), the
+  existing `payment_intent.succeeded` handler (which looks up
+  `ResponseCode == intent.Id`, i.e. `pi_...`) no longer matches Checkout
+  sessions and no-ops. `checkout.session.completed` is the single completion
+  source for the card flow; the legacy `payment_intent.*` handlers remain for
+  the (now-unused) direct-intent path.
 - New Ordering command `CompleteCheckoutForPayment { CartId, PaymentIntentId }`
   reuses the `CreateOrderFromCart` core (consume stock, advance to Confirm, place
   order, notify) without requiring `ICurrentUser`. This keeps Billing→Ordering
@@ -109,10 +122,16 @@ populated. `StorePaymentDetailResponse` and `MapToStoreDetail` gain `CheckoutUrl
   webhook-style lookups). This is required because COD payments have a null
   `ResponseCode`. The webhook still correlates Stripe events by `ResponseCode`.
 - `PaymentForCheckoutResponse` gains `State` and `IsOffline`.
-- `GetPaymentForCheckout` populates both (offline detected from the method's
-  provider key, resolved via the payment's `PaymentMethod` navigation).
+- `GetPaymentForCheckout` populates both; `IsOffline` is derived from
+  `PaymentCapture.ProviderKey == GatewayConstants.Providers.CashOnDelivery`
+  (set at intent creation), not from the `PaymentMethod` navigation.
 - `CreateOrderFromCart` allows placement when
   `IsCompleted || (State == Pending && IsOffline)`.
+- **COD stays Pending:** for an offline payment, `CreateOrderFromCart` skips the
+  `MarkPaymentPaid` call so the capture remains `Pending` (cash collected later
+  via the existing admin capture flow). For gateway payments the webhook already
+  marked it `Completed`, so `MarkPaymentPaid` is only invoked for that path
+  (effectively a no-op / skipped).
 
 ### 6. Store SPA
 
@@ -123,10 +142,13 @@ populated. `StorePaymentDetailResponse` and `MapToStoreDetail` gain `CheckoutUrl
     `window.location.href = result.value.checkoutUrl`.
   - **COD selected:** `createPaymentIntent(...)` (no token), then advance to
     Review and use the existing Place Order action.
-- New route `/checkout/return` (ordering feature) that polls cart/payment status
-  until the webhook places the order (state `Complete`), then shows the
-  confirmation; handles the webhook race by polling with a timeout and a manual
-  "View My Orders" fallback.
+- New route `/checkout/return` (ordering feature). The cart store is in-memory
+  only, so it is empty after the Stripe redirect; the page reads `order` from the
+  query string and polls the existing `GetPaymentStatus` endpoint
+  (`GET api/storefront/cart/payment/intent/{orderId}`) until `IsCompleted`, then
+  fetches the placed order (via `listOrders`) and shows the confirmation. A
+  timeout + manual "View My Orders" link covers the delayed-webhook case; the
+  `cancel` path returns to the payment step.
 - `useCheckout.createPaymentIntent` sets `paymentIntentId = result.value.id`
   (always the `PaymentCapture.Id`) and returns the full detail so the view can
   read `checkoutUrl` and `state`.
@@ -151,17 +173,21 @@ pick method ──┬─ COD:  create-intent → PaymentCapture Pending → Plac
 - Checkout Session create failure → release reservations, no PaymentCapture
   persisted (existing `ProcessAsync` failure branch adapted).
 - `checkout.session.expired` → void + release reservations.
-- Webhook race with manual Confirm: `Complete()` idempotency guards remain.
 - `checkout.session.completed` arriving for an already-placed order is idempotent
-  (state guard + `ProcessedStripeEventIds`).
+  (state guard + `ProcessedStripeEventIds`); `CompleteCheckoutForPayment` must
+  also be idempotent (a placed/Placed order is a no-op).
+- Return page polls `GetPaymentStatus`; the webhook may be delayed, so the SPA
+  treats "not yet completed" as a retry (poll), not an error.
 
 ## Testing
 
 - **Unit (Module.UnitTests):** offline branch creates Pending capture with no
-  gateway call; Stripe branch maps `CheckoutUrl`/`ResponseCode`; `GetPaymentForCheckout`
-  exposes `State`/`IsOffline`; `CreateOrderFromCart` allows Pending+offline and
-  still rejects Pending+gateway; webhook job completes payment and sends the
-  Ordering command; `checkout.session.expired` voids + releases stock.
+  gateway call and sets `ProviderKey`; Stripe branch maps `CheckoutUrl`/`ResponseCode`
+  and appends `order` to `SuccessUrl`; `GetPaymentForCheckout`
+  exposes `State`/`IsOffline`; `CreateOrderFromCart` allows Pending+offline
+  (and skips `MarkPaymentPaid` for offline) while still rejecting
+  Pending+gateway; webhook job completes payment and sends the
+  Ordering command idempotently; `checkout.session.expired` voids + releases stock.
 - **Integration (Api.Tests):** create-intent for COD returns `Pending` without a
   gateway; card path returns a `checkoutUrl` (Bogus fake session).
 - **Store SPA:** `CheckoutView` renders method list; COD path places order;
