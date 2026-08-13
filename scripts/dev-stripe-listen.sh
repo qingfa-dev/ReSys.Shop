@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Forward real Stripe webhook events to the local API.
+# Manual fallback: forward real Stripe webhook events to the local API.
+# Superseded by the AppHost `stripe-listen` resource: set STRIPE_SECRET_KEY
+# and start via Aspire for the normal flow
+# (`dotnet run --project infra/Aspire/src/ReSys.AppHost`).
 # Aspire pins the API HTTPS port to 5001 (see infra/Aspire/src/ReSys.AppHost/AppHost.cs).
 # Usage: STRIPE_SECRET_KEY=sk_test_... ./scripts/dev-stripe-listen.sh
 set -euo pipefail
