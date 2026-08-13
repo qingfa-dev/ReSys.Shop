@@ -12,7 +12,9 @@
    `STRIPE_SECRET_KEY` is set, forwarding to
    `https://localhost:5001/api/storefront/billing/webhooks/stripe`.
 3. No `whsec_...` wiring is needed in Development: signature verification is
-   skipped there (see `StripeWebhookDispatcher.ValidateSignature`).
+   skipped only when no `WebhookSecret` is configured (see
+   `StripeWebhookDispatcher.ValidateSignature`); a configured secret is always
+   verified, including in Development.
 4. Pay via a Checkout Session: `checkout.session.completed` fires → payment `Completed` → order auto-placed. Abandon a session: `checkout.session.expired` fires → payment `Void` + stock released + cart regresses to `Delivery`.
 - Note: the API uses the ASP.NET Core dev certificate, so `stripe listen` may
   need the cert trusted (`dotnet dev-certs https --trust`) or the localhost TLS
