@@ -78,4 +78,60 @@ public class StripeSettingValidationTests
 
         result.Succeeded.Should().BeTrue();
     }
+
+    private static StripeSettingValidation CreateValidator(string environmentName)
+    {
+        var environment = new Mock<IHostEnvironment>();
+        environment.Setup(e => e.EnvironmentName).Returns(environmentName);
+        return new StripeSettingValidation(environment.Object);
+    }
+
+    [Fact(DisplayName = "Validation skips WebhookSecret requirement in Development")]
+    public void Development_SkipsWebhookSecretRequirement()
+    {
+        var validator = CreateValidator(Environments.Development);
+        var options = new StripeSetting
+        {
+            Enabled = true,
+            SecretKey = "sk_test_fake",
+            WebhookSecret = ""
+        };
+
+        var result = validator.Validate(null, options);
+
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Validation requires WebhookSecret outside Development")]
+    public void NonDevelopment_RequiresWebhookSecret()
+    {
+        var validator = CreateValidator(Environments.Production);
+        var options = new StripeSetting
+        {
+            Enabled = true,
+            SecretKey = "sk_test_fake",
+            WebhookSecret = ""
+        };
+
+        var result = validator.Validate(null, options);
+
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("WebhookSecret");
+    }
+
+    [Fact(DisplayName = "Validation passes outside Development when WebhookSecret is set")]
+    public void NonDevelopment_WithWebhookSecret_Succeeds()
+    {
+        var validator = CreateValidator(Environments.Production);
+        var options = new StripeSetting
+        {
+            Enabled = true,
+            SecretKey = "sk_test_fake",
+            WebhookSecret = "whsec_test"
+        };
+
+        var result = validator.Validate(null, options);
+
+        result.Succeeded.Should().BeTrue();
+    }
 }
