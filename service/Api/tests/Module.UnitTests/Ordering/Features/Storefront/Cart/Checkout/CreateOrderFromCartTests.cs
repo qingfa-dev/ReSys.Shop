@@ -5,8 +5,10 @@ using Module.Ordering.Services;
 
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.StockReservations;
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
+using Module.Billing.Services.Provider;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
@@ -252,5 +254,94 @@ public class CreateOrderFromCartTests : IDisposable
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(StockReservationResult.Errors.NoActiveReservations.Code);
+    }
+
+    [Fact(DisplayName = "Handler: COD pending payment places order without MarkPaymentPaid")]
+    public async Task Handle_ShouldPlaceOrder_WhenCodPaymentPending()
+    {
+        // Arrange: Create a draft cart with a line item and a pending COD capture
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
+        cart.CheckoutState = CheckoutState.Payment;
+        cart.BillAddressId = Guid.NewGuid();
+        cart.ShipAddressId = Guid.NewGuid();
+        cart.ShippingMethodId = Guid.NewGuid();
+        cart.Email = "test@test.com";
+        cart.LineItems.Add(new LineItem
+        {
+            Id = Guid.NewGuid(),
+            OrderId = cart.Id,
+            VariantId = Guid.NewGuid(),
+            Quantity = 1,
+            Price = 10m,
+            Total = 10m,
+            Currency = "USD"
+        });
+        _dbContext.Set<Order>().Add(cart);
+
+        var capture = PaymentCaptureMethod.Create(10m, Guid.NewGuid(), cart.Id).Value;
+        capture.State = PaymentRecordState.Pending;
+        capture.ProviderKey = GatewayConstants.Providers.CashOnDelivery;
+        _dbContext.Set<PaymentCapture>().Add(capture);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Setup: Payment reports pending + offline (COD)
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = false, State = "Pending", IsOffline = true, Amount = 10m });
+
+        // Act
+        var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
+
+        // Assert: order placed and capture left pending
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Id.Should().Be(cart.Id);
+        var persisted = await _dbContext.Set<Order>().FindAsync(new object[] { cart.Id }, TestContext.Current.CancellationToken);
+        persisted.Should().NotBeNull();
+        persisted!.Status.Should().Be(OrderStatus.Placed);
+        var captureAfter = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == capture.Id);
+        captureAfter.State.Should().Be(PaymentRecordState.Pending);
+
+        // Assert: offline payments must not be marked paid via the gateway
+        _senderMock.Verify(
+            s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact(DisplayName = "Handler: Pending gateway payment is rejected")]
+    public async Task Handle_ShouldReject_WhenPaymentPendingAndNotOffline()
+    {
+        // Arrange: Create draft cart
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
+        cart.CheckoutState = CheckoutState.Payment;
+        cart.BillAddressId = Guid.NewGuid();
+        cart.ShipAddressId = Guid.NewGuid();
+        cart.ShippingMethodId = Guid.NewGuid();
+        cart.Email = "test@test.com";
+        cart.LineItems.Add(new LineItem
+        {
+            Id = Guid.NewGuid(),
+            OrderId = cart.Id,
+            VariantId = Guid.NewGuid(),
+            Quantity = 1,
+            Price = 10m,
+            Total = 10m,
+            Currency = "USD"
+        });
+        _dbContext.Set<Order>().Add(cart);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Setup: Payment reports pending but not offline (gateway)
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = false, State = "Pending", IsOffline = false, Amount = 10m });
+
+        // Act
+        var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("Order.PaymentNotCompleted");
     }
 }

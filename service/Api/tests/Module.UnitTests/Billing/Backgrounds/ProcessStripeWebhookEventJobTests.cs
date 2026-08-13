@@ -7,6 +7,7 @@ using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
 
 using Stripe;
+using Stripe.Checkout;
 
 using IStripeWebhookService = Module.Billing.Services.Webhook.IStripeWebhookService;
 using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
@@ -375,5 +376,69 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Void);
+    }
+
+    [Fact(DisplayName = "checkout.session.completed completes payment, stores PaymentIntent id and places order")]
+    public async Task HandleCheckoutSessionCompleted_ShouldCompletePaymentAndStoreIntentId()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "cs_checkout_123";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "checkout.session.completed",
+                Id = "evt_checkout_123",
+                Data = new EventData
+                {
+                    Object = new Session { Id = "cs_checkout_123", PaymentIntentId = "pi_checkout_123" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+        updated.ResponseCode.Should().Be("pi_checkout_123");
+        updated.ProcessedStripeEventIds.Should().Contain("evt_checkout_123");
+
+        _senderMock.Verify(x => x.Send(
+            It.Is<CompleteCheckoutForPaymentCommand>(c => c.CartId == orderId && c.PaymentId == payment.Id),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact(DisplayName = "checkout.session.expired voids payment and releases reservations")]
+    public async Task HandleCheckoutSessionExpired_ShouldVoidAndReleaseReservations()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "cs_expired_456";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "checkout.session.expired",
+                Id = "evt_expired_456",
+                Data = new EventData
+                {
+                    Object = new Session { Id = "cs_expired_456" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Void);
+        updated.ProcessedStripeEventIds.Should().Contain("evt_expired_456");
+
+        _stockServiceMock.Verify(s => s.ReleaseReservationsAsync(
+            payment.OrderId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
