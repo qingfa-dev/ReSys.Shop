@@ -57,3 +57,13 @@ export interface CreateSetupIntentRequest {
 export interface ConfirmPaymentResponse extends PaymentIntent {
   message: string
 }
+
+// PaymentStatusResponse: GET api/storefront/cart/payment/intent/{orderId} (poll).
+export interface PaymentStatusResponse {
+  id: string
+  orderId: string
+  amount: number
+  currency: string
+  state: string
+  isCompleted: boolean
+}

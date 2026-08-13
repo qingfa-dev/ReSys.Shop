@@ -14,6 +14,7 @@ export interface CreatePaymentIntentRequest {
   paymentMethodId: string
   paymentMethodToken?: string
   returnUrl?: string
+  cancelUrl?: string
 }
 
 export interface PlaceOrderRequest {
@@ -21,4 +22,10 @@ export interface PlaceOrderRequest {
 }
 
 export interface PlaceOrderResponse { id: string }
-export interface PaymentIntentResponse { id: string; clientSecret: string; responseCode?: string }
+export interface PaymentIntentResponse {
+  id: string
+  clientSecret: string
+  responseCode?: string
+  checkoutUrl?: string
+  state?: string
+}

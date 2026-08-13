@@ -16,6 +16,7 @@ export const CreatePaymentIntentRequestSchema = z.object({
   orderId: z.string().min(1),
   paymentMethodId: z.string().min(1),
   returnUrl: z.string().url().optional(),
+  cancelUrl: z.string().url().optional(),
 })
 
 export const PlaceOrderRequestSchema = z.object({
@@ -30,4 +31,6 @@ export const PaymentIntentResponseSchema = z.object({
   id: z.string(),
   clientSecret: z.string(),
   responseCode: z.string().optional(),
+  checkoutUrl: z.string().optional(),
+  state: z.string().optional(),
 })
