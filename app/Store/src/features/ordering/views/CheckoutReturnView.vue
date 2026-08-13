@@ -20,6 +20,8 @@ async function poll(): Promise<void> {
     return
   }
   const result = await getPaymentStatus(orderId)
+  // Debug: Trace the return-page poll in the browser console for local dev.
+  console.debug(`[checkout/return] poll order=${orderId} isCompleted=${result.value.isCompleted}`)
   if (result.isSuccess && result.value.isCompleted) {
     status.value = 'completed'
     stopPolling()
@@ -33,6 +35,7 @@ function stopPolling(): void {
 }
 
 onMounted(() => {
+  console.debug('[checkout/return] mounted, starting poll')
   void poll()
   let attempts = 0
   timer = setInterval(async () => {
