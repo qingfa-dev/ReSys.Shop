@@ -19,6 +19,7 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     public string? CvvResponseCode { get; set; }
     public string? CvvResponseMessage { get; set; }
     public string? IntentClientSecret { get; set; }
+    public string? CheckoutUrl { get; set; }
     public string? PaymentStatus { get; set; }
     public decimal RefundedAmount { get; set; }
     public string ProviderKey { get; set; } = string.Empty;
