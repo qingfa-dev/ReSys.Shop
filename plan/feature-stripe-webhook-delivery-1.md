@@ -225,11 +225,11 @@ public static partial class CreatePaymentIntentLoggers
     public static partial void RetryVoidedStale(ILogger logger, int Count, Guid OrderId);
 }
 ```
-- [ ] `CreatePaymentIntent.cs`: add `ILogger<CreatePaymentIntent> logger` to the `CommandHandler` primary-constructor parameter list (after `ISender sender`). Call:
+- [ ] `CreatePaymentIntent.cs`: add `ILogger<CreatePaymentIntent.CommandHandler> logger` to the `CommandHandler` primary-constructor parameter list (after `ISender sender`). Call:
   - In the retry-at-`Payment` block, after the void loop: `CreatePaymentIntentLoggers.RetryVoidedStale(logger, stale.Count, command.Request.OrderId);`
   - In the offline branch after `payment.Pend()`: `CreatePaymentIntentLoggers.CodIntentCreated(logger, payment.Id);`
   - In the Stripe branch after `payment.CheckoutUrl = sessionResult.Value.CheckoutUrl;`: `CreatePaymentIntentLoggers.SessionCreated(logger, payment.Id, sessionResult.Value.Authorization, sessionResult.Value.CheckoutUrl);`
-- [ ] `CreatePaymentIntentTests.cs`: update the `CommandHandler` constructor calls (constructor + any helper that builds the handler) to pass `Microsoft.Extensions.Logging.Abstractions.NullLogger<CreatePaymentIntent>.Instance`. Do not change test assertions.
+- [ ] `CreatePaymentIntentTests.cs`: update the `CommandHandler` constructor calls (constructor + any helper that builds the handler) to pass `Microsoft.Extensions.Logging.Abstractions.NullLogger<CreatePaymentIntent.CommandHandler>.Instance`. Do not change test assertions.
 
 #### TASK-006: Auto-place logging
 
