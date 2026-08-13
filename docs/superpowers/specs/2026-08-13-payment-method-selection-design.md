@@ -102,6 +102,12 @@ populated. `StorePaymentDetailResponse` and `MapToStoreDetail` gain `CheckoutUrl
 
 ### 5. Order placement gating
 
+- **Payment identifier:** the "payment intent id" passed between the SPA and
+  `CreateOrderFromCart` becomes the `PaymentCapture.Id` (Guid), not the gateway
+  `ResponseCode`. `GetPaymentForCheckout` and `MarkPaymentPaid` match on
+  `Id == PaymentIntentId` (with `ResponseCode` kept as a secondary OR-key for
+  webhook-style lookups). This is required because COD payments have a null
+  `ResponseCode`. The webhook still correlates Stripe events by `ResponseCode`.
 - `PaymentForCheckoutResponse` gains `State` and `IsOffline`.
 - `GetPaymentForCheckout` populates both (offline detected from the method's
   provider key, resolved via the payment's `PaymentMethod` navigation).
@@ -121,8 +127,9 @@ populated. `StorePaymentDetailResponse` and `MapToStoreDetail` gain `CheckoutUrl
   until the webhook places the order (state `Complete`), then shows the
   confirmation; handles the webhook race by polling with a timeout and a manual
   "View My Orders" fallback.
-- `useCheckout.createPaymentIntent` returns the full detail so the view can read
-  `checkoutUrl`.
+- `useCheckout.createPaymentIntent` sets `paymentIntentId = result.value.id`
+  (always the `PaymentCapture.Id`) and returns the full detail so the view can
+  read `checkoutUrl` and `state`.
 
 ---
 
