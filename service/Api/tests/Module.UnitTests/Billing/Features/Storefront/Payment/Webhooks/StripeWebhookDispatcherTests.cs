@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Module.Billing.Features.Storefront.Payment.Webhooks;
@@ -16,7 +17,8 @@ public class StripeWebhookDispatcherTests
         var dispatcher = new StripeWebhookDispatcher(
             Options.Create(new StripeSetting { WebhookSecret = "whsec_test" }),
             new Mock<ISender>().Object,
-            new Mock<ILogger<StripeWebhookDispatcher>>().Object);
+            new Mock<ILogger<StripeWebhookDispatcher>>().Object,
+            new Mock<IHostEnvironment>().Object);
 
         dispatcher.Provider.Should().Be("stripe");
     }

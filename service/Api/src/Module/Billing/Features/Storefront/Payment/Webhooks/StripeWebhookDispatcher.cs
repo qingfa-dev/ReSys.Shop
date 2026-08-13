@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 using Module.Billing.Services.Provider;
@@ -18,6 +19,7 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
     private readonly StripeSetting _options;
     private readonly ISender _sender;
     private readonly ILogger<StripeWebhookDispatcher> _logger;
+    private readonly IHostEnvironment _environment;
 
     public string Provider => GatewayConstants.Providers.Stripe;
 
@@ -37,11 +39,13 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
     public StripeWebhookDispatcher(
         IOptions<StripeSetting> options,
         ISender sender,
-        ILogger<StripeWebhookDispatcher> logger)
+        ILogger<StripeWebhookDispatcher> logger,
+        IHostEnvironment environment)
     {
         _options = options.Value;
         _sender = sender;
         _logger = logger;
+        _environment = environment;
     }
 
     // Webhook: Validate HMAC-SHA256 signature against Stripe webhook secret
@@ -49,6 +53,11 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
     {
         if (string.IsNullOrEmpty(_options.WebhookSecret))
         {
+            if (_environment.IsDevelopment())
+            {
+                StripeWebhookDispatcherLoggers.SignatureBypassedInDevelopment(_logger);
+                return true;
+            }
             StripeWebhookDispatcherLoggers.WebhookSecretMissing(_logger);
             return false;
         }

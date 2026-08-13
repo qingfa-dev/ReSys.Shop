@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 using Module.Billing.Services.Provider.Stripe;
@@ -9,7 +10,12 @@ namespace Module.UnitTests.Payment.Services;
 [Trait("Feature", "StripeSettingValidation")]
 public class StripeSettingValidationTests
 {
-    private readonly StripeSettingValidation _validator = new();
+    private readonly StripeSettingValidation _validator;
+
+    public StripeSettingValidationTests()
+    {
+        _validator = new StripeSettingValidation(new Mock<IHostEnvironment>().Object);
+    }
 
     [Fact(DisplayName = "Validation passes when Stripe is disabled with empty secrets")]
     public void Validate_ShouldPass_WhenDisabled()

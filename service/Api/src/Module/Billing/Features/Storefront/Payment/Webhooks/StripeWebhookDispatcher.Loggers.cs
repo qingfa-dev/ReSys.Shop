@@ -17,8 +17,14 @@ public static partial class StripeWebhookDispatcherLoggers
     [LoggerMessage(
         EventId = 5020,
         Level = LogLevel.Warning,
-        Message = "Stripe webhook secret is not configured (GatewayProviders:stripe:WebhookSecret); all webhooks will be rejected.")]
+        Message = "Stripe webhook secret is not configured (GatewayProviders:stripe:WebhookSecret); webhooks rejected outside Development.")]
     public static partial void WebhookSecretMissing(ILogger logger);
+
+    [LoggerMessage(
+        EventId = 5023,
+        Level = LogLevel.Warning,
+        Message = "Development: accepting Stripe webhook without signature verification (stripe listen). Set GatewayProviders:stripe:WebhookSecret to verify.")]
+    public static partial void SignatureBypassedInDevelopment(ILogger logger);
 
     [LoggerMessage(
         EventId = 5021,
