@@ -68,7 +68,8 @@ public class CreatePaymentIntentTests : IDisposable
 
         _handler = new CreatePaymentIntent.CommandHandler(
             _dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object,
-            _reservationServiceMock.Object, _senderMock.Object);
+            _reservationServiceMock.Object, _senderMock.Object,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<CreatePaymentIntent.CommandHandler>.Instance);
     }
 
     public void Dispose()

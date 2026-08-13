@@ -25,7 +25,8 @@ public static partial class CreatePaymentIntent
         ICurrentUser currentUser,
         IGatewayRegistry gatewayRegistry,
         IStockReservationService stockReservationService,
-        ISender sender)
+        ISender sender,
+        ILogger<CommandHandler> logger)
         : ICommandHandler<Command, Response>
     {
         // Contract: pre=orderId valid & user owns order, post=PaymentCapture persisted + gateway intent created
@@ -67,6 +68,8 @@ public static partial class CreatePaymentIntent
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await stockReservationService.ReleaseReservationsAsync(
                     cartToken: command.Request.OrderId.ToString(), ct: cancellationToken);
+
+                CreatePaymentIntentLoggers.RetryVoidedStale(logger, stale.Count, command.Request.OrderId);
             }
 
             // Reserve: Stock batched via Inventory service before gateway call
@@ -118,6 +121,8 @@ public static partial class CreatePaymentIntent
                 // COD: transition straight to Pending — no gateway, no source.
                 payment.Process();
                 payment.Pend();
+
+                CreatePaymentIntentLoggers.CodIntentCreated(logger, payment.Id);
             }
             else
             {
@@ -154,6 +159,8 @@ public static partial class CreatePaymentIntent
                 payment.ResponseCode = sessionResult.Value.Authorization;
                 payment.CheckoutUrl = sessionResult.Value.CheckoutUrl;
                 payment.Process();
+
+                CreatePaymentIntentLoggers.SessionCreated(logger, payment.Id, sessionResult.Value.Authorization, sessionResult.Value.CheckoutUrl);
             }
 
             // Save: PaymentCapture to database
