@@ -78,12 +78,19 @@ public sealed class CreateIntentIntegrationTests(ApiFixture fixture) : PaymentIn
     {
         // Register the offline Bogus gateway for the "stripe" provider key so the
         // card intent resolves to a fake Checkout Session instead of the real Stripe API.
-        using (var scope = Fixture.Factory.Services.CreateScope())
+        // NOTE: GatewayRegistry is a DI singleton — the registration persists for the
+        // whole test suite; no test currently relies on a real Stripe gateway.
+        var scope = Fixture.Factory.Services.CreateScope();
+        try
         {
             var registry = (GatewayRegistry)scope.ServiceProvider.GetRequiredService<IGatewayRegistry>();
             registry.Register(
                 GatewayConstants.Providers.Stripe,
                 () => new BogusGateway(Options.Create(new BogusSetting())));
+        }
+        finally
+        {
+            scope.Dispose();
         }
 
         Guid cartId = await CreateCartAtDeliveryAsync();
