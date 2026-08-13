@@ -47,10 +47,15 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
     // Webhook: Validate HMAC-SHA256 signature against Stripe webhook secret
     public bool ValidateSignature(string payload, string stripeSignature)
     {
-        if (string.IsNullOrEmpty(_options.WebhookSecret)) return false;
+        if (string.IsNullOrEmpty(_options.WebhookSecret))
+        {
+            StripeWebhookDispatcherLoggers.WebhookSecretMissing(_logger);
+            return false;
+        }
         try
         {
             EventUtility.ValidateSignature(payload, stripeSignature, _options.WebhookSecret);
+            StripeWebhookDispatcherLoggers.SignatureVerified(_logger);
             return true;
         }
         // Suppress: StripeException on invalid signature — returns false without throwing
@@ -65,7 +70,15 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
     public Event? ParseEvent(string payload)
     {
         // Catch: StripeException → log and return null (malformed payload)
-        try { return EventUtility.ParseEvent(payload); }
+        try
+        {
+            Event? parsed = EventUtility.ParseEvent(payload);
+            if (parsed is not null)
+            {
+                StripeWebhookDispatcherLoggers.WebhookEventReceived(_logger, parsed.Type);
+            }
+            return parsed;
+        }
         catch (StripeException ex)
         {
             StripeWebhookDispatcherLoggers.EventParseFailed(_logger, ex, ex.Message, payload.Length);
