@@ -26,6 +26,9 @@ public sealed class PaymentMethodSeeder(IApplicationDbContext context) : Abstrac
             PaymentMethodMethod.Create(
                 "Test Card (Bogus)", "bogus_card", GatewayConstants.Providers.Bogus,
                 autoCapture: true),
+            PaymentMethodMethod.Create(
+                "Cash on Delivery", "cash_on_delivery", GatewayConstants.Providers.CashOnDelivery,
+                displayOn: DisplayOn.Frontend),
         };
 
         foreach (var result in methods)

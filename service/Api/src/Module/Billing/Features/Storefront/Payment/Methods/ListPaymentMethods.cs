@@ -24,7 +24,7 @@ public static partial class ListPaymentMethods
             // Filter: Only active, non-deleted payment methods visible to storefront
             // Load: Paged list with sorting/filtering
             var pagedResult = await dbContext.Set<PaymentMethod>().AsNoTracking()
-                .Where(m => m.Active && !m.IsDeleted)
+                .Where(m => m.Active && !m.IsDeleted && m.DisplayOn != DisplayOn.Backend)
                 .ApplyQuerying(parsing.Value)
                 .Select(m => m.MapToStoreListItem<Response>())
                 .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
