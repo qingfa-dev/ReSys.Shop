@@ -411,6 +411,40 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact(DisplayName = "checkout.session.completed retry finds payment by PaymentIntent id after first pass")]
+    public async Task HandleCheckoutSessionCompleted_Retry_FindsPaymentByStoredIntentId()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        // First pass already completed the payment and stored the pi_ id, but
+        // placement failed so the event id was not recorded.
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_checkout_retry";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "checkout.session.completed",
+                Id = "evt_checkout_retry",
+                Data = new EventData
+                {
+                    Object = new Session { Id = "cs_checkout_retry", PaymentIntentId = "pi_checkout_retry" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.ResponseCode.Should().Be("pi_checkout_retry");
+        updated.ProcessedStripeEventIds.Should().Contain("evt_checkout_retry");
+
+        _senderMock.Verify(x => x.Send(
+            It.Is<CompleteCheckoutForPaymentCommand>(c => c.CartId == orderId && c.PaymentId == payment.Id),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     [Fact(DisplayName = "checkout.session.expired voids payment and releases reservations")]
     public async Task HandleCheckoutSessionExpired_ShouldVoidAndReleaseReservations()
     {

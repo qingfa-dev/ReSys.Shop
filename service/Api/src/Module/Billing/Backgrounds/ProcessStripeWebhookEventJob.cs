@@ -226,8 +226,14 @@ public sealed partial class ProcessStripeWebhookEventJob
         var session = stripeEvent.Data.Object as Session;
         if (session is null) return;
 
+        // Lookup by session id OR the stored PaymentIntent id: after the first
+        // completion pass overwrites ResponseCode with the pi_... id, a Hangfire
+        // retry must still find the payment to re-attempt placement.
         var payment = await _dbContext.Set<PaymentCapture>()
-            .FirstOrDefaultAsync(p => p.ResponseCode == session.Id, ct);
+            .FirstOrDefaultAsync(
+                p => p.ResponseCode == session.Id
+                     || (session.PaymentIntentId != null && p.ResponseCode == session.PaymentIntentId),
+                ct);
         if (payment is null) return;
 
         // Dedup: skip only if this exact Stripe event was fully processed before.
