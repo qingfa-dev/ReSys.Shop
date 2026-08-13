@@ -32,16 +32,42 @@ public static partial class CreatePaymentIntent
         /// <summary>Creates a payment intent for checkout.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Validate: Cart state must be Delivery
+            // Validate: Cart state must be Delivery (fresh) or Payment (re-pick / retry)
             var cartResult = await sender.Send(
                 new GetCartForCheckoutQuery { CartId = command.Request.OrderId }, cancellationToken);
             if (cartResult.IsFailure) return cartResult.Errors;
             var cart = cartResult.Value;
 
-            if (!Enum.TryParse<CheckoutState>(cart.State, out var currentState) || currentState != CheckoutState.Delivery)
+            if (!Enum.TryParse<CheckoutState>(cart.State, out var currentState)
+                || currentState is not (CheckoutState.Delivery or CheckoutState.Payment))
                 return OrderResult.Errors.InvalidCheckoutTransition(
                     Enum.TryParse<CheckoutState>(cart.State, out var s) ? s : CheckoutState.Address,
                     CheckoutState.Payment);
+
+            // Re-pick / retry: at Payment, void stale non-completed captures and release
+            // prior reservations so a retry keeps a single reservation set and no orphans.
+            if (currentState == CheckoutState.Payment)
+            {
+                var stale = await dbContext.Set<PaymentCapture>()
+                    .Where(p => p.OrderId == command.Request.OrderId
+                             && (p.State == PaymentRecordState.Checkout
+                                 || p.State == PaymentRecordState.Processing
+                                 || p.State == PaymentRecordState.Pending
+                                 || p.State == PaymentRecordState.Failed))
+                    .ToListAsync(cancellationToken);
+
+                foreach (var p in stale)
+                {
+                    if (p.State == PaymentRecordState.Checkout)
+                        p.Process();
+                    if (p.State is PaymentRecordState.Processing or PaymentRecordState.Pending)
+                        p.Void();
+                }
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await stockReservationService.ReleaseReservationsAsync(
+                    cartToken: command.Request.OrderId.ToString(), ct: cancellationToken);
+            }
 
             // Reserve: Stock batched via Inventory service before gateway call
             foreach (var li in cart.LineItems)

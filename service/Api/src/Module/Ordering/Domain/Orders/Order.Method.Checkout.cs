@@ -123,6 +123,29 @@ public sealed partial class Order
         return Result.Ok();
     }
 
+    // Enforce: Regress a Draft order to an earlier step so the customer can re-pick address, shipping, or payment
+    public Result RegressCheckoutState(CheckoutState target)
+    {
+        if (Status != OrderStatus.Draft)
+            return OrderResult.Errors.InvalidStatusTransition;
+
+        if (target == CheckoutState)
+            return Result.Ok();
+
+        var validTransition = (CheckoutState, target) switch
+        {
+            (CheckoutState.Payment, CheckoutState.Delivery) => true,
+            (CheckoutState.Payment, CheckoutState.Address) => true,
+            (CheckoutState.Delivery, CheckoutState.Address) => true,
+            _ => false
+        };
+        if (!validTransition)
+            return OrderResult.Errors.InvalidCheckoutTransition(CheckoutState, target);
+
+        CheckoutState = target;
+        return Result.Ok();
+    }
+
     // Validate: Ensure none of the order's line item variants are discontinued
     internal bool EnsureLineItemVariantsAreNotDiscontinued(HashSet<Guid> discontinuedVariantIds)
     {

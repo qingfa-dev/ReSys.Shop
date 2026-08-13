@@ -5,6 +5,7 @@ using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
+using Module.Ordering.Features.Storefront.RegressCheckoutState;
 
 using Stripe;
 using Stripe.Checkout;
@@ -474,5 +475,9 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
 
         _stockServiceMock.Verify(s => s.ReleaseReservationsAsync(
             payment.OrderId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _senderMock.Verify(x => x.Send(
+            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == "Delivery"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }

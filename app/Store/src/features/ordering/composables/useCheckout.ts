@@ -175,7 +175,8 @@ export function useCheckout(getCart: () => CartRef) {
     (cur, prev) => {
       const prevStep = stepOf(prev)
       const curStep = stepOf(cur)
-      if (prev === 'Payment' && cur === 'Delivery') {
+      // Re-pick: any regression from Payment (or later) to an earlier step clears the payment context.
+      if (prevStep >= 3 && curStep < 3) {
         paymentClientSecret.value = null
         paymentIntentId.value = null
         paymentMethodId.value = null

@@ -81,6 +81,15 @@ public static partial class UpdateCheckout
 
             cart.RegressCheckoutIfAmountChanged(previousTotal);
 
+            // Re-pick: an address change at Payment regresses to Delivery so the
+            // customer re-confirms shipping cost and re-selects a payment method.
+            if (addressChanged && cart.CheckoutState == CheckoutState.Payment)
+            {
+                var regress = cart.RegressCheckoutState(CheckoutState.Delivery);
+                if (regress.IsFailure)
+                    return regress.Errors;
+            }
+
             // Advance: Address → Delivery once both addresses are set (fresh checkout).
             if (cart.HasAddresses() && cart.CheckoutState == CheckoutState.Address)
             {

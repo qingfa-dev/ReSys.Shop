@@ -36,6 +36,7 @@ public static partial class SelectShippingRate
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
             // Update: Set shipping method on cart via domain method.
+            var previousMethodId = cart.ShippingMethodId;
             var previousTotal = cart.Total;
             var methodResult = cart.SetShippingMethod(command.Request.ShippingMethodId);
             if (methodResult.IsFailure)
@@ -68,6 +69,16 @@ public static partial class SelectShippingRate
                 return shippingResult.Errors;
 
             cart.RegressCheckoutIfAmountChanged(previousTotal);
+
+            // Re-pick: a shipping method change at Payment regresses to Delivery so the
+            // customer re-selects a payment method against the new shipping cost.
+            if (cart.CheckoutState == CheckoutState.Payment
+                && command.Request.ShippingMethodId != previousMethodId)
+            {
+                var regress = cart.RegressCheckoutState(CheckoutState.Delivery);
+                if (regress.IsFailure)
+                    return regress.Errors;
+            }
 
             // Advance: Address → Delivery only; later states either already passed Delivery or regressed here.
             if (cart.CheckoutState == CheckoutState.Address)

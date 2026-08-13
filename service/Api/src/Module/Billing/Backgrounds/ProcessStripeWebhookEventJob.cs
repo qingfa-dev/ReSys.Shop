@@ -5,6 +5,7 @@ using Module.Billing.Services.Provider;
 using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
+using Module.Ordering.Features.Storefront.RegressCheckoutState;
 
 using Stripe;
 using Stripe.Checkout;
@@ -295,6 +296,10 @@ public sealed partial class ProcessStripeWebhookEventJob
         await SaveWithRollbackAsync(payment, ct);
 
         await _stockReservationService.ReleaseReservationsAsync(orderId: payment.OrderId, ct: ct);
+
+        // Un-stick: regress the cart Payment → Delivery so the customer can re-pick a payment method.
+        await _sender.Send(
+            new RegressCheckoutStateCommand { CartId = payment.OrderId, TargetState = "Delivery" }, ct);
     }
 
     /// <summary>Persists changes. On DB failure, lets exception propagate — Hangfire retries with fresh scoped context.</summary>

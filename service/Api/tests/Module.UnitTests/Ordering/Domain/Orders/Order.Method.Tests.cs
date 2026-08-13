@@ -541,4 +541,89 @@ public class OrderMethodTests
 
         order.CheckoutState.Should().Be(CheckoutState.Delivery);
     }
+
+    [Fact]
+    public void RegressCheckoutState_PaymentToDelivery_Succeeds()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.RegressCheckoutState(CheckoutState.Delivery);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_PaymentToAddress_Succeeds()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.RegressCheckoutState(CheckoutState.Address);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Address);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_DeliveryToAddress_Succeeds()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Delivery;
+
+        var result = order.RegressCheckoutState(CheckoutState.Address);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Address);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_SameState_IsNoOp()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.RegressCheckoutState(CheckoutState.Payment);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Payment);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_ForwardMove_Fails()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Delivery;
+
+        var result = order.RegressCheckoutState(CheckoutState.Payment);
+
+        result.IsFailure.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_FromComplete_Fails()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Complete;
+
+        var result = order.RegressCheckoutState(CheckoutState.Delivery);
+
+        result.IsFailure.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Complete);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_WhenPlaced_Fails()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        order.CheckoutState = CheckoutState.Payment;
+
+        var result = order.RegressCheckoutState(CheckoutState.Delivery);
+
+        result.IsFailure.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Payment);
+    }
 }

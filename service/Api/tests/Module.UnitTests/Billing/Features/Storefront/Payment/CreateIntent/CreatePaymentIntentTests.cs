@@ -144,6 +144,40 @@ public class CreatePaymentIntentTests : IDisposable
         _dbContext.Set<PaymentCapture>().Count().Should().Be(0);
     }
 
+    [Fact(DisplayName = "Handler: retry at Payment voids stale capture and succeeds")]
+    public async Task Handle_RetryAtPayment_VoidsStaleCapture()
+    {
+        var order = CreateOrder();
+        var pm = new PaymentMethod { Name = "Cash on Delivery", Code = "cash_on_delivery",
+            ProviderKey = GatewayConstants.Providers.CashOnDelivery, Active = true };
+        _dbContext.Set<PaymentMethod>().Add(pm);
+
+        var stale = PaymentCaptureMethod.Create(100m, pm.Id, order.Id).Value;
+        stale.State = PaymentRecordState.Pending;
+        stale.ProviderKey = GatewayConstants.Providers.CashOnDelivery;
+        _dbContext.Set<PaymentCapture>().Add(stale);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _senderMock.Setup(x => x.Send(
+            It.Is<GetCartForCheckoutQuery>(q => q.CartId == order.Id),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<GetCartForCheckoutResponse>.Ok(new GetCartForCheckoutResponse
+            {
+                State = "Payment",
+                Total = 100.00m,
+                Email = "test@example.com",
+                LineItems = []
+            }));
+
+        var result = await _handler.Handle(
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = pm.Id }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var refreshed = _dbContext.Set<PaymentCapture>().First(p => p.Id == stale.Id);
+        refreshed.State.Should().Be(PaymentRecordState.Void);
+    }
+
     private Order CreateOrder()
     {
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
