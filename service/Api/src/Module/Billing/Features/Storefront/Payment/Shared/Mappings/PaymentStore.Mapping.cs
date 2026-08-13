@@ -28,6 +28,7 @@ public static class PaymentStoreMapping
             PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString(),
             ClientSecret = payment.IntentClientSecret,
+            CheckoutUrl = payment.CheckoutUrl,
             ResponseCode = payment.ResponseCode,
             PaymentStatus = payment.PaymentStatus,
             CreatedAtUtc = payment.CreatedAtUtc,
