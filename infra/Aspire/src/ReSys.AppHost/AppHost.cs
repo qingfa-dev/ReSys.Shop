@@ -32,6 +32,16 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WaitFor(redis)
     .WaitFor(postgres);
 
+var stripeApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+if (!string.IsNullOrEmpty(stripeApiKey))
+{
+    builder.AddExecutable("stripe-listen", "stripe", Environment.CurrentDirectory,
+            "listen",
+            "--forward-to", $"{api.GetEndpoint("https")}/api/storefront/billing/webhooks/stripe")
+        .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
+        .WaitFor(api);
+}
+
 #pragma warning disable ASPIRECERTIFICATES001
 builder.AddViteApp(Application.Admin, "../../../../app/Admin")
     .WithPnpm()
