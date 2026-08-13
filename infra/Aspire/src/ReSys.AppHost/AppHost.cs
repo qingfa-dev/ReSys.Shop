@@ -35,11 +35,18 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
 var stripeApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 if (!string.IsNullOrEmpty(stripeApiKey))
 {
+    var forwardUrl = $"{api.GetEndpoint("https")}/api/storefront/billing/webhooks/stripe";
     builder.AddExecutable("stripe-listen", "stripe", Environment.CurrentDirectory,
             "listen",
-            "--forward-to", $"{api.GetEndpoint("https")}/api/storefront/billing/webhooks/stripe")
+            "--forward-to", forwardUrl)
         .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
         .WaitFor(api);
+    Console.WriteLine($"[stripe] stripe-listen resource added (forwarding to {forwardUrl}).");
+}
+else
+{
+    Console.WriteLine("[stripe] WARNING: STRIPE_SECRET_KEY is not set in this process; the 'stripe-listen' webhook resource will NOT be created.");
+    Console.WriteLine("[stripe]   Export it in the terminal that runs this AppHost, then restart: export STRIPE_SECRET_KEY=sk_test_...");
 }
 
 #pragma warning disable ASPIRECERTIFICATES001
