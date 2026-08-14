@@ -1,6 +1,7 @@
 using Hangfire;
 
 using Module.Billing.Domain.PaymentCaptures;
+using Module.Billing.Domain.WebhookEvents;
 using Module.Billing.Services.Provider;
 using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
@@ -12,7 +13,7 @@ using Module.Ordering.Features.Storefront.RegressCheckoutState;
 using Stripe;
 using Stripe.Checkout;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+using Payment = Module.Billing.Domain.PaymentCaptures.Payment;
 
 namespace Module.Billing.Backgrounds;
 
@@ -40,22 +41,58 @@ public sealed partial class ProcessStripeWebhookEventJob
         _stockReservationService = stockReservationService;
     }
 
-    /// <summary>Entry point — parses the Stripe event and routes to type-specific handler.</summary>
-    /// <param name="payload">The raw Stripe webhook JSON payload.</param>
+    /// <summary>Entry point — claims the persisted event, routes to type-specific handlers and marks the outcome.</summary>
+    /// <param name="eventId">The persisted <see cref="WebhookEvent"/> id to process.</param>
     /// <param name="ct">Cancellation token.</param>
-    public async Task ExecuteAsync(string payload, CancellationToken ct = default)
+    public async Task ExecuteAsync(Guid eventId, CancellationToken ct = default)
     {
-        // Parse: Deserialize Stripe event from raw JSON
-        var stripeEvent = _webhookService.ParseEvent(payload);
+        // Load: the persisted event by id — null means it was already removed.
+        var webhookEvent = await _dbContext.Set<WebhookEvent>()
+            .FirstOrDefaultAsync(e => e.Id == eventId, ct);
+        if (webhookEvent is null)
+            return;
+
+        // Guard: only Processed events are skipped — a Failed/Processing event is re-claimed.
+        if (webhookEvent.State == WebhookEventState.Processed)
+            return;
+
+        // Claim: mark Processing and increment the attempt counter.
+        webhookEvent.State = WebhookEventState.Processing;
+        webhookEvent.AttemptCount += 1;
+        await _dbContext.SaveChangesAsync(ct);
+
+        // Parse: Deserialize Stripe event from the stored raw JSON payload
+        var stripeEvent = _webhookService.ParseEvent(webhookEvent.Payload);
         if (stripeEvent is null)
         {
             ProcessStripeWebhookEventJobLoggers.ParseFailure(_logger);
+            webhookEvent.State = WebhookEventState.Failed;
+            await _dbContext.SaveChangesAsync(ct);
             return;
         }
 
+        try
+        {
+            // Route: Dispatch to handler by event type
+            await RouteEventAsync(stripeEvent, ct);
+        }
+        catch (Exception)
+        {
+            // Mark Failed and rethrow so Hangfire retries (the event is re-claimed on retry).
+            webhookEvent.State = WebhookEventState.Failed;
+            await _dbContext.SaveChangesAsync(ct);
+            throw;
+        }
+
+        webhookEvent.State = WebhookEventState.Processed;
+        webhookEvent.ProcessedAtUtc = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync(ct);
+    }
+
+    private async Task RouteEventAsync(Event stripeEvent, CancellationToken ct)
+    {
         ProcessStripeWebhookEventJobLoggers.EventRouted(_logger, stripeEvent.Type);
 
-        // Route: Dispatch to handler by event type
         switch (stripeEvent.Type)
         {
             case GatewayConstants.WebhookEvents.Stripe.PaymentIntentSucceeded:
@@ -98,7 +135,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         if (intent is null) return;
 
         // Load: Payment by gateway response code (PaymentIntent ID)
-        var payment = await _dbContext.Set<PaymentCapture>()
+        var payment = await _dbContext.Set<Payment>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
 
@@ -131,7 +168,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        var payment = await _dbContext.Set<PaymentCapture>()
+        var payment = await _dbContext.Set<Payment>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
 
@@ -163,7 +200,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var charge = stripeEvent.Data.Object as Charge;
         if (charge is null || string.IsNullOrEmpty(charge.PaymentIntentId)) return;
 
-        var payment = await _dbContext.Set<PaymentCapture>()
+        var payment = await _dbContext.Set<Payment>()
             .FirstOrDefaultAsync(p => p.ResponseCode == charge.PaymentIntentId, ct);
         if (payment is null) return;
 
@@ -197,7 +234,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var dispute = stripeEvent.Data.Object as Dispute;
         if (dispute is null || string.IsNullOrEmpty(dispute.PaymentIntentId)) return;
 
-        var payment = await _dbContext.Set<PaymentCapture>()
+        var payment = await _dbContext.Set<Payment>()
             .FirstOrDefaultAsync(p => p.ResponseCode == dispute.PaymentIntentId, ct);
         if (payment is null) return;
 
@@ -223,7 +260,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        var payment = await _dbContext.Set<PaymentCapture>()
+        var payment = await _dbContext.Set<Payment>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
 
@@ -256,7 +293,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Lookup by session id OR the stored PaymentIntent id: after the first
         // completion pass overwrites ResponseCode with the pi_... id, a Hangfire
         // retry must still find the payment to re-attempt placement.
-        var payment = await _dbContext.Set<PaymentCapture>()
+        var payment = await _dbContext.Set<Payment>()
             .FirstOrDefaultAsync(
                 p => p.ResponseCode == session.Id
                      || (session.PaymentIntentId != null && p.ResponseCode == session.PaymentIntentId),
@@ -326,7 +363,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var session = stripeEvent.Data.Object as Session;
         if (session is null) return;
 
-        var payment = await _dbContext.Set<PaymentCapture>()
+        var payment = await _dbContext.Set<Payment>()
             .FirstOrDefaultAsync(p => p.ResponseCode == session.Id, ct);
         ProcessStripeWebhookEventJobLoggers.SessionLookup(_logger, session.Id, payment is not null, payment?.Id);
         if (payment is null) return;
@@ -375,7 +412,7 @@ public sealed partial class ProcessStripeWebhookEventJob
     /// it as processed so it is not re-processed. Only regression events are guarded — a
     /// newer progress event must never be dropped by this check.
     /// </summary>
-    private async Task<bool> RecordStaleEventAsync(PaymentCapture payment, Event stripeEvent, CancellationToken ct)
+    private async Task<bool> RecordStaleEventAsync(Payment payment, Event stripeEvent, CancellationToken ct)
     {
         if (payment.LastStripeEventCreatedAtUtc is null)
             return false;
@@ -389,7 +426,7 @@ public sealed partial class ProcessStripeWebhookEventJob
     }
 
     /// <summary>Marks the event as processed and tracks the latest applied Stripe event time.</summary>
-    private async Task RecordStripeEventAsync(PaymentCapture payment, Event stripeEvent, CancellationToken ct)
+    private async Task RecordStripeEventAsync(Payment payment, Event stripeEvent, CancellationToken ct)
     {
         payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
         payment.LastStripeEventId = stripeEvent.Id;
@@ -400,7 +437,7 @@ public sealed partial class ProcessStripeWebhookEventJob
     // Mirror: best-effort stamp of the owning order's payment timeline. The payment row
     // is authoritative; a failure here must not fail the job (the order placement path
     // re-stamps on completion via CompleteCheckoutForPayment).
-    private async Task TryNotifyOrderPaymentStateAsync(PaymentCapture payment, PaymentTimelineState paymentState, CancellationToken ct)
+    private async Task TryNotifyOrderPaymentStateAsync(Payment payment, PaymentTimelineState paymentState, CancellationToken ct)
     {
         var atUtc = paymentState switch
         {
@@ -430,7 +467,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         };
 
     /// <summary>Persists changes. On DB failure, lets exception propagate — Hangfire retries with fresh scoped context.</summary>
-    private async Task SaveAsync(PaymentCapture payment, CancellationToken ct)
+    private async Task SaveAsync(Payment payment, CancellationToken ct)
     {
         await _dbContext.SaveChangesAsync(ct);
     }

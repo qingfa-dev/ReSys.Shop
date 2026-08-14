@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 
 using Module.Billing.Backgrounds;
 using Module.Billing.Domain.PaymentCaptures;
+using Module.Billing.Domain.WebhookEvents;
 using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
@@ -62,6 +63,23 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>Seeds a Pending WebhookEvent with a placeholder payload and executes the job on it.</summary>
+    private async Task SeedAndExecuteAsync()
+    {
+        var webhookEvent = new WebhookEvent
+        {
+            StripeEventId = Guid.NewGuid().ToString(),
+            Type = "test",
+            Payload = "{}",
+            State = WebhookEventState.Pending,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _dbContext.Set<WebhookEvent>().Add(webhookEvent);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await _job.ExecuteAsync(webhookEvent.Id, TestContext.Current.CancellationToken);
+    }
+
     [Fact(DisplayName = "payment_intent.succeeded transitions payment to Completed")]
     public async Task HandlePaymentIntentSucceeded_ShouldCompletePayment()
     {
@@ -81,7 +99,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
@@ -106,7 +124,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Failed);
@@ -137,7 +155,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.RefundedAmount.Should().Be(20m);
@@ -162,8 +180,8 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
@@ -188,7 +206,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
@@ -213,7 +231,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
@@ -243,7 +261,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Disputed);
@@ -268,7 +286,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Void);
@@ -293,7 +311,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Failed);
@@ -323,7 +341,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Void);
@@ -354,7 +372,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Disputed);
@@ -379,7 +397,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Void);
@@ -406,7 +424,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
@@ -441,7 +459,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.ResponseCode.Should().Be("pi_checkout_retry");
@@ -473,7 +491,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Void);
@@ -508,7 +526,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Processing);
@@ -546,7 +564,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        var act = () => _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        var act = () => SeedAndExecuteAsync();
         await act.Should().ThrowAsync<InvalidOperationException>();
 
         // Event must remain unrecorded so a Hangfire retry re-attempts placement.
@@ -575,7 +593,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Failed);
@@ -614,7 +632,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.RefundedAmount.Should().Be(20m);
@@ -646,7 +664,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
@@ -676,7 +694,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        var act = () => _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        var act = () => SeedAndExecuteAsync();
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
@@ -703,7 +721,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        var act = () => _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        var act = () => SeedAndExecuteAsync();
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
@@ -731,7 +749,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.RefundedAmount.Should().Be(20m);
@@ -758,7 +776,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
@@ -785,10 +803,134 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 }
             });
 
-        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await SeedAndExecuteAsync();
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Void);
         updated.VoidedAtUtc.Should().NotBeNull();
+    }
+
+    [Fact(DisplayName = "WebhookEvent reaches Processed after a successful run")]
+    public async Task ExecuteAsync_OnSuccess_MarksEventProcessed()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "pi_webhook_state_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var webhookEvent = new WebhookEvent
+        {
+            StripeEventId = "evt_webhook_state_1",
+            Type = "payment_intent.succeeded",
+            Payload = "{}",
+            State = WebhookEventState.Pending,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _dbContext.Set<WebhookEvent>().Add(webhookEvent);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Id = "evt_webhook_state_1",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_webhook_state_1" }
+                }
+            });
+
+        await _job.ExecuteAsync(webhookEvent.Id, TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<WebhookEvent>().FirstAsync(e => e.Id == webhookEvent.Id);
+        updated.State.Should().Be(WebhookEventState.Processed);
+        updated.AttemptCount.Should().Be(1);
+        updated.ProcessedAtUtc.Should().NotBeNull();
+    }
+
+    [Fact(DisplayName = "A Processed WebhookEvent is skipped (no re-processing, no re-claim)")]
+    public async Task ExecuteAsync_ProcessedEvent_IsSkipped()
+    {
+        var webhookEvent = new WebhookEvent
+        {
+            StripeEventId = "evt_already_processed",
+            Type = "payment_intent.succeeded",
+            Payload = "{}",
+            State = WebhookEventState.Processed,
+            AttemptCount = 1,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _dbContext.Set<WebhookEvent>().Add(webhookEvent);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await _job.ExecuteAsync(webhookEvent.Id, TestContext.Current.CancellationToken);
+
+        _webhookMock.Verify(x => x.ParseEvent(It.IsAny<string>()), Times.Never);
+        var updated = await _dbContext.Set<WebhookEvent>().FirstAsync(e => e.Id == webhookEvent.Id);
+        updated.State.Should().Be(WebhookEventState.Processed);
+        updated.AttemptCount.Should().Be(1);
+    }
+
+    [Fact(DisplayName = "A Failed WebhookEvent is re-claimed and processed on retry")]
+    public async Task ExecuteAsync_FailedEvent_IsReclaimed()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "pi_reclaim_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var webhookEvent = new WebhookEvent
+        {
+            StripeEventId = "evt_reclaim_1",
+            Type = "payment_intent.succeeded",
+            Payload = "{}",
+            State = WebhookEventState.Failed,
+            AttemptCount = 1,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _dbContext.Set<WebhookEvent>().Add(webhookEvent);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Id = "evt_reclaim_1",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_reclaim_1" }
+                }
+            });
+
+        await _job.ExecuteAsync(webhookEvent.Id, TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<WebhookEvent>().FirstAsync(e => e.Id == webhookEvent.Id);
+        updated.State.Should().Be(WebhookEventState.Processed);
+        updated.AttemptCount.Should().Be(2);
+    }
+
+    [Fact(DisplayName = "An unparseable payload marks the WebhookEvent Failed")]
+    public async Task ExecuteAsync_UnparseablePayload_MarksFailed()
+    {
+        var webhookEvent = new WebhookEvent
+        {
+            StripeEventId = "evt_unparseable",
+            Type = "payment_intent.succeeded",
+            Payload = "not-json",
+            State = WebhookEventState.Pending,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _dbContext.Set<WebhookEvent>().Add(webhookEvent);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns((Event?)null);
+
+        await _job.ExecuteAsync(webhookEvent.Id, TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<WebhookEvent>().FirstAsync(e => e.Id == webhookEvent.Id);
+        updated.State.Should().Be(WebhookEventState.Failed);
+        updated.AttemptCount.Should().Be(1);
     }
 }
