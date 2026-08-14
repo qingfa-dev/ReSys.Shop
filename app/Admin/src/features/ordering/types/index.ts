@@ -1,6 +1,7 @@
 export type {
   OrderStatus,
   CheckoutState,
+  OrderPaymentState,
   OrderRequest,
   OrderListItem,
   OrderDetail,

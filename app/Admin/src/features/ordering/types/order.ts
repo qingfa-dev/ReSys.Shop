@@ -2,7 +2,9 @@ import type { QueryingParameters } from '@/shared/types/querying'
 
 export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
 
-export type CheckoutState = 'Address' | 'Delivery' | 'Payment' | 'Confirm' | 'Complete'
+export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Complete'
+
+export type OrderPaymentState = 'Completed' | 'Failed' | 'Void' | 'BalanceDue' | 'CreditOwed' | 'Paid' | 'Pending' | 'Checkout' | 'Invalid'
 
 export interface OrderRequest {
   currency: string
@@ -19,7 +21,7 @@ export interface OrderListItem extends OrderRequest {
   status: OrderStatus
   total: number
   paymentTotal: number
-  paymentState?: string
+  paymentState?: OrderPaymentState
   fulfillmentState?: OrderFulfillmentState
   createdAtUtc: string
   completedAtUtc?: string
@@ -36,7 +38,7 @@ export interface OrderDetail extends OrderRequest {
   total: number
   paymentTotal: number
   outstandingBalance: number
-  paymentState?: string
+  paymentState?: OrderPaymentState
   fulfillmentState?: OrderFulfillmentState
   userId?: string
   itemCount: number
@@ -151,12 +153,4 @@ export interface Shipment {
   deliveredAtUtc: string | null
   estimatedDeliveryAtUtc: string | null
   createdAtUtc: string
-}
-
-export type ShipmentState = 'pending' | 'delivered' | 'partial' | 'ready' | 'backorder' | 'canceled'
-
-export const SHIPMENT_STATE_OPTIONS: ShipmentState[] = ['pending', 'delivered', 'partial', 'ready', 'backorder', 'canceled']
-
-export interface UpdateShipmentStateRequest {
-  shipmentState: ShipmentState
 }
