@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
 using Module.Inventory.Services.StockReservations;
+using Module.Shipping.Features.Shared.Commands;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -12,6 +13,7 @@ public sealed class CheckoutPlacementService(
     IApplicationDbContext dbContext,
     IStockReservationService stockReservationService,
     INotificationService notificationService,
+    ISender sender,
     ILogger<CheckoutPlacementService> logger)
 {
     public async Task<Result<Order>> PlaceAsync(Order cart, string actor, CancellationToken ct)
@@ -33,6 +35,19 @@ public sealed class CheckoutPlacementService(
         await dbContext.SaveChangesAsync(ct);
 
         await SendOrderPlacedNotificationAsync(cart, ct);
+
+        // Auto-create: one Pending shipment for the placed order (best-effort — placement
+        // is already committed; an admin can create a shipment later if this fails).
+        if (cart.ShippingMethodId.HasValue)
+        {
+            var shipmentResult = await sender.Send(new CreateShipmentCommand
+            {
+                OrderId = cart.Id,
+                ShippingMethodId = cart.ShippingMethodId.Value
+            }, ct);
+            if (shipmentResult.IsFailure)
+                logger.LogWarning("Failed to auto-create shipment for order {OrderId}: {Message}", cart.Id, shipmentResult.Message);
+        }
 
         OrderLoggers.Placed(logger, Number: cart.Number, Id: cart.Id, ActionBy: actor);
         return Result<Order>.Ok(cart);
