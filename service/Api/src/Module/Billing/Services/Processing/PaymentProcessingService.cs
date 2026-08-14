@@ -90,9 +90,6 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
     /// <returns>A result indicating refund outcome.</returns>
     public async Task<Result<PaymentProcessingResult>> RefundAsync(Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken ct = default)
     {
-        if (payment.State is PaymentRecordState.Disputed)
-            return ProcessingResult.Errors.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
-
         // Check: Payment state and refund amount must be valid
         if (!payment.CanRefund(amount))
         {
