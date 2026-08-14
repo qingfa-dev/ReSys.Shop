@@ -3,6 +3,8 @@ using Hangfire;
 using Module.Billing.Backgrounds;
 using Module.Billing.Domain.WebhookEvents;
 
+using Npgsql;
+
 using IStripeWebhookService = Module.Billing.Services.Webhook.IStripeWebhookService;
 
 namespace Module.Billing.Features.Storefront.Payment.Webhooks;
@@ -31,11 +33,18 @@ public static partial class StripeWebhook
                 return StripeWebhookResult.Errors.InvalidPayload;
 
             // Persist: dedupe on the unique StripeEventId — a duplicate means the event
-            // was already accepted; return Ok without re-enqueuing.
-            var alreadyExists = await dbContext.Set<WebhookEvent>()
-                .AnyAsync(e => e.StripeEventId == stripeEvent.Id, cancellationToken);
-            if (alreadyExists)
+            // was already accepted.
+            var existing = await dbContext.Set<WebhookEvent>()
+                .FirstOrDefaultAsync(e => e.StripeEventId == stripeEvent.Id, cancellationToken);
+            if (existing is not null)
+            {
+                // Already accepted — re-enqueue unless fully processed (covers an enqueue
+                // failure that left a Pending row; Processed is terminal).
+                if (existing.State != WebhookEventState.Processed)
+                    backgroundJobClient.Enqueue<ProcessStripeWebhookEventJob>(
+                        job => job.ExecuteAsync(existing.Id, CancellationToken.None));
                 return Result.Ok("Webhook already accepted.");
+            }
 
             var webhookEvent = new WebhookEvent
             {
@@ -51,9 +60,9 @@ public static partial class StripeWebhook
             {
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException { SqlState: "23505" })
             {
-                // Unique-index race with a concurrent identical webhook — already accepted.
+                // Unique-violation race with a concurrent identical webhook — already accepted.
                 return Result.Ok("Webhook already accepted.");
             }
 

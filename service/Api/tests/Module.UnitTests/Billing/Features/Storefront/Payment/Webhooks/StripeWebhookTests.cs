@@ -93,8 +93,8 @@ public class StripeWebhookTests : IDisposable
         enqueuedEventId.Should().Be(saved.Id);
     }
 
-    [Fact(DisplayName = "Webhook: a duplicate StripeEventId returns Ok without re-enqueuing")]
-    public async Task Handle_DuplicateEvent_DoesNotEnqueue()
+    [Fact(DisplayName = "Webhook: a duplicate StripeEventId that is not Processed re-enqueues the existing row")]
+    public async Task Handle_DuplicatePendingEvent_ReEnqueues()
     {
         _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
             .Returns(new Event { Id = "evt_dup_1", Type = "payment_intent.succeeded" });
@@ -106,6 +106,27 @@ public class StripeWebhookTests : IDisposable
         second.IsSuccess.Should().BeTrue();
         second.Message.Should().Be("Webhook already accepted.");
 
+        (await _dbContext.Set<WebhookEvent>().CountAsync()).Should().Be(1);
+        _bgJobClientMock.Verify(b => b.Create(It.IsAny<Job>(), It.IsAny<EnqueuedState>()), Times.Exactly(2));
+    }
+
+    [Fact(DisplayName = "Webhook: a duplicate StripeEventId that is Processed is terminal and is not re-enqueued")]
+    public async Task Handle_DuplicateProcessedEvent_DoesNotEnqueue()
+    {
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event { Id = "evt_dup_2", Type = "payment_intent.succeeded" });
+
+        var first = await _handler.Handle(new StripeWebhook.Command("{}", "sig"), CancellationToken.None);
+        first.IsSuccess.Should().BeTrue();
+
+        var saved = await _dbContext.Set<WebhookEvent>().FirstAsync();
+        saved.State = WebhookEventState.Processed;
+        await _dbContext.SaveChangesAsync();
+
+        var second = await _handler.Handle(new StripeWebhook.Command("{}", "sig"), CancellationToken.None);
+
+        second.IsSuccess.Should().BeTrue();
+        second.Message.Should().Be("Webhook already accepted.");
         (await _dbContext.Set<WebhookEvent>().CountAsync()).Should().Be(1);
         _bgJobClientMock.Verify(b => b.Create(It.IsAny<Job>(), It.IsAny<EnqueuedState>()), Times.Once);
     }
