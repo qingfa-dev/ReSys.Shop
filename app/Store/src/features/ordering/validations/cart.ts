@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CheckoutStateSchema } from './order'
 
 // Validate: Cart line item schema — enforces non-negative quantity, price, and total.
 export const CartLineItemSchema = z.object({
@@ -19,7 +20,7 @@ export const CartResponseSchema = z.object({
   total: z.number().min(0),
   currency: z.string(),
   itemCount: z.number().int().min(0),
-  checkoutState: z.string(),
+  checkoutState: CheckoutStateSchema,
   shippingMethodId: z.string().nullable(),
   shipAddressId: z.string().nullable(),
   email: z.string().nullable(),

@@ -21,7 +21,7 @@ export class OrderApi {
   static async getOrder(id: string): Promise<Result<OrderDetail>> {
     const result = await get<Result<OrderDetail>>(`/api/storefront/orders/${id}`)
     if (!result.isSuccess) return result
-    result.value = OrderDetailSchema.parse(result.value) as unknown as OrderDetail
+    result.value = OrderDetailSchema.parse(result.value) as OrderDetail
     return result
   }
 

@@ -15,6 +15,8 @@ export {
 export {
   OrderStatusSchema,
   CheckoutStateSchema,
+  OrderPaymentStateSchema,
+  OrderFulfillmentStateSchema,
   OrderListItemSchema,
   OrderDetailSchema,
   OrderTrackingResponseSchema,
