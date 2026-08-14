@@ -16,8 +16,8 @@ interface CartRef {
 function stepOf(state: string | null): Step {
   switch (state) {
     case 'Address': return 1
-    case 'Delivery': return 2
-    case 'Payment': return 3
+    case 'PickDeliveryMethod': return 2
+    case 'PickPaymentMethod': return 3
     case 'Confirm': return 4
     case 'Complete': return 5
     default: return 1
@@ -41,8 +41,8 @@ export function useCheckout(getCart: () => CartRef) {
 
   const steps = computed(() => [
     { label: 'Address', number: 1, complete: backendStep.value > 1, current: displayStep.value === 1 },
-    { label: 'Delivery', number: 2, complete: backendStep.value > 2, current: displayStep.value === 2 },
-    { label: 'Payment', number: 3, complete: backendStep.value > 3, current: displayStep.value === 3 },
+    { label: 'Delivery Method', number: 2, complete: backendStep.value > 2, current: displayStep.value === 2 },
+    { label: 'Payment Method', number: 3, complete: backendStep.value > 3, current: displayStep.value === 3 },
     { label: 'Confirm', number: 4, complete: backendStep.value > 4, current: displayStep.value === 4 },
     { label: 'Complete', number: 5, complete: backendStep.value === 5, current: displayStep.value === 5 },
   ])
