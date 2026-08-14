@@ -40,13 +40,20 @@ public sealed class CheckoutPlacementService(
         // is already committed; an admin can create a shipment later if this fails).
         if (cart.ShippingMethodId.HasValue)
         {
-            var shipmentResult = await sender.Send(new CreateShipmentCommand
+            try
             {
-                OrderId = cart.Id,
-                ShippingMethodId = cart.ShippingMethodId.Value
-            }, ct);
-            if (shipmentResult.IsFailure)
-                logger.LogWarning("Failed to auto-create shipment for order {OrderId}: {Message}", cart.Id, shipmentResult.Message);
+                var shipmentResult = await sender.Send(new CreateShipmentCommand
+                {
+                    OrderId = cart.Id,
+                    ShippingMethodId = cart.ShippingMethodId.Value
+                }, ct);
+                if (shipmentResult.IsFailure)
+                    logger.LogWarning("Failed to auto-create shipment for order {OrderId}: {Message}", cart.Id, shipmentResult.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to auto-create shipment for order {OrderId}", cart.Id);
+            }
         }
 
         OrderLoggers.Placed(logger, Number: cart.Number, Id: cart.Id, ActionBy: actor);
