@@ -107,5 +107,24 @@ public static partial class ShippingFeature
                 public static PermissionMetadata Permission => ShippingFeatureMetadata.Rates.Delete;
             }
         }
+
+        public static class Shipments
+        {
+            public static class UpdateStatus
+            {
+                public const string Route = "api/admin/shipping/shipments/{id:guid}/status";
+                public const string Description = "Update a shipment's status (advance/backorder/cancel)";
+                public const string Summary = "Update shipment status";
+                public static PermissionMetadata Permission => ShippingFeatureMetadata.Methods.Update;
+            }
+
+            public static class ListForOrder
+            {
+                public const string Route = "api/admin/shipping/shipments";
+                public const string Description = "List shipments for an order";
+                public const string Summary = "List shipments for order";
+                public static PermissionMetadata Permission => ShippingFeatureMetadata.Methods.Read;
+            }
+        }
     }
 }

@@ -19,5 +19,9 @@ public static class ShipmentResult
         public static Error InvalidTransition(ShipmentStatus from, ShipmentStatus to) => Error.Validation(
             code: "Shipment.State.InvalidTransition",
             message: $"Cannot transition shipment from '{from}' to '{to}'.");
+
+        public static Error NotFound => Error.NotFound(
+            code: "Shipment.NotFound",
+            message: "Shipment was not found.");
     }
 }
