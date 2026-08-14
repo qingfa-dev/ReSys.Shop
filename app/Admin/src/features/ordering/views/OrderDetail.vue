@@ -11,6 +11,7 @@ import TabPanel from 'primevue/tabpanel'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import Select from 'primevue/select'
+import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -21,10 +22,9 @@ import { useOrderDetail } from '../composables/useOrderDetail'
 import { OrderApi } from '../services/orderApi'
 import { PaymentApi } from '@/features/payment/services/paymentApi'
 import type { Result } from '@/shared/types'
-import type { OrderDetail, OrderStatus, LineItem, ShipmentState } from '../types/order'
+import type { OrderDetail, OrderStatus, LineItem, OrderFulfillmentState, Shipment, ShipmentStatus } from '../types/order'
 import type { PaymentListItem } from '@/features/payment/types/payment'
 import { toPaymentQueryParams } from '@/features/payment/types/payment'
-import { SHIPMENT_STATE_OPTIONS } from '../types/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -56,16 +56,62 @@ function statusSeverity(status: OrderStatus | undefined): string {
   return status ? STATUS_SEVERITY[status] : 'secondary'
 }
 
-const shipmentStateLoading = ref(false)
+const shipments = ref<Shipment[]>([])
+const shipmentsLoading = ref(false)
+const shipmentsLoaded = ref(false)
+const savingShipmentId = ref<string | null>(null)
+const draftStatus = ref<Record<string, ShipmentStatus>>({})
+const trackingInputs = ref<Record<string, string>>({})
 
-async function onShipmentStateChange(value: ShipmentState) {
-  if (!order.value || value === order.value.shipmentState) return
-  shipmentStateLoading.value = true
-  const result = await OrderApi.updateShipmentState(orderId.value, { shipmentState: value })
-  shipmentStateLoading.value = false
+const SHIPMENT_STATUS_OPTIONS: ShipmentStatus[] = ['Pending', 'Ready', 'Shipped', 'Delivered', 'Backorder', 'Canceled']
+
+const FULFILLMENT_SEVERITY: Record<OrderFulfillmentState, string> = {
+  None: 'secondary',
+  Pending: 'secondary',
+  Partial: 'warn',
+  Shipped: 'info',
+  Delivered: 'success',
+  Canceled: 'danger',
+}
+
+function fulfillmentSeverity(state: OrderFulfillmentState | null | undefined): string {
+  return state ? FULFILLMENT_SEVERITY[state] : 'secondary'
+}
+
+function initShipmentDrafts(shipmentList: Shipment[]) {
+  // Seed: Track per-row status and tracking edits for the save flow.
+  draftStatus.value = Object.fromEntries(shipmentList.map(s => [s.id, s.status]))
+  trackingInputs.value = Object.fromEntries(shipmentList.map(s => [s.id, s.trackingNumber ?? '']))
+}
+
+async function loadShipments() {
+  if (shipmentsLoaded.value || shipmentsLoading.value) return
+  shipmentsLoading.value = true
+  // Load: Fetch the order's shipments once the detail page mounts.
+  const result = await OrderApi.listShipments(orderId.value)
+  shipmentsLoading.value = false
   if (result.isSuccess) {
-    notify.success('Shipment State', `Shipment state updated to "${value}".`)
+    shipments.value = result.value.items
+    shipmentsLoaded.value = true
+    initShipmentDrafts(shipments.value)
+  } else {
+    handleResult(result)
+  }
+}
+
+async function saveShipmentStatus(shipment: Shipment) {
+  savingShipmentId.value = shipment.id
+  // Save: Persist the edited status and tracking number for the shipment.
+  const result = await OrderApi.updateShipmentStatus(shipment.id, {
+    status: draftStatus.value[shipment.id] ?? shipment.status,
+    trackingNumber: trackingInputs.value[shipment.id],
+  })
+  savingShipmentId.value = null
+  if (result.isSuccess) {
+    notify.success('Shipment', `Shipment status updated to "${draftStatus.value[shipment.id]}".`)
     await fetchOrder(orderId.value)
+    shipmentsLoaded.value = false
+    await loadShipments()
   } else {
     handleResult(result)
   }
@@ -206,14 +252,20 @@ watch(
     if (id) {
       itemsLoaded.value = false
       paymentsLoaded.value = false
+      shipmentsLoaded.value = false
       items.value = []
       payments.value = []
+      shipments.value = []
       loadOrder()
+      loadShipments()
     }
   },
 )
 
-onMounted(loadOrder)
+onMounted(() => {
+  loadOrder()
+  loadShipments()
+})
 </script>
 
 <template>
@@ -251,7 +303,8 @@ onMounted(loadOrder)
             <!-- Section: Overview — key order totals and timestamps -->
             <Card>
               <template #content>
-                <div v-if="order" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div v-if="order">
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <div class="text-sm text-muted-color">Order Number</div>
                     <div class="font-medium">{{ order.number }}</div>
@@ -261,14 +314,9 @@ onMounted(loadOrder)
                     <Tag :value="order.status" :severity="statusSeverity(order.status)" />
                   </div>
                   <div>
-                    <div class="text-sm text-muted-color">Shipment State</div>
-                    <Select
-                      :model-value="order.shipmentState"
-                      :options="SHIPMENT_STATE_OPTIONS"
-                      :loading="shipmentStateLoading"
-                      class="w-40"
-                      @change="onShipmentStateChange($event.value)"
-                    />
+                    <div class="text-sm text-muted-color">Fulfillment State</div>
+                    <Tag v-if="order.fulfillmentState" :value="order.fulfillmentState" :severity="fulfillmentSeverity(order.fulfillmentState)" />
+                    <span v-else class="text-muted-color">—</span>
                   </div>
                   <div>
                     <div class="text-sm text-muted-color">Checkout State</div>
@@ -323,7 +371,49 @@ onMounted(loadOrder)
                     <div class="font-medium">{{ order.modifiedAtUtc ? formatDate(order.modifiedAtUtc) : '—' }}</div>
                   </div>
                 </div>
-                <p v-else class="text-muted-color">{{ loading ? 'Loading order...' : 'Order not found.' }}</p>
+
+                <!-- Section: Shipments — per-shipment tracking input and status control -->
+                <div class="mt-6">
+                  <h3 class="font-semibold mb-2">Shipments</h3>
+                  <DataTable :value="shipments" :loading="shipmentsLoading" scrollable data-key="id" striped-rows>
+                    <Column field="shippingMethodId" header="Shipping Method" />
+                    <Column header="Tracking Number">
+                      <template #body="{ data }">
+                        <InputText
+                          v-model="trackingInputs[data.id]"
+                          class="w-full"
+                          :class="{ 'ring-2 ring-primary': draftStatus[data.id] === 'Shipped' }"
+                          placeholder="Required when shipped"
+                        />
+                      </template>
+                    </Column>
+                    <Column header="Status">
+                      <template #body="{ data }">
+                        <Select v-model="draftStatus[data.id]" :options="SHIPMENT_STATUS_OPTIONS" class="w-40" />
+                      </template>
+                    </Column>
+                    <Column header="Shipped">
+                      <template #body="{ data }">{{ data.shippedAtUtc ? formatDate(data.shippedAtUtc) : '—' }}</template>
+                    </Column>
+                    <Column header="Delivered">
+                      <template #body="{ data }">{{ data.deliveredAtUtc ? formatDate(data.deliveredAtUtc) : '—' }}</template>
+                    </Column>
+                    <Column header="Actions">
+                      <template #body="{ data }">
+                        <Button
+                          icon="pi pi-save"
+                          label="Save"
+                          size="small"
+                          :loading="savingShipmentId === data.id"
+                          @click="saveShipmentStatus(data)"
+                        />
+                      </template>
+                    </Column>
+                    <template #empty>No shipments yet for this order.</template>
+                  </DataTable>
+                </div>
+              </div>
+              <p v-else class="text-muted-color">{{ loading ? 'Loading order...' : 'Order not found.' }}</p>
               </template>
             </Card>
           </TabPanel>

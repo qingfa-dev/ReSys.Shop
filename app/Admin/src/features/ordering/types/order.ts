@@ -20,7 +20,7 @@ export interface OrderListItem extends OrderRequest {
   total: number
   paymentTotal: number
   paymentState?: string
-  shipmentState?: string
+  fulfillmentState?: OrderFulfillmentState
   createdAtUtc: string
   completedAtUtc?: string
 }
@@ -37,7 +37,7 @@ export interface OrderDetail extends OrderRequest {
   paymentTotal: number
   outstandingBalance: number
   paymentState?: string
-  shipmentState?: string
+  fulfillmentState?: OrderFulfillmentState
   userId?: string
   itemCount: number
   approvedById?: string
@@ -135,6 +135,22 @@ export interface UpdateOrderAddressRequest {
 
 export interface UpdateOrderShippingMethodRequest {
   shippingMethodId: string
+}
+
+export type OrderFulfillmentState = 'None' | 'Pending' | 'Partial' | 'Shipped' | 'Delivered' | 'Canceled'
+
+export type ShipmentStatus = 'Pending' | 'Ready' | 'Shipped' | 'Delivered' | 'Backorder' | 'Canceled'
+
+export interface Shipment {
+  id: string
+  orderId: string
+  shippingMethodId: string
+  trackingNumber: string | null
+  status: ShipmentStatus
+  shippedAtUtc: string | null
+  deliveredAtUtc: string | null
+  estimatedDeliveryAtUtc: string | null
+  createdAtUtc: string
 }
 
 export type ShipmentState = 'pending' | 'delivered' | 'partial' | 'ready' | 'backorder' | 'canceled'

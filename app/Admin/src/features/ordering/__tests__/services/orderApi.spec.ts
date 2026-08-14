@@ -235,3 +235,34 @@ describe('OrderApi.updateStatus', () => {
     expect(mockPut).toHaveBeenCalledWith('/api/admin/ordering/orders/o-1/status', req)
   })
 })
+
+describe('OrderApi.listShipments', () => {
+  it('calls GET with shipments URL scoped to the order', async () => {
+    mockGet.mockResolvedValue({
+      value: { items: [] },
+      isSuccess: true,
+      statusCode: 200,
+      message: null,
+      errors: [],
+      metadata: null,
+    })
+    await OrderApi.listShipments('o-1')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/shipping/shipments?orderId=o-1')
+  })
+})
+
+describe('OrderApi.updateShipmentStatus', () => {
+  it('calls PUT with shipment status URL and request body', async () => {
+    const req = { status: 'Shipped', trackingNumber: 'TRK-123' }
+    mockPut.mockResolvedValue({ value: { id: 's-1', status: 'Shipped' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+    await OrderApi.updateShipmentStatus('s-1', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/shipping/shipments/s-1/status', req)
+  })
+
+  it('calls PUT with status only when tracking number is omitted', async () => {
+    const req = { status: 'Ready' }
+    mockPut.mockResolvedValue({ value: { id: 's-1', status: 'Ready' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
+    await OrderApi.updateShipmentStatus('s-1', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/shipping/shipments/s-1/status', req)
+  })
+})
