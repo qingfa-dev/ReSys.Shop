@@ -5,6 +5,8 @@ using Shared.Application.Domain.Models;
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Shipping.Domain.ShippingMethods;
+using Module.Billing.Domain.PaymentMethods;
+
 namespace Module.Ordering.Domain.Orders;
 
 /// <summary>
@@ -27,7 +29,7 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public decimal PaymentTotal { get; set; }
     public decimal OutstandingBalance { get; set; }
     public OrderPaymentState? PaymentState { get; set; }
-    public OrderShipmentState? ShipmentState { get; set; }
+    public OrderFulfillmentState? FulfillmentState { get; set; }
     #endregion Properties
 
     #region Contact
@@ -40,6 +42,10 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public DateTimeOffset? PaymentProcessingAt { get; set; }
     public DateTimeOffset? PaymentCompletedAt { get; set; }
     public DateTimeOffset? PaymentFailedAt { get; set; }
+    #endregion
+
+    #region Shipment State
+
     #endregion
 
     #region Order State
@@ -67,10 +73,12 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     #region Relationships
     public Guid? UserId { get; set; }
     public Guid? ShippingMethodId { get; set; }
+    public Guid? PaymentMethodId { get; set; }
     #endregion Relationships
 
     #region Navigation
     public ShippingMethod? ShippingMethod { get; set; }
+    public PaymentMethod? PaymentMethod { get; set; }
     public ICollection<LineItem> LineItems { get; set; } = [];
     public ICollection<Adjustment> Adjustments { get; set; } = [];
     #endregion Navigation

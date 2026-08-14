@@ -20,7 +20,7 @@ public static partial class UpdateOrderShipmentState
 
             When(x => x.Request is not null, () =>
             {
-                RuleFor(x => x.Request.ShipmentState)
+                RuleFor(x => x.Request.FulfillmentState)
                     .NotNull()
                     .WithErrorCode(OrderResult.Errors.InvalidShipmentState.Code)
                     .WithMessage(OrderResult.Errors.InvalidShipmentState.Message)

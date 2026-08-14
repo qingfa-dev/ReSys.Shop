@@ -36,10 +36,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 v => v!.ToString(),
                 v => OrderStatusConverters.ToPaymentState(v));
 
-        builder.Property(x => x.ShipmentState)
+        builder.Property(x => x.FulfillmentState)
             .HasConversion(
                 v => v!.ToString(),
-                v => OrderStatusConverters.ToShipmentState(v));
+                v => OrderStatusConverters.ToFulfillmentState(v));
 
         builder.Property(x => x.Currency)
             .IsRequired()

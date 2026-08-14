@@ -21,20 +21,20 @@ public static partial class UpdateOrderShipmentState
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            if (command.Request.ShipmentState is null || !Enum.IsDefined(command.Request.ShipmentState.Value))
+            if (command.Request.FulfillmentState is null || !Enum.IsDefined(command.Request.FulfillmentState.Value))
                 return OrderResult.Errors.InvalidShipmentState;
 
-            order.ShipmentState = command.Request.ShipmentState;
+            order.FulfillmentState = command.Request.FulfillmentState;
             var now = DateTimeOffset.UtcNow;
 
             // Timestamp: stamp the tracking timeline as the order progresses through
             // shipment states (first ship/delivery only, so later admin corrections
             // never move the timeline backwards).
-            if (command.Request.ShipmentState is OrderShipmentState.Delivered)
+            if (command.Request.FulfillmentState is OrderFulfillmentState.Delivered)
                 order.MarkDelivered(now);
-            if (command.Request.ShipmentState is OrderShipmentState.Ready
-                or OrderShipmentState.Partial
-                or OrderShipmentState.Delivered)
+            if (command.Request.FulfillmentState is OrderFulfillmentState.Pending
+                or OrderFulfillmentState.Partial
+                or OrderFulfillmentState.Delivered)
                 order.MarkShipped(now);
 
             await dbContext.SaveChangesAsync(cancellationToken);

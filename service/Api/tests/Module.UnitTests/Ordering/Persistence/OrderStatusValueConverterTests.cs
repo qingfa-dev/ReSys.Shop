@@ -46,17 +46,18 @@ public class OrderStatusValueConverterTests : IDisposable
         converter.ConvertToProvider(OrderPaymentState.CreditOwed).Should().Be("CreditOwed");
     }
 
-    [Fact(DisplayName = "ShipmentState: legacy lowercase maps to enum members")]
-    public void ShipmentState_LegacyStrings_MapToEnum()
+    [Fact(DisplayName = "FulfillmentState: legacy lowercase maps to derived members")]
+    public void FulfillmentState_LegacyStrings_MapToEnum()
     {
         var converter = _dbContext.Model.FindEntityType(typeof(Order))!
-            .FindProperty(nameof(Order.ShipmentState))!
+            .FindProperty(nameof(Order.FulfillmentState))!
             .GetValueConverter()!;
 
-        converter.ConvertFromProvider("ready").Should().Be(OrderShipmentState.Ready);
-        converter.ConvertFromProvider("pending").Should().Be(OrderShipmentState.Pending);
-        converter.ConvertFromProvider("Ready").Should().Be(OrderShipmentState.Ready);
-        converter.ConvertToProvider(OrderShipmentState.Delivered).Should().Be("Delivered");
+        converter.ConvertFromProvider("ready").Should().Be(OrderFulfillmentState.Pending);
+        converter.ConvertFromProvider("backorder").Should().Be(OrderFulfillmentState.Pending);
+        converter.ConvertFromProvider("pending").Should().Be(OrderFulfillmentState.Pending);
+        converter.ConvertFromProvider("Shipped").Should().Be(OrderFulfillmentState.Shipped);
+        converter.ConvertToProvider(OrderFulfillmentState.Delivered).Should().Be("Delivered");
     }
 
     [Fact(DisplayName = "Order: canonical round-trip preserves enums through the model")]
@@ -65,13 +66,13 @@ public class OrderStatusValueConverterTests : IDisposable
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
         order.CheckoutState = CheckoutState.PickPaymentMethod;
         order.PaymentState = OrderPaymentState.BalanceDue;
-        order.ShipmentState = OrderShipmentState.Ready;
+        order.FulfillmentState = OrderFulfillmentState.Pending;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var loaded = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
         loaded.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
         loaded.PaymentState.Should().Be(OrderPaymentState.BalanceDue);
-        loaded.ShipmentState.Should().Be(OrderShipmentState.Ready);
+        loaded.FulfillmentState.Should().Be(OrderFulfillmentState.Pending);
     }
 }

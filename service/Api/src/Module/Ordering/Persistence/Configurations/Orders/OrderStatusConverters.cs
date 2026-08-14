@@ -26,14 +26,14 @@ internal static class OrderStatusConverters
         _ => Enum.Parse<OrderPaymentState>(value ?? string.Empty)
     };
 
-    public static OrderShipmentState ToShipmentState(string? value) => value switch
+    public static OrderFulfillmentState ToFulfillmentState(string? value) => value switch
     {
-        "pending"   => OrderShipmentState.Pending,
-        "delivered" => OrderShipmentState.Delivered,
-        "partial"   => OrderShipmentState.Partial,
-        "ready"     => OrderShipmentState.Ready,
-        "backorder" => OrderShipmentState.Backorder,
-        "canceled"  => OrderShipmentState.Canceled,
-        _ => Enum.Parse<OrderShipmentState>(value ?? string.Empty)
+        "pending"   => OrderFulfillmentState.Pending,
+        "ready"     => OrderFulfillmentState.Pending,
+        "backorder" => OrderFulfillmentState.Pending,
+        "partial"   => OrderFulfillmentState.Partial,
+        "delivered" => OrderFulfillmentState.Delivered,
+        "canceled"  => OrderFulfillmentState.Canceled,
+        _ => Enum.Parse<OrderFulfillmentState>(value ?? string.Empty)
     };
 }

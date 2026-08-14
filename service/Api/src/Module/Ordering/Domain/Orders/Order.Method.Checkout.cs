@@ -25,7 +25,7 @@ public sealed partial class Order
     // Validate: Whether the order can be canceled
     public bool AllowCancel() =>
         Status == OrderStatus.Placed &&
-        (ShipmentState is null || ShipmentState is OrderShipmentState.Ready or OrderShipmentState.Backorder or OrderShipmentState.Pending or OrderShipmentState.Canceled);
+        (FulfillmentState is null || FulfillmentState is OrderFulfillmentState.Pending or OrderFulfillmentState.Shipped or OrderFulfillmentState.Canceled);
 
     // Validate: Whether the order can be shipped
     public bool CanShip() =>
@@ -114,6 +114,9 @@ public static partial class OrderMethod
 
         if (order.ShippingMethodId is null)
             return OrderResult.Errors.DeliveryMethodRequired;
+
+        if (order.PaymentMethodId is null)
+            return OrderResult.Errors.PaymentMethodRequired;
 
         if (string.IsNullOrWhiteSpace(order.Email))
             return OrderResult.Errors.EmailRequired;
@@ -211,6 +214,12 @@ public static partial class OrderMethod
     /// </summary>
     public static bool HasShippingMethod(this Order order) =>
         order.ShippingMethodId.HasValue;
+
+        /// <summary>
+    /// Returns true if a payment method is selected.
+    /// </summary>
+    public static bool HasPayementMethod(this Order order) =>
+        order.PaymentMethodId.HasValue;
 
     /// <summary>
     /// Returns true if the order has a non-empty email.

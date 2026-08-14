@@ -53,7 +53,7 @@ public class OrderMappingTests
         response.PaymentTotal.Should().Be(order.PaymentTotal);
         response.OutstandingBalance.Should().Be(order.OutstandingBalance);
         response.PaymentState.Should().Be(order.PaymentState);
-        response.ShipmentState.Should().Be(order.ShipmentState);
+        response.FulfillmentState.Should().Be(order.FulfillmentState);
         response.UserId.Should().Be(order.UserId);
         response.ItemCount.Should().Be(order.ItemCount);
         response.ApprovedById.Should().Be(order.ApprovedById);
@@ -100,7 +100,7 @@ public class OrderMappingTests
         response.Total.Should().Be(order.Total);
         response.PaymentTotal.Should().Be(order.PaymentTotal);
         response.PaymentState.Should().Be(order.PaymentState);
-        response.ShipmentState.Should().Be(order.ShipmentState);
+        response.FulfillmentState.Should().Be(order.FulfillmentState);
         response.BillAddressId.Should().Be(order.BillAddressId);
         response.ShipAddressId.Should().Be(order.ShipAddressId);
         response.Email.Should().Be(order.Email);
@@ -144,7 +144,7 @@ public class OrderMappingTests
         order.PaymentTotal = 80m;
         order.OutstandingBalance = 0m;
         order.PaymentState = OrderPaymentState.Paid;
-        order.ShipmentState = OrderShipmentState.Pending;
+        order.FulfillmentState = OrderFulfillmentState.Pending;
         order.Status = OrderStatus.Placed;
         order.CheckoutState = CheckoutState.Complete;
         order.ItemCount = 5;

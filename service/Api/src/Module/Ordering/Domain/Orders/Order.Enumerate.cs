@@ -34,13 +34,8 @@ public enum OrderPaymentState
     Invalid
 }
 
-// Enumerate: Fulfillment status — set by UpdateOrderShipmentState
-public enum OrderShipmentState
+// Enumerate: Derived order fulfillment status — computed from shipments, cached on Order
+public enum OrderFulfillmentState
 {
-    Pending,
-    Delivered,
-    Partial,
-    Ready,
-    Backorder,
-    Canceled
+    None, Pending, Partial, Shipped, Delivered, Canceled
 }

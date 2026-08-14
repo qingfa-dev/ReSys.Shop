@@ -15,7 +15,7 @@ public record OrderDetailResponse : OrderParameters
     public decimal PaymentTotal { get; init; }
     public decimal OutstandingBalance { get; init; }
     public OrderPaymentState? PaymentState { get; init; }
-    public OrderShipmentState? ShipmentState { get; init; }
+    public OrderFulfillmentState? FulfillmentState { get; init; }
     public Guid? UserId { get; init; }
     public int ItemCount { get; init; }
     public Guid? ApprovedById { get; init; }
@@ -35,7 +35,7 @@ public record OrderListItemResponse : OrderParameters
     public decimal Total { get; init; }
     public decimal PaymentTotal { get; init; }
     public OrderPaymentState? PaymentState { get; init; }
-    public OrderShipmentState? ShipmentState { get; init; }
+    public OrderFulfillmentState? FulfillmentState { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
     public DateTimeOffset? CompletedAtUtc { get; init; }
 }

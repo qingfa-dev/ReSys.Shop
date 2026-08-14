@@ -10,41 +10,41 @@ public class UpdateOrderShipmentStateValidatorTests
 {
     private readonly UpdateOrderShipmentState.Validator _validator = new();
 
-    [Fact(DisplayName = "Validator: Should reject a null ShipmentState")]
-    public void Validate_WhenShipmentStateNull_ShouldHaveError()
+    [Fact(DisplayName = "Validator: Should reject a null FulfillmentState")]
+    public void Validate_WhenFulfillmentStateNull_ShouldHaveError()
     {
         var command = new UpdateOrderShipmentState.Command(
             Guid.NewGuid(),
-            new UpdateOrderShipmentState.Request { ShipmentState = null });
+            new UpdateOrderShipmentState.Request { FulfillmentState = null });
 
         var result = _validator.TestValidate(command);
 
-        result.ShouldHaveValidationErrorFor(x => x.Request.ShipmentState)
+        result.ShouldHaveValidationErrorFor(x => x.Request.FulfillmentState)
             .WithErrorCode(OrderResult.Errors.InvalidShipmentState.Code);
     }
 
-    [Fact(DisplayName = "Validator: Should reject an undefined ShipmentState value")]
-    public void Validate_WhenShipmentStateUndefined_ShouldHaveError()
+    [Fact(DisplayName = "Validator: Should reject an undefined FulfillmentState value")]
+    public void Validate_WhenFulfillmentStateUndefined_ShouldHaveError()
     {
         var command = new UpdateOrderShipmentState.Command(
             Guid.NewGuid(),
-            new UpdateOrderShipmentState.Request { ShipmentState = (OrderShipmentState)999 });
+            new UpdateOrderShipmentState.Request { FulfillmentState = (OrderFulfillmentState)999 });
 
         var result = _validator.TestValidate(command);
 
-        result.ShouldHaveValidationErrorFor(x => x.Request.ShipmentState)
+        result.ShouldHaveValidationErrorFor(x => x.Request.FulfillmentState)
             .WithErrorCode(OrderResult.Errors.InvalidShipmentState.Code);
     }
 
-    [Fact(DisplayName = "Validator: Should pass with a defined ShipmentState")]
-    public void Validate_WhenShipmentStateDefined_ShouldPass()
+    [Fact(DisplayName = "Validator: Should pass with a defined FulfillmentState")]
+    public void Validate_WhenFulfillmentStateDefined_ShouldPass()
     {
         var command = new UpdateOrderShipmentState.Command(
             Guid.NewGuid(),
-            new UpdateOrderShipmentState.Request { ShipmentState = OrderShipmentState.Pending });
+            new UpdateOrderShipmentState.Request { FulfillmentState = OrderFulfillmentState.Pending });
 
         var result = _validator.TestValidate(command);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Request.ShipmentState);
+        result.ShouldNotHaveValidationErrorFor(x => x.Request.FulfillmentState);
     }
 }
