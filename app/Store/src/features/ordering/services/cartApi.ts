@@ -9,28 +9,28 @@ export class CartApi {
     const result = await get<Result<CartResponse>>('/api/storefront/cart')
     if (!result.isSuccess) return result
     // Validate: Parse API response against CartResponseSchema for type safety.
-    result.value = CartResponseSchema.parse(result.value)
+    result.value = CartResponseSchema.parse(result.value) as CartResponse
     return result
   }
 
   static async addItem(req: AddCartItemRequest): Promise<Result<CartResponse>> {
     const result = await post<Result<CartResponse>>('/api/storefront/cart/items', req)
     if (!result.isSuccess) return result
-    result.value = CartResponseSchema.parse(result.value)
+    result.value = CartResponseSchema.parse(result.value) as CartResponse
     return result
   }
 
   static async updateItem(lineItemId: string, req: UpdateCartItemRequest): Promise<Result<CartResponse>> {
     const result = await patch<Result<CartResponse>>(`/api/storefront/cart/items/${lineItemId}`, req)
     if (!result.isSuccess) return result
-    result.value = CartResponseSchema.parse(result.value)
+    result.value = CartResponseSchema.parse(result.value) as CartResponse
     return result
   }
 
   static async removeItem(lineItemId: string): Promise<Result<CartResponse>> {
     const result = await del<Result<CartResponse>>(`/api/storefront/cart/items/${lineItemId}`)
     if (!result.isSuccess) return result
-    result.value = CartResponseSchema.parse(result.value)
+    result.value = CartResponseSchema.parse(result.value) as CartResponse
     return result
   }
 
@@ -43,7 +43,7 @@ export class CartApi {
   static async associateCart(guestOrderId: string): Promise<Result<CartResponse>> {
     const result = await post<Result<CartResponse>>('/api/storefront/cart/associate', { guestOrderId })
     if (!result.isSuccess) return result
-    result.value = CartResponseSchema.parse(result.value)
+    result.value = CartResponseSchema.parse(result.value) as CartResponse
     return result
   }
 }
