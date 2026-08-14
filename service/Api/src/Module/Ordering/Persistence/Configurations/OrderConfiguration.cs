@@ -28,44 +28,18 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired()
             .HasConversion(
                 v => v.ToString(),
-                v => v switch
-                {
-                    "Delivery" => CheckoutState.PickDeliveryMethod,
-                    "Payment"  => CheckoutState.PickPaymentMethod,
-                    _ => Enum.Parse<CheckoutState>(v)
-                })
+                v => OrderStatusConverters.ToCheckoutState(v))
             .HasDefaultValue(CheckoutState.Address);
 
         builder.Property(x => x.PaymentState)
             .HasConversion(
                 v => v!.ToString(),
-                v => v switch
-                {
-                    "completed"   => OrderPaymentState.Completed,
-                    "failed"      => OrderPaymentState.Failed,
-                    "void"        => OrderPaymentState.Void,
-                    "balance_due" => OrderPaymentState.BalanceDue,
-                    "credit_owed" => OrderPaymentState.CreditOwed,
-                    "paid"        => OrderPaymentState.Paid,
-                    "pending"     => OrderPaymentState.Pending,
-                    "checkout"    => OrderPaymentState.Checkout,
-                    "invalid"     => OrderPaymentState.Invalid,
-                    _ => Enum.Parse<OrderPaymentState>(v)
-                });
+                v => OrderStatusConverters.ToPaymentState(v));
 
         builder.Property(x => x.ShipmentState)
             .HasConversion(
                 v => v!.ToString(),
-                v => v switch
-                {
-                    "pending"   => OrderShipmentState.Pending,
-                    "delivered" => OrderShipmentState.Delivered,
-                    "partial"   => OrderShipmentState.Partial,
-                    "ready"     => OrderShipmentState.Ready,
-                    "backorder" => OrderShipmentState.Backorder,
-                    "canceled"  => OrderShipmentState.Canceled,
-                    _ => Enum.Parse<OrderShipmentState>(v)
-                });
+                v => OrderStatusConverters.ToShipmentState(v));
 
         builder.Property(x => x.Currency)
             .IsRequired()
