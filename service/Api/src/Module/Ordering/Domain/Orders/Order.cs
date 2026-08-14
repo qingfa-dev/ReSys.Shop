@@ -26,8 +26,8 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public decimal Total { get; set; }
     public decimal PaymentTotal { get; set; }
     public decimal OutstandingBalance { get; set; }
-    public string? PaymentState { get; set; }
-    public string? ShipmentState { get; set; }
+    public OrderPaymentState? PaymentState { get; set; }
+    public OrderShipmentState? ShipmentState { get; set; }
     #endregion Properties
 
     #region Contact

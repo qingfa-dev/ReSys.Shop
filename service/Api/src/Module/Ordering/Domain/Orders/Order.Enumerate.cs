@@ -10,13 +10,37 @@ public enum OrderStatus
     Expired = 4
 }
 
-// Enumerate: Checkout state machine progression — Address → PickDeliveryMethod → PickPaymentMethod → Confirm → Payment -> Complete
+// Enumerate: Checkout state machine progression — Address → PickDeliveryMethod → PickPaymentMethod → Confirm → Complete
 public enum CheckoutState
 {
     Address,
     PickDeliveryMethod,
     PickPaymentMethod,
     Confirm,
-    Payment,
     Complete
+}
+
+// Enumerate: Derived aggregate payment status — set by UpdatePaymentState / MarkPaymentAsPaid
+public enum OrderPaymentState
+{
+    Completed,
+    Failed,
+    Void,
+    BalanceDue,
+    CreditOwed,
+    Paid,
+    Pending,
+    Checkout,
+    Invalid
+}
+
+// Enumerate: Fulfillment status — set by UpdateOrderShipmentState
+public enum OrderShipmentState
+{
+    Pending,
+    Delivered,
+    Partial,
+    Ready,
+    Backorder,
+    Canceled
 }

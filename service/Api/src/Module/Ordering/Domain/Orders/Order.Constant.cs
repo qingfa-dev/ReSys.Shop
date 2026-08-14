@@ -22,40 +22,6 @@ public static class OrderConstant
     {
         public const string Currency = SystemCurrencyConstant.Defaults.Code;
         public const string CreatedBy = "System";
-        public const string PaymentState = "pending";
-        public const string ShipmentState = "pending";
-    }
-
-    public static class PaymentState
-    {
-        public const string Completed = "completed";
-        public const string Failed = "failed";
-        public const string Void = "void";
-        public const string BalanceDue = "balance_due";
-        public const string CreditOwed = "credit_owed";
-        public const string Paid = "paid";
-        public const string Pending = "pending";
-        public const string Checkout = "checkout";
-        public const string Invalid = "invalid";
-    }
-
-    public static class ShipmentState
-    {
-        public const string Pending = "pending";
-        public const string Delivered = "delivered";
-        public const string Partial = "partial";
-        public const string Ready = "ready";
-        public const string Backorder = "backorder";
-        public const string Canceled = "canceled";
-    }
-
-    public static class CheckoutStep
-    {
-        public const string Address = "address";
-        public const string Delivery = "delivery";
-        public const string Payment = "payment";
-        public const string Confirm = "confirm";
-        public const string Complete = "complete";
     }
 
     public static class CancelReasons

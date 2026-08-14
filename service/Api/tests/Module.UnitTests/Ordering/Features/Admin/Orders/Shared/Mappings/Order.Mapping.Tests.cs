@@ -143,8 +143,8 @@ public class OrderMappingTests
         order.Total = 80m;
         order.PaymentTotal = 80m;
         order.OutstandingBalance = 0m;
-        order.PaymentState = "paid";
-        order.ShipmentState = "pending";
+        order.PaymentState = OrderPaymentState.Paid;
+        order.ShipmentState = OrderShipmentState.Pending;
         order.Status = OrderStatus.Placed;
         order.CheckoutState = CheckoutState.Complete;
         order.ItemCount = 5;

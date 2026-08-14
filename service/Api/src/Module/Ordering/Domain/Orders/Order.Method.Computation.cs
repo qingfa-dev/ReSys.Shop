@@ -39,17 +39,14 @@ public static partial class OrderMethod
     // Compute: Derive PaymentState from OutstandingBalance and Cancellation status
     public static Result UpdatePaymentState(this Order order)
     {
-        // Compute: If canceled with no payments, mark as void
         if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
-            order.PaymentState = OrderConstant.PaymentState.Void;
-        // Compute: Positive outstanding balance means payment is still due
+            order.PaymentState = OrderPaymentState.Void;
         else if (order.OutstandingBalance > 0m)
-            order.PaymentState = OrderConstant.PaymentState.BalanceDue;
-        // Compute: Negative outstanding balance means customer is owed credit
+            order.PaymentState = OrderPaymentState.BalanceDue;
         else if (order.OutstandingBalance < 0m)
-            order.PaymentState = OrderConstant.PaymentState.CreditOwed;
+            order.PaymentState = OrderPaymentState.CreditOwed;
         else
-            order.PaymentState = OrderConstant.PaymentState.Paid;
+            order.PaymentState = OrderPaymentState.Paid;
 
         return Result.Ok(OrderResult.Success.PaymentStateUpdated(order.Id));
     }

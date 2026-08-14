@@ -21,19 +21,7 @@ public static partial class UpdateOrderShipmentState
             When(x => x.Request is not null, () =>
             {
                 RuleFor(x => x.Request.ShipmentState)
-                    .NotEmpty()
-                    .WithMessage("Shipment state is required.");
-
-                RuleFor(x => x.Request.ShipmentState)
-                    .Must(state => new[]
-                    {
-                        OrderConstant.ShipmentState.Pending,
-                        OrderConstant.ShipmentState.Delivered,
-                        OrderConstant.ShipmentState.Partial,
-                        OrderConstant.ShipmentState.Ready,
-                        OrderConstant.ShipmentState.Backorder,
-                        OrderConstant.ShipmentState.Canceled,
-                    }.Contains(state))
+                    .IsInEnum()
                     .WithErrorCode(OrderResult.Errors.InvalidShipmentState.Code)
                     .WithMessage(OrderResult.Errors.InvalidShipmentState.Message);
             });

@@ -673,4 +673,17 @@ public class OrderMethodTests
         order.MarkDelivered(t1.AddHours(1));
         order.DeliveredAt.Should().Be(t1);
     }
+
+    [Fact(DisplayName = "UpdatePaymentState derives BalanceDue/Paid/Void from balance")]
+    public void UpdatePaymentState_DerivesFromBalance()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.OutstandingBalance = 10m;
+        order.UpdatePaymentState();
+        order.PaymentState.Should().Be(OrderPaymentState.BalanceDue);
+
+        order.OutstandingBalance = 0m;
+        order.UpdatePaymentState();
+        order.PaymentState.Should().Be(OrderPaymentState.Paid);
+    }
 }

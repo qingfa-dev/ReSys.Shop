@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
+using PaymentRecordState = Module.Ordering.Features.Storefront.RecordOrderPaymentState.OrderPaymentState;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.RecordOrderPaymentState;
 
@@ -34,7 +35,7 @@ public class RecordOrderPaymentStateTests : IDisposable
         var result = await _handler.Handle(new RecordOrderPaymentStateCommand
         {
             OrderId = order.Id,
-            PaymentState = OrderPaymentState.Completed,
+            PaymentState = PaymentRecordState.Completed,
             AtUtc = atUtc
         }, TestContext.Current.CancellationToken);
 
@@ -54,7 +55,7 @@ public class RecordOrderPaymentStateTests : IDisposable
         var result = await _handler.Handle(new RecordOrderPaymentStateCommand
         {
             OrderId = order.Id,
-            PaymentState = OrderPaymentState.Failed,
+            PaymentState = PaymentRecordState.Failed,
             AtUtc = DateTimeOffset.UtcNow
         }, TestContext.Current.CancellationToken);
 
@@ -73,7 +74,7 @@ public class RecordOrderPaymentStateTests : IDisposable
         var result = await _handler.Handle(new RecordOrderPaymentStateCommand
         {
             OrderId = order.Id,
-            PaymentState = OrderPaymentState.Processing,
+            PaymentState = PaymentRecordState.Processing,
             AtUtc = DateTimeOffset.UtcNow
         }, TestContext.Current.CancellationToken);
 
@@ -88,7 +89,7 @@ public class RecordOrderPaymentStateTests : IDisposable
         var result = await _handler.Handle(new RecordOrderPaymentStateCommand
         {
             OrderId = Guid.NewGuid(),
-            PaymentState = OrderPaymentState.Completed,
+            PaymentState = PaymentRecordState.Completed,
             AtUtc = DateTimeOffset.UtcNow
         }, TestContext.Current.CancellationToken);
 

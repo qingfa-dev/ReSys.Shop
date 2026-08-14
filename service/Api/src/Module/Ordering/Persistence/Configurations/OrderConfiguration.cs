@@ -29,6 +29,9 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasConversion<string>()
             .HasDefaultValue(CheckoutState.Address);
 
+        builder.Property(x => x.PaymentState).HasConversion<string>();
+        builder.Property(x => x.ShipmentState).HasConversion<string>();
+
         builder.Property(x => x.Currency)
             .IsRequired()
             .HasMaxLength(OrderConstant.Constraints.MaxCurrencyLength)
