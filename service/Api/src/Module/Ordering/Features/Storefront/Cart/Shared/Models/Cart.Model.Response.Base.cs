@@ -23,4 +23,10 @@ public abstract record CartResponseBase
     public Guid? ShipAddressId { get; init; }
     /// <summary>Checkout email, if any.</summary>
     public string? Email { get; init; }
+    /// <summary>Applied shipping cost (sum of eligible shipping adjustments).</summary>
+    public decimal ShipmentTotal { get; init; }
+    /// <summary>Non-shipping adjustment total.</summary>
+    public decimal AdjustmentTotal { get; init; }
+    /// <summary>Applied shipping adjustment metadata, if any.</summary>
+    public ShippingAdjustmentSummary? ShippingAdjustment { get; init; }
 }

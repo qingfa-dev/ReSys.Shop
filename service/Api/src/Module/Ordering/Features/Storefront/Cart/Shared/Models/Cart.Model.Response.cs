@@ -32,3 +32,12 @@ public record CartDetailResponse : CartResponseBase
 
 /// <summary>Cart list item — lightweight summary for cart list views without line items.</summary>
 public record CartListItemResponse : CartResponseBase;
+
+/// <summary>Applied shipping adjustment summary — the server-calculated shipping cost applied to the cart/order.</summary>
+public sealed record ShippingAdjustmentSummary
+{
+    public Guid Id { get; init; }
+    public string Label { get; init; } = string.Empty;
+    public decimal Amount { get; init; }
+    public Guid? ShippingMethodId { get; init; }
+}
