@@ -58,8 +58,6 @@ public static class OrderResult
         public static string StatusUpdated(Guid id) => $"Order with ID '{id}' status was updated.";
         /// <summary>Shipping method was updated.</summary>
         public static string ShippingMethodUpdated(Guid id) => $"Shipping method was updated for order with ID '{id}'.";
-        /// <summary>Shipment state was updated.</summary>
-        public static string ShipmentStateUpdated(Guid id) => $"Shipment state was updated for order with ID '{id}'.";
     }
 
     /// <summary>
@@ -311,11 +309,6 @@ public static class OrderResult
         public static Error ShippingRateInvalid => Error.Validation(
             code: "Order.ShippingRate.Invalid",
             message: "The selected shipping rate is not valid for this order.");
-
-        /// <summary>The specified shipment state is not valid.</summary>
-        public static Error InvalidShipmentState => Error.Validation(
-            code: "Order.ShipmentState.Invalid",
-            message: "The specified shipment state is not valid.");
 
         /// <summary>Cart request body is required.</summary>
         public static Error CartRequestRequired => Error.Validation(
