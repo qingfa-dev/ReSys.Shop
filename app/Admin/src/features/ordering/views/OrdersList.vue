@@ -28,7 +28,7 @@ const { items, loading, setFilter, setSearch, refresh } = useOrderList({
 })
 
 const STATUS_OPTIONS: OrderStatus[] = ['Draft', 'Placed', 'Canceled', 'Expired']
-const CHECKOUT_STATE_OPTIONS: CheckoutState[] = ['Address', 'Delivery', 'Payment', 'Confirm', 'Complete']
+const CHECKOUT_STATE_OPTIONS: CheckoutState[] = ['Address', 'PickDeliveryMethod', 'PickPaymentMethod', 'Confirm', 'Complete']
 
 const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Draft: 'warn',
