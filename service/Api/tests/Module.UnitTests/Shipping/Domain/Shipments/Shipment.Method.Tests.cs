@@ -120,7 +120,7 @@ public class ShipmentMethodTests
         shipment.Backorder().IsFailure.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Cancel: Pending and Ready -> Canceled")]
+    [Fact(DisplayName = "Cancel: Pending, Ready, and Backorder -> Canceled")]
     public void Cancel_FromPendingAndReady_Succeeds()
     {
         var pending = CreateShipment();
@@ -131,6 +131,11 @@ public class ShipmentMethodTests
         ready.MarkReady();
         ready.Cancel().IsSuccess.Should().BeTrue();
         ready.Status.Should().Be(ShipmentStatus.Canceled);
+
+        var backorder = CreateShipment();
+        backorder.Backorder();
+        backorder.Cancel().IsSuccess.Should().BeTrue();
+        backorder.Status.Should().Be(ShipmentStatus.Canceled);
     }
 
     [Fact(DisplayName = "Cancel: Shipped and Delivered fail")]
