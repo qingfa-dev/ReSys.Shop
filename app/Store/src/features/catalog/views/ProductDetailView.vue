@@ -2,6 +2,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { MenuItem } from 'primevue/menuitem'
+import ChevronLeft from '@primeicons/vue/chevron-left'
+import ChevronRight from '@primeicons/vue/chevron-right'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
@@ -429,14 +431,70 @@ watch(() => route.params.id, id => {
       </div>
     </div>
 
-    <!-- Related: Grid of related products loaded by the detail store -->
+    <!-- Similar: Carousel of visually similar products with match tags -->
+    <section v-if="detail.product && detail.similarProducts.length > 0" class="mt-16">
+      <h2 class="mb-6 text-2xl font-semibold tracking-tight text-heading">
+        Visually similar
+      </h2>
+      <Carousel align="center" autoSize :spacing="24" class="-mx-2">
+        <CarouselContent>
+          <CarouselItem
+            v-for="item in detail.similarProducts"
+            :key="item.id"
+            class="basis-full! sm:basis-1/2! lg:basis-1/3! xl:basis-1/4!"
+          >
+            <div class="p-2">
+              <ProductGridCard
+                :product="item"
+                :show-similarity="true"
+                :similarity-score="item.similarityScore"
+              />
+            </div>
+          </CarouselItem>
+        </CarouselContent>
+        <div class="mt-4 flex items-center justify-between gap-2">
+          <CarouselIndicators />
+          <div class="flex items-center justify-end gap-2">
+          <CarouselPrev class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-surface bg-surface-0 text-muted transition-opacity hover:opacity-75">
+            <ChevronLeft class="text-lg" />
+          </CarouselPrev>
+          <CarouselNext class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-surface bg-surface-0 text-muted transition-opacity hover:opacity-75">
+            <ChevronRight class="text-lg" />
+          </CarouselNext>
+          </div>
+        </div>
+      </Carousel>
+    </section>
+
+    <!-- Related: Carousel of related products loaded by the detail store -->
     <section v-if="detail.product && detail.relatedProducts.length > 0" class="mt-16">
       <h2 class="mb-6 text-2xl font-semibold tracking-tight text-heading">
         You may also like
       </h2>
-      <div class="grid grid-cols-2 gap-6 lg:grid-cols-4">
-        <ProductGridCard v-for="product in detail.relatedProducts" :key="product.id" :product="product" />
-      </div>
+      <Carousel align="center" autoSize :spacing="24" class="-mx-2">
+        <CarouselContent>
+          <CarouselItem
+            v-for="product in detail.relatedProducts"
+            :key="product.id"
+            class="basis-full! sm:basis-1/2! lg:basis-1/3! xl:basis-1/4!"
+          >
+            <div class="p-2">
+              <ProductGridCard :product="product" />
+            </div>
+          </CarouselItem>
+        </CarouselContent>
+        <div class="mt-4 flex items-center justify-between gap-2">
+          <CarouselIndicators />
+          <div class="flex items-center justify-end gap-2">
+          <CarouselPrev class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-surface bg-surface-0 text-muted transition-opacity hover:opacity-75">
+            <ChevronLeft class="text-lg" />
+          </CarouselPrev>
+          <CarouselNext class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-surface bg-surface-0 text-muted transition-opacity hover:opacity-75">
+            <ChevronRight class="text-lg" />
+          </CarouselNext>
+          </div>
+        </div>
+      </Carousel>
     </section>
   </div>
 </template>

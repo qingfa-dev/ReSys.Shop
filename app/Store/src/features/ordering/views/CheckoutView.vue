@@ -168,6 +168,19 @@ function methodCost(methodId: string): number | null {
   return rate ? (rate.finalPrice ?? rate.cost) : null
 }
 
+// Rate: Full rate row for a method — delivery window and free-shipping threshold.
+function methodRate(methodId: string) {
+  return shipping.rates.find((r) => r.shippingMethodId === methodId)
+}
+
+// Free: A rate is free when its threshold is met or the price is already zero.
+function isMethodFree(methodId: string): boolean {
+  const rate = methodRate(methodId)
+  if (!rate) return false
+  if ((rate.finalPrice ?? rate.cost) <= 0) return true
+  return rate.freeShippingThreshold != null && cart.subtotal >= rate.freeShippingThreshold
+}
+
 // Rate: Customer-facing price for the checkout-selected method.
 const shippingCost = computed(() =>
   checkout.shippingMethodId ? methodCost(checkout.shippingMethodId) : null,
@@ -362,18 +375,35 @@ onMounted(async () => {
             <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
             <Message v-if="shipping.error" severity="error" :closable="false">{{ shipping.error }}</Message>
             <RadioButtonGroup v-model="selectedShippingId" class="flex flex-col gap-3">
-              <div v-for="method in shipping.methods" :key="method.id" class="flex items-center gap-3">
-                <RadioButton :input-id="`method-${method.id}`" :value="method.id" />
-                <Label :for="`method-${method.id}`" class="flex w-full cursor-pointer items-center justify-between">
-                  <span>{{ method.name }}</span>
-                  <span v-if="methodCost(method.id) !== null" class="font-mono text-sm">{{ formatCurrency(methodCost(method.id)!) }}</span>
-                  <span v-else class="text-sm text-muted">Calculated at checkout</span>
-                </Label>
-              </div>
+              <Label
+                v-for="method in shipping.methods"
+                :key="method.id"
+                :for="`method-${method.id}`"
+                class="flex cursor-pointer items-start gap-3 rounded-lg border border-surface-200 bg-surface-0 p-4 transition-colors has-checked:border-primary has-checked:bg-surface-50"
+              >
+                <RadioButton :input-id="`method-${method.id}`" :value="method.id" class="mt-0.5" />
+                <span class="flex min-w-0 flex-1 flex-col gap-1">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-semibold">{{ method.name }}</span>
+                    <span v-if="isMethodFree(method.id)" class="font-semibold text-success">Free</span>
+                    <span v-else-if="methodCost(method.id) !== null" class="font-mono text-sm font-semibold">
+                      {{ formatCurrency(methodCost(method.id)!) }}
+                    </span>
+                    <span v-else class="text-sm text-muted">Calculated at checkout</span>
+                  </span>
+                  <span v-if="methodRate(method.id)?.deliveryRange" class="text-sm text-muted">
+                    {{ methodRate(method.id)!.deliveryRange }}
+                  </span>
+                  <span v-if="method.code" class="text-xs uppercase tracking-wide text-placeholder">
+                    {{ method.code }}
+                  </span>
+                </span>
+              </Label>
             </RadioButtonGroup>
             <Message v-if="shipping.methods.length === 0 && !shipping.loading" severity="info" :closable="false">
               Shipping methods are loading.
             </Message>
+            <Divider />
             <ButtonGroup>
               <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(1)" />
               <Button label="Continue to Payment" icon="pi pi-arrow-right" iconPos="right" :loading="checkout.loading" :disabled="!selectedShippingId" @click="continueToPayment" />
@@ -390,11 +420,23 @@ onMounted(async () => {
             </Message>
             <!-- Section: Payment Methods — radio list of customer-facing methods -->
             <RadioButtonGroup v-model="selectedPaymentMethodId" class="flex flex-col gap-3">
-              <div v-for="method in paymentMethods" :key="method.id" class="flex items-center gap-3">
-                <RadioButton :input-id="`pm-${method.id}`" :value="method.id" />
-                <Label :for="`pm-${method.id}`" class="cursor-pointer">{{ method.name }}</Label>
-              </div>
+              <Label
+                v-for="method in paymentMethods"
+                :key="method.id"
+                :for="`pm-${method.id}`"
+                class="flex cursor-pointer items-start gap-3 rounded-lg border border-surface-200 bg-surface-0 p-4 transition-colors has-checked:border-primary has-checked:bg-surface-50"
+              >
+                <RadioButton :input-id="`pm-${method.id}`" :value="method.id" class="mt-0.5" />
+                <span class="flex min-w-0 flex-1 flex-col gap-1">
+                  <span class="font-semibold">{{ method.name }}</span>
+                  <span v-if="method.description" class="text-sm text-muted">{{ method.description }}</span>
+                  <span v-if="method.code" class="text-xs uppercase tracking-wide text-placeholder">
+                    {{ method.code }}
+                  </span>
+                </span>
+              </Label>
             </RadioButtonGroup>
+            <Divider />
             <ButtonGroup>
               <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(2)" />
               <Button

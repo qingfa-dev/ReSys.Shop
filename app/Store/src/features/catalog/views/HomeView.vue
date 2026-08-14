@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import ChevronLeft from '@primeicons/vue/chevron-left'
+import ChevronRight from '@primeicons/vue/chevron-right'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { useTaxonomy } from '../composables/useTaxonomy'
 import { useProducts } from '../composables/useProducts'
@@ -84,22 +86,29 @@ onMounted(() => {
         </div>
       </div>
       <!-- Loaded: Responsive carousel of product cards -->
-      <Carousel
-        v-else-if="featuredProducts.length > 0"
-        :value="featuredProducts"
-        :numVisible="4"
-        :numScroll="1"
-        :responsiveOptions="[
-          { breakpoint: '1024px', numVisible: 3, numScroll: 1 },
-          { breakpoint: '768px', numVisible: 2, numScroll: 1 },
-          { breakpoint: '560px', numVisible: 1, numScroll: 1 },
-        ]"
-      >
-        <template #item="{ data }">
-          <div class="px-1">
-            <ProductGridCard :product="data" />
+      <Carousel v-else-if="featuredProducts.length > 0" align="center" autoSize :spacing="24" class="-mx-2">
+        <CarouselContent>
+          <CarouselItem
+            v-for="product in featuredProducts"
+            :key="product.id"
+            class="basis-full! sm:basis-1/2! lg:basis-1/3! xl:basis-1/4!"
+          >
+            <div class="p-2">
+              <ProductGridCard :product="product" />
+            </div>
+          </CarouselItem>
+        </CarouselContent>
+        <div class="mt-4 flex items-center justify-between gap-2">
+          <CarouselIndicators />
+          <div class="flex items-center justify-end gap-2">
+          <CarouselPrev class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-surface bg-surface-0 text-muted transition-opacity hover:opacity-75">
+            <ChevronLeft class="text-lg" />
+          </CarouselPrev>
+          <CarouselNext class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-surface bg-surface-0 text-muted transition-opacity hover:opacity-75">
+            <ChevronRight class="text-lg" />
+          </CarouselNext>
           </div>
-        </template>
+        </div>
       </Carousel>
     </DeferredContent>
 
