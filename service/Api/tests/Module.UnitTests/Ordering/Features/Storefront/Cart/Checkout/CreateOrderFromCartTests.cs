@@ -2,10 +2,12 @@ using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 using Module.Ordering.Services;
+using Module.Shipping.Features.Shared.Commands;
 
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.StockReservations;
 using Module.Billing.Domain.PaymentCaptures;
+using PaymentCapture = Module.Billing.Domain.PaymentCaptures.Payment;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Module.Billing.Services.Provider;
@@ -57,7 +59,7 @@ public class CreateOrderFromCartTests : IDisposable
             .ReturnsAsync(Result.Ok());
 
         var placementService = new CheckoutPlacementService(
-            _dbContext, _reservationServiceMock.Object, _notificationServiceMock.Object, _loggerMock.Object);
+            _dbContext, _reservationServiceMock.Object, _notificationServiceMock.Object, _senderMock.Object, _loggerMock.Object);
 
         _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _currentUserMock.Object, _senderMock.Object, placementService);
     }
@@ -69,6 +71,9 @@ public class CreateOrderFromCartTests : IDisposable
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
         _senderMock
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CreateShipmentCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
     }
 
@@ -150,10 +155,10 @@ public class CreateOrderFromCartTests : IDisposable
         result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.Empty).Code);
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when checkout state is not Payment")]
+    [Fact(DisplayName = "Handler: Should return failure when checkout state is not PaymentCapture")]
     public async Task Handle_ShouldReturnFailure_WhenCheckoutStateNotPayment()
     {
-        // Arrange: Create draft cart with Confirm state (not Payment)
+        // Arrange: Create draft cart with Confirm state (not PaymentCapture)
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
         cart.CheckoutState = CheckoutState.Confirm;
@@ -206,7 +211,7 @@ public class CreateOrderFromCartTests : IDisposable
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Setup: Payment returns not completed
+        // Setup: PaymentCapture returns not completed
         _senderMock
             .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = false, Amount = 0m });
@@ -282,10 +287,10 @@ public class CreateOrderFromCartTests : IDisposable
         var capture = PaymentCaptureMethod.Create(10m, Guid.NewGuid(), cart.Id).Value;
         capture.State = PaymentRecordState.Pending;
         capture.ProviderKey = GatewayConstants.Providers.CashOnDelivery;
-        _dbContext.Set<PaymentCapture>().Add(capture);
+        _dbContext.Set<Billing.Domain.PaymentCaptures.Payment>().Add(capture);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Setup: Payment reports pending + offline (COD)
+        // Setup: PaymentCapture reports pending + offline (COD)
         _senderMock
             .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = false, IsPending = true, IsOffline = true, Amount = 10m });
@@ -332,7 +337,7 @@ public class CreateOrderFromCartTests : IDisposable
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Setup: Payment reports pending but not offline (gateway)
+        // Setup: PaymentCapture reports pending but not offline (gateway)
         _senderMock
             .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = false, IsPending = true, IsOffline = false, Amount = 10m });

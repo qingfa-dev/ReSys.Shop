@@ -5,6 +5,7 @@ using Module.Ordering.Services;
 using Module.Inventory.Services.StockReservations;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
+using Module.Shipping.Features.Shared.Commands;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
@@ -55,13 +56,15 @@ public class CreateOrderFromCartTransactionTests
             .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
         sender.Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
+        sender.Setup(s => s.Send(It.IsAny<CreateShipmentCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
 
         var reservationService = new Mock<IStockReservationService>();
         reservationService.Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         var placementService = new CheckoutPlacementService(
-            db, reservationService.Object, notificationService.Object, logger.Object);
+            db, reservationService.Object, notificationService.Object, sender.Object, logger.Object);
 
         var sut = new CreateOrderFromCart.CommandHandler(
             db, currentUser.Object, sender.Object, placementService);

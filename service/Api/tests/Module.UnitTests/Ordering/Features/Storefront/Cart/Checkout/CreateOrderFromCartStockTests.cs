@@ -1,6 +1,7 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 using Module.Ordering.Services;
+using Module.Shipping.Features.Shared.Commands;
 
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.StockReservations;
@@ -52,6 +53,9 @@ public class CreateOrderFromCartStockTests : IDisposable
         _senderMock
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CreateShipmentCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
 
         _reservationServiceMock = new Mock<IStockReservationService>();
         _reservationServiceMock
@@ -59,7 +63,7 @@ public class CreateOrderFromCartStockTests : IDisposable
             .ReturnsAsync(Result.Ok());
 
         var placementService = new CheckoutPlacementService(
-            _dbContext, _reservationServiceMock.Object, _notificationServiceMock.Object, _loggerMock.Object);
+            _dbContext, _reservationServiceMock.Object, _notificationServiceMock.Object, _senderMock.Object, _loggerMock.Object);
 
         _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _currentUserMock.Object, _senderMock.Object, placementService);
     }
