@@ -30,6 +30,9 @@ public sealed class ModuleIsolationTests
     {
         "Module.Inventory.Services.IStockItemService",
         "Module.Inventory.Services.StockReservations.IStockReservationService",
+        // Payload enum of the Billing→Ordering RecordOrderPaymentStateCommand ISender
+        // contract — surfaced in ProcessStripeWebhookEventJob's notify helper signature.
+        "Module.Ordering.Features.Storefront.RecordOrderPaymentState.PaymentTimelineState",
     };
 
     private static bool IsAllowedServiceContract(Type t) =>

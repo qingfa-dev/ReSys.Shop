@@ -16,16 +16,12 @@ public sealed class AdvanceCheckoutStateCommandHandler(IApplicationDbContext dbC
         if (cart is null)
             return OrderResult.Errors.NotFound(command.CartId);
 
-        if (!Enum.TryParse<CheckoutState>(command.TargetState, ignoreCase: true, out var targetState))
-            return OrderResult.Errors.CannotAdvanceState;
-
-        var result = cart.AdvanceCheckoutState(targetState);
+        var result = cart.AdvanceCheckoutState(command.TargetState);
         if (result.IsFailure)
             return result.Errors;
 
-        // Timestamp: entering the payment step marks when the customer started paying.
-        if (targetState == CheckoutState.PickPaymentMethod)
-            cart.MarkPaymentProcessing(DateTimeOffset.UtcNow);
+        // Note: entering PickPaymentMethod means "method picked", not "processing" —
+        // PaymentProcessingAt is stamped via RecordOrderPaymentState{Processing} instead.
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

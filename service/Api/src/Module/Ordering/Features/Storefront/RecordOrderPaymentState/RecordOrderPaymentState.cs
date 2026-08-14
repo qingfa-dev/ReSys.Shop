@@ -16,9 +16,9 @@ public sealed class RecordOrderPaymentStateCommandHandler(IApplicationDbContext 
 
         var result = command.PaymentState switch
         {
-            OrderPaymentState.Completed => order.MarkPaymentCompleted(command.AtUtc),
-            OrderPaymentState.Failed => order.MarkPaymentFailed(command.AtUtc),
-            OrderPaymentState.Processing => order.MarkPaymentProcessing(command.AtUtc),
+            PaymentTimelineState.Completed => order.MarkPaymentCompleted(command.AtUtc),
+            PaymentTimelineState.Failed => order.MarkPaymentFailed(command.AtUtc),
+            PaymentTimelineState.Processing => order.MarkPaymentProcessing(command.AtUtc),
             _ => Result.Ok()
         };
         if (result.IsFailure)

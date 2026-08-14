@@ -686,4 +686,14 @@ public class OrderMethodTests
         order.UpdatePaymentState();
         order.PaymentState.Should().Be(OrderPaymentState.Paid);
     }
+
+    [Fact(DisplayName = "AdvanceCheckoutState to PickPaymentMethod does not stamp PaymentProcessingAt")]
+    public void AdvanceCheckoutState_PickPaymentMethod_DoesNotStampProcessing()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.AdvanceCheckoutState(CheckoutState.PickDeliveryMethod);
+        order.AdvanceCheckoutState(CheckoutState.PickPaymentMethod);
+
+        order.PaymentProcessingAt.Should().BeNull();
+    }
 }

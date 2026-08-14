@@ -15,8 +15,8 @@ public abstract record CartResponseBase
     public string Currency { get; init; } = OrderConstant.Defaults.Currency;
     /// <summary>Total number of line items in the cart.</summary>
     public int ItemCount { get; init; }
-    /// <summary>Current checkout step (e.g. address, delivery, payment, confirm, complete).</summary>
-    public string CheckoutState { get; init; } = string.Empty;
+    /// <summary>Current checkout step (Address, PickDeliveryMethod, PickPaymentMethod, Confirm, Complete).</summary>
+    public CheckoutState CheckoutState { get; init; }
     /// <summary>Selected shipping method id, if any.</summary>
     public Guid? ShippingMethodId { get; init; }
     /// <summary>Shipping address id, if any.</summary>

@@ -37,6 +37,6 @@ public class CartMappingTests
         response.Total.Should().Be(120m);
         response.Currency.Should().Be("USD");
         response.ItemCount.Should().Be(3);
-        response.CheckoutState.Should().Be("Delivery");
+        response.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 }

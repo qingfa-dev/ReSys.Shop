@@ -9,6 +9,7 @@ using Module.Billing.Domain.PaymentMethods;
 using Module.Billing.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
+using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
@@ -121,6 +122,10 @@ public class CreatePaymentIntentTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         result.Value.ResponseCode.Should().Be("cs_test_1");
         result.Value.CheckoutUrl.Should().Be("https://checkout.stripe.com/c/pay/cs_test_1");
+
+        _senderMock.Verify(x => x.Send(
+            It.Is<RecordOrderPaymentStateCommand>(c => c.PaymentState == PaymentTimelineState.Processing && c.OrderId == order.Id),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact(DisplayName = "Handler: does NOT persist PaymentCapture when session creation fails")]
@@ -164,7 +169,7 @@ public class CreatePaymentIntentTests : IDisposable
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<GetCartForCheckoutResponse>.Ok(new GetCartForCheckoutResponse
             {
-                State = "Payment",
+                State = CheckoutState.PickPaymentMethod,
                 Total = 100.00m,
                 Email = "test@example.com",
                 LineItems = []
@@ -197,7 +202,7 @@ public class CreatePaymentIntentTests : IDisposable
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<GetCartForCheckoutResponse>.Ok(new GetCartForCheckoutResponse
             {
-                State = "Delivery",
+                State = CheckoutState.PickDeliveryMethod,
                 Total = total,
                 Email = "test@example.com",
                 LineItems = []
@@ -216,7 +221,7 @@ public class CreatePaymentIntentTests : IDisposable
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<GetCartForCheckoutResponse>.Ok(new GetCartForCheckoutResponse
             {
-                State = "Delivery",
+                State = CheckoutState.PickDeliveryMethod,
                 Total = 100.00m,
                 Email = "test@example.com",
                 LineItems = []
@@ -224,6 +229,11 @@ public class CreatePaymentIntentTests : IDisposable
 
         _senderMock.Setup(x => x.Send(
             It.IsAny<AdvanceCheckoutStateCommand>(),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        _senderMock.Setup(x => x.Send(
+            It.IsAny<RecordOrderPaymentStateCommand>(),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
     }

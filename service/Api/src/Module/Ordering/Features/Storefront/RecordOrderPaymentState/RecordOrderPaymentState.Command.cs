@@ -8,16 +8,16 @@ namespace Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 public sealed record RecordOrderPaymentStateCommand : ICommand
 {
     public Guid OrderId { get; init; }
-    /// <summary>One of <see cref="OrderPaymentState"/> values (PaymentRecordState name).</summary>
-    public string PaymentState { get; init; } = default!;
+    /// <summary>One of <see cref="PaymentTimelineState"/> values.</summary>
+    public PaymentTimelineState PaymentState { get; init; }
     /// <summary>The UTC instant the payment reached this state.</summary>
     public DateTimeOffset AtUtc { get; init; }
 }
 
-/// <summary>Payment state names accepted by <see cref="RecordOrderPaymentStateCommand"/> (mirror of PaymentRecordState).</summary>
-public static class OrderPaymentState
+/// <summary>Payment timeline event kind mirrored onto the owning order's timestamps.</summary>
+public enum PaymentTimelineState
 {
-    public const string Completed = "Completed";
-    public const string Failed = "Failed";
-    public const string Processing = "Processing";
+    Completed,
+    Failed,
+    Processing
 }

@@ -22,7 +22,7 @@ public sealed class GetPaymentForCheckoutQueryHandler(IApplicationDbContext dbCo
         {
             Amount = payment?.Amount ?? 0m,
             IsCompleted = payment?.State == PaymentRecordState.Completed,
-            State = payment?.State.ToString() ?? string.Empty,
+            IsPending = payment?.State == PaymentRecordState.Pending,
             CompletedAtUtc = payment?.CompletedAtUtc,
             IsOffline = payment is not null
                 && GatewayConstants.Providers.IsOffline(payment.ProviderKey)

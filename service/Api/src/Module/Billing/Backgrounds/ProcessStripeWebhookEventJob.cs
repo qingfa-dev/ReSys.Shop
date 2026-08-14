@@ -4,6 +4,7 @@ using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Services.Provider;
 using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
+using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
 using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 using Module.Ordering.Features.Storefront.RegressCheckoutState;
@@ -121,7 +122,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         await RecordStripeEventAsync(payment, stripeEvent, ct);
 
         // Mirror: payment succeeded → stamp the order's PaymentCompletedAt timeline.
-        await TryNotifyOrderPaymentStateAsync(payment, OrderPaymentState.Completed, ct);
+        await TryNotifyOrderPaymentStateAsync(payment, PaymentTimelineState.Completed, ct);
     }
 
     // Webhook: payment_intent.payment_failed — transition to Failed
@@ -153,7 +154,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         await RecordStripeEventAsync(payment, stripeEvent, ct);
 
         // Mirror: payment failed → stamp the order's PaymentFailedAt timeline.
-        await TryNotifyOrderPaymentStateAsync(payment, OrderPaymentState.Failed, ct);
+        await TryNotifyOrderPaymentStateAsync(payment, PaymentTimelineState.Failed, ct);
     }
 
     // Webhook: charge.refunded — reconcile RefundedAmount with the Stripe total
@@ -359,7 +360,7 @@ public sealed partial class ProcessStripeWebhookEventJob
                 $"Failed to release stock reservations for order {payment.OrderId}: {releaseResult.Message}");
 
         var regressResult = await _sender.Send(
-            new RegressCheckoutStateCommand { CartId = payment.OrderId, TargetState = "Delivery" }, ct);
+            new RegressCheckoutStateCommand { CartId = payment.OrderId, TargetState = CheckoutState.PickDeliveryMethod }, ct);
         if (regressResult.IsFailure)
             throw new InvalidOperationException(
                 $"Failed to regress cart {payment.OrderId} to Delivery: {regressResult.Message}");
@@ -399,12 +400,12 @@ public sealed partial class ProcessStripeWebhookEventJob
     // Mirror: best-effort stamp of the owning order's payment timeline. The payment row
     // is authoritative; a failure here must not fail the job (the order placement path
     // re-stamps on completion via CompleteCheckoutForPayment).
-    private async Task TryNotifyOrderPaymentStateAsync(PaymentCapture payment, string paymentState, CancellationToken ct)
+    private async Task TryNotifyOrderPaymentStateAsync(PaymentCapture payment, PaymentTimelineState paymentState, CancellationToken ct)
     {
         var atUtc = paymentState switch
         {
-            OrderPaymentState.Completed => payment.CompletedAtUtc,
-            OrderPaymentState.Failed => payment.FailedAtUtc,
+            PaymentTimelineState.Completed => payment.CompletedAtUtc,
+            PaymentTimelineState.Failed => payment.FailedAtUtc,
             _ => null
         } ?? DateTimeOffset.UtcNow;
 
@@ -416,7 +417,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         }, ct);
 
         if (result.IsFailure)
-            ProcessStripeWebhookEventJobLoggers.PaymentStateNotifyFailed(_logger, payment.Id, paymentState, result.Message);
+            ProcessStripeWebhookEventJobLoggers.PaymentStateNotifyFailed(_logger, payment.Id, paymentState.ToString(), result.Message);
     }
 
     // Convert: Stripe Event.Created (Unix epoch seconds) to a UTC instant regardless of Kind.

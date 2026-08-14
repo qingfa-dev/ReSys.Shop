@@ -19,7 +19,7 @@ public sealed class GetCartForCheckoutQueryHandler(IApplicationDbContext dbConte
 
         return new GetCartForCheckoutResponse
         {
-            State = cart.CheckoutState.ToString(),
+            State = cart.CheckoutState,
             LineItems = cart.LineItems
                 .Select(li => new CartLineItem
                 {

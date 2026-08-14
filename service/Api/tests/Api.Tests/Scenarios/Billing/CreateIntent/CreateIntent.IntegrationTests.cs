@@ -180,7 +180,7 @@ public sealed class CreateIntentIntegrationTests(ApiFixture fixture) : PaymentIn
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
             var order = await dbContext.Set<Order>().FirstAsync(o => o.Id == cart!.Id);
-            order.CheckoutState = CheckoutState.Delivery;
+            order.CheckoutState = CheckoutState.PickDeliveryMethod;
             await dbContext.SaveChangesAsync();
         }
 

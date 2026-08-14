@@ -1,8 +1,10 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Storefront.GetCartForCheckout;
 
 public sealed record GetCartForCheckoutResponse
 {
-    public string State { get; init; } = default!;
+    public CheckoutState State { get; init; }
     public IReadOnlyList<CartLineItem> LineItems { get; init; } = [];
     public decimal Total { get; init; }
     public string? Email { get; init; }

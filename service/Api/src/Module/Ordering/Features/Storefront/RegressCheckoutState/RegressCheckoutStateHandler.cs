@@ -16,10 +16,7 @@ public sealed class RegressCheckoutStateCommandHandler(IApplicationDbContext dbC
         if (cart is null)
             return OrderResult.Errors.NotFound(command.CartId);
 
-        if (!Enum.TryParse<CheckoutState>(command.TargetState, ignoreCase: true, out var targetState))
-            return OrderResult.Errors.CannotAdvanceState;
-
-        var result = cart.RegressCheckoutState(targetState);
+        var result = cart.RegressCheckoutState(command.TargetState);
         if (result.IsFailure)
             return result.Errors;
 

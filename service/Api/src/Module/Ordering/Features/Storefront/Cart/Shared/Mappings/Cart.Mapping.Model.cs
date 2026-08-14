@@ -22,7 +22,7 @@ public static partial class CartMapping
             Total = entity.Total,
             Currency = entity.Currency,
             ItemCount = entity.ItemCount,
-            CheckoutState = entity.CheckoutState.ToString(),
+            CheckoutState = entity.CheckoutState,
             ShippingMethodId = entity.ShippingMethodId,
             ShipAddressId = entity.ShipAddressId,
             Email = entity.Email,

@@ -4,6 +4,7 @@ using Module.Inventory.Features.Shared;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
+using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 
 using Module.Ordering.Domain.Orders;
 using Module.Billing.Domain.PaymentCaptures;
@@ -39,11 +40,9 @@ public static partial class CreatePaymentIntent
             if (cartResult.IsFailure) return cartResult.Errors;
             var cart = cartResult.Value;
 
-            if (!Enum.TryParse<CheckoutState>(cart.State, out var currentState)
-                || currentState is not (CheckoutState.PickDeliveryMethod or CheckoutState.PickPaymentMethod))
-                return OrderResult.Errors.InvalidCheckoutTransition(
-                    Enum.TryParse<CheckoutState>(cart.State, out var s) ? s : CheckoutState.Address,
-                    CheckoutState.PickPaymentMethod);
+            var currentState = cart.State;
+            if (currentState is not (CheckoutState.PickDeliveryMethod or CheckoutState.PickPaymentMethod))
+                return OrderResult.Errors.InvalidCheckoutTransition(currentState, CheckoutState.PickPaymentMethod);
 
             // Re-pick / retry: at Payment, void stale non-completed captures and release
             // prior reservations so a retry keeps a single reservation set and no orphans.
@@ -160,6 +159,14 @@ public static partial class CreatePaymentIntent
                 payment.CheckoutUrl = sessionResult.Value.CheckoutUrl;
                 payment.Process();
 
+                // Mirror: the payment now awaits the checkout webhook — stamp the order's processing time.
+                await sender.Send(new RecordOrderPaymentStateCommand
+                {
+                    OrderId = command.Request.OrderId,
+                    PaymentState = PaymentTimelineState.Processing,
+                    AtUtc = DateTimeOffset.UtcNow
+                }, cancellationToken);
+
                 CreatePaymentIntentLoggers.SessionCreated(logger, payment.Id, sessionResult.Value.Authorization, sessionResult.Value.CheckoutUrl);
             }
 
@@ -176,9 +183,9 @@ public static partial class CreatePaymentIntent
                 throw;
             }
 
-            // Advance: Cart state to Payment
+            // Advance: Cart state to PickPaymentMethod
             await sender.Send(
-                new AdvanceCheckoutStateCommand { CartId = command.Request.OrderId, TargetState = "Payment" }, cancellationToken);
+                new AdvanceCheckoutStateCommand { CartId = command.Request.OrderId, TargetState = CheckoutState.PickPaymentMethod }, cancellationToken);
 
             // Map: Payment → storefront response DTO
             return payment.MapToStoreDetail<Response>();

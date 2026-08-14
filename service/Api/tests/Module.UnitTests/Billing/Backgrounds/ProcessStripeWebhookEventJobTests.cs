@@ -4,6 +4,7 @@ using Module.Billing.Backgrounds;
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
+using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
 using Module.Ordering.Features.Storefront.RegressCheckoutState;
 
@@ -481,7 +482,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
             payment.OrderId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == "Delivery"),
+            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == CheckoutState.PickDeliveryMethod),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -583,7 +584,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
             payment.OrderId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == "Delivery"),
+            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == CheckoutState.PickDeliveryMethod),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

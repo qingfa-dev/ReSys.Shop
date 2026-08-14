@@ -38,7 +38,7 @@ public static partial class CreateOrderFromCart
                 return paymentResult.Errors;
 
             var p = paymentResult.Value!;
-            var isPaid = p.IsCompleted || (p.State == "Pending" && p.IsOffline);
+            var isPaid = p.IsCompleted || (p.IsPending && p.IsOffline);
             if (!isPaid || p.Amount <= 0)
                 return OrderResult.Errors.PaymentNotCompleted;
 

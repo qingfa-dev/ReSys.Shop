@@ -42,7 +42,7 @@ public class GetPaymentForCheckoutTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be("Pending");
+        result.Value.IsPending.Should().BeTrue();
         result.Value.IsOffline.Should().BeTrue();
         result.Value.IsCompleted.Should().BeFalse();
         result.Value.Amount.Should().Be(50m);
@@ -64,7 +64,7 @@ public class GetPaymentForCheckoutTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be("Pending");
+        result.Value.IsPending.Should().BeTrue();
         result.Value.IsOffline.Should().BeTrue();
         result.Value.Amount.Should().Be(50m);
     }
@@ -86,7 +86,7 @@ public class GetPaymentForCheckoutTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsOffline.Should().BeFalse();
-        result.Value.State.Should().Be("Processing");
+        result.Value.IsPending.Should().BeFalse();
         result.Value.IsCompleted.Should().BeFalse();
     }
 }
