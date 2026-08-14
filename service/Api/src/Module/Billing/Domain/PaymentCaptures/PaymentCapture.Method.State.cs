@@ -40,6 +40,7 @@ public static partial class PaymentCaptureMethod
         if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
+        payment.CapturedAmount = payment.Amount;
         payment.State = PaymentRecordState.Completed;
         payment.CompletedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
@@ -127,10 +128,12 @@ public static partial class PaymentCaptureMethod
         if (!payment.CanCapture(amount))
             return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
         payment.CapturedAmount += amount;
-        payment.CompletedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         if (payment.CapturedAmount >= payment.Amount)
+        {
             payment.State = PaymentRecordState.Completed; // fully captured
+            payment.CompletedAtUtc = DateTimeOffset.UtcNow;
+        }
         return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount));
     }
 

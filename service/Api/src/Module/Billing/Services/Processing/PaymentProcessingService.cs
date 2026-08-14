@@ -93,7 +93,7 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         // Check: Payment state and refund amount must be valid
         if (!payment.CanRefund(amount))
         {
-            if (payment.State is not PaymentRecordState.Completed)
+            if (payment.State is not (PaymentRecordState.Completed or PaymentRecordState.Disputed))
                 return ProcessingResult.Errors.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
             return ProcessingResult.Errors.AmountExceedsAuthorized;
