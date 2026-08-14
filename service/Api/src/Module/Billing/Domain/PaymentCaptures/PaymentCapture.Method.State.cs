@@ -4,7 +4,7 @@ public static partial class PaymentCaptureMethod
 {
     #region State Transitions
     // Update: Checkout → Processing — validates transition via CanTransitionTo
-    public static Result Process(this PaymentCapture payment)
+    public static Result Process(this Payment payment)
     {
         if (!CanTransitionTo(PaymentRecordState.Processing))
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Processing);
@@ -21,7 +21,7 @@ public static partial class PaymentCaptureMethod
     }
 
     // Update: Processing → Pending — requires state to be Processing
-    public static Result Pend(this PaymentCapture payment)
+    public static Result Pend(this Payment payment)
     {
         if (payment.State is not PaymentRecordState.Processing)
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Pending);
@@ -32,7 +32,7 @@ public static partial class PaymentCaptureMethod
     }
 
     // Update: Processing/Pending → Completed — returns AlreadyCompleted error if already completed
-    public static Result Complete(this PaymentCapture payment)
+    public static Result Complete(this Payment payment)
     {
         if (payment.State is PaymentRecordState.Completed)
             return PaymentCaptureResult.Failure.AlreadyCompleted;
@@ -47,7 +47,7 @@ public static partial class PaymentCaptureMethod
     }
 
     // Update: Checkout/Processing/Pending → Failed — idempotent if already failed
-    public static Result Fail(this PaymentCapture payment)
+    public static Result Fail(this Payment payment)
     {
         if (payment.State is PaymentRecordState.Failed)
             return PaymentCaptureResult.Failure.AlreadyFailed;
@@ -62,7 +62,7 @@ public static partial class PaymentCaptureMethod
     }
 
     // Update: Processing/Pending → Void — idempotent if already voided
-    public static Result Void(this PaymentCapture payment)
+    public static Result Void(this Payment payment)
     {
         if (payment.State is PaymentRecordState.Void)
             return PaymentCaptureResult.Failure.AlreadyVoided;
@@ -77,7 +77,7 @@ public static partial class PaymentCaptureMethod
     }
 
     // Update: Any non-terminal state → Disputed — idempotent if already disputed
-    public static Result Dispute(this PaymentCapture payment)
+    public static Result Dispute(this Payment payment)
     {
         if (payment.State is PaymentRecordState.Disputed)
             return PaymentCaptureResult.Failure.AlreadyDisputed;
@@ -92,7 +92,7 @@ public static partial class PaymentCaptureMethod
     }
 
     // Update: Failed/Void → Invalid — idempotent if already invalid
-    public static Result Invalidate(this PaymentCapture payment)
+    public static Result Invalidate(this Payment payment)
     {
         if (payment.State is PaymentRecordState.Invalid)
             return Result.Ok();
@@ -108,65 +108,64 @@ public static partial class PaymentCaptureMethod
 
     #region Capture Logic
     // Check: Credit/refund only allowed when state is Completed
-    public static bool CreditAllowed(this PaymentCapture payment)
+    public static bool CreditAllowed(this Payment payment)
         => payment.State is PaymentRecordState.Completed;
 
-    // Compute: Amount remaining to capture — 0 if already completed
-    public static decimal UncapturedAmount(this PaymentCapture payment)
-        => payment.State is PaymentRecordState.Completed ? 0 : payment.Amount;
+    // Compute: Amount remaining to capture — 0 when fully captured
+    public static decimal UncapturedAmount(this Payment payment)
+        => payment.CapturedAmount >= payment.Amount ? 0 : payment.Amount - payment.CapturedAmount;
 
-    // Check: Can capture — state must be Processing/Pending and amount positive and <= total
-    public static bool CanCapture(this PaymentCapture payment, decimal amount)
+    // Check: Can capture — Processing/Pending, positive amount, within remaining authorized
+    public static bool CanCapture(this Payment payment, decimal amount)
         => payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending
-           && amount > 0 && amount <= payment.Amount;
+           && amount > 0
+           && amount <= payment.Amount - payment.CapturedAmount;
 
-    // Update: Capture amount — validates CanCapture precondition, transitions to Completed
-    public static Result Capture(this PaymentCapture payment, decimal amount)
+    // Update: Capture amount — accumulates CapturedAmount; Completed only when fully captured
+    public static Result Capture(this Payment payment, decimal amount)
     {
         if (!payment.CanCapture(amount))
-        {
-            return amount > payment.Amount
-                ? PaymentCaptureResult.Failure.AmountExceedsAuthorized
-                : PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
-        }
-        payment.State = PaymentRecordState.Completed;
+            return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
+        payment.CapturedAmount += amount;
         payment.CompletedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        if (payment.CapturedAmount >= payment.Amount)
+            payment.State = PaymentRecordState.Completed; // fully captured
         return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount));
     }
 
-    // Check: Can refund — state must be Completed, amount positive and <= remaining
-    public static bool CanRefund(this PaymentCapture payment, decimal amount)
-        => payment.State is PaymentRecordState.Completed
-           && amount > 0 && (payment.Amount - payment.RefundedAmount) >= amount;
+    // Check: Can refund — Completed/Disputed, positive, within captured - already refunded
+    public static bool CanRefund(this Payment payment, decimal amount)
+        => payment.State is PaymentRecordState.Completed or PaymentRecordState.Disputed
+           && amount > 0
+           && amount <= payment.CapturedAmount - payment.RefundedAmount;
 
-    // Update: Refund amount — validates CanRefund precondition, increments RefundedAmount
-    public static Result Refund(this PaymentCapture payment, decimal amount)
+    // Update: Refund amount — increments RefundedAmount (state stays Completed)
+    public static Result Refund(this Payment payment, decimal amount)
     {
         if (!payment.CanRefund(amount))
         {
-            return payment.State is not PaymentRecordState.Completed
+            return payment.State is not (PaymentRecordState.Completed or PaymentRecordState.Disputed)
                 ? PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed)
                 : PaymentCaptureResult.Failure.AmountExceedsAuthorized;
         }
-
         payment.RefundedAmount += amount;
         payment.RefundedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Credited(payment.Number, amount));
     }
 
-    // Update: Reconcile RefundedAmount with the gateway's authoritative total.
-    // Monotonic — the local total never decreases, so an admin refund racing a
-    // charge.refunded webhook cannot double-count the same money. Accepts Disputed
-    // payments too: a dispute-loss auto-refund from Stripe still reports a total.
-    public static Result ReconcileRefunded(this PaymentCapture payment, decimal totalRefunded)
+    // Update: Reconcile RefundedAmount with the gateway's authoritative total — monotonic, capped at CapturedAmount
+    public static Result ReconcileRefunded(this Payment payment, decimal totalRefunded)
     {
         if (payment.State is not (PaymentRecordState.Completed or PaymentRecordState.Disputed))
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
         if (totalRefunded <= 0 || totalRefunded <= payment.RefundedAmount)
             return Result.Ok();
+
+        if (totalRefunded > payment.CapturedAmount)
+            return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
 
         payment.RefundedAmount = totalRefunded;
         payment.RefundedAtUtc = DateTimeOffset.UtcNow;
