@@ -6,6 +6,6 @@ public static partial class UpdateOrderShipmentState
 {
     public sealed record Request
     {
-        public OrderShipmentState ShipmentState { get; init; }
+        public OrderShipmentState? ShipmentState { get; init; }
     }
 }

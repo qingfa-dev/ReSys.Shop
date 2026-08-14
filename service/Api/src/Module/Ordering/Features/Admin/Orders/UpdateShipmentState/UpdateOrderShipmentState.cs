@@ -21,7 +21,7 @@ public static partial class UpdateOrderShipmentState
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            if (!Enum.IsDefined(command.Request.ShipmentState))
+            if (command.Request.ShipmentState is null || !Enum.IsDefined(command.Request.ShipmentState.Value))
                 return OrderResult.Errors.InvalidShipmentState;
 
             order.ShipmentState = command.Request.ShipmentState;
