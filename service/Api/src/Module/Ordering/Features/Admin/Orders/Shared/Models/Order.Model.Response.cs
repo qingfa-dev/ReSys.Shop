@@ -1,6 +1,7 @@
 using Shared.Application.Domain.Orders;
 
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Orders.Shared.Models;
 
@@ -13,6 +14,8 @@ public record OrderDetailResponse : OrderParameters
     public decimal ItemTotal { get; init; }
     public decimal AdjustmentTotal { get; init; }
     public decimal ShipmentTotal { get; init; }
+    /// <summary>Applied shipping adjustment metadata, if any.</summary>
+    public ShippingAdjustmentSummary? ShippingAdjustment { get; init; }
     public decimal Total { get; init; }
     public decimal PaymentTotal { get; init; }
     public decimal OutstandingBalance { get; init; }

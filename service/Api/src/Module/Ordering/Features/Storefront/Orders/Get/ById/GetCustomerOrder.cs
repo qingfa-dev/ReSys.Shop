@@ -27,6 +27,7 @@ public static partial class GetCustomerOrder
             // Check: Retrieve order by identifier scoped to current user.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == query.Id && x.UserId == userId, cancellationToken);
 

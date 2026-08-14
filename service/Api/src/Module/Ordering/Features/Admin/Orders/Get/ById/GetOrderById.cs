@@ -21,6 +21,7 @@ public static partial class GetOrderById
             // Check: Find the order by identifier with line items.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 

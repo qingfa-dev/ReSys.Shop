@@ -1,6 +1,8 @@
+using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Models;
+using Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
@@ -30,6 +32,9 @@ public static partial class OrderMapping
             ItemTotal = entity.ItemTotal,
             AdjustmentTotal = entity.AdjustmentTotal,
             ShipmentTotal = entity.ShipmentTotal,
+            ShippingAdjustment = entity.Adjustments.FirstOrDefault(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping) is { } sa
+                ? new ShippingAdjustmentSummary { Id = sa.Id, Label = sa.Label, Amount = sa.Amount, ShippingMethodId = sa.SourceId }
+                : null,
             Total = entity.Total,
             PaymentTotal = entity.PaymentTotal,
             OutstandingBalance = entity.OutstandingBalance,
