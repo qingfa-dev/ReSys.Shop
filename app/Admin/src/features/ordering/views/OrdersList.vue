@@ -12,7 +12,7 @@ import Select from 'primevue/select'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useOrderList } from '../composables/useOrderList'
-import type { OrderListItem, OrderStatus, CheckoutState, ShipmentState } from '../types/order'
+import type { OrderListItem, OrderStatus, CheckoutState, OrderFulfillmentState } from '../types/order'
 import { ORDER_SEARCH_FIELDS } from '../types/order'
 
 const router = useRouter()
@@ -37,13 +37,13 @@ const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Expired: 'secondary',
 }
 
-const SHIPMENT_SEVERITY: Record<ShipmentState, string> = {
-  pending: 'warn',
-  delivered: 'success',
-  partial: 'info',
-  ready: 'info',
-  backorder: 'warn',
-  canceled: 'danger',
+const FULFILLMENT_SEVERITY: Record<OrderFulfillmentState, string> = {
+  None: 'secondary',
+  Pending: 'secondary',
+  Partial: 'warn',
+  Shipped: 'info',
+  Delivered: 'success',
+  Canceled: 'danger',
 }
 
 function onSearch(value: string) {
@@ -78,11 +78,11 @@ function statusSeverity(status: OrderStatus): string {
   return STATUS_SEVERITY[status]
 }
 
-function shipmentSeverity(state: ShipmentState | null | undefined): string {
-  return state ? SHIPMENT_SEVERITY[state] : 'secondary'
+function fulfillmentSeverity(state: OrderFulfillmentState | null | undefined): string {
+  return state ? FULFILLMENT_SEVERITY[state] : 'secondary'
 }
 
-function formatShipmentState(state: string | null | undefined): string {
+function formatFulfillmentState(state: string | null | undefined): string {
   return state ?? '—'
 }
 
@@ -176,9 +176,9 @@ function navigateToDetail(id: string) {
           <Tag :value="data.status" :severity="statusSeverity(data.status)" />
         </template>
       </Column>
-      <Column field="shipmentState" header="Shipment">
+      <Column field="fulfillmentState" header="Shipment">
         <template #body="{ data }">
-          <Tag :value="formatShipmentState(data.shipmentState)" :severity="shipmentSeverity(data.shipmentState)" />
+          <Tag :value="formatFulfillmentState(data.fulfillmentState)" :severity="fulfillmentSeverity(data.fulfillmentState)" />
         </template>
       </Column>
       <Column field="total" header="Total" :sortable="true">

@@ -63,7 +63,28 @@ const savingShipmentId = ref<string | null>(null)
 const draftStatus = ref<Record<string, ShipmentStatus>>({})
 const trackingInputs = ref<Record<string, string>>({})
 
-const SHIPMENT_STATUS_OPTIONS: ShipmentStatus[] = ['Pending', 'Ready', 'Shipped', 'Delivered', 'Backorder', 'Canceled']
+// Transition: Return the shipment statuses reachable from the row's current status, mirroring ShipmentMethod guards.
+function allowedShipmentTargets(status: ShipmentStatus): ShipmentStatus[] {
+  switch (status) {
+    case 'Pending':
+      return ['Ready', 'Backorder', 'Canceled']
+    case 'Ready':
+      return ['Shipped', 'Canceled']
+    case 'Backorder':
+      return ['Ready', 'Canceled']
+    case 'Shipped':
+      return ['Delivered']
+    default:
+      return [] // Delivered and Canceled are terminal states.
+  }
+}
+
+// Guard: Save only when the selected target is reachable from the row's current status.
+function canSaveShipment(shipment: Shipment): boolean {
+  const current = shipment.status
+  const target = draftStatus.value[shipment.id] ?? current
+  return target !== current && allowedShipmentTargets(current).includes(target)
+}
 
 const FULFILLMENT_SEVERITY: Record<OrderFulfillmentState, string> = {
   None: 'secondary',
@@ -100,6 +121,11 @@ async function loadShipments() {
 }
 
 async function saveShipmentStatus(shipment: Shipment) {
+  // Guard: A tracking number is required to mark a shipment as Shipped.
+  if (draftStatus.value[shipment.id] === 'Shipped' && !trackingInputs.value[shipment.id]?.trim()) {
+    notify.error('Shipment', 'A tracking number is required to mark the shipment as Shipped.')
+    return
+  }
   savingShipmentId.value = shipment.id
   // Save: Persist the edited status and tracking number for the shipment.
   const result = await OrderApi.updateShipmentStatus(shipment.id, {
@@ -389,7 +415,7 @@ onMounted(() => {
                     </Column>
                     <Column header="Status">
                       <template #body="{ data }">
-                        <Select v-model="draftStatus[data.id]" :options="SHIPMENT_STATUS_OPTIONS" class="w-40" />
+                        <Select v-model="draftStatus[data.id]" :options="allowedShipmentTargets(data.status)" class="w-40" />
                       </template>
                     </Column>
                     <Column header="Shipped">
@@ -404,6 +430,7 @@ onMounted(() => {
                           icon="pi pi-save"
                           label="Save"
                           size="small"
+                          :disabled="!canSaveShipment(data)"
                           :loading="savingShipmentId === data.id"
                           @click="saveShipmentStatus(data)"
                         />
