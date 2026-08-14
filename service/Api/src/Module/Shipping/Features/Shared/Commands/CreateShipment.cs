@@ -15,6 +15,12 @@ public sealed class CreateShipmentCommandHandler(IApplicationDbContext dbContext
     public async Task<Result> Handle(
         CreateShipmentCommand command, CancellationToken cancellationToken)
     {
+        // Guard: Idempotent — a shipment for this order + shipping method already exists.
+        var exists = await dbContext.Set<Shipment>()
+            .AnyAsync(s => s.OrderId == command.OrderId && s.ShippingMethodId == command.ShippingMethodId, cancellationToken);
+        if (exists)
+            return Result.Ok();
+
         var createResult = ShipmentMethod.Create(command.OrderId, command.ShippingMethodId);
         if (createResult.IsFailure)
             return createResult.Errors;
