@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { AuthApi, EmailApi } from "../services";
 import { getAccessToken, setTokens, clearTokens } from "../services/tokenService";
 import { emit } from "@/shared/composables/useStoreEvents";
+import { HttpError } from "@/shared/api";
 import type { AuthUser, RegisterRequest } from "../types";
 import type { ApiError } from "@/shared/types/error";
 
@@ -52,7 +53,16 @@ export const useAuthStore = defineStore("auth", () => {
     status.value = "loading";
     error.value = null;
     errors.value = [];
-    const result = await AuthApi.login({ credential, password });
+    let result;
+    try {
+      result = await AuthApi.login({ credential, password });
+    } catch (e) {
+      // Catch: HTTP errors (e.g. 401/422) reject as HttpError — map to state
+      error.value = e instanceof Error ? e.message : "Login failed";
+      errors.value = e instanceof HttpError ? e.errors : [];
+      status.value = "error";
+      return false;
+    }
     if (result.isSuccess) {
       setTokens(result.value);
       const session = await AuthApi.getSession();
@@ -88,7 +98,16 @@ export const useAuthStore = defineStore("auth", () => {
     status.value = "loading";
     error.value = null;
     errors.value = [];
-    const result = await AuthApi.register(req);
+    let result;
+    try {
+      result = await AuthApi.register(req);
+    } catch (e) {
+      // Catch: HTTP errors reject as HttpError — map to state
+      error.value = e instanceof Error ? e.message : "Registration failed";
+      errors.value = e instanceof HttpError ? e.errors : [];
+      status.value = "error";
+      return false;
+    }
     if (result.isSuccess) {
       status.value = "idle";
       return true;
@@ -110,28 +129,49 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function changePassword(current: string, newPwd: string): Promise<boolean> {
-    const result = await AuthApi.changePassword(current, newPwd);
-    if (!result.isSuccess) {
-      error.value = result.message;
-      errors.value = result.errors ?? [];
+    try {
+      const result = await AuthApi.changePassword(current, newPwd);
+      if (!result.isSuccess) {
+        error.value = result.message;
+        errors.value = result.errors ?? [];
+      }
+      return result.isSuccess;
+    } catch (e) {
+      // Catch: HTTP errors reject as HttpError — map to state
+      error.value = e instanceof Error ? e.message : "Password change failed";
+      errors.value = e instanceof HttpError ? e.errors : [];
+      return false;
     }
-    return result.isSuccess;
   }
   async function forgotPassword(email: string): Promise<boolean> {
-    const result = await AuthApi.forgotPassword(email);
-    if (!result.isSuccess) {
-      error.value = result.message;
-      errors.value = result.errors ?? [];
+    try {
+      const result = await AuthApi.forgotPassword(email);
+      if (!result.isSuccess) {
+        error.value = result.message;
+        errors.value = result.errors ?? [];
+      }
+      return result.isSuccess;
+    } catch (e) {
+      // Catch: HTTP errors reject as HttpError — map to state
+      error.value = e instanceof Error ? e.message : "Could not send the reset link";
+      errors.value = e instanceof HttpError ? e.errors : [];
+      return false;
     }
-    return result.isSuccess;
   }
   async function resetPassword(token: string, newPwd: string): Promise<boolean> {
-    const result = await AuthApi.resetPassword(token, newPwd);
-    if (!result.isSuccess) {
-      error.value = result.message;
-      errors.value = result.errors ?? [];
+    try {
+      const result = await AuthApi.resetPassword(token, newPwd);
+      if (!result.isSuccess) {
+        error.value = result.message;
+        errors.value = result.errors ?? [];
+      }
+      return result.isSuccess;
+    } catch (e) {
+      // Catch: HTTP errors reject as HttpError — map to state
+      error.value = e instanceof Error ? e.message : "Password reset failed";
+      errors.value = e instanceof HttpError ? e.errors : [];
+      return false;
     }
-    return result.isSuccess;
   }
   async function changeEmail(newEmail: string): Promise<boolean> {
     return (await EmailApi.changeEmail(newEmail)).isSuccess;

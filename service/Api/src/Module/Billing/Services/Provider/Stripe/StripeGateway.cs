@@ -114,17 +114,32 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    /// <summary>Cancels a Stripe PaymentIntent.</summary>
+    /// <summary>Cancels a Stripe PaymentIntent, or expires a Checkout Session.</summary>
+    /// <remarks>
+    /// A Checkout Session id (<c>cs_...</c>) is not a PaymentIntent — calling
+    /// <c>payment_intents.cancel</c> with it returns "No such payment_intent".
+    /// When the payment was created via the hosted Checkout flow, expire the
+    /// session instead.
+    /// </remarks>
     public override async Task<Result<PaymentGatewayResponse>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
-        // Check: ResponseCode (PaymentIntent ID) is required
+        // Check: ResponseCode (PaymentIntent or Session id) is required
         if (string.IsNullOrEmpty(responseCode))
             return StripeGatewayResult.Errors.CancelMissingIntent;
         try
         {
-            var co = new PaymentIntentCancelOptions();
             var ro = BuildRequestOptions(options);
+
+            // Route: Checkout Session id → expire the session; PaymentIntent id → cancel it
+            if (responseCode.StartsWith("cs_", StringComparison.Ordinal))
+            {
+                var session = await _sessionService.ExpireAsync(
+                    responseCode, new SessionExpireOptions(), ro, ct).ConfigureAwait(false);
+                return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: session.Id);
+            }
+
+            var co = new PaymentIntentCancelOptions();
             var intent = await _paymentIntentService.CancelAsync(responseCode, co, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: intent.Id);
         }

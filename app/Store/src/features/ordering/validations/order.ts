@@ -42,7 +42,6 @@ export const OrderDetailSchema = z.object({
   paymentState: z.string().nullable(),
   shipmentState: z.string().nullable(),
   userId: z.string().nullable(),
-  storeId: z.string().nullable(),
   approvedById: z.string().nullable(),
   approvedAtUtc: z.string().nullable(),
   completedAtUtc: z.string().nullable(),

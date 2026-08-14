@@ -39,7 +39,6 @@ public class ShippingMethodConfiguration : IEntityTypeConfiguration<ShippingMeth
             .IsRequired()
             .HasMaxLength(ShippingMethodConstant.Constraints.MaxCalculatorTypeLength);
 
-        builder.Property(x => x.TaxCategoryId);
         builder.Property(x => x.Presentation);
         #endregion
 

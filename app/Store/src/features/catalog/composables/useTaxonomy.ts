@@ -29,24 +29,28 @@ export function useTaxonomy() {
   async function loadTaxonomyGroups(): Promise<void> {
     if (taxonomyGroups.value.length > 0) return
     taxonsLoading.value = true
-    const [taxonomiesResult, taxonsResult] = await Promise.all([
-      TaxonomyApi.getTaxonomies({ pageNumber: 1, pageSize: 50 }),
-      TaxonomyApi.getTaxons({ pageNumber: 1, pageSize: 500 }),
-    ])
-    if (taxonomiesResult.isSuccess && taxonsResult.isSuccess) {
-      taxonomyGroups.value = taxonomiesResult.items.map(t => ({
-        taxonomy: { id: t.id, name: t.name, presentation: t.presentation },
-        tree: buildTree(taxonsResult.items, t.id),
-      }))
-      const roots: StoreTaxonListItemResponse[] = []
-      const seen = new Set<string>()
-      for (const t of taxonsResult.items) {
-        if (t.depth === 0 && !seen.has(t.id)) {
-          seen.add(t.id)
-          roots.push(t)
+    try {
+      const [taxonomiesResult, taxonsResult] = await Promise.all([
+        TaxonomyApi.getTaxonomies({ pageNumber: 1, pageSize: 50 }),
+        TaxonomyApi.getTaxons({ pageNumber: 1, pageSize: 500 }),
+      ])
+      if (taxonomiesResult.isSuccess && taxonsResult.isSuccess) {
+        taxonomyGroups.value = taxonomiesResult.items.map(t => ({
+          taxonomy: { id: t.id, name: t.name, presentation: t.presentation },
+          tree: buildTree(taxonsResult.items, t.id),
+        }))
+        const roots: StoreTaxonListItemResponse[] = []
+        const seen = new Set<string>()
+        for (const t of taxonsResult.items) {
+          if (t.depth === 0 && !seen.has(t.id)) {
+            seen.add(t.id)
+            roots.push(t)
+          }
         }
+        collections.value = roots
       }
-      collections.value = roots
+    } catch {
+      // Silently degrade: taxonomy nav renders empty when the catalog is unavailable.
     }
     taxonsLoading.value = false
   }
@@ -54,17 +58,21 @@ export function useTaxonomy() {
   async function loadOptionTypes(): Promise<void> {
     if (optionTypes.value.length > 0) return
     optionsLoading.value = true
-    const [typesResult, valuesResult] = await Promise.all([
-      OptionTypeApi.getOptionTypes({ pageNumber: 1, pageSize: 50 }),
-      OptionTypeApi.getOptionValues({ pageNumber: 1, pageSize: 500 }),
-    ])
-    if (typesResult.isSuccess && valuesResult.isSuccess) {
-      optionTypes.value = typesResult.items
-        .filter(t => t.filterable)
-        .map(t => ({
-          ...t,
-          values: valuesResult.items.filter(v => v.optionTypeId === t.id),
-        }))
+    try {
+      const [typesResult, valuesResult] = await Promise.all([
+        OptionTypeApi.getOptionTypes({ pageNumber: 1, pageSize: 50 }),
+        OptionTypeApi.getOptionValues({ pageNumber: 1, pageSize: 500 }),
+      ])
+      if (typesResult.isSuccess && valuesResult.isSuccess) {
+        optionTypes.value = typesResult.items
+          .filter(t => t.filterable)
+          .map(t => ({
+            ...t,
+            values: valuesResult.items.filter(v => v.optionTypeId === t.id),
+          }))
+      }
+    } catch {
+      // Silently degrade: filters render empty when the catalog is unavailable.
     }
     optionsLoading.value = false
   }

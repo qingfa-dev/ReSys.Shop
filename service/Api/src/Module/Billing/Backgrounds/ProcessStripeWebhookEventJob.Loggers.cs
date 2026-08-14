@@ -86,4 +86,22 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Information,
         Message = "Cart regressed to Delivery after session expiry: CartId={CartId}")]
     public static partial void CartRegressedToDelivery(ILogger logger, Guid CartId);
+
+    [LoggerMessage(
+        EventId = 5024,
+        Level = LogLevel.Information,
+        Message = "Checkout session completed but payment_status is not 'paid' (status={PaymentStatus}) — skipping completion and order placement: SessionId={SessionId}")]
+    public static partial void SessionNotPaid(ILogger logger, string SessionId, string? PaymentStatus);
+
+    [LoggerMessage(
+        EventId = 5025,
+        Level = LogLevel.Debug,
+        Message = "Dropped stale out-of-order Stripe event {StripeEventId} ({StripeEventType}) for payment {PaymentId}")]
+    public static partial void StaleEventDropped(ILogger logger, string StripeEventId, string StripeEventType, Guid PaymentId);
+
+    [LoggerMessage(
+        EventId = 5026,
+        Level = LogLevel.Warning,
+        Message = "Failed to mirror payment state {PaymentState} onto order for payment {PaymentId}: {Message}")]
+    public static partial void PaymentStateNotifyFailed(ILogger logger, Guid PaymentId, string PaymentState, string? Message);
 }

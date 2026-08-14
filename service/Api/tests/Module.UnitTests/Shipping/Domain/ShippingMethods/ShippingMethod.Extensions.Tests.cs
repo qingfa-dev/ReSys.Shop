@@ -16,7 +16,7 @@ public class ShippingMethodExtensionsTests
     public void Update_WithNewValues_ShouldUpdate()
     {
         var m = ShippingMethodExtensions.Create("Old", "FlatRate").Value;
-        var r = m.Update("New", "NEWCODE", "https://track.example.com/:tracking", "Admin", 2, false, "PerItem", Guid.NewGuid());
+        var r = m.Update("New", "NEWCODE", "https://track.example.com/:tracking", "Admin", 2, false, "PerItem");
         r.IsSuccess.Should().BeTrue();
         m.Name.Should().Be("New");
         m.Code.Should().Be("NEWCODE");

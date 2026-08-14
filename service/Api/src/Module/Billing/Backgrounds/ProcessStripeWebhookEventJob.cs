@@ -5,6 +5,7 @@ using Module.Billing.Services.Provider;
 using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
+using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 using Module.Ordering.Features.Storefront.RegressCheckoutState;
 
 using Stripe;
@@ -83,6 +84,9 @@ public sealed partial class ProcessStripeWebhookEventJob
             case GatewayConstants.WebhookEvents.Stripe.CheckoutSessionExpired:
                 await HandleCheckoutSessionExpired(stripeEvent, ct);
                 break;
+            default:
+                ProcessStripeWebhookEventJobLoggers.EventIgnored(_logger, stripeEvent.Type);
+                break;
         }
     }
 
@@ -105,12 +109,19 @@ public sealed partial class ProcessStripeWebhookEventJob
         var result = payment.Complete();
         if (result.IsFailure)
         {
+            // A succeeded event on a payment that cannot complete (e.g. previously
+            // voided/failed) is an anomaly — surface it loudly so Hangfire retries
+            // and the reconciliation job can resolve it instead of silently losing
+            // a successful charge.
             ProcessStripeWebhookEventJobLoggers.CannotCompletePayment(_logger, payment.Id, payment.State.ToString(), result.Message);
-            return;
+            throw new InvalidOperationException(
+                $"Cannot complete payment {payment.Id} on {stripeEvent.Type} (state={payment.State}): {result.Message}");
         }
 
-        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
-        await SaveWithRollbackAsync(payment, ct);
+        await RecordStripeEventAsync(payment, stripeEvent, ct);
+
+        // Mirror: payment succeeded → stamp the order's PaymentCompletedAt timeline.
+        await TryNotifyOrderPaymentStateAsync(payment, OrderPaymentState.Completed, ct);
     }
 
     // Webhook: payment_intent.payment_failed — transition to Failed
@@ -125,20 +136,27 @@ public sealed partial class ProcessStripeWebhookEventJob
 
         // Guard: Skip duplicate event
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
+        // Guard: drop an out-of-order failure that is older than a newer applied event
+        if (await RecordStaleEventAsync(payment, stripeEvent, ct)) return;
         if (payment.State is PaymentRecordState.Failed or PaymentRecordState.Void) return;
 
         var result = payment.Fail();
         if (result.IsFailure)
         {
+            // Deliberately do not regress: a payment already Completed/Disputed cannot
+            // be marked failed (money moved). Acknowledge the event, log the contradiction.
             ProcessStripeWebhookEventJobLoggers.CannotFailPayment(_logger, payment.Id, payment.State.ToString(), result.Message);
+            await RecordStripeEventAsync(payment, stripeEvent, ct);
             return;
         }
 
-        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
-        await SaveWithRollbackAsync(payment, ct);
+        await RecordStripeEventAsync(payment, stripeEvent, ct);
+
+        // Mirror: payment failed → stamp the order's PaymentFailedAt timeline.
+        await TryNotifyOrderPaymentStateAsync(payment, OrderPaymentState.Failed, ct);
     }
 
-    // Webhook: charge.refunded — increment RefundedAmount
+    // Webhook: charge.refunded — reconcile RefundedAmount with the Stripe total
     private async Task HandleChargeRefunded(Event stripeEvent, CancellationToken ct)
     {
         var charge = stripeEvent.Data.Object as Charge;
@@ -152,24 +170,24 @@ public sealed partial class ProcessStripeWebhookEventJob
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
         if (payment.State is PaymentRecordState.Void) return;
 
-        // Compute: Delta between new refund amount and existing — only apply if positive
+        // Reconcile: Stripe reports the TOTAL refunded amount, not a delta. Set the
+        // local total to the reported value (monotonic) so an admin refund racing
+        // this webhook does not double-count the same money.
         if (charge.AmountRefunded > 0)
         {
-            var newRefunded = charge.AmountRefunded / (decimal)GatewayConstants.Amounts.CentsMultiplier;
-            var delta = newRefunded - payment.RefundedAmount;
-            if (delta > 0)
+            var totalRefunded = charge.AmountRefunded / (decimal)GatewayConstants.Amounts.CentsMultiplier;
+            var result = payment.ReconcileRefunded(totalRefunded);
+            if (result.IsFailure)
             {
-                var result = payment.Refund(delta);
-                if (result.IsFailure)
-                {
-                    ProcessStripeWebhookEventJobLoggers.CannotRefundPayment(_logger, payment.Id, payment.State.ToString(), result.Message);
-                    return;
-                }
+                // Refund arriving before the payment is Completed is retryable — once
+                // checkout.session.completed/payment_intent.succeeded lands, this
+                // reconciliation succeeds. Throw so Hangfire retries instead of losing it.
+                ProcessStripeWebhookEventJobLoggers.CannotRefundPayment(_logger, payment.Id, payment.State.ToString(), result.Message);
+                throw new InvalidOperationException(
+                    $"Cannot reconcile refund for payment {payment.Id} on {stripeEvent.Type} (state={payment.State}): {result.Message}");
             }
         }
-        payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
-        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
-        await SaveWithRollbackAsync(payment, ct);
+        await RecordStripeEventAsync(payment, stripeEvent, ct);
     }
 
     // Webhook: charge.dispute.created — transition to Disputed state
@@ -191,11 +209,11 @@ public sealed partial class ProcessStripeWebhookEventJob
         {
             ProcessStripeWebhookEventJobLoggers.CannotDisputePayment(
                 _logger, payment.Id, payment.State.ToString(), result.Message);
-            return;
+            throw new InvalidOperationException(
+                $"Cannot dispute payment {payment.Id} on {stripeEvent.Type} (state={payment.State}): {result.Message}");
         }
 
-        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
-        await SaveWithRollbackAsync(payment, ct);
+        await RecordStripeEventAsync(payment, stripeEvent, ct);
         _logger.DisputeCreated(dispute.ChargeId, dispute.Reason ?? "unknown");
     }
 
@@ -210,18 +228,23 @@ public sealed partial class ProcessStripeWebhookEventJob
 
         // Guard: Skip duplicate event
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
-        if (payment.State is PaymentRecordState.Void) return;
+        // Guard: drop an out-of-order cancel that is older than a newer applied event
+        if (await RecordStaleEventAsync(payment, stripeEvent, ct)) return;
+        // Skip: already voided, or already failed (a failed PaymentIntent being
+        // cleaned up by cancellation is a no-op — no charge to void).
+        if (payment.State is PaymentRecordState.Void or PaymentRecordState.Failed) return;
 
         var result = payment.Void();
         if (result.IsFailure)
         {
+            // Deliberately do not regress an already Completed/Disputed payment.
             ProcessStripeWebhookEventJobLoggers.CannotVoidPayment(
                 _logger, payment.Id, payment.State.ToString(), result.Message);
+            await RecordStripeEventAsync(payment, stripeEvent, ct);
             return;
         }
 
-        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
-        await SaveWithRollbackAsync(payment, ct);
+        await RecordStripeEventAsync(payment, stripeEvent, ct);
     }
 
     private async Task HandleCheckoutSessionCompleted(Event stripeEvent, CancellationToken ct)
@@ -243,6 +266,16 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Dedup: skip only if this exact Stripe event was fully processed before.
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
 
+        // Guard: only treat the session as paid when Stripe reports payment_status=paid.
+        // checkout.session.completed also fires for async methods that are still
+        // processing (payment_status=unpaid); completing early would falsely mark a
+        // not-yet-paid order as paid.
+        if (!string.Equals(session.PaymentStatus, GatewayConstants.Stripe.PaymentStatus.Paid, StringComparison.Ordinal))
+        {
+            ProcessStripeWebhookEventJobLoggers.SessionNotPaid(_logger, session.Id, session.PaymentStatus);
+            return;
+        }
+
         // Store the PaymentIntent id so admin refund/void and charge.* webhooks can
         // correlate against it (the cs_... session id is rejected by Stripe operations).
         if (!string.IsNullOrEmpty(session.PaymentIntentId))
@@ -256,10 +289,14 @@ public sealed partial class ProcessStripeWebhookEventJob
             var complete = payment.Complete();
             if (complete.IsFailure && payment.State != PaymentRecordState.Completed)
             {
+                // A completed session on a payment that cannot complete (e.g. it was
+                // voided by an out-of-order session.expired) is an anomaly — throw so
+                // Hangfire retries and the reconciliation job can revive the order.
                 ProcessStripeWebhookEventJobLoggers.CannotCompletePayment(_logger, payment.Id, payment.State.ToString(), complete.Message);
-                return;
+                throw new InvalidOperationException(
+                    $"Cannot complete payment {payment.Id} on {stripeEvent.Type} (state={payment.State}): {complete.Message}");
             }
-            await SaveWithRollbackAsync(payment, ct);
+            await SaveAsync(payment, ct);
         }
 
         // Place the order. Idempotent: a no-longer-draft cart is a no-op on retry.
@@ -270,13 +307,16 @@ public sealed partial class ProcessStripeWebhookEventJob
         // retry re-attempts placement (and does not re-complete, due to the state guard).
         if (placeResult.IsSuccess)
         {
-            payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
-            await SaveWithRollbackAsync(payment, ct);
+            await RecordStripeEventAsync(payment, stripeEvent, ct);
             ProcessStripeWebhookEventJobLoggers.OrderPlaced(_logger, payment.Id);
         }
         else
         {
+            // Throw so Hangfire retries: the payment is already Completed and the event
+            // id is not yet recorded, so the retry only re-attempts order placement.
             ProcessStripeWebhookEventJobLoggers.CannotPlaceOrder(_logger, payment.Id, placeResult.Message);
+            throw new InvalidOperationException(
+                $"Order placement failed for payment {payment.Id}: {placeResult.Message}");
         }
     }
 
@@ -291,30 +331,105 @@ public sealed partial class ProcessStripeWebhookEventJob
         if (payment is null) return;
 
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
-        if (payment.State is PaymentRecordState.Void or PaymentRecordState.Completed) return;
+        // Guard: drop an out-of-order expiry that is older than a newer applied event
+        if (await RecordStaleEventAsync(payment, stripeEvent, ct)) return;
 
-        var voidResult = payment.Void();
-        if (voidResult.IsFailure)
+        // A paid session must never be expired. A Failed capture cannot be voided,
+        // but it still needs the compensating side-effects below (release + regress).
+        if (payment.State is PaymentRecordState.Completed) return;
+
+        if (payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending)
         {
-            ProcessStripeWebhookEventJobLoggers.CannotVoidPayment(_logger, payment.Id, payment.State.ToString(), voidResult.Message);
-            return;
+            var voidResult = payment.Void();
+            if (voidResult.IsFailure)
+            {
+                ProcessStripeWebhookEventJobLoggers.CannotVoidPayment(_logger, payment.Id, payment.State.ToString(), voidResult.Message);
+                throw new InvalidOperationException(
+                    $"Cannot void payment {payment.Id} on {stripeEvent.Type} (state={payment.State}): {voidResult.Message}");
+            }
+            ProcessStripeWebhookEventJobLoggers.CheckoutSessionExpired(_logger, payment.Id, session.Id);
         }
 
-        ProcessStripeWebhookEventJobLoggers.CheckoutSessionExpired(_logger, payment.Id, session.Id);
+        // Compensate: release reservations and regress the cart BEFORE recording the
+        // event, so a failure here leaves the event unrecorded and a Hangfire retry
+        // re-runs these idempotent side-effects.
+        var releaseResult = await _stockReservationService.ReleaseReservationsAsync(orderId: payment.OrderId, ct: ct);
+        if (releaseResult.IsFailure)
+            throw new InvalidOperationException(
+                $"Failed to release stock reservations for order {payment.OrderId}: {releaseResult.Message}");
 
-        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
-        await SaveWithRollbackAsync(payment, ct);
-
-        await _stockReservationService.ReleaseReservationsAsync(orderId: payment.OrderId, ct: ct);
-
-        // Un-stick: regress the cart Payment → Delivery so the customer can re-pick a payment method.
-        await _sender.Send(
+        var regressResult = await _sender.Send(
             new RegressCheckoutStateCommand { CartId = payment.OrderId, TargetState = "Delivery" }, ct);
+        if (regressResult.IsFailure)
+            throw new InvalidOperationException(
+                $"Failed to regress cart {payment.OrderId} to Delivery: {regressResult.Message}");
+
+        await RecordStripeEventAsync(payment, stripeEvent, ct);
         ProcessStripeWebhookEventJobLoggers.CartRegressedToDelivery(_logger, payment.OrderId);
     }
 
+    /// <summary>
+    /// Drops an out-of-order regression event (payment_failed / payment_intent.canceled /
+    /// checkout.session.expired) that is OLDER than the last applied event, acknowledging
+    /// it as processed so it is not re-processed. Only regression events are guarded — a
+    /// newer progress event must never be dropped by this check.
+    /// </summary>
+    private async Task<bool> RecordStaleEventAsync(PaymentCapture payment, Event stripeEvent, CancellationToken ct)
+    {
+        if (payment.LastStripeEventCreatedAtUtc is null)
+            return false;
+
+        if (StripeEventCreatedUtc(stripeEvent) > payment.LastStripeEventCreatedAtUtc.Value.ToUniversalTime())
+            return false;
+
+        ProcessStripeWebhookEventJobLoggers.StaleEventDropped(_logger, stripeEvent.Id, stripeEvent.Type, payment.Id);
+        await RecordStripeEventAsync(payment, stripeEvent, ct);
+        return true;
+    }
+
+    /// <summary>Marks the event as processed and tracks the latest applied Stripe event time.</summary>
+    private async Task RecordStripeEventAsync(PaymentCapture payment, Event stripeEvent, CancellationToken ct)
+    {
+        payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
+        payment.LastStripeEventId = stripeEvent.Id;
+        payment.LastStripeEventCreatedAtUtc = StripeEventCreatedUtc(stripeEvent);
+        await SaveAsync(payment, ct);
+    }
+
+    // Mirror: best-effort stamp of the owning order's payment timeline. The payment row
+    // is authoritative; a failure here must not fail the job (the order placement path
+    // re-stamps on completion via CompleteCheckoutForPayment).
+    private async Task TryNotifyOrderPaymentStateAsync(PaymentCapture payment, string paymentState, CancellationToken ct)
+    {
+        var atUtc = paymentState switch
+        {
+            OrderPaymentState.Completed => payment.CompletedAtUtc,
+            OrderPaymentState.Failed => payment.FailedAtUtc,
+            _ => null
+        } ?? DateTimeOffset.UtcNow;
+
+        var result = await _sender.Send(new RecordOrderPaymentStateCommand
+        {
+            OrderId = payment.OrderId,
+            PaymentState = paymentState,
+            AtUtc = atUtc
+        }, ct);
+
+        if (result.IsFailure)
+            ProcessStripeWebhookEventJobLoggers.PaymentStateNotifyFailed(_logger, payment.Id, paymentState, result.Message);
+    }
+
+    // Convert: Stripe Event.Created (Unix epoch seconds) to a UTC instant regardless of Kind.
+    private static DateTime StripeEventCreatedUtc(Event stripeEvent) =>
+        stripeEvent.Created.Kind switch
+        {
+            DateTimeKind.Utc => stripeEvent.Created,
+            DateTimeKind.Local => stripeEvent.Created.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(stripeEvent.Created, DateTimeKind.Utc)
+        };
+
     /// <summary>Persists changes. On DB failure, lets exception propagate — Hangfire retries with fresh scoped context.</summary>
-    private async Task SaveWithRollbackAsync(PaymentCapture payment, CancellationToken ct)
+    private async Task SaveAsync(PaymentCapture payment, CancellationToken ct)
     {
         await _dbContext.SaveChangesAsync(ct);
     }

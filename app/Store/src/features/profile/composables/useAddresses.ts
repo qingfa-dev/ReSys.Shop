@@ -1,5 +1,6 @@
 import { ref, computed, reactive } from 'vue'
 import { AddressApi } from '../services/addressApi'
+import { HttpError } from '@/shared/api'
 import type { Address, AddressInput } from '../types'
 
 // Module-level singleton state
@@ -17,43 +18,65 @@ const shippingAddresses = computed(() =>
 
 async function fetchAddresses(): Promise<void> {
   loading.value = true
-  const result = await AddressApi.getAddresses()
-  if (result.isSuccess) addresses.value = result.items
-  else error.value = result.message
+  try {
+    const result = await AddressApi.getAddresses()
+    if (result.isSuccess) addresses.value = result.items
+    else error.value = result.message
+  } catch (e) {
+    error.value = e instanceof HttpError ? e.errors[0]?.message ?? 'Failed to load addresses' : 'Failed to load addresses'
+  }
   loading.value = false
 }
 
 async function createAddress(req: AddressInput): Promise<boolean> {
   saving.value = true
-  const result = await AddressApi.createAddress(req)
-  if (result.isSuccess) addresses.value.push(result.value)
-  else error.value = result.message
-  saving.value = false
-  return result.isSuccess
+  try {
+    const result = await AddressApi.createAddress(req)
+    if (result.isSuccess) addresses.value.push(result.value)
+    else error.value = result.message
+    saving.value = false
+    return result.isSuccess
+  } catch (e) {
+    error.value = e instanceof HttpError ? e.errors[0]?.message ?? 'Could not save the address' : 'Could not save the address'
+    saving.value = false
+    return false
+  }
 }
 
 // Update: Replace address in-place by matching id
 async function updateAddress(id: string, req: AddressInput): Promise<boolean> {
   saving.value = true
-  const result = await AddressApi.updateAddress(id, req)
-  if (result.isSuccess) {
-    const idx = addresses.value.findIndex(a => a.id === id)
-    if (idx !== -1) addresses.value[idx] = result.value
-  } else {
-    error.value = result.message
+  try {
+    const result = await AddressApi.updateAddress(id, req)
+    if (result.isSuccess) {
+      const idx = addresses.value.findIndex(a => a.id === id)
+      if (idx !== -1) addresses.value[idx] = result.value
+    } else {
+      error.value = result.message
+    }
+    saving.value = false
+    return result.isSuccess
+  } catch (e) {
+    error.value = e instanceof HttpError ? e.errors[0]?.message ?? 'Could not update the address' : 'Could not update the address'
+    saving.value = false
+    return false
   }
-  saving.value = false
-  return result.isSuccess
 }
 
 // Remove: Filter out deleted address by id
 async function deleteAddress(id: string): Promise<boolean> {
   saving.value = true
-  const result = await AddressApi.deleteAddress(id)
-  if (result.isSuccess) addresses.value = addresses.value.filter(a => a.id !== id)
-  else error.value = result.message
-  saving.value = false
-  return result.isSuccess
+  try {
+    const result = await AddressApi.deleteAddress(id)
+    if (result.isSuccess) addresses.value = addresses.value.filter(a => a.id !== id)
+    else error.value = result.message
+    saving.value = false
+    return result.isSuccess
+  } catch (e) {
+    error.value = e instanceof HttpError ? e.errors[0]?.message ?? 'Could not delete the address' : 'Could not delete the address'
+    saving.value = false
+    return false
+  }
 }
 
 export function useAddresses() {

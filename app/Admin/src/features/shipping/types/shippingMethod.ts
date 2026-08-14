@@ -8,7 +8,6 @@ export interface ShippingMethodRequest {
   position: number
   availableToUsers: boolean
   calculatorType: string
-  taxCategoryId?: string
   presentation?: string
 }
 
@@ -37,7 +36,6 @@ export interface ShippingMethodQuery {
 export const SHIPPING_METHOD_FILTER_FIELDS = [
   'availableToUsers',
   'calculatorType',
-  'taxCategoryId',
   'isDeleted',
 ]
 

@@ -60,7 +60,7 @@ describe('ShippingMethodApi.getShippingMethods', () => {
         pageSize: 10,
       },
       expect.objectContaining({
-        allowedFilterFields: ['availableToUsers', 'calculatorType', 'taxCategoryId', 'isDeleted'],
+        allowedFilterFields: ['availableToUsers', 'calculatorType', 'isDeleted'],
         allowedSortFields: ['name', 'code', 'position', 'createdAtUtc'],
         allowedSearchFields: ['name', 'code', 'adminName'],
       }),

@@ -59,7 +59,7 @@ public class UpdateCheckoutTests : IDisposable
         var cartAfter = await _dbContext.Set<Order>()
             .FirstAsync(o => o.Id == cart.Id, TestContext.Current.CancellationToken);
         cartAfter.Email.Should().Be("customer@example.com");
-        cartAfter.CheckoutState.Should().Be(CheckoutState.Delivery);
+        cartAfter.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 
     [Fact(DisplayName = "Handler: address change at Payment regresses to Delivery")]
@@ -68,7 +68,7 @@ public class UpdateCheckoutTests : IDisposable
         var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.ShipAddressId = Guid.NewGuid();
         cart.BillAddressId = Guid.NewGuid();
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -85,6 +85,6 @@ public class UpdateCheckoutTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         var cartAfter = await _dbContext.Set<Order>()
             .FirstAsync(o => o.Id == cart.Id, TestContext.Current.CancellationToken);
-        cartAfter.CheckoutState.Should().Be(CheckoutState.Delivery);
+        cartAfter.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 }

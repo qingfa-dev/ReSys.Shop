@@ -16,8 +16,8 @@ public static class OrderValidation
 
                 return state switch
                 {
-                    CheckoutState.Delivery => o.BillAddressId != null && o.ShipAddressId != null,
-                    CheckoutState.Payment => o.ShippingMethodId != null,
+                    CheckoutState.PickDeliveryMethod => o.BillAddressId != null && o.ShipAddressId != null,
+                    CheckoutState.PickPaymentMethod => o.ShippingMethodId != null,
                     CheckoutState.Confirm => true,
                     CheckoutState.Complete => true,
                     _ => true

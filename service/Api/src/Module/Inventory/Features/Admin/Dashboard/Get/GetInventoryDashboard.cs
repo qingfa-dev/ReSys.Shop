@@ -71,7 +71,7 @@ public static partial class GetInventoryDashboard
                     Quantity = sm.Quantity,
                     Action = sm.Action,
                     Reason = sm.Reason,
-                    CreatedAtUtc = sm.CreatedAtUtc.DateTime
+                    CreatedAtUtc = sm.CreatedAtUtc
                 })
                 .ToListAsync(cancellationToken);
 

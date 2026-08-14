@@ -77,6 +77,14 @@ public static class GatewayConstants
             public const string Canceled = "canceled";
             public const string Succeeded = "succeeded";
         }
+
+        // Const: Checkout Session payment_status values.
+        public static class PaymentStatus
+        {
+            public const string Paid = "paid";
+            public const string Unpaid = "unpaid";
+            public const string NoPaymentRequired = "no_payment_required";
+        }
     }
 
     // Const: Bogus/test gateway constant values.

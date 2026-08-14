@@ -73,8 +73,8 @@ describe('OrderApi.getOrder', () => {
 })
 
 describe('OrderApi.createOrder', () => {
-  it('calls POST with request body including storeId', async () => {
-    const req = { storeId: 's-1', currency: 'USD', email: 'a@b.com' }
+  it('calls POST with request body', async () => {
+    const req = { currency: 'USD', email: 'a@b.com' }
     mockPost.mockResolvedValue({ value: { id: 'o-1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await OrderApi.createOrder(req)
     expect(mockPost).toHaveBeenCalledWith('/api/admin/ordering/orders', req)

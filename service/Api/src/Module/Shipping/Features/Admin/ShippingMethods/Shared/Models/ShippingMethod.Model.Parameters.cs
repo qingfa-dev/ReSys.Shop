@@ -9,6 +9,5 @@ public abstract record ShippingMethodParameters : INamedParameters, ISortablePar
     public int Position { get; init; }
     public bool AvailableToUsers { get; init; }
     public string CalculatorType { get; init; } = string.Empty;
-    public Guid? TaxCategoryId { get; init; }
     public string? Presentation { get; init; }
 }

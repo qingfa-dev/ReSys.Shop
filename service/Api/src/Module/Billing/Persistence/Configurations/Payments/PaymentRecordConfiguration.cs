@@ -30,6 +30,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
         builder.Property(x => x.SourceType).HasMaxLength(PaymentConstant.Constraints.MaxSourceTypeLength);
         builder.Property(x => x.ProviderKey).IsRequired().HasMaxLength(PaymentMethodConstant.Constraints.MaxProviderKeyLength);
         builder.Property(x => x.ProcessedStripeEventIds).HasColumnType("jsonb");
+        builder.Property(x => x.LastStripeEventId).HasMaxLength(100);
         builder.Property(x => x.RowVersion).IsRowVersion();
 
         builder.HasOne<Order>().WithMany().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);

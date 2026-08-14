@@ -27,7 +27,7 @@ public class CartMappingTests
         cart.ItemTotal = 100m;
         cart.Total = 120m;
         cart.ItemCount = 3;
-        cart.CheckoutState = CheckoutState.Delivery;
+        cart.CheckoutState = CheckoutState.PickDeliveryMethod;
 
         var response = cart.MapToDetail<CartDetailResponse>();
 

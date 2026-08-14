@@ -46,12 +46,16 @@ async function load(id: string): Promise<void> {
       ProductApi.getSimilar(product.value!.id).then(r => {
         if (seq !== _loadSeq) return
         if (r.isSuccess) similarProducts.value = r.items
+      }).catch(() => {
+        // Guard: Leave the similar rail empty when the recommendation call fails.
       })
       relatedLoading.value = true
       ProductApi.getRelated(product.value!.id, { pageNumber: 1, pageSize: 12 }).then(r => {
         if (seq !== _loadSeq) return
         if (r.isSuccess) relatedProducts.value = r.items
         relatedLoading.value = false
+      }).catch(() => {
+        if (seq === _loadSeq) relatedLoading.value = false
       })
     } else {
       error.value = result.message ?? 'Product not found'

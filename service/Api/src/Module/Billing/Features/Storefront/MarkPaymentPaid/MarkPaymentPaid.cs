@@ -22,8 +22,10 @@ public sealed class MarkPaymentPaidCommandHandler(IApplicationDbContext dbContex
 
         if (payment.State != PaymentRecordState.Completed)
         {
-            payment.State = PaymentRecordState.Completed;
-            payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            // Route through the domain state machine — validates the transition.
+            var completeResult = payment.Complete();
+            if (completeResult.IsFailure)
+                return completeResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 

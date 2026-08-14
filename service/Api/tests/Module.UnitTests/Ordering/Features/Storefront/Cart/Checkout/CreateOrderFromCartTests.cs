@@ -84,7 +84,7 @@ public class CreateOrderFromCartTests : IDisposable
         // Arrange: Create a draft cart with a line item
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
@@ -123,7 +123,7 @@ public class CreateOrderFromCartTests : IDisposable
         // Arrange: Create empty draft cart (checkout prerequisites set but no items)
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
@@ -188,7 +188,7 @@ public class CreateOrderFromCartTests : IDisposable
         // Arrange: Create draft cart
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
@@ -225,7 +225,7 @@ public class CreateOrderFromCartTests : IDisposable
         // Arrange: Create draft cart
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
@@ -262,7 +262,7 @@ public class CreateOrderFromCartTests : IDisposable
         // Arrange: Create a draft cart with a line item and a pending COD capture
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
@@ -314,7 +314,7 @@ public class CreateOrderFromCartTests : IDisposable
         // Arrange: Create draft cart
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();

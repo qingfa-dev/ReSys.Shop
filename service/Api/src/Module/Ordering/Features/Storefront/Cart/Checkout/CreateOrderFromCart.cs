@@ -29,7 +29,7 @@ public static partial class CreateOrderFromCart
             if (cart is null)
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
-            if (cart.CheckoutState != CheckoutState.Payment)
+            if (cart.CheckoutState != CheckoutState.PickPaymentMethod)
                 return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Complete);
 
             var paymentResult = await sender.Send(
@@ -49,6 +49,10 @@ public static partial class CreateOrderFromCart
                     OrderId = cart.Id,
                     PaymentIntentId = command.Request.PaymentIntentId!
                 }, cancellationToken);
+
+            // Timestamp: mirror the (already completed) payment onto the order timeline.
+            if (p.IsCompleted)
+                cart.MarkPaymentCompleted(p.CompletedAtUtc ?? DateTimeOffset.UtcNow);
 
             var placeResult = await placementService.PlaceAsync(cart, currentUser.UserName!, cancellationToken);
             if (placeResult.IsFailure)

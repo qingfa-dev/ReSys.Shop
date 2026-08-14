@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -13,9 +14,11 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260813090249_RemoveTaxCategoryIdFromShippingMethod")]
+    partial class RemoveTaxCategoryIdFromShippingMethod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,10 +49,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(2048)")
                         .HasColumnName("checkout_url");
 
-                    b.Property<DateTimeOffset?>("CompletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at_utc");
-
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
@@ -77,27 +76,10 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("cvv_response_message");
 
-                    b.Property<DateTimeOffset?>("DisputedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("disputed_at_utc");
-
-                    b.Property<DateTimeOffset?>("FailedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("failed_at_utc");
-
                     b.Property<string>("IntentClientSecret")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("intent_client_secret");
-
-                    b.Property<DateTimeOffset?>("LastStripeEventCreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_stripe_event_created_at_utc");
-
-                    b.Property<string>("LastStripeEventId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("last_stripe_event_id");
 
                     b.Property<DateTimeOffset?>("ModifiedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -142,10 +124,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("refunded_amount");
 
-                    b.Property<DateTimeOffset?>("RefundedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("refunded_at_utc");
-
                     b.Property<string>("ResponseCode")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
@@ -173,10 +151,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("text")
                         .HasDefaultValue("Checkout")
                         .HasColumnName("state");
-
-                    b.Property<DateTimeOffset?>("VoidedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("voided_at_utc");
 
                     b.HasKey("Id")
                         .HasName("pk_payment_captures");

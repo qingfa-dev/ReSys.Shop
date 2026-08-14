@@ -40,14 +40,14 @@ public static partial class CreatePaymentIntent
             var cart = cartResult.Value;
 
             if (!Enum.TryParse<CheckoutState>(cart.State, out var currentState)
-                || currentState is not (CheckoutState.Delivery or CheckoutState.Payment))
+                || currentState is not (CheckoutState.PickDeliveryMethod or CheckoutState.PickPaymentMethod))
                 return OrderResult.Errors.InvalidCheckoutTransition(
                     Enum.TryParse<CheckoutState>(cart.State, out var s) ? s : CheckoutState.Address,
-                    CheckoutState.Payment);
+                    CheckoutState.PickPaymentMethod);
 
             // Re-pick / retry: at Payment, void stale non-completed captures and release
             // prior reservations so a retry keeps a single reservation set and no orphans.
-            if (currentState == CheckoutState.Payment)
+            if (currentState == CheckoutState.PickPaymentMethod)
             {
                 var stale = await dbContext.Set<PaymentCapture>()
                     .Where(p => p.OrderId == command.Request.OrderId

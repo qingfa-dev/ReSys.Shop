@@ -28,9 +28,15 @@ public sealed class VoidOrderPaymentsCommandHandler(
     /// <returns>A success result or the first failure encountered.</returns>
     public async Task<Result> Handle(VoidOrderPaymentsCommand command, CancellationToken ct)
     {
-        // Load: Fetch all payments associated with the order
+        // Load: Fetch all voidable payments associated with the order. Completed,
+        // Failed, Disputed and Invalid captures are not voidable (refund instead),
+        // and calling the gateway on them would fail the whole transaction.
         var payments = await dbContext.Set<PaymentCapture>()
-            .Where(p => p.OrderId == command.OrderId)
+            .Where(p => p.OrderId == command.OrderId
+                     && p.State != PaymentRecordState.Completed
+                     && p.State != PaymentRecordState.Failed
+                     && p.State != PaymentRecordState.Disputed
+                     && p.State != PaymentRecordState.Invalid)
             .ToListAsync(ct);
 
         // Await: Begin transaction for atomic void operation

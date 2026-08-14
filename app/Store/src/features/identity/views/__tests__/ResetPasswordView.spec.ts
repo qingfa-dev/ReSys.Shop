@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
+import ToastService from 'primevue/toastservice'
 import ResetPasswordView from '../ResetPasswordView.vue'
 import { useAuthStore } from '../../stores/authStore'
 
@@ -24,7 +25,7 @@ async function mountView() {
   await router.isReady()
   const wrapper = mount(ResetPasswordView, {
     global: {
-      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, ToastService, createTestingPinia({ stubActions: true }), router],
     },
   })
   await flushPromises()
@@ -52,6 +53,9 @@ describe('ResetPasswordView', () => {
     await wrapper.find('#confirmPassword').setValue('Different456!')
     await wrapper.find('form').trigger('submit')
     await flushPromises()
+    // Settle: Flush a macrotask so vee-validate resolves its async validation.
+    await new Promise((r) => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
 
     const auth = useAuthStore()
     expect(auth.resetPassword).not.toHaveBeenCalled()
@@ -63,6 +67,9 @@ describe('ResetPasswordView', () => {
 
     await wrapper.find('form').trigger('submit')
     await flushPromises()
+    // Settle: Flush a macrotask so vee-validate resolves its async validation.
+    await new Promise((r) => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
 
     const auth = useAuthStore()
     expect(auth.resetPassword).not.toHaveBeenCalled()
@@ -78,6 +85,9 @@ describe('ResetPasswordView', () => {
     await wrapper.find('#confirmPassword').setValue('NewSecret123!')
     await wrapper.find('form').trigger('submit')
     await flushPromises()
+    // Settle: Flush a macrotask so vee-validate resolves its async validation.
+    await new Promise((r) => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
 
     expect(auth.resetPassword).toHaveBeenCalledWith('tok-1', 'NewSecret123!')
     expect(wrapper.text()).toContain('Password reset successfully.')
@@ -94,6 +104,9 @@ describe('ResetPasswordView', () => {
     await wrapper.find('#confirmPassword').setValue('NewSecret123!')
     await wrapper.find('form').trigger('submit')
     await flushPromises()
+    // Settle: Flush a macrotask so vee-validate resolves its async validation.
+    await new Promise((r) => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('Invalid or expired reset token')
     expect(wrapper.text()).not.toContain('Password reset successfully.')

@@ -119,10 +119,10 @@ features:
     layer: storefront
     description: >
       Receives Stripe webhook events, validates the signature via
-      IStripeWebhookService, and dispatches by event type via
-      StripeWebhookDispatcher:
-      payment_intent.succeeded, payment_intent.payment_failed,
-      charge.refunded, charge.dispute.created.
+      IStripeWebhookService, and enqueues ProcessStripeWebhookEventJob
+      which routes by event type: checkout.session.completed,
+      checkout.session.expired, payment_intent.succeeded, payment_intent.payment_failed,
+      payment_intent.canceled, charge.refunded, charge.dispute.created.
     path: ./Features/Storefront/Payment/Webhooks
     tags: [storefront, webhook, stripe]
   - id: F-6
@@ -463,12 +463,12 @@ abstractions:
       Single source of truth for gateway provider identifiers used by
       GatewayRegistry and PaymentMethod configuration.
   - id: A-20
-    name: StripeWebhookService
+    name: StripeWebhookDispatcher
     type: class
-    path: ./Services/Webhook/StripeWebhookService.cs
+    path: ./Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.cs
     description: >
       Validates Stripe webhook signatures and parses event payloads. Uses
-      StripeOptions.WebhookSecret for signature verification.
+      StripeSetting.WebhookSecret for signature verification.
     purpose: >
       Security layer for Stripe webhook processing. Prevents forged
       webhook events from affecting payment state.
@@ -480,24 +480,6 @@ abstractions:
       Contract for Stripe webhook signature validation and event parsing.
     purpose: >
       Abstraction enabling testable webhook processing.
-  - id: A-22
-    name: IWebhookHandler
-    type: interface
-    path: ./Services/Abstractions/IWebhookHandler.cs
-    description: >
-      Generic contract for webhook event handlers. Implemented per event
-      type (payment_intent.succeeded, charge.refunded, etc.).
-    purpose: >
-      Pluggable webhook event dispatch via strategy pattern.
-  - id: A-23
-    name: StripeWebhookDispatcher
-    type: class
-    path: ./Features/Storefront/Payment/Webhooks/StripeWebhookDispatcher.cs
-    description: >
-      Routes parsed Stripe webhook events to the correct handler based
-      on event type. Called by StripeWebhook handler.
-    purpose: >
-      Central dispatch point for Stripe webhook event routing.
   - id: A-24
     name: PaymentExtension
     type: static-class

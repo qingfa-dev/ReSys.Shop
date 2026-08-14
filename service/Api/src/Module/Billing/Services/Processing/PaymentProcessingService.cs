@@ -125,6 +125,8 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         if (string.IsNullOrEmpty(payment.ResponseCode))
         {
             payment.State = PaymentRecordState.Void;
+            payment.VoidedAtUtc = DateTimeOffset.UtcNow;
+            payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
             return ProcessingResult.Success.Voided(payment.Number);
         }
 
@@ -154,26 +156,30 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         // Check: Auto-capture gateway — transition directly to Completed
         if (gateway.AutoCapture && payment.State != PaymentRecordState.Completed)
         {
-            payment.State = PaymentRecordState.Completed;
-            return Task.FromResult(ProcessingResult.Success.ConfirmCompleted(payment.Number));
+            var complete = payment.Complete();
+            return complete.IsFailure
+                ? Task.FromResult<Result<PaymentProcessingResult>>(Result<PaymentProcessingResult>.Failure(complete.Errors[0]))
+                : Task.FromResult(ProcessingResult.Success.ConfirmCompleted(payment.Number));
         }
 
         // Check: Checkout or Processing state — transition to Pending
         if (payment.State == PaymentRecordState.Checkout || payment.State == PaymentRecordState.Processing)
         {
-            payment.State = PaymentRecordState.Pending;
-            return Task.FromResult(ProcessingResult.Success.ConfirmPended(payment.Number));
+            var pend = payment.Pend();
+            return pend.IsFailure
+                ? Task.FromResult<Result<PaymentProcessingResult>>(Result<PaymentProcessingResult>.Failure(pend.Errors[0]))
+                : Task.FromResult(ProcessingResult.Success.ConfirmPended(payment.Number));
         }
 
         return Task.FromResult(Result<PaymentProcessingResult>.Ok(new PaymentProcessingResult()));
     }
 
     #region Private Methods
-    // Update: Set state to Processing if currently Checkout
+    // Update: Set state to Processing if currently Checkout — via domain transition
     private static void StartedProcessing(PaymentCapture payment)
     {
         if (payment.State == PaymentRecordState.Checkout)
-            payment.State = PaymentRecordState.Processing;
+            payment.Process();
     }
 
     // Map: Gateway response fields onto payment entity

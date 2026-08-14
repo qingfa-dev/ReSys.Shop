@@ -35,7 +35,10 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
         if (paymentResult.IsFailure || paymentResult.Value is not { IsCompleted: true })
             return OrderResult.Errors.PaymentNotCompleted;
 
-        if (cart.CheckoutState != CheckoutState.Payment)
+        // Timestamp: mirror the payment completion onto the order's payment timeline.
+        cart.MarkPaymentCompleted(paymentResult.Value.CompletedAtUtc ?? DateTimeOffset.UtcNow);
+
+        if (cart.CheckoutState != CheckoutState.PickPaymentMethod)
             return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Complete);
 
         var placeResult = await placementService.PlaceAsync(cart, "System", cancellationToken);

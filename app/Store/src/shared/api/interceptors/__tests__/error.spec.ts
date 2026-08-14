@@ -72,7 +72,7 @@ describe('errorInterceptor', () => {
               code: 'Auth.Login.Invalid',
               message: 'Invalid credential',
               type: 422,
-              metadata: [{ key: 'propertyName', value: 'credential' }],
+              metadata: { propertyName: 'Request.Credential' },
             },
           ],
         }),
@@ -84,7 +84,7 @@ describe('errorInterceptor', () => {
     expect(mockedNotify).not.toHaveBeenCalled()
   })
 
-  it('falls back to metadata.Field for the error field', async () => {
+  it('falls back to the fields metadata key for the error field', async () => {
     const caught = await capture(
       errorInterceptor(
         axiosLikeError(422, {
@@ -93,7 +93,7 @@ describe('errorInterceptor', () => {
               code: 'Auth.Register.FirstName.Required',
               message: 'First name is required',
               type: 422,
-              metadata: [{ key: 'Field', value: 'firstName' }],
+              metadata: { fields: 'Request.FirstName' },
             },
           ],
         }),

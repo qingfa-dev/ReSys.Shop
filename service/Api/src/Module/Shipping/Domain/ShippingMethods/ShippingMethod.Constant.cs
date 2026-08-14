@@ -46,7 +46,6 @@ public static class ShippingMethodConstant
         [
             nameof(ShippingMethod.AvailableToUsers),
             nameof(ShippingMethod.CalculatorType),
-            nameof(ShippingMethod.TaxCategoryId),
             nameof(ShippingMethod.IsDeleted)
         ];
     }

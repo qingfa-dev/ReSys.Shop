@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { ProductApi } from '../services/productApi'
+import { HttpError } from '@/shared/api'
 import type { StoreProductListItemResponse } from '../types'
 
 // Cache: Singleton shared across all components — avoids duplicate search state
@@ -43,10 +44,14 @@ function createSearch() {
     debounceTimer = setTimeout(async () => {
       loading.value = true
       error.value = null
-      // Call: Catalog API — search products by name or description
-      const result = await ProductApi.getProducts({ pageNumber: 1, pageSize: 5, search: query.value.trim() })
-      if (result.isSuccess) results.value = result.items
-      else error.value = result.message ?? 'Search failed'
+      try {
+        // Call: Catalog API — search products by name or description
+        const result = await ProductApi.getProducts({ pageNumber: 1, pageSize: 5, search: query.value.trim() })
+        if (result.isSuccess) results.value = result.items
+        else error.value = result.message ?? 'Search failed'
+      } catch (e) {
+        error.value = e instanceof HttpError ? e.errors[0]?.message ?? 'Search failed' : 'Search failed'
+      }
       loading.value = false
     }, 300)
   }

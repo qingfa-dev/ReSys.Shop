@@ -472,12 +472,12 @@ public class OrderMethodTests
     public void AdvanceCheckoutState_SameState_IsIdempotentNoOp()
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
-        var result = order.AdvanceCheckoutState(CheckoutState.Payment);
+        var result = order.AdvanceCheckoutState(CheckoutState.PickPaymentMethod);
 
         result.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Payment);
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
     }
 
     [Fact]
@@ -486,12 +486,12 @@ public class OrderMethodTests
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
         order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
         order.RecalculateTotals();
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
         var result = order.RegressCheckoutIfAmountChanged(5m);
 
         result.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 
     [Fact]
@@ -500,12 +500,12 @@ public class OrderMethodTests
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
         order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
         order.RecalculateTotals();
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
         var result = order.RegressCheckoutIfAmountChanged(order.Total);
 
         result.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Payment);
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
     }
 
     [Fact]
@@ -515,12 +515,12 @@ public class OrderMethodTests
         order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
         order.RecalculateTotals();
         order.Status = OrderStatus.Placed;
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
         var result = order.RegressCheckoutIfAmountChanged(5m);
 
         result.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Payment);
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
     }
 
     [Fact]
@@ -532,33 +532,33 @@ public class OrderMethodTests
         order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
         order.ReplaceShippingAdjustment(5m, methodA);
         order.ShippingMethodId = methodA;
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
         var previousTotal = order.Total;
         order.SetShippingMethod(methodB).IsSuccess.Should().BeTrue();
         order.ReplaceShippingAdjustment(8m, methodB).IsSuccess.Should().BeTrue();
         order.RegressCheckoutIfAmountChanged(previousTotal).IsSuccess.Should().BeTrue();
 
-        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 
     [Fact]
     public void RegressCheckoutState_PaymentToDelivery_Succeeds()
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
-        var result = order.RegressCheckoutState(CheckoutState.Delivery);
+        var result = order.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
 
         result.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 
     [Fact]
     public void RegressCheckoutState_PaymentToAddress_Succeeds()
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
         var result = order.RegressCheckoutState(CheckoutState.Address);
 
@@ -570,7 +570,7 @@ public class OrderMethodTests
     public void RegressCheckoutState_DeliveryToAddress_Succeeds()
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Delivery;
+        order.CheckoutState = CheckoutState.PickDeliveryMethod;
 
         var result = order.RegressCheckoutState(CheckoutState.Address);
 
@@ -582,24 +582,24 @@ public class OrderMethodTests
     public void RegressCheckoutState_SameState_IsNoOp()
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
-        var result = order.RegressCheckoutState(CheckoutState.Payment);
+        var result = order.RegressCheckoutState(CheckoutState.PickPaymentMethod);
 
         result.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Payment);
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
     }
 
     [Fact]
     public void RegressCheckoutState_ForwardMove_Fails()
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Delivery;
+        order.CheckoutState = CheckoutState.PickDeliveryMethod;
 
-        var result = order.RegressCheckoutState(CheckoutState.Payment);
+        var result = order.RegressCheckoutState(CheckoutState.PickPaymentMethod);
 
         result.IsFailure.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Delivery);
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 
     [Fact]
@@ -608,7 +608,7 @@ public class OrderMethodTests
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
         order.CheckoutState = CheckoutState.Complete;
 
-        var result = order.RegressCheckoutState(CheckoutState.Delivery);
+        var result = order.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
 
         result.IsFailure.Should().BeTrue();
         order.CheckoutState.Should().Be(CheckoutState.Complete);
@@ -619,11 +619,58 @@ public class OrderMethodTests
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
 
-        var result = order.RegressCheckoutState(CheckoutState.Delivery);
+        var result = order.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
 
         result.IsFailure.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Payment);
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
+    }
+
+    [Fact(DisplayName = "MarkPaymentCompleted: stamps first time and is monotonic")]
+    public void MarkPaymentCompleted_IsMonotonic()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        var t1 = new DateTimeOffset(2026, 8, 14, 10, 0, 0, TimeSpan.Zero);
+        var t2 = t1.AddHours(1);
+
+        order.MarkPaymentCompleted(t2).IsSuccess.Should().BeTrue();
+        order.PaymentCompletedAt.Should().Be(t2);
+
+        // A stale (older) completion must not move the timestamp backwards.
+        order.MarkPaymentCompleted(t1).IsSuccess.Should().BeTrue();
+        order.PaymentCompletedAt.Should().Be(t2);
+
+        order.MarkPaymentCompleted(t2.AddMinutes(1)).IsSuccess.Should().BeTrue();
+        order.PaymentCompletedAt.Should().Be(t2.AddMinutes(1));
+    }
+
+    [Fact(DisplayName = "MarkPaymentFailed: stamps and is monotonic")]
+    public void MarkPaymentFailed_IsMonotonic()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        var t1 = new DateTimeOffset(2026, 8, 14, 10, 0, 0, TimeSpan.Zero);
+
+        order.MarkPaymentFailed(t1).IsSuccess.Should().BeTrue();
+        order.PaymentFailedAt.Should().Be(t1);
+    }
+
+    [Fact(DisplayName = "MarkPaymentProcessing/MarkShipped/MarkDelivered: first write wins")]
+    public void MarkShipmentTimestamps_FirstWriteWins()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        var t1 = new DateTimeOffset(2026, 8, 14, 10, 0, 0, TimeSpan.Zero);
+
+        order.MarkPaymentProcessing(t1);
+        order.MarkPaymentProcessing(t1.AddHours(1));
+        order.PaymentProcessingAt.Should().Be(t1);
+
+        order.MarkShipped(t1);
+        order.MarkShipped(t1.AddHours(1));
+        order.ShippedAt.Should().Be(t1);
+
+        order.MarkDelivered(t1);
+        order.MarkDelivered(t1.AddHours(1));
+        order.DeliveredAt.Should().Be(t1);
     }
 }

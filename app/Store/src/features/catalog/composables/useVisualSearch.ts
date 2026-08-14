@@ -84,8 +84,12 @@ export function useVisualSearch() {
   })
 
   async function loadModels(): Promise<void> {
-    const result = await CatalogImageApi.getVisualSearchModels()
-    if (result.isSuccess) availableModels.value = result.items
+    try {
+      const result = await CatalogImageApi.getVisualSearchModels()
+      if (result.isSuccess) availableModels.value = result.items
+    } catch {
+      // Degrade: leave the model selector empty when the listing endpoint is down.
+    }
   }
 
   function reset(): void {

@@ -42,6 +42,10 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 It.IsAny<CompleteCheckoutForPaymentCommand>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<CompleteCheckoutForPaymentResponse>.Ok(new CompleteCheckoutForPaymentResponse()));
+        _senderMock.Setup(x => x.Send(
+                It.IsAny<RegressCheckoutStateCommand>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
         _stockServiceMock = new Mock<IStockReservationService>();
         _stockServiceMock.Setup(s => s.ReleaseReservationsAsync(
                 It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
@@ -396,7 +400,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 Id = "evt_checkout_123",
                 Data = new EventData
                 {
-                    Object = new Session { Id = "cs_checkout_123", PaymentIntentId = "pi_checkout_123" }
+                    Object = new Session { Id = "cs_checkout_123", PaymentIntentId = "pi_checkout_123", PaymentStatus = "paid" }
                 }
             });
 
@@ -431,7 +435,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
                 Id = "evt_checkout_retry",
                 Data = new EventData
                 {
-                    Object = new Session { Id = "cs_checkout_retry", PaymentIntentId = "pi_checkout_retry" }
+                    Object = new Session { Id = "cs_checkout_retry", PaymentIntentId = "pi_checkout_retry", PaymentStatus = "paid" }
                 }
             });
 
@@ -479,5 +483,308 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         _senderMock.Verify(x => x.Send(
             It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == "Delivery"),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact(DisplayName = "checkout.session.completed with payment_status=unpaid does not complete or place order")]
+    public async Task HandleCheckoutSessionCompleted_NotPaid_Skips()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "cs_not_paid_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "checkout.session.completed",
+                Id = "evt_not_paid_1",
+                Data = new EventData
+                {
+                    Object = new Session { Id = "cs_not_paid_1", PaymentIntentId = "pi_not_paid_1", PaymentStatus = "unpaid" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Processing);
+        updated.ResponseCode.Should().Be("cs_not_paid_1");
+        updated.ProcessedStripeEventIds.Should().NotContain("evt_not_paid_1");
+
+        _senderMock.Verify(x => x.Send(
+            It.IsAny<CompleteCheckoutForPaymentCommand>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact(DisplayName = "checkout.session.completed throws when order placement fails so Hangfire retries")]
+    public async Task HandleCheckoutSessionCompleted_PlacementFailure_Throws()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "cs_place_fail_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _senderMock.Setup(x => x.Send(
+                It.IsAny<CompleteCheckoutForPaymentCommand>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<CompleteCheckoutForPaymentResponse>.Failure(Error.BadRequest("Ordering.Place.Failed", "placement boom")));
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "checkout.session.completed",
+                Id = "evt_place_fail_1",
+                Data = new EventData
+                {
+                    Object = new Session { Id = "cs_place_fail_1", PaymentIntentId = "pi_place_fail_1", PaymentStatus = "paid" }
+                }
+            });
+
+        var act = () => _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        // Event must remain unrecorded so a Hangfire retry re-attempts placement.
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.ProcessedStripeEventIds.Should().NotContain("evt_place_fail_1");
+    }
+
+    [Fact(DisplayName = "checkout.session.expired still releases reservations and regresses cart for a Failed payment")]
+    public async Task HandleCheckoutSessionExpired_FailedPayment_ReleasesAndRegresses()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.State = PaymentRecordState.Failed;
+        payment.ResponseCode = "cs_expired_failed_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "checkout.session.expired",
+                Id = "evt_expired_failed_1",
+                Data = new EventData
+                {
+                    Object = new Session { Id = "cs_expired_failed_1" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Failed);
+        updated.ProcessedStripeEventIds.Should().Contain("evt_expired_failed_1");
+
+        _stockServiceMock.Verify(s => s.ReleaseReservationsAsync(
+            payment.OrderId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _senderMock.Verify(x => x.Send(
+            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == "Delivery"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact(DisplayName = "charge.refunded reconciles to the Stripe total without double-counting")]
+    public async Task HandleChargeRefunded_ReconcilesWithoutDoubleCount()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_reconcile_1";
+        payment.RefundedAmount = 10m; // already tracked an earlier $10 refund
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "charge.refunded",
+                Data = new EventData
+                {
+                    Object = new Charge
+                    {
+                        PaymentIntentId = "pi_reconcile_1",
+                        AmountRefunded = 2000 // Stripe total = $20
+                    }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.RefundedAmount.Should().Be(20m);
+    }
+
+    private static DateTime T(int hour) =>
+        new(2026, 8, 14, hour, 0, 0, DateTimeKind.Utc);
+
+    [Fact(DisplayName = "payment_intent.payment_failed older than the last applied event is dropped as stale")]
+    public async Task HandlePaymentIntentFailed_StaleEvent_IsDropped()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_stale_1";
+        payment.LastStripeEventId = "evt_newer_success";
+        payment.LastStripeEventCreatedAtUtc = T(12); // a newer event already applied
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.payment_failed",
+                Id = "evt_stale_failed_1",
+                Created = T(11), // older than the applied event
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_stale_1" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+        updated.ProcessedStripeEventIds.Should().Contain("evt_stale_failed_1");
+    }
+
+    [Fact(DisplayName = "payment_intent.succeeded on a voided payment throws so Hangfire retries")]
+    public async Task HandlePaymentIntentSucceeded_OnVoidedPayment_Throws()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Void;
+        payment.ResponseCode = "pi_voided_1";
+        payment.LastStripeEventId = "evt_voided_1";
+        payment.LastStripeEventCreatedAtUtc = T(9);
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Id = "evt_succeeded_after_void",
+                Created = T(10),
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_voided_1" }
+                }
+            });
+
+        var act = () => _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact(DisplayName = "charge.refunded arriving before completion throws so Hangfire retries after the payment completes")]
+    public async Task HandleChargeRefunded_BeforeCompleted_Throws()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Processing; // session.completed not yet applied
+        payment.ResponseCode = "pi_refund_race_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "charge.refunded",
+                Data = new EventData
+                {
+                    Object = new Charge
+                    {
+                        PaymentIntentId = "pi_refund_race_1",
+                        AmountRefunded = 2000
+                    }
+                }
+            });
+
+        var act = () => _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact(DisplayName = "charge.refunded on a Disputed payment still reconciles the refunded total")]
+    public async Task HandleChargeRefunded_Disputed_Reconciles()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Disputed;
+        payment.ResponseCode = "pi_dispute_refund_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "charge.refunded",
+                Data = new EventData
+                {
+                    Object = new Charge
+                    {
+                        PaymentIntentId = "pi_dispute_refund_1",
+                        AmountRefunded = 2000
+                    }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.RefundedAmount.Should().Be(20m);
+        updated.RefundedAtUtc.Should().NotBeNull();
+    }
+
+    [Fact(DisplayName = "payment_intent.succeeded stamps CompletedAtUtc business timestamp")]
+    public async Task HandlePaymentIntentSucceeded_SetsCompletedAtUtc()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "pi_stamp_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Id = "evt_stamp_1",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_stamp_1" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+        updated.CompletedAtUtc.Should().NotBeNull();
+    }
+
+    [Fact(DisplayName = "payment_intent.canceled stamps VoidedAtUtc business timestamp")]
+    public async Task HandlePaymentIntentCanceled_SetsVoidedAtUtc()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "pi_void_stamp_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.canceled",
+                Id = "evt_void_stamp_1",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_void_stamp_1" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Void);
+        updated.VoidedAtUtc.Should().NotBeNull();
     }
 }

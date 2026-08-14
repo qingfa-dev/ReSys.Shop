@@ -35,6 +35,17 @@ public static partial class UpdateOrderShipmentState
                 return OrderResult.Errors.InvalidShipmentState;
 
             order.ShipmentState = command.Request.ShipmentState;
+            var now = DateTimeOffset.UtcNow;
+
+            // Timestamp: stamp the tracking timeline as the order progresses through
+            // shipment states (first ship/delivery only, so later admin corrections
+            // never move the timeline backwards).
+            if (command.Request.ShipmentState is OrderConstant.ShipmentState.Delivered)
+                order.MarkDelivered(now);
+            if (command.Request.ShipmentState is OrderConstant.ShipmentState.Ready
+                or OrderConstant.ShipmentState.Partial
+                or OrderConstant.ShipmentState.Delivered)
+                order.MarkShipped(now);
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

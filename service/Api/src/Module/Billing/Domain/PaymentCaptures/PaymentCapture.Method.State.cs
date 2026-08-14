@@ -41,6 +41,7 @@ public static partial class PaymentCaptureMethod
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
         payment.State = PaymentRecordState.Completed;
+        payment.CompletedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Completed(payment.Number));
     }
@@ -55,6 +56,7 @@ public static partial class PaymentCaptureMethod
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Failed);
 
         payment.State = PaymentRecordState.Failed;
+        payment.FailedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Failed(payment.Number));
     }
@@ -69,6 +71,7 @@ public static partial class PaymentCaptureMethod
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void);
 
         payment.State = PaymentRecordState.Void;
+        payment.VoidedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
     }
@@ -83,6 +86,7 @@ public static partial class PaymentCaptureMethod
             return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Disputed);
 
         payment.State = PaymentRecordState.Disputed;
+        payment.DisputedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok();
     }
@@ -126,6 +130,7 @@ public static partial class PaymentCaptureMethod
                 : PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
         payment.State = PaymentRecordState.Completed;
+        payment.CompletedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount));
     }
@@ -146,8 +151,27 @@ public static partial class PaymentCaptureMethod
         }
 
         payment.RefundedAmount += amount;
+        payment.RefundedAtUtc = DateTimeOffset.UtcNow;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Credited(payment.Number, amount));
+    }
+
+    // Update: Reconcile RefundedAmount with the gateway's authoritative total.
+    // Monotonic — the local total never decreases, so an admin refund racing a
+    // charge.refunded webhook cannot double-count the same money. Accepts Disputed
+    // payments too: a dispute-loss auto-refund from Stripe still reports a total.
+    public static Result ReconcileRefunded(this PaymentCapture payment, decimal totalRefunded)
+    {
+        if (payment.State is not (PaymentRecordState.Completed or PaymentRecordState.Disputed))
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+
+        if (totalRefunded <= 0 || totalRefunded <= payment.RefundedAmount)
+            return Result.Ok();
+
+        payment.RefundedAmount = totalRefunded;
+        payment.RefundedAtUtc = DateTimeOffset.UtcNow;
+        payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
     }
     #endregion
 

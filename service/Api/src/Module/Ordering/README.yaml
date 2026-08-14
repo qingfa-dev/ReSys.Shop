@@ -197,9 +197,9 @@ abstractions:
           Single entry point for all Order state mutations, ensuring
           invariant enforcement before any state change.
         contract: |
-          // Contract: pre=currency!=null&&storeId!=default, post=entity.Status==Draft
+          // Contract: pre=currency!=null, post=entity.Status==Draft
         methods:
-          - name: "Create(currency, userId, storeId, id?, sessionId?) → Result<Order>"
+          - name: "Create(currency, userId, id?, sessionId?, shipAddressId?) → Result<Order>"
             description: Factory that creates a new Draft order with zero totals.
           - name: "AdvanceCheckout(order) → Result"
             description: Transitions order to the next checkout state.
@@ -765,7 +765,7 @@ testing:
         [Fact]
         public void RecalculateTotals_ComputesCorrectTotals()
         {
-            var order = OrderMethod.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId).Value;
             order.LineItems.Add(CreateLineItem(price: 10m, qty: 2));
             order.LineItems.Add(CreateLineItem(price: 5m, qty: 1));
 

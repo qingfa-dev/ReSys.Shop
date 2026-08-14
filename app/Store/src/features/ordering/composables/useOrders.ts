@@ -1,6 +1,7 @@
 import { ref, computed, reactive } from "vue";
 import { OrderApi } from "../services/orderApi";
 import { on } from "@/shared/composables/useStoreEvents";
+import { HttpError } from "@/shared/api";
 import type { OrderListItem, OrderDetail, OrderStatus } from "../types";
 
 // Module-level singleton state
@@ -17,16 +18,25 @@ const cancelLoading = ref(false);
 
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 
+// Map: Set a friendly error from an HttpError, defaulting to a generic message.
+function messageOf(e: unknown, fallback: string): string {
+  return e instanceof HttpError ? e.errors[0]?.message ?? fallback : fallback;
+}
+
 async function fetchOrders(): Promise<void> {
   if (loading.value) return;
   loading.value = true;
   error.value = null;
-  const result = await OrderApi.getOrders({ pageNumber: page.value, pageSize: pageSize.value });
-  if (result.isSuccess) {
-    items.value = result.items;
-    totalCount.value = result.totalCount;
-  } else {
-    error.value = result.message ?? "Failed to load orders";
+  try {
+    const result = await OrderApi.getOrders({ pageNumber: page.value, pageSize: pageSize.value });
+    if (result.isSuccess) {
+      items.value = result.items;
+      totalCount.value = result.totalCount;
+    } else {
+      error.value = result.message ?? "Failed to load orders";
+    }
+  } catch (e) {
+    error.value = messageOf(e, "Failed to load orders");
   }
   loading.value = false;
 }
@@ -34,27 +44,37 @@ async function fetchOrders(): Promise<void> {
 async function fetchOrder(id: string): Promise<void> {
   detailLoading.value = true;
   // Fetch: Order details and tracking info in parallel.
-  const [detail] = await Promise.all([OrderApi.getOrder(id), OrderApi.getOrderTracking(id)]);
+  try {
+    const [detail] = await Promise.all([OrderApi.getOrder(id), OrderApi.getOrderTracking(id)]);
 
-  // Check:
-  if (detail.isSuccess) currentOrder.value = detail.value;
-  // Return:
-  else error.value = detail.message;
+    // Check:
+    if (detail.isSuccess) currentOrder.value = detail.value;
+    // Return:
+    else error.value = detail.message;
+  } catch (e) {
+    error.value = messageOf(e, "Failed to load the order");
+  }
   detailLoading.value = false;
 }
 
 async function cancelOrder(id: string): Promise<boolean> {
   cancelLoading.value = true;
-  const result = await OrderApi.cancelOrder(id);
-  if (result.isSuccess) {
-    const item = items.value.find((o) => o.id === id);
-    if (item) item.status = "Canceled";
-    if (currentOrder.value?.id === id) currentOrder.value.status = "Canceled";
-  } else {
-    error.value = result.message;
+  try {
+    const result = await OrderApi.cancelOrder(id);
+    if (result.isSuccess) {
+      const item = items.value.find((o) => o.id === id);
+      if (item) item.status = "Canceled";
+      if (currentOrder.value?.id === id) currentOrder.value.status = "Canceled";
+    } else {
+      error.value = result.message;
+    }
+    cancelLoading.value = false;
+    return result.isSuccess;
+  } catch (e) {
+    error.value = messageOf(e, "Could not cancel the order");
+    cancelLoading.value = false;
+    return false;
   }
-  cancelLoading.value = false;
-  return result.isSuccess;
 }
 
 function goToPage(p: number): void {

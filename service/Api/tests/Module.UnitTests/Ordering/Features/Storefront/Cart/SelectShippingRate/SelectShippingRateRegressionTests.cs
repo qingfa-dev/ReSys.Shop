@@ -57,12 +57,12 @@ public class SelectShippingRateRegressionTests : IDisposable
             Id = Guid.NewGuid(), OrderId = order.Id, VariantId = variant.Id,
             Quantity = 1, Price = 100m, Total = 100m, Currency = "USD"
         });
-        order.CheckoutState = CheckoutState.Payment;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var method1 = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
-        var method2 = ShippingMethodMethod.Create("Express", "flat_rate").Value;
+        var method1 = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        var method2 = ShippingMethodExtensions.Create("Express", "flat_rate").Value;
         _dbContext.Set<ShippingMethod>().AddRange(method1, method2);
         var rate1 = ShippingRateExtensions.Create("Standard Rate", 5.99m, method1.Id).Value;
         var rate2 = ShippingRateExtensions.Create("Express Rate", 12.99m, method2.Id).Value;
@@ -83,6 +83,6 @@ public class SelectShippingRateRegressionTests : IDisposable
 
         var orderAfter = await _dbContext.Set<Order>()
             .FirstAsync(o => o.Id == order.Id, TestContext.Current.CancellationToken);
-        orderAfter.CheckoutState.Should().Be(CheckoutState.Delivery);
+        orderAfter.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
     }
 }

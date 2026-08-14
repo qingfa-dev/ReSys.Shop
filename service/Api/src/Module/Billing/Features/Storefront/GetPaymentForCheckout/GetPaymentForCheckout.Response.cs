@@ -6,4 +6,6 @@ public sealed record PaymentForCheckoutResponse
     public bool IsCompleted { get; init; }
     public string State { get; init; } = string.Empty;
     public bool IsOffline { get; init; }
+    /// <summary>When the payment reached Completed — mirrored onto the order timeline.</summary>
+    public DateTimeOffset? CompletedAtUtc { get; init; }
 }

@@ -11,8 +11,7 @@ public static partial class ShippingMethodMapping
         var result = ShippingMethodExtensions.Create(
             name: request.Name,
             calculatorType: request.CalculatorType,
-            code: request.Code,
-            taxCategoryId: request.TaxCategoryId);
+            code: request.Code);
 
         if (result.IsFailure)
             return result.Errors;
@@ -36,7 +35,6 @@ public static partial class ShippingMethodMapping
             adminName: request.AdminName,
             position: request.Position,
             availableToUsers: request.AvailableToUsers,
-            calculatorType: request.CalculatorType,
-            taxCategoryId: request.TaxCategoryId);
+            calculatorType: request.CalculatorType);
     }
 }

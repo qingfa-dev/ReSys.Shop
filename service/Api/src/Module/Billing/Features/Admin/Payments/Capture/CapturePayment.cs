@@ -6,6 +6,7 @@ using IPaymentProcessingService = Module.Billing.Services.Processing.IPaymentPro
 
 using Module.Billing.Services.Provider;
 using Module.Billing.Domain.PaymentCaptures;
+using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 
 using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
@@ -17,7 +18,12 @@ public static partial class CapturePayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry, IPaymentProcessingService processingService)
+    public sealed class CommandHandler(
+        IApplicationDbContext dbContext,
+        IGatewayRegistry gatewayRegistry,
+        IPaymentProcessingService processingService,
+        ISender sender,
+        ILogger<CommandHandler> logger)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Captures an authorized payment.</summary>
@@ -57,6 +63,17 @@ public static partial class CapturePayment
                 return captureResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Mirror: capture completes the payment → stamp the order's payment timeline.
+            // Best-effort — the payment row is authoritative.
+            var notifyResult = await sender.Send(new RecordOrderPaymentStateCommand
+            {
+                OrderId = payment.OrderId,
+                PaymentState = OrderPaymentState.Completed,
+                AtUtc = payment.CompletedAtUtc ?? DateTimeOffset.UtcNow
+            }, cancellationToken);
+            if (notifyResult.IsFailure)
+                logger.LogWarning("Failed to mirror payment completion onto order for payment {PaymentId}: {Message}", payment.Id, notifyResult.Message);
 
             // Map: Payment → response DTO
             var response = payment.MapToDetail<Response>();

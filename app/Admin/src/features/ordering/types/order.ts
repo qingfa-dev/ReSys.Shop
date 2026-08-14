@@ -63,7 +63,6 @@ export interface OrderQuery {
   status?: OrderStatus
   checkoutState?: CheckoutState
   currency?: string
-  storeId?: string
   search?: string
   sortBy?: 'number' | 'total' | 'completedAtUtc' | 'createdAtUtc' | 'status'
   sortDirection?: 'asc' | 'desc'

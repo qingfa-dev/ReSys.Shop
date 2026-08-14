@@ -29,7 +29,7 @@ public class CreateOrderFromCartTransactionTests
         {
             Id = Guid.NewGuid(), UserId = userId, Status = OrderStatus.Draft,
             Number = "SEED", Currency = "USD", Email = "u@e.com",
-            CheckoutState = CheckoutState.Payment,
+            CheckoutState = CheckoutState.PickPaymentMethod,
             BillAddressId = Guid.NewGuid(), ShipAddressId = Guid.NewGuid(),
             ShippingMethodId = Guid.NewGuid(),
             Total = 0m

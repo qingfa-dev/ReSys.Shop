@@ -3,6 +3,13 @@ import type { ApiError } from '@/shared/types/error'
 import { HttpError } from '../errors'
 import { notifyError } from '../notify'
 
+// Normalize: Flatten a nested FluentValidation path (e.g. Request.Credential)
+// to the camel-case form field name (e.g. credential).
+function normalizeField(value: string): string {
+  const segment = value.split('.').pop() ?? value
+  return segment.length > 0 ? segment[0]!.toLowerCase() + segment.slice(1) : segment
+}
+
 // Transform: Normalize API error responses into typed ApiError array
 function extractErrors(
   data: Record<string, unknown> | undefined,
@@ -14,14 +21,14 @@ function extractErrors(
       code: string
       message: string
       type?: number
-      metadata?: Array<{ key: string; value: unknown }>
+      metadata?: Record<string, unknown>
     }>).map(e => {
-      const field = e.metadata?.find(m => m.key === 'propertyName' || m.key === 'Field')
+      const raw = e.metadata?.['propertyName'] ?? e.metadata?.['fields'] ?? e.metadata?.['Field']
       return {
         code: e.code,
         message: e.message,
         type: e.type ?? status,
-        field: typeof field?.value === 'string' ? field.value : undefined,
+        field: typeof raw === 'string' && raw.length > 0 ? normalizeField(raw) : undefined,
       }
     })
   }

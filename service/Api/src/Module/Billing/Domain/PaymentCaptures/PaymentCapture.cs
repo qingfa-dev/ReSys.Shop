@@ -25,6 +25,20 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     public string ProviderKey { get; set; } = string.Empty;
     /// <summary>Stripe event IDs already processed for this payment — prevents duplicate webhook handling.</summary>
     public List<string> ProcessedStripeEventIds { get; set; } = [];
+    /// <summary>The last Stripe webhook event applied to this payment (observability + reconciliation).</summary>
+    public string? LastStripeEventId { get; set; }
+    /// <summary>Stripe creation time of the last applied webhook event — used to drop stale out-of-order events.</summary>
+    public DateTimeOffset? LastStripeEventCreatedAtUtc { get; set; }
+    /// <summary>When the payment transitioned to Completed.</summary>
+    public DateTimeOffset? CompletedAtUtc { get; set; }
+    /// <summary>When the payment transitioned to Failed.</summary>
+    public DateTimeOffset? FailedAtUtc { get; set; }
+    /// <summary>When the payment transitioned to Void.</summary>
+    public DateTimeOffset? VoidedAtUtc { get; set; }
+    /// <summary>When the payment transitioned to Disputed.</summary>
+    public DateTimeOffset? DisputedAtUtc { get; set; }
+    /// <summary>When a refund was last recorded for this payment.</summary>
+    public DateTimeOffset? RefundedAtUtc { get; set; }
     /// <summary>Optimistic concurrency token — prevents race conditions between admin operations and webhooks.</summary>
     public uint RowVersion { get; set; }
     #endregion Properties

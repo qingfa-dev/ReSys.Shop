@@ -72,10 +72,10 @@ public static partial class SelectShippingRate
 
             // Re-pick: a shipping method change at Payment regresses to Delivery so the
             // customer re-selects a payment method against the new shipping cost.
-            if (cart.CheckoutState == CheckoutState.Payment
+            if (cart.CheckoutState == CheckoutState.PickPaymentMethod
                 && command.Request.ShippingMethodId != previousMethodId)
             {
-                var regress = cart.RegressCheckoutState(CheckoutState.Delivery);
+                var regress = cart.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
                 if (regress.IsFailure)
                     return regress.Errors;
             }
@@ -83,7 +83,7 @@ public static partial class SelectShippingRate
             // Advance: Address → Delivery only; later states either already passed Delivery or regressed here.
             if (cart.CheckoutState == CheckoutState.Address)
             {
-                var stateResult = cart.AdvanceCheckoutState(CheckoutState.Delivery);
+                var stateResult = cart.AdvanceCheckoutState(CheckoutState.PickDeliveryMethod);
                 if (stateResult.IsFailure)
                     return stateResult.Errors;
             }

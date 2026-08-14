@@ -1,6 +1,7 @@
 import { ref, reactive } from 'vue'
 import { WishlistApi } from '../services/wishlistApi'
 import { on } from '@/shared/composables/useStoreEvents'
+import { HttpError } from '@/shared/api'
 import type { WishlistListItem, WishlistDetail, CreateWishlistRequest, UpdateWishlistRequest, AddWishlistItemRequest } from '../types'
 
 // Module-level singleton state
@@ -11,24 +12,33 @@ const error = ref<string | null>(null)
 const details = ref<Record<string, WishlistDetail>>({})
 const wishlistedVariantIds = ref<Set<string>>(new Set())
 
+// Map: Set a friendly error from an HttpError, defaulting to a generic message.
+function messageOf(e: unknown, fallback: string): string {
+  return e instanceof HttpError ? e.errors[0]?.message ?? fallback : fallback
+}
+
 // Fetch: Eagerly load all list details to build a flat variant-id lookup set
 async function fetchWishlists(): Promise<void> {
   loading.value = true
   error.value = null
-  const result = await WishlistApi.getWishlists()
-  if (result.isSuccess) {
-    lists.value = result.items
-    const ids = new Set<string>()
-    for (const list of result.items) {
-      const detail = await WishlistApi.getWishlist(list.id)
-      if (detail.isSuccess) {
-        details.value[list.id] = detail.value
-        for (const item of detail.value.wishedItems) ids.add(item.variantId)
+  try {
+    const result = await WishlistApi.getWishlists()
+    if (result.isSuccess) {
+      lists.value = result.items
+      const ids = new Set<string>()
+      for (const list of result.items) {
+        const detail = await WishlistApi.getWishlist(list.id)
+        if (detail.isSuccess) {
+          details.value[list.id] = detail.value
+          for (const item of detail.value.wishedItems) ids.add(item.variantId)
+        }
       }
+      wishlistedVariantIds.value = ids
+    } else {
+      error.value = result.message
     }
-    wishlistedVariantIds.value = ids
-  } else {
-    error.value = result.message
+  } catch (e) {
+    error.value = messageOf(e, 'Failed to load wishlists')
   }
   loading.value = false
 }
@@ -36,63 +46,93 @@ async function fetchWishlists(): Promise<void> {
 // Create: Prepend new list to front for immediate visibility
 async function createWishlist(req: CreateWishlistRequest): Promise<boolean> {
   saving.value = true
-  const r = await WishlistApi.createWishlist(req)
-  if (r.isSuccess) lists.value.unshift(r.value)
-  else error.value = r.message
-  saving.value = false
-  return r.isSuccess
+  try {
+    const r = await WishlistApi.createWishlist(req)
+    if (r.isSuccess) lists.value.unshift(r.value)
+    else error.value = r.message
+    saving.value = false
+    return r.isSuccess
+  } catch (e) {
+    error.value = messageOf(e, 'Could not create the wishlist')
+    saving.value = false
+    return false
+  }
 }
 
 // Update: Merge server response into existing detail cache entry
 async function updateWishlist(id: string, req: UpdateWishlistRequest): Promise<boolean> {
   saving.value = true
-  const r = await WishlistApi.updateWishlist(id, req)
-  if (r.isSuccess && details.value[id]) Object.assign(details.value[id], r.value)
-  else error.value = r.message
-  saving.value = false
-  return r.isSuccess
+  try {
+    const r = await WishlistApi.updateWishlist(id, req)
+    if (r.isSuccess && details.value[id]) Object.assign(details.value[id], r.value)
+    else error.value = r.message
+    saving.value = false
+    return r.isSuccess
+  } catch (e) {
+    error.value = messageOf(e, 'Could not update the wishlist')
+    saving.value = false
+    return false
+  }
 }
 
 // Delete: Remove from list array and detail cache atomically
 async function deleteWishlist(id: string): Promise<boolean> {
   saving.value = true
-  const r = await WishlistApi.deleteWishlist(id)
-  if (r.isSuccess) {
-    lists.value = lists.value.filter(l => l.id !== id)
-    delete details.value[id]
-  } else {
-    error.value = r.message
+  try {
+    const r = await WishlistApi.deleteWishlist(id)
+    if (r.isSuccess) {
+      lists.value = lists.value.filter(l => l.id !== id)
+      delete details.value[id]
+    } else {
+      error.value = r.message
+    }
+    saving.value = false
+    return r.isSuccess
+  } catch (e) {
+    error.value = messageOf(e, 'Could not delete the wishlist')
+    saving.value = false
+    return false
   }
-  saving.value = false
-  return r.isSuccess
 }
 
 // Add: Update detail and track variant in global wishlisted set
 async function addItem(listId: string, req: AddWishlistItemRequest): Promise<boolean> {
   saving.value = true
-  const r = await WishlistApi.addWishlistItem(listId, req)
-  if (r.isSuccess) {
-    details.value[listId] = r.value
-    wishlistedVariantIds.value.add(req.variantId)
-  } else {
-    error.value = r.message
+  try {
+    const r = await WishlistApi.addWishlistItem(listId, req)
+    if (r.isSuccess) {
+      details.value[listId] = r.value
+      wishlistedVariantIds.value.add(req.variantId)
+    } else {
+      error.value = r.message
+    }
+    saving.value = false
+    return r.isSuccess
+  } catch (e) {
+    error.value = messageOf(e, 'Could not update the wishlist')
+    saving.value = false
+    return false
   }
-  saving.value = false
-  return r.isSuccess
 }
 
 // Remove: Refresh detail and re-sync variant tracking set
 async function removeItem(listId: string, itemId: string): Promise<boolean> {
   saving.value = true
-  const r = await WishlistApi.removeWishlistItem(listId, itemId)
-  if (r.isSuccess) {
-    details.value[listId] = r.value
-    await fetchWishlists()
-  } else {
-    error.value = r.message
+  try {
+    const r = await WishlistApi.removeWishlistItem(listId, itemId)
+    if (r.isSuccess) {
+      details.value[listId] = r.value
+      await fetchWishlists()
+    } else {
+      error.value = r.message
+    }
+    saving.value = false
+    return r.isSuccess
+  } catch (e) {
+    error.value = messageOf(e, 'Could not update the wishlist')
+    saving.value = false
+    return false
   }
-  saving.value = false
-  return r.isSuccess
 }
 
 // Reset: Return state to pristine default

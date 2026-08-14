@@ -76,7 +76,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         // Arrange: Create a draft cart
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
@@ -113,7 +113,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         // Arrange: Create a draft cart
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Payment;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();

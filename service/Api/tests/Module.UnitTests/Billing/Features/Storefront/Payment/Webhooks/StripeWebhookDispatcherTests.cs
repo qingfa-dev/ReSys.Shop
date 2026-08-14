@@ -30,17 +30,8 @@ public class StripeWebhookDispatcherTests
 
         return new StripeWebhookDispatcher(
             Options.Create(new StripeSetting { WebhookSecret = webhookSecret }),
-            new Mock<ISender>().Object,
             new Mock<ILogger<StripeWebhookDispatcher>>().Object,
             environment.Object);
-    }
-
-    [Fact(DisplayName = "Dispatcher: provider name is stripe")]
-    public void Provider_ReturnsStripe()
-    {
-        var dispatcher = CreateDispatcher(WebhookSecret, Environments.Production);
-
-        dispatcher.Provider.Should().Be("stripe");
     }
 
     [Fact(DisplayName = "Dispatcher: accepts any signature in Development when webhook secret is empty")]

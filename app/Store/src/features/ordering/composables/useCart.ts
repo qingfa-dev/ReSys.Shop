@@ -127,7 +127,11 @@ async function removeItem(lineItemId: string): Promise<boolean> {
 }
 
 async function clearCart(): Promise<void> {
-  await CartApi.emptyCart()
+  try {
+    await CartApi.emptyCart()
+  } catch {
+    // Swallow: the cart is cleared client-side regardless of the network outcome.
+  }
   items.value = []
   id.value = null
   // State: Reset the checkout prefill fields with the cleared cart.
@@ -140,9 +144,13 @@ async function clearCart(): Promise<void> {
 
 async function associateGuestCart(): Promise<void> {
   if (!id.value || id.value === '00000000-0000-0000-0000-000000000000') return
-  await CartApi.associateCart(id.value)
-  // Force: association may merge into a different user cart id, so bypass the cache.
-  await fetchCart(true)
+  try {
+    await CartApi.associateCart(id.value)
+    // Force: association may merge into a different user cart id, so bypass the cache.
+    await fetchCart(true)
+  } catch {
+    // Swallow: guest-cart association is best-effort on login.
+  }
 }
 
 function reset(): void {

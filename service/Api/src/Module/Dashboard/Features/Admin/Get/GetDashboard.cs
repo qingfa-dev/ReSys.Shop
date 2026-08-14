@@ -108,7 +108,7 @@ public static partial class GetDashboard
             var recentProducts = await productsQuery
                 .OrderByDescending(p => p.CreatedAtUtc)
                 .Take(5)
-                .Select(p => new RecentProductData { Id = p.Id, Name = p.Name, Slug = p.Slug, CreatedAtUtc = p.CreatedAtUtc.DateTime })
+                .Select(p => new RecentProductData { Id = p.Id, Name = p.Name, Slug = p.Slug, CreatedAtUtc = p.CreatedAtUtc })
                 .ToListAsync(ct);
 
             return new CatalogSummaryData
@@ -188,7 +188,7 @@ public static partial class GetDashboard
                     Title = "Order #" + o.Number,
                     Description = o.ItemCount + " item(s) · " + o.Currency + " " + o.Total.ToString("F2"),
                     Status = o.Status.ToString(),
-                    Timestamp = o.CreatedAtUtc.DateTime
+                    Timestamp = o.CreatedAtUtc
                 })
                 .ToListAsync(ct);
 
@@ -203,7 +203,7 @@ public static partial class GetDashboard
                     Title = "Stock: " + (sm.Action ?? "Movement"),
                     Description = sm.Quantity + " units",
                     Status = "Completed",
-                    Timestamp = sm.CreatedAtUtc.DateTime
+                    Timestamp = sm.CreatedAtUtc
                 })
                 .ToListAsync(ct);
 

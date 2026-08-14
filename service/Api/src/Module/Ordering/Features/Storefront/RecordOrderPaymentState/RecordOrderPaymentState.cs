@@ -1,0 +1,30 @@
+using Module.Ordering.Domain.Orders;
+
+namespace Module.Ordering.Features.Storefront.RecordOrderPaymentState;
+
+/// <summary>Stamps the order's payment timestamp for the reported payment state.</summary>
+public sealed class RecordOrderPaymentStateCommandHandler(IApplicationDbContext dbContext)
+    : ICommandHandler<RecordOrderPaymentStateCommand>
+{
+    public async Task<Result> Handle(
+        RecordOrderPaymentStateCommand command, CancellationToken cancellationToken)
+    {
+        var order = await dbContext.Set<Order>()
+            .FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
+        if (order is null)
+            return OrderResult.Errors.NotFound(command.OrderId);
+
+        var result = command.PaymentState switch
+        {
+            OrderPaymentState.Completed => order.MarkPaymentCompleted(command.AtUtc),
+            OrderPaymentState.Failed => order.MarkPaymentFailed(command.AtUtc),
+            OrderPaymentState.Processing => order.MarkPaymentProcessing(command.AtUtc),
+            _ => Result.Ok()
+        };
+        if (result.IsFailure)
+            return result.Errors;
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Ok();
+    }
+}

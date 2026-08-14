@@ -77,7 +77,7 @@ public sealed partial class Order
     // Validate: Whether email is required for checkout progression
     public bool RequireEmail() =>
         Status != OrderStatus.Draft &&
-        CheckoutState is CheckoutState.Payment or CheckoutState.Confirm or CheckoutState.Complete;
+        CheckoutState is CheckoutState.PickPaymentMethod or CheckoutState.Confirm or CheckoutState.Complete;
 
     // Validate: Whether the order can be canceled
     public bool AllowCancel() =>
@@ -102,10 +102,10 @@ public sealed partial class Order
 
         var validTransition = (CheckoutState, target) switch
         {
-            (CheckoutState.Address, CheckoutState.Delivery) => true,
-            (CheckoutState.Delivery, CheckoutState.Payment) => true,
-            (CheckoutState.Payment, CheckoutState.Confirm) => true,
-            (CheckoutState.Payment, CheckoutState.Complete) => true,
+            (CheckoutState.Address, CheckoutState.PickDeliveryMethod) => true,
+            (CheckoutState.PickDeliveryMethod, CheckoutState.PickPaymentMethod) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.Confirm) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.Complete) => true,
             (CheckoutState.Confirm, CheckoutState.Complete) => true,
             _ => false
         };
@@ -118,8 +118,8 @@ public sealed partial class Order
     // Enforce: Regress a Draft order's checkout step to Delivery when a payment-affecting change alters the total
     public Result RegressCheckoutIfAmountChanged(decimal previousTotal)
     {
-        if (Status == OrderStatus.Draft && CheckoutState >= CheckoutState.Payment && Total != previousTotal)
-            CheckoutState = CheckoutState.Delivery;
+        if (Status == OrderStatus.Draft && CheckoutState >= CheckoutState.PickPaymentMethod && Total != previousTotal)
+            CheckoutState = CheckoutState.PickDeliveryMethod;
         return Result.Ok();
     }
 
@@ -134,9 +134,9 @@ public sealed partial class Order
 
         var validTransition = (CheckoutState, target) switch
         {
-            (CheckoutState.Payment, CheckoutState.Delivery) => true,
-            (CheckoutState.Payment, CheckoutState.Address) => true,
-            (CheckoutState.Delivery, CheckoutState.Address) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.PickDeliveryMethod) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.Address) => true,
+            (CheckoutState.PickDeliveryMethod, CheckoutState.Address) => true,
             _ => false
         };
         if (!validTransition)

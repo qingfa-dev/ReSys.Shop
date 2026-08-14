@@ -2,6 +2,7 @@ import { ref, computed, reactive } from 'vue'
 import { ProductApi } from '../services/productApi'
 import { on } from '@/shared/composables/useStoreEvents'
 import { useFilters } from './useFilters'
+import { HttpError } from '@/shared/api'
 import type { StoreProductListItemResponse } from '../types'
 
 // Module-level singleton state
@@ -21,22 +22,26 @@ async function fetchProducts(): Promise<void> {
   if (loading.value) return
   loading.value = true
   error.value = null
-  const filters = useFilters()
-  const result = await ProductApi.getProducts({
-    pageNumber: page.value,
-    pageSize: pageSize.value,
-    search: filters.searchQuery || undefined,
-    sort: [filters.sortField],
-    taxonIds: filters.selectedTaxonIds,
-    optionValueIds: filters.selectedOptionValueIds,
-    minPrice: filters.minPrice ?? undefined,
-    maxPrice: filters.maxPrice ?? undefined,
-  })
-  if (result.isSuccess) {
-    items.value = result.items
-    totalCount.value = result.totalCount
-  } else {
-    error.value = result.message ?? 'Failed to load products'
+  try {
+    const filters = useFilters()
+    const result = await ProductApi.getProducts({
+      pageNumber: page.value,
+      pageSize: pageSize.value,
+      search: filters.searchQuery || undefined,
+      sort: [filters.sortField],
+      taxonIds: filters.selectedTaxonIds,
+      optionValueIds: filters.selectedOptionValueIds,
+      minPrice: filters.minPrice ?? undefined,
+      maxPrice: filters.maxPrice ?? undefined,
+    })
+    if (result.isSuccess) {
+      items.value = result.items
+      totalCount.value = result.totalCount
+    } else {
+      error.value = result.message ?? 'Failed to load products'
+    }
+  } catch (e) {
+    error.value = e instanceof HttpError ? e.errors[0]?.message ?? 'Failed to load products' : 'Failed to load products'
   }
   loading.value = false
   isInitialLoad.value = false

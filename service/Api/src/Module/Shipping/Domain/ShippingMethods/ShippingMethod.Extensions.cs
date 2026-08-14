@@ -9,14 +9,12 @@ public static class ShippingMethodExtensions
     /// <param name="name">The shipping method name. Must not be empty.</param>
     /// <param name="calculatorType">The calculator type. Must not be empty.</param>
     /// <param name="code">Optional unique code.</param>
-    /// <param name="taxCategoryId">Optional tax category identifier.</param>
     /// <returns>A result containing the newly created shipping method.</returns>
     // @CAT-10 Contract: pre=name!=null && calculatorType!=null, post=method.Id!=default && method.AvailableToUsers==true, throws=none
     public static Result<ShippingMethod> Create(
         string name,
         string calculatorType,
-        string? code = null,
-        Guid? taxCategoryId = null)
+        string? code = null)
     {
         var method = new ShippingMethod
         {
@@ -24,7 +22,6 @@ public static class ShippingMethodExtensions
             Name = name,
             Code = code,
             CalculatorType = calculatorType,
-            TaxCategoryId = taxCategoryId,
             AvailableToUsers = ShippingMethodConstant.Defaults.AvailableToUsers,
             Position = ShippingMethodConstant.Defaults.Position,
             CreatedAtUtc = DateTimeOffset.UtcNow,
@@ -47,7 +44,6 @@ public static class ShippingMethodExtensions
     /// <param name="position">Optional new sort position.</param>
     /// <param name="availableToUsers">Optional availability flag.</param>
     /// <param name="calculatorType">Optional new calculator type.</param>
-    /// <param name="taxCategoryId">Optional new tax category identifier.</param>
     /// <returns>A result indicating success.</returns>
     public static Result Update(
         this ShippingMethod method,
@@ -57,8 +53,7 @@ public static class ShippingMethodExtensions
         string? adminName = null,
         int? position = null,
         bool? availableToUsers = null,
-        string? calculatorType = null,
-        Guid? taxCategoryId = null)
+        string? calculatorType = null)
     {
         method.Name = name ?? method.Name;
         method.Code = code ?? method.Code;
@@ -67,7 +62,6 @@ public static class ShippingMethodExtensions
         method.Position = position ?? method.Position;
         method.AvailableToUsers = availableToUsers ?? method.AvailableToUsers;
         method.CalculatorType = calculatorType ?? method.CalculatorType;
-        method.TaxCategoryId = taxCategoryId ?? method.TaxCategoryId;
 
         return Result.Ok();
     }

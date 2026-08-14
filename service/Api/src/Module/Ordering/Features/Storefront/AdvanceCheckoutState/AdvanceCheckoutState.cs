@@ -23,6 +23,10 @@ public sealed class AdvanceCheckoutStateCommandHandler(IApplicationDbContext dbC
         if (result.IsFailure)
             return result.Errors;
 
+        // Timestamp: entering the payment step marks when the customer started paying.
+        if (targetState == CheckoutState.PickPaymentMethod)
+            cart.MarkPaymentProcessing(DateTimeOffset.UtcNow);
+
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Ok(OrderResult.Success.CheckoutAdvanced(cart.Id));

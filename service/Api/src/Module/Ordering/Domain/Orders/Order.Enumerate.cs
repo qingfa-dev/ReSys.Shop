@@ -10,12 +10,13 @@ public enum OrderStatus
     Expired = 4
 }
 
-// Enumerate: Checkout state machine progression — Address → Delivery → Payment → Confirm → Complete
+// Enumerate: Checkout state machine progression — Address → PickDeliveryMethod → PickPaymentMethod → Confirm → Payment -> Complete
 public enum CheckoutState
 {
     Address,
-    Delivery,
-    Payment,
+    PickDeliveryMethod,
+    PickPaymentMethod,
     Confirm,
+    Payment,
     Complete
 }

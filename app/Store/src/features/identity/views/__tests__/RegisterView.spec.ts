@@ -3,6 +3,7 @@ import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { createTestingPinia } from '@pinia/testing'
 import PrimeVue from 'primevue/config'
+import ToastService from 'primevue/toastservice'
 import RegisterView from '../RegisterView.vue'
 import { useAuthStore } from '../../stores/authStore'
 
@@ -26,7 +27,7 @@ async function mountView() {
   await router.isReady()
   const wrapper = mount(RegisterView, {
     global: {
-      plugins: [PrimeVue, createTestingPinia({ stubActions: true }), router],
+      plugins: [PrimeVue, ToastService, createTestingPinia({ stubActions: true }), router],
     },
   })
   await flushPromises()
@@ -93,6 +94,9 @@ describe('RegisterView', () => {
     await fillValidForm(wrapper)
     await wrapper.find('form').trigger('submit')
     await flushPromises()
+    // Settle: Flush a macrotask so vee-validate resolves its async validation.
+    await new Promise((r) => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
 
     expect(auth.register).toHaveBeenCalledWith({
       email: 'alice@example.com',
