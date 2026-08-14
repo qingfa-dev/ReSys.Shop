@@ -36,6 +36,7 @@ public static partial class RemoveCartItem
             // Check: Find the user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .FirstOrDefaultAsync(cancellationToken);

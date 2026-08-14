@@ -32,6 +32,7 @@ public static partial class GetCart
             // Load: Find the current user's active draft cart with line items
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .AsNoTracking()

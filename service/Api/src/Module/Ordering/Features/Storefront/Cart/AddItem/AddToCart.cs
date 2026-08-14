@@ -50,6 +50,7 @@ public static partial class AddToCart
             // Check: Find or create draft order for current user or guest session.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .FirstOrDefaultAsync(cancellationToken);

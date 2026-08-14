@@ -40,6 +40,7 @@ public static partial class UpdateCartItemQuantity
             // Check: Find the user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
                 .FirstOrDefaultAsync(cancellationToken);
 

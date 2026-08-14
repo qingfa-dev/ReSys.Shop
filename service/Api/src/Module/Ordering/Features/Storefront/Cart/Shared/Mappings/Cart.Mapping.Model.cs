@@ -1,3 +1,4 @@
+using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Models;
@@ -26,6 +27,11 @@ public static partial class CartMapping
             ShippingMethodId = entity.ShippingMethodId,
             ShipAddressId = entity.ShipAddressId,
             Email = entity.Email,
+            ShipmentTotal = entity.ShipmentTotal,
+            AdjustmentTotal = entity.AdjustmentTotal,
+            ShippingAdjustment = entity.Adjustments.FirstOrDefault(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping) is { } sa
+                ? new ShippingAdjustmentSummary { Id = sa.Id, Label = sa.Label, Amount = sa.Amount, ShippingMethodId = sa.SourceId }
+                : null,
         };
     }
 
