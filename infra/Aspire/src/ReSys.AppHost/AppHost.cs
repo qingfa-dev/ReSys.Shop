@@ -56,6 +56,7 @@ if (!string.IsNullOrEmpty(stripeApiKey))
         {
             context.Args.Add("listen");
             context.Args.Add("--skip-verify");
+            context.Args.Add("--latest");
             context.Args.Add("--events");
             context.Args.Add("payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,payment_intent.processing,payment_intent.canceled,checkout.session.completed,checkout.session.expired,charge.refunded,charge.dispute.created");
             context.Args.Add("--forward-to");
