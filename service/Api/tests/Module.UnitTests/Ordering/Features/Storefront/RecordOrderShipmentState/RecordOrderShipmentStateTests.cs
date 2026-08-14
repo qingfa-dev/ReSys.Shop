@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Orders;
+
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.RecordOrderShipmentState;
 

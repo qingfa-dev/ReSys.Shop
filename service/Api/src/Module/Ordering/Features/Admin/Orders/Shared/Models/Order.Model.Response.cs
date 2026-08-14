@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Orders;
+
 using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Admin.Orders.Shared.Models;

@@ -33,9 +33,3 @@ public enum OrderPaymentState
     Checkout,
     Invalid
 }
-
-// Enumerate: Derived order fulfillment status — computed from shipments, cached on Order
-public enum OrderFulfillmentState
-{
-    None, Pending, Partial, Shipped, Delivered, Canceled
-}

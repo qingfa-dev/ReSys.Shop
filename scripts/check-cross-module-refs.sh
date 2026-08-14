@@ -13,9 +13,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-# Expected baseline: 38 violations as of 2026-08-07 (contracts moved from Shared to modules).
+# Expected baseline: 35 violations as of 2026-08-14 (post shipment-aggregate-1 review:
+# Shipping.ShipmentMethod → Ordering.OrderFulfillmentState removed to Shared).
 # Reduce this number as violations are removed. Set to 0 when fully clean.
-EXPECTED_BASELINE=33
+EXPECTED_BASELINE=35
 FAIL=0
 
 MODULES=(

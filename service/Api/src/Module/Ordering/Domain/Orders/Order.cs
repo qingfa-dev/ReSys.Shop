@@ -1,6 +1,7 @@
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Concerns.SoftDeletable;
 using Shared.Application.Domain.Models;
+using Shared.Application.Domain.Orders;
 
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;

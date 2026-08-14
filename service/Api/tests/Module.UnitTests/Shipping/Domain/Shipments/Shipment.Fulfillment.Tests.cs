@@ -1,4 +1,5 @@
-using Module.Ordering.Domain.Orders;
+using Shared.Application.Domain.Orders;
+
 using Module.Shipping.Domain.Shipments;
 
 namespace Module.UnitTests.Shipping.Domain.Shipments;

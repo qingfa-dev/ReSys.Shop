@@ -1,4 +1,4 @@
-using Module.Ordering.Domain.Orders;
+using Shared.Application.Domain.Orders;
 
 namespace Module.Shipping.Domain.Shipments;
 

@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Orders;
+
 namespace Module.Ordering.Domain.Orders;
 
 // Invariant: CheckoutState progresses forward only; Canceled orders cannot advance; Complete state is terminal
@@ -25,7 +27,7 @@ public sealed partial class Order
     // Validate: Whether the order can be canceled
     public bool AllowCancel() =>
         Status == OrderStatus.Placed &&
-        (FulfillmentState is null || FulfillmentState is OrderFulfillmentState.Pending or OrderFulfillmentState.Shipped or OrderFulfillmentState.Canceled);
+        (FulfillmentState is null || FulfillmentState is OrderFulfillmentState.Pending or OrderFulfillmentState.Canceled);
 
     // Validate: Whether the order can be shipped
     public bool CanShip() =>
