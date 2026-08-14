@@ -8,5 +8,6 @@ public static class PaymentSchema
     {
         public const string PaymentCaptures = "payment_captures";
         public const string PaymentMethods = "payment_methods";
+        public const string WebhookEvents = "webhook_events";
     }
 }
