@@ -7,9 +7,9 @@ using Module.Billing.Domain.PaymentMethods;
 namespace Module.Billing.Persistence.Configurations.Payments;
 
 // Configure: PaymentCapture EF Core mapping — table, keys, properties, relationships
-public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
+public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
 {
-    public void Configure(EntityTypeBuilder<Payment> builder)
+    public void Configure(EntityTypeBuilder<PaymentCapture> builder)
     {
         builder.ToTable(PaymentSchema.TableNames.PaymentCaptures, PaymentSchema.Name);
         builder.HasKey(x => x.Id);
@@ -18,6 +18,9 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(x => x.Currency).IsRequired().HasMaxLength(PaymentConstant.Constraints.MaxCurrencyLength).HasDefaultValue(PaymentConstant.Defaults.Currency);
         builder.Property(x => x.State).IsRequired().HasConversion<string>().HasDefaultValue(PaymentRecordState.Checkout);
         builder.Property(x => x.ResponseCode).HasMaxLength(PaymentConstant.Constraints.MaxResponseCodeLength);
+        builder.Property(x => x.StripeSessionId).HasMaxLength(200);
+        builder.Property(x => x.StripePaymentIntentId).HasMaxLength(200);
+        builder.Property(x => x.ProcessedAtUtc);
         builder.Property(x => x.AvsResponse).HasMaxLength(PaymentConstant.Constraints.MaxAvsResponseLength);
         builder.Property(x => x.CvvResponseCode).HasMaxLength(PaymentConstant.Constraints.MaxCvvCodeLength);
         builder.Property(x => x.CvvResponseMessage).HasMaxLength(PaymentConstant.Constraints.MaxCvvMessageLength);
@@ -40,5 +43,13 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.HasIndex(x => x.ResponseCode)
             .HasDatabaseName("ix_payment_captures_response_code")
             .HasFilter("response_code IS NOT NULL");
+
+        builder.HasIndex(x => x.StripeSessionId)
+            .HasDatabaseName("ix_payment_captures_stripe_session_id")
+            .HasFilter("stripe_session_id IS NOT NULL");
+
+        builder.HasIndex(x => x.StripePaymentIntentId)
+            .HasDatabaseName("ix_payment_captures_stripe_payment_intent_id")
+            .HasFilter("stripe_payment_intent_id IS NOT NULL");
     }
 }

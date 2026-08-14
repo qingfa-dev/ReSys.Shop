@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -13,9 +14,11 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260814084129_AddWebhookStoreShipmentsAndPaymentColumns")]
+    partial class AddWebhookStoreShipmentsAndPaymentColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +28,7 @@ namespace Api.Migrations.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.PaymentCapture", b =>
+            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.Payment", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -131,10 +134,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("payment_status");
 
-                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("processed_at_utc");
-
                     b.PrimitiveCollection<string>("ProcessedStripeEventIds")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -183,16 +182,6 @@ namespace Api.Migrations.Migrations
                         .HasDefaultValue("Checkout")
                         .HasColumnName("state");
 
-                    b.Property<string>("StripePaymentIntentId")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("stripe_payment_intent_id");
-
-                    b.Property<string>("StripeSessionId")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("stripe_session_id");
-
                     b.Property<DateTimeOffset?>("VoidedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("voided_at_utc");
@@ -209,14 +198,6 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("ResponseCode")
                         .HasDatabaseName("ix_payment_captures_response_code")
                         .HasFilter("response_code IS NOT NULL");
-
-                    b.HasIndex("StripePaymentIntentId")
-                        .HasDatabaseName("ix_payment_captures_stripe_payment_intent_id")
-                        .HasFilter("stripe_payment_intent_id IS NOT NULL");
-
-                    b.HasIndex("StripeSessionId")
-                        .HasDatabaseName("ix_payment_captures_stripe_session_id")
-                        .HasFilter("stripe_session_id IS NOT NULL");
 
                     b.ToTable("payment_captures", "payment");
                 });
@@ -3415,7 +3396,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("users", "identity");
                 });
 
-            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.PaymentCapture", b =>
+            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.Payment", b =>
                 {
                     b.HasOne("Module.Ordering.Domain.Orders.Order", null)
                         .WithMany()

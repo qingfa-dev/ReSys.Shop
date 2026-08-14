@@ -13,7 +13,7 @@ using Module.Ordering.Features.Storefront.RegressCheckoutState;
 using Stripe;
 using Stripe.Checkout;
 
-using Payment = Module.Billing.Domain.PaymentCaptures.Payment;
+using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Billing.Backgrounds;
 
@@ -134,9 +134,9 @@ public sealed partial class ProcessStripeWebhookEventJob
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        // Load: Payment by gateway response code (PaymentIntent ID)
-        var payment = await _dbContext.Set<Payment>()
-            .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
+        // Load: Payment by Stripe PaymentIntent id (stable), ResponseCode as legacy fallback
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == intent.Id || p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event (idempotency by Stripe event ID)
@@ -144,7 +144,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Check: Skip if already completed (idempotency by state)
         if (payment.State == PaymentRecordState.Completed) return;
 
-        var result = payment.Complete();
+        var result = payment.Complete(atUtc: StripeEventCreatedUtc(stripeEvent));
         if (result.IsFailure)
         {
             // A succeeded event on a payment that cannot complete (e.g. previously
@@ -168,8 +168,8 @@ public sealed partial class ProcessStripeWebhookEventJob
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        var payment = await _dbContext.Set<Payment>()
-            .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == intent.Id || p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event
@@ -178,7 +178,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         if (await RecordStaleEventAsync(payment, stripeEvent, ct)) return;
         if (payment.State is PaymentRecordState.Failed or PaymentRecordState.Void) return;
 
-        var result = payment.Fail();
+        var result = payment.Fail(atUtc: StripeEventCreatedUtc(stripeEvent));
         if (result.IsFailure)
         {
             // Deliberately do not regress: a payment already Completed/Disputed cannot
@@ -200,8 +200,8 @@ public sealed partial class ProcessStripeWebhookEventJob
         var charge = stripeEvent.Data.Object as Charge;
         if (charge is null || string.IsNullOrEmpty(charge.PaymentIntentId)) return;
 
-        var payment = await _dbContext.Set<Payment>()
-            .FirstOrDefaultAsync(p => p.ResponseCode == charge.PaymentIntentId, ct);
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == charge.PaymentIntentId || p.ResponseCode == charge.PaymentIntentId, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event
@@ -234,15 +234,15 @@ public sealed partial class ProcessStripeWebhookEventJob
         var dispute = stripeEvent.Data.Object as Dispute;
         if (dispute is null || string.IsNullOrEmpty(dispute.PaymentIntentId)) return;
 
-        var payment = await _dbContext.Set<Payment>()
-            .FirstOrDefaultAsync(p => p.ResponseCode == dispute.PaymentIntentId, ct);
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == dispute.PaymentIntentId || p.ResponseCode == dispute.PaymentIntentId, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
         if (payment.State is PaymentRecordState.Disputed) return;
 
-        var result = payment.Dispute();
+        var result = payment.Dispute(atUtc: StripeEventCreatedUtc(stripeEvent));
         if (result.IsFailure)
         {
             ProcessStripeWebhookEventJobLoggers.CannotDisputePayment(
@@ -260,8 +260,8 @@ public sealed partial class ProcessStripeWebhookEventJob
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        var payment = await _dbContext.Set<Payment>()
-            .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == intent.Id || p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event
@@ -272,7 +272,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         // cleaned up by cancellation is a no-op — no charge to void).
         if (payment.State is PaymentRecordState.Void or PaymentRecordState.Failed) return;
 
-        var result = payment.Void();
+        var result = payment.Void(atUtc: StripeEventCreatedUtc(stripeEvent));
         if (result.IsFailure)
         {
             // Deliberately do not regress an already Completed/Disputed payment.
@@ -290,12 +290,13 @@ public sealed partial class ProcessStripeWebhookEventJob
         var session = stripeEvent.Data.Object as Session;
         if (session is null) return;
 
-        // Lookup by session id OR the stored PaymentIntent id: after the first
-        // completion pass overwrites ResponseCode with the pi_... id, a Hangfire
-        // retry must still find the payment to re-attempt placement.
-        var payment = await _dbContext.Set<Payment>()
+        // Lookup by StripeSessionId (primary), StripePaymentIntentId (retry after the
+        // first completion pass), or ResponseCode (legacy fallback).
+        var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(
-                p => p.ResponseCode == session.Id
+                p => p.StripeSessionId == session.Id
+                     || (session.PaymentIntentId != null && p.StripePaymentIntentId == session.PaymentIntentId)
+                     || p.ResponseCode == session.Id
                      || (session.PaymentIntentId != null && p.ResponseCode == session.PaymentIntentId),
                 ct);
         ProcessStripeWebhookEventJobLoggers.SessionLookup(_logger, session.Id, payment is not null, payment?.Id);
@@ -318,13 +319,14 @@ public sealed partial class ProcessStripeWebhookEventJob
         // correlate against it (the cs_... session id is rejected by Stripe operations).
         if (!string.IsNullOrEmpty(session.PaymentIntentId))
         {
+            payment.StripePaymentIntentId = session.PaymentIntentId;
             payment.ResponseCode = session.PaymentIntentId;
             ProcessStripeWebhookEventJobLoggers.CheckoutSessionCompleted(_logger, payment.Id, session.PaymentIntentId);
         }
 
         if (payment.State != PaymentRecordState.Completed)
         {
-            var complete = payment.Complete();
+            var complete = payment.Complete(atUtc: StripeEventCreatedUtc(stripeEvent));
             if (complete.IsFailure && payment.State != PaymentRecordState.Completed)
             {
                 // A completed session on a payment that cannot complete (e.g. it was
@@ -363,8 +365,8 @@ public sealed partial class ProcessStripeWebhookEventJob
         var session = stripeEvent.Data.Object as Session;
         if (session is null) return;
 
-        var payment = await _dbContext.Set<Payment>()
-            .FirstOrDefaultAsync(p => p.ResponseCode == session.Id, ct);
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.StripeSessionId == session.Id || p.ResponseCode == session.Id, ct);
         ProcessStripeWebhookEventJobLoggers.SessionLookup(_logger, session.Id, payment is not null, payment?.Id);
         if (payment is null) return;
 
@@ -378,7 +380,7 @@ public sealed partial class ProcessStripeWebhookEventJob
 
         if (payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending)
         {
-            var voidResult = payment.Void();
+            var voidResult = payment.Void(atUtc: StripeEventCreatedUtc(stripeEvent));
             if (voidResult.IsFailure)
             {
                 ProcessStripeWebhookEventJobLoggers.CannotVoidPayment(_logger, payment.Id, payment.State.ToString(), voidResult.Message);
@@ -412,7 +414,7 @@ public sealed partial class ProcessStripeWebhookEventJob
     /// it as processed so it is not re-processed. Only regression events are guarded — a
     /// newer progress event must never be dropped by this check.
     /// </summary>
-    private async Task<bool> RecordStaleEventAsync(Payment payment, Event stripeEvent, CancellationToken ct)
+    private async Task<bool> RecordStaleEventAsync(PaymentCapture payment, Event stripeEvent, CancellationToken ct)
     {
         if (payment.LastStripeEventCreatedAtUtc is null)
             return false;
@@ -426,18 +428,19 @@ public sealed partial class ProcessStripeWebhookEventJob
     }
 
     /// <summary>Marks the event as processed and tracks the latest applied Stripe event time.</summary>
-    private async Task RecordStripeEventAsync(Payment payment, Event stripeEvent, CancellationToken ct)
+    private async Task RecordStripeEventAsync(PaymentCapture payment, Event stripeEvent, CancellationToken ct)
     {
         payment.ProcessedStripeEventIds.Add(stripeEvent.Id);
         payment.LastStripeEventId = stripeEvent.Id;
         payment.LastStripeEventCreatedAtUtc = StripeEventCreatedUtc(stripeEvent);
+        payment.ProcessedAtUtc = DateTimeOffset.UtcNow;
         await SaveAsync(payment, ct);
     }
 
     // Mirror: best-effort stamp of the owning order's payment timeline. The payment row
     // is authoritative; a failure here must not fail the job (the order placement path
     // re-stamps on completion via CompleteCheckoutForPayment).
-    private async Task TryNotifyOrderPaymentStateAsync(Payment payment, PaymentTimelineState paymentState, CancellationToken ct)
+    private async Task TryNotifyOrderPaymentStateAsync(PaymentCapture payment, PaymentTimelineState paymentState, CancellationToken ct)
     {
         var atUtc = paymentState switch
         {
@@ -467,7 +470,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         };
 
     /// <summary>Persists changes. On DB failure, lets exception propagate — Hangfire retries with fresh scoped context.</summary>
-    private async Task SaveAsync(Payment payment, CancellationToken ct)
+    private async Task SaveAsync(PaymentCapture payment, CancellationToken ct)
     {
         await _dbContext.SaveChangesAsync(ct);
     }

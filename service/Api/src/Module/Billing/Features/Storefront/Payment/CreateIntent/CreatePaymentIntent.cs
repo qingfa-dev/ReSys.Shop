@@ -8,6 +8,7 @@ using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 
 using Module.Ordering.Domain.Orders;
 using Module.Billing.Domain.PaymentCaptures;
+using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 using Module.Billing.Domain.PaymentMethods;
 using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
@@ -113,7 +114,7 @@ public static partial class CreatePaymentIntent
 
             var payment = createResult.Value;
             payment.ProviderKey = paymentMethod.ProviderKey;
-            dbContext.Set<PaymentCapture>().Add(payment);
+            dbContext.Set<Domain.PaymentCaptures.PaymentCapture>().Add(payment);
 
             if (isOffline)
             {
@@ -156,6 +157,7 @@ public static partial class CreatePaymentIntent
                 }
 
                 payment.ResponseCode = sessionResult.Value.Authorization;
+                payment.StripeSessionId = sessionResult.Value.Authorization;
                 payment.CheckoutUrl = sessionResult.Value.CheckoutUrl;
                 payment.Process();
 
