@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Cart.Shared.Services;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateShippingMethod;
 /// <summary>Assigns a shipping method to an order, resets the shipment total, and recalculates all order totals.</summary>
@@ -18,7 +19,10 @@ public static partial class UpdateOrderShippingMethod
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Find the order to update the shipping method on.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
+            var order = await dbContext.Set<Order>()
+                .Include(o => o.LineItems)
+                .Include(o => o.Adjustments)
+                .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
@@ -26,6 +30,12 @@ public static partial class UpdateOrderShippingMethod
             var methodResult = order.SetShippingMethod(command.Request.ShippingMethodId);
             if (methodResult.IsFailure)
                 return (Result<Response>)methodResult.Errors;
+
+            // Apply: Replace the shipping adjustment with the authoritative cost for the new method.
+            var costResult = await ShippingCostApplier.ApplyAsync(
+                dbContext, order, command.Request.ShippingMethodId, cancellationToken);
+            if (costResult.IsFailure)
+                return (Result<Response>)costResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
