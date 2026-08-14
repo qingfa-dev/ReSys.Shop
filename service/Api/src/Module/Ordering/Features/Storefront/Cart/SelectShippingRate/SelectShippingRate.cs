@@ -1,6 +1,5 @@
-using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.Orders;
-using Module.Shipping.Domain.Calculators;
+using Module.Ordering.Features.Storefront.Cart.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
 
@@ -42,31 +41,11 @@ public static partial class SelectShippingRate
             if (methodResult.IsFailure)
                 return methodResult.Errors;
 
-            // Compute: Calculate total order weight from variant weights.
-            var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
-            var variantWeights = await dbContext.Set<Variant>()
-                .Where(v => variantIds.Contains(v.Id))
-                .Select(v => new { v.Id, v.Weight })
-                .ToListAsync(cancellationToken);
-
-            var weightMap = variantWeights.ToDictionary(v => v.Id, v => v.Weight ?? 0m);
-            var totalWeight = cart.CalculateTotalWeight(weightMap);
-
-            // Compute: Calculate shipping cost for the selected method.
-            var calcResult = await ShippingRateCalculator.CalculateAsync(
-                dbContext,
-                command.Request.ShippingMethodId,
-                totalWeight,
-                cart.Total,
-                cancellationToken);
-
-            if (calcResult.IsFailure)
-                return calcResult.Errors;
-
-            var (cost, _) = calcResult.Value;
-            var shippingResult = cart.ReplaceShippingAdjustment(cost, command.Request.ShippingMethodId);
-            if (shippingResult.IsFailure)
-                return shippingResult.Errors;
+            // Apply: Authoritative server-side shipping cost for the selected method.
+            var costResult = await ShippingCostApplier.ApplyAsync(
+                dbContext, cart, command.Request.ShippingMethodId, cancellationToken);
+            if (costResult.IsFailure)
+                return costResult.Errors;
 
             cart.RegressCheckoutIfAmountChanged(previousTotal);
 
