@@ -2,13 +2,14 @@ import { ref, computed, reactive, watch } from 'vue'
 import { CheckoutApi } from '../services/checkoutApi'
 import { useRouter } from 'vue-router'
 import { emit } from '@/shared/composables/useStoreEvents'
+import type { CheckoutState } from '../types'
 
 type Step = 1 | 2 | 3 | 4 | 5
 
 interface CartRef {
   id: string | null
   isEmpty: boolean
-  checkoutState: string | null
+  checkoutState: CheckoutState | null
   fetchCart: (force?: boolean) => Promise<boolean>
 }
 

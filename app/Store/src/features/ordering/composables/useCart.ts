@@ -1,7 +1,7 @@
 import { ref, computed, reactive } from 'vue'
 import { CartApi } from '../services/cartApi'
 import { emit, on } from '@/shared/composables/useStoreEvents'
-import type { CartLineItem } from '../types'
+import type { CartLineItem, CheckoutState } from '../types'
 
 // Module-level singleton state
 const id = ref<string | null>(null)
@@ -10,7 +10,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const lastFetchedAt = ref(0)
 // State: Checkout prefill fields persisted from the cart response.
-const checkoutState = ref<string | null>(null)
+const checkoutState = ref<CheckoutState | null>(null)
 const shippingMethodId = ref<string | null>(null)
 const shipAddressId = ref<string | null>(null)
 const email = ref<string | null>(null)
