@@ -7,9 +7,9 @@ using Module.Billing.Domain.PaymentMethods;
 namespace Module.Billing.Persistence.Configurations.Payments;
 
 // Configure: PaymentCapture EF Core mapping — table, keys, properties, relationships
-public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
+public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 {
-    public void Configure(EntityTypeBuilder<PaymentCapture> builder)
+    public void Configure(EntityTypeBuilder<Payment> builder)
     {
         builder.ToTable(PaymentSchema.TableNames.PaymentCaptures, PaymentSchema.Name);
         builder.HasKey(x => x.Id);
@@ -24,6 +24,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
         builder.Property(x => x.IntentClientSecret).HasMaxLength(PaymentConstant.Constraints.MaxIntentClientSecretLength);
         builder.Property(x => x.CheckoutUrl).HasMaxLength(2048);
         builder.Property(x => x.RefundedAmount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
+        builder.Property(x => x.CapturedAmount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
         builder.Property(x => x.PaymentMethodId);
         builder.Property(x => x.OrderId);
         builder.Property(x => x.SourceId).HasMaxLength(200);

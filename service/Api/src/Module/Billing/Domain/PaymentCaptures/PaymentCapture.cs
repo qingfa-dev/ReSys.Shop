@@ -7,7 +7,7 @@ namespace Module.Billing.Domain.PaymentCaptures;
 
 /// <summary>Represents a payment transaction within an order, managing state transitions, capture, and refund.</summary>
 // @CAT-10 Invariant: Amount > 0; State progresses Checkout->Processing->Pending->Completed or ->Failed->Void; CapturedTotal <= Amount; RefundedTotal <= CapturedTotal
-public sealed partial class PaymentCapture : Entity, IAuditable
+public sealed partial class Payment : Entity, IAuditable
 {
     #region Properties
     public string Number { get; set; } = string.Empty;
@@ -22,6 +22,7 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     public string? CheckoutUrl { get; set; }
     public string? PaymentStatus { get; set; }
     public decimal RefundedAmount { get; set; }
+    public decimal CapturedAmount { get; set; }
     public string ProviderKey { get; set; } = string.Empty;
     /// <summary>Stripe event IDs already processed for this payment — prevents duplicate webhook handling.</summary>
     public List<string> ProcessedStripeEventIds { get; set; } = [];
@@ -62,6 +63,6 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     #endregion Auditing
 
     #region Constructor
-    internal PaymentCapture() { }
+    internal Payment() { }
     #endregion Constructor
 }
