@@ -107,9 +107,9 @@ public static partial class PaymentCaptureMethod
     #endregion
 
     #region Capture Logic
-    // Check: Credit/refund only allowed when state is Completed
+    // Check: Credit/refund only allowed when state is Completed or Disputed
     public static bool CreditAllowed(this Payment payment)
-        => payment.State is PaymentRecordState.Completed;
+        => payment.State is PaymentRecordState.Completed or PaymentRecordState.Disputed;
 
     // Compute: Amount remaining to capture — 0 when fully captured
     public static decimal UncapturedAmount(this Payment payment)
