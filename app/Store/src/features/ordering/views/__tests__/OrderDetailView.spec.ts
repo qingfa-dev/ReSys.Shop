@@ -61,7 +61,7 @@ const orderDetail: OrderDetail = {
   paymentTotal: 130,
   outstandingBalance: 0,
   paymentState: 'Paid',
-  shipmentState: null,
+  fulfillmentState: null,
   userId: 'u1',
   approvedById: null,
   approvedAtUtc: null,
