@@ -13,7 +13,7 @@ using Module.Ordering.Features.Storefront.RegressCheckoutState;
 using Stripe;
 using Stripe.Checkout;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.Billing.Backgrounds;
 

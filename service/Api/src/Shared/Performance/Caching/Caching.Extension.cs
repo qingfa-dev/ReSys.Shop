@@ -136,7 +136,7 @@ public static class CachingExtensions
     #region Private Helpers
 
     private static (string Name, string? Value) ResolveConnectionString(
-        Microsoft.Extensions.Configuration.ConfigurationManager configuration)
+        ConfigurationManager configuration)
     {
         var aspireConnectionString = configuration.GetConnectionString(CachingSettingConstant.Aspire);
         if (!string.IsNullOrEmpty(aspireConnectionString))

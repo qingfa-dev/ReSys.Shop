@@ -223,6 +223,25 @@ public static partial class OrderMethod
     public static bool HasPayementMethod(this Order order) =>
         order.PaymentMethodId.HasValue;
 
+    // Update: Record the customer's selected payment method on a Draft order.
+    public static Result SelectPaymentMethod(this Order order, Guid paymentMethodId)
+    {
+        if (order.Status != OrderStatus.Draft)
+            return OrderResult.Errors.NotDraft;
+
+        order.PaymentMethodId = paymentMethodId;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
+    // Update: Clear the selected payment method when the cart regresses (intent invalidated).
+    public static Result ClearPaymentMethod(this Order order)
+    {
+        order.PaymentMethodId = null;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
     /// <summary>
     /// Returns true if the order has a non-empty email.
     /// </summary>

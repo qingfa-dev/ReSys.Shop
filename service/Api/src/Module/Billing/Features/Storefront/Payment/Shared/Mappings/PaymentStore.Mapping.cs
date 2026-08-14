@@ -1,5 +1,6 @@
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
+
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Services.Provider;
 using Module.Billing.Features.Storefront.Payment.Shared.Models;
 

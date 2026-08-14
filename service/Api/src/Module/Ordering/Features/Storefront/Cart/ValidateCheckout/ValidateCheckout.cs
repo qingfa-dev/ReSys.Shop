@@ -2,7 +2,7 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.ValidateCheckout;
 
-/// <summary>Validates that the current user's draft cart has all required fields for checkout: items, addresses, shipping method, and email.</summary>
+/// <summary>Validates that the current user's draft cart has all required fields for checkout: items, addresses, shipping method, payment method and email.</summary>
 public static partial class ValidateCheckout
 {
     public sealed record Command : ICommand;
@@ -43,6 +43,10 @@ public static partial class ValidateCheckout
             // Validate: Shipping method must be selected.
             if (!cart.HasShippingMethod())
                 return OrderResult.Errors.DeliveryMethodRequired;
+
+            // Validate: Payment method must be selected.
+            if (!cart.HasPayementMethod())
+                return OrderResult.Errors.PaymentMethodRequired;
 
             // Validate: Email address must be provided for notifications.
             if (!cart.HasEmail())

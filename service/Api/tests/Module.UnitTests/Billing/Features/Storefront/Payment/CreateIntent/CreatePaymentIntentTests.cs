@@ -5,6 +5,7 @@ using PaymentGatewayResponse = Module.Billing.Services.Provider.PaymentGatewayRe
 
 using Module.Billing.Services.Provider;
 using Module.Billing.Domain.PaymentCaptures;
+
 using Module.Billing.Domain.PaymentMethods;
 using Module.Billing.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
@@ -150,7 +151,7 @@ public class CreatePaymentIntentTests : IDisposable
         _dbContext.Set<PaymentCapture>().Count().Should().Be(0);
     }
 
-    [Fact(DisplayName = "Handler: retry at Payment voids stale capture and succeeds")]
+    [Fact(DisplayName = "Handler: retry at PaymentCapture voids stale capture and succeeds")]
     public async Task Handle_RetryAtPayment_VoidsStaleCapture()
     {
         var order = CreateOrder();

@@ -1,5 +1,6 @@
 using Module.Billing.Domain.PaymentCaptures;
 
+
 namespace Module.Billing.Features.Storefront.Payment.Status;
 
 /// <summary>Retrieves the payment state of the latest capture for the caller's order.</summary>
@@ -19,7 +20,7 @@ public static partial class GetPaymentStatus
                 return PaymentCaptureResult.Failure.NotFound;
 
             // Load: Order ownership gate.
-            var order = await dbContext.Set<Module.Ordering.Domain.Orders.Order>()
+            var order = await dbContext.Set<Ordering.Domain.Orders.Order>()
                 .FirstOrDefaultAsync(o => o.Id == query.OrderId && o.UserId == userId, cancellationToken);
             if (order is null)
                 return PaymentCaptureResult.Failure.NotFound;

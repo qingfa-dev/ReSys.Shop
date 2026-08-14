@@ -33,7 +33,7 @@ public static class SecurityExtension
     {
         app.UseSecurityHeaders();
         app.UseSecurityCors();
-        app.UseMiddleware<Shared.Security.Cart.CartTokenMiddleware>();
+        app.UseMiddleware<Cart.CartTokenMiddleware>();
         app.UseApplicationAuthentication();
         app.UseApplicationAuthorization();
         return app;

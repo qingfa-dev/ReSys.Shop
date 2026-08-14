@@ -10,7 +10,7 @@ using Module.Billing.Services.Processing;
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Admin.Payments.Capture;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Capture;
 

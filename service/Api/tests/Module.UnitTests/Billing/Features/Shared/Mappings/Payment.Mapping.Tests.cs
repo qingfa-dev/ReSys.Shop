@@ -2,7 +2,7 @@ using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Admin.Payments.Shared.Mappings;
 using Module.Billing.Features.Admin.Payments.Shared.Models;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.UnitTests.Payment.Features.Shared.Mappings;
 

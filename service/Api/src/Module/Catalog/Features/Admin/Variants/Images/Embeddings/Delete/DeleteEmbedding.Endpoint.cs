@@ -20,7 +20,7 @@ public static partial class DeleteEmbedding
             .HasPermission(CatalogFeature.Admin.VariantImageEmbeddings.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImageEmbeddings.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImageEmbeddings.Delete.Description)
-            .Produces<Result<DeleteEmbedding.Response>>()
+            .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

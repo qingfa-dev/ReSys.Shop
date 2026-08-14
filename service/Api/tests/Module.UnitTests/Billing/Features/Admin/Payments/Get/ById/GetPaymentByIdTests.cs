@@ -1,6 +1,6 @@
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Admin.Payments.Get.ById;
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Get.ById;
 

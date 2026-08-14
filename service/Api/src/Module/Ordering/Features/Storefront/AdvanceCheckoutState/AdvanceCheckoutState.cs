@@ -22,6 +22,12 @@ public sealed class AdvanceCheckoutStateCommandHandler(IApplicationDbContext dbC
 
         // Note: entering PickPaymentMethod means "method picked", not "processing" —
         // PaymentProcessingAt is stamped via RecordOrderPaymentState{Processing} instead.
+        if (command.PaymentMethodId.HasValue)
+        {
+            var pmResult = cart.SelectPaymentMethod(command.PaymentMethodId.Value);
+            if (pmResult.IsFailure)
+                return pmResult.Errors;
+        }
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

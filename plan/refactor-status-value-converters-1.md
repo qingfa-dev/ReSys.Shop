@@ -48,6 +48,11 @@ canonical, and consolidates the two in-progress migrations (`RemoveTaxCategoryId
 **Files:**
 - Modify: `service/Api/src/Module/Ordering/Persistence/Configurations/OrderConfiguration.cs:27-33`
 
+EF Core's two-lambda `HasConversion` builds an **expression tree** — switch
+expressions are NOT allowed there (CS8514). Use static helper methods for the
+from-provider mapping instead (method calls are valid in expression trees), and
+guard the nullable `Enum.Parse` input (CS8604).
+
 Replace the three `HasConversion<string>()` lines with:
 
 ```csharp
@@ -55,44 +60,61 @@ builder.Property(x => x.CheckoutState)
     .IsRequired()
     .HasConversion(
         v => v.ToString(),
-        v => v switch
-        {
-            "Delivery" => CheckoutState.PickDeliveryMethod,
-            "Payment"  => CheckoutState.PickPaymentMethod,
-            _ => Enum.Parse<CheckoutState>(v)
-        })
+        v => OrderStatusConverters.ToCheckoutState(v))
     .HasDefaultValue(CheckoutState.Address);
 
 builder.Property(x => x.PaymentState)
     .HasConversion(
         v => v!.ToString(),
-        v => v switch
-        {
-            "completed"   => OrderPaymentState.Completed,
-            "failed"      => OrderPaymentState.Failed,
-            "void"        => OrderPaymentState.Void,
-            "balance_due" => OrderPaymentState.BalanceDue,
-            "credit_owed" => OrderPaymentState.CreditOwed,
-            "paid"        => OrderPaymentState.Paid,
-            "pending"     => OrderPaymentState.Pending,
-            "checkout"    => OrderPaymentState.Checkout,
-            "invalid"     => OrderPaymentState.Invalid,
-            _ => Enum.Parse<OrderPaymentState>(v)
-        });
+        v => OrderStatusConverters.ToPaymentState(v));
 
 builder.Property(x => x.ShipmentState)
     .HasConversion(
         v => v!.ToString(),
-        v => v switch
-        {
-            "pending"   => OrderShipmentState.Pending,
-            "delivered" => OrderShipmentState.Delivered,
-            "partial"   => OrderShipmentState.Partial,
-            "ready"     => OrderShipmentState.Ready,
-            "backorder" => OrderShipmentState.Backorder,
-            "canceled"  => OrderShipmentState.Canceled,
-            _ => Enum.Parse<OrderShipmentState>(v)
-        });
+        v => OrderStatusConverters.ToShipmentState(v));
+```
+
+Add a static helper class in the same `Ordering/Persistence/Configurations/Orders/`
+folder (new file `OrderStatusConverters.cs`):
+
+```csharp
+namespace Module.Ordering.Persistence.Configurations.Orders;
+
+// Convert: legacy stored strings -> current enum members (write side stores the enum name)
+internal static class OrderStatusConverters
+{
+    public static CheckoutState ToCheckoutState(string? value) => value switch
+    {
+        "Delivery" => CheckoutState.PickDeliveryMethod,
+        "Payment"  => CheckoutState.PickPaymentMethod,
+        _ => Enum.Parse<CheckoutState>(value ?? string.Empty)
+    };
+
+    public static OrderPaymentState ToPaymentState(string? value) => value switch
+    {
+        "completed"   => OrderPaymentState.Completed,
+        "failed"      => OrderPaymentState.Failed,
+        "void"        => OrderPaymentState.Void,
+        "balance_due" => OrderPaymentState.BalanceDue,
+        "credit_owed" => OrderPaymentState.CreditOwed,
+        "paid"        => OrderPaymentState.Paid,
+        "pending"     => OrderPaymentState.Pending,
+        "checkout"    => OrderPaymentState.Checkout,
+        "invalid"     => OrderPaymentState.Invalid,
+        _ => Enum.Parse<OrderPaymentState>(value ?? string.Empty)
+    };
+
+    public static OrderShipmentState ToShipmentState(string? value) => value switch
+    {
+        "pending"   => OrderShipmentState.Pending,
+        "delivered" => OrderShipmentState.Delivered,
+        "partial"   => OrderShipmentState.Partial,
+        "ready"     => OrderShipmentState.Ready,
+        "backorder" => OrderShipmentState.Backorder,
+        "canceled"  => OrderShipmentState.Canceled,
+        _ => Enum.Parse<OrderShipmentState>(value ?? string.Empty)
+    };
+}
 ```
 
 Run `dotnet build service/Api/src/Api/Api.csproj` — expected: 0 warnings. Commit.

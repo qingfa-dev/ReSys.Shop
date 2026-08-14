@@ -7,7 +7,6 @@ using IPaymentProcessingService = Module.Billing.Services.Processing.IPaymentPro
 using Module.Billing.Services.Provider;
 using Module.Billing.Domain.PaymentCaptures;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Billing.Features.Admin.Payments.Void;
 

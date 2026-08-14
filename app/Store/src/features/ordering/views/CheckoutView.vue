@@ -189,7 +189,8 @@ watch(
   { immediate: true },
 )
 
-// Action: Card → create intent and redirect to Stripe; COD → advance to review.
+// Action: Card → create intent and advance to Review (payment happens on confirm);
+// COD → advance to Review for explicit placement.
 async function onContinueFromPayment(): Promise<void> {
   const method = paymentMethods.value.find((m) => m.id === selectedPaymentMethodId.value)
   if (!method) return
@@ -201,12 +202,16 @@ async function onContinueFromPayment(): Promise<void> {
   })
   if (!ok) return
 
-  // Card: hosted checkout redirect. COD: continue to review + place order.
+  // Confirm-before-charge: both paths land on Review; the card's hosted-checkout
+  // redirect happens only after the customer confirms on the Review panel.
+  await advanceToReview()
+}
+
+// Action: Confirm the reviewed order and redirect to Stripe for the card charge.
+function onConfirmAndPay(): void {
   if (checkout.checkoutUrl) {
     window.location.href = checkout.checkoutUrl
-    return
   }
-  await advanceToReview()
 }
 
 // Total: Subtotal plus the selected shipping rate; tax is not modelled yet.
@@ -404,42 +409,75 @@ onMounted(async () => {
           </div>
         </StepPanel>
 
-        <!-- Panel: Review — line-item table, totals and order placement -->
+        <!-- Panel: Review — item tickets and the order summary card before placement -->
         <StepPanel :value="4">
-          <div class="max-w-xl space-y-5">
-            <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
-            <DataTable :value="cart.items" size="small">
-              <Column header="Product">
-                <template #body="{ data }">{{ data.productName ?? data.variantName }}</template>
-              </Column>
-              <Column field="sku" header="SKU" />
-              <Column field="quantity" header="Qty" />
-              <Column header="Price">
-                <template #body="{ data }">{{ formatCurrency(data.price) }}</template>
-              </Column>
-              <Column header="Total">
-                <template #body="{ data }">{{ formatCurrency(data.total) }}</template>
-              </Column>
-            </DataTable>
-            <div class="flex max-w-md flex-col gap-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-muted">Subtotal</span>
-                <span>{{ formatCurrency(cart.subtotal) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-muted">Shipping</span>
-                <span>{{ shippingCost === null ? 'Calculated at checkout' : formatCurrency(shippingCost) }}</span>
-              </div>
-              <Divider />
-              <div class="flex justify-between font-semibold">
-                <span>Total</span>
-                <span>{{ formatCurrency(total) }}</span>
+          <div class="grid gap-6 lg:grid-cols-3">
+            <Message v-if="checkout.error" severity="error" :closable="false" class="lg:col-span-3">{{ checkout.error }}</Message>
+
+            <!-- Zone: Items — ticket cards mirroring the cart drawer for a familiar read -->
+            <div class="flex flex-col gap-3 lg:col-span-2">
+              <div
+                v-for="item in cart.items"
+                :key="item.id"
+                class="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4"
+              >
+                <Image
+                  v-if="item.productImageUrl"
+                  :src="item.productImageUrl"
+                  :alt="item.productName ?? item.variantName"
+                  imageClass="h-16 w-16 shrink-0 rounded-md object-cover"
+                />
+                <div
+                  v-else
+                  class="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-surface-100"
+                >
+                  <i class="pi pi-image text-lg text-placeholder" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="truncate font-semibold">{{ item.productName ?? item.variantName }}</div>
+                  <div class="text-sm text-muted">{{ item.sku }}</div>
+                </div>
+                <div class="flex shrink-0 flex-col items-end gap-1">
+                  <div class="text-sm text-muted">{{ item.quantity }} × {{ formatCurrency(item.price) }}</div>
+                  <div class="font-semibold">{{ formatCurrency(item.total) }}</div>
+                </div>
               </div>
             </div>
-            <ButtonGroup>
-              <Button label="Back" icon="pi pi-arrow-left" variant="text" @click="goToStep(3)" />
-              <Button label="Place Order" icon="pi pi-check" :loading="checkout.loading" @click="onPlaceOrder" />
-            </ButtonGroup>
+
+            <!-- Zone: Summary — order totals and the placement action -->
+            <Panel header="Order Summary" class="h-fit">
+              <div class="flex flex-col gap-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-muted">Subtotal</span>
+                  <span>{{ formatCurrency(cart.subtotal) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted">Shipping</span>
+                  <span>{{ shippingCost === null ? 'Calculated at checkout' : formatCurrency(shippingCost) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted">Payment method</span>
+                  <span>{{ paymentMethods.find((m) => m.id === selectedPaymentMethodId)?.name ?? '—' }}</span>
+                </div>
+                <Divider />
+                <div class="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>{{ formatCurrency(total) }}</span>
+                </div>
+              </div>
+              <div class="mt-4 flex flex-col gap-2">
+                <Button
+                  v-if="checkout.checkoutUrl"
+                  label="Confirm and Pay"
+                  icon="pi pi-credit-card"
+                  :loading="checkout.loading"
+                  class="w-full"
+                  @click="onConfirmAndPay"
+                />
+                <Button v-else label="Place Order" icon="pi pi-check" :loading="checkout.loading" class="w-full" @click="onPlaceOrder" />
+                <Button label="Back" icon="pi pi-arrow-left" variant="text" class="w-full" @click="goToStep(3)" />
+              </div>
+            </Panel>
           </div>
         </StepPanel>
 

@@ -2,7 +2,7 @@ using Module.Billing.Features.Admin.Payments.Shared.Mappings;
 
 using Module.Billing.Domain.PaymentCaptures;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.Billing.Features.Admin.Payments.Get.ById;
 

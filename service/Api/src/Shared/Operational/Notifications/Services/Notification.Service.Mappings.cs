@@ -91,7 +91,7 @@ public static class NotificationMapper
         return PlaceholderRegex.Replace(template, match =>
         {
             var keyName = match.Groups[1].Value;
-            if (Enum.TryParse<NotificationParameterType>(keyName, out NotificationParameterType param))
+            if (Enum.TryParse(keyName, out NotificationParameterType param))
             {
                 return context.GetValue(param) ?? match.Value;
             }

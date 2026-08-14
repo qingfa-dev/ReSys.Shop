@@ -20,6 +20,10 @@ public sealed class RegressCheckoutStateCommandHandler(IApplicationDbContext dbC
         if (result.IsFailure)
             return result.Errors;
 
+        // A regression (e.g. an expired checkout session) invalidates the picked
+        // payment method — the customer must re-pick and re-create the intent.
+        cart.ClearPaymentMethod();
+
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Ok(OrderResult.Success.CheckoutAdvanced(cart.Id));

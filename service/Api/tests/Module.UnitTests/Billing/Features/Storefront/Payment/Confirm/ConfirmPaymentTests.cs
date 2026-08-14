@@ -2,7 +2,7 @@ using Module.Ordering.Domain.Orders;
 
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Storefront.Payment.Confirm;
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.Confirm;
 

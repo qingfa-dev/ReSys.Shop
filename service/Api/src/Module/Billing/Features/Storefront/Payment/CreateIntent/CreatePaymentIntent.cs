@@ -185,9 +185,14 @@ public static partial class CreatePaymentIntent
                 throw;
             }
 
-            // Advance: Cart state to PickPaymentMethod
+            // Advance: Cart state to PickPaymentMethod (records the selected payment method)
             await sender.Send(
-                new AdvanceCheckoutStateCommand { CartId = command.Request.OrderId, TargetState = CheckoutState.PickPaymentMethod }, cancellationToken);
+                new AdvanceCheckoutStateCommand
+                {
+                    CartId = command.Request.OrderId,
+                    TargetState = CheckoutState.PickPaymentMethod,
+                    PaymentMethodId = paymentMethod.Id
+                }, cancellationToken);
 
             // Map: Payment → storefront response DTO
             return payment.MapToStoreDetail<Response>();

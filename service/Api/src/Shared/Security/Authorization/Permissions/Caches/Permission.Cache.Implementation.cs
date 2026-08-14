@@ -33,7 +33,7 @@ public sealed partial class PermissionCache(
         var key = $"{PermissionCacheConstant.Patterns.UserKeyPrefix}{userId}";
 
         // Cache: factory returns null for cache miss — caller resolves from store and repopulates
-        HashSet<string>? result = await cacheService.GetOrCreateAsync<HashSet<string>?>(
+        HashSet<string>? result = await cacheService.GetOrCreateAsync(
             key,
             _ => ValueTask.FromResult<HashSet<string>?>(null),
             cancellationToken: ct);
@@ -112,7 +112,7 @@ public sealed partial class PermissionCache(
         // Cache: probe role permission cache with key perm:role:{roleId} (module boundary: Cache → CacheService)
         var key = $"{PermissionCacheConstant.Patterns.RoleKeyPrefix}{roleId}";
 
-        HashSet<string>? result = await cacheService.GetOrCreateAsync<HashSet<string>?>(
+        HashSet<string>? result = await cacheService.GetOrCreateAsync(
             key,
             _ => ValueTask.FromResult<HashSet<string>?>(null),
             cancellationToken: ct);

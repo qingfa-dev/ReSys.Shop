@@ -13,7 +13,6 @@ using Stripe;
 using Stripe.Checkout;
 
 using IStripeWebhookService = Module.Billing.Services.Webhook.IStripeWebhookService;
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.Payment;
 
 namespace Module.UnitTests.Payment.Backgrounds;
 

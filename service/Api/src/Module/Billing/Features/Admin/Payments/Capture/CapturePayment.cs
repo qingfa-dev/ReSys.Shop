@@ -8,7 +8,7 @@ using Module.Billing.Services.Provider;
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.Billing.Features.Admin.Payments.Capture;
 

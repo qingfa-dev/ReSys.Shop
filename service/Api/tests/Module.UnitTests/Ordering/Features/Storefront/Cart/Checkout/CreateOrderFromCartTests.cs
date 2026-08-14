@@ -7,7 +7,6 @@ using Module.Shipping.Features.Shared.Commands;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.StockReservations;
 using Module.Billing.Domain.PaymentCaptures;
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.Payment;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Module.Billing.Services.Provider;
@@ -94,7 +93,7 @@ public class CreateOrderFromCartTests : IDisposable
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
         cart.Email = "test@test.com";
-        cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
+        cart.LineItems.Add(new LineItem
         {
             Id = Guid.NewGuid(),
             OrderId = cart.Id,
@@ -287,7 +286,7 @@ public class CreateOrderFromCartTests : IDisposable
         var capture = PaymentCaptureMethod.Create(10m, Guid.NewGuid(), cart.Id).Value;
         capture.State = PaymentRecordState.Pending;
         capture.ProviderKey = GatewayConstants.Providers.CashOnDelivery;
-        _dbContext.Set<Billing.Domain.PaymentCaptures.Payment>().Add(capture);
+        _dbContext.Set<PaymentCapture>().Add(capture);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Setup: PaymentCapture reports pending + offline (COD)

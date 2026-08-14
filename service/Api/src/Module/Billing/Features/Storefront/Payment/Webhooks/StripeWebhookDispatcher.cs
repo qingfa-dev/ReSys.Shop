@@ -12,7 +12,7 @@ namespace Module.Billing.Features.Storefront.Payment.Webhooks;
 /// <summary>
 /// Implements <see cref="IStripeWebhookService"/> — validates the HMAC-SHA256
 /// signature of inbound webhooks and parses the raw payload. Event routing to
-/// state transitions happens in <see cref="Module.Billing.Backgrounds.ProcessStripeWebhookEventJob"/>.
+/// state transitions happens in <see cref="Backgrounds.ProcessStripeWebhookEventJob"/>.
 /// </summary>
 public sealed class StripeWebhookDispatcher : IStripeWebhookService
 {

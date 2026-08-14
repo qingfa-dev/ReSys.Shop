@@ -39,7 +39,7 @@ public static class CatalogExtensions
         builder.AddSeeder<CatalogProductTaxonSeeder>();
         builder.AddSeeder<CatalogEmbeddingSeeder>();
 
-        builder.Services.AddScoped<Module.Catalog.Persistence.Seeders.DemoJsonHelper>();
+        builder.Services.AddScoped<DemoJsonHelper>();
         builder.Services.AddVectorSearchService();
 
         return builder;

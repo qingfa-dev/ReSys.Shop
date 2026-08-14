@@ -5,7 +5,7 @@ using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
 using PaymentGatewayResponse = Module.Billing.Services.Provider.PaymentGatewayResponse;
 
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.Payment;
+
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Services;
 

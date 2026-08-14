@@ -5,7 +5,7 @@ namespace Module.Shipping.Features.Storefront.Shared.Mappings;
 
 public static partial class ShippingMethodMapping
 {
-    public static T MapToDetail<T>(this ShippingMethod entity) where T : Storefront.Shared.Models.ShippingMethodDetailResponse, new()
+    public static T MapToDetail<T>(this ShippingMethod entity) where T : Models.ShippingMethodDetailResponse, new()
     {
         return new T
         {
@@ -22,7 +22,7 @@ public static partial class ShippingMethodMapping
         };
     }
 
-    public static T MapToListItem<T>(this ShippingMethod entity) where T : Storefront.Shared.Models.ShippingMethodListItemResponse, new()
+    public static T MapToListItem<T>(this ShippingMethod entity) where T : Models.ShippingMethodListItemResponse, new()
     {
         return new T
         {

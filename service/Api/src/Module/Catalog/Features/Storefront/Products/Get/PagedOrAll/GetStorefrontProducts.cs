@@ -109,10 +109,10 @@ public static partial class GetStorefrontProducts
             query = query.ApplyFilter(parsing.Value).ApplySearch(parsing.Value);
 
             // Apply non-Price sort from ParseAll (if any), otherwise default sort
-            IOrderedQueryable<Domain.Products.Product> orderedQuery;
+            IOrderedQueryable<Product> orderedQuery;
             if (parsing.Value.Sort?.Clauses is { Count: > 0 })
             {
-                orderedQuery = (IOrderedQueryable<Domain.Products.Product>)query.ApplySort(parsing.Value);
+                orderedQuery = (IOrderedQueryable<Product>)query.ApplySort(parsing.Value);
             }
             else if (priceSort is null)
             {
@@ -180,7 +180,7 @@ public static partial class GetStorefrontProducts
                     };
                 }
 
-                var taxonsWithBreadcrumbs = item.Classifications.Select<StoreTaxonListItemResponse, StoreTaxonListItemResponse>(t =>
+                var taxonsWithBreadcrumbs = item.Classifications.Select(t =>
                 {
                     var taxonEntity = taxonLookup.GetValueOrDefault(t.Id);
                     var breadcrumb = new List<TaxonBreadcrumbItem>();

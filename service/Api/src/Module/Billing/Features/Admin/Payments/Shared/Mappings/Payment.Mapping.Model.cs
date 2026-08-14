@@ -1,4 +1,6 @@
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
+
+using Module.Billing.Domain.PaymentCaptures;
 
 namespace Module.Billing.Features.Admin.Payments.Shared.Mappings;
 

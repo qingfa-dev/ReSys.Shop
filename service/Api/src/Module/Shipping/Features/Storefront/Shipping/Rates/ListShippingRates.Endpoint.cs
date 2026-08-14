@@ -21,7 +21,7 @@ public static partial class ListShippingRates
             .WithTags(ShippingFeature.Tags.ShippingRate)
             .WithSummary(ShippingFeature.Storefront.Shipping.Rates.Summary)
             .WithDescription(ShippingFeature.Storefront.Shipping.Rates.Description)
-            .Produces<PagedResult<ListShippingRates.Response>>();
+            .Produces<PagedResult<Response>>();
         }
     }
 }

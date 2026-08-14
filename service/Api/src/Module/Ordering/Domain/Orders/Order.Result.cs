@@ -165,6 +165,11 @@ public static class OrderResult
             code: "Order.DeliveryMethodRequired",
             message: "A delivery method must be selected before proceeding.");
 
+        /// <summary>A shipping method must be selected before proceeding.</summary>
+        public static Error PaymentMethodRequired => Error.Validation(
+            code: "Order.PaymentMethodRequired",
+            message: "A payment method must be selected before proceeding.");
+
         /// <summary>Cannot finalize an order with no items.</summary>
         public static Error EmptyOrderCannotFinalize => Error.Validation(
             code: "Order.EmptyOrderCannotFinalize",

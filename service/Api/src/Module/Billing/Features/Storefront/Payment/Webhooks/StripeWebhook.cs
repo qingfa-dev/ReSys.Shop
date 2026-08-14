@@ -60,7 +60,7 @@ public static partial class StripeWebhook
             {
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException { SqlState: "23505" })
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
             {
                 // Unique-violation race with a concurrent identical webhook — already accepted.
                 return Result.Ok("Webhook already accepted.");

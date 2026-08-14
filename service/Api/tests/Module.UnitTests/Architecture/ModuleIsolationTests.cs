@@ -76,7 +76,7 @@ public sealed class ModuleIsolationTests
     [Fact]
     public void SharedInfrastructure_ShouldNotReferenceModuleTypes()
     {
-        var sharedAssembly = typeof(Shared.Application.Models.Results.Result).Assembly;
+        var sharedAssembly = typeof(Result).Assembly;
         var moduleTypes = ModuleAssembly.GetTypes()
             .Where(t => t.Namespace?.StartsWith("Module.") == true)
             .ToHashSet();

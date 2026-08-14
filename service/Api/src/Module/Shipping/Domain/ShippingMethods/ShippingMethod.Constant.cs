@@ -1,11 +1,5 @@
 namespace Module.Shipping.Domain.ShippingMethods;
 
-public enum ShippingMethodCategory
-{
-    FlatRate,
-    FreeShipping,
-    Calculated
-}
 
 public static class ShippingMethodConstant
 {

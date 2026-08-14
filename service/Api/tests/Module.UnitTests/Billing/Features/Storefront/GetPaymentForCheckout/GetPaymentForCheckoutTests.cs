@@ -2,7 +2,7 @@ using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Services.Provider;
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+
 
 namespace Module.UnitTests.Payment.Features.Storefront.GetPaymentForCheckout;
 

@@ -16,7 +16,7 @@ public static class InventoryExtension
         builder.AddSeeder<InventoryStockItemSeeder>();
         builder.AddSeeder<InventoryStockMovementSeeder>();
 
-        builder.Services.AddScoped<Module.Inventory.Persistence.Seeders.DemoJsonHelper>();
+        builder.Services.AddScoped<DemoJsonHelper>();
 
         return builder;
     }

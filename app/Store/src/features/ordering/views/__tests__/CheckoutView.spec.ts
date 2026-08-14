@@ -326,25 +326,29 @@ describe('CheckoutView', () => {
     expect(wrapper.findAll('[data-pc-name="radiobutton"]').length).toBeGreaterThanOrEqual(2)
   })
 
-  // Redirect: A card method creates a hosted-checkout intent and navigates to Stripe.
-  it('redirects to the Stripe hosted checkout when a card method is selected', async () => {
+  // Confirm-before-charge: A card method creates the intent and advances to Review;
+  // the Stripe redirect happens only when the customer clicks "Confirm and Pay".
+  it('advances to review for a card method without redirecting to Stripe yet', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
     )
     mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
       ok({ id: 'pi-1', clientSecret: 'cs-test', checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_123' }),
     )
+    mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
     const { wrapper } = await mountView(true)
 
     const vm = wrapper.vm as unknown as {
       checkout: {
         displayStep: number
+        checkoutUrl: string | null
         createPaymentIntent: (methodId: string, opts?: { returnUrl?: string; cancelUrl?: string }) => Promise<boolean>
       }
       selectedPaymentMethodId: string | null
       onContinueFromPayment: () => Promise<void>
+      onConfirmAndPay: () => void
     }
-    // Drive the wizard to the payment panel (backend PickDeliveryMethod -> display step 3).
+    // Drive the wizard to the payment panel (backend PickPaymentMethod -> display step 3).
     vm.checkout.displayStep = 3
     await flushPromises()
     vm.selectedPaymentMethodId = 'pm-stripe'
@@ -356,6 +360,13 @@ describe('CheckoutView', () => {
       returnUrl: 'http://localhost/checkout/return',
       cancelUrl: 'http://localhost/checkout',
     })
+    // Confirm-before-charge: landed on Review, not yet redirected to Stripe.
+    expect(vm.checkout.displayStep).toBe(4)
+    expect(window.location.href).toBe('http://localhost/checkout')
+    expect(vm.checkout.checkoutUrl).toBe('https://checkout.stripe.com/c/pay/cs_test_123')
+
+    // Confirm and Pay → redirect to the hosted checkout.
+    vm.onConfirmAndPay()
     expect(window.location.href).toBe('https://checkout.stripe.com/c/pay/cs_test_123')
   })
 

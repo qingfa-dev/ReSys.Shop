@@ -31,7 +31,7 @@ public sealed class TokenBlacklistServiceTests
     {
         // Arrange
         _cacheMock
-            .Setup(c => c.GetOrCreateAsync<string?>(
+            .Setup(c => c.GetOrCreateAsync(
                 "blacklist:test-jti",
                 It.IsAny<Func<CancellationToken, ValueTask<string?>>>(),
                 It.IsAny<CachingEntryOption?>(),
@@ -53,7 +53,7 @@ public sealed class TokenBlacklistServiceTests
     {
         // Arrange
         _cacheMock
-            .Setup(c => c.GetOrCreateAsync<string?>(
+            .Setup(c => c.GetOrCreateAsync(
                 "blacklist:test-jti",
                 It.IsAny<Func<CancellationToken, ValueTask<string?>>>(),
                 It.IsAny<CachingEntryOption?>(),
@@ -75,7 +75,7 @@ public sealed class TokenBlacklistServiceTests
     {
         // Arrange
         _cacheMock
-            .Setup(c => c.GetOrCreateAsync<string?>(
+            .Setup(c => c.GetOrCreateAsync(
                 "blacklist:test-jti",
                 It.IsAny<Func<CancellationToken, ValueTask<string?>>>(),
                 It.IsAny<CachingEntryOption?>(),
@@ -119,7 +119,7 @@ public sealed class TokenBlacklistServiceTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         _cacheMock.Verify(
-            c => c.SetAsync<string?>(
+            c => c.SetAsync(
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
                 It.IsAny<CachingEntryOption?>(),
