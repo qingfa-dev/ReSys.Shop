@@ -302,12 +302,21 @@ public class PaymentExtensionsTests
     }
 
     [Fact]
-    public void UncapturedAmount_AfterCompletion_ShouldReturnZero()
+    public void UncapturedAmount_WhenFullyCaptured_ShouldReturnZero()
     {
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentRecordState.Completed;
+        payment.CapturedAmount = 100m;
 
         payment.UncapturedAmount().Should().Be(0m);
+    }
+
+    [Fact]
+    public void UncapturedAmount_WhenPartiallyCaptured_ShouldReturnRemainder()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.CapturedAmount = 40m;
+
+        payment.UncapturedAmount().Should().Be(60m);
     }
 
     [Fact]

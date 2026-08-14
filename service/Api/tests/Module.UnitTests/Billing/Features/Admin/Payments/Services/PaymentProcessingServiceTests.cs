@@ -5,7 +5,7 @@ using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
 using PaymentGatewayResponse = Module.Billing.Services.Provider.PaymentGatewayResponse;
 
 
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+using PaymentCapture = Module.Billing.Domain.PaymentCaptures.Payment;
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Services;
 
@@ -184,7 +184,8 @@ public class PaymentProcessingServiceTests
         var result = await _service.CaptureAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentRecordState.Completed);
+        payment.State.Should().Be(PaymentRecordState.Processing);
+        payment.CapturedAmount.Should().Be(50m);
     }
 
     [Fact(DisplayName = "CaptureAsync: Should fail when payment not in Process or Pending")]
@@ -259,12 +260,23 @@ public class PaymentProcessingServiceTests
         var payment = CreatePayment(100m);
         payment.Process();
         payment.Complete();
+        payment.CapturedAmount = 100m;
         var options = CreateGatewayOptions(payment);
 
-        var result = await _service.RefundAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
+        var first = await _service.RefundAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
 
-        result.IsSuccess.Should().BeTrue();
+        first.IsSuccess.Should().BeTrue();
         payment.RefundedAmount.Should().Be(50m);
+
+        var second = await _service.RefundAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
+
+        second.IsSuccess.Should().BeTrue();
+        payment.RefundedAmount.Should().Be(100m);
+
+        var over = await _service.RefundAsync(payment, _gatewayMock.Object, options, 10m, TestContext.Current.CancellationToken);
+
+        over.IsFailure.Should().BeTrue();
+        payment.RefundedAmount.Should().Be(100m);
     }
 
     [Fact(DisplayName = "RefundAsync: Should fail when payment not completed")]

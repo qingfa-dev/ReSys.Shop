@@ -53,8 +53,8 @@ public class PaymentTransitionTests
         payment.State.Should().Be(PaymentRecordState.Failed);
     }
 
-    [Fact(DisplayName = "Capture should set State=Completed")]
-    public void Capture_ShouldSetStateToCompleted()
+    [Fact(DisplayName = "Partial capture leaves State unchanged and accumulates CapturedAmount")]
+    public void Capture_Partial_ShouldLeaveProcessingAndAccumulateCapturedAmount()
     {
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
@@ -63,7 +63,22 @@ public class PaymentTransitionTests
         var result = payment.Capture(50m);
 
         result.IsSuccess.Should().BeTrue();
+        payment.State.Should().Be(PaymentRecordState.Pending);
+        payment.CapturedAmount.Should().Be(50m);
+    }
+
+    [Fact(DisplayName = "Full capture sets State=Completed and CapturedAmount=Amount")]
+    public void Capture_Full_ShouldSetStateToCompleted()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.Process();
+        payment.Pend();
+
+        var result = payment.Capture(100m);
+
+        result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Completed);
+        payment.CapturedAmount.Should().Be(100m);
     }
 
     [Fact(DisplayName = "Capture with excessive amount should fail")]
@@ -77,5 +92,62 @@ public class PaymentTransitionTests
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Payment.Amount.ExceedsAuthorized");
+    }
+
+    [Fact(DisplayName = "Over-capture is rejected when amount exceeds remaining authorized")]
+    public void Capture_OverCapturedAmount_ShouldFail()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.Process();
+        payment.Pend();
+        payment.CapturedAmount = 50m;
+
+        var result = payment.Capture(60m);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("Payment.Amount.ExceedsAuthorized");
+        payment.CapturedAmount.Should().Be(50m);
+    }
+
+    [Fact(DisplayName = "Over-refund is rejected when amount exceeds captured")]
+    public void Refund_OverCaptured_ShouldFail()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.CapturedAmount = 50m;
+
+        var result = payment.Refund(60m);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("Payment.Amount.ExceedsAuthorized");
+        payment.RefundedAmount.Should().Be(0m);
+    }
+
+    [Fact(DisplayName = "ReconcileRefunded rejects a total exceeding CapturedAmount")]
+    public void ReconcileRefunded_ExceedingCapturedAmount_ShouldFail()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.CapturedAmount = 50m;
+
+        var result = payment.ReconcileRefunded(60m);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("Payment.Amount.ExceedsAuthorized");
+        payment.RefundedAmount.Should().Be(0m);
+    }
+
+    [Fact(DisplayName = "ReconcileRefunded is a no-op for a stale total not above current")]
+    public void ReconcileRefunded_StaleTotal_ShouldBeNoOp()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.CapturedAmount = 100m;
+        payment.RefundedAmount = 40m;
+
+        var result = payment.ReconcileRefunded(20m);
+
+        result.IsSuccess.Should().BeTrue();
+        payment.RefundedAmount.Should().Be(40m);
     }
 }

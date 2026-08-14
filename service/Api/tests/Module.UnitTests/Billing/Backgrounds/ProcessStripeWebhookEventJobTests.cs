@@ -12,7 +12,7 @@ using Stripe;
 using Stripe.Checkout;
 
 using IStripeWebhookService = Module.Billing.Services.Webhook.IStripeWebhookService;
-using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
+using PaymentCapture = Module.Billing.Domain.PaymentCaptures.Payment;
 
 namespace Module.UnitTests.Payment.Backgrounds;
 
@@ -119,6 +119,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         payment.State = PaymentRecordState.Completed;
         payment.ResponseCode = "pi_refund123";
         payment.RefundedAmount = 0;
+        payment.CapturedAmount = payment.Amount;
         _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -595,6 +596,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         payment.State = PaymentRecordState.Completed;
         payment.ResponseCode = "pi_reconcile_1";
         payment.RefundedAmount = 10m; // already tracked an earlier $10 refund
+        payment.CapturedAmount = payment.Amount;
         _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -711,6 +713,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.State = PaymentRecordState.Disputed;
         payment.ResponseCode = "pi_dispute_refund_1";
+        payment.CapturedAmount = payment.Amount;
         _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
