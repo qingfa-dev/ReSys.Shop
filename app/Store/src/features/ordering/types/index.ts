@@ -10,6 +10,8 @@ export type {
 export type {
   OrderStatus,
   CheckoutState,
+  OrderPaymentState,
+  OrderFulfillmentState,
   OrderListItem,
   OrderDetail,
   OrderTrackingResponse,

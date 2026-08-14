@@ -1,5 +1,7 @@
 export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
-export type CheckoutState = 'Address' | 'Delivery' | 'Payment' | 'Confirm' | 'Complete'
+export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Complete'
+export type OrderPaymentState = 'Completed' | 'Failed' | 'Void' | 'BalanceDue' | 'CreditOwed' | 'Paid' | 'Pending' | 'Checkout' | 'Invalid'
+export type OrderFulfillmentState = 'None' | 'Pending' | 'Partial' | 'Shipped' | 'Delivered' | 'Canceled'
 
 export interface OrderListItem {
   id: string
@@ -31,8 +33,8 @@ export interface OrderDetail extends OrderListItem {
   shipmentTotal: number
   paymentTotal: number
   outstandingBalance: number
-  paymentState: string | null
-  shipmentState: string | null
+  paymentState: OrderPaymentState | null
+  fulfillmentState: OrderFulfillmentState | null
   userId: string | null
   approvedById: string | null
   approvedAtUtc: string | null

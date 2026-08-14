@@ -1,3 +1,5 @@
+import type { CheckoutState } from './order'
+
 export interface CartLineItem {
   id: string
   variantId: string
@@ -16,7 +18,7 @@ export interface CartResponse {
   total: number
   currency: string
   itemCount: number
-  checkoutState: string
+  checkoutState: CheckoutState
   shippingMethodId: string | null
   shipAddressId: string | null
   email: string | null
