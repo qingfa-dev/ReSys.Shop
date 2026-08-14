@@ -22,8 +22,8 @@ describe('toOrderQueryParams', () => {
   })
 
   it('builds filter DSL for checkoutState', () => {
-    const result = toOrderQueryParams({ checkoutState: 'Payment' })
-    expect(result.filter).toBe('checkoutState=Payment')
+    const result = toOrderQueryParams({ checkoutState: 'PickPaymentMethod' })
+    expect(result.filter).toBe('checkoutState=PickPaymentMethod')
   })
 
   it('builds filter DSL for currency', () => {
