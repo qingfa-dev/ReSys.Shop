@@ -6,6 +6,12 @@ public abstract record ProductClassificationParameters
     public int Position { get; init; }
 }
 
+public abstract record ProductClassificationCollectionParameters
+{
+    public Guid ProductId { get; init; }
+    public IEnumerable<ProductClassificationAssignmentItem> Items { get; init; } = [];
+}
+
 public record ClassificationItemResponse : ProductClassificationParameters
 {
     public string Name { get; init; } = string.Empty;
