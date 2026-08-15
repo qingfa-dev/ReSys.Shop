@@ -51,6 +51,7 @@ const orderDetail: OrderDetail = {
   createdAtUtc: '2026-08-01T10:00:00Z',
   checkoutState: 'Complete',
   currency: 'USD',
+  itemCount: 2,
   email: 'ada@example.com',
   shipAddressId: 'addr-1',
   billAddressId: 'addr-1',
@@ -68,9 +69,11 @@ const orderDetail: OrderDetail = {
   completedAtUtc: null,
   canceledAtUtc: null,
   modifiedAtUtc: null,
+  specialInstructions: null,
+  shippingAdjustment: null,
   lineItems: [
-    { id: 'li-1', variantId: 'v-1', quantity: 2, price: 50, total: 100, currency: 'USD', createdAtUtc: '2026-08-01T09:00:00Z' },
-    { id: 'li-2', variantId: 'v-2', quantity: 1, price: 20, total: 20, currency: 'USD', createdAtUtc: '2026-08-01T09:01:00Z' },
+    { id: 'li-1', variantId: 'v-1', quantity: 2, price: 50, total: 100, currency: 'USD', adjustmentTotal: 0, createdAtUtc: '2026-08-01T09:00:00Z' },
+    { id: 'li-2', variantId: 'v-2', quantity: 1, price: 20, total: 20, currency: 'USD', adjustmentTotal: 0, createdAtUtc: '2026-08-01T09:01:00Z' },
   ],
 }
 
@@ -84,6 +87,10 @@ const tracking: OrderTrackingResponse = {
   shippedAt: null,
   deliveredAt: null,
   estimatedDeliveryAt: '2026-08-04T00:00:00Z',
+  paymentProcessingAt: null,
+  paymentCompletedAt: null,
+  paymentFailedAt: null,
+  deliveryExceptionAt: null,
 }
 
 // Fixture: Shipping address resolving the order's shipAddressId.

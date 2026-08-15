@@ -27,6 +27,8 @@ const placedOrder: OrderListItem = {
   number: 'ORD-1001',
   status: 'Placed',
   total: 130,
+  currency: 'USD',
+  itemCount: 2,
   createdAtUtc: '2026-08-01T10:00:00Z',
 }
 
@@ -36,6 +38,8 @@ const canceledOrder: OrderListItem = {
   number: 'ORD-1002',
   status: 'Canceled',
   total: 45,
+  currency: 'USD',
+  itemCount: 1,
   createdAtUtc: '2026-07-20T09:30:00Z',
 }
 

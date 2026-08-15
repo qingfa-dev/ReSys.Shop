@@ -6,11 +6,21 @@ export const CheckoutStateSchema = z.enum(['Address', 'PickDeliveryMethod', 'Pic
 export const OrderPaymentStateSchema = z.enum(['Completed', 'Failed', 'Void', 'BalanceDue', 'CreditOwed', 'Paid', 'Pending', 'Checkout', 'Invalid'])
 export const OrderFulfillmentStateSchema = z.enum(['None', 'Pending', 'Partial', 'Shipped', 'Delivered', 'Canceled'])
 
+// Validate: Shipping adjustment summary shape shared by cart and order schemas.
+export const ShippingAdjustmentSummarySchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  amount: z.number(),
+  shippingMethodId: z.string().nullable(),
+})
+
 export const OrderListItemSchema = z.object({
   id: z.string(),
   number: z.string(),
   status: OrderStatusSchema,
   total: z.number(),
+  currency: z.string(),
+  itemCount: z.number().int().min(0),
   createdAtUtc: z.string(),
 })
 
@@ -21,6 +31,7 @@ export const OrderLineItemSchema = z.object({
   price: z.number(),
   total: z.number(),
   currency: z.string(),
+  adjustmentTotal: z.number(),
   createdAtUtc: z.string(),
 })
 
@@ -32,6 +43,7 @@ export const OrderDetailSchema = z.object({
   createdAtUtc: z.string(),
   checkoutState: CheckoutStateSchema,
   currency: z.string(),
+  itemCount: z.number().int().min(0),
   email: z.string().nullable(),
   shipAddressId: z.string().nullable(),
   billAddressId: z.string().nullable(),
@@ -49,6 +61,8 @@ export const OrderDetailSchema = z.object({
   completedAtUtc: z.string().nullable(),
   canceledAtUtc: z.string().nullable(),
   modifiedAtUtc: z.string().nullable(),
+  specialInstructions: z.string().nullable(),
+  shippingAdjustment: ShippingAdjustmentSummarySchema.nullable(),
   lineItems: z.array(OrderLineItemSchema),
 })
 
@@ -61,4 +75,8 @@ export const OrderTrackingResponseSchema = z.object({
   shippedAt: z.string().nullable(),
   deliveredAt: z.string().nullable(),
   estimatedDeliveryAt: z.string().nullable(),
+  paymentProcessingAt: z.string().nullable(),
+  paymentCompletedAt: z.string().nullable(),
+  paymentFailedAt: z.string().nullable(),
+  deliveryExceptionAt: z.string().nullable(),
 })

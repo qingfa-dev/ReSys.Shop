@@ -1,3 +1,5 @@
+import type { ShippingAdjustmentSummary } from './cart'
+
 export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
 export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Complete'
 export type OrderPaymentState = 'Completed' | 'Failed' | 'Void' | 'BalanceDue' | 'CreditOwed' | 'Paid' | 'Pending' | 'Checkout' | 'Invalid'
@@ -8,6 +10,8 @@ export interface OrderListItem {
   number: string
   status: OrderStatus
   total: number
+  currency: string
+  itemCount: number
   createdAtUtc: string
 }
 
@@ -18,6 +22,7 @@ export interface OrderLineItem {
   price: number
   total: number
   currency: string
+  adjustmentTotal: number
   createdAtUtc: string
 }
 
@@ -41,6 +46,8 @@ export interface OrderDetail extends OrderListItem {
   completedAtUtc: string | null
   canceledAtUtc: string | null
   modifiedAtUtc: string | null
+  specialInstructions: string | null
+  shippingAdjustment: ShippingAdjustmentSummary | null
   lineItems: OrderLineItem[]
 }
 
@@ -53,4 +60,8 @@ export interface OrderTrackingResponse {
   shippedAt: string | null
   deliveredAt: string | null
   estimatedDeliveryAt: string | null
+  paymentProcessingAt: string | null
+  paymentCompletedAt: string | null
+  paymentFailedAt: string | null
+  deliveryExceptionAt: string | null
 }

@@ -151,6 +151,8 @@ const draftOrder: OrderListItem = {
   number: 'R10001',
   status: 'Draft',
   total: 99,
+  currency: 'USD',
+  itemCount: 1,
   createdAtUtc: '2026-01-01T00:00:00Z',
 }
 
