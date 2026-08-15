@@ -47,7 +47,7 @@ public static partial class CalculateShipping
             if (calcResult.IsFailure)
                 return (Result<Response>)calcResult.Errors;
 
-            var (cost, isFree) = ((decimal cost, bool isFree))calcResult.Value;
+            var (cost, isFree, rateId) = ((decimal cost, bool isFree, Guid rateId))calcResult.Value;
 
             // Map: Return shipping cost response with method details.
             // EXCEPTION: no domain entity — calculation result composed from ShippingMethod and Order
@@ -57,7 +57,8 @@ public static partial class CalculateShipping
                 MethodName = method.Name,
                 Cost = cost,
                 Currency = cart.Currency,
-                IsFreeShipping = isFree
+                IsFreeShipping = isFree,
+                ShippingRateId = rateId
             };
         }
     }

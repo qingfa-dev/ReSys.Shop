@@ -16,6 +16,10 @@ public record OrderDetailResponse : OrderParameters
     public decimal ShipmentTotal { get; init; }
     /// <summary>Applied shipping adjustment metadata, if any.</summary>
     public ShippingAdjustmentSummary? ShippingAdjustment { get; init; }
+    /// <summary>Shipping calculation metadata (weight, applied rate, free state), if shipping was applied.</summary>
+    public ShippingCalculationSummary? ShippingCalculation { get; init; }
+    /// <summary>Persisted adjustment rows (e.g. the applied shipping cost, future discounts).</summary>
+    public List<AdjustmentSummary> Adjustments { get; init; } = [];
     public decimal Total { get; init; }
     public decimal PaymentTotal { get; init; }
     public decimal OutstandingBalance { get; init; }

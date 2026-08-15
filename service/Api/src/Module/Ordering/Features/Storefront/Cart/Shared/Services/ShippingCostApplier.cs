@@ -35,7 +35,13 @@ public static class ShippingCostApplier
         if (calcResult.IsFailure)
             return calcResult.Errors;
 
-        var (cost, _) = calcResult.Value;
+        var (cost, isFree, rateId) = calcResult.Value;
+
+        // Record: Persist the calculation metadata so responses can explain the applied cost.
+        cart.TotalWeight = totalWeight;
+        cart.ShippingRateId = rateId;
+        cart.IsFreeShipping = isFree;
+
         return cart.ReplaceShippingAdjustment(cost, shippingMethodId);
     }
 }

@@ -41,3 +41,22 @@ public sealed record ShippingAdjustmentSummary
     public decimal Amount { get; init; }
     public Guid? ShippingMethodId { get; init; }
 }
+
+/// <summary>Shipping calculation metadata captured when the shipping cost was last applied.</summary>
+public sealed record ShippingCalculationSummary
+{
+    public decimal TotalWeight { get; init; }
+    public Guid? ShippingRateId { get; init; }
+    public decimal Cost { get; init; }
+    public bool IsFreeShipping { get; init; }
+}
+
+/// <summary>Persisted adjustment row exposed on cart/order responses (e.g. shipping cost, future discounts).</summary>
+public sealed record AdjustmentSummary
+{
+    public Guid Id { get; init; }
+    public string Label { get; init; } = string.Empty;
+    public decimal Amount { get; init; }
+    public string SourceType { get; init; } = string.Empty;
+    public Guid? ShippingMethodId { get; init; }
+}

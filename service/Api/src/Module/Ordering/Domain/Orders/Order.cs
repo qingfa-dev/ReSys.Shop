@@ -29,6 +29,10 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public decimal Total { get; set; }
     public decimal PaymentTotal { get; set; }
     public decimal OutstandingBalance { get; set; }
+    // Shipping: Calculation metadata captured when the shipping cost was last applied.
+    public decimal TotalWeight { get; set; }
+    public Guid? ShippingRateId { get; set; }
+    public bool IsFreeShipping { get; set; }
     public OrderPaymentState? PaymentState { get; set; }
     public OrderFulfillmentState? FulfillmentState { get; set; }
     #endregion Properties

@@ -64,6 +64,14 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.OutstandingBalance)
             .HasPrecision(OrderConstant.Constraints.Precision, OrderConstant.Constraints.Scale);
 
+        builder.Property(x => x.TotalWeight)
+            .HasPrecision(OrderConstant.Constraints.Precision, OrderConstant.Constraints.Scale);
+
+        builder.Property(x => x.ShippingRateId);
+
+        builder.Property(x => x.IsFreeShipping)
+            .HasDefaultValue(false);
+
         builder.Property(x => x.Email)
             .HasMaxLength(OrderConstant.Constraints.MaxEmailLength);
 

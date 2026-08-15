@@ -1,3 +1,4 @@
+using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
@@ -56,6 +57,10 @@ public class CartMappingTests
         cart.ShipmentTotal = 5m;
         cart.AdjustmentTotal = 2m;
         cart.Total = 107m;
+        var rateId = Guid.NewGuid();
+        cart.TotalWeight = 12.5m;
+        cart.ShippingRateId = rateId;
+        cart.IsFreeShipping = false;
 
         var response = cart.MapToDetail<CartDetailResponse>();
 
@@ -66,6 +71,18 @@ public class CartMappingTests
         response.ShippingAdjustment!.Amount.Should().Be(5m);
         response.ShippingAdjustment!.ShippingMethodId.Should().Be(methodId);
         response.Total.Should().Be(response.ItemTotal + response.ShipmentTotal + response.AdjustmentTotal);
+
+        response.ShippingCalculation.Should().NotBeNull();
+        response.ShippingCalculation!.TotalWeight.Should().Be(12.5m);
+        response.ShippingCalculation!.ShippingRateId.Should().Be(rateId);
+        response.ShippingCalculation!.Cost.Should().Be(5m);
+        response.ShippingCalculation!.IsFreeShipping.Should().BeFalse();
+
+        response.Adjustments.Should().HaveCount(1);
+        response.Adjustments[0].Label.Should().Be("Shipping");
+        response.Adjustments[0].Amount.Should().Be(5m);
+        response.Adjustments[0].SourceType.Should().Be(AdjustmentConstant.SourceTypes.Shipping);
+        response.Adjustments[0].ShippingMethodId.Should().Be(methodId);
     }
 
     [Fact(DisplayName = "MapToDetail: Should return null shipping adjustment when cart has none")]

@@ -29,4 +29,8 @@ public abstract record CartResponseBase
     public decimal AdjustmentTotal { get; init; }
     /// <summary>Applied shipping adjustment metadata, if any.</summary>
     public ShippingAdjustmentSummary? ShippingAdjustment { get; init; }
+    /// <summary>Shipping calculation metadata (weight, applied rate, free state), if shipping was applied.</summary>
+    public ShippingCalculationSummary? ShippingCalculation { get; init; }
+    /// <summary>Persisted adjustment rows (e.g. the applied shipping cost, future discounts).</summary>
+    public List<AdjustmentSummary> Adjustments { get; init; } = [];
 }

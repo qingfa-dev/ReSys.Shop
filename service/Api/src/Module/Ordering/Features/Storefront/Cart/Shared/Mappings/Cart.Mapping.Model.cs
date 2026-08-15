@@ -32,6 +32,23 @@ public static partial class CartMapping
             ShippingAdjustment = entity.Adjustments.FirstOrDefault(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping) is { } sa
                 ? new ShippingAdjustmentSummary { Id = sa.Id, Label = sa.Label, Amount = sa.Amount, ShippingMethodId = sa.SourceId }
                 : null,
+            ShippingCalculation = entity.ShippingMethodId.HasValue
+                ? new ShippingCalculationSummary
+                {
+                    TotalWeight = entity.TotalWeight,
+                    ShippingRateId = entity.ShippingRateId,
+                    Cost = entity.ShipmentTotal,
+                    IsFreeShipping = entity.IsFreeShipping,
+                }
+                : null,
+            Adjustments = entity.Adjustments.Select(a => new AdjustmentSummary
+            {
+                Id = a.Id,
+                Label = a.Label,
+                Amount = a.Amount,
+                SourceType = a.SourceType,
+                ShippingMethodId = a.SourceType == AdjustmentConstant.SourceTypes.Shipping ? a.SourceId : (Guid?)null,
+            }).ToList(),
         };
     }
 

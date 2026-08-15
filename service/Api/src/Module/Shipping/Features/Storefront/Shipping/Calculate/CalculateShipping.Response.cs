@@ -11,5 +11,6 @@ public sealed record Response
     public decimal Cost { get; init; }
     public string Currency { get; init; } = default!;
     public bool IsFreeShipping { get; init; }
+    public Guid ShippingRateId { get; init; }
 }
 }
