@@ -16,7 +16,7 @@ public static partial class GetSimilarProducts
                 CancellationToken ct,
                 [FromQuery] int topK = 20) =>
             {
-                var query = new Query(productId, topK);
+                var query = new Query(new Parameters { Id = productId, TopK = topK });
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })

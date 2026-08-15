@@ -12,7 +12,7 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 /// </summary>
 public static partial class GetSimilarProducts
 {
-    public sealed record Query(Guid Id, int TopK = 20) : IPagedQuery<Response>; // EXCEPTION: legacy contract, refactor breaks callers
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,
@@ -38,7 +38,7 @@ public static partial class GetSimilarProducts
                 .Where(ie => ie.ModelName == similarityModel
                           && ie.Vector != null
                           && ie.VariantImage.VariantId != null
-                          && ie.VariantImage.Variant!.ProductId == request.Id
+                          && ie.VariantImage.Variant!.ProductId == request.Parameters.Id
                           && !ie.VariantImage.Variant!.IsDeleted)
                 .OrderByDescending(ie => ie.VariantImage.Variant!.IsMaster)
                 .ThenBy(ie => ie.VariantImage.Variant!.Position)
@@ -49,10 +49,10 @@ public static partial class GetSimilarProducts
                 // Distinguish "product doesn't exist" from "product exists but has no embedding
                 // yet" only when needed, this check is skipped entirely in the common case above.
                 var productExists = await dbContext.Set<Variant>()
-                    .AnyAsync(v => v.ProductId == request.Id && !v.IsDeleted, cancellationToken);
+                    .AnyAsync(v => v.ProductId == request.Parameters.Id && !v.IsDeleted, cancellationToken);
 
                 return productExists
-                    ? PagedResult<Response>.Create(items: [], page: 1, pageSize: request.TopK, totalCount: 0)
+                    ? PagedResult<Response>.Create(items: [], page: 1, pageSize: request.Parameters.TopK, totalCount: 0)
                     : PagedResult<Response>.NotFound();
             }
 
@@ -61,11 +61,11 @@ public static partial class GetSimilarProducts
             // Query: Find nearest neighbors in vector space with scores. Fetch a superset of
             // variants so that de-duplicating to one item per product still yields TopK products.
             var similarResults = await vectorSearchService.FindSimilarWithScoresAsync(
-                embedding.Vector!, embedding.ModelName, request.TopK * 2,
+                embedding.Vector!, embedding.ModelName, request.Parameters.TopK * 2,
                 excludeProductId: sourceVariant.ProductId, cancellationToken);
 
             if (similarResults.Count == 0)
-                return PagedResult<Response>.Create(items: [], page: 1, pageSize: request.TopK, totalCount: 0);
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: request.Parameters.TopK, totalCount: 0);
 
             // Map: Resolve which product each matching variant belongs to.
             var variantIds = similarResults.Select(r => r.VariantId).ToList();
@@ -89,7 +89,7 @@ public static partial class GetSimilarProducts
 
             var rankedProducts = scoresByProduct
                 .OrderByDescending(kvp => kvp.Value)
-                .Take(request.TopK)
+                .Take(request.Parameters.TopK)
                 .ToList();
 
             // Load: Fetch the full product graph required by MapToStoreListItem, then map
@@ -120,7 +120,7 @@ public static partial class GetSimilarProducts
                 })
                 .ToList();
 
-            return PagedResult<Response>.Create(items, page: 1, pageSize: request.TopK, totalCount: items.Count);
+            return PagedResult<Response>.Create(items, page: 1, pageSize: request.Parameters.TopK, totalCount: items.Count);
         }
     }
 }

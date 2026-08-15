@@ -43,7 +43,7 @@ public class GetSimilarProductsTests : IDisposable
     {
         // Act
         var result = await _handler.Handle(
-            new GetSimilarProducts.Query(Guid.NewGuid()),
+            new GetSimilarProducts.Query(new GetSimilarProducts.Parameters { Id = Guid.NewGuid() }),
             TestContext.Current.CancellationToken);
 
         // Assert: No product found for this ID
@@ -64,7 +64,7 @@ public class GetSimilarProductsTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetSimilarProducts.Query(product.Id),
+            new GetSimilarProducts.Query(new GetSimilarProducts.Parameters { Id = product.Id }),
             TestContext.Current.CancellationToken);
 
         // Assert: No embedding -> returns empty
@@ -145,7 +145,7 @@ public class GetSimilarProductsTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetSimilarProducts.Query(sourceProduct.Id),
+            new GetSimilarProducts.Query(new GetSimilarProducts.Parameters { Id = sourceProduct.Id }),
             TestContext.Current.CancellationToken);
 
         // Assert: Similar product should be returned, source product should be excluded
