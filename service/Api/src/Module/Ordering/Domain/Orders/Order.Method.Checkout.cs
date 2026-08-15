@@ -117,6 +117,9 @@ public static partial class OrderMethod
         if (order.ShippingMethodId is null)
             return OrderResult.Errors.DeliveryMethodRequired;
 
+        if (order.PaymentMethodId is null)
+            return OrderResult.Errors.PaymentMethodRequired;
+
         if (string.IsNullOrWhiteSpace(order.Email))
             return OrderResult.Errors.EmailRequired;
 
