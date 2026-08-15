@@ -1,4 +1,3 @@
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
 using Module.Catalog.Features.Shared;
 
 namespace Module.Catalog.Features.Admin.Taxons.Reposition;
@@ -24,7 +23,7 @@ public static partial class RepositionTaxon
             .HasPermission(CatalogFeature.Admin.Taxons.Reposition.Permission)
             .WithSummary(CatalogFeature.Admin.Taxons.Reposition.Summary)
             .WithDescription(CatalogFeature.Admin.Taxons.Reposition.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
