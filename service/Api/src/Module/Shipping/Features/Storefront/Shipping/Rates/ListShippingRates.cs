@@ -1,4 +1,5 @@
 using Module.Shipping.Domain.ShippingRates;
+using Module.Shipping.Features.Admin.ShippingRates.Shared.Mappings;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Rates;
 /// <summary>Lists shipping rates available for storefront checkout.</summary>
@@ -29,18 +30,7 @@ public static partial class ListShippingRates
                 .AsNoTracking()
                 .ApplyQuerying(parsing.Value)
                 // Transform: Map domain entity to response DTO
-                .Select(r => new Response
-                {
-                    Id = r.Id,
-                    ShippingMethodId = r.ShippingMethodId,
-                    Name = r.Name,
-                    Cost = r.Cost,
-                    FinalPrice = r.FinalPrice,
-                    DeliveryRange = r.DeliveryRange,
-                    MinWeight = r.MinWeight,
-                    MaxWeight = r.MaxWeight,
-                    FreeShippingThreshold = r.FreeShippingThreshold
-                })
+                .Select(r => r.MapToDetail<Response>())
                 .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
 
             return pagedResult;
