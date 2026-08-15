@@ -30,7 +30,7 @@ export class AddressApi {
     return put<Result<AddressResponse>>(`/api/admin/customer/addresses/${id}`, request)
   }
 
-  static deleteAddress(userId: string, id: string): Promise<Result<{ id: string; label: string }>> {
-    return del<Result<{ id: string; label: string }>>(`/api/admin/customer/addresses/${id}?userId=${userId}`)
+  static deleteAddress(userId: string, id: string): Promise<Result<void>> {
+    return del<Result<void>>(`/api/admin/customer/addresses/${id}?userId=${userId}`)
   }
 }

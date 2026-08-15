@@ -20,7 +20,7 @@ export class ImageEmbeddingApi {
     return get<Result<EmbeddingDetailResponse>>(`/api/admin/catalog/variant-image-embeddings/${variantImageId}`)
   }
 
-  static deleteEmbedding(variantImageId: string): Promise<Result<{ message: string }>> {
-    return del<Result<{ message: string }>>(`/api/admin/catalog/variant-image-embeddings/${variantImageId}`)
+  static deleteEmbedding(variantImageId: string): Promise<Result<void>> {
+    return del<Result<void>>(`/api/admin/catalog/variant-image-embeddings/${variantImageId}`)
   }
 }

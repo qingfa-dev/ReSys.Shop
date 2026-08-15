@@ -49,7 +49,7 @@ export class TaxonApi {
     return patch<Result<TaxonListItem>>(`/api/admin/catalog/taxons/${id}/restore`)
   }
 
-  static repositionTaxon(id: string, request: TaxonRequest): Promise<Result<{ id: string }>> {
-    return post<Result<{ id: string }>>(`/api/admin/catalog/taxons/${id}/reposition`, request)
+  static repositionTaxon(id: string, request: TaxonRequest): Promise<Result<void>> {
+    return post<Result<void>>(`/api/admin/catalog/taxons/${id}/reposition`, request)
   }
 }
