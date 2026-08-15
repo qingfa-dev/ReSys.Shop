@@ -368,6 +368,10 @@ onMounted(() => {
                     <div class="text-sm text-muted-color">Shipment Total</div>
                     <div class="font-medium">{{ formatCurrency(order.shipmentTotal, currency(order)) }}</div>
                   </div>
+                  <div v-if="order.shippingAdjustment">
+                    <div class="text-sm text-muted-color">Shipping Adjustment</div>
+                    <div class="font-medium">{{ order.shippingAdjustment.label }} — {{ formatCurrency(order.shippingAdjustment.amount, currency(order)) }}</div>
+                  </div>
                   <div>
                     <div class="text-sm text-muted-color">Total</div>
                     <div class="font-medium text-lg">{{ formatCurrency(order.total, currency(order)) }}</div>

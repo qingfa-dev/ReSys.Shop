@@ -35,6 +35,12 @@ export interface OrderDetail extends OrderRequest {
   itemTotal: number
   adjustmentTotal: number
   shipmentTotal: number
+  shippingAdjustment?: {
+    id: string
+    label: string
+    amount: number
+    shippingMethodId?: string
+  } | null
   total: number
   paymentTotal: number
   outstandingBalance: number
