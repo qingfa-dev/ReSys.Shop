@@ -2,6 +2,7 @@ import { ref, computed, reactive } from 'vue'
 import { CartApi } from '../services/cartApi'
 import { emit, on } from '@/shared/composables/useStoreEvents'
 import type { CartLineItem, CheckoutState } from '../types'
+import type { ShippingAdjustmentSummary } from '../types/cart'
 
 // Module-level singleton state
 const id = ref<string | null>(null)
@@ -14,11 +15,20 @@ const checkoutState = ref<CheckoutState | null>(null)
 const shippingMethodId = ref<string | null>(null)
 const shipAddressId = ref<string | null>(null)
 const email = ref<string | null>(null)
+// Totals: Server-authoritative financial fields from the cart response.
+const itemTotal = ref(0)
+const shipmentTotal = ref(0)
+const adjustmentTotal = ref(0)
+const total = ref(0)
+const shippingAdjustment = ref<ShippingAdjustmentSummary | null>(null)
 const cartToken = crypto.randomUUID()
 
 const itemCount = computed(() => items.value.reduce((s, i) => s + i.quantity, 0))
 const subtotal = computed(() => items.value.reduce((s, i) => s + i.total, 0))
 const isEmpty = computed(() => items.value.length === 0)
+
+const shipping = computed(() => shipmentTotal.value)
+const adjustments = computed(() => adjustmentTotal.value)
 
 async function fetchCart(force = false): Promise<boolean> {
   if (loading.value) return false
@@ -34,6 +44,11 @@ async function fetchCart(force = false): Promise<boolean> {
       shippingMethodId.value = result.value.shippingMethodId
       shipAddressId.value = result.value.shipAddressId
       email.value = result.value.email
+      itemTotal.value = result.value.itemTotal
+      shipmentTotal.value = result.value.shipmentTotal
+      adjustmentTotal.value = result.value.adjustmentTotal
+      total.value = result.value.total
+      shippingAdjustment.value = result.value.shippingAdjustment
       lastFetchedAt.value = Date.now()
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     } else {
@@ -61,6 +76,11 @@ async function addItem(variantId: string, quantity = 1): Promise<boolean> {
       shippingMethodId.value = result.value.shippingMethodId
       shipAddressId.value = result.value.shipAddressId
       email.value = result.value.email
+      itemTotal.value = result.value.itemTotal
+      shipmentTotal.value = result.value.shipmentTotal
+      adjustmentTotal.value = result.value.adjustmentTotal
+      total.value = result.value.total
+      shippingAdjustment.value = result.value.shippingAdjustment
       lastFetchedAt.value = Date.now()
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     } else {
@@ -87,6 +107,11 @@ async function updateQuantity(lineItemId: string, quantity: number): Promise<boo
       shippingMethodId.value = result.value.shippingMethodId
       shipAddressId.value = result.value.shipAddressId
       email.value = result.value.email
+      itemTotal.value = result.value.itemTotal
+      shipmentTotal.value = result.value.shipmentTotal
+      adjustmentTotal.value = result.value.adjustmentTotal
+      total.value = result.value.total
+      shippingAdjustment.value = result.value.shippingAdjustment
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     } else if (prev) {
       const refresh = await CartApi.getCart()
@@ -116,6 +141,11 @@ async function removeItem(lineItemId: string): Promise<boolean> {
       shippingMethodId.value = result.value.shippingMethodId
       shipAddressId.value = result.value.shipAddressId
       email.value = result.value.email
+      itemTotal.value = result.value.itemTotal
+      shipmentTotal.value = result.value.shipmentTotal
+      adjustmentTotal.value = result.value.adjustmentTotal
+      total.value = result.value.total
+      shippingAdjustment.value = result.value.shippingAdjustment
       emit({ type: 'cart:updated', itemCount: itemCount.value })
     }
     return result.isSuccess
@@ -139,6 +169,11 @@ async function clearCart(): Promise<void> {
   shippingMethodId.value = null
   shipAddressId.value = null
   email.value = null
+  itemTotal.value = 0
+  shipmentTotal.value = 0
+  adjustmentTotal.value = 0
+  total.value = 0
+  shippingAdjustment.value = null
   emit({ type: 'cart:updated', itemCount: 0 })
 }
 
@@ -162,6 +197,11 @@ function reset(): void {
   shippingMethodId.value = null
   shipAddressId.value = null
   email.value = null
+  itemTotal.value = 0
+  shipmentTotal.value = 0
+  adjustmentTotal.value = 0
+  total.value = 0
+  shippingAdjustment.value = null
 }
 
 // Subscribe: Re-associate guest cart on login, clear on logout.
@@ -174,6 +214,7 @@ function createCart() {
   return reactive({
     id, items, loading, error, itemCount, subtotal, isEmpty, cartToken,
     checkoutState, shippingMethodId, shipAddressId, email,
+    itemTotal, shipmentTotal, adjustmentTotal, total, shippingAdjustment, shipping, adjustments,
     fetchCart, addItem, updateQuantity, removeItem, clearCart, associateGuestCart, reset,
   })
 }
