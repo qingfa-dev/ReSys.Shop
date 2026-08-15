@@ -17,7 +17,12 @@ public static partial class DeleteWishlist
                     if (string.IsNullOrEmpty(currentUser.UserId))
                         return Results.Unauthorized();
 
-                    var command = new Command(Guid.Parse(currentUser.UserId), id, DeletedBy: currentUser.UserName);
+                    var command = new Command(new Parameters
+                    {
+                        UserId = Guid.Parse(currentUser.UserId),
+                        Id = id,
+                        DeletedBy = currentUser.UserName
+                    });
                     var result = await sender.Send(command, cancellationToken);
                     return result.ToResult();
                 })

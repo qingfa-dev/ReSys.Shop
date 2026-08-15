@@ -6,7 +6,7 @@ namespace Module.Customer.Features.Storefront.Wishlists.Delete;
 /// <summary>Deletes a wishlist.</summary>
 public static partial class DeleteWishlist
 {
-    public sealed record Command(Guid UserId, Guid Id, string? DeletedBy = null) : ICommand<Response>; // EXCEPTION: legacy contract, refactor breaks callers
+    public sealed record Command(Parameters Parameters) : ICommand<Response>;
 
     /// <summary>Handles the deletion of a wishlist.</summary>
     public sealed class CommandHandler(IApplicationDbContext dbContext)
@@ -18,7 +18,7 @@ public static partial class DeleteWishlist
             // Load: Fetch the wishlist from persistence
             var wishlist = await dbContext.Set<Wishlist>()
                 .FirstOrDefaultAsync(
-                    w => w.Id == command.Id && w.UserId == command.UserId && !w.IsDeleted,
+                    w => w.Id == command.Parameters.Id && w.UserId == command.Parameters.UserId && !w.IsDeleted,
                     cancellationToken);
 
             // Validate: Confirm wishlist exists
@@ -28,7 +28,7 @@ public static partial class DeleteWishlist
             // Update: Mark wishlist as soft-deleted with audit metadata
             wishlist.IsDeleted = true;
             wishlist.DeletedAtUtc = DateTimeOffset.UtcNow;
-            wishlist.DeletedBy = command.DeletedBy ?? command.UserId.ToString();
+            wishlist.DeletedBy = command.Parameters.DeletedBy ?? command.Parameters.UserId.ToString();
 
             // Log: Record the deletion via persistence
             await dbContext.SaveChangesAsync(cancellationToken);

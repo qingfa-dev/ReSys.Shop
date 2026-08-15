@@ -38,7 +38,7 @@ public class DeleteWishlistTests : IDisposable
         _dbContext.Set<Wishlist>().Add(wishlist);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteWishlist.Command(_userId, wishlist.Id, "testuser"), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteWishlist.Command(new DeleteWishlist.Parameters { UserId = _userId, Id = wishlist.Id, DeletedBy = "testuser" }), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -52,7 +52,7 @@ public class DeleteWishlistTests : IDisposable
     [Fact(DisplayName = "Handle: Should return NotFound when wishlist does not exist")]
     public async Task Handle_ShouldFail_WhenNotFound()
     {
-        var result = await _handler.Handle(new DeleteWishlist.Command(_userId, Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteWishlist.Command(new DeleteWishlist.Parameters { UserId = _userId, Id = Guid.NewGuid() }), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(WishlistResult.Failure.NotFound.Code);
