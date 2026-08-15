@@ -6,4 +6,10 @@ public abstract record ProductOptionTypeParameters
     public int Position { get; init; }
 }
 
+public abstract record ProductOptionTypeCollectionParameters
+{
+    public Guid ProductId { get; init; }
+    public IEnumerable<ProductOptionTypeAssignmentItem> Items { get; init; } = [];
+}
+
 public record ProductOptionTypeAssignmentItem : ProductOptionTypeParameters;
