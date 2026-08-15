@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.Import;
 
@@ -125,14 +126,7 @@ public static partial class ImportStockItems
 
             ImportStockItemsLoggers.ImportCompleted(logger, created, updated, errors.Count);
 
-            // EXCEPTION: import aggregate counts — no domain entity
-            return new Response
-            {
-                Created = created,
-                Updated = updated,
-                Failed = errors.Count,
-                Errors = errors
-            };
+            return (created, updated, errors).MapToImportResult<Response>();
         }
     }
 }
