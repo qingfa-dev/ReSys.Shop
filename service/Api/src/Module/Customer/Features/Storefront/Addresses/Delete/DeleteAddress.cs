@@ -8,15 +8,15 @@ namespace Module.Customer.Features.Storefront.Addresses.Delete;
 /// <summary>Removes an address from the authenticated user's profile.</summary>
 public static partial class DeleteAddress
 {
-    public sealed record Command(Guid UserId, Guid Id) : ICommand<Response>;
+    public sealed record Command(Guid UserId, Guid Id) : ICommand;
 
     /// <summary>Handles the deletion of a user address.</summary>
     public sealed class CommandHandler(
         IApplicationDbContext dbContext)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>Deletes a user address.</summary>
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Fetch the user's profile from persistence
             var profile = await dbContext.Set<UserProfile>()
@@ -51,8 +51,8 @@ public static partial class DeleteAddress
             // Call: Persist the deletion to the database
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Transform: Build response from deleted address identity
-            return new Response { Id = address.Id, Label = address.Label ?? address.Address1 };
+            // Transform: Confirm deletion succeeded
+            return Result.Ok();
         }
     }
 }

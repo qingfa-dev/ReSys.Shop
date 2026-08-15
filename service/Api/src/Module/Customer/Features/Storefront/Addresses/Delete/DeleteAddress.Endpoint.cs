@@ -26,7 +26,7 @@ public static partial class DeleteAddress
             .WithTags(ProfileFeature.Tags.Address)
             .WithSummary(ProfileFeature.Storefront.Addresses.Delete.Summary)
             .WithDescription(ProfileFeature.Storefront.Addresses.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)
             .Produces<Result>(StatusCodes.Status404NotFound)

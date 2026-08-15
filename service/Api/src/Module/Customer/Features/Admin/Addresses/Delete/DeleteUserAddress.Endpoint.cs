@@ -24,7 +24,7 @@ public static partial class DeleteUserAddress
             .WithTags(ProfileFeature.Tags.Address)
             .WithSummary(ProfileFeature.Admin.Addresses.Delete.Summary)
             .WithDescription(ProfileFeature.Admin.Addresses.Delete.Description)
-            .Produces<Result<DeleteAddress.Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

@@ -49,8 +49,7 @@ public class DeleteAddressTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Id.Should().Be(address.Id);
-        
+
         var updatedProfile = await _dbContext.Set<UserProfile>().FirstAsync(p => p.UserId == _userId, TestContext.Current.CancellationToken);
         updatedProfile.Addresses.Should().BeEmpty();
     }
@@ -106,21 +105,5 @@ public class DeleteAddressTests : IDisposable
         result.Errors[0].Code.Should().Be(UserResult.Failure.NotFound.Code);
     }
 
-    [Fact(DisplayName = "Handle: Should return response with address label when available")]
-    public async Task Handle_ShouldReturnResponseWithLabel_WhenLabelExists()
-    {
-        // Arrange
-        var profile = ProfileUserFactory.Create(_userId);
-        var address = AddressMethod.Create("John", "Main St", "City", "Country", label: "Home").Value;
-        profile.AddAddress(address);
-        _dbContext.Set<UserProfile>().Add(profile);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Act
-        var result = await _handler.Handle(new DeleteAddress.Command(_userId, address.Id), TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Label.Should().Be("Home");
-    }
 }
