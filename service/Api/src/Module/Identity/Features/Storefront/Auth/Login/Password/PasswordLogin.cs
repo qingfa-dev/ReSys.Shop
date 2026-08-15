@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
+using Module.Identity.Features.Shared.Storefront.Shared.Mappings;
+
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
@@ -76,14 +78,7 @@ public static partial class PasswordLogin
 
             UserLoggers.Auth.LoginSucceeded(logger, UserId: user.Id, IpAddress: currentUser.IpAddress, ActionBy: user.UserName!);
 
-            // EXCEPTION: auth token response — no domain entity
-            return new Response()
-            {
-                AccessToken = tokenResult.Value.Token,
-                AccessTokenExpiresIn = tokenResult.Value.ExpiresIn,
-                RefreshToken = refreshResult.Value.Token,
-                RefreshTokenExpiresIn = refreshResult.Value.ExpiresAt.ToUnixTimeSeconds()
-            };
+            return (tokenResult.Value, refreshResult.Value).MapToTokenResponse<Response>();
         }
 
         internal async Task<User?> FindUserByCredentialAsync(string credential)

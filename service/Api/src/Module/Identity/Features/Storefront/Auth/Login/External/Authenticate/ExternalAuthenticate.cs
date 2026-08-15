@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
 using Module.Customer.Features.Storefront.Profiles.Create;
+using Module.Identity.Features.Shared.Storefront.Shared.Mappings;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
@@ -136,14 +137,7 @@ public static partial class ExternalAuthenticate
                 IpAddress: currentUser.IpAddress,
                 ActionBy: user.UserName!);
 
-            // EXCEPTION: auth token response — no domain entity
-            return new Response
-            {
-                AccessToken = tokenResult.Value.Token,
-                AccessTokenExpiresIn = tokenResult.Value.ExpiresIn,
-                RefreshToken = refreshResult.Value.Token,
-                RefreshTokenExpiresIn = refreshResult.Value.ExpiresAt.ToUnixTimeSeconds()
-            };
+            return (tokenResult.Value, refreshResult.Value).MapToTokenResponse<Response>();
         }
 
         private static string GenerateUserName(string email)
