@@ -20,25 +20,27 @@ echo "--- AC-001: Command/Query must wrap Request/Id/Slug/Parameters ---"
 all=$(rg -n 'sealed record (Command|Query)\([^)]*\)\s*:' -g '*.cs' "$MODULE_DIR" \
   | rg ': I(Command|Query|PagedQuery)(<|$)' || true)
 real_violations=""
-while IFS= read -r line; do
-  # Extract just the parameter list between parentheses
-  params=$(echo "$line" | rg -o '\([^)]*\)' | head -1)
-  # Allowed: single wrapping param (Request or Parameters)
-  if echo "$params" | rg -q '^\(\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
-  # Allowed: single Guid param ending in Id
-  if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*\)$'; then continue; fi
-  # Allowed: single string param
-  if echo "$params" | rg -q '^\(\s*string\s+\w+\s*\)$'; then continue; fi
-  # Allowed: Guid Id, Request/Parameters
-  if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
-  # Allowed: multiple Guid Ids (e.g. Guid TaxonomyId, Guid Id, Request)
-  if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*(\s*,\s*[a-zA-Z]+\s+\w*Id\s*)*(,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*)?\)$'; then continue; fi
-  # Allowed: wrapping Request plus Parameters (e.g. Request Request, Parameters Parameters)
-  if echo "$params" | rg -q '^\(\s*(Querying)?Request\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
-  # Allowed: single string param plus Parameters (e.g. string CartToken, Parameters Parameters)
-  if echo "$params" | rg -q '^\(\s*string\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
-  real_violations+="$line"$'\n'
-done < <(echo "$all")
+if [[ -n "$all" ]]; then
+  while IFS= read -r line; do
+    # Extract just the parameter list between parentheses
+    params=$(echo "$line" | rg -o '\([^)]*\)' | head -1)
+    # Allowed: single wrapping param (Request or Parameters)
+    if echo "$params" | rg -q '^\(\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
+    # Allowed: single Guid param ending in Id
+    if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*\)$'; then continue; fi
+    # Allowed: single string param
+    if echo "$params" | rg -q '^\(\s*string\s+\w+\s*\)$'; then continue; fi
+    # Allowed: Guid Id, Request/Parameters
+    if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
+    # Allowed: multiple Guid Ids (e.g. Guid TaxonomyId, Guid Id, Request)
+    if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*(\s*,\s*[a-zA-Z]+\s+\w*Id\s*)*(,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*)?\)$'; then continue; fi
+    # Allowed: wrapping Request plus Parameters (e.g. Request Request, Parameters Parameters)
+    if echo "$params" | rg -q '^\(\s*(Querying)?Request\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
+    # Allowed: single string param plus Parameters (e.g. string CartToken, Parameters Parameters)
+    if echo "$params" | rg -q '^\(\s*string\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
+    real_violations+="$line"$'\n'
+  done < <(echo "$all")
+fi
 
 if [[ -z "$real_violations" ]]; then
   pass "AC-001: All Commands/Queries follow allowed patterns"
