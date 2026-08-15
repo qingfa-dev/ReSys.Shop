@@ -1,4 +1,6 @@
 using Module.Shipping.Domain.Shipments;
+using Module.Shipping.Features.Admin.Shipments.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shipments.Shared.Models;
 using Module.Shipping.Features.Shared;
 using Module.Shipping.Services;
 
@@ -45,35 +47,13 @@ public static partial class UpdateShipmentStatus
             // Sync: Recompute the order's derived fulfillment state and mirror it to Ordering (best-effort)
             await syncService.SyncOrderFulfillmentAsync(shipment.OrderId, cancellationToken);
 
-            return new Response
-            {
-                Id = shipment.Id,
-                OrderId = shipment.OrderId,
-                Status = shipment.Status,
-                TrackingNumber = shipment.TrackingNumber,
-                ShippedAtUtc = shipment.ShippedAtUtc,
-                DeliveredAtUtc = shipment.DeliveredAtUtc
-            };
+            return shipment.MapToDetail<Response>();
         }
     }
 
-    // EXCEPTION: shipment status update request — no shared request model exists for shipments yet
-    public sealed record Request
-    {
-        public ShipmentStatus Status { get; init; }
-        public string? TrackingNumber { get; init; }
-    }
+    public sealed record Request : ShipmentUpdateRequest;
 
-    // EXCEPTION: shipment detail DTO — no shared shipment response model exists yet
-    public sealed record Response
-    {
-        public Guid Id { get; init; }
-        public Guid OrderId { get; init; }
-        public ShipmentStatus Status { get; init; }
-        public string? TrackingNumber { get; init; }
-        public DateTimeOffset? ShippedAtUtc { get; init; }
-        public DateTimeOffset? DeliveredAtUtc { get; init; }
-    }
+    public sealed record Response : ShipmentDetailResponse;
 
     public sealed class Validator : AbstractValidator<Command>
     {

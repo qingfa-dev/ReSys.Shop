@@ -1,4 +1,6 @@
 using Module.Shipping.Domain.Shipments;
+using Module.Shipping.Features.Admin.Shipments.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shipments.Shared.Models;
 using Module.Shipping.Features.Shared;
 
 namespace Module.Shipping.Features.Admin.Shipments.ListForOrder;
@@ -21,43 +23,14 @@ public static partial class ListShipmentsForOrder
                 .AsNoTracking()
                 .Where(s => s.OrderId == request.OrderId)
                 .OrderBy(s => s.CreatedAtUtc)
-                .Select(s => new ShipmentListItem
-                {
-                    Id = s.Id,
-                    OrderId = s.OrderId,
-                    ShippingMethodId = s.ShippingMethodId,
-                    TrackingNumber = s.TrackingNumber,
-                    Status = s.Status,
-                    ShippedAtUtc = s.ShippedAtUtc,
-                    DeliveredAtUtc = s.DeliveredAtUtc,
-                    EstimatedDeliveryAtUtc = s.EstimatedDeliveryAtUtc,
-                    CreatedAtUtc = s.CreatedAtUtc
-                })
+                .Select(s => s.MapToListItem<ShipmentListItemResponse>())
                 .ToListAsync(cancellationToken);
 
             return new Response { Items = shipments };
         }
     }
 
-    // EXCEPTION: shipment list DTO — no shared shipment response model exists yet
-    public sealed record Response
-    {
-        public IReadOnlyList<ShipmentListItem> Items { get; init; } = [];
-    }
-
-    // EXCEPTION: shipment list item DTO — no shared shipment response model exists yet
-    public sealed record ShipmentListItem
-    {
-        public Guid Id { get; init; }
-        public Guid OrderId { get; init; }
-        public Guid ShippingMethodId { get; init; }
-        public string? TrackingNumber { get; init; }
-        public ShipmentStatus Status { get; init; }
-        public DateTimeOffset? ShippedAtUtc { get; init; }
-        public DateTimeOffset? DeliveredAtUtc { get; init; }
-        public DateTimeOffset? EstimatedDeliveryAtUtc { get; init; }
-        public DateTimeOffset CreatedAtUtc { get; init; }
-    }
+    public sealed record Response : ShipmentListResponse;
 
     public class Endpoint : ICarterModule
     {
