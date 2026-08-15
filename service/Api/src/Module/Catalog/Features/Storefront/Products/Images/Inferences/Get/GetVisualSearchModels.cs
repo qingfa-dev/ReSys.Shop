@@ -5,7 +5,7 @@ namespace Module.Catalog.Features.Storefront.Products.Images.Inferences.Get;
 
 public static partial class GetVisualSearchModels
 {
-    public sealed record Query() : IPagedQuery<Response>; // EXCEPTION: legacy contract, refactor breaks callers
+    public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IInferenceClient inferenceClient)
         : IPagedQueryHandler<Query, Response>

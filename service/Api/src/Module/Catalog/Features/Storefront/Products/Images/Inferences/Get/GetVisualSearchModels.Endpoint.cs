@@ -12,7 +12,7 @@ public static partial class GetVisualSearchModels
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query();
+                var query = new Query(new QueryingParameters());
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
