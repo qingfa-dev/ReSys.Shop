@@ -10,8 +10,5 @@ public static partial class GetRolePermissions
 
     public sealed record ResourceResponse : ResourceGroupListItemResponse<PermissionItemResponse>;
 
-    public sealed record PermissionItemResponse() : PermissionResponse
-    {
-        public bool IsAssigned { get; init; }
-    }
+    public sealed record PermissionItemResponse : PermissionAssignmentItemResponse;
 }

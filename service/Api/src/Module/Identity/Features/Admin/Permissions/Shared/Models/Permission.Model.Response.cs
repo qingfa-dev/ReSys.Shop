@@ -7,3 +7,8 @@ public abstract record PermissionResponse
     public string Description { get; init; } = default!;
     public string Action { get; init; } = default!;
 }
+
+public abstract record PermissionAssignmentItemResponse : PermissionResponse
+{
+    public bool IsAssigned { get; init; }
+}
