@@ -41,6 +41,7 @@ async function fetchRates(): Promise<void> {
 
 // Fetch: Authoritative server-calculated shipping cost preview for a method against the current order.
 async function previewFor(methodId: string, orderId: string): Promise<void> {
+  preview.value = null
   loading.value = true
   error.value = null
   const result = await calculateShipping(methodId, orderId)

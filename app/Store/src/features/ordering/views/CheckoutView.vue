@@ -173,23 +173,28 @@ function methodRate(methodId: string) {
   return shipping.rates.find((r) => r.shippingMethodId === methodId)
 }
 
-// Free: A rate is free when its threshold is met or the price is already zero.
-function isMethodFree(methodId: string): boolean {
-  const rate = methodRate(methodId)
-  if (!rate) return false
-  if ((rate.finalPrice ?? rate.cost) <= 0) return true
-  return rate.freeShippingThreshold != null && cart.subtotal >= rate.freeShippingThreshold
+// Price: Server preview for the selected method; the rate row price otherwise.
+function methodPrice(methodId: string): number | null {
+  if (methodId === selectedShippingId.value && shipping.preview?.shippingMethodId === methodId) {
+    return shipping.preview.cost
+  }
+  return methodCost(methodId)
 }
 
-// Rate: Customer-facing price for the checkout-selected method.
-const shippingCost = computed(() =>
-  checkout.shippingMethodId ? methodCost(checkout.shippingMethodId) : null,
-)
+// Free: The server's authoritative preview marks the selected method free.
+function isSelectedMethodFree(methodId: string): boolean {
+  return (
+    methodId === selectedShippingId.value &&
+    shipping.preview?.shippingMethodId === methodId &&
+    shipping.preview.isFreeShipping
+  )
+}
 
 // Action: Persist the chosen shipping method, then advance to the payment panel.
 async function continueToPayment(): Promise<void> {
   if (!selectedShippingId.value) return
   shipping.selectMethod(selectedShippingId.value)
+  if (cart.id) void shipping.previewFor(selectedShippingId.value, cart.id)
   await checkout.selectShippingRate(selectedShippingId.value)
 }
 
@@ -227,8 +232,8 @@ function onConfirmAndPay(): void {
   }
 }
 
-// Total: Subtotal plus the selected shipping rate; tax is not modelled yet.
-const total = computed(() => cart.subtotal + (shippingCost.value ?? 0))
+// Total: Server-computed grand total (items + shipping + adjustments).
+const total = computed(() => cart.total)
 
 // Action: Submit the order through the checkout store and land on confirmation.
 async function onPlaceOrder(): Promise<void> {
@@ -271,6 +276,7 @@ onMounted(async () => {
   selectedShippingId.value = cart.shippingMethodId
   email.value = cart.email ?? auth.user?.email ?? ''
   if (cart.id) void shipping.fetchRates()
+  if (cart.id && cart.shippingMethodId) void shipping.previewFor(cart.shippingMethodId, cart.id)
   // Guard: Bounce empty carts back to the cart page unless an order was just confirmed.
   if (cart.isEmpty && checkout.displayStep !== 5) {
     await router.push('/cart')
@@ -385,9 +391,9 @@ onMounted(async () => {
                 <span class="flex min-w-0 flex-1 flex-col gap-1">
                   <span class="flex items-center justify-between gap-2">
                     <span class="font-semibold">{{ method.name }}</span>
-                    <span v-if="isMethodFree(method.id)" class="font-semibold text-success">Free</span>
-                    <span v-else-if="methodCost(method.id) !== null" class="font-mono text-sm font-semibold">
-                      {{ formatCurrency(methodCost(method.id)!) }}
+                    <span v-if="isSelectedMethodFree(method.id)" class="font-semibold text-success">Free</span>
+                    <span v-else-if="methodPrice(method.id) !== null" class="font-mono text-sm font-semibold">
+                      {{ formatCurrency(methodPrice(method.id)!) }}
                     </span>
                     <span v-else class="text-sm text-muted">Calculated at checkout</span>
                   </span>
@@ -495,7 +501,11 @@ onMounted(async () => {
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted">Shipping</span>
-                  <span>{{ shippingCost === null ? 'Calculated at checkout' : formatCurrency(shippingCost) }}</span>
+                  <span>{{ formatCurrency(cart.shipping) }}</span>
+                </div>
+                <div v-if="cart.adjustments !== 0" class="flex justify-between">
+                  <span class="text-muted">Adjustments / Discounts</span>
+                  <span>{{ formatCurrency(cart.adjustments) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted">Payment method</span>
