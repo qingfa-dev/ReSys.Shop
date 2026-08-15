@@ -1,5 +1,10 @@
 namespace Module.Billing.Features.Admin.Payments.Shared.Models;
 
+public abstract record PaymentActionParameters
+{
+    public decimal? Amount { get; init; }
+}
+
 public abstract record PaymentParameters
 {
     public decimal Amount { get; init; }

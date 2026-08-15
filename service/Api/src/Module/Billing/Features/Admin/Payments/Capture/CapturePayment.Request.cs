@@ -1,9 +1,8 @@
+using Module.Billing.Features.Admin.Payments.Shared.Models;
+
 namespace Module.Billing.Features.Admin.Payments.Capture;
 
 public static partial class CapturePayment
 {
-    public sealed record Request
-    {
-        public decimal? Amount { get; init; }
-    }
+    public sealed record Request : PaymentActionParameters;
 }
