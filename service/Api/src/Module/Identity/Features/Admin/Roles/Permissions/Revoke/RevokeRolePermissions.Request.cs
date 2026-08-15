@@ -1,13 +1,8 @@
+using Module.Identity.Features.Shared.Admin.Permissions.Shared.Models;
+
 namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Revoke;
 
 /// <summary>
 /// Represents the request contract for revoking permissions from a role.
 /// </summary>
-// EXCEPTION: standalone legacy request, no shared base type exists.
-public record Request
-{
-    /// <summary>
-    /// Gets or initializes the collection of permission identifiers to be revoked from the role.
-    /// </summary>
-    public IEnumerable<string> Permissions { get; init; } = [];
-}
+public record Request : PermissionCollectionParameters;
