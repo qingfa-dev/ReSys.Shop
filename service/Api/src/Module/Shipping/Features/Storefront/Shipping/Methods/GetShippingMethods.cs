@@ -1,4 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
+using Module.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Methods;
 /// <summary>Retrieves all shipping methods available to storefront users.</summary>
@@ -29,19 +30,10 @@ public static partial class GetShippingMethods
             var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
 
             // Map: Project to response DTO with DB-side paging.
-            // EXCEPTION: no domain entity — maps from domain ShippingMethod entities to DTOs
             return await query
                 .OrderBy(m => m.Position)
                 .ToPagedOrAllAsync(
-                    m => new Response
-                    {
-                        Id = m.Id,
-                        Name = m.Name,
-                        AdminName = m.AdminName,
-                        Code = m.Code,
-                        CalculatorType = m.CalculatorType,
-                        Position = m.Position
-                    },
+                    m => m.MapToDetail<Response>(),
                     pageModel,
                     cancellationToken);
         }
