@@ -12,6 +12,13 @@ export interface CartLineItem {
   total: number
 }
 
+export interface ShippingAdjustmentSummary {
+  id: string
+  label: string
+  amount: number
+  shippingMethodId: string | null
+}
+
 export interface CartResponse {
   id: string
   itemTotal: number
@@ -22,6 +29,9 @@ export interface CartResponse {
   shippingMethodId: string | null
   shipAddressId: string | null
   email: string | null
+  shipmentTotal: number
+  adjustmentTotal: number
+  shippingAdjustment: ShippingAdjustmentSummary | null
   items: CartLineItem[]
 }
 

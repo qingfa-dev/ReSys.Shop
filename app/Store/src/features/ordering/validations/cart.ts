@@ -24,6 +24,11 @@ export const CartResponseSchema = z.object({
   shippingMethodId: z.string().nullable(),
   shipAddressId: z.string().nullable(),
   email: z.string().nullable(),
+  shipmentTotal: z.number().min(0),
+  adjustmentTotal: z.number().min(0),
+  shippingAdjustment: z
+    .object({ id: z.string(), label: z.string(), amount: z.number(), shippingMethodId: z.string().nullable() })
+    .nullable(),
   items: z.array(CartLineItemSchema),
 })
 

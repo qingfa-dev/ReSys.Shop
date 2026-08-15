@@ -140,7 +140,7 @@ describe('CartDrawer', () => {
     await router.isReady()
     const wrapper = await mountDrawer(router)
     seedCart()
-    mockedCartApi.updateItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [{ ...lineItem, quantity: 3 }] as CartLineItem[], itemTotal: 135, total: 135, currency: 'USD', itemCount: 4, checkoutState: 'Address', shippingMethodId: null, shipAddressId: null, email: null }))
+    mockedCartApi.updateItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [{ ...lineItem, quantity: 3 }] as CartLineItem[], itemTotal: 135, total: 135, currency: 'USD', itemCount: 4, checkoutState: 'Address', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null }))
     await wrapper.vm.$nextTick()
 
     const inputs = wrapper.findAllComponents(InputNumber)
@@ -157,7 +157,7 @@ describe('CartDrawer', () => {
     await router.isReady()
     const wrapper = await mountDrawer(router)
     seedCart()
-    mockedCartApi.removeItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [lineItem], itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Address', shippingMethodId: null, shipAddressId: null, email: null }))
+    mockedCartApi.removeItem.mockResolvedValue(ok<CartResponse>({ id: 'cart-1', items: [lineItem], itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'Address', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null }))
     await wrapper.vm.$nextTick()
 
     const removeButtons = wrapper.findAll('[aria-label="Remove item"]')

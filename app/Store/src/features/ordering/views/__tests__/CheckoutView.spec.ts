@@ -293,7 +293,7 @@ describe('CheckoutView', () => {
 
   it('force-refreshes the cart and validates checkout when advancing to review', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
     const { wrapper } = await mountView(true)
@@ -313,7 +313,7 @@ describe('CheckoutView', () => {
   // Methods: The payment panel lists customer-facing methods and preselects the first.
   it('renders the payment method radio list on the payment panel', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     const { wrapper } = await mountView(true)
 
@@ -330,7 +330,7 @@ describe('CheckoutView', () => {
   // the Stripe redirect happens only when the customer clicks "Confirm and Pay".
   it('advances to review for a card method without redirecting to Stripe yet', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
       ok({ id: 'pi-1', clientSecret: 'cs-test', checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_123' }),
@@ -373,7 +373,7 @@ describe('CheckoutView', () => {
   // COD: No hosted checkout URL, so continuing advances to the review panel.
   it('advances to review for a COD method without a hosted checkout', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
       ok({ id: 'pi-1', clientSecret: null }),
@@ -401,7 +401,7 @@ describe('CheckoutView', () => {
   // Hydrate: Backend 'PickDeliveryMethod' state drives the delivery panel on mount.
   it('hydrates the delivery panel from the backend checkout state', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     const cart = useCart()
     cart.checkoutState = 'PickDeliveryMethod'
@@ -415,7 +415,7 @@ describe('CheckoutView', () => {
   // Select: Re-choosing a shipping method on the delivery step succeeds.
   it('allows re-selecting a shipping method on the same step', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     mockedCheckoutApi.selectShippingRate.mockResolvedValue(ok(undefined))
     const cart = useCart()
@@ -441,7 +441,7 @@ describe('CheckoutView', () => {
   // Regression: A backend step-back to PickDeliveryMethod clears the payment intent.
   it('clears payment intent refs when the backend moves Payment back to Delivery', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickPaymentMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     const cart = useCart()
     cart.checkoutState = 'PickPaymentMethod'
@@ -471,7 +471,7 @@ describe('CheckoutView', () => {
   // Navigate: The wizard cannot advance ahead of the backend step.
   it('blocks goToStep from advancing beyond the backend step', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, items: [lineItem] }),
+      ok({ id: 'cart-1', itemTotal: 90, total: 90, currency: 'USD', itemCount: 2, checkoutState: 'PickDeliveryMethod', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [lineItem] }),
     )
     const cart = useCart()
     cart.checkoutState = 'PickDeliveryMethod'
@@ -492,7 +492,7 @@ describe('CheckoutView', () => {
   // Bounce: Empty-cart redirect is skipped when the backend is at Complete.
   it('skips the empty-cart redirect on the confirmation step', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 0, total: 0, currency: 'USD', itemCount: 0, checkoutState: 'Complete', shippingMethodId: null, shipAddressId: null, email: null, items: [] }),
+      ok({ id: 'cart-1', itemTotal: 0, total: 0, currency: 'USD', itemCount: 0, checkoutState: 'Complete', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, items: [] }),
     )
     const { wrapper, router } = await mountView(false)
 
