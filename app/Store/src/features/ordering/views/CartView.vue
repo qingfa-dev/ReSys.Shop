@@ -14,8 +14,8 @@ const notify = useNotify()
 const couponCode = ref('')
 const couponApplied = ref(false)
 
-// Total: No tax or shipping source on the storefront yet — totals equal the subtotal.
-const total = computed(() => cart.subtotal)
+// Total: Server-computed grand total (items + shipping + adjustments).
+const total = computed(() => cart.total)
 
 onMounted(() => {
   // Load: Refresh cart items on page entry.
@@ -105,7 +105,7 @@ function clearCoupon(): void {
         </template>
       </DataView>
 
-      <!-- Summary: Subtotal, shipping and tax placeholders, total and promo entry -->
+      <!-- Summary: Subtotal, shipping, adjustments, tax placeholder, total and promo entry -->
       <Card class="self-start">
         <template #title>Order Summary</template>
         <template #content>
@@ -116,7 +116,11 @@ function clearCoupon(): void {
             </div>
             <div class="flex items-center justify-between text-sm">
               <span class="text-muted">Shipping</span>
-              <span class="text-subtle">Calculated at checkout</span>
+              <span>{{ formatCurrency(cart.shipping) }}</span>
+            </div>
+            <div v-if="cart.adjustments !== 0" class="flex items-center justify-between text-sm">
+              <span class="text-muted">Adjustments / Discounts</span>
+              <span>{{ formatCurrency(cart.adjustments) }}</span>
             </div>
             <div class="flex items-center justify-between text-sm">
               <span class="text-muted">Tax</span>
