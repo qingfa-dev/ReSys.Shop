@@ -9,7 +9,7 @@ namespace Module.Catalog.Features.Admin.Variants.Prices.Set;
 /// </summary>
 public static partial class SetVariantPrice
 {
-    public sealed record Command(Guid VariantId, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid VariantId, Request Request) : ICommand;
 
     /// <summary>
     /// Sets (upserts) a price for a variant. Looks up an existing price
@@ -19,20 +19,19 @@ public static partial class SetVariantPrice
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>
         /// Handles the set-price command — validates variant existence, finds
-        /// or creates a price record by (variant, currency, country), persists,
-        /// and returns the variant ID.
+        /// or creates a price record by (variant, currency, country), and persists.
         /// </summary>
         /// <param name="command">The command containing the variant ID and price request payload.</param>
         /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success result with the variant ID.</returns>
+        /// <returns>A success result.</returns>
         /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
         // Contract: pre=command.VariantId!=Guid.Empty, post=price upserted by (Currency, CountryIso),
         //           throws=DbUpdateException
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var (variantId, request) = command;
 
@@ -73,9 +72,7 @@ public static partial class SetVariantPrice
             // Log: Record price change event for audit trail
             VariantLoggers.Updated(logger, Sku: string.Empty, Id: variantId, ActionBy: currentUser.UserName);
 
-            return Result<Response>.Ok(
-                new Response { VariantId = variantId },
-                PriceResult.Success.Updated(variantId));
+            return Result.Ok(PriceResult.Success.Updated(variantId));
         }
     }
 }

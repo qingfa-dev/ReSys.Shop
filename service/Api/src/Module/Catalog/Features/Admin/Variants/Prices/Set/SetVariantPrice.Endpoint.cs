@@ -27,7 +27,7 @@ public static partial class SetVariantPrice
             .HasPermission(CatalogFeature.Admin.VariantPrices.Set.Permission)
             .WithSummary(CatalogFeature.Admin.VariantPrices.Set.Summary)
             .WithDescription(CatalogFeature.Admin.VariantPrices.Set.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound)
             .Produces<Result>(StatusCodes.Status400BadRequest);
         }
