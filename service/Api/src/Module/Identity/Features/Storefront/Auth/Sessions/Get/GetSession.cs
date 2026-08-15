@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
+using Module.Identity.Features.Shared.Storefront.Shared.Mappings;
+
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Users;
 
@@ -42,16 +44,9 @@ public static partial class GetSession
 
             // Call: Fetch effective permissions via permission service
             var permissions = await permissionService.GetEffectiveUserPermissionsAsync(user.Id, cancellationToken);
+            var effectivePermissions = permissions.IsSuccess ? permissions.Value : new HashSet<string>();
 
-            // EXCEPTION: session response — composite from user, roles, and permissions
-            var response = new Response
-            {
-                Id = user.Id,
-                UserName = user.UserName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                Roles = roles.ToArray(),
-                Permissions = permissions.IsSuccess ? [.. permissions.Value] : []
-            };
+            var response = (user, roles.ToArray(), effectivePermissions).MapToSessionResponse<Response>();
 
             return Result<Response>.Ok(response, UserResult.Success.SessionRetrieved);
         }
