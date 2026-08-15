@@ -44,7 +44,7 @@ public class UpdateProfileTests : IDisposable
     public async Task Handle_ShouldCreateProfile_WhenNoneExists()
     {
         var request = SampleRequest();
-        var command = new UpdateProfile.Command(_userId, request);
+        var command = new UpdateProfile.Command(new UpdateProfile.Parameters { UserId = _userId, Request = request });
 
         var result = await CreateHandler().Handle(command, TestContext.Current.CancellationToken);
 
@@ -66,7 +66,7 @@ public class UpdateProfileTests : IDisposable
         var originalId = existing.Id;
 
         var request = SampleRequest();
-        var command = new UpdateProfile.Command(_userId, request);
+        var command = new UpdateProfile.Command(new UpdateProfile.Parameters { UserId = _userId, Request = request });
 
         var result = await CreateHandler().Handle(command, TestContext.Current.CancellationToken);
 

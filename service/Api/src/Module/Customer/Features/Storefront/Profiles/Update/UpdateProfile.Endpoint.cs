@@ -25,7 +25,11 @@ public static partial class UpdateProfile
                 // Create: Construct a command wrapping the request body.
                 if (!Guid.TryParse(currentUser.UserId, out var userId))
                     return Results.Unauthorized();
-                var command = new Command(userId, request);
+                var command = new Command(new Parameters
+                {
+                    UserId = userId,
+                    Request = request
+                });
                 // Send: Dispatch the command to the mediator for processing.
                 var result = await sender.Send(command, ct);
                 // Map: Convert the result to an IResult for the HTTP response.

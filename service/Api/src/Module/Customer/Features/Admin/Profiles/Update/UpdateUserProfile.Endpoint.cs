@@ -14,7 +14,12 @@ public static partial class UpdateUserProfile
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new UpdateProfile.Command(request.UserId, request, IsAdminBypass: true);
+                var command = new UpdateProfile.Command(new UpdateProfile.Parameters
+                {
+                    UserId = request.UserId,
+                    Request = request,
+                    IsAdminBypass = true
+                });
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

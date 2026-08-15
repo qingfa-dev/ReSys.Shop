@@ -6,10 +6,7 @@ namespace Module.Customer.Features.Storefront.Profiles.Update;
 /// <summary>Updates or creates the authenticated user's profile fields.</summary>
 public static partial class UpdateProfile
 {
-    /// <param name="UserId">The unique identifier of the user whose profile to update.</param>
-    /// <param name="Request">The request containing updated profile details.</param>
-    /// <param name="IsAdminBypass">When true, skips ownership check for admin-initiated operations.</param>
-    public sealed record Command(Guid UserId, Request Request, bool IsAdminBypass = false) : ICommand<Response>; // EXCEPTION: legacy contract, refactor breaks callers
+    public sealed record Command(Parameters Parameters) : ICommand<Response>;
 
     /// <summary>Handles the update of the current user's profile.</summary>
     public sealed class CommandHandler(IApplicationDbContext dbContext)
@@ -19,8 +16,8 @@ public static partial class UpdateProfile
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Validate: Extract and prepare input data
-            var request = command.Request;
-            var userId = command.UserId;
+            var request = command.Parameters.Request;
+            var userId = command.Parameters.UserId;
 
             // Load: Fetch the user's profile from persistence
             var profile = await dbContext.Set<UserProfile>()
