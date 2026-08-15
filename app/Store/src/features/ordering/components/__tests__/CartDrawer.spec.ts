@@ -189,4 +189,21 @@ describe('CartDrawer', () => {
 
     expect(wrapper.emitted('update:visible')?.at(-1)).toEqual([false])
   })
+
+  it('shows server shipping and total lines in the totals zone', async () => {
+    const router = createTestRouter()
+    await router.push('/')
+    await router.isReady()
+    const wrapper = await mountDrawer(router)
+    seedCart()
+    const cart = useCart()
+    cart.shipmentTotal = 9.99
+    cart.total = 179.99
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Shipping')
+    expect(wrapper.text()).toContain('$9.99')
+    expect(wrapper.text()).toContain('Total')
+    expect(wrapper.text()).toContain('$179.99')
+  })
 })

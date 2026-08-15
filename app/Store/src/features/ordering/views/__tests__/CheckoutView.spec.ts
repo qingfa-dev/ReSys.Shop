@@ -500,4 +500,36 @@ describe('CheckoutView', () => {
     expect(router.currentRoute.value.path).toBe('/checkout')
     expect(vm.checkout.displayStep).toBe(5)
   })
+
+  // Review: The summary panel shows the server shipmentTotal and cart total.
+  it('shows the server shipmentTotal and total on the review panel', async () => {
+    const { wrapper } = await mountView(true)
+    const cart = useCart()
+    cart.shipmentTotal = 9.99
+    cart.total = 139.99
+    const vm = wrapper.vm as unknown as { checkout: { displayStep: number } }
+    vm.checkout.displayStep = 4
+    await wrapper.vm.$nextTick()
+
+    const summary = wrapper.findAllComponents({ name: 'Panel' }).find(p => p.text().includes('Order Summary'))
+    expect(summary!.text()).toContain('Shipping')
+    expect(summary!.text()).toContain('$9.99')
+    expect(summary!.text()).toContain('Total')
+    expect(summary!.text()).toContain('$139.99')
+  })
+
+  // Free: A zero shipmentTotal renders $0.00 on the review panel.
+  it('renders free shipping as $0.00 on the review panel', async () => {
+    const { wrapper } = await mountView(true)
+    const cart = useCart()
+    cart.shipmentTotal = 0
+    cart.total = 90
+    const vm = wrapper.vm as unknown as { checkout: { displayStep: number } }
+    vm.checkout.displayStep = 4
+    await wrapper.vm.$nextTick()
+
+    const summary = wrapper.findAllComponents({ name: 'Panel' }).find(p => p.text().includes('Order Summary'))
+    expect(summary!.text()).toContain('Shipping')
+    expect(summary!.text()).toContain('$0.00')
+  })
 })

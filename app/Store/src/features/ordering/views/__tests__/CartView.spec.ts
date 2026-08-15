@@ -172,4 +172,30 @@ describe('CartView', () => {
 
     expect(wrapper.find('[data-pc-name="chip"]').exists()).toBe(false)
   })
+
+  it('shows server-authoritative shipping and total in the order summary', async () => {
+    const wrapper = await mountView()
+    seedCart()
+    const cart = useCart()
+    cart.shipmentTotal = 9.99
+    cart.total = 129.99
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Shipping')
+    expect(wrapper.text()).toContain('$9.99')
+    expect(wrapper.text()).toContain('Total')
+    expect(wrapper.text()).toContain('$129.99')
+  })
+
+  it('shows a zero shipping line when the server reports free shipping', async () => {
+    const wrapper = await mountView()
+    seedCart()
+    const cart = useCart()
+    cart.shipmentTotal = 0
+    cart.total = 170
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Shipping')
+    expect(wrapper.text()).toContain('$0.00')
+  })
 })

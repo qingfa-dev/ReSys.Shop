@@ -238,4 +238,18 @@ describe('OrderDetailView', () => {
     expect(wrapper.findAll('textarea')).toHaveLength(0)
     expect(wrapper.findAll('button').length).toBeGreaterThan(0)
   })
+
+  it('renders adjustment, paid and outstanding rows when non-zero', async () => {
+    const { wrapper } = await mountView()
+    const orders = useOrders()
+    orders.currentOrder = { ...orderDetail, adjustmentTotal: 5, paymentTotal: 90, outstandingBalance: 40, total: 135 }
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Adjustments / Discounts')
+    expect(wrapper.text()).toContain('$5.00')
+    expect(wrapper.text()).toContain('Paid')
+    expect(wrapper.text()).toContain('$90.00')
+    expect(wrapper.text()).toContain('Outstanding')
+    expect(wrapper.text()).toContain('$40.00')
+  })
 })
