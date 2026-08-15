@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
+using Module.Identity.Features.Shared.Admin.Roles.Shared.Mappings;
+
 using Shared.Security.Identity.Domain.Roles;
 
 namespace Module.Identity.Features.Shared.Admin.Roles.Delete;
@@ -50,8 +52,7 @@ public static partial class DeleteRole
             // Log: Confirm role was deleted with identifying details
             RoleLoggers.Management.Deleted(logger, RoleName: role.Name!, RoleId: role.Id);
 
-            // EXCEPTION: deleted role response — no domain entity after deletion
-            return new Response { Id = role.Id, Name = role.Name ?? string.Empty };
+            return role.MapToListItem<Response>();
         }
     }
 }
