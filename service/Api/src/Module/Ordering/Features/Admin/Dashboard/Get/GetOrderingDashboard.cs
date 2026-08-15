@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Dashboard.Get.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Dashboard.Get;
 
