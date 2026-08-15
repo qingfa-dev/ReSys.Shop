@@ -28,7 +28,7 @@ public static partial class DeleteVariantImage
             .HasPermission(CatalogFeature.Admin.VariantImages.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.VariantImages.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.VariantImages.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

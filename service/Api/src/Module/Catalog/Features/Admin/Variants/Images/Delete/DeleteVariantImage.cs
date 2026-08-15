@@ -9,7 +9,7 @@ namespace Module.Catalog.Features.Admin.Variants.Images.Delete;
 /// </summary>
 public static partial class DeleteVariantImage
 {
-    public sealed record Command(Guid ImageId) : ICommand<Response>;
+    public sealed record Command(Guid ImageId) : ICommand;
 
     /// <summary>
     /// Handles deleting a variant image: removes from storage, then deletes the entity.
@@ -19,15 +19,15 @@ public static partial class DeleteVariantImage
         IStorageService storageService,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>
         /// Executes the delete: loads image, removes storage file, deletes entity, persists.
         /// </summary>
         /// <param name="command">The command containing the image ID to delete.</param>
         /// <param name="cancellationToken">Propagates cancellation notification.</param>
-        /// <returns>A success response with confirmation message, or a failure result.</returns>
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        /// <returns>A success result, or a failure result.</returns>
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Fetch existing image entity from database
             var image = await dbContext.Set<VariantImage>()
@@ -49,7 +49,7 @@ public static partial class DeleteVariantImage
             // Log: Record image deletion event for observability
             VariantImageLoggers.Deleted(logger, Id: image.Id, ActionBy: currentUser.UserName);
 
-            return Result<Response>.Ok(new Response { Message = VariantImageResult.Success.Deleted(image.Id) });
+            return Result.Ok(VariantImageResult.Success.Deleted(image.Id));
         }
     }
 }
