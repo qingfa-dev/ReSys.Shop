@@ -11,9 +11,6 @@ usePageTitle('Orders')
 
 const orders = useOrders()
 
-// Count: OrderListItem carries no item count, so the table omits that column
-// (only the backend OrderDetailResponse exposes ItemCount, unused by the SPA).
-
 // Severity: orderStore exposes statuses but no Tag severity mapping, so the
 // view maps each status to a Tag severity (mirrors the Admin SPA's mapping).
 const statusSeverity: Record<OrderStatus, 'warn' | 'success' | 'danger' | 'secondary'> = {
@@ -68,8 +65,11 @@ onMounted(() => {
         <Column header="Date">
           <template #body="{ data }">{{ formatDateTimeUtc(data.createdAtUtc) }}</template>
         </Column>
+        <Column header="Items">
+          <template #body="{ data }">{{ data.itemCount }}</template>
+        </Column>
         <Column header="Total">
-          <template #body="{ data }">{{ formatCurrency(data.total) }}</template>
+          <template #body="{ data }">{{ data.currency }} {{ formatCurrency(data.total) }}</template>
         </Column>
         <Column header="Status">
           <template #body="{ data }">
