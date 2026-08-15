@@ -53,7 +53,7 @@ public class CreateOrderFromCartTransactionTests
 
         var sender = new Mock<ISender>();
         sender.Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m, PaymentMethodId = Guid.NewGuid() });
         sender.Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         sender.Setup(s => s.Send(It.IsAny<CreateShipmentCommand>(), It.IsAny<CancellationToken>()))

@@ -49,6 +49,7 @@ public class UpdateOrderStatusTests : IDisposable
         order.BillAddressId = Guid.NewGuid();
         order.ShipAddressId = Guid.NewGuid();
         order.ShippingMethodId = Guid.NewGuid();
+        order.PaymentMethodId = Guid.NewGuid();
         order.Email = "test@test.com";
         order.CheckoutState = CheckoutState.Confirm;
         _dbContext.Set<Order>().Add(order);

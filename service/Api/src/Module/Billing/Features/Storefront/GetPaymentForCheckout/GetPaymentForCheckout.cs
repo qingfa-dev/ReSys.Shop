@@ -22,6 +22,7 @@ public sealed class GetPaymentForCheckoutQueryHandler(IApplicationDbContext dbCo
         return new PaymentForCheckoutResponse
         {
             Amount = payment?.Amount ?? 0m,
+            PaymentMethodId = payment?.PaymentMethodId,
             IsCompleted = payment?.State == PaymentRecordState.Completed,
             IsPending = payment?.State == PaymentRecordState.Pending,
             CompletedAtUtc = payment?.CompletedAtUtc,

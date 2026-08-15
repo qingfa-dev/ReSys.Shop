@@ -67,7 +67,7 @@ public class CreateOrderFromCartTests : IDisposable
     {
         _senderMock
             .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m, PaymentMethodId = Guid.NewGuid() });
         _senderMock
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
@@ -292,7 +292,7 @@ public class CreateOrderFromCartTests : IDisposable
         // Setup: PaymentCapture reports pending + offline (COD)
         _senderMock
             .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = false, IsPending = true, IsOffline = true, Amount = 10m });
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = false, IsPending = true, IsOffline = true, Amount = 10m, PaymentMethodId = Guid.NewGuid() });
 
         // Act
         var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);

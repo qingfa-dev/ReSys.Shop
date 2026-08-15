@@ -38,6 +38,11 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
         // Timestamp: mirror the payment completion onto the order's payment timeline.
         cart.MarkPaymentCompleted(paymentResult.Value.CompletedAtUtc ?? DateTimeOffset.UtcNow);
 
+        // Record: persist the payment method onto the order before finalization —
+        // the checkout prerequisite requires it, and the Billing capture is its source.
+        if (paymentResult.Value.PaymentMethodId.HasValue)
+            cart.PaymentMethodId = paymentResult.Value.PaymentMethodId;
+
         if (cart.CheckoutState != CheckoutState.PickPaymentMethod)
             return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Complete);
 

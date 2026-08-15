@@ -3,6 +3,7 @@ namespace Module.Billing.Features.Storefront.GetPaymentForCheckout;
 public sealed record PaymentForCheckoutResponse
 {
     public decimal Amount { get; init; }
+    public Guid? PaymentMethodId { get; init; }
     public bool IsCompleted { get; init; }
     public bool IsPending { get; init; }
     public bool IsOffline { get; init; }

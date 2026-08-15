@@ -49,7 +49,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         _senderMock = new Mock<ISender>();
         _senderMock
             .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m });
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m, PaymentMethodId = Guid.NewGuid() });
         _senderMock
             .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());

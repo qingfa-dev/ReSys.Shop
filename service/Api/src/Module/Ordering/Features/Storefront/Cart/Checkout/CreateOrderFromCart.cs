@@ -55,6 +55,11 @@ public static partial class CreateOrderFromCart
             if (p.IsCompleted)
                 cart.MarkPaymentCompleted(p.CompletedAtUtc ?? DateTimeOffset.UtcNow);
 
+            // Record: persist the payment method onto the order before finalization —
+            // the checkout prerequisite requires it, and the Billing capture is its source.
+            if (p.PaymentMethodId.HasValue)
+                cart.PaymentMethodId = p.PaymentMethodId;
+
             var placeResult = await placementService.PlaceAsync(cart, currentUser.UserName!, cancellationToken);
             if (placeResult.IsFailure)
                 return placeResult.Errors;

@@ -275,6 +275,7 @@ public class OrderMethodTests
         order.BillAddressId = Guid.NewGuid();
         order.ShipAddressId = Guid.NewGuid();
         order.ShippingMethodId = Guid.NewGuid();
+        order.PaymentMethodId = Guid.NewGuid();
         order.Email = "test@test.com";
         order.LineItems.Add(new() { Quantity = 1, Price = 10 });
         var r = order.Place("R20260713-1A2B3C4D");
@@ -295,6 +296,7 @@ public class OrderMethodTests
         order.BillAddressId = Guid.NewGuid();
         order.ShipAddressId = Guid.NewGuid();
         order.ShippingMethodId = Guid.NewGuid();
+        order.PaymentMethodId = Guid.NewGuid();
         order.Email = "test@test.com";
         order.LineItems.Add(new() { Quantity = 1, Price = 10 });
         var r = order.Place("R20260713-1A2B3C4D");
