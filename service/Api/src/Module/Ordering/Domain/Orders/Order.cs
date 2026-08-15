@@ -20,8 +20,6 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     #region Properties
     public string Number { get; set; } = string.Empty;
     public string? SessionId { get; set; }
-    public OrderStatus Status { get; set; } = OrderStatus.Draft;
-    public CheckoutState CheckoutState { get; set; } = CheckoutState.Address;
     public string Currency { get; set; } = OrderConstant.Defaults.Currency;
     public decimal ItemTotal { get; set; }
     public decimal AdjustmentTotal { get; set; }
@@ -29,12 +27,18 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public decimal Total { get; set; }
     public decimal PaymentTotal { get; set; }
     public decimal OutstandingBalance { get; set; }
-    // Shipping: Calculation metadata captured when the shipping cost was last applied.
     public decimal TotalWeight { get; set; }
     public Guid? ShippingRateId { get; set; }
     public bool IsFreeShipping { get; set; }
+    public int ItemCount { get; set; }
+
+    #region Status/State
     public OrderPaymentState? PaymentState { get; set; }
     public OrderFulfillmentState? FulfillmentState { get; set; }
+    public OrderStatus Status { get; set; } = OrderStatus.Draft;
+    public CheckoutState CheckoutState { get; set; } = CheckoutState.Address;
+
+    #endregion
     #endregion Properties
 
     #region Contact
@@ -43,32 +47,34 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     #endregion Contact
 
     #region Timestamps
+
     #region Payment State
-    public DateTimeOffset? PaymentProcessingAt { get; set; }
-    public DateTimeOffset? PaymentCompletedAt { get; set; }
-    public DateTimeOffset? PaymentFailedAt { get; set; }
+    public DateTimeOffset? PaymentProcessingAtUtc { get; set; }
+    public DateTimeOffset? PaymentCompletedAtUtc { get; set; }
+    public DateTimeOffset? PaymentFailedAtUtc { get; set; }
     #endregion
 
     #region Shipment State
-
+    public DateTimeOffset? ShipmentShippedAtUtc { get; set; }
+    public DateTimeOffset? ShipmentDeliveredAtUtc { get; set; }
     #endregion
 
     #region Order State
     public DateTimeOffset? CompletedAtUtc { get; set; }
     public DateTimeOffset? CanceledAtUtc { get; set; }
+    public Guid? CanceledById { get; set; }
     public DateTimeOffset? ApprovedAtUtc { get; set; }
-    public DateTimeOffset? ShippedAt { get; set; }
-    public DateTimeOffset? DeliveredAt { get; set; }
-    public DateTimeOffset? DeliveryExceptionAt { get; set; }
-    public DateTimeOffset? EstimatedDeliveryAt { get; set; }
+    public Guid? ApprovedById { get; set; }
+
     #endregion
+    #region Auditing
+    public DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset? ModifiedAtUtc { get; set; }
+    public string? CreatedBy { get; set; }
+    public string? ModifiedBy { get; set; }
+    #endregion Auditing
 
     #endregion Timestamps
-
-    #region Approval & Cancel
-    public Guid? CanceledById { get; set; }
-    public Guid? ApprovedById { get; set; }
-    #endregion Approval & Cancel
 
     #region Addresses
     public Guid? BillAddressId { get; set; }
@@ -93,17 +99,6 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public DateTimeOffset? DeletedAtUtc { get; set; }
     public string? DeletedBy { get; set; }
     #endregion Soft Deletion
-
-    #region Auditing
-    public DateTimeOffset CreatedAtUtc { get; set; }
-    public DateTimeOffset? ModifiedAtUtc { get; set; }
-    public string? CreatedBy { get; set; }
-    public string? ModifiedBy { get; set; }
-    #endregion Auditing
-
-    #region Counts
-    public int ItemCount { get; set; }
-    #endregion Counts
 
     #region Constructor
     internal Order() { }

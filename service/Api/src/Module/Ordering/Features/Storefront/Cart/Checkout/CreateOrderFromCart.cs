@@ -3,6 +3,7 @@ using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Module.Ordering.Services;
+using Module.Ordering.Features.Storefront.Cart.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
 
@@ -64,7 +65,11 @@ public static partial class CreateOrderFromCart
             if (placeResult.IsFailure)
                 return placeResult.Errors;
 
-            return Result<Response>.Created(cart.MapToDetail<Response>());
+            // Enrich: Resolve product references (id, name, primary image) for the placed order's line items.
+            var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, variantIds, cancellationToken);
+
+            return Result<Response>.Created(cart.MapToDetailWithLookup<Response>(itemLookup));
         }
     }
 }

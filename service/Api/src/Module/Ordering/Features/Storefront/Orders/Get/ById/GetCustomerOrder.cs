@@ -1,3 +1,4 @@
+using Module.Ordering.Features.Storefront.Cart.Shared.Services;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
@@ -34,8 +35,12 @@ public static partial class GetCustomerOrder
             if (entity is null)
                 return OrderResult.Errors.NotFound(query.Id);
 
-            // Map: Convert entity to response DTO.
-            return entity.MapToDetail<Response>();
+            // Enrich: Resolve product references (id, name, primary image) for the order line items.
+            var variantIds = entity.LineItems.Select(li => li.VariantId).Distinct().ToList();
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, variantIds, cancellationToken);
+
+            // Map: Convert entity to response DTO with enriched line items.
+            return entity.MapToDetailWithLookup<Response>(itemLookup);
         }
     }
 }

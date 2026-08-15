@@ -7,6 +7,8 @@ public record CartItem
     public Guid Id { get; init; }
     /// <summary>The product variant added to the cart.</summary>
     public Guid VariantId { get; init; }
+    /// <summary>Parent product id, for linking to the product detail page.</summary>
+    public Guid? ProductId { get; init; }
     /// <summary>Display name of the product variant.</summary>
     public string VariantName { get; init; } = string.Empty;
     /// <summary>Stock-keeping unit code for the variant.</summary>

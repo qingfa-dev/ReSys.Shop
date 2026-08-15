@@ -2,6 +2,7 @@ using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Models;
+using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 using Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Orders.Shared.Mappings;
@@ -16,6 +17,15 @@ public static partial class OrderMapping
     /// <returns>A new response DTO populated from the entity.</returns>
     // Map: Domain entity -> Detail response (full property transfer)
     public static T MapToDetail<T>(this Order entity) where T : OrderDetailResponse, new()
+        => MapToDetailCore<T>(entity, itemLookup: null);
+
+    /// <summary>Maps an Order entity to a detail response, enriching line items with product references (id, name, primary image).</summary>
+    public static T MapToDetailWithLookup<T>(this Order entity, IReadOnlyDictionary<Guid, CartItemLookup> itemLookup)
+        where T : OrderDetailResponse, new()
+        => MapToDetailCore<T>(entity, itemLookup);
+
+    private static T MapToDetailCore<T>(Order entity, IReadOnlyDictionary<Guid, CartItemLookup>? itemLookup)
+        where T : OrderDetailResponse, new()
     {
         return new T
         {
@@ -67,7 +77,9 @@ public static partial class OrderMapping
             ModifiedAtUtc = entity.ModifiedAtUtc,
             LineItems = entity.LineItems
                 .OrderBy(li => li.CreatedAtUtc)
-                .Select(li => li.MapToLineItemResponse<LineItemResponse>())
+                .Select(li => itemLookup is null
+                    ? li.MapToLineItemResponse<LineItemResponse>()
+                    : li.MapToLineItemResponse<LineItemResponse>(itemLookup.GetValueOrDefault(li.VariantId)))
                 .ToList(),
         };
     }
@@ -114,6 +126,20 @@ public static partial class OrderMapping
             AdjustmentTotal = entity.AdjustmentTotal,
             Currency = entity.Currency,
             CreatedAtUtc = entity.CreatedAtUtc,
+        };
+    }
+
+    /// <summary>Maps a LineItem to a response DTO, enriching it with product references from the lookup.</summary>
+    public static T MapToLineItemResponse<T>(this LineItem entity, CartItemLookup? lookup) where T : LineItemResponse, new()
+    {
+        var response = entity.MapToLineItemResponse<T>();
+        if (lookup is null)
+            return response;
+        return response with
+        {
+            ProductId = lookup.ProductId,
+            ProductName = lookup.ProductName,
+            ProductImageUrl = lookup.ProductImageUrl,
         };
     }
 }

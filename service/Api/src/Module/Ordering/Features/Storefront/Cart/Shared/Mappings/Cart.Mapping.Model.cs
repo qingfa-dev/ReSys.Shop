@@ -58,6 +58,7 @@ public static partial class CartMapping
         {
             Id = lineItem.Id,
             VariantId = lineItem.VariantId,
+            ProductId = lookup.ProductId,
             VariantName = lookup.Sku,
             Sku = lookup.Sku,
             ProductName = lookup.ProductName,
@@ -99,6 +100,8 @@ public sealed record CartItemLookup
 {
     /// <summary>Variant SKU (also used as the variant display name).</summary>
     public string Sku { get; init; } = string.Empty;
+    /// <summary>Parent product id, for linking to the product detail page.</summary>
+    public Guid? ProductId { get; init; }
     /// <summary>Display name of the parent product.</summary>
     public string? ProductName { get; init; }
     /// <summary>Primary image URL of the product.</summary>
