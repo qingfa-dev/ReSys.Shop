@@ -276,7 +276,7 @@ onMounted(async () => {
   selectedShippingId.value = cart.shippingMethodId
   email.value = cart.email ?? auth.user?.email ?? ''
   if (cart.id) void shipping.fetchRates()
-  if (cart.id && cart.shippingMethodId) void shipping.previewFor(cart.shippingMethodId, cart.id)
+  if (cart.id && !cart.isEmpty && cart.shippingMethodId) void shipping.previewFor(cart.shippingMethodId, cart.id)
   // Guard: Bounce empty carts back to the cart page unless an order was just confirmed.
   if (cart.isEmpty && checkout.displayStep !== 5) {
     await router.push('/cart')
