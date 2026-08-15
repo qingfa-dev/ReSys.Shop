@@ -45,7 +45,7 @@ const mockedCartApi = vi.mocked(CartApi)
 // Fixture: Line item matching the CartLineItem contract.
 const lineItem: CartLineItem = {
   id: 'li-1',
-  variantId: 'v-1',
+  variantId: 'v-1', productId: null,
   variantName: 'Classic Tee / Red / M',
   sku: 'CT-001-R-M',
   productName: 'Classic Tee',
@@ -58,7 +58,7 @@ const lineItem: CartLineItem = {
 // Fixture: Second line item for multi-row assertions.
 const lineItem2: CartLineItem = {
   id: 'li-2',
-  variantId: 'v-2',
+  variantId: 'v-2', productId: null,
   variantName: 'Denim Jacket / Blue / L',
   sku: 'DJ-002-B-L',
   productName: 'Denim Jacket',

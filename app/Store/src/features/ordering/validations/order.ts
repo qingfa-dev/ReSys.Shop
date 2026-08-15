@@ -44,11 +44,14 @@ export const OrderListItemSchema = z.object({
 export const OrderLineItemSchema = z.object({
   id: z.string(),
   variantId: z.string().nullable(),
+  productId: z.string().nullable(),
+  productName: z.string().nullable(),
+  productImageUrl: z.string().nullable(),
   quantity: z.number(),
   price: z.number(),
   total: z.number(),
-  currency: z.string(),
   adjustmentTotal: z.number(),
+  currency: z.string(),
   createdAtUtc: z.string(),
 })
 

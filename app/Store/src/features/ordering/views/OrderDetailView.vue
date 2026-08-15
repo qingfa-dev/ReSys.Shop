@@ -127,7 +127,24 @@ onMounted(() => {
           class="mb-6"
         >
           <Column header="Item">
-            <template #body="{ data }">{{ data.variantId ?? 'Unknown' }}</template>
+            <template #body="{ data }">
+              <div class="flex items-center gap-3">
+                <img
+                  v-if="data.productImageUrl"
+                  :src="data.productImageUrl"
+                  :alt="data.productName ?? data.variantId ?? 'Product'"
+                  class="h-12 w-12 shrink-0 rounded-md object-cover"
+                />
+                <RouterLink
+                  v-if="data.productId"
+                  :to="`/products/${data.productId}`"
+                  class="font-medium text-brand hover:underline"
+                >
+                  {{ data.productName ?? data.variantId ?? 'Unknown' }}
+                </RouterLink>
+                <span v-else>{{ data.productName ?? data.variantId ?? 'Unknown' }}</span>
+              </div>
+            </template>
           </Column>
           <Column header="Qty">
             <template #body="{ data }">{{ data.quantity }}</template>

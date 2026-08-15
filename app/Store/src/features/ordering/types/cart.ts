@@ -3,6 +3,7 @@ import type { CheckoutState } from './order'
 export interface CartLineItem {
   id: string
   variantId: string
+  productId: string | null
   variantName: string
   sku: string
   productName: string | null

@@ -109,7 +109,7 @@ const mockedCheckoutApi = vi.mocked(CheckoutApi)
 // Fixture: Line item matching the CartLineItem contract.
 const lineItem: CartLineItem = {
   id: 'li-1',
-  variantId: 'v-1',
+  variantId: 'v-1', productId: null,
   variantName: 'Classic Tee / Red / M',
   sku: 'CT-001-R-M',
   productName: 'Classic Tee',

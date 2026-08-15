@@ -18,11 +18,14 @@ export interface OrderListItem {
 export interface OrderLineItem {
   id: string
   variantId: string | null
+  productId: string | null
+  productName: string | null
+  productImageUrl: string | null
   quantity: number
   price: number
   total: number
-  currency: string
   adjustmentTotal: number
+  currency: string
   createdAtUtc: string
 }
 

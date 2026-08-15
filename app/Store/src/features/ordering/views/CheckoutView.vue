@@ -482,7 +482,14 @@ onMounted(async () => {
                   <i class="pi pi-image text-lg text-placeholder" />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="truncate font-semibold">{{ item.productName ?? item.variantName }}</div>
+                  <RouterLink
+                    v-if="item.productId"
+                    :to="`/products/${item.productId}`"
+                    class="truncate font-semibold text-brand hover:underline"
+                  >
+                    {{ item.productName ?? item.variantName }}
+                  </RouterLink>
+                  <div v-else class="truncate font-semibold">{{ item.productName ?? item.variantName }}</div>
                   <div class="text-sm text-muted">{{ item.sku }}</div>
                 </div>
                 <div class="flex shrink-0 flex-col items-end gap-1">

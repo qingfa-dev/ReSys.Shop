@@ -5,6 +5,7 @@ import { AdjustmentSummarySchema, CheckoutStateSchema, ShippingCalculationSummar
 export const CartLineItemSchema = z.object({
   id: z.string(),
   variantId: z.string(),
+  productId: z.string().nullable(),
   variantName: z.string(),
   sku: z.string(),
   productName: z.string().nullable(),

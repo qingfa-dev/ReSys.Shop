@@ -57,7 +57,14 @@ function removeItem(lineItemId: string): void {
           </div>
 
           <div class="min-w-0 flex-1">
-            <div class="truncate text-sm font-semibold">{{ item.productName ?? item.variantName }}</div>
+            <RouterLink
+              v-if="item.productId"
+              :to="`/products/${item.productId}`"
+              class="truncate text-sm font-semibold text-brand hover:underline"
+            >
+              {{ item.productName ?? item.variantName }}
+            </RouterLink>
+            <div v-else class="truncate text-sm font-semibold">{{ item.productName ?? item.variantName }}</div>
             <div class="text-xs text-muted">{{ item.sku }}</div>
             <div class="mt-0.5 text-xs text-muted">{{ formatCurrency(item.price) }} each</div>
           </div>
