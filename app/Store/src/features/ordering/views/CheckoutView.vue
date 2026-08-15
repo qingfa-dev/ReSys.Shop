@@ -270,7 +270,7 @@ onMounted(async () => {
   checkout.displayStep = Math.min(5, checkout.backendStep) as CheckoutStep
   selectedShippingId.value = cart.shippingMethodId
   email.value = cart.email ?? auth.user?.email ?? ''
-  if (cart.id) void shipping.fetchRates(cart.id)
+  if (cart.id) void shipping.fetchRates()
   // Guard: Bounce empty carts back to the cart page unless an order was just confirmed.
   if (cart.isEmpty && checkout.displayStep !== 5) {
     await router.push('/cart')
