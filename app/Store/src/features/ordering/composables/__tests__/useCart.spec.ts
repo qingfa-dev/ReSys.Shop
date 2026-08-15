@@ -45,7 +45,7 @@ const serverCart: CartResponse = {
   shippingMethodId: 'sm-standard',
   shipAddressId: null,
   email: 'ada@example.com',
-  shippingAdjustment: null,
+  shippingAdjustment: null, shippingCalculation: null, adjustments: [],
 }
 
 describe('useCart', () => {

@@ -14,6 +14,23 @@ export const ShippingAdjustmentSummarySchema = z.object({
   shippingMethodId: z.string().nullable(),
 })
 
+// Validate: Adjustment row shape shared by cart and order schemas.
+export const AdjustmentSummarySchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  amount: z.number(),
+  sourceType: z.string(),
+  shippingMethodId: z.string().nullable(),
+})
+
+// Validate: Shipping calculation metadata shape shared by cart and order schemas.
+export const ShippingCalculationSummarySchema = z.object({
+  totalWeight: z.number().min(0),
+  shippingRateId: z.string().nullable(),
+  cost: z.number().min(0),
+  isFreeShipping: z.boolean(),
+})
+
 export const OrderListItemSchema = z.object({
   id: z.string(),
   number: z.string(),
@@ -51,6 +68,9 @@ export const OrderDetailSchema = z.object({
   itemTotal: z.number(),
   adjustmentTotal: z.number(),
   shipmentTotal: z.number(),
+  shippingAdjustment: ShippingAdjustmentSummarySchema.nullable(),
+  shippingCalculation: ShippingCalculationSummarySchema.nullable(),
+  adjustments: z.array(AdjustmentSummarySchema),
   paymentTotal: z.number(),
   outstandingBalance: z.number(),
   paymentState: OrderPaymentStateSchema.nullable(),
@@ -62,7 +82,6 @@ export const OrderDetailSchema = z.object({
   canceledAtUtc: z.string().nullable(),
   modifiedAtUtc: z.string().nullable(),
   specialInstructions: z.string().nullable(),
-  shippingAdjustment: ShippingAdjustmentSummarySchema.nullable(),
   lineItems: z.array(OrderLineItemSchema),
 })
 

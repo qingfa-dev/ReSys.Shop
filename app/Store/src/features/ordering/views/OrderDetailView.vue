@@ -170,6 +170,14 @@ onMounted(() => {
                   <span class="text-muted">Shipping method</span>
                   <span>{{ shippingMethodName }}</span>
                 </div>
+                <div v-if="orders.currentOrder.shippingCalculation" class="flex items-center justify-between">
+                  <span class="text-muted">Weight</span>
+                  <span>{{ orders.currentOrder.shippingCalculation.totalWeight }} kg</span>
+                </div>
+                <div v-if="orders.currentOrder.shippingCalculation?.isFreeShipping" class="flex items-center justify-between">
+                  <span class="text-muted">Free shipping</span>
+                  <span class="font-semibold text-success">Yes</span>
+                </div>
                 <div class="flex items-center justify-between">
                   <span class="text-muted">Tax</span>
                   <!-- Tax: The order DTO exposes no tax field, so the row shows a dash. -->

@@ -1,4 +1,4 @@
-import type { ShippingAdjustmentSummary } from './cart'
+import type { AdjustmentSummary, ShippingAdjustmentSummary, ShippingCalculationSummary } from './cart'
 
 export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
 export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Complete'
@@ -36,6 +36,9 @@ export interface OrderDetail extends OrderListItem {
   itemTotal: number
   adjustmentTotal: number
   shipmentTotal: number
+  shippingAdjustment: ShippingAdjustmentSummary | null
+  shippingCalculation: ShippingCalculationSummary | null
+  adjustments: AdjustmentSummary[]
   paymentTotal: number
   outstandingBalance: number
   paymentState: OrderPaymentState | null
@@ -47,7 +50,6 @@ export interface OrderDetail extends OrderListItem {
   canceledAtUtc: string | null
   modifiedAtUtc: string | null
   specialInstructions: string | null
-  shippingAdjustment: ShippingAdjustmentSummary | null
   lineItems: OrderLineItem[]
 }
 
