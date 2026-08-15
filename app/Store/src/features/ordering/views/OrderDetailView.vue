@@ -1,17 +1,26 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
 import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useOrders } from '../composables/useOrders'
 import { useAddresses } from '@/features/profile/composables/useAddresses'
+import { useShipping } from '@/features/shipping/composables'
 import { OrderApi } from '../services'
 import type { OrderStatus, OrderTrackingResponse } from '../types'
 
 const route = useRoute()
 const orders = useOrders()
 const addresses = useAddresses()
+const shipping = useShipping()
+
+// Method: Resolve the applied shipping method name, falling back to the raw id.
+const shippingMethodName = computed(() => {
+  const id = orders.currentOrder?.shippingMethodId
+  if (!id) return null
+  return shipping.methods.find((m) => m.id === id)?.name ?? id
+})
 
 usePageTitle(() => (orders.currentOrder ? `Order ${orders.currentOrder.number}` : 'Order'))
 
@@ -66,6 +75,11 @@ async function loadOrder(): Promise<void> {
 }
 
 watch(() => route.params.id, () => void loadOrder(), { immediate: true })
+
+// Load: Fetch shipping methods once so the applied method name can resolve.
+onMounted(() => {
+  void shipping.fetchMethods()
+})
 
 // Reorder: cartStore has no reorder action, so the button stays disabled until then.
 </script>
@@ -122,7 +136,10 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
             <template #body="{ data }">{{ formatCurrency(data.price) }}</template>
           </Column>
           <Column header="Line Total">
-            <template #body="{ data }">{{ formatCurrency(data.total) }}</template>
+            <template #body="{ data }">
+              {{ formatCurrency(data.total) }}
+              <div v-if="data.adjustmentTotal" class="text-xs text-muted">+ {{ formatCurrency(data.adjustmentTotal) }} adj</div>
+            </template>
           </Column>
           <template #empty>
             <Message severity="info" :closable="false">
@@ -145,6 +162,14 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
                   <span class="text-muted">Shipping</span>
                   <span>{{ formatCurrency(orders.currentOrder.shipmentTotal) }}</span>
                 </div>
+                <div v-if="orders.currentOrder.adjustmentTotal !== 0" class="flex items-center justify-between">
+                  <span class="text-muted">Adjustments / Discounts</span>
+                  <span>{{ formatCurrency(orders.currentOrder.adjustmentTotal) }}</span>
+                </div>
+                <div v-if="shippingMethodName" class="flex items-center justify-between">
+                  <span class="text-muted">Shipping method</span>
+                  <span>{{ shippingMethodName }}</span>
+                </div>
                 <div class="flex items-center justify-between">
                   <span class="text-muted">Tax</span>
                   <!-- Tax: The order DTO exposes no tax field, so the row shows a dash. -->
@@ -154,6 +179,14 @@ watch(() => route.params.id, () => void loadOrder(), { immediate: true })
                 <div class="flex items-center justify-between font-semibold">
                   <span>Total</span>
                   <span>{{ formatCurrency(orders.currentOrder.total) }}</span>
+                </div>
+                <div v-if="orders.currentOrder.paymentTotal !== 0" class="flex items-center justify-between">
+                  <span class="text-muted">Paid</span>
+                  <span>{{ formatCurrency(orders.currentOrder.paymentTotal) }}</span>
+                </div>
+                <div v-if="orders.currentOrder.outstandingBalance !== 0" class="flex items-center justify-between">
+                  <span class="text-muted">Outstanding</span>
+                  <span>{{ formatCurrency(orders.currentOrder.outstandingBalance) }}</span>
                 </div>
               </div>
             </template>
