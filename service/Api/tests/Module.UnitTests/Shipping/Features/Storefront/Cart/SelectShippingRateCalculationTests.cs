@@ -138,6 +138,48 @@ public class SelectShippingRateCalculationTests : IDisposable
         orderAfter.ShipmentTotal.Should().Be(12.99m);
     }
 
+    [Fact(DisplayName = "Handler: Free shipping threshold applies zero shipment total")]
+    public async Task Handle_FreeShippingThreshold_AppliesZeroShipmentTotal()
+    {
+        var variant = new Variant { Weight = 0.5m, Sku = "SKU-006" };
+        _dbContext.Set<Variant>().Add(variant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var order = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
+        order.Total = 100m;
+        order.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
+        {
+            Id = Guid.NewGuid(), OrderId = order.Id, VariantId = variant.Id,
+            Quantity = 2, Price = 50m, Total = 100m, Currency = "USD"
+        });
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var method = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        _dbContext.Set<ShippingMethod>().Add(method);
+        var rate = ShippingRateExtensions.Create(
+            name: "Standard Rate", cost: 5.99m, shippingMethodId: method.Id,
+            freeShippingThreshold: 50m).Value;
+        _dbContext.Set<ShippingRate>().Add(rate);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new SelectShippingRate.Command(new SelectShippingRate.Request
+            {
+                ShippingMethodId = method.Id
+            }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+
+        var orderAfter = await _dbContext.Set<Order>()
+            .Include(o => o.Adjustments)
+            .FirstAsync(o => o.Id == order.Id, TestContext.Current.CancellationToken);
+        orderAfter.ShipmentTotal.Should().Be(0m);
+        orderAfter.Adjustments.Should().ContainSingle(a => a.SourceType == "Shipping");
+        orderAfter.Adjustments.First(a => a.SourceType == "Shipping").Amount.Should().Be(0m);
+    }
+
     [Fact(DisplayName = "Handler: Should return unauthenticated when user not valid")]
     public async Task Handle_ShouldReturnUnauthenticated_WhenUserNotValid()
     {

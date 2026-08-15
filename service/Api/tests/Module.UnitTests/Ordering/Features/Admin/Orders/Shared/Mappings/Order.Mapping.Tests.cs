@@ -129,6 +129,32 @@ public class OrderMappingTests
         response.ShipAddressId.Should().BeNull();
     }
 
+    [Fact(DisplayName = "ToDetail: Should map shipping adjustment")]
+    public void ToDetail_ShouldMapShippingAdjustment()
+    {
+        var methodId = Guid.NewGuid();
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.ReplaceShippingAdjustment(5m, methodId).IsSuccess.Should().BeTrue();
+
+        var response = order.MapToDetail<OrderDetailResponse>();
+
+        response.ShippingAdjustment.Should().NotBeNull();
+        response.ShippingAdjustment!.Label.Should().Be("Shipping");
+        response.ShippingAdjustment!.Amount.Should().Be(5m);
+        response.ShippingAdjustment!.ShippingMethodId.Should().Be(methodId);
+        response.ShipmentTotal.Should().Be(5m);
+    }
+
+    [Fact(DisplayName = "ToDetail: Should return null shipping adjustment when none")]
+    public void ToDetail_ShippingAdjustmentNull_WhenAbsent()
+    {
+        var order = CreateOrder();
+
+        var response = order.MapToDetail<OrderDetailResponse>();
+
+        response.ShippingAdjustment.Should().BeNull();
+    }
+
     private static Order CreateOrder(Action<Order>? configure = null)
     {
         var order = OrderMethod.Create(
