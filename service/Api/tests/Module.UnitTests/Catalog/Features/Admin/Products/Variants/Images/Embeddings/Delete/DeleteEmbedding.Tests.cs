@@ -41,7 +41,6 @@ public class DeleteEmbeddingTests : IDisposable
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Message.Should().Contain("deleted");
 
         var deleted = await _dbContext.Set<ImageEmbedding>()
             .FirstOrDefaultAsync(e => e.VariantImageId == image.Id);

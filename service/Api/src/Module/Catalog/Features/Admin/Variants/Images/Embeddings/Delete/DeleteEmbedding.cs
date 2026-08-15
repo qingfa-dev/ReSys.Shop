@@ -4,12 +4,12 @@ namespace Module.Catalog.Features.Admin.Variants.Images.Embeddings.Delete;
 
 public static partial class DeleteEmbedding
 {
-    public sealed record Command(Guid VariantImageId) : ICommand<Response>;
+    public sealed record Command(Guid VariantImageId) : ICommand;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
-        public async Task<Result<Response>> Handle(
+        public async Task<Result> Handle(
             Command command, CancellationToken cancellationToken)
         {
             var embedding = await dbContext.Set<ImageEmbedding>()
@@ -22,7 +22,7 @@ public static partial class DeleteEmbedding
             dbContext.Set<ImageEmbedding>().Remove(embedding);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<Response>.Ok(new Response { Message = ImageEmbeddingResult.Success.Deleted(embedding.Id) });
+            return Result.Ok(ImageEmbeddingResult.Success.Deleted(embedding.Id));
         }
     }
 }
