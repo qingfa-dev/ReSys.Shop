@@ -14,6 +14,8 @@ public static class OrderStoreMapping
             Number = entity.Number,
             Status = entity.Status,
             Total = entity.Total,
+            Currency = entity.Currency,
+            ItemCount = entity.ItemCount,
             CreatedAtUtc = entity.CreatedAtUtc,
         };
     }

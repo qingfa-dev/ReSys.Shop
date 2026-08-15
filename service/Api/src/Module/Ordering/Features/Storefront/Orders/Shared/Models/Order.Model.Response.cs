@@ -8,5 +8,7 @@ public record StorefrontOrderListItemResponse
     public string Number { get; init; } = string.Empty;
     public OrderStatus Status { get; init; }
     public decimal Total { get; init; }
+    public string Currency { get; init; } = string.Empty;
+    public int ItemCount { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
 }
