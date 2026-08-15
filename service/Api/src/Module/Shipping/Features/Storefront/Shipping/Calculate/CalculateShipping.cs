@@ -1,5 +1,7 @@
 using Module.Shipping.Domain.Calculators;
 using Module.Shipping.Domain.ShippingMethods;
+using Module.Shipping.Features.Storefront.Shipping.Calculate.Shared.Mappings;
+using Module.Shipping.Features.Storefront.Shipping.Calculate.Shared.Models;
 
 using Module.Ordering.Features.Storefront.GetCartForShipping;
 
@@ -50,16 +52,7 @@ public static partial class CalculateShipping
             var (cost, isFree, rateId) = ((decimal cost, bool isFree, Guid rateId))calcResult.Value;
 
             // Map: Return shipping cost response with method details.
-            // EXCEPTION: no domain entity — calculation result composed from ShippingMethod and Order
-            return new Response
-            {
-                ShippingMethodId = method.Id,
-                MethodName = method.Name,
-                Cost = cost,
-                Currency = cart.Currency,
-                IsFreeShipping = isFree,
-                ShippingRateId = rateId
-            };
+            return (method, cart.Currency, cost, isFree, rateId).MapToResponse<Response>();
         }
     }
 }
