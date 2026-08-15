@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Variants.Prices;
+using Module.Catalog.Features.Admin.Variants.Prices.Shared.Models;
 using Module.Catalog.Features.Admin.Variants.Prices.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Prices.Sync;
@@ -49,7 +50,7 @@ public class SyncVariantPricesTests : IDisposable
         {
             Prices =
             [
-                new SyncVariantPrices.SyncPriceItem { Amount = 20m, Currency = "EUR", CountryIso = "GB" },
+                new PriceSyncItem { Amount = 20m, Currency = "EUR", CountryIso = "GB" },
             ],
         };
 
@@ -74,7 +75,7 @@ public class SyncVariantPricesTests : IDisposable
         {
             Prices =
             [
-                new SyncVariantPrices.SyncPriceItem { Amount = 10m, Currency = "USD", CountryIso = "US" },
+                new PriceSyncItem { Amount = 10m, Currency = "USD", CountryIso = "US" },
             ],
         };
 

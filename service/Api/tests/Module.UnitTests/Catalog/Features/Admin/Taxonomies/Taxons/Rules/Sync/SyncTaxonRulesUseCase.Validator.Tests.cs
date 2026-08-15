@@ -1,4 +1,5 @@
 using Module.Catalog.Domain.Taxons.Rules;
+using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Models;
 using Module.Catalog.Features.Admin.Taxons.Rules.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
@@ -17,7 +18,7 @@ public class SyncTaxonRulesValidatorTests
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
@@ -67,7 +68,7 @@ public class SyncTaxonRulesValidatorTests
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = type!,
                     MatchPolicy = "is_equal_to",
@@ -91,7 +92,7 @@ public class SyncTaxonRulesValidatorTests
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = policy!,
@@ -115,7 +116,7 @@ public class SyncTaxonRulesValidatorTests
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
@@ -138,7 +139,7 @@ public class SyncTaxonRulesValidatorTests
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
