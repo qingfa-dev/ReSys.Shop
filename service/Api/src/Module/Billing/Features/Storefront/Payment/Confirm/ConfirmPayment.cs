@@ -9,7 +9,7 @@ namespace Module.Billing.Features.Storefront.Payment.Confirm;
 /// <summary>Confirms a payment by checking local state — webhook handles async completion.</summary>
 public static partial class ConfirmPayment
 {
-    public sealed record Command(Guid PaymentId, Guid? PaymentMethodId = null) : ICommand<Response>; // EXCEPTION: legacy contract, refactor breaks callers
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -25,7 +25,7 @@ public static partial class ConfirmPayment
 
             // Load: Payment capture by ID
             var payment = await dbContext.Set<PaymentCapture>()
-                .FirstOrDefaultAsync(p => p.Id == command.PaymentId, cancellationToken);
+                .FirstOrDefaultAsync(p => p.Id == command.Request.PaymentId, cancellationToken);
             if (payment is null)
                 return PaymentCaptureResult.Failure.NotFound;
 

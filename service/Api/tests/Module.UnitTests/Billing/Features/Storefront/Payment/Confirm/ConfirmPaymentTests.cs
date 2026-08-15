@@ -62,7 +62,7 @@ public class ConfirmPaymentTests : IDisposable
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ConfirmPayment.Command(payment.Id),
+            new ConfirmPayment.Command(new ConfirmPayment.Request { PaymentId = payment.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -78,7 +78,7 @@ public class ConfirmPaymentTests : IDisposable
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ConfirmPayment.Command(payment.Id),
+            new ConfirmPayment.Command(new ConfirmPayment.Request { PaymentId = payment.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -95,7 +95,7 @@ public class ConfirmPaymentTests : IDisposable
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ConfirmPayment.Command(payment.Id),
+            new ConfirmPayment.Command(new ConfirmPayment.Request { PaymentId = payment.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -106,7 +106,7 @@ public class ConfirmPaymentTests : IDisposable
     public async Task Handle_ShouldReturnNotFound_WhenMissing()
     {
         var result = await _handler.Handle(
-            new ConfirmPayment.Command(Guid.NewGuid()),
+            new ConfirmPayment.Command(new ConfirmPayment.Request { PaymentId = Guid.NewGuid() }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -132,7 +132,7 @@ public class ConfirmPaymentTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ConfirmPayment.Command(payment.Id),
+            new ConfirmPayment.Command(new ConfirmPayment.Request { PaymentId = payment.Id }),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
