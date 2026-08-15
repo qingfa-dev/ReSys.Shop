@@ -93,10 +93,19 @@ function removeItem(lineItemId: string): void {
 
       <Divider />
 
-      <!-- Totals: Cart subtotal -->
+      <!-- Totals: Subtotal, shipping and server-computed grand total -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-muted">Subtotal</span>
         <span class="font-semibold">{{ formatCurrency(cart.subtotal) }}</span>
+      </div>
+      <div class="mt-1 flex items-center justify-between">
+        <span class="text-sm text-muted">Shipping</span>
+        <span class="text-sm font-semibold">{{ formatCurrency(cart.shipping) }}</span>
+      </div>
+      <Divider class="my-2" />
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-semibold">Total</span>
+        <span class="font-semibold">{{ formatCurrency(cart.total) }}</span>
       </div>
     </div>
 
