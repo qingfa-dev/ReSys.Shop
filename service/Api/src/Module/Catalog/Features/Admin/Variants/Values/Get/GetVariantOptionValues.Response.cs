@@ -4,7 +4,6 @@ namespace Module.Catalog.Features.Admin.Variants.Values.Get;
 
 public static partial class GetVariantOptionValues
 {
-    // EXCEPTION: computed option-value DTO — fields incompatible with OptionValueDetailResponse (different property names + IsAssigned)
     public sealed record Response : OptionValueParameters
     {
         public Guid OptionValueId { get; init; }
