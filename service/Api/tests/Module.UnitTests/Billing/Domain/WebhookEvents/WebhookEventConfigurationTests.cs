@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore.Metadata;
-
 using Module.Billing.Domain.WebhookEvents;
 using Module.Billing.Persistence;
 

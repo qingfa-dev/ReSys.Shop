@@ -1,7 +1,7 @@
 using Module.Billing.Features.Shared.Commands;
 using Module.Inventory.Services;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -42,6 +42,8 @@ public static partial class CancelOrderAdmin
                 return result.Errors;
 
             // Call: Void pending payments via Payment module — fire-and-forget on failure.
+            // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
+            // keys); or extract to Billing IPaymentProcessingService and inject. Not a navigation fit.
             var voidResult = await sender.Send(
                 new VoidOrderPaymentsCommand
                 {

@@ -6,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Models;
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 using Shared.Operational.Persistence.Data;
 

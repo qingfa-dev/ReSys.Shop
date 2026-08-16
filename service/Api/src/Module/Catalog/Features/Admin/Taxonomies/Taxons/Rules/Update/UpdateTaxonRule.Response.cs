@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.Catalog.Features.Admin.Taxons.Rules.Update;
 

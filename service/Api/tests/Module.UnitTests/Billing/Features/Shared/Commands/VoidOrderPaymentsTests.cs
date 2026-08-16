@@ -1,14 +1,12 @@
- using Module.Billing.Domain.PaymentCaptures;
- 
- using Module.Billing.Features.Shared.Commands;
+using Module.Billing.Domain.PaymentCaptures;
+
+using Module.Billing.Features.Shared.Commands;
+
 using IPaymentGatewayActionProvider = Module.Billing.Services.Provider.IPaymentGatewayActionProvider;
 using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
 using IPaymentProcessingService = Module.Billing.Services.Processing.IPaymentProcessingService;
 using PaymentProcessingResult = Module.Billing.Services.Processing.PaymentProcessingResult;
 using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
-
-using Module.Billing.Services.Provider;
-using Module.Billing.Services.Processing;
 
 namespace Module.UnitTests.Payment.Features.Shared.Commands;
 

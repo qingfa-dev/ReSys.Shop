@@ -3,6 +3,7 @@ using Shared.Application.Domain.Models;
 
 using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Domain.StockLocations;
+using Module.Catalog.Domain.Variants;
 
 namespace Module.Inventory.Domain.StockItems;
 
@@ -42,6 +43,8 @@ public sealed partial class StockItem : Entity, IAuditable
     public StockLocation? StockLocation { get; set; }
     /// <summary>Gets or sets the collection of stock movements (transactions) for this stock item.</summary>
     public ICollection<StockMovement> StockMovements { get; set; } = [];
+
+    public Variant Variant {get;set;} = null!;
     #endregion Relationships
 
     #region Constructor

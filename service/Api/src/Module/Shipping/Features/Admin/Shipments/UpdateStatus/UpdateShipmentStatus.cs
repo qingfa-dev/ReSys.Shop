@@ -1,7 +1,5 @@
 using Module.Shipping.Domain.Shipments;
-using Module.Shipping.Features.Admin.Shipments.Shared.Mappings;
-using Module.Shipping.Features.Admin.Shipments.Shared.Models;
-using Module.Shipping.Features.Shared;
+using Module.Shipping.Features.Admin.Shared.Mappings;
 using Module.Shipping.Services;
 
 namespace Module.Shipping.Features.Admin.Shipments.UpdateStatus;
@@ -11,7 +9,9 @@ public static partial class UpdateShipmentStatus
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ShipmentFulfillmentSyncService syncService)
+    public sealed class CommandHandler(
+        IApplicationDbContext dbContext, 
+        ShipmentFulfillmentSyncService syncService)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Applies the target status transition, persists, and mirrors the derived fulfillment state to Ordering.</summary>
@@ -26,7 +26,7 @@ public static partial class UpdateShipmentStatus
                 .FirstOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
 
             if (shipment is null)
-                return ShipmentResult.Errors.NotFound;
+                return ShipmentResult.Errors.NotFound(command.Id);
 
             // Transition: Apply the domain transition for the target status
             Result transitionResult = command.Request.Status switch
@@ -48,49 +48,6 @@ public static partial class UpdateShipmentStatus
             await syncService.SyncOrderFulfillmentAsync(shipment.OrderId, cancellationToken);
 
             return shipment.MapToDetail<Response>();
-        }
-    }
-
-    public sealed record Request : ShipmentUpdateRequest;
-
-    public sealed record Response : ShipmentDetailResponse;
-
-    public sealed class Validator : AbstractValidator<Command>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.Request.Status)
-                .IsInEnum()
-                .WithMessage("A valid shipment status is required.");
-
-            RuleFor(x => x.Request.TrackingNumber)
-                .MaximumLength(200)
-                .WithMessage("Tracking number must not exceed 200 characters.")
-                .When(x => x.Request.TrackingNumber is not null);
-        }
-    }
-
-    public class Endpoint : ICarterModule
-    {
-        public void AddRoutes(IEndpointRouteBuilder app)
-        {
-            app.MapPut(ShippingFeature.Admin.Shipments.UpdateStatus.Route, async (
-                [FromRoute] Guid id,
-                [FromBody] Request request,
-                ISender sender,
-                CancellationToken ct) =>
-            {
-                var result = await sender.Send(new Command(id, request), ct);
-                return result.ToResult();
-            })
-            .WithName(nameof(UpdateShipmentStatus))
-            .WithTags(ShippingFeature.Tags.Shipment)
-            .HasPermission(ShippingFeature.Admin.Shipments.UpdateStatus.Permission)
-            .WithSummary(ShippingFeature.Admin.Shipments.UpdateStatus.Summary)
-            .WithDescription(ShippingFeature.Admin.Shipments.UpdateStatus.Description)
-            .Produces<Result<Response>>()
-            .Produces<Result>(StatusCodes.Status400BadRequest)
-            .Produces<Result<Response>>(StatusCodes.Status404NotFound);
         }
     }
 }

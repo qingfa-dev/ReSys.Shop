@@ -1,5 +1,5 @@
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Clients;
-using Module.Catalog.Features.Storefront.Products.Images.Inferences.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.Products.Images.Inferences.Get;
 

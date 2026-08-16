@@ -1,3 +1,6 @@
+using Module.Ordering.Domain.Orders;
+using Module.Shipping.Domain.Shipments;
+
 using Shared.Application.Domain.Models;
 
 namespace Module.Customer.Domain.Addresses;
@@ -31,6 +34,10 @@ public sealed partial class Address : Entity
 
     public Guid? UserProfileId { get; set; }
     public UserProfile? UserProfile { get; set; }
+
+    public ICollection<Order> BillingOrders { get; set; } = [];
+    public ICollection<Order> ShippingOrders { get; set; } = [];
+    public ICollection<Shipment> Shipments { get; set; } = [];
 
     #endregion
 }

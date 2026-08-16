@@ -23,9 +23,11 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
 
         // Idempotency: a no-longer-draft order was already placed by an earlier retry.
         if (cart is null)
-            return new CompleteCheckoutForPaymentResponse { OrderId = command.CartId };
+            return new CompleteCheckoutForPaymentResponse { OrderId = command.CartId, Placed = false };
 
         // Self-defend: never place an order whose payment is not yet Completed.
+        // TODO(audit 2026-08-16): cross-module ISender — GetPaymentForCheckoutQuery reads a
+        // PaymentCapture reachable via Order.PaymentCaptures; use .Include + local filter.
         var paymentResult = await sender.Send(
             new GetPaymentForCheckoutQuery
             {
@@ -54,6 +56,6 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
         }
 
         logger.LogInformation("Order auto-placed from webhook: CartId={CartId}", command.CartId);
-        return new CompleteCheckoutForPaymentResponse { OrderId = cart.Id };
+        return new CompleteCheckoutForPaymentResponse { OrderId = cart.Id, Placed = true };
     }
 }

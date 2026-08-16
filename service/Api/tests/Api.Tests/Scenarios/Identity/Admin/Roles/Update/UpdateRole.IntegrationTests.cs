@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Scenarios.Identity.Helpers;
 
-using Module.Identity.Features.Shared.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Roles.Update;
 

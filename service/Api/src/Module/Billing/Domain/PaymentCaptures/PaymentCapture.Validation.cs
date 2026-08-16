@@ -132,6 +132,46 @@ public static class PaymentCaptureValidation
             .WithMessage(PaymentCaptureResult.Failure.CurrencyInvalid.Message);
     }
 
+    public static IRuleBuilderOptions<T, string?> ApplyStripeSessionIdRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(PaymentConstant.Constraints.MaxStripeSessionIdLength)
+            .WithErrorCode(PaymentCaptureResult.Failure.StripeSessionIdTooLong.Code)
+            .WithMessage(PaymentCaptureResult.Failure.StripeSessionIdTooLong.Message);
+    }
+
+    public static IRuleBuilderOptions<T, string?> ApplyStripePaymentIntentIdRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(PaymentConstant.Constraints.MaxStripePaymentIntentIdLength)
+            .WithErrorCode(PaymentCaptureResult.Failure.StripePaymentIntentIdTooLong.Code)
+            .WithMessage(PaymentCaptureResult.Failure.StripePaymentIntentIdTooLong.Message);
+    }
+
+    public static IRuleBuilderOptions<T, string?> ApplyCheckoutUrlRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(PaymentConstant.Constraints.MaxCheckoutUrlLength)
+            .WithErrorCode(PaymentCaptureResult.Failure.CheckoutUrlTooLong.Code)
+            .WithMessage(PaymentCaptureResult.Failure.CheckoutUrlTooLong.Message);
+    }
+
+    public static IRuleBuilderOptions<T, string?> ApplySourceIdRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(PaymentConstant.Constraints.MaxSourceIdLength)
+            .WithErrorCode(PaymentCaptureResult.Failure.SourceIdTooLong.Code)
+            .WithMessage(PaymentCaptureResult.Failure.SourceIdTooLong.Message);
+    }
+
+    public static IRuleBuilderOptions<T, string?> ApplyLastStripeEventIdRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(PaymentConstant.Constraints.MaxLastStripeEventIdLength)
+            .WithErrorCode(PaymentCaptureResult.Failure.LastStripeEventIdTooLong.Code)
+            .WithMessage(PaymentCaptureResult.Failure.LastStripeEventIdTooLong.Message);
+    }
+
     private static bool IsValidTransition(PaymentRecordState from, PaymentRecordState to) => (from, to) switch
     {
         (PaymentRecordState.Checkout, PaymentRecordState.Processing) => true,

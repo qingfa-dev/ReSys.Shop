@@ -11,6 +11,7 @@ public static class StockItemConstant
     {
         public const int CountOnHand = 0;
         public const bool Backorderable = false;
+        public const int LowStockThreshold = 3; 
     }
 
     public static class Query

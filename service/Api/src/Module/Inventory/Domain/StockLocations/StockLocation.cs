@@ -5,6 +5,10 @@ using Shared.Application.Domain.Models;
 
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockMovements;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Domain.StockTransfers;
+using Module.Location.Domain.Countries;
+using Module.Location.Domain.States;
 
 namespace Module.Inventory.Domain.StockLocations;
 
@@ -53,7 +57,11 @@ public sealed partial class StockLocation : Entity, IAuditable, IParameterizable
     #region Navigation
     public ICollection<StockItem> StockItems { get; set; } = new List<StockItem>();
     public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
-    // public ICollection<Shipment> Shipments { get; set; } = [];
+    public ICollection<StockReservation> StockReservations { get; set; } = new List<StockReservation>();
+    public ICollection<StockTransfer> SourceStockTransfers { get; set; } = new List<StockTransfer>();
+    public ICollection<StockTransfer> DestinationStockTransfers { get; set; } = new List<StockTransfer>();
+    public Country? Country { get; set; }
+    public State? State { get; set; }
     #endregion Navigation
 
     #region Constructor

@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Variants.Images;
-using Module.Catalog.Features.Admin.Variants.Images.Shared.Mappings;
-using Module.Catalog.Features.Admin.Variants.Images.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Models;
 using Shared.Operational.Persistence.Specifications.Sorting;
 
 namespace Module.Catalog.Features.Admin.Variants.Images.Get.PagedOrAll;

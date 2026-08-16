@@ -9,4 +9,7 @@ public sealed record CompleteCheckoutForPaymentCommand : ICommand<CompleteChecko
 public sealed record CompleteCheckoutForPaymentResponse
 {
     public Guid OrderId { get; init; }
+
+    /// <summary>True when this invocation actually placed the order; false when it was an idempotent no-op.</summary>
+    public bool Placed { get; init; }
 }

@@ -64,6 +64,21 @@ public static class AdjustmentResult
             code: "Adjustment.Type.TooLong",
             message: $"Adjustment type cannot exceed {AdjustmentConstant.Constraints.MaxTypeStrings} characters.");
 
+        /// <summary>Adjustment state is required.</summary>
+        public static Error StateRequired => Error.Validation(
+            code: "Adjustment.State.Required",
+            message: "Adjustment state is required.");
+
+        /// <summary>Adjustment state exceeds maximum length.</summary>
+        public static Error StateTooLong => Error.Validation(
+            code: "Adjustment.State.TooLong",
+            message: $"Adjustment state cannot exceed {AdjustmentConstant.Constraints.MaxStateLength} characters.");
+
+        /// <summary>Adjustment state is not a known lifecycle state.</summary>
+        public static Error StateInvalid => Error.Validation(
+            code: "Adjustment.State.Invalid",
+            message: "Adjustment state must be either 'open' or 'closed'.");
+
         /// <summary>Adjustable entity reference is required.</summary>
         public static Error AdjustableRequired => Error.Validation(
             code: "Adjustment.Adjustable.Required",

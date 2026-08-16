@@ -637,14 +637,14 @@ public class OrderMethodTests
         var t2 = t1.AddHours(1);
 
         order.MarkPaymentCompleted(t2).IsSuccess.Should().BeTrue();
-        order.PaymentCompletedAt.Should().Be(t2);
+        order.PaymentCompletedAtUtc.Should().Be(t2);
 
         // A stale (older) completion must not move the timestamp backwards.
         order.MarkPaymentCompleted(t1).IsSuccess.Should().BeTrue();
-        order.PaymentCompletedAt.Should().Be(t2);
+        order.PaymentCompletedAtUtc.Should().Be(t2);
 
         order.MarkPaymentCompleted(t2.AddMinutes(1)).IsSuccess.Should().BeTrue();
-        order.PaymentCompletedAt.Should().Be(t2.AddMinutes(1));
+        order.PaymentCompletedAtUtc.Should().Be(t2.AddMinutes(1));
     }
 
     [Fact(DisplayName = "MarkPaymentFailed: stamps and is monotonic")]
@@ -654,7 +654,7 @@ public class OrderMethodTests
         var t1 = new DateTimeOffset(2026, 8, 14, 10, 0, 0, TimeSpan.Zero);
 
         order.MarkPaymentFailed(t1).IsSuccess.Should().BeTrue();
-        order.PaymentFailedAt.Should().Be(t1);
+        order.PaymentFailedAtUtc.Should().Be(t1);
     }
 
     [Fact(DisplayName = "MarkPaymentProcessing/MarkShipped/MarkDelivered: first write wins")]
@@ -665,15 +665,15 @@ public class OrderMethodTests
 
         order.MarkPaymentProcessing(t1);
         order.MarkPaymentProcessing(t1.AddHours(1));
-        order.PaymentProcessingAt.Should().Be(t1);
+        order.PaymentProcessingAtUtc.Should().Be(t1);
 
         order.MarkShipped(t1);
         order.MarkShipped(t1.AddHours(1));
-        order.ShippedAt.Should().Be(t1);
+        order.ShipmentShippedAtUtc.Should().Be(t1);
 
         order.MarkDelivered(t1);
         order.MarkDelivered(t1.AddHours(1));
-        order.DeliveredAt.Should().Be(t1);
+        order.ShipmentDeliveredAtUtc.Should().Be(t1);
     }
 
     [Fact(DisplayName = "UpdatePaymentState derives BalanceDue/Paid/Void from balance")]
@@ -696,6 +696,6 @@ public class OrderMethodTests
         order.AdvanceCheckoutState(CheckoutState.PickDeliveryMethod);
         order.AdvanceCheckoutState(CheckoutState.PickPaymentMethod);
 
-        order.PaymentProcessingAt.Should().BeNull();
+        order.PaymentProcessingAtUtc.Should().BeNull();
     }
 }

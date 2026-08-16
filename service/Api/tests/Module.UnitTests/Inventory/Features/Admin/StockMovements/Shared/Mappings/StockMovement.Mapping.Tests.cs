@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockMovements;
-using Module.Inventory.Features.Admin.StockMovements.Shared.Mappings;
-using Module.Inventory.Features.Admin.StockMovements.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockMovements.Shared.Mappings;
 

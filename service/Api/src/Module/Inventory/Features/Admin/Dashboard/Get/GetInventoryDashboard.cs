@@ -1,7 +1,7 @@
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockMovements;
-using Module.Inventory.Features.Admin.Dashboard.Get.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.Dashboard.Get;
 

@@ -2,6 +2,11 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Options;
 using Module.Catalog.Domain.Variants.Prices;
+using Module.Customer.Domain.Wishlists.WishedItems;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Domain.StockTransfers;
+using Module.Ordering.Domain.LineItems;
 
 using Shared.Application.Domain.Concerns.SoftDeletable;
 using Shared.Application.Domain.Models;
@@ -58,6 +63,11 @@ public sealed partial class Variant : Entity, ISoftDeletable
     public ICollection<Price> Prices { get; set; } = [];
     public ICollection<OptionValueVariant> OptionValueVariants { get; set; } = [];
     public ICollection<VariantImage> VariantImages { get; set; } = [];
+    public ICollection<LineItem> LineItems { get; set; } = [];
+    public ICollection<StockItem> StockItems { get; set; } = [];
+    public ICollection<StockReservation> StockReservations { get; set; } = [];
+    public ICollection<TransferItem> TransferItems { get; set; } = [];
+    public ICollection<WishedItem> WishedItems { get; set; } = [];
     #endregion Relationships
 
     #region Constructor

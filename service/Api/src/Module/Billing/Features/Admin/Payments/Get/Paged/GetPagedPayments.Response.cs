@@ -1,4 +1,4 @@
-using Module.Billing.Features.Admin.Payments.Shared.Models;
+using Module.Billing.Features.Admin.Shared.Models;
 
 namespace Module.Billing.Features.Admin.Payments.Get.Paged;
 

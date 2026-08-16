@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Variants.Prices;
-using Module.Catalog.Features.Admin.Variants.Prices.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 using Module.Catalog.Features.Admin.Variants.Prices.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Prices.Sync;

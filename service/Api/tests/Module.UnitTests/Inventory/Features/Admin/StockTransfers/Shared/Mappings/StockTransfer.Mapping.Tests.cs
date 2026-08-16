@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockTransfers;
-using Module.Inventory.Features.Admin.StockTransfers.Shared.Mappings;
-using Module.Inventory.Features.Admin.StockTransfers.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockTransfers.Shared.Mappings;
 

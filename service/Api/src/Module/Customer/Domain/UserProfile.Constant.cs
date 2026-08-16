@@ -21,6 +21,8 @@ public static class UserProfileConstant
         public const int MaxAddressesCount = 10;
         public const int MaxAddressesCountPerType = 5;
         public const int MaxInternalNoteLength = 5000;
+        public const int TotalSpentPrecision = 18;
+        public const int TotalSpentScale = 2;
     }
 
     public static class AllowedGenders

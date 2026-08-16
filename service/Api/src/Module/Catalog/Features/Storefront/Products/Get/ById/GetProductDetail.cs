@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxons;
-using Module.Catalog.Features.Storefront.Classifications.Shared.Models;
-using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Models;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
 using Module.Inventory.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Detail;

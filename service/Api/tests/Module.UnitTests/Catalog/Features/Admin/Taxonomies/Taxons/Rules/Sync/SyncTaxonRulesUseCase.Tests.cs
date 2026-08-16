@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Domain.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 using Module.Catalog.Features.Admin.Taxons.Rules.Sync;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 

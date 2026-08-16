@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxons;
-using Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Taxons.Get.List;
 

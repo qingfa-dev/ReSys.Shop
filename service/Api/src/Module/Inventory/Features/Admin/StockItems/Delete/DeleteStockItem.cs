@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockItems;
-using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.Delete;
 

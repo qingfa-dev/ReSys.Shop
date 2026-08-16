@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 using Module.Billing.Services.Provider.Stripe;
 

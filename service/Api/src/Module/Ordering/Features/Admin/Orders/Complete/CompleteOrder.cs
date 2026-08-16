@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Complete;
 /// <summary>Marks a placed order as complete, finalizing the order lifecycle with timestamp and user attribution.</summary>

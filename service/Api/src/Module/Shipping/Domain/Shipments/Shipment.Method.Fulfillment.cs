@@ -11,19 +11,19 @@ public static partial class ShipmentMethod
     //   all Shipped                 -> Shipped
     //   any Shipped/Delivered       -> Partial
     //   otherwise (none shipped)    -> Pending
-    public static OrderFulfillmentState ComputeFulfillmentState(
+    public static ShipmentState ComputeFulfillmentState(
         IReadOnlyCollection<ShipmentStatus> statuses)
     {
         if (statuses.Count == 0)
-            return OrderFulfillmentState.None;
+            return ShipmentState.None;
         if (statuses.All(s => s == ShipmentStatus.Delivered))
-            return OrderFulfillmentState.Delivered;
+            return ShipmentState.Delivered;
         if (statuses.All(s => s == ShipmentStatus.Canceled))
-            return OrderFulfillmentState.Canceled;
+            return ShipmentState.Canceled;
         if (statuses.All(s => s == ShipmentStatus.Shipped))
-            return OrderFulfillmentState.Shipped;
+            return ShipmentState.Shipped;
         return statuses.Any(s => s is ShipmentStatus.Shipped or ShipmentStatus.Delivered)
-            ? OrderFulfillmentState.Partial
-            : OrderFulfillmentState.Pending;
+            ? ShipmentState.Partial
+            : ShipmentState.Pending;
     }
 }

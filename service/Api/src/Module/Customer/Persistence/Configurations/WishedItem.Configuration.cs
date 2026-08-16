@@ -23,6 +23,11 @@ public sealed class WishedItemConfiguration : IEntityTypeConfiguration<WishedIte
             .HasForeignKey(x => x.WishlistId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasOne(x => x.Variant)
+            .WithMany(v => v.WishedItems)
+            .HasForeignKey(x => x.VariantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(x => new { x.WishlistId, x.VariantId }).IsUnique();
     }
 }

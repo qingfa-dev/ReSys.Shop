@@ -1,4 +1,4 @@
-using Module.Billing.Features.Admin.Payments.Shared.Mappings;
+using Module.Billing.Features.Admin.Shared.Mappings;
 
 using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
@@ -66,6 +66,8 @@ public static partial class CapturePayment
 
             // Mirror: capture completes the payment → stamp the order's payment timeline.
             // Best-effort — the payment row is authoritative.
+            // TODO(audit 2026-08-16): cross-module ISender — RecordOrderPaymentStateCommand is just
+            // order.MarkPaymentCompleted(...); load Order and call the domain method directly.
             var notifyResult = await sender.Send(new RecordOrderPaymentStateCommand
             {
                 OrderId = payment.OrderId,

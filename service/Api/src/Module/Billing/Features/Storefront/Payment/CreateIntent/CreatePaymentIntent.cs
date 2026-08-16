@@ -1,4 +1,4 @@
-using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
+using Module.Billing.Features.Storefront.Shared.Mappings;
 
 using Module.Inventory.Features.Shared;
 using Module.Inventory.Services.StockReservations;
@@ -10,8 +10,6 @@ using Module.Ordering.Domain.Orders;
 using Module.Billing.Domain.PaymentCaptures;
 using PaymentCapture = Module.Billing.Domain.PaymentCaptures.PaymentCapture;
 using Module.Billing.Domain.PaymentMethods;
-using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
-using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
 
 using Module.Billing.Services.Provider;
 
@@ -36,6 +34,8 @@ public static partial class CreatePaymentIntent
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Validate: Cart state must be Delivery (fresh) or Payment (re-pick / retry)
+            // TODO(audit 2026-08-16): cross-module ISender — GetCartForCheckoutQuery is a read of
+            // Order + LineItems; query the Order directly. See AGENTS.md rule #2 candidates.
             var cartResult = await sender.Send(
                 new GetCartForCheckoutQuery { CartId = command.Request.OrderId }, cancellationToken);
             if (cartResult.IsFailure) return cartResult.Errors;
@@ -120,7 +120,7 @@ public static partial class CreatePaymentIntent
 
             var payment = createResult.Value;
             payment.ProviderKey = paymentMethod.ProviderKey;
-            dbContext.Set<Domain.PaymentCaptures.PaymentCapture>().Add(payment);
+            dbContext.Set<PaymentCapture>().Add(payment);
 
             if (isOffline)
             {
@@ -168,6 +168,8 @@ public static partial class CreatePaymentIntent
                 payment.Process();
 
                 // Mirror: the payment now awaits the checkout webhook — stamp the order's processing time.
+                // TODO(audit 2026-08-16): cross-module ISender — RecordOrderPaymentStateCommand is just
+                // order.MarkPaymentProcessing(...); load Order and call the domain method directly.
                 await sender.Send(new RecordOrderPaymentStateCommand
                 {
                     OrderId = command.Request.OrderId,
@@ -175,7 +177,11 @@ public static partial class CreatePaymentIntent
                     AtUtc = DateTimeOffset.UtcNow
                 }, cancellationToken);
 
-                CreatePaymentIntentLoggers.SessionCreated(logger, payment.Id, sessionResult.Value.Authorization, sessionResult.Value.CheckoutUrl);
+                CreatePaymentIntentLoggers.SessionCreated(
+                    logger: logger, 
+                    PaymentId: payment.Id, 
+                    SessionId: sessionResult.Value.Authorization, 
+                    CheckoutUrl: sessionResult.Value.CheckoutUrl);
             }
 
             // Save: PaymentCapture to database
@@ -192,6 +198,8 @@ public static partial class CreatePaymentIntent
             }
 
             // Advance: Cart state to PickPaymentMethod (records the selected payment method)
+            // TODO(audit 2026-08-16): cross-module ISender — AdvanceCheckoutStateCommand wraps
+            // cart.AdvanceCheckoutState() + SelectPaymentMethod(); make direct domain calls.
             await sender.Send(
                 new AdvanceCheckoutStateCommand
                 {

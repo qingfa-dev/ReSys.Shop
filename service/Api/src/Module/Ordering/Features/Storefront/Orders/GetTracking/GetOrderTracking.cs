@@ -1,5 +1,4 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Storefront.Orders.GetTracking.Shared.Models;
 using Module.Shipping.Domain.Shipments;
 
 namespace Module.Ordering.Features.Storefront.Orders.GetTracking;
@@ -44,8 +43,6 @@ public static partial class GetOrderTracking
                 PaymentFailedAt = entity.PaymentFailedAtUtc,
                 ShippedAt = entity.ShipmentShippedAtUtc,
                 DeliveredAt = entity.ShipmentDeliveredAtUtc,
-                DeliveryExceptionAt = null,
-                EstimatedDeliveryAt = shipment?.EstimatedDeliveryAtUtc,
             };
         }
     }

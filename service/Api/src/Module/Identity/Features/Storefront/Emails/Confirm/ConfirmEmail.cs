@@ -114,6 +114,8 @@ public static partial class ConfirmEmail
         {
             try
             {
+                // TODO(audit 2026-08-16): cross-module ISender — CreateUserProfileCommand creates a
+                // foreign aggregate; keep ISender or extract a Customer IUserProfileService and inject.
                 var profileResult = await mediator.Send(
                     new CreateUserProfileCommand
                     {

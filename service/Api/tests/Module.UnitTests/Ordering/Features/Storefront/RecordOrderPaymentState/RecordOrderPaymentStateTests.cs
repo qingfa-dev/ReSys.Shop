@@ -40,8 +40,8 @@ public class RecordOrderPaymentStateTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
-        updated.PaymentCompletedAt.Should().Be(atUtc);
-        updated.PaymentFailedAt.Should().BeNull();
+        updated.PaymentCompletedAtUtc.Should().Be(atUtc);
+        updated.PaymentFailedAtUtc.Should().BeNull();
     }
 
     [Fact(DisplayName = "Failed mirrors PaymentFailedAt onto the order")]
@@ -60,7 +60,7 @@ public class RecordOrderPaymentStateTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
-        updated.PaymentFailedAt.Should().NotBeNull();
+        updated.PaymentFailedAtUtc.Should().NotBeNull();
     }
 
     [Fact(DisplayName = "Processing mirrors PaymentProcessingAt onto the order")]
@@ -79,7 +79,7 @@ public class RecordOrderPaymentStateTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
-        updated.PaymentProcessingAt.Should().NotBeNull();
+        updated.PaymentProcessingAtUtc.Should().NotBeNull();
     }
 
     [Fact(DisplayName = "Unknown order returns NotFound")]

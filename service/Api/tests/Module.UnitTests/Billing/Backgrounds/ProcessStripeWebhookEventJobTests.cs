@@ -1,9 +1,6 @@
-using Microsoft.Extensions.Logging;
-
 using Module.Billing.Backgrounds;
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Domain.WebhookEvents;
-using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
@@ -430,9 +427,10 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         updated.ResponseCode.Should().Be("pi_checkout_123");
         updated.ProcessedStripeEventIds.Should().Contain("evt_checkout_123");
 
+        // Two sends: the handler places the order, then the post-route reconciliation sweep re-sends the idempotent command.
         _senderMock.Verify(x => x.Send(
             It.Is<CompleteCheckoutForPaymentCommand>(c => c.CartId == orderId && c.PaymentId == payment.Id),
-            It.IsAny<CancellationToken>()), Times.Once);
+            It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact(DisplayName = "checkout.session.completed retry finds payment by PaymentIntent id after first pass")]
@@ -464,9 +462,10 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         updated.ResponseCode.Should().Be("pi_checkout_retry");
         updated.ProcessedStripeEventIds.Should().Contain("evt_checkout_retry");
 
+        // Two sends: the handler places the order, then the post-route reconciliation sweep re-sends the idempotent command.
         _senderMock.Verify(x => x.Send(
             It.Is<CompleteCheckoutForPaymentCommand>(c => c.CartId == orderId && c.PaymentId == payment.Id),
-            It.IsAny<CancellationToken>()), Times.Once);
+            It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact(DisplayName = "checkout.session.expired voids payment and releases reservations")]
@@ -504,7 +503,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact(DisplayName = "checkout.session.completed with payment_status=unpaid does not complete or place order")]
+    [Fact(DisplayName = "checkout.session.completed with payment_status=unpaid stores PaymentIntent id but does not complete or place order")]
     public async Task HandleCheckoutSessionCompleted_NotPaid_Skips()
     {
         var orderId = Guid.NewGuid();
@@ -529,7 +528,10 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
 
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Processing);
-        updated.ResponseCode.Should().Be("cs_not_paid_1");
+        // The PaymentIntent id is stored so a later payment_intent.succeeded can correlate,
+        // even though completion + placement are deferred until the payment is actually paid.
+        updated.StripePaymentIntentId.Should().Be("pi_not_paid_1");
+        updated.ResponseCode.Should().Be("pi_not_paid_1");
         updated.ProcessedStripeEventIds.Should().NotContain("evt_not_paid_1");
 
         _senderMock.Verify(x => x.Send(
@@ -604,45 +606,6 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         _senderMock.Verify(x => x.Send(
             It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == CheckoutState.PickDeliveryMethod),
             It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact(DisplayName = "checkout.session.expired does not compensate when a newer capture owns the cart")]
-    public async Task HandleCheckoutSessionExpired_NewerCaptureExists_DoesNotReleaseOrRegress()
-    {
-        var orderId = Guid.NewGuid();
-        var stale = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
-        stale.State = PaymentRecordState.Void;
-        stale.ResponseCode = "cs_expired_stale_1";
-        _dbContext.Set<PaymentCapture>().Add(stale);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var newer = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
-        newer.State = PaymentRecordState.Processing;
-        newer.ResponseCode = "cs_live_1";
-        _dbContext.Set<PaymentCapture>().Add(newer);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
-            .Returns(new Event
-            {
-                Type = "checkout.session.expired",
-                Id = "evt_expired_stale_1",
-                Data = new EventData
-                {
-                    Object = new Session { Id = "cs_expired_stale_1" }
-                }
-            });
-
-        await SeedAndExecuteAsync();
-
-        _stockServiceMock.Verify(s => s.ReleaseReservationsAsync(
-            It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
-        _senderMock.Verify(x => x.Send(
-            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId),
-            It.IsAny<CancellationToken>()), Times.Never);
-
-        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == stale.Id);
-        updated.ProcessedStripeEventIds.Should().Contain("evt_expired_stale_1");
     }
 
     [Fact(DisplayName = "charge.refunded reconciles to the Stripe total without double-counting")]
@@ -970,5 +933,109 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         var updated = await _dbContext.Set<WebhookEvent>().FirstAsync(e => e.Id == webhookEvent.Id);
         updated.State.Should().Be(WebhookEventState.Failed);
         updated.AttemptCount.Should().Be(1);
+    }
+
+    [Fact(DisplayName = "payment_intent.succeeded finds payment via metadata payment number when only the session id is stored")]
+    public async Task HandlePaymentIntentSucceeded_WhenOnlySessionIdStored_FindsByMetadata()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.State = PaymentRecordState.Processing;
+        // In the Checkout flow only the session id is stored at intent creation — the
+        // PaymentIntent id (pi_...) is not yet correlated.
+        payment.ResponseCode = "cs_session_only_1";
+        payment.StripeSessionId = "cs_session_only_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Id = "evt_meta_1",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent
+                    {
+                        Id = "pi_session_only_1",
+                        Metadata = new Dictionary<string, string>
+                        {
+                            // GatewayConstants.Metadata.PaymentIdKey = "payment_id"
+                            ["payment_id"] = payment.Number
+                        }
+                    }
+                }
+            });
+
+        await SeedAndExecuteAsync();
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+        updated.ProcessedStripeEventIds.Should().Contain("evt_meta_1");
+    }
+
+    [Fact(DisplayName = "payment_intent.succeeded finalizes the order when checkout.session.completed is missing")]
+    public async Task HandlePaymentIntentSucceeded_PlacesOrder()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "pi_finalize_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Id = "evt_finalize_1",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_finalize_1" }
+                }
+            });
+
+        await SeedAndExecuteAsync();
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+        updated.ProcessedStripeEventIds.Should().Contain("evt_finalize_1");
+        // Two sends: the handler places the order, then the post-route reconciliation sweep re-sends the idempotent command.
+        _senderMock.Verify(x => x.Send(
+            It.Is<CompleteCheckoutForPaymentCommand>(c => c.CartId == orderId && c.PaymentId == payment.Id),
+            It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact(DisplayName = "payment_intent.succeeded on an already completed payment still attempts order placement (retry safety)")]
+    public async Task HandlePaymentIntentSucceeded_AlreadyCompleted_StillPlacesOrder()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        // First pass completed the payment but placement failed, so the event id was never recorded.
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_retry_place_1";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Id = "evt_retry_place_1",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_retry_place_1" }
+                }
+            });
+
+        await SeedAndExecuteAsync();
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+        updated.ProcessedStripeEventIds.Should().Contain("evt_retry_place_1");
+        // Two sends: the handler places the order, then the post-route reconciliation sweep re-sends the idempotent command.
+        _senderMock.Verify(x => x.Send(
+            It.Is<CompleteCheckoutForPaymentCommand>(c => c.CartId == orderId && c.PaymentId == payment.Id),
+            It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 }

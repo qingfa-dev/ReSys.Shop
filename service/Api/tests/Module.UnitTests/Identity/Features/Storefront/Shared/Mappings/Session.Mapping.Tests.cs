@@ -1,6 +1,5 @@
 using Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
-using Module.Identity.Features.Shared.Storefront.Shared.Mappings;
-using Module.UnitTests.Identity.Fixtures;
+using Module.Identity.Features.Storefront.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 

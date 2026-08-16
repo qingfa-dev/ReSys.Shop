@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Variants.Shared.Validators;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.Catalog.Features.Admin.Variants.Add;
 

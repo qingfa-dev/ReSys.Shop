@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Microsoft.Extensions.Options;
+
 using Module.Billing.Services.Provider;
 using Module.Billing.Services.Provider.Bogus;
 

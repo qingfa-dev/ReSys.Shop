@@ -1,6 +1,6 @@
 using Module.Shipping.Domain.ShippingMethods;
+using Module.Shipping.Features.Storefront.Shared.Mappings;
 using Module.Shipping.Features.Storefront.Shipping.Calculate;
-using Module.Shipping.Features.Storefront.Shipping.Calculate.Shared.Mappings;
 
 namespace Module.UnitTests.Shipping.Features.Storefront.Shipping.Calculate.Shared.Mappings;
 
@@ -12,7 +12,7 @@ public class CalculateShippingMappingTests
     [Fact(DisplayName = "MapToResponse: Should map calculation inputs to response")]
     public void MapToResponse_ShouldMapCalculationToResponse()
     {
-        var method = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        var method = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
         var source = (
             Method: method,
             Currency: "USD",

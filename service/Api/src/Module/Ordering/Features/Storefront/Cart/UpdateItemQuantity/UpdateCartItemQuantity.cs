@@ -1,12 +1,12 @@
 
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
-using Module.Ordering.Features.Storefront.Cart.Shared.Services;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
 
 using Module.Inventory.Features.Shared;
 using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 /// <summary>Updates the quantity of a line item in the current user's draft cart after validating stock availability.</summary>

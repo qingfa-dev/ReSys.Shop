@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Shared.Admin.Permissions.Shared.Mappings;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Authorization.Registry;

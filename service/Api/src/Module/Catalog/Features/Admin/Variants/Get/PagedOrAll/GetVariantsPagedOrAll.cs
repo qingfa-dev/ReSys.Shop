@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Variants;
-using Module.Catalog.Features.Admin.Variants.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Variants.Get.PagedOrAll;
 

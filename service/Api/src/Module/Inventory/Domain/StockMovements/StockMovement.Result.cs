@@ -41,6 +41,11 @@ public static class StockMovementResult
         public static Error ReasonTooLong => Error.Validation(
             code: "StockMovement.Reason.TooLong",
             message: $"Reason cannot exceed {StockMovementConstant.Constraints.MaxReasonLength} characters.");
+
+        /// <summary>Error when the action exceeds maximum length.</summary>
+        public static Error ActionTooLong => Error.Validation(
+            code: "StockMovement.Action.TooLong",
+            message: $"Action cannot exceed {StockMovementConstant.Constraints.MaxActionLength} characters.");
         #endregion
     }
 }

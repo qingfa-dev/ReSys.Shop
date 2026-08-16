@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;

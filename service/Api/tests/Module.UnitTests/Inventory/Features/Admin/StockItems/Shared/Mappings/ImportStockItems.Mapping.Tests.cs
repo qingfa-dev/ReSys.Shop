@@ -1,5 +1,5 @@
 using Module.Inventory.Features.Admin.StockItems.Import;
-using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockItems.Shared.Mappings;
 

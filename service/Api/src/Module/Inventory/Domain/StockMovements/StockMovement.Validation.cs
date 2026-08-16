@@ -25,4 +25,12 @@ public static class StockMovementValidation
             .WithErrorCode(StockMovementResult.Errors.ReasonTooLong.Code)
             .WithMessage(StockMovementResult.Errors.ReasonTooLong.Message);
     }
+
+    public static IRuleBuilderOptions<T, string?> ApplyActionRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(StockMovementConstant.Constraints.MaxActionLength)
+            .WithErrorCode(StockMovementResult.Errors.ActionTooLong.Code)
+            .WithMessage(StockMovementResult.Errors.ActionTooLong.Message);
+    }
 }

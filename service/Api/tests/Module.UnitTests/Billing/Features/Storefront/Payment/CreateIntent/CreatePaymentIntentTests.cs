@@ -12,7 +12,6 @@ using Module.Ordering.Features.Storefront.GetCartForCheckout;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 

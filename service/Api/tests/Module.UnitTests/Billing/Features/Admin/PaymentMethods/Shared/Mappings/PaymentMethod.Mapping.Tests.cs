@@ -1,7 +1,7 @@
 using Module.Billing.Domain.PaymentMethods;
 using PaymentRecord = Module.Billing.Domain.PaymentMethods.PaymentMethod;
-using Module.Billing.Features.Admin.PaymentMethods.Shared.Mappings;
-using Module.Billing.Features.Admin.PaymentMethods.Shared.Models;
+using Module.Billing.Features.Admin.Shared.Mappings;
+using Module.Billing.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 

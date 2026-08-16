@@ -37,6 +37,7 @@ public static class VariantConstant
         public const int HsCodeMaxLength = 20;
         public const decimal MinPrice = 0;
         public const int MinPosition = -1;
+        public const int MaxUnitStringLength = 10;
 
         public static class Price
         {

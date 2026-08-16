@@ -1,9 +1,9 @@
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
-using Microsoft.EntityFrameworkCore;
+
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
+
 using Module.Catalog.Domain.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Regenerate;
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Services;

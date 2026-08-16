@@ -1,4 +1,4 @@
-using Module.Customer.Features.Storefront.Wishlists.Shared.Models;
+using Module.Customer.Features.Storefront.Shared.Models;
 
 namespace Module.Customer.Features.Storefront.Wishlists.GetById;
 

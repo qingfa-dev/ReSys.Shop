@@ -10,4 +10,7 @@ public sealed class ShippingMethodZone : Entity
     public string CountryCode { get; set; } = string.Empty;
     /// <summary>Optional ISO 3166-2 subdivision code within the country.</summary>
     public string? StateCode { get; set; }
+
+    /// <summary>Gets or sets the shipping method this zone belongs to.</summary>
+    public ShippingMethod? ShippingMethod { get; set; }
 }

@@ -1,4 +1,4 @@
-using Module.Identity.Features.Shared.Storefront.Auth.Login.External.Shared.Models;
+using Module.Identity.Features.Storefront.Shared.Models;
 
 namespace Module.Identity.Features.Shared.Storefront.Auth.Login.External.Authenticate;
 

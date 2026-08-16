@@ -1,4 +1,4 @@
-using Module.Shipping.Features.Storefront.Shipping.Calculate.Shared.Models;
+using Module.Shipping.Features.Storefront.Shared.Models;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Calculate;
 

@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 using Module.Catalog.Features.Admin.Taxons.Rules.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;

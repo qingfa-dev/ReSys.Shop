@@ -1,9 +1,8 @@
 using Module.Shipping.Domain.Calculators;
 using Module.Shipping.Domain.ShippingMethods;
-using Module.Shipping.Features.Storefront.Shipping.Calculate.Shared.Mappings;
-using Module.Shipping.Features.Storefront.Shipping.Calculate.Shared.Models;
 
 using Module.Ordering.Features.Storefront.GetCartForShipping;
+using Module.Shipping.Features.Storefront.Shared.Mappings;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Calculate;
 /// <summary>Calculates shipping cost for a given order and shipping method based on weight.</summary>
@@ -33,6 +32,8 @@ public static partial class CalculateShipping
                 return (Result<Response>)ShippingMethodResult.Errors.NotFound;
 
             // Check: Load cart weight/value via Ordering contract.
+            // TODO(audit 2026-08-16): cross-module ISender — GetCartForShippingQuery returns
+            // TotalWeight/TotalValue/Currency off Order; load the Order directly.
             var cartResult = await sender.Send(new GetCartForShippingQuery { CartId = request.OrderId }, cancellationToken);
             if (cartResult.IsFailure)
                 return (Result<Response>)cartResult.Errors;
@@ -49,7 +50,7 @@ public static partial class CalculateShipping
             if (calcResult.IsFailure)
                 return (Result<Response>)calcResult.Errors;
 
-            var (cost, isFree, rateId) = ((decimal cost, bool isFree, Guid rateId))calcResult.Value;
+            var (cost, isFree, rateId) = calcResult.Value;
 
             // Map: Return shipping cost response with method details.
             return (method, cart.Currency, cost, isFree, rateId).MapToResponse<Response>();

@@ -1,6 +1,6 @@
 using Module.Billing.Domain.PaymentCaptures;
-using Module.Billing.Features.Admin.Payments.Shared.Mappings;
-using Module.Billing.Features.Admin.Payments.Shared.Models;
+using Module.Billing.Features.Admin.Shared.Mappings;
+using Module.Billing.Features.Admin.Shared.Models;
 
 
 

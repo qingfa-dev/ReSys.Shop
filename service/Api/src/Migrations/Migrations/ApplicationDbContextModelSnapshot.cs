@@ -206,17 +206,8 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("PaymentMethodId")
                         .HasDatabaseName("ix_payment_captures_payment_method_id");
 
-                    b.HasIndex("ResponseCode")
-                        .HasDatabaseName("ix_payment_captures_response_code")
-                        .HasFilter("response_code IS NOT NULL");
-
-                    b.HasIndex("StripePaymentIntentId")
-                        .HasDatabaseName("ix_payment_captures_stripe_payment_intent_id")
-                        .HasFilter("stripe_payment_intent_id IS NOT NULL");
-
-                    b.HasIndex("StripeSessionId")
-                        .HasDatabaseName("ix_payment_captures_stripe_session_id")
-                        .HasFilter("stripe_session_id IS NOT NULL");
+                    b.HasIndex("State")
+                        .HasDatabaseName("ix_payment_captures_state");
 
                     b.ToTable("payment_captures", "payment");
                 });
@@ -305,7 +296,8 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("preferences");
 
                     b.Property<string>("Presentation")
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("presentation");
 
                     b.Property<string>("ProviderKey")
@@ -1665,6 +1657,9 @@ namespace Api.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_wished_items");
 
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_wished_items_variant_id");
+
                     b.HasIndex("WishlistId", "VariantId")
                         .IsUnique()
                         .HasDatabaseName("ix_wished_items_wishlist_id_variant_id");
@@ -1802,6 +1797,9 @@ namespace Api.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_stock_items");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_stock_items_variant_id");
 
                     b.HasIndex("StockLocationId", "VariantId")
                         .IsUnique()
@@ -1950,6 +1948,12 @@ namespace Api.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_stock_locations");
 
+                    b.HasIndex("CountryId")
+                        .HasDatabaseName("ix_stock_locations_country_id");
+
+                    b.HasIndex("StateId")
+                        .HasDatabaseName("ix_stock_locations_state_id");
+
                     b.ToTable("stock_locations", "inventory");
                 });
 
@@ -2047,10 +2051,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at_utc");
 
-                    b.Property<Guid?>("LineItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("line_item_id");
-
                     b.Property<DateTimeOffset?>("ModifiedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at_utc");
@@ -2069,7 +2069,8 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("quantity");
 
                     b.Property<string>("Reason")
-                        .HasColumnType("text")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("reason");
 
                     b.Property<uint>("RowVersion")
@@ -2093,6 +2094,12 @@ namespace Api.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_stock_reservations");
+
+                    b.HasIndex("StockLocationId")
+                        .HasDatabaseName("ix_stock_reservations_stock_location_id");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_stock_reservations_variant_id");
 
                     b.HasIndex("CartToken", "State")
                         .HasDatabaseName("ix_stock_reservations_cart_token_state");
@@ -2202,6 +2209,9 @@ namespace Api.Migrations.Migrations
 
                     b.HasIndex("StockTransferId")
                         .HasDatabaseName("ix_transfer_items_stock_transfer_id");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_transfer_items_variant_id");
 
                     b.ToTable("transfer_items", "inventory");
                 });
@@ -2578,10 +2588,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
-                    b.Property<string>("FulfillmentState")
-                        .HasColumnType("text")
-                        .HasColumnName("fulfillment_state");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -2638,6 +2644,7 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("payment_processing_at_utc");
 
                     b.Property<string>("PaymentState")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("payment_state");
 
@@ -2662,6 +2669,11 @@ namespace Api.Migrations.Migrations
                     b.Property<DateTimeOffset?>("ShipmentShippedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("shipment_shipped_at_utc");
+
+                    b.Property<string>("ShipmentState")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("shipment_state");
 
                     b.Property<decimal>("ShipmentTotal")
                         .HasPrecision(18, 2)
@@ -2705,6 +2717,9 @@ namespace Api.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_orders");
 
+                    b.HasIndex("BillAddressId")
+                        .HasDatabaseName("ix_orders_bill_address_id");
+
                     b.HasIndex("Number")
                         .IsUnique()
                         .HasDatabaseName("ix_orders_number");
@@ -2715,8 +2730,14 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("SessionId")
                         .HasDatabaseName("ix_orders_session_id");
 
+                    b.HasIndex("ShipAddressId")
+                        .HasDatabaseName("ix_orders_ship_address_id");
+
                     b.HasIndex("ShippingMethodId")
                         .HasDatabaseName("ix_orders_shipping_method_id");
+
+                    b.HasIndex("ShippingRateId")
+                        .HasDatabaseName("ix_orders_shipping_rate_id");
 
                     b.HasIndex("SessionId", "Status")
                         .HasDatabaseName("ix_orders_session_id_status");
@@ -2732,6 +2753,10 @@ namespace Api.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("address_id");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -2779,6 +2804,7 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("status");
 
                     b.Property<string>("TrackingNumber")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("tracking_number");
@@ -2786,8 +2812,14 @@ namespace Api.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_shipments");
 
+                    b.HasIndex("AddressId")
+                        .HasDatabaseName("ix_shipments_address_id");
+
                     b.HasIndex("OrderId")
                         .HasDatabaseName("ix_shipments_order_id");
+
+                    b.HasIndex("ShippingMethodId")
+                        .HasDatabaseName("ix_shipments_shipping_method_id");
 
                     b.HasIndex("OrderId", "Status")
                         .HasDatabaseName("ix_shipments_order_id_status");
@@ -2867,7 +2899,8 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("position");
 
                     b.Property<string>("Presentation")
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("presentation");
 
                     b.Property<string>("TrackingUrl")
@@ -2993,6 +3026,9 @@ namespace Api.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_shipping_rates");
+
+                    b.HasIndex("ShippingMethodId")
+                        .HasDatabaseName("ix_shipping_rates_shipping_method_id");
 
                     b.ToTable("shipping_rates", "shipping");
                 });
@@ -3424,8 +3460,8 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.PaymentCapture", b =>
                 {
-                    b.HasOne("Module.Ordering.Domain.Orders.Order", null)
-                        .WithMany()
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("PaymentCaptures")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -3436,6 +3472,8 @@ namespace Api.Migrations.Migrations
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_payment_captures_payment_methods_payment_method_id");
+
+                    b.Navigation("Order");
 
                     b.Navigation("PaymentMethod");
                 });
@@ -3549,7 +3587,7 @@ namespace Api.Migrations.Migrations
             modelBuilder.Entity("Module.Catalog.Domain.Variants.Options.OptionValueVariant", b =>
                 {
                     b.HasOne("Module.Catalog.Domain.OptionTypes.Values.OptionValue", "OptionValue")
-                        .WithMany()
+                        .WithMany("OptionValueVariants")
                         .HasForeignKey("OptionValueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -3603,13 +3641,13 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
                 {
-                    b.HasOne("Module.Customer.Domain.Addresses.Address", null)
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "DefaultBillingAddress")
                         .WithMany()
                         .HasForeignKey("DefaultBillingAddressId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_user_profiles_addresses_default_billing_address_id");
 
-                    b.HasOne("Module.Customer.Domain.Addresses.Address", null)
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "DefaultShippingAddress")
                         .WithMany()
                         .HasForeignKey("DefaultShippingAddressId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -3618,7 +3656,7 @@ namespace Api.Migrations.Migrations
                     b.HasOne("Shared.Security.Identity.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_user_profiles_users_user_id");
 
@@ -3706,6 +3744,10 @@ namespace Api.Migrations.Migrations
                                 .HasConstraintName("fk_user_profiles_user_profiles_id");
                         });
 
+                    b.Navigation("DefaultBillingAddress");
+
+                    b.Navigation("DefaultShippingAddress");
+
                     b.Navigation("Notifications")
                         .IsRequired();
 
@@ -3717,12 +3759,21 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Customer.Domain.Wishlists.WishedItems.WishedItem", b =>
                 {
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("WishedItems")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_wished_items_variants_variant_id");
+
                     b.HasOne("Module.Customer.Domain.Wishlists.Wishlist", "Wishlist")
                         .WithMany("WishedItems")
                         .HasForeignKey("WishlistId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_wished_items_wishlist_wishlist_id");
+
+                    b.Navigation("Variant");
 
                     b.Navigation("Wishlist");
                 });
@@ -3732,7 +3783,7 @@ namespace Api.Migrations.Migrations
                     b.HasOne("Shared.Security.Identity.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_wishlists_users_user_id");
 
@@ -3748,7 +3799,35 @@ namespace Api.Migrations.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_stock_items_stock_location_stock_location_id");
 
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("StockItems")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_items_variants_variant_id");
+
                     b.Navigation("StockLocation");
+
+                    b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockLocation", b =>
+                {
+                    b.HasOne("Module.Location.Domain.Countries.Country", "Country")
+                        .WithMany("StockLocations")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_locations_country_country_id");
+
+                    b.HasOne("Module.Location.Domain.States.State", "State")
+                        .WithMany("StockLocations")
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_locations_state_state_id");
+
+                    b.Navigation("Country");
+
+                    b.Navigation("State");
                 });
 
             modelBuilder.Entity("Module.Inventory.Domain.StockMovements.StockMovement", b =>
@@ -3771,17 +3850,45 @@ namespace Api.Migrations.Migrations
                     b.Navigation("StockLocation");
                 });
 
+            modelBuilder.Entity("Module.Inventory.Domain.StockReservations.StockReservation", b =>
+                {
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("StockReservations")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_reservations_order_order_id");
+
+                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "StockLocation")
+                        .WithMany("StockReservations")
+                        .HasForeignKey("StockLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_reservations_stock_locations_stock_location_id");
+
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("StockReservations")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_reservations_variants_variant_id");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("StockLocation");
+
+                    b.Navigation("Variant");
+                });
+
             modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.StockTransfer", b =>
                 {
                     b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "DestinationLocation")
-                        .WithMany()
+                        .WithMany("DestinationStockTransfers")
                         .HasForeignKey("DestinationLocationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_stock_transfers_stock_locations_destination_location_id");
 
                     b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "SourceLocation")
-                        .WithMany()
+                        .WithMany("SourceStockTransfers")
                         .HasForeignKey("SourceLocationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
@@ -3794,12 +3901,23 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.TransferItem", b =>
                 {
-                    b.HasOne("Module.Inventory.Domain.StockTransfers.StockTransfer", null)
+                    b.HasOne("Module.Inventory.Domain.StockTransfers.StockTransfer", "StockTransfer")
                         .WithMany("TransferItems")
                         .HasForeignKey("StockTransferId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_transfer_items_stock_transfers_stock_transfer_id");
+
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("TransferItems")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_transfer_items_variants_variant_id");
+
+                    b.Navigation("StockTransfer");
+
+                    b.Navigation("Variant");
                 });
 
             modelBuilder.Entity("Module.Location.Domain.States.State", b =>
@@ -3816,12 +3934,14 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Ordering.Domain.Adjustments.Adjustment", b =>
                 {
-                    b.HasOne("Module.Ordering.Domain.Orders.Order", null)
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
                         .WithMany("Adjustments")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_adjustments_order_order_id");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Module.Ordering.Domain.LineItems.LineItem", b =>
@@ -3833,41 +3953,120 @@ namespace Api.Migrations.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_line_items_order_order_id");
 
-                    b.HasOne("Module.Catalog.Domain.Variants.Variant", null)
-                        .WithMany()
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("LineItems")
                         .HasForeignKey("VariantId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("fk_line_items_variants_variant_id");
 
                     b.Navigation("Order");
+
+                    b.Navigation("Variant");
                 });
 
             modelBuilder.Entity("Module.Ordering.Domain.Orders.Order", b =>
                 {
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "BillAddress")
+                        .WithMany("BillingOrders")
+                        .HasForeignKey("BillAddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_addresses_bill_address_id");
+
                     b.HasOne("Module.Billing.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_orders_payment_methods_payment_method_id");
 
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "ShipAddress")
+                        .WithMany("ShippingOrders")
+                        .HasForeignKey("ShipAddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_addresses_ship_address_id");
+
                     b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_orders_shipping_method_shipping_method_id");
 
+                    b.HasOne("Module.Shipping.Domain.ShippingRates.ShippingRate", "ShippingRate")
+                        .WithMany("Orders")
+                        .HasForeignKey("ShippingRateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_shipping_rate_shipping_rate_id");
+
+                    b.HasOne("Shared.Security.Identity.Domain.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_users_user_id");
+
+                    b.Navigation("BillAddress");
+
                     b.Navigation("PaymentMethod");
+
+                    b.Navigation("ShipAddress");
+
+                    b.Navigation("ShippingMethod");
+
+                    b.Navigation("ShippingRate");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.Shipments.Shipment", b =>
+                {
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "Address")
+                        .WithMany("Shipments")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_shipments_addresses_address_id");
+
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("Shipments")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipments_orders_order_id");
+
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
+                        .WithMany("Shipments")
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipments_shipping_method_shipping_method_id");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Order");
 
                     b.Navigation("ShippingMethod");
                 });
 
             modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethodZone", b =>
                 {
-                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", null)
-                        .WithMany("Zones")
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
+                        .WithMany("ShippingMethodZones")
                         .HasForeignKey("ShippingMethodId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_shipping_method_zones_shipping_methods_shipping_method_id");
+
+                    b.Navigation("ShippingMethod");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingRates.ShippingRate", b =>
+                {
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
+                        .WithMany("ShippingRates")
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipping_rates_shipping_methods_shipping_method_id");
+
+                    b.Navigation("ShippingMethod");
                 });
 
             modelBuilder.Entity("Shared.Security.Identity.Domain.Roles.Claims.RoleClaim", b =>
@@ -3972,6 +4171,8 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Billing.Domain.PaymentMethods.PaymentMethod", b =>
                 {
+                    b.Navigation("Orders");
+
                     b.Navigation("Payments");
                 });
 
@@ -3980,6 +4181,11 @@ namespace Api.Migrations.Migrations
                     b.Navigation("OptionValues");
 
                     b.Navigation("ProductOptionTypes");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.OptionTypes.Values.OptionValue", b =>
+                {
+                    b.Navigation("OptionValueVariants");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Product", b =>
@@ -4012,11 +4218,30 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Catalog.Domain.Variants.Variant", b =>
                 {
+                    b.Navigation("LineItems");
+
                     b.Navigation("OptionValueVariants");
 
                     b.Navigation("Prices");
 
+                    b.Navigation("StockItems");
+
+                    b.Navigation("StockReservations");
+
+                    b.Navigation("TransferItems");
+
                     b.Navigation("VariantImages");
+
+                    b.Navigation("WishedItems");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.Addresses.Address", b =>
+                {
+                    b.Navigation("BillingOrders");
+
+                    b.Navigation("Shipments");
+
+                    b.Navigation("ShippingOrders");
                 });
 
             modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
@@ -4036,9 +4261,15 @@ namespace Api.Migrations.Migrations
 
             modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockLocation", b =>
                 {
+                    b.Navigation("DestinationStockTransfers");
+
+                    b.Navigation("SourceStockTransfers");
+
                     b.Navigation("StockItems");
 
                     b.Navigation("StockMovements");
+
+                    b.Navigation("StockReservations");
                 });
 
             modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.StockTransfer", b =>
@@ -4049,6 +4280,13 @@ namespace Api.Migrations.Migrations
             modelBuilder.Entity("Module.Location.Domain.Countries.Country", b =>
                 {
                     b.Navigation("States");
+
+                    b.Navigation("StockLocations");
+                });
+
+            modelBuilder.Entity("Module.Location.Domain.States.State", b =>
+                {
+                    b.Navigation("StockLocations");
                 });
 
             modelBuilder.Entity("Module.Ordering.Domain.Orders.Order", b =>
@@ -4056,11 +4294,28 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Adjustments");
 
                     b.Navigation("LineItems");
+
+                    b.Navigation("PaymentCaptures");
+
+                    b.Navigation("Shipments");
+
+                    b.Navigation("StockReservations");
                 });
 
             modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethod", b =>
                 {
-                    b.Navigation("Zones");
+                    b.Navigation("Orders");
+
+                    b.Navigation("Shipments");
+
+                    b.Navigation("ShippingMethodZones");
+
+                    b.Navigation("ShippingRates");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingRates.ShippingRate", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Shared.Security.Identity.Domain.Roles.Role", b =>

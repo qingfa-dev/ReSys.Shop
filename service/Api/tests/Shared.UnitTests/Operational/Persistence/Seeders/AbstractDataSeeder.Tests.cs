@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
 
-using Shared.Application.Models.Errors;
 using Shared.Operational.Persistence.Data;
 using Shared.Operational.Persistence.Seeders;
 using Shared.Operational.Persistence.Transactions;

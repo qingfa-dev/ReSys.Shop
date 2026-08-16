@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Features.Storefront.Classifications.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.Taxonomies.Get;
 

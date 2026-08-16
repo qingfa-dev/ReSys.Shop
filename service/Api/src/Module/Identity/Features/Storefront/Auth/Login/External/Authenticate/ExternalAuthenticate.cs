@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
 using Module.Customer.Features.Storefront.Profiles.Create;
-using Module.Identity.Features.Shared.Storefront.Shared.Mappings;
+using Module.Identity.Features.Storefront.Shared.Mappings;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
@@ -151,6 +151,8 @@ public static partial class ExternalAuthenticate
         {
             try
             {
+                // TODO(audit 2026-08-16): cross-module ISender — CreateUserProfileCommand creates a
+                // foreign aggregate; keep ISender or extract a Customer IUserProfileService and inject.
                 var profileResult = await sender.Send(
                     new CreateUserProfileCommand
                     {

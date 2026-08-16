@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Orders;
+
 using OrderEntity = Module.Ordering.Domain.Orders.Order;
 
 namespace Module.UnitTests.Ordering;

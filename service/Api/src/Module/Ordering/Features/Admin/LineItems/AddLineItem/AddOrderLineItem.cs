@@ -1,6 +1,6 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 namespace Module.Ordering.Features.Admin.Orders.LineItems.AddLineItem;
 /// <summary>Adds a new line item to an existing order, creating the line item entity and recalculating order totals.</summary>
 public static partial class AddOrderLineItem

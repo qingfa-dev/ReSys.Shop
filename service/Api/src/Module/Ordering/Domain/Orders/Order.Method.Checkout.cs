@@ -27,7 +27,7 @@ public sealed partial class Order
     // Validate: Whether the order can be canceled
     public bool AllowCancel() =>
         Status == OrderStatus.Placed &&
-        (FulfillmentState is null || FulfillmentState is OrderFulfillmentState.Pending or OrderFulfillmentState.Canceled);
+        (ShipmentState is ShipmentState.Pending or ShipmentState.Canceled);
 
     // Validate: Whether the order can be shipped
     public bool CanShip() =>

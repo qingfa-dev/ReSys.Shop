@@ -1,5 +1,3 @@
-using FluentValidation.TestHelper;
-
 using Microsoft.Extensions.Hosting;
 
 using Shared.Security.Authentication.Tokens.Options;

@@ -8,7 +8,7 @@ using System.Text.Json;
 
 using Microsoft.IdentityModel.Tokens;
 
-using Module.Identity.Features.Shared.Admin.Users.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Helpers;
 
@@ -159,8 +159,8 @@ public static class IdentityTestHelper
     public static async Task<Guid> GetFirstRoleIdAsync(HttpClient client)
     {
         HttpResponseMessage response = await client.GetAsync("/api/identity/roles?pageSize=1");
-        PagedResult<Module.Identity.Features.Shared.Admin.Roles.Shared.Models.RoleListResponse> result =
-            await response.ReadAsPagedResultAsync<Module.Identity.Features.Shared.Admin.Roles.Shared.Models.RoleListResponse>();
+        PagedResult<Module.Identity.Features.Admin.Shared.Models.RoleListResponse> result =
+            await response.ReadAsPagedResultAsync<Module.Identity.Features.Admin.Shared.Models.RoleListResponse>();
 
         if (!result.IsSuccess || !result.Items.Any())
             throw new InvalidOperationException("No roles found");

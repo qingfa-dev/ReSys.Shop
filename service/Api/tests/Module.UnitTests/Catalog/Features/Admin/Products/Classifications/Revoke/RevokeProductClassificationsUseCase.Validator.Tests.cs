@@ -1,5 +1,5 @@
 using Module.Catalog.Features.Admin.Products.ProductClassifications.Revoke;
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Classifications.Revoke;
 

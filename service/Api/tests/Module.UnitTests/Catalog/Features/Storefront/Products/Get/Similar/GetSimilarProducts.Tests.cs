@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Variants.Images;

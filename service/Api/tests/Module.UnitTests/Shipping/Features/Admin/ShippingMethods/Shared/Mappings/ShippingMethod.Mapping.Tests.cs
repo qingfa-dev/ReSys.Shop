@@ -1,7 +1,7 @@
 using Module.Shipping.Domain.ShippingMethods;
 using ShippingDomain = Module.Shipping.Domain.ShippingMethods.ShippingMethod;
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Models;
+using Module.Shipping.Features.Admin.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
 
@@ -109,7 +109,7 @@ public class ShippingMethodMappingTests
 
     private static ShippingDomain CreateShippingMethod()
     {
-        var result = ShippingMethodExtensions.Create("Express", "flat_rate", "EXP");
+        var result = ShippingMethodMethod.Create("Express", "flat_rate", "EXP");
         result.IsSuccess.Should().BeTrue();
         var method = result.Value;
         method.TrackingUrl = "https://track.example.com";

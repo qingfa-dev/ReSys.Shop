@@ -52,14 +52,14 @@ public class OrderStatusValueConverterTests : IDisposable
     public void FulfillmentState_LegacyStrings_MapToEnum()
     {
         var converter = _dbContext.Model.FindEntityType(typeof(Order))!
-            .FindProperty(nameof(Order.FulfillmentState))!
+            .FindProperty(nameof(Order.ShipmentState))!
             .GetValueConverter()!;
 
-        converter.ConvertFromProvider("ready").Should().Be(OrderFulfillmentState.Pending);
-        converter.ConvertFromProvider("backorder").Should().Be(OrderFulfillmentState.Pending);
-        converter.ConvertFromProvider("pending").Should().Be(OrderFulfillmentState.Pending);
-        converter.ConvertFromProvider("Shipped").Should().Be(OrderFulfillmentState.Shipped);
-        converter.ConvertToProvider(OrderFulfillmentState.Delivered).Should().Be("Delivered");
+        converter.ConvertFromProvider("ready").Should().Be(ShipmentState.Pending);
+        converter.ConvertFromProvider("backorder").Should().Be(ShipmentState.Pending);
+        converter.ConvertFromProvider("pending").Should().Be(ShipmentState.Pending);
+        converter.ConvertFromProvider("Shipped").Should().Be(ShipmentState.Shipped);
+        converter.ConvertToProvider(ShipmentState.Delivered).Should().Be("Delivered");
     }
 
     [Fact(DisplayName = "Order: canonical round-trip preserves enums through the model")]
@@ -68,13 +68,13 @@ public class OrderStatusValueConverterTests : IDisposable
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
         order.CheckoutState = CheckoutState.PickPaymentMethod;
         order.PaymentState = OrderPaymentState.BalanceDue;
-        order.FulfillmentState = OrderFulfillmentState.Pending;
+        order.ShipmentState = ShipmentState.Pending;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var loaded = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
         loaded.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
         loaded.PaymentState.Should().Be(OrderPaymentState.BalanceDue);
-        loaded.FulfillmentState.Should().Be(OrderFulfillmentState.Pending);
+        loaded.ShipmentState.Should().Be(ShipmentState.Pending);
     }
 }

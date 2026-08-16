@@ -1,4 +1,3 @@
-using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Features.Admin.StockItems.GetAll;
 

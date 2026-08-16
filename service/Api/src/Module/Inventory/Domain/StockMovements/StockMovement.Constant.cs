@@ -5,6 +5,8 @@ public static class StockMovementConstant
     public static class Constraints
     {
         public const int MaxReasonLength = 500;
+        public const int MaxActionLength = 50;
+        public const int MaxOriginatorTypeLength = 200;
     }
 
     public static class Query

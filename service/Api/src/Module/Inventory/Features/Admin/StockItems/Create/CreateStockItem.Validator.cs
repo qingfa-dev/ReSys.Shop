@@ -1,4 +1,4 @@
-using Module.Inventory.Features.Admin.StockItems.Shared.Validators;
+using Module.Inventory.Features.Admin.Shared.Validators;
 
 namespace Module.Inventory.Features.Admin.StockItems.Create;
 

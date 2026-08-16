@@ -18,7 +18,7 @@ public class OptionValueVariantConfiguration : IEntityTypeConfiguration<OptionVa
             .HasForeignKey(x => x.VariantId);
 
         builder.HasOne(x => x.OptionValue)
-            .WithMany()
+            .WithMany(ov => ov.OptionValueVariants)
             .HasForeignKey(x => x.OptionValueId);
         #endregion
 

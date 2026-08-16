@@ -57,6 +57,8 @@ public sealed class UserProfile : Entity, IAuditable
 
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
+    public Address? DefaultBillingAddress { get; set; }
+    public Address? DefaultShippingAddress { get; set; }
     public ICollection<Address> Addresses { get; set; } = [];
 
     #endregion Relationships

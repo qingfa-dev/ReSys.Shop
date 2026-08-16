@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockMovements;
-using Module.Inventory.Features.Admin.StockMovements.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.BulkAdjust;
 

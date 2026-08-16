@@ -5,7 +5,7 @@ using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Services;
-using Module.Catalog.Features.Admin.Variants.Images.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 using Shared.Operational.Storages.Models;
 using Shared.Operational.Storages.Services;

@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Storefront.OptionTypes.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.OptionTypes.Values;
 

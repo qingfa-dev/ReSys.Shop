@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxons;
-using Module.Catalog.Features.Admin.Dashboard.Get.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.Catalog.Features.Admin.Dashboard.Get;
 

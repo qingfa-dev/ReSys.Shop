@@ -1,4 +1,4 @@
-using Module.Identity.Features.Shared.Admin.Users.Shared.Mappings;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 

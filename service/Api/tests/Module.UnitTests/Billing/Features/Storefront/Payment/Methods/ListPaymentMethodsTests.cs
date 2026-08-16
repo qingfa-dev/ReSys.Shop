@@ -10,7 +10,7 @@ namespace Module.UnitTests.Payment.Features.Storefront.Payment.Methods;
 public class ListPaymentMethodsTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly ListPaymentMethods.PagedQueryHandler _handler;
+    private readonly GetPaymentMethods.PagedQueryHandler _handler;
 
     public ListPaymentMethodsTests()
     {
@@ -19,7 +19,7 @@ public class ListPaymentMethodsTests : IDisposable
             .Options;
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentMethod).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new ListPaymentMethods.PagedQueryHandler(_dbContext);
+        _handler = new GetPaymentMethods.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
@@ -30,7 +30,7 @@ public class ListPaymentMethodsTests : IDisposable
         SeedPaymentMethods();
 
         var result = await _handler.Handle(
-            new ListPaymentMethods.Query(new QueryingParameters { PageSize = 50 }),
+            new GetPaymentMethods.Query(new QueryingParameters { PageSize = 50 }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -54,7 +54,7 @@ public class ListPaymentMethodsTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new ListPaymentMethods.Query(new QueryingParameters { PageSize = 50 }),
+            new GetPaymentMethods.Query(new QueryingParameters { PageSize = 50 }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();

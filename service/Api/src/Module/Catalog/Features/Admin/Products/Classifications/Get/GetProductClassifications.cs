@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Taxons;
-using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 

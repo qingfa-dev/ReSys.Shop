@@ -103,6 +103,22 @@ else
   fail "AC-005: Found $IFORM_FILE_VIOLATIONS Command(s) with IFormFile"
 fi
 
+# AC-006: No per-feature Shared kind dirs (only Features/{Admin|Storefront}/Shared allowed)
+echo "--- AC-006: Shared kind dirs only under Features/{Admin|Storefront}/Shared ---"
+ac006_violations=""
+while IFS= read -r d; do
+  if ! echo "$d" | rg -q 'Features/(Admin|Storefront)/Shared/(Mappings|Models|Validators|Validations|Validation)$'; then
+    ac006_violations+="$d"$'\n'
+  fi
+done < <(find "$MODULE_DIR" -type d \( -path '*/Shared/Mappings' -o -path '*/Shared/Models' -o -path '*/Shared/Validators' -o -path '*/Shared/Validation' -o -path '*/Shared/Validations' \) 2>/dev/null || true)
+
+if [[ -z "$ac006_violations" ]]; then
+  pass "AC-006: No per-feature Shared kind dirs (consolidated layout enforced)"
+else
+  fail "AC-006: Per-feature Shared kind dirs found (must consolidate into Features/{Admin|Storefront}/Shared/)"
+  echo "$ac006_violations"
+fi
+
 echo "---"
 if [[ "$FAIL" -eq 1 ]]; then
   echo -e "${RED}Some convention checks FAILED.${NC}"

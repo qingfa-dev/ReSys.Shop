@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Customer.Domain;
-using Module.Customer.Domain.Addresses;
 using Module.Customer.Domain.Preferences;
 
 namespace Module.Customer.Persistence.Configurations;
@@ -16,6 +15,11 @@ public sealed class UserProfileConfiguration : IEntityTypeConfiguration<UserProf
 
         builder.Property(p => p.UserId)
             .ValueGeneratedNever();
+
+        builder.HasOne(p => p.User)
+            .WithMany()
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(p => p.FirstName)
             .HasMaxLength(UserProfileConstant.Constraints.MaxFirstNameLength)
@@ -54,7 +58,7 @@ public sealed class UserProfileConfiguration : IEntityTypeConfiguration<UserProf
             .HasDefaultValue(0);
 
         builder.Property(p => p.TotalSpent)
-            .HasPrecision(18, 2)
+            .HasPrecision(UserProfileConstant.Constraints.TotalSpentPrecision, UserProfileConstant.Constraints.TotalSpentScale)
             .HasDefaultValue(0m);
 
         builder.Property(p => p.InternalNoteHtml)
@@ -64,12 +68,12 @@ public sealed class UserProfileConfiguration : IEntityTypeConfiguration<UserProf
 
         builder.Property(p => p.DefaultShippingAddressId);
 
-        builder.HasOne<Address>()
+        builder.HasOne(p => p.DefaultBillingAddress)
             .WithMany()
             .HasForeignKey(p => p.DefaultBillingAddressId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasOne<Address>()
+        builder.HasOne(p => p.DefaultShippingAddress)
             .WithMany()
             .HasForeignKey(p => p.DefaultShippingAddressId)
             .OnDelete(DeleteBehavior.SetNull);

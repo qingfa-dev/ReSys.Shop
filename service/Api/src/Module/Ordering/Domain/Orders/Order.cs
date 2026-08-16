@@ -3,10 +3,17 @@ using Shared.Application.Domain.Concerns.SoftDeletable;
 using Shared.Application.Domain.Models;
 using Shared.Application.Domain.Orders;
 
+using Module.Customer.Domain.Addresses;
+using Module.Inventory.Domain.StockReservations;
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
+using Module.Shipping.Domain.Shipments;
 using Module.Shipping.Domain.ShippingMethods;
+using Module.Shipping.Domain.ShippingRates;
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Domain.PaymentMethods;
+
+using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Ordering.Domain.Orders;
 
@@ -33,8 +40,8 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public int ItemCount { get; set; }
 
     #region Status/State
-    public OrderPaymentState? PaymentState { get; set; }
-    public OrderFulfillmentState? FulfillmentState { get; set; }
+    public OrderPaymentState PaymentState { get; set; }
+    public ShipmentState ShipmentState { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Draft;
     public CheckoutState CheckoutState { get; set; } = CheckoutState.Address;
 
@@ -90,8 +97,15 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     #region Navigation
     public ShippingMethod? ShippingMethod { get; set; }
     public PaymentMethod? PaymentMethod { get; set; }
+    public User? User { get; set; }
+    public Address? BillAddress { get; set; }
+    public Address? ShipAddress { get; set; }
+    public ShippingRate? ShippingRate { get; set; }
     public ICollection<LineItem> LineItems { get; set; } = [];
     public ICollection<Adjustment> Adjustments { get; set; } = [];
+    public ICollection<Shipment> Shipments { get; set; } = [];
+    public ICollection<PaymentCapture> PaymentCaptures { get; set; } = [];
+    public ICollection<StockReservation> StockReservations { get; set; } = [];
     #endregion Navigation
 
     #region Soft Deletion

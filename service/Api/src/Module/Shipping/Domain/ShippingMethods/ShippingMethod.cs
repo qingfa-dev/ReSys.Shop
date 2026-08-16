@@ -1,3 +1,7 @@
+using Module.Ordering.Domain.Orders;
+using Module.Shipping.Domain.Shipments;
+using Module.Shipping.Domain.ShippingRates;
+
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Concerns.Parameterizable;
 using Shared.Application.Domain.Concerns.SoftDeletable;
@@ -11,15 +15,21 @@ public sealed partial class ShippingMethod : Entity, IAuditable, IParameterizabl
 {
     #region Properties
     public string Name { get; set; } = string.Empty;
+    public string? Presentation { get; set; }
     public string? Code { get; set; }
     public string? TrackingUrl { get; set; }
     public string? AdminName { get; set; }
     public int Position { get; set; }
     public bool AvailableToUsers { get; set; } = ShippingMethodConstant.Defaults.AvailableToUsers;
     public string CalculatorType { get; set; } = string.Empty;
-    public string? Presentation { get; set; }
-    public ICollection<ShippingMethodZone> Zones { get; set; } = new List<ShippingMethodZone>();
     #endregion Properties
+
+    #region Relationship
+    public ICollection<ShippingRate> ShippingRates { get; set; } = [];
+    public ICollection<ShippingMethodZone> ShippingMethodZones { get; set; } = [];
+    public ICollection<Shipment> Shipments { get; set; } = [];
+    public ICollection<Order> Orders { get; set; } = [];
+    #endregion
 
     #region Auditing
     public DateTimeOffset CreatedAtUtc { get; set; }

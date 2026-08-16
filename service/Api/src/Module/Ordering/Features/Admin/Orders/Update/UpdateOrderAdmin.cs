@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Update;
 /// <summary>Updates editable fields on a draft order using patch semantics — only non-null request values overwrite the existing order properties.</summary>

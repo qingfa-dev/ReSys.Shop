@@ -3,6 +3,8 @@ using Shared.Application.Domain.Concerns.Parameterizable;
 using Shared.Application.Domain.Concerns.SoftDeletable;
 using Shared.Application.Domain.Models;
 
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Billing.Domain.PaymentMethods;
 
 /// <summary>Represents a payment method (e.g., credit card, check, gateway) with provider configuration and display preferences.</summary>
@@ -33,6 +35,7 @@ public sealed partial class PaymentMethod : Entity, IAuditable, IParameterizable
 
     #region Relationships
     public ICollection<PaymentCaptures.PaymentCapture> Payments { get; set; } = [];
+    public ICollection<Order> Orders { get; set; } = [];
     #endregion Relationships
 
     #region Soft Deletion

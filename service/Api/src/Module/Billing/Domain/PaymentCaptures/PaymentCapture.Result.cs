@@ -144,6 +144,41 @@ public static class PaymentCaptureResult
             message: $"Client secret cannot exceed {PaymentConstant.Constraints.MaxIntentClientSecretLength} characters.");
         #endregion
 
+        #region StripeSessionId
+        /// <summary>Error indicating the Stripe session id exceeds the maximum length.</summary>
+        public static Error StripeSessionIdTooLong => Error.Validation(
+            code: "Payment.StripeSessionId.TooLong",
+            message: $"Stripe session id cannot exceed {PaymentConstant.Constraints.MaxStripeSessionIdLength} characters.");
+        #endregion
+
+        #region StripePaymentIntentId
+        /// <summary>Error indicating the Stripe payment intent id exceeds the maximum length.</summary>
+        public static Error StripePaymentIntentIdTooLong => Error.Validation(
+            code: "Payment.StripePaymentIntentId.TooLong",
+            message: $"Stripe payment intent id cannot exceed {PaymentConstant.Constraints.MaxStripePaymentIntentIdLength} characters.");
+        #endregion
+
+        #region CheckoutUrl
+        /// <summary>Error indicating the checkout url exceeds the maximum length.</summary>
+        public static Error CheckoutUrlTooLong => Error.Validation(
+            code: "Payment.CheckoutUrl.TooLong",
+            message: $"Checkout url cannot exceed {PaymentConstant.Constraints.MaxCheckoutUrlLength} characters.");
+        #endregion
+
+        #region SourceId
+        /// <summary>Error indicating the payment source id exceeds the maximum length.</summary>
+        public static Error SourceIdTooLong => Error.Validation(
+            code: "Payment.SourceId.TooLong",
+            message: $"Payment source id cannot exceed {PaymentConstant.Constraints.MaxSourceIdLength} characters.");
+        #endregion
+
+        #region LastStripeEventId
+        /// <summary>Error indicating the last Stripe event id exceeds the maximum length.</summary>
+        public static Error LastStripeEventIdTooLong => Error.Validation(
+            code: "Payment.LastStripeEventId.TooLong",
+            message: $"Last Stripe event id cannot exceed {PaymentConstant.Constraints.MaxLastStripeEventIdLength} characters.");
+        #endregion
+
         #region Currency
         /// <summary>Error indicating the currency code is required.</summary>
         public static Error CurrencyRequired => Error.Validation(

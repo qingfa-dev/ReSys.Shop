@@ -14,11 +14,11 @@ public sealed class RecordOrderShipmentStateCommandHandler(IApplicationDbContext
         if (order is null)
             return OrderResult.Errors.NotFound(command.OrderId);
 
-        order.FulfillmentState = command.FulfillmentState;
         if (command.ShippedAtUtc is not null)
             order.MarkShipped(command.ShippedAtUtc.Value);
         if (command.DeliveredAtUtc is not null)
             order.MarkDelivered(command.DeliveredAtUtc.Value);
+        order.ShipmentState = command.FulfillmentState;
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result.Ok();

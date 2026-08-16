@@ -41,10 +41,10 @@ public class UpdateOrderShippingMethodTests : IDisposable
     public async Task Handle_ChangingMethod_AppliesNewMethodAuthoritativeCost()
     {
         var variant = new Variant { Weight = 1.0m, Sku = "SKU-010" };
-        var methodA = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
-        var methodB = ShippingMethodExtensions.Create("Express", "flat_rate").Value;
-        var rateA = ShippingRateExtensions.Create("Standard Rate", 5.00m, methodA.Id).Value;
-        var rateB = ShippingRateExtensions.Create("Express Rate", 12.99m, methodB.Id).Value;
+        var methodA = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
+        var methodB = ShippingMethodMethod.Create("Express", "flat_rate").Value;
+        var rateA = ShippingRateMethod.Create("Standard Rate", 5.00m, methodA.Id).Value;
+        var rateB = ShippingRateMethod.Create("Express Rate", 12.99m, methodB.Id).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<ShippingMethod>().AddRange(methodA, methodB);
         _dbContext.Set<ShippingRate>().AddRange(rateA, rateB);

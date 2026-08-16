@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockTransfers;
-using Module.Inventory.Features.Admin.StockTransfers.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.GetById;
 

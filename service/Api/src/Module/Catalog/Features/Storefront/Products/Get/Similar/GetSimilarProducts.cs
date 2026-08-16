@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Images.Embeddings;
-using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
 using Module.Catalog.Features.Storefront.Products.Shared.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Similar;

@@ -104,4 +104,16 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Warning,
         Message = "Failed to mirror payment state {PaymentState} onto order for payment {PaymentId}: {Message}")]
     public static partial void PaymentStateNotifyFailed(ILogger logger, Guid PaymentId, string PaymentState, string? Message);
+
+    [LoggerMessage(
+        EventId = 5027,
+        Level = LogLevel.Information,
+        Message = "Pending-placement reconciliation sweep: checked {Total} completed payments, placed {Placed}")]
+    public static partial void ReconcileSweepCompleted(ILogger logger, int Total, int Placed);
+
+    [LoggerMessage(
+        EventId = 5028,
+        Level = LogLevel.Warning,
+        Message = "Pending-placement reconciliation sweep failed: {Message}")]
+    public static partial void ReconcileSweepFailed(ILogger logger, Exception exception, string? Message);
 }

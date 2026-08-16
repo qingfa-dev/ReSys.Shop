@@ -3,7 +3,7 @@ using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
 using Module.Billing.Services.Provider;
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Domain.PaymentMethods;
-using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
+using Module.Billing.Features.Storefront.Shared.Mappings;
 
 namespace Module.Billing.Features.Storefront.Payment.SetupIntent;
 

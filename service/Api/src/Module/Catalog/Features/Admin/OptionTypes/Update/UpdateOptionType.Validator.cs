@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Validators;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.Catalog.Features.Admin.OptionTypes.Update;
 

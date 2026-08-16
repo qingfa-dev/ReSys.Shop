@@ -11,6 +11,7 @@ public static class ShippingMethodConstant
         public const int MaxTrackingUrlLength = 2048;
         public const int MaxAdminNameLength = 255;
         public const int MaxCalculatorTypeLength = 100;
+        public const int MaxPresentationLength = 500;
     }
 
     public static class Defaults

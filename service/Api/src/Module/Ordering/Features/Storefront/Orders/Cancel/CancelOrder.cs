@@ -48,6 +48,8 @@ public static partial class CancelOrder
                 return cancelResult.Errors;
 
             // Call: Cancel associated payments via MediatR.
+            // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
+            // keys); or extract to Billing IPaymentProcessingService and inject. Not a navigation fit.
             var voidResult = await sender.Send(
                 new Billing.Features.Shared.Commands.VoidOrderPaymentsCommand
                 {

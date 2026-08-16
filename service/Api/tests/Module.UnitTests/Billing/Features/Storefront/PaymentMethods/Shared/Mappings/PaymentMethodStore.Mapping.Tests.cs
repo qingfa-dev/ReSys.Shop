@@ -1,7 +1,7 @@
 using Module.Billing.Domain.PaymentMethods;
 using PaymentRecord = Module.Billing.Domain.PaymentMethods.PaymentMethod;
-using Module.Billing.Features.Storefront.PaymentMethods.Shared.Mappings;
-using Module.Billing.Features.Storefront.PaymentMethods.Shared.Models;
+using Module.Billing.Features.Storefront.Shared.Mappings;
+using Module.Billing.Features.Storefront.Shared.Models;
 
 namespace Module.UnitTests.Payment.Features.Storefront.PaymentMethods.Shared.Mappings;
 

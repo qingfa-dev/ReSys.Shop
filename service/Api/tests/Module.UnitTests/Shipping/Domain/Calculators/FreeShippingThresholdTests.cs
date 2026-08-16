@@ -37,7 +37,7 @@ public class FreeShippingThresholdTests : IDisposable
     [Fact(DisplayName = "FreeShipping: Order total meets threshold returns free shipping")]
     public async Task Calculate_OrderTotalMeetsThreshold_ReturnsFree()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Standard",
             cost: 8.99m,
             shippingMethodId: _methodId,
@@ -56,7 +56,7 @@ public class FreeShippingThresholdTests : IDisposable
     [Fact(DisplayName = "FreeShipping: Order total below threshold returns cost")]
     public async Task Calculate_OrderTotalBelowThreshold_ReturnsCost()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Standard",
             cost: 8.99m,
             shippingMethodId: _methodId,
@@ -75,7 +75,7 @@ public class FreeShippingThresholdTests : IDisposable
     [Fact(DisplayName = "FreeShipping: Threshold met but weight mismatch returns cost")]
     public async Task Calculate_ThresholdMetButWeightMismatch_ReturnsCost()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Standard",
             cost: 8.99m,
             shippingMethodId: _methodId,
@@ -96,13 +96,13 @@ public class FreeShippingThresholdTests : IDisposable
     [Fact(DisplayName = "FreeShipping: Multiple rates, picks free one when threshold met")]
     public async Task Calculate_MultipleRatesThresholdOnOne_PicksFree()
     {
-        var regular = ShippingRateExtensions.Create(
+        var regular = ShippingRateMethod.Create(
             name: "Regular",
             cost: 5.99m,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m).Value;
-        var freeEligible = ShippingRateExtensions.Create(
+        var freeEligible = ShippingRateMethod.Create(
             name: "Premium",
             cost: 8.99m,
             shippingMethodId: _methodId,

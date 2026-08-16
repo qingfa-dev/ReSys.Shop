@@ -2,7 +2,7 @@ using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockTransfers;
 using Module.Inventory.Features.Admin.StockTransfers.Receive;
-using Module.Inventory.Features.Admin.StockTransfers.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockTransfers.Receive;
 

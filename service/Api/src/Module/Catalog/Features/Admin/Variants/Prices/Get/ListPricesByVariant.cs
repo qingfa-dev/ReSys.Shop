@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Variants.Prices;
-using Module.Catalog.Features.Admin.Variants.Prices.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Variants.Prices.Get;
 

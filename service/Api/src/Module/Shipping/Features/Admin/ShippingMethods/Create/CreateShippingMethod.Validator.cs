@@ -1,4 +1,4 @@
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Validators;
+using Module.Shipping.Features.Admin.Shared.Validators;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Create;
 

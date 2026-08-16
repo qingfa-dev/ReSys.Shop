@@ -1,6 +1,8 @@
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
+using Module.Catalog.Domain.Variants;
+
 namespace Module.Customer.Domain.Wishlists.WishedItems;
 
 /// <summary>Represents an item in a wishlist with a specific variant and quantity.</summary>
@@ -14,6 +16,7 @@ public sealed partial class WishedItem : Entity, IAuditable
 
     #region Relationships
     public Wishlist? Wishlist { get; set; }
+    public Variant? Variant { get; set; }
     #endregion Relationships
 
     #region Auditable

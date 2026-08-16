@@ -16,6 +16,11 @@ public static class PaymentConstant
         public const int MaxSourceTypeLength = 100;
         public const int MaxIntentClientSecretLength = 500;
         public const int MaxProviderKeyLength = 50;
+        public const int MaxStripeSessionIdLength = 200;
+        public const int MaxStripePaymentIntentIdLength = 200;
+        public const int MaxCheckoutUrlLength = 2048;
+        public const int MaxSourceIdLength = 200;
+        public const int MaxLastStripeEventIdLength = 100;
         public const int MaxCurrencyLength = SystemCurrencyConstant.Constraints.MaxCodeLength;
         public const int Precision = SystemCurrencyConstant.Constraints.MonetaryPrecision;
         public const int Scale = SystemCurrencyConstant.Constraints.MonetaryScale;

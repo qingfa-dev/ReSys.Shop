@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Features.Admin.Variants.Images.Download;
-using Module.Catalog.Features.Admin.Variants.Images.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Download;
 

@@ -1,3 +1,4 @@
+using Module.Inventory.Domain.StockLocations;
 using Module.Location.Domain.States;
 
 using Shared.Application.Domain.Concerns.Auditable;
@@ -57,6 +58,6 @@ public sealed partial class Country : Entity, IAuditable
     // Aggregate: States belonging to this country, ordered by name for consistent display
     /// <summary>Collection of states/provinces within this country.</summary>
     public ICollection<State> States { get; set; } = [];
-
+    public ICollection<StockLocation> StockLocations {get;set;} = [];
     #endregion Relationships
 }

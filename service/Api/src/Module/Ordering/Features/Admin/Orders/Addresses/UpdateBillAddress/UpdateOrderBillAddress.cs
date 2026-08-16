@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateBillAddress;
 /// <summary>Updates the billing address on a draft order, enforcing draft-only status before persisting the change.</summary>

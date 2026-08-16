@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxons.Rules.Shared.Validations;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.Catalog.Features.Admin.Taxons.Rules.Update;
 

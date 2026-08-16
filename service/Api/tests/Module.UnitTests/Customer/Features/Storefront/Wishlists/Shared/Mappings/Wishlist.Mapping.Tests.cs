@@ -1,6 +1,6 @@
 using Module.Customer.Domain.Wishlists;
-using Module.Customer.Features.Storefront.Wishlists.Shared.Mappings;
-using Module.Customer.Features.Storefront.Wishlists.Shared.Models;
+using Module.Customer.Features.Storefront.Shared.Mappings;
+using Module.Customer.Features.Storefront.Shared.Models;
 
 namespace Module.UnitTests.Profile.Features.Store.Wishlists.Shared.Mappings;
 

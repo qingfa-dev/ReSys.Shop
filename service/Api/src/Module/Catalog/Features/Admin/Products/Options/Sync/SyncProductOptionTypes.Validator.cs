@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Products.Options.Shared.Validations;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.Catalog.Features.Admin.Products.Options.Sync;
 

@@ -1,4 +1,4 @@
-using Module.Identity.Features.Shared.Admin.Roles.Shared.Validators;
+using Module.Identity.Features.Admin.Shared.Validators;
 
 namespace Module.Identity.Features.Shared.Admin.Roles.Create;
 

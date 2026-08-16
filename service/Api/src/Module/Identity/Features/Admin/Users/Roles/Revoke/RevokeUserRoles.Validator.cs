@@ -1,4 +1,4 @@
-using Module.Identity.Features.Shared.Admin.Users.Shared.Validators;
+using Module.Identity.Features.Admin.Shared.Validators;
 
 using Shared.Security.Identity.Domain.Users;
 

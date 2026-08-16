@@ -1,4 +1,4 @@
-using Module.Billing.Features.Admin.Payments.Shared.Mappings;
+using Module.Billing.Features.Admin.Shared.Mappings;
 
 using GatewayOptions = Module.Billing.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;

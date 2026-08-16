@@ -1,5 +1,5 @@
 using Module.Billing.Domain.PaymentMethods;
-using Module.Billing.Features.Admin.PaymentMethods.Shared.Mappings;
+using Module.Billing.Features.Admin.Shared.Mappings;
 
 namespace Module.Billing.Features.Admin.PaymentMethods.Get.Paged;
 

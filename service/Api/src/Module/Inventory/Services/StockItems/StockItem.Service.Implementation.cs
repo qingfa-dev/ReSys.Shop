@@ -4,7 +4,7 @@ using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Services.Models;
+using Module.Inventory.Services.StockItems;
 
 namespace Module.Inventory.Services;
 

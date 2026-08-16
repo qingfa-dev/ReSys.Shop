@@ -58,9 +58,9 @@ public class CalculateShippingHandlerTests : IDisposable
     {
         SetupCart(totalWeight: 2.5m, totalValue: 100m);
 
-        var method = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        var method = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
         _dbContext.Set<ShippingMethod>().Add(method);
-        var rate = ShippingRateExtensions.Create("Standard Rate", 5.99m, method.Id,
+        var rate = ShippingRateMethod.Create("Standard Rate", 5.99m, method.Id,
             minWeight: 0, maxWeight: 5).Value;
         _dbContext.Set<ShippingRate>().Add(rate);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -91,7 +91,7 @@ public class CalculateShippingHandlerTests : IDisposable
             .ReturnsAsync(Result<CartForShippingResponse>.Failure(
                 Module.Ordering.Domain.Orders.OrderResult.Errors.NotFound(Guid.NewGuid())));
 
-        var method = ShippingMethodExtensions.Create("Express", "flat_rate").Value;
+        var method = ShippingMethodMethod.Create("Express", "flat_rate").Value;
         _dbContext.Set<ShippingMethod>().Add(method);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

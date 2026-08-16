@@ -22,9 +22,9 @@ public sealed class ShippingRateSeeder(IApplicationDbContext context) : Abstract
 
         var rates = new[]
         {
-            ShippingRateExtensions.Create("Standard", 5.99m, standard.Id, deliveryRange: "5-7 business days"),
-            ShippingRateExtensions.Create("Express", 14.99m, express.Id, deliveryRange: "2-3 business days"),
-            ShippingRateExtensions.Create("Free Shipping", 9.99m, free.Id, deliveryRange: "7-14 business days", freeShippingThreshold: 100m),
+            ShippingRateMethod.Create("Standard", 5.99m, standard.Id, deliveryRange: "5-7 business days"),
+            ShippingRateMethod.Create("Express", 14.99m, express.Id, deliveryRange: "2-3 business days"),
+            ShippingRateMethod.Create("Free Shipping", 9.99m, free.Id, deliveryRange: "7-14 business days", freeShippingThreshold: 100m),
         };
 
         foreach (var result in rates)

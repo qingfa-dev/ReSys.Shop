@@ -1,4 +1,4 @@
-using Module.Inventory.Features.Admin.StockLocations.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Update;
 

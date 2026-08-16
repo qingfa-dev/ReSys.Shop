@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Shared.Admin.Roles.Shared.Mappings;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Security.Identity.Domain.Roles;

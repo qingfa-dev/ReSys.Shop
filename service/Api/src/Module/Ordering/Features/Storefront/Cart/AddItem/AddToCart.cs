@@ -5,8 +5,8 @@ using Module.Inventory.Services.StockReservations;
 using Shared.Application.Systems.SystemInfos;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
-using Module.Ordering.Features.Storefront.Cart.Shared.Services;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.AddItem;
 
@@ -130,6 +130,5 @@ public static partial class AddToCart
                 LineItemResult.Success.Created(newItem.Id));
         }
 
-        /// <summary>Builds the enriched cart item lookup (sku, product name, primary image) for the given variant ids.</summary>
 }
 }

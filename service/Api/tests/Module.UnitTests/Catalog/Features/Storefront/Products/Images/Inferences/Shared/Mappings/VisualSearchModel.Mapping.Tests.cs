@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Clients;
-using Module.Catalog.Features.Storefront.Products.Images.Inferences.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Products.Images.Inferences.Shared.Models;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Products.Images.Inferences.Shared.Mappings;
 

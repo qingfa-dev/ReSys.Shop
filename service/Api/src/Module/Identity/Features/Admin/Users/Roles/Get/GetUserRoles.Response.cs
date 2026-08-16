@@ -1,4 +1,4 @@
-using Module.Identity.Features.Shared.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
 namespace Module.Identity.Features.Shared.Admin.Users.Roles.Get;
 

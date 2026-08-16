@@ -1,5 +1,5 @@
 using Module.Identity.Features.Shared.Storefront.Auth.Login.Password;
-using Module.Identity.Features.Shared.Storefront.Shared.Mappings;
+using Module.Identity.Features.Storefront.Shared.Mappings;
 
 using Shared.Security.Authentication.Tokens.Models;
 

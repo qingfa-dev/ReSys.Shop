@@ -21,6 +21,9 @@ namespace Module.Billing.Backgrounds;
 [AutomaticRetry(Attempts = 3, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
 public sealed partial class ProcessStripeWebhookEventJob
 {
+    /// <summary>Batch size for the opportunistic pending-placement sweep.</summary>
+    private const int ReconcileBatchSize = 25;
+
     private readonly IApplicationDbContext _dbContext;
     private readonly IStripeWebhookService _webhookService;
     private readonly ILogger<ProcessStripeWebhookEventJob> _logger;
@@ -84,6 +87,17 @@ public sealed partial class ProcessStripeWebhookEventJob
             throw;
         }
 
+        // Reconcile: opportunistic bounded sweep — reuses this per-event job, so no extra
+        // recurring job. Best-effort: a failure here must never fail the webhook event.
+        try
+        {
+            await ReconcilePendingPlacementsAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            ProcessStripeWebhookEventJobLoggers.ReconcileSweepFailed(_logger, ex, ex.Message);
+        }
+
         webhookEvent.State = WebhookEventState.Processed;
         webhookEvent.ProcessedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(ct);
@@ -128,32 +142,54 @@ public sealed partial class ProcessStripeWebhookEventJob
         }
     }
 
-    // Webhook: payment_intent.succeeded — transition to Completed
+    // Webhook: payment_intent.succeeded — transition to Completed and finalize the order
     private async Task HandlePaymentIntentSucceeded(Event stripeEvent, CancellationToken ct)
     {
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        // Load: Payment by Stripe PaymentIntent id (stable), ResponseCode as legacy fallback
-        var payment = await _dbContext.Set<PaymentCapture>()
-            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == intent.Id || p.ResponseCode == intent.Id, ct);
+        // Load: Payment by Stripe PaymentIntent id, ResponseCode, or the metadata payment
+        // number written at intent creation. The metadata fallback covers the Checkout flow
+        // where only the session id is stored until checkout.session.completed correlates it.
+        var payment = await FindPaymentByIntentAsync(intent, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event (idempotency by Stripe event ID)
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
-        // Check: Skip if already completed (idempotency by state)
-        if (payment.State == PaymentRecordState.Completed) return;
 
-        var result = payment.Complete(atUtc: StripeEventCreatedUtc(stripeEvent));
-        if (result.IsFailure)
+        // Complete: skip if a completed session raced ahead, otherwise transition.
+        if (payment.State != PaymentRecordState.Completed)
         {
-            // A succeeded event on a payment that cannot complete (e.g. previously
-            // voided/failed) is an anomaly — surface it loudly so Hangfire retries
-            // and the reconciliation job can resolve it instead of silently losing
-            // a successful charge.
-            ProcessStripeWebhookEventJobLoggers.CannotCompletePayment(_logger, payment.Id, payment.State.ToString(), result.Message);
+            var result = payment.Complete(atUtc: StripeEventCreatedUtc(stripeEvent));
+            if (result.IsFailure)
+            {
+                // A succeeded event on a payment that cannot complete (e.g. previously
+                // voided/failed) is an anomaly — surface it loudly so Hangfire retries
+                // and the reconciliation job can resolve it instead of silently losing
+                // a successful charge.
+                ProcessStripeWebhookEventJobLoggers.CannotCompletePayment(_logger, payment.Id, payment.State.ToString(), result.Message);
+                throw new InvalidOperationException(
+                    $"Cannot complete payment {payment.Id} on {stripeEvent.Type} (state={payment.State}): {result.Message}");
+            }
+
+            await SaveAsync(payment, ct);
+        }
+
+        // Place the order. Idempotent: a no-longer-draft cart is a no-op on retry. This
+        // mirrors checkout.session.completed so order placement + stock consumption no
+        // longer depend on that event arriving. Placement runs BEFORE recording the event
+        // so a Hangfire retry re-attempts it (and does not re-complete, due to the state guard).
+        // TODO(audit 2026-08-16): cross-module ISender — keep ISender: CompleteCheckoutForPayment is
+        // idempotent multi-module placement orchestration; pipeline/retry semantics matter.
+        var placeResult = await _sender.Send(
+            new CompleteCheckoutForPaymentCommand { CartId = payment.OrderId, PaymentId = payment.Id }, ct);
+        if (placeResult.IsFailure)
+        {
+            // Throw so Hangfire retries: the payment is already Completed and the event
+            // id is not yet recorded, so the retry only re-attempts order placement.
+            ProcessStripeWebhookEventJobLoggers.CannotPlaceOrder(_logger, payment.Id, placeResult.Message);
             throw new InvalidOperationException(
-                $"Cannot complete payment {payment.Id} on {stripeEvent.Type} (state={payment.State}): {result.Message}");
+                $"Order placement failed for payment {payment.Id}: {placeResult.Message}");
         }
 
         await RecordStripeEventAsync(payment, stripeEvent, ct);
@@ -168,8 +204,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        var payment = await _dbContext.Set<PaymentCapture>()
-            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == intent.Id || p.ResponseCode == intent.Id, ct);
+        var payment = await FindPaymentByIntentAsync(intent, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event
@@ -260,8 +295,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var intent = stripeEvent.Data.Object as PaymentIntent;
         if (intent is null) return;
 
-        var payment = await _dbContext.Set<PaymentCapture>()
-            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == intent.Id || p.ResponseCode == intent.Id, ct);
+        var payment = await FindPaymentByIntentAsync(intent, ct);
         if (payment is null) return;
 
         // Guard: Skip duplicate event
@@ -305,6 +339,18 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Dedup: skip only if this exact Stripe event was fully processed before.
         if (payment.ProcessedStripeEventIds.Contains(stripeEvent.Id)) return;
 
+        // Store the PaymentIntent id so admin refund/void, charge.* webhooks and a later
+        // payment_intent.succeeded can correlate against it (the cs_... session id is
+        // rejected by Stripe operations). Done BEFORE the paid guard so async methods —
+        // which deliver checkout.session.completed with payment_status=unpaid first — can
+        // still be correlated when payment_intent.succeeded arrives.
+        if (!string.IsNullOrEmpty(session.PaymentIntentId))
+        {
+            payment.StripePaymentIntentId = session.PaymentIntentId;
+            payment.ResponseCode = session.PaymentIntentId;
+            ProcessStripeWebhookEventJobLoggers.CheckoutSessionCompleted(_logger, payment.Id, session.PaymentIntentId);
+        }
+
         // Guard: only treat the session as paid when Stripe reports payment_status=paid.
         // checkout.session.completed also fires for async methods that are still
         // processing (payment_status=unpaid); completing early would falsely mark a
@@ -312,16 +358,8 @@ public sealed partial class ProcessStripeWebhookEventJob
         if (!string.Equals(session.PaymentStatus, GatewayConstants.Stripe.PaymentStatus.Paid, StringComparison.Ordinal))
         {
             ProcessStripeWebhookEventJobLoggers.SessionNotPaid(_logger, session.Id, session.PaymentStatus);
+            await SaveAsync(payment, ct);
             return;
-        }
-
-        // Store the PaymentIntent id so admin refund/void and charge.* webhooks can
-        // correlate against it (the cs_... session id is rejected by Stripe operations).
-        if (!string.IsNullOrEmpty(session.PaymentIntentId))
-        {
-            payment.StripePaymentIntentId = session.PaymentIntentId;
-            payment.ResponseCode = session.PaymentIntentId;
-            ProcessStripeWebhookEventJobLoggers.CheckoutSessionCompleted(_logger, payment.Id, session.PaymentIntentId);
         }
 
         if (payment.State != PaymentRecordState.Completed)
@@ -340,6 +378,8 @@ public sealed partial class ProcessStripeWebhookEventJob
         }
 
         // Place the order. Idempotent: a no-longer-draft cart is a no-op on retry.
+        // TODO(audit 2026-08-16): cross-module ISender — keep ISender: CompleteCheckoutForPayment is
+        // idempotent multi-module placement orchestration; pipeline/retry semantics matter.
         var placeResult = await _sender.Send(
             new CompleteCheckoutForPaymentCommand { CartId = payment.OrderId, PaymentId = payment.Id }, ct);
 
@@ -378,25 +418,6 @@ public sealed partial class ProcessStripeWebhookEventJob
         // but it still needs the compensating side-effects below (release + regress).
         if (payment.State is PaymentRecordState.Completed) return;
 
-        // Guard: a superseded session must not compensate. If the customer re-picked
-        // their payment method, a NEWER capture owns the cart's reservations — expiring
-        // the old session must not release the successor's live stock or regress a cart
-        // that may already be paid via the newer session.
-        var hasNewerCapture = await _dbContext.Set<PaymentCapture>()
-            .AnyAsync(
-                p => p.OrderId == payment.OrderId
-                     && p.Id != payment.Id
-                     && p.CreatedAtUtc > payment.CreatedAtUtc
-                     && p.State != PaymentRecordState.Void
-                     && p.State != PaymentRecordState.Invalid,
-                ct);
-        if (hasNewerCapture)
-        {
-            await RecordStripeEventAsync(payment, stripeEvent, ct);
-            ProcessStripeWebhookEventJobLoggers.CheckoutSessionExpired(_logger, payment.Id, session.Id);
-            return;
-        }
-
         if (payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending)
         {
             var voidResult = payment.Void(atUtc: StripeEventCreatedUtc(stripeEvent));
@@ -418,6 +439,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             throw new InvalidOperationException(
                 $"Failed to release stock reservations for order {payment.OrderId}: {releaseResult.Message}");
 
+        // TODO(audit 2026-08-16): cross-module ISender — RegressCheckoutStateCommand is a thin
+        // cart.Regress* wrapper; load Order and make the direct domain call.
         var regressResult = await _sender.Send(
             new RegressCheckoutStateCommand { CartId = payment.OrderId, TargetState = CheckoutState.PickDeliveryMethod }, ct);
         if (regressResult.IsFailure)
@@ -457,6 +480,68 @@ public sealed partial class ProcessStripeWebhookEventJob
         await SaveAsync(payment, ct);
     }
 
+    // Reconcile: bounded, opportunistic sweep of Completed payments whose order may still be
+    // Draft — e.g. the async-method race where payment_intent.succeeded completed the payment
+    // before the session event (or the fix itself) placed the order, or a placement that failed
+    // after completion. Reuses this per-event job (runs after every successfully routed event),
+    // so no additional recurring background job is needed. CompleteCheckoutForPayment is
+    // idempotent (a non-Draft order is a no-op) and self-defending (refuses to place until the
+    // payment is Completed), so re-sending is always safe.
+    private async Task ReconcilePendingPlacementsAsync(CancellationToken ct)
+    {
+        var candidates = await _dbContext.Set<PaymentCapture>()
+            .Where(p => p.State == PaymentRecordState.Completed)
+            .OrderBy(p => p.CompletedAtUtc)
+            .Take(ReconcileBatchSize)
+            .Select(p => new { p.Id, p.OrderId })
+            .ToListAsync(ct);
+
+        if (candidates.Count == 0) return;
+
+        var placed = 0;
+        foreach (var payment in candidates)
+        {
+            var result = await _sender.Send(
+                new CompleteCheckoutForPaymentCommand { CartId = payment.OrderId, PaymentId = payment.Id },
+                ct);
+
+            if (result.IsFailure)
+            {
+                ProcessStripeWebhookEventJobLoggers.CannotPlaceOrder(_logger, payment.Id, result.Message);
+                continue;
+            }
+
+            if (result.Value.Placed)
+            {
+                placed++;
+                ProcessStripeWebhookEventJobLoggers.OrderPlaced(_logger, payment.Id);
+            }
+        }
+
+        if (placed > 0)
+            ProcessStripeWebhookEventJobLoggers.ReconcileSweepCompleted(_logger, candidates.Count, placed);
+    }
+
+    // Load: PaymentCapture for a PaymentIntent event. Tries the correlated PaymentIntent id,
+    // the ResponseCode (legacy fallback), then the metadata payment number written at intent
+    // creation — the metadata fallback covers the Checkout flow where only the session id is
+    // stored until checkout.session.completed (or a retry) correlates the PaymentIntent id.
+    private async Task<PaymentCapture?> FindPaymentByIntentAsync(PaymentIntent intent, CancellationToken ct)
+    {
+        var metadataPaymentId = intent.Metadata is not null
+            && intent.Metadata.TryGetValue(GatewayConstants.Metadata.PaymentIdKey, out var pid)
+            && !string.IsNullOrWhiteSpace(pid)
+            ? pid
+            : null;
+
+        return await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(
+                p => p.StripePaymentIntentId == intent.Id
+                     || p.ResponseCode == intent.Id
+                     || (metadataPaymentId != null && p.Number == metadataPaymentId),
+                ct);
+    }
+
     // Mirror: best-effort stamp of the owning order's payment timeline. The payment row
     // is authoritative; a failure here must not fail the job (the order placement path
     // re-stamps on completion via CompleteCheckoutForPayment).
@@ -469,6 +554,8 @@ public sealed partial class ProcessStripeWebhookEventJob
             _ => null
         } ?? DateTimeOffset.UtcNow;
 
+        // TODO(audit 2026-08-16): cross-module ISender — RecordOrderPaymentStateCommand is just
+        // order.MarkPayment{Completed|Failed}; load Order and call the domain method directly.
         var result = await _sender.Send(new RecordOrderPaymentStateCommand
         {
             OrderId = payment.OrderId,

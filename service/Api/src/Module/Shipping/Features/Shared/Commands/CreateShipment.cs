@@ -17,7 +17,8 @@ public sealed class CreateShipmentCommandHandler(IApplicationDbContext dbContext
     {
         // Guard: Idempotent — a shipment for this order + shipping method already exists.
         var exists = await dbContext.Set<Shipment>()
-            .AnyAsync(s => s.OrderId == command.OrderId && s.ShippingMethodId == command.ShippingMethodId, cancellationToken);
+            .AnyAsync(s => s.OrderId == command.OrderId && 
+                           s.ShippingMethodId == command.ShippingMethodId, cancellationToken);
         if (exists)
             return Result.Ok();
 

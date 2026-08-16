@@ -1,4 +1,4 @@
-using Module.Dashboard.Features.Admin.Get.Shared.Models;
+using Module.Dashboard.Features.Admin.Shared.Models;
 
 namespace Module.Dashboard.Features.Admin.Get;
 

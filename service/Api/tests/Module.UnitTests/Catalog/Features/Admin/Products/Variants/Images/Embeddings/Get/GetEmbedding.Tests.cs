@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Get;
 

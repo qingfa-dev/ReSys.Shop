@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Options;
-using Module.Catalog.Features.Admin.Products.Options.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 using Module.Catalog.Features.Admin.Products.Options.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Options.Sync;

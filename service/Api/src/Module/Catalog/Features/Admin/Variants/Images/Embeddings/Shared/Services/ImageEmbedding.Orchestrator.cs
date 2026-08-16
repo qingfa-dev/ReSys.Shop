@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Clients;
-using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Services;
 

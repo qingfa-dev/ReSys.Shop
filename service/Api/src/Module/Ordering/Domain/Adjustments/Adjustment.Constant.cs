@@ -11,6 +11,8 @@ public static class AdjustmentConstant
         public const int MaxDisplayAmountLength = 50;
         // Guard: AdjustableType and SourceType discriminator strings — prevents unbounded varchar columns
         public const int MaxTypeStrings = 100;
+        // Guard: State string buffer — "open"/"closed" lifecycle values stored as text
+        public const int MaxStateLength = 50;
         // Guard: Monetary arithmetic precision — shared with Shared kernel for cross-aggregate consistency
         public const int MonetaryPrecision = 18;
         // Guard: Decimal places for monetary values — matches ISO 4217 minor-unit convention for most currencies

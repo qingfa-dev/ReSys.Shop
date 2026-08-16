@@ -7,8 +7,8 @@ using Module.Catalog.Domain.Variants.Images;
 using Module.Catalog.Domain.Variants.Options;
 using Module.Catalog.Domain.Variants.Prices;
 using Module.Catalog.Domain.Taxons;
-using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Products.Shared.Models;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Products.Shared.Mappings;
 

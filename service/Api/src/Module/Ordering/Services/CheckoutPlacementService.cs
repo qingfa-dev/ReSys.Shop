@@ -20,17 +20,25 @@ public sealed class CheckoutPlacementService(
     {
         logger.LogInformation("Placing order {OrderId} (actor={Actor})", cart.Id, actor);
 
+        // Validate: checkout prerequisites BEFORE consuming stock, so a missing address,
+        // shipping method, payment method or email can never strand already-consumed inventory.
+        var advanceResult = cart.AdvanceCheckoutState(CheckoutState.Confirm);
+        if (advanceResult.IsFailure) return advanceResult.Errors;
+
+        var prerequisitesResult = cart.ValidateCheckoutPrerequisites();
+        if (prerequisitesResult.IsFailure) return prerequisitesResult.Errors;
+
+        var numberResult = await OrderNumber.GenerateAsync(dbContext, ct);
+        if (numberResult.IsFailure) return numberResult.Errors;
+
+        // Consume: fulfill stock for the order's line items. Resilient and idempotent —
+        // missing/expired reservations are re-reserved on demand, and Fulfilled reservations
+        // from a prior attempt are counted as already consumed.
         var lines = cart.LineItems
             .Select(li => new StockConsumeLine(li.VariantId, li.Quantity))
             .ToList();
         var consumeResult = await stockReservationService.ConsumeForOrderAsync(cart.Id, lines, ct);
         if (consumeResult.IsFailure) return consumeResult.Errors;
-
-        var advanceResult = cart.AdvanceCheckoutState(CheckoutState.Confirm);
-        if (advanceResult.IsFailure) return advanceResult.Errors;
-
-        var numberResult = await OrderNumber.GenerateAsync(dbContext, ct);
-        if (numberResult.IsFailure) return numberResult.Errors;
 
         var placeResult = cart.Place(numberResult.Value);
         if (placeResult.IsFailure) return placeResult.Errors;
@@ -45,6 +53,8 @@ public sealed class CheckoutPlacementService(
         {
             try
             {
+                // TODO(audit 2026-08-16): cross-module ISender — CreateShipmentCommand creates a foreign
+                // aggregate; replace with a direct Shipping service call. See AGENTS.md rule #2 candidates.
                 var shipmentResult = await sender.Send(new CreateShipmentCommand
                 {
                     OrderId = cart.Id,

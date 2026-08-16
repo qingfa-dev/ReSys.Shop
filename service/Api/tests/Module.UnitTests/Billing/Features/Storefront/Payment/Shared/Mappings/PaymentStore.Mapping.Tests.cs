@@ -1,6 +1,6 @@
 using Module.Billing.Domain.PaymentCaptures;
-using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
-using Module.Billing.Features.Storefront.Payment.Shared.Models;
+using Module.Billing.Features.Storefront.Shared.Mappings;
+using Module.Billing.Features.Storefront.Shared.Models;
 
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.Shared.Mappings;

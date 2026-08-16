@@ -1,4 +1,4 @@
-using Module.Identity.Features.Shared.Storefront.Passwords.Shared.Models;
+using Module.Identity.Features.Storefront.Shared.Models;
 
 namespace Module.Identity.Features.Shared.Storefront.Passwords.Reset;
 

@@ -36,14 +36,14 @@ public class RecordOrderShipmentStateTests : IDisposable
         var result = await _handler.Handle(new RecordOrderShipmentStateCommand
         {
             OrderId = order.Id,
-            FulfillmentState = OrderFulfillmentState.Shipped,
+            FulfillmentState = ShipmentState.Shipped,
             ShippedAtUtc = shippedAt
         }, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
-        updated.FulfillmentState.Should().Be(OrderFulfillmentState.Shipped);
-        updated.ShippedAt.Should().Be(shippedAt);
+        updated.ShipmentState.Should().Be(ShipmentState.Shipped);
+        updated.ShipmentShippedAtUtc.Should().Be(shippedAt);
     }
 
     [Fact(DisplayName = "Handler: mirrors are first-write only")]
@@ -58,19 +58,19 @@ public class RecordOrderShipmentStateTests : IDisposable
         await _handler.Handle(new RecordOrderShipmentStateCommand
         {
             OrderId = order.Id,
-            FulfillmentState = OrderFulfillmentState.Shipped,
+            FulfillmentState = ShipmentState.Shipped,
             ShippedAtUtc = first
         }, TestContext.Current.CancellationToken);
         await _handler.Handle(new RecordOrderShipmentStateCommand
         {
             OrderId = order.Id,
-            FulfillmentState = OrderFulfillmentState.Delivered,
+            FulfillmentState = ShipmentState.Delivered,
             ShippedAtUtc = later
         }, TestContext.Current.CancellationToken);
 
         var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
-        updated.ShippedAt.Should().Be(first);
-        updated.FulfillmentState.Should().Be(OrderFulfillmentState.Delivered);
+        updated.ShipmentShippedAtUtc.Should().Be(first);
+        updated.ShipmentState.Should().Be(ShipmentState.Delivered);
     }
 
     [Fact(DisplayName = "Handler: unknown order returns NotFound")]
@@ -79,7 +79,7 @@ public class RecordOrderShipmentStateTests : IDisposable
         var result = await _handler.Handle(new RecordOrderShipmentStateCommand
         {
             OrderId = Guid.NewGuid(),
-            FulfillmentState = OrderFulfillmentState.Pending
+            FulfillmentState = ShipmentState.Pending
         }, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();

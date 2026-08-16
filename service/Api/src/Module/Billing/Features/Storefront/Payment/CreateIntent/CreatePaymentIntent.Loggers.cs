@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Module.Billing.Features.Storefront.Payment.CreateIntent;
 
 public static partial class CreatePaymentIntentLoggers

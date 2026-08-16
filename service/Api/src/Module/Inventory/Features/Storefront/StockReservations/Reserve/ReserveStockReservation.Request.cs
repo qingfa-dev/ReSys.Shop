@@ -1,4 +1,4 @@
-using Module.Inventory.Features.Storefront.StockReservations.Shared.Models;
+using Module.Inventory.Features.Storefront.Shared.Models;
 
 namespace Module.Inventory.Features.Storefront.StockReservations.Reserve;
 

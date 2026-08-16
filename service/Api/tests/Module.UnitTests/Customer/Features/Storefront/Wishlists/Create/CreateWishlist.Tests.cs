@@ -1,5 +1,4 @@
 using Module.Customer.Domain;
-using Module.Customer.Domain.Wishlists;
 using Module.Customer.Features.Storefront.Wishlists.Create;
 
 namespace Module.UnitTests.Profile.Features.Store.Wishlists.Create;

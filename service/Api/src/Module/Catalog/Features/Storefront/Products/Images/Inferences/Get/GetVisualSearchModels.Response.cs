@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Storefront.Products.Images.Inferences.Shared.Models;
+using Module.Catalog.Features.Storefront.Shared.Models;
 
 namespace Module.Catalog.Features.Storefront.Products.Images.Inferences.Get;
 

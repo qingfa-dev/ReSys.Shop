@@ -1,5 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
-using Module.Shipping.Features.Storefront.Shipping.Methods;
+using Module.Shipping.Features.Storefront.ShippingMethods.Get;
 
 namespace Module.UnitTests.Shipping.Features.Storefront.Shipping.Methods;
 
@@ -9,7 +9,6 @@ namespace Module.UnitTests.Shipping.Features.Storefront.Shipping.Methods;
 public class GetShippingMethodsHandlerTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ILogger<GetShippingMethods.PagedQueryHandler>> _loggerMock;
     private readonly GetShippingMethods.PagedQueryHandler _handler;
 
     public GetShippingMethodsHandlerTests()
@@ -20,8 +19,7 @@ public class GetShippingMethodsHandlerTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(ShippingMethod).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _loggerMock = new Mock<ILogger<GetShippingMethods.PagedQueryHandler>>();
-        _handler = new GetShippingMethods.PagedQueryHandler(_dbContext, _loggerMock.Object);
+        _handler = new GetShippingMethods.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -33,13 +31,13 @@ public class GetShippingMethodsHandlerTests : IDisposable
     [Fact(DisplayName = "Handler: Should return available methods when exist")]
     public async Task Handle_ShouldReturnAvailableMethods_WhenExist()
     {
-        var method1 = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        var method1 = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
         method1.AvailableToUsers = true;
         method1.IsDeleted = false;
-        var method2 = ShippingMethodExtensions.Create("Express", "flat_rate").Value;
+        var method2 = ShippingMethodMethod.Create("Express", "flat_rate").Value;
         method2.AvailableToUsers = true;
         method2.IsDeleted = false;
-        var method3 = ShippingMethodExtensions.Create("Hidden", "flat_rate").Value;
+        var method3 = ShippingMethodMethod.Create("Hidden", "flat_rate").Value;
         method3.AvailableToUsers = false;
         method3.IsDeleted = false;
 
@@ -58,7 +56,7 @@ public class GetShippingMethodsHandlerTests : IDisposable
     [Fact(DisplayName = "Handler: Should return empty when no available methods")]
     public async Task Handle_ShouldReturnEmpty_WhenNoAvailableMethods()
     {
-        var method = ShippingMethodExtensions.Create("Hidden", "flat_rate").Value;
+        var method = ShippingMethodMethod.Create("Hidden", "flat_rate").Value;
         method.AvailableToUsers = false;
         method.IsDeleted = false;
         _dbContext.Set<ShippingMethod>().Add(method);
@@ -75,22 +73,25 @@ public class GetShippingMethodsHandlerTests : IDisposable
     [Fact(DisplayName = "Handler: Should filter methods by delivery zone when country code supplied")]
     public async Task Handle_ShouldFilterByZone_WhenCountryCodeSupplied()
     {
-        var usOnly = ShippingMethodExtensions.Create("US Only", "flat_rate").Value;
+        var usOnly = ShippingMethodMethod.Create("US Only", "flat_rate").Value;
         usOnly.AvailableToUsers = true;
         usOnly.IsDeleted = false;
-        usOnly.Zones.Add(new ShippingMethodZone { CountryCode = "US" });
 
-        var worldwide = ShippingMethodExtensions.Create("Worldwide", "flat_rate").Value;
+        var worldwide = ShippingMethodMethod.Create("Worldwide", "flat_rate").Value;
         worldwide.AvailableToUsers = true;
         worldwide.IsDeleted = false;
-        worldwide.Zones.Add(new ShippingMethodZone { CountryCode = "*" });
 
-        var vietnamOnly = ShippingMethodExtensions.Create("VN Only", "flat_rate").Value;
+        var vietnamOnly = ShippingMethodMethod.Create("VN Only", "flat_rate").Value;
         vietnamOnly.AvailableToUsers = true;
         vietnamOnly.IsDeleted = false;
-        vietnamOnly.Zones.Add(new ShippingMethodZone { CountryCode = "VN" });
 
         _dbContext.Set<ShippingMethod>().AddRange(usOnly, worldwide, vietnamOnly);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _dbContext.Set<ShippingMethodZone>().AddRange(
+            new ShippingMethodZone { ShippingMethodId = usOnly.Id, CountryCode = "US" },
+            new ShippingMethodZone { ShippingMethodId = worldwide.Id, CountryCode = "*" },
+            new ShippingMethodZone { ShippingMethodId = vietnamOnly.Id, CountryCode = "VN" });
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
@@ -105,7 +106,7 @@ public class GetShippingMethodsHandlerTests : IDisposable
     [Fact(DisplayName = "Handler: Should return empty when available methods no zones")]
     public async Task Handle_ShouldReturnEmpty_WhenAvailableMethodsNoZones()
     {
-        var method = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        var method = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
         method.AvailableToUsers = true;
         method.IsDeleted = false;
         _dbContext.Set<ShippingMethod>().Add(method);

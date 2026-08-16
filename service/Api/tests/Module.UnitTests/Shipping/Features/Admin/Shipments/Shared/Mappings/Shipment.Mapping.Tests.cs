@@ -1,6 +1,6 @@
 using Module.Shipping.Domain.Shipments;
-using Module.Shipping.Features.Admin.Shipments.Shared.Mappings;
-using Module.Shipping.Features.Admin.Shipments.Shared.Models;
+using Module.Shipping.Features.Admin.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Shipping.Features.Admin.Shipments.Shared.Mappings;
 

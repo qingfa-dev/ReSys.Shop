@@ -29,6 +29,11 @@ public sealed class WishlistConfiguration : IEntityTypeConfiguration<Wishlist>
 
         builder.Property(x => x.UserId).IsRequired();
 
+        builder.HasOne(x => x.User)
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(x => new { x.UserId, x.IsDefault });
         builder.HasIndex(x => x.Token).IsUnique();
     }

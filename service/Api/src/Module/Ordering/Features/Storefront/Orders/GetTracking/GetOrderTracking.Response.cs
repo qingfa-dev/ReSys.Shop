@@ -1,4 +1,4 @@
-using Module.Ordering.Features.Storefront.Orders.GetTracking.Shared.Models;
+using Module.Ordering.Features.Storefront.Shared.Models;
 
 namespace Module.Ordering.Features.Storefront.Orders.GetTracking;
 

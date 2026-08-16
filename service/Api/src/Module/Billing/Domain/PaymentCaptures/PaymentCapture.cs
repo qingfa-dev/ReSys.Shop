@@ -2,6 +2,7 @@ using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
 using Module.Billing.Domain.PaymentMethods;
+using Module.Ordering.Domain.Orders;
 
 namespace Module.Billing.Domain.PaymentCaptures;
 
@@ -59,6 +60,7 @@ public sealed partial class PaymentCapture : Entity, IAuditable
 
     #region Relationships
     public PaymentMethod PaymentMethod { get; set; } = null!;
+    public Order? Order { get; set; }
     #endregion Relationships
 
     #region Auditing

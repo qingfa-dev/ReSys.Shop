@@ -1,8 +1,8 @@
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
-using Module.Ordering.Features.Storefront.Cart.Shared.Models;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Models;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.Shared.Mappings;
 

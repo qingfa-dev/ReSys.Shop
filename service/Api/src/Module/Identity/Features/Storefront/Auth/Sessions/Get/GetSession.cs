@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Shared.Storefront.Shared.Mappings;
+using Module.Identity.Features.Storefront.Shared.Mappings;
 
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Users;

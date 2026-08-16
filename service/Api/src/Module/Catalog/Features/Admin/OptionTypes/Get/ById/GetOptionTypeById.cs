@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.OptionTypes;
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.OptionTypes.Get.ById;
 

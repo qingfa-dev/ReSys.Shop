@@ -1,4 +1,4 @@
-using Module.Billing.Features.Storefront.Payment.Shared.Mappings;
+using Module.Billing.Features.Storefront.Shared.Mappings;
 
 using Module.Ordering.Domain.Orders;
 

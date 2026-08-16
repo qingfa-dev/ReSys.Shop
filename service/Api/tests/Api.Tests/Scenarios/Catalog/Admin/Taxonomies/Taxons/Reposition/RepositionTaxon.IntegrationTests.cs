@@ -1,8 +1,7 @@
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
-using Module.Catalog.Features.Admin.Taxons.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Taxons.Reposition;
 

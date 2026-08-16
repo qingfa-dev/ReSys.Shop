@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.LineItems;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItems;
 

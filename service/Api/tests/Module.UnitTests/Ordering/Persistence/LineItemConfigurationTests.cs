@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore.Metadata;
-
 using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockItems;
 using Module.Ordering.Domain.LineItems;
