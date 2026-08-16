@@ -378,6 +378,25 @@ public sealed partial class ProcessStripeWebhookEventJob
         // but it still needs the compensating side-effects below (release + regress).
         if (payment.State is PaymentRecordState.Completed) return;
 
+        // Guard: a superseded session must not compensate. If the customer re-picked
+        // their payment method, a NEWER capture owns the cart's reservations — expiring
+        // the old session must not release the successor's live stock or regress a cart
+        // that may already be paid via the newer session.
+        var hasNewerCapture = await _dbContext.Set<PaymentCapture>()
+            .AnyAsync(
+                p => p.OrderId == payment.OrderId
+                     && p.Id != payment.Id
+                     && p.CreatedAtUtc > payment.CreatedAtUtc
+                     && p.State != PaymentRecordState.Void
+                     && p.State != PaymentRecordState.Invalid,
+                ct);
+        if (hasNewerCapture)
+        {
+            await RecordStripeEventAsync(payment, stripeEvent, ct);
+            ProcessStripeWebhookEventJobLoggers.CheckoutSessionExpired(_logger, payment.Id, session.Id);
+            return;
+        }
+
         if (payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending)
         {
             var voidResult = payment.Void(atUtc: StripeEventCreatedUtc(stripeEvent));

@@ -606,6 +606,45 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact(DisplayName = "checkout.session.expired does not compensate when a newer capture owns the cart")]
+    public async Task HandleCheckoutSessionExpired_NewerCaptureExists_DoesNotReleaseOrRegress()
+    {
+        var orderId = Guid.NewGuid();
+        var stale = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        stale.State = PaymentRecordState.Void;
+        stale.ResponseCode = "cs_expired_stale_1";
+        _dbContext.Set<PaymentCapture>().Add(stale);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var newer = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        newer.State = PaymentRecordState.Processing;
+        newer.ResponseCode = "cs_live_1";
+        _dbContext.Set<PaymentCapture>().Add(newer);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "checkout.session.expired",
+                Id = "evt_expired_stale_1",
+                Data = new EventData
+                {
+                    Object = new Session { Id = "cs_expired_stale_1" }
+                }
+            });
+
+        await SeedAndExecuteAsync();
+
+        _stockServiceMock.Verify(s => s.ReleaseReservationsAsync(
+            It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
+        _senderMock.Verify(x => x.Send(
+            It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId),
+            It.IsAny<CancellationToken>()), Times.Never);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == stale.Id);
+        updated.ProcessedStripeEventIds.Should().Contain("evt_expired_stale_1");
+    }
+
     [Fact(DisplayName = "charge.refunded reconciles to the Stripe total without double-counting")]
     public async Task HandleChargeRefunded_ReconcilesWithoutDoubleCount()
     {
