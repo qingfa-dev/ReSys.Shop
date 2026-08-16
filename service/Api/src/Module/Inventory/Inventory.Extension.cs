@@ -17,6 +17,8 @@ public static class InventoryExtension
         builder.AddSeeder<InventoryStockMovementSeeder>();
 
         builder.Services.AddScoped<DemoJsonHelper>();
+        builder.Services.AddScoped<Backgrounds.ReservationExpiryJob>();
+        builder.Services.AddHostedService<Backgrounds.ReservationExpiryJobScheduler>();
 
         return builder;
     }
