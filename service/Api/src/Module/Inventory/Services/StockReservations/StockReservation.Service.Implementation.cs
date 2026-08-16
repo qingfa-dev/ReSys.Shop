@@ -1,6 +1,7 @@
 using System.Data;
 
 using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Shared;
 using Module.Inventory.Services.StockReservations;
@@ -344,9 +345,20 @@ internal sealed partial class StockReservationService(
             if (stockItem is null)
                 return StockReservationResult.Errors.StockItemNotFound(reservation.VariantId);
 
+            var previous = stockItem.CountOnHand;
             var pickResult = stockItem.Pick(take);
             if (pickResult.IsFailure)
                 return pickResult.Errors;
+
+            var movement = StockMovementMethod.Create(
+                stockItemId: stockItem.Id,
+                quantity: -take,
+                previousCountOnHand: previous,
+                originatorType: "Order",
+                originatorId: orderId,
+                reason: "sold");
+            if (movement.IsSuccess)
+                dbContext.Set<StockMovement>().Add(movement.Value);
 
             if (take == reservation.Quantity)
                 reservation.State = ReservationState.Fulfilled;

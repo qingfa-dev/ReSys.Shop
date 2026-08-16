@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
@@ -537,6 +538,26 @@ public class StockReservationServiceTests : IDisposable
         var other = await _dbContext.Set<StockReservation>()
             .FirstAsync(r => r.VariantId == otherVariant, ct);
         other.State.Should().Be(ReservationState.Released);
+    }
+
+    [Fact(DisplayName = "ConsumeForOrderAsync: creates a sold stock movement per picked reservation")]
+    public async Task ConsumeForOrderAsync_CreatesSoldMovement()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var item = await SeedStockItem(10);
+        await SeedCartReservation(2, _orderId.ToString());
+
+        var result = await _service.ConsumeForOrderAsync(
+            _orderId, new List<StockConsumeLine> { new(_variantId, 2) }, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+        var movement = await _dbContext.Set<StockMovement>().SingleAsync(ct);
+        movement.Quantity.Should().Be(-2);
+        movement.PreviousCountOnHand.Should().Be(10);
+        movement.Reason.Should().Be("sold");
+        movement.OriginatorType.Should().Be("Order");
+        movement.OriginatorId.Should().Be(_orderId);
     }
 
     #endregion
