@@ -10,6 +10,9 @@ public sealed class GetCartForCheckoutQueryHandler(IApplicationDbContext dbConte
     {
         var cart = await dbContext.Set<Order>()
             .Include(x => x.LineItems)
+                .ThenInclude(li => li.Variant)
+                .ThenInclude(v => v.Product)
+            .Include(x => x.ShippingMethod)
             .FirstOrDefaultAsync(
                 x => x.Id == query.CartId && x.Status == OrderStatus.Draft,
                 cancellationToken);
@@ -24,10 +27,14 @@ public sealed class GetCartForCheckoutQueryHandler(IApplicationDbContext dbConte
                 .Select(li => new CartLineItem
                 {
                     VariantId = li.VariantId,
-                    Quantity = li.Quantity
+                    Quantity = li.Quantity,
+                    Name = li.Variant.Product.Name,
+                    UnitPrice = li.Price
                 })
                 .ToList(),
             Total = cart.Total,
+            ShipmentTotal = cart.ShipmentTotal,
+            ShippingMethodName = cart.ShippingMethod?.Name,
             Email = cart.Email
         };
     }
