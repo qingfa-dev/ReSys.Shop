@@ -393,7 +393,8 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Compensate: release reservations and regress the cart BEFORE recording the
         // event, so a failure here leaves the event unrecorded and a Hangfire retry
         // re-runs these idempotent side-effects.
-        var releaseResult = await _stockReservationService.ReleaseReservationsAsync(orderId: payment.OrderId, ct: ct);
+        var releaseResult = await _stockReservationService.ReleaseReservationsAsync(
+            cartToken: payment.OrderId.ToString(), ct: ct);
         if (releaseResult.IsFailure)
             throw new InvalidOperationException(
                 $"Failed to release stock reservations for order {payment.OrderId}: {releaseResult.Message}");
