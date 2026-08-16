@@ -252,8 +252,8 @@ public class StockReservationServiceTests : IDisposable
 
     #region ReleaseReservationsAsync
 
-    [Fact(DisplayName = "ReleaseReservationsAsync: Should release cart reservations and restore stock")]
-    public async Task ReleaseReservationsAsync_ShouldReleaseAndRestoreStock_ByCartToken()
+    [Fact(DisplayName = "ReleaseReservationsAsync: Should release cart reservations without changing on-hand")]
+    public async Task ReleaseReservationsAsync_ShouldReleaseWithoutChangingOnHand()
     {
         var ct = TestContext.Current.CancellationToken;
         await SeedStockItem(5);
@@ -271,7 +271,7 @@ public class StockReservationServiceTests : IDisposable
 
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
-        stockItem.CountOnHand.Should().Be(10);
+        stockItem.CountOnHand.Should().Be(5);
     }
 
     [Fact(DisplayName = "ReleaseReservationsAsync: Should not affect other carts")]
@@ -434,8 +434,8 @@ public class StockReservationServiceTests : IDisposable
 
     #region ExpireReservationsAsync
 
-    [Fact(DisplayName = "ExpireReservationsAsync: Should expire overdue reservations and restore stock")]
-    public async Task ExpireReservationsAsync_ShouldExpireAndRestoreStock()
+    [Fact(DisplayName = "ExpireReservationsAsync: Should expire overdue reservations without changing on-hand")]
+    public async Task ExpireReservationsAsync_ShouldExpireWithoutChangingOnHand()
     {
         var ct = TestContext.Current.CancellationToken;
         await SeedStockItem(5);
@@ -451,7 +451,7 @@ public class StockReservationServiceTests : IDisposable
 
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
-        stockItem.CountOnHand.Should().Be(7);
+        stockItem.CountOnHand.Should().Be(5);
     }
 
     [Fact(DisplayName = "ExpireReservationsAsync: Should return zero when no expired reservations")]
@@ -468,7 +468,7 @@ public class StockReservationServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "ExpireReservationsAsync: Should handle multiple expired reservations")]
-    public async Task ExpireReservationsAsync_ShouldHandleMultipleExpired()
+    public async Task ExpireReservationsAsync_ShouldExpireMultipleWithoutChangingOnHand()
     {
         var ct = TestContext.Current.CancellationToken;
         await SeedStockItem(10);
@@ -487,7 +487,7 @@ public class StockReservationServiceTests : IDisposable
 
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
-        stockItem.CountOnHand.Should().Be(10 + 2 + 3);
+        stockItem.CountOnHand.Should().Be(10);
     }
 
     #endregion

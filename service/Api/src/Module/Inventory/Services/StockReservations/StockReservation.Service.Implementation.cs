@@ -197,15 +197,6 @@ internal sealed partial class StockReservationService(
             var releaseResult = r.Release();
             if (releaseResult.IsFailure) continue;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
-
-            if (r.StockLocationId is not null)
-            {
-                var stockItem = await dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, ct);
-
-                if (stockItem is not null)
-                    stockItem.CountOnHand += r.Quantity;
-            }
         }
 
         if (reservations.Count > 0)
@@ -260,15 +251,6 @@ internal sealed partial class StockReservationService(
             var expireResult = r.Expire();
             if (expireResult.IsFailure) continue;
             r.ModifiedAtUtc = now;
-
-            if (r.StockLocationId is not null)
-            {
-                var stockItem = await dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, ct);
-
-                if (stockItem is not null)
-                    stockItem.CountOnHand += r.Quantity;
-            }
         }
 
         if (expired.Count > 0)
