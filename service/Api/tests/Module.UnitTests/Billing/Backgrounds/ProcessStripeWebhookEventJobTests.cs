@@ -497,7 +497,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         updated.ProcessedStripeEventIds.Should().Contain("evt_expired_456");
 
         _stockServiceMock.Verify(s => s.ReleaseReservationsAsync(
-            payment.OrderId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+            It.IsAny<Guid?>(), payment.OrderId.ToString(), It.IsAny<CancellationToken>()), Times.Once);
 
         _senderMock.Verify(x => x.Send(
             It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == CheckoutState.PickDeliveryMethod),
@@ -599,7 +599,7 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         updated.ProcessedStripeEventIds.Should().Contain("evt_expired_failed_1");
 
         _stockServiceMock.Verify(s => s.ReleaseReservationsAsync(
-            payment.OrderId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+            It.IsAny<Guid?>(), payment.OrderId.ToString(), It.IsAny<CancellationToken>()), Times.Once);
 
         _senderMock.Verify(x => x.Send(
             It.Is<RegressCheckoutStateCommand>(c => c.CartId == orderId && c.TargetState == CheckoutState.PickDeliveryMethod),
