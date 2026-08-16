@@ -6,7 +6,6 @@
 
 | Severity | Concern | Evidence | Impact | Suggested action |
 |----------|---------|----------|--------|------------------|
-| High | 31 cross-module `using` references violate module isolation principle; build target only emits warnings | `check-cross-module-refs.sh` baseline: 31 files (reduced from 38 by 5-plan storefront alignment); `Directory.Build.targets:44` uses `<Warning>` not `<Error>` | Architectural erosion; modules not truly independent; refactoring a domain risks cascading changes | Re-enable as `<Error>` after auditing violations; enforce via Roslyn analyzer |
 | High | No automated E2E tests — 49 `.http` files for manual testing only; no automated integration test pipeline in CI | `.github/workflows/ci.yml` runs only unit tests; `ApiTests/` and `Api.SmokeTests` directories exist but have no automated runner | Regression risk on every deployment; payment/cart flows untested in CI | Add E2E pipeline (Playwright or similar) covering checkout, payment, registration flows |
 | High | `CreateOrderFromCart` handler orchestrates too many concerns (payment, stock, inventory, notification) in a single DB transaction — 30 commits in 90 days (highest churn) | `docs/codebase/.codebase-scan.txt:291` (30 commits), `CreateOrderFromCart.cs:92-118` (RepeatableRead transaction with stock deduction loop) | Bug magnet; ordering pipeline fragile under concurrent checkouts; difficult to reason about | Extract to saga/orchestrator pattern; split payment capture, stock deduction, order placement into idempotent steps |
 | Low | `eslint-plugin-boundaries` — RESOLVED (2026-08-11) | Package removed from `app/Admin/package.json`; was never used. No longer present. | `app/Admin/package.json` | n/a | RESOLVED — dependency pruned |
@@ -17,7 +16,6 @@
 
 | Debt item | Why it exists | Where | Risk if ignored | Suggested fix |
 |-----------|---------------|-------|-----------------|---------------|
-| 31 cross-module references violate module isolation | Since all 8 modules share one `Module.csproj` assembly, `using Module.X.Domain...` compiles fine; `check-cross-module-refs.sh` tracks 31 files (reduced from 38 by 5-plan storefront API alignment). Ordering→Catalog worst at 10 | Cascading changes when refactoring domain types; architectural erosion | Remove cross-module references (do not just make the target stricter); refactor to ISender-based calls |
 | Dashboard module — RESOLVED (2026-08-11) | 9 feature files under `Module/Dashboard/` but `builder.AddDashboardModule()` not called in `Program.cs` — now registered via `Dashboard.Extension.cs` | `service/Api/src/Module/Dashboard/` | n/a | RESOLVED — Dashboard now live at `GET /api/admin/dashboard` with `Sales.List` permission |
 | `eslint-plugin-boundaries` — RESOLVED (2026-08-11) | Package removed from `app/Admin/package.json`; was never used | `app/Admin/package.json`, `eslint.config.ts` | n/a | RESOLVED |
 
@@ -75,7 +73,7 @@
 5. **Code coverage target**: 70-80% minimum across C# and Vue projects.
 6. **Embedding service production**: CPU-based deployment first, GPU later. Dockerfile exists for the Python sidecar.
 7. **Flaky tests**: None known.
-8. **Cross-module references**: Remove the remaining 31 violations — do not just make the build target stricter. 7 removed during 5-plan storefront API alignment (38→31).
+8. **Cross-module references**: Permitted — modules share one assembly, and direct `using`, EF Core FKs, navigations, and service calls are allowed. Prefer MediatR `ISender` for cross-module behavior so it flows through the pipeline; direct calls are fine when they fit the feature slice. No whitelist or drift check (removed 2026-08-16).
 9. **Dashboard module**: Should be registered as the 9th module.
 10. **Naming convention (`Store` vs `Storefront`)**: Standardize on `Storefront` across all modules.
 11. **`eslint-plugin-boundaries`**: REMOVED from package.json (2026-08-11). The dead dependency was pruned.
@@ -84,7 +82,6 @@
 
 - `docs/codebase/.codebase-scan.txt` — scan output including git churn, TODOs, CI/CD config
 - `service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs` — high-churn checkout handler
-- `Directory.Build.targets:44` — `ValidateVerticalSliceIsolation` target (Condition="true", emits warnings)
 - `service/Api/src/Api/appsettings.json` — security and integration configuration
 - `service/Api/src/Api/appsettings.Development.json` — dev configuration (secrets externalized to user-secrets)
 - `app/legacy/ReSys.Admin/` — legacy admin (gitignored, not removed)

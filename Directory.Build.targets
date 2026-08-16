@@ -38,10 +38,10 @@
              Condition="'@(ForbiddenRef)' != ''" />
   </Target>
 
-  <!-- 4. VERTICAL SLICE ISOLATION: Prevent modules from referencing each other.
-       NOTE: This checks csproj ProjectReferences only. All 9 modules share one Module.csproj
-       assembly, so cross-module `using Module.X.Domain...` statements are NOT detected here.
-       Use `bash scripts/check-cross-module-refs.sh` to detect namespace-level violations. -->
+  <!-- 4. VERTICAL SLICE ISOLATION: Guard against future module-split ProjectReference cycles.
+       All 9 modules share one Module.csproj assembly, so this target only applies if modules are
+       ever split into separate projects. Cross-module `using` statements and EF Core FK
+       relationships are permitted (see AGENTS.md rule #2); no namespace drift check exists. -->
   <Target Name="ValidateVerticalSliceIsolation"
           BeforeTargets="BeforeBuild;ResolveProjectReferences"
           Condition="true">
