@@ -59,7 +59,7 @@ public class CreateOrderFromCartStockTests : IDisposable
 
         _reservationServiceMock = new Mock<IStockReservationService>();
         _reservationServiceMock
-            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         var placementService = new CheckoutPlacementService(
@@ -100,7 +100,7 @@ public class CreateOrderFromCartStockTests : IDisposable
 
         // Setup: Reservation consumption returns failure (simulates insufficient stock)
         _reservationServiceMock
-            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(StockReservationResult.Errors.InsufficientStock));
 
         // Act
@@ -139,6 +139,6 @@ public class CreateOrderFromCartStockTests : IDisposable
         var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
 
         // Assert: Verify reservations were consumed with the correct cart ID
-        _reservationServiceMock.Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<CancellationToken>()), Times.Once);
+        _reservationServiceMock.Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

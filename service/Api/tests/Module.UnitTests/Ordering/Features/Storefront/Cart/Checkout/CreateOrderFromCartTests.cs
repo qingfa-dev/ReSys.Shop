@@ -54,7 +54,7 @@ public class CreateOrderFromCartTests : IDisposable
 
         _reservationServiceMock = new Mock<IStockReservationService>();
         _reservationServiceMock
-            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         var placementService = new CheckoutPlacementService(
@@ -249,7 +249,7 @@ public class CreateOrderFromCartTests : IDisposable
 
         // Setup: Reservation consumption fails
         _reservationServiceMock
-            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(StockReservationResult.Errors.NoActiveReservations));
 
         // Act

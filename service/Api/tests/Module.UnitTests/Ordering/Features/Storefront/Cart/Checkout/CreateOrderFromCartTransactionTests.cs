@@ -60,7 +60,7 @@ public class CreateOrderFromCartTransactionTests
             .ReturnsAsync(Result.Ok());
 
         var reservationService = new Mock<IStockReservationService>();
-        reservationService.Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        reservationService.Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         var placementService = new CheckoutPlacementService(
@@ -76,6 +76,6 @@ public class CreateOrderFromCartTransactionTests
         result.IsSuccess.Should().BeTrue();
 
         // Verify reservations were consumed for the order
-        reservationService.Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<CancellationToken>()), Times.Once);
+        reservationService.Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
