@@ -212,6 +212,14 @@ public sealed class StripeGateway : Gateway
                 [GatewayConstants.Metadata.OrderIdKey] = options.OrderId,
                 [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
             },
+            PaymentIntentData = new SessionPaymentIntentDataOptions
+            {
+                Metadata = new Dictionary<string, string>
+                {
+                    [GatewayConstants.Metadata.OrderIdKey] = options.OrderId,
+                    [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
+                }
+            },
             LineItems =
             [
                 new SessionLineItemOptions

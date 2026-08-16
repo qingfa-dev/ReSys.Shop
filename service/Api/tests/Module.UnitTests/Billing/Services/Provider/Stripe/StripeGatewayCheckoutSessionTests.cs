@@ -39,4 +39,16 @@ public class StripeGatewayCheckoutSessionTests
         line.PriceData.ProductData.Should().NotBeNull();
         line.PriceData.ProductData!.Name.Should().Be("Order order-0001");
     }
+
+    [Fact(DisplayName = "BuildCheckoutSessionOptions: propagates metadata to the PaymentIntent")]
+    public void BuildCheckoutSessionOptions_PopulatesPaymentIntentMetadata()
+    {
+        var so = StripeGateway.BuildCheckoutSessionOptions(100m, BuildOptions());
+
+        so.PaymentIntentData.Should().NotBeNull();
+        so.PaymentIntentData!.Metadata.Should().ContainKey(GatewayConstants.Metadata.OrderIdKey)
+            .WhoseValue.Should().Be("order-0001");
+        so.PaymentIntentData.Metadata.Should().ContainKey(GatewayConstants.Metadata.PaymentIdKey)
+            .WhoseValue.Should().Be("PAY-20260816-ABC123");
+    }
 }
