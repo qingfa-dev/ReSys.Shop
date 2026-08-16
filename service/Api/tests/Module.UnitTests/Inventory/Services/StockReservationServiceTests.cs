@@ -560,5 +560,86 @@ public class StockReservationServiceTests : IDisposable
         movement.OriginatorId.Should().Be(_orderId);
     }
 
+    [Fact(DisplayName = "ConsumeForOrderAsync: consumes an exact reservation and marks it Fulfilled")]
+    public async Task ConsumeForOrderAsync_ConsumesExactReservation_AndMarksFulfilled()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var item = await SeedStockItem(10);
+        await SeedCartReservation(3, _orderId.ToString());
+
+        var result = await _service.ConsumeForOrderAsync(
+            _orderId, new List<StockConsumeLine> { new(_variantId, 3) }, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+        _dbContext.ChangeTracker.Clear();
+        var reloaded = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == item.Id, ct);
+        reloaded.CountOnHand.Should().Be(7);
+
+        var reservation = await _dbContext.Set<StockReservation>().SingleAsync(ct);
+        reservation.State.Should().Be(ReservationState.Fulfilled);
+
+        var movement = await _dbContext.Set<StockMovement>().SingleAsync(ct);
+        movement.Quantity.Should().Be(-3);
+        movement.Reason.Should().Be("sold");
+    }
+
+    [Fact(DisplayName = "ConsumeForOrderAsync: empty lines is a no-op")]
+    public async Task ConsumeForOrderAsync_EmptyLines_ReturnsOkNoop()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var item = await SeedStockItem(10);
+
+        var result = await _service.ConsumeForOrderAsync(
+            _orderId, new List<StockConsumeLine>(), ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+        _dbContext.ChangeTracker.Clear();
+        var reloaded = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == item.Id, ct);
+        reloaded.CountOnHand.Should().Be(10);
+        _dbContext.Set<StockMovement>().Count().Should().Be(0);
+    }
+
+    [Fact(DisplayName = "ConsumeForOrderAsync: splits consumption across two locations")]
+    public async Task ConsumeForOrderAsync_SplitsAcrossLocations()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var locationOne = await SeedStockItem(10);
+        var locationTwo = new StockItem
+        {
+            VariantId = _variantId, StockLocationId = Guid.NewGuid(),
+            CountOnHand = 10, Backorderable = false
+        };
+        _dbContext.Set<StockItem>().Add(locationTwo);
+        await _dbContext.SaveChangesAsync(ct);
+
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            _variantId, 2, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            _stockLocationId, _orderId, _orderId.ToString(), DateTimeOffset.UtcNow));
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            _variantId, 1, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            locationTwo.StockLocationId, _orderId, _orderId.ToString(), DateTimeOffset.UtcNow));
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.ConsumeForOrderAsync(
+            _orderId, new List<StockConsumeLine> { new(_variantId, 3) }, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+        _dbContext.ChangeTracker.Clear();
+        var reloadedOne = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == locationOne.Id, ct);
+        var reloadedTwo = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == locationTwo.Id, ct);
+        reloadedOne.CountOnHand.Should().Be(8);
+        reloadedTwo.CountOnHand.Should().Be(9);
+
+        var reservations = await _dbContext.Set<StockReservation>().ToListAsync(ct);
+        reservations.Should().AllSatisfy(r => r.State.Should().Be(ReservationState.Fulfilled));
+
+        var movements = await _dbContext.Set<StockMovement>().ToListAsync(ct);
+        movements.Should().HaveCount(2);
+        movements.Select(m => m.Quantity).Should().BeEquivalentTo([-2, -1]);
+    }
+
     #endregion
 }
