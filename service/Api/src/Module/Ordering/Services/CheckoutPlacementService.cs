@@ -20,7 +20,10 @@ public sealed class CheckoutPlacementService(
     {
         logger.LogInformation("Placing order {OrderId} (actor={Actor})", cart.Id, actor);
 
-        var consumeResult = await stockReservationService.ConsumeForOrderAsync(cart.Id, ct);
+        var lines = cart.LineItems
+            .Select(li => new StockConsumeLine(li.VariantId, li.Quantity))
+            .ToList();
+        var consumeResult = await stockReservationService.ConsumeForOrderAsync(cart.Id, lines, ct);
         if (consumeResult.IsFailure) return consumeResult.Errors;
 
         var advanceResult = cart.AdvanceCheckoutState(CheckoutState.Confirm);
