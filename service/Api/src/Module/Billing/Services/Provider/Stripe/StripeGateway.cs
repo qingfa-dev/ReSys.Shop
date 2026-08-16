@@ -190,41 +190,46 @@ public sealed class StripeGateway : Gateway
     {
         try
         {
-            var so = new SessionCreateOptions
-            {
-                Mode = "payment",
-                CustomerEmail = options.Customer,
-                SuccessUrl = options.SuccessUrl,
-                CancelUrl = options.CancelUrl,
-                Metadata = new Dictionary<string, string>
-                {
-                    [GatewayConstants.Metadata.OrderIdKey] = options.OrderId,
-                    [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
-                },
-                LineItems =
-                [
-                    new SessionLineItemOptions
-                    {
-                        Quantity = 1,
-                        PriceData = new SessionLineItemPriceDataOptions
-                        {
-                            Currency = options.Currency.ToLowerInvariant(),
-                            UnitAmount = checked((long)Math.Round(
-                                amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
-                            ProductData = new SessionLineItemPriceDataProductDataOptions
-                            {
-                                Name = $"Order {options.OrderId}"
-                            }
-                        }
-                    }
-                ]
-            };
+            var so = BuildCheckoutSessionOptions(amount, options);
             var ro = BuildRequestOptions(options);
             var session = await _sessionService.CreateAsync(so, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                 authorization: session.Id, checkoutUrl: session.Url);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
+    }
+
+    internal static SessionCreateOptions BuildCheckoutSessionOptions(decimal amount, GatewayOptions options)
+    {
+        return new SessionCreateOptions
+        {
+            Mode = "payment",
+            CustomerEmail = options.Customer,
+            SuccessUrl = options.SuccessUrl,
+            CancelUrl = options.CancelUrl,
+            Metadata = new Dictionary<string, string>
+            {
+                [GatewayConstants.Metadata.OrderIdKey] = options.OrderId,
+                [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
+            },
+            LineItems =
+            [
+                new SessionLineItemOptions
+                {
+                    Quantity = 1,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = options.Currency.ToLowerInvariant(),
+                        UnitAmount = checked((long)Math.Round(
+                            amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = $"Order {options.OrderId}"
+                        }
+                    }
+                }
+            ]
+        };
     }
 
     // Call: Stripe PaymentIntent.Get — returns status string
