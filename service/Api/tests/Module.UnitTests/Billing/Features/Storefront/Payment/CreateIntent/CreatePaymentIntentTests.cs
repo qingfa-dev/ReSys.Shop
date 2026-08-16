@@ -67,6 +67,9 @@ public class CreatePaymentIntentTests : IDisposable
         _reservationServiceMock.Setup(s => s.ReleaseReservationsAsync(
                 It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<int>.Ok(1));
+        _reservationServiceMock.Setup(s => s.ReleaseCartReservationsAsync(
+                It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<int>.Ok(0));
 
         _handler = new CreatePaymentIntent.CommandHandler(
             _dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object,
@@ -149,6 +152,35 @@ public class CreatePaymentIntentTests : IDisposable
 
         result.IsFailure.Should().BeTrue();
         _dbContext.Set<PaymentCapture>().Count().Should().Be(0);
+    }
+
+    [Fact(DisplayName = "Handler: releases prior cart reservations before re-reserving on first intent")]
+    public async Task Handle_FirstIntent_ReleasesPriorReservations_BeforeReserving()
+    {
+        var order = CreateOrder();
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card",
+            ProviderKey = GatewayConstants.Providers.Stripe, Active = true };
+        _dbContext.Set<PaymentMethod>().Add(pm);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _senderMock.Setup(x => x.Send(
+            It.Is<GetCartForCheckoutQuery>(q => q.CartId == order.Id),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<GetCartForCheckoutResponse>.Ok(new GetCartForCheckoutResponse
+            {
+                State = CheckoutState.PickDeliveryMethod,
+                Total = 100.00m,
+                Email = "test@example.com",
+                LineItems = [ new() { VariantId = Guid.NewGuid(), Quantity = 1 } ]
+            }));
+
+        var result = await _handler.Handle(
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = pm.Id }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        _reservationServiceMock.Verify(s => s.ReleaseCartReservationsAsync(
+            order.Id.ToString(), null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact(DisplayName = "Handler: retry at PaymentCapture voids stale capture and succeeds")]

@@ -72,6 +72,12 @@ public static partial class CreatePaymentIntent
                 CreatePaymentIntentLoggers.RetryVoidedStale(logger, stale.Count, command.Request.OrderId);
             }
 
+            // Release any prior cart holds (add-to-cart) so exactly one reservation set exists
+            // at consume time. ReleaseCartReservationsAsync only flips State=Released; it does
+            // not touch CountOnHand (availability is derived).
+            await stockReservationService.ReleaseCartReservationsAsync(
+                cartToken: command.Request.OrderId.ToString(), ct: cancellationToken);
+
             // Reserve: Stock batched via Inventory service before gateway call
             foreach (var li in cart.LineItems)
             {
