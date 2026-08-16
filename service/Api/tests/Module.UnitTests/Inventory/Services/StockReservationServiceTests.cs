@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 
 namespace Module.UnitTests.Inventory.Services;
 
@@ -488,6 +489,54 @@ public class StockReservationServiceTests : IDisposable
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
         stockItem.CountOnHand.Should().Be(10);
+    }
+
+    #endregion
+
+    #region ConsumeForOrderAsync
+
+    [Fact(DisplayName = "ConsumeForOrderAsync: consumes at most ordered quantity and releases excess")]
+    public async Task ConsumeForOrderAsync_CapsAtOrderedQuantity_ReleasesExcess()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var item = await SeedStockItem(10);
+        await SeedCartReservation(2, _orderId.ToString());
+        await SeedCartReservation(2, _orderId.ToString());
+
+        var result = await _service.ConsumeForOrderAsync(
+            _orderId, new List<StockConsumeLine> { new(_variantId, 2) }, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+        _dbContext.ChangeTracker.Clear();
+        var reloaded = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == item.Id, ct);
+        reloaded.CountOnHand.Should().Be(8);
+
+        var reservations = await _dbContext.Set<StockReservation>().ToListAsync(ct);
+        reservations.Count(r => r.State == ReservationState.Fulfilled).Should().Be(1);
+        reservations.Count(r => r.State == ReservationState.Released).Should().Be(1);
+    }
+
+    [Fact(DisplayName = "ConsumeForOrderAsync: releases a reservation whose variant is not in the order")]
+    public async Task ConsumeForOrderAsync_ReleasesUnorderedVariantReservation()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var item = await SeedStockItem(10);
+        await SeedCartReservation(2, _orderId.ToString());
+        var otherVariant = Guid.NewGuid();
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            otherVariant, 3, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            _stockLocationId, _orderId, _orderId.ToString(), DateTimeOffset.UtcNow));
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.ConsumeForOrderAsync(
+            _orderId, new List<StockConsumeLine> { new(_variantId, 2) }, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+        var other = await _dbContext.Set<StockReservation>()
+            .FirstAsync(r => r.VariantId == otherVariant, ct);
+        other.State.Should().Be(ReservationState.Released);
     }
 
     #endregion

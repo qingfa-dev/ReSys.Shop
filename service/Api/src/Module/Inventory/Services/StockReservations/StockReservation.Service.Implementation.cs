@@ -312,14 +312,29 @@ internal sealed partial class StockReservationService(
                 return reserveResult.Errors;
         }
 
-        // Consume: fulfill every Reserved reservation (original + re-reserved).
+        // Consume: fulfill only up to the ordered quantity per variant. Any reservation
+        // beyond the order (duplicate rows or variants not in the order) is released, never
+        // picked, so a paid order can never over-deduct.
+        var toConsumeByVariant = lines
+            .GroupBy(l => l.VariantId)
+            .ToDictionary(g => g.Key, g => g.Sum(l => l.Quantity));
+
         var reservedToConsume = await dbContext.Set<StockReservation>()
             .Where(r => r.CartToken == orderId.ToString()
                         && r.State == ReservationState.Reserved)
+            .OrderBy(r => r.CreatedAtUtc)
             .ToListAsync(ct);
 
         foreach (var reservation in reservedToConsume)
         {
+            if (!toConsumeByVariant.TryGetValue(reservation.VariantId, out var remaining) || remaining <= 0)
+            {
+                reservation.State = ReservationState.Released;
+                reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+                continue;
+            }
+
+            var take = Math.Min(reservation.Quantity, remaining);
             var stockItem = await dbContext.Set<StockItem>()
                 .FirstOrDefaultAsync(
                     si => si.VariantId == reservation.VariantId
@@ -329,12 +344,16 @@ internal sealed partial class StockReservationService(
             if (stockItem is null)
                 return StockReservationResult.Errors.StockItemNotFound(reservation.VariantId);
 
-            var pickResult = stockItem.Pick(reservation.Quantity);
+            var pickResult = stockItem.Pick(take);
             if (pickResult.IsFailure)
                 return pickResult.Errors;
 
-            reservation.State = ReservationState.Fulfilled;
+            if (take == reservation.Quantity)
+                reservation.State = ReservationState.Fulfilled;
+            else
+                reservation.Quantity -= take;
             reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            toConsumeByVariant[reservation.VariantId] = remaining - take;
         }
 
         await dbContext.SaveChangesAsync(ct);
