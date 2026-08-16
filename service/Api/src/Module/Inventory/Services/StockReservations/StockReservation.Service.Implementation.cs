@@ -2,6 +2,7 @@ using System.Data;
 
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Features.Shared;
 using Module.Inventory.Services.StockReservations;
 
 namespace Module.Inventory.Services;
@@ -263,17 +264,61 @@ internal sealed partial class StockReservationService(
     }
 
 
-    public async Task<Result> ConsumeForOrderAsync(Guid orderId, CancellationToken ct = default)
+    public async Task<Result> ConsumeForOrderAsync(
+        Guid orderId,
+        IReadOnlyCollection<StockConsumeLine> lines,
+        CancellationToken ct = default)
     {
+        if (lines.Count == 0)
+            return Result.Ok();
+
+        // Load: reservations for this order in ANY state — Fulfilled rows from a prior
+        // attempt (retry after a mid-placement failure) must count as already consumed.
         var reservations = await dbContext.Set<StockReservation>()
+            .Where(r => r.CartToken == orderId.ToString())
+            .ToListAsync(ct);
+
+        // Track: remaining quantity per variant still to consume.
+        var remainingByVariant = lines
+            .GroupBy(l => l.VariantId)
+            .ToDictionary(g => g.Key, g => g.Sum(l => l.Quantity));
+
+        // Deduct: quantities already consumed by Fulfilled reservations (idempotency guard).
+        foreach (var reservation in reservations.Where(r => r.State == ReservationState.Fulfilled))
+        {
+            if (remainingByVariant.TryGetValue(reservation.VariantId, out var remaining) && remaining > 0)
+                remainingByVariant[reservation.VariantId] = Math.Max(0, remaining - reservation.Quantity);
+        }
+
+        // Deduct: quantities covered by live Reserved reservations — those are consumed
+        // below, so only the shortfall (missing/expired reservations) needs re-reserving.
+        foreach (var reservation in reservations.Where(r => r.State == ReservationState.Reserved))
+        {
+            if (remainingByVariant.TryGetValue(reservation.VariantId, out var remaining) && remaining > 0)
+                remainingByVariant[reservation.VariantId] = Math.Max(0, remaining - reservation.Quantity);
+        }
+
+        // Re-reserve: any shortfall from on-hand stock (respecting other carts' active
+        // reservations), so a paid order is never blocked by an expired reservation.
+        foreach (var (variantId, remaining) in remainingByVariant.Where(kv => kv.Value > 0))
+        {
+            var reserveResult = await ReserveForVariantAsync(
+                variantId,
+                remaining,
+                cartToken: orderId.ToString(),
+                ttlMinutes: InventoryFeature.Storefront.StockReservations.TtlMinutesDefault,
+                ct: ct);
+            if (reserveResult.IsFailure)
+                return reserveResult.Errors;
+        }
+
+        // Consume: fulfill every Reserved reservation (original + re-reserved).
+        var reservedToConsume = await dbContext.Set<StockReservation>()
             .Where(r => r.CartToken == orderId.ToString()
                         && r.State == ReservationState.Reserved)
             .ToListAsync(ct);
 
-        if (reservations.Count == 0)
-            return StockReservationResult.Errors.NoActiveReservations;
-
-        foreach (var reservation in reservations)
+        foreach (var reservation in reservedToConsume)
         {
             var stockItem = await dbContext.Set<StockItem>()
                 .FirstOrDefaultAsync(
