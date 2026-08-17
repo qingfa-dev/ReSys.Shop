@@ -71,7 +71,9 @@ public static partial class CapturePayment
             var notifyResult = await sender.Send(new RecordOrderPaymentStateCommand
             {
                 OrderId = payment.OrderId,
-                PaymentState = PaymentTimelineState.Completed,
+                PaymentState = payment.State == PaymentRecordState.Completed
+                    ? PaymentTimelineState.Completed
+                    : PaymentTimelineState.Processing,
                 AtUtc = payment.CompletedAtUtc ?? DateTimeOffset.UtcNow
             }, cancellationToken);
             if (notifyResult.IsFailure)

@@ -7,6 +7,7 @@ using PaymentGatewayResponse = Module.Billing.Services.Provider.PaymentGatewayRe
 
 using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Admin.Payments.Capture;
+using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 
 
 
@@ -22,6 +23,7 @@ public class CapturePaymentTests : IDisposable
     private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
 
     private readonly Mock<IPaymentProcessingService> _processingServiceMock;
+    private readonly Mock<ISender> _senderMock;
     private readonly CapturePayment.CommandHandler _handler;
 
     public CapturePaymentTests()
@@ -45,11 +47,16 @@ public class CapturePaymentTests : IDisposable
         _processingServiceMock = new Mock<IPaymentProcessingService>();
         _processingServiceMock.Setup(x => x.CaptureAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentProcessingResult());
+
+        _senderMock = new Mock<ISender>();
+        _senderMock.Setup(x => x.Send(It.IsAny<RecordOrderPaymentStateCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
         _handler = new CapturePayment.CommandHandler(
             _dbContext,
             _gatewayRegistryMock.Object,
             _processingServiceMock.Object,
-            new Mock<ISender>().Object,
+            _senderMock.Object,
             new Mock<ILogger<CapturePayment.CommandHandler>>().Object);
     }
 
@@ -68,6 +75,23 @@ public class CapturePaymentTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Value.CapturedAmount.Should().Be(50m);
+    }
+
+    [Fact(DisplayName = "Handler: mirrors Processing onto order when capture is only partial")]
+    public async Task Handle_MirrorsProcessing_WhenPartialCapture()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), orderId).Value;
+        payment.Process();
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(new CapturePayment.Command(payment.Id, new CapturePayment.Request { Amount = 50m }), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        _senderMock.Verify(x => x.Send(
+            It.Is<RecordOrderPaymentStateCommand>(c => c.OrderId == orderId && c.PaymentState == PaymentTimelineState.Processing),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when gateway declines")]
