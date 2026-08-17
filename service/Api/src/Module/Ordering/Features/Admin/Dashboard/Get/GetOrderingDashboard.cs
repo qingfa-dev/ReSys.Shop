@@ -42,7 +42,7 @@ public static partial class GetOrderingDashboard
                     Id = o.Id,
                     Number = o.Number,
                     Total = o.Total,
-                    Status = o.Status.ToString(),
+                    Status = o.Status,
                     CreatedAtUtc = o.CreatedAtUtc
                 })
                 .ToListAsync(cancellationToken);

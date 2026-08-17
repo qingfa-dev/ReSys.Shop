@@ -33,3 +33,17 @@ public enum OrderPaymentState
     Checkout,
     Invalid
 }
+
+// Enumerate: Order timeline event types — serialized to PascalCase member names
+public enum OrderTimelineEventType
+{
+    Created,
+    Placed,
+    Approved,
+    PaymentProcessing,
+    PaymentCompleted,
+    PaymentFailed,
+    Shipped,
+    Delivered,
+    Canceled
+}

@@ -187,15 +187,15 @@ public static partial class OrderMapping
     {
         return new List<OrderTimelineEvent>
         {
-            new() { Type = "created", Label = "Order created", OccurredAtUtc = entity.CreatedAtUtc },
-            new() { Type = "placed", Label = "Order placed", OccurredAtUtc = entity.CompletedAtUtc },
-            new() { Type = "approved", Label = "Order approved", OccurredAtUtc = entity.ApprovedAtUtc },
-            new() { Type = "payment_processing", Label = "Payment processing", OccurredAtUtc = entity.PaymentProcessingAtUtc },
-            new() { Type = "payment_completed", Label = "Payment completed", OccurredAtUtc = entity.PaymentCompletedAtUtc },
-            new() { Type = "payment_failed", Label = "Payment failed", OccurredAtUtc = entity.PaymentFailedAtUtc },
-            new() { Type = "shipped", Label = "Order shipped", OccurredAtUtc = entity.ShipmentShippedAtUtc },
-            new() { Type = "delivered", Label = "Order delivered", OccurredAtUtc = entity.ShipmentDeliveredAtUtc },
-            new() { Type = "canceled", Label = "Order canceled", OccurredAtUtc = entity.CanceledAtUtc },
+            new() { Type = OrderTimelineEventType.Created, Label = "Order created", OccurredAtUtc = entity.CreatedAtUtc },
+            new() { Type = OrderTimelineEventType.Placed, Label = "Order placed", OccurredAtUtc = entity.CompletedAtUtc },
+            new() { Type = OrderTimelineEventType.Approved, Label = "Order approved", OccurredAtUtc = entity.ApprovedAtUtc },
+            new() { Type = OrderTimelineEventType.PaymentProcessing, Label = "Payment processing", OccurredAtUtc = entity.PaymentProcessingAtUtc },
+            new() { Type = OrderTimelineEventType.PaymentCompleted, Label = "Payment completed", OccurredAtUtc = entity.PaymentCompletedAtUtc },
+            new() { Type = OrderTimelineEventType.PaymentFailed, Label = "Payment failed", OccurredAtUtc = entity.PaymentFailedAtUtc },
+            new() { Type = OrderTimelineEventType.Shipped, Label = "Order shipped", OccurredAtUtc = entity.ShipmentShippedAtUtc },
+            new() { Type = OrderTimelineEventType.Delivered, Label = "Order delivered", OccurredAtUtc = entity.ShipmentDeliveredAtUtc },
+            new() { Type = OrderTimelineEventType.Canceled, Label = "Order canceled", OccurredAtUtc = entity.CanceledAtUtc },
         }
         .Where(e => e.OccurredAtUtc.HasValue)
         .OrderBy(e => e.OccurredAtUtc)

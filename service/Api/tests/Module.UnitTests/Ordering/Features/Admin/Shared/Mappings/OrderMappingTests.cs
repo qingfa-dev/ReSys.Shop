@@ -38,7 +38,7 @@ public class OrderMappingTests : IDisposable
 
         var timeline = OrderMapping.BuildTimeline(order);
 
-        timeline.Select(e => e.Type).Should().Equal("created", "payment_completed", "placed", "shipped");
+        timeline.Select(e => e.Type).Should().Equal(OrderTimelineEventType.Created, OrderTimelineEventType.PaymentCompleted, OrderTimelineEventType.Placed, OrderTimelineEventType.Shipped);
         timeline.Should().BeInAscendingOrder(e => e.OccurredAtUtc);
     }
 

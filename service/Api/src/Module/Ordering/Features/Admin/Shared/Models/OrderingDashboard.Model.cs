@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Admin.Shared.Models;
 
 public abstract record OrderingDashboardParameters
@@ -16,7 +18,7 @@ public sealed record RecentOrderData
     public Guid Id { get; init; }
     public string Number { get; init; } = default!;
     public decimal Total { get; init; }
-    public string Status { get; init; } = default!;
+    public OrderStatus Status { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
 }
 

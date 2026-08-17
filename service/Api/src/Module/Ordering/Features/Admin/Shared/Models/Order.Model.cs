@@ -160,7 +160,7 @@ public sealed record ShipmentSummary
 
 public sealed record OrderTimelineEvent
 {
-    public string Type { get; init; } = string.Empty;
+    public OrderTimelineEventType Type { get; init; }
     public string Label { get; init; } = string.Empty;
     public DateTimeOffset? OccurredAtUtc { get; init; }
 }
