@@ -201,6 +201,43 @@ public sealed class StripeGateway : Gateway
 
     internal static SessionCreateOptions BuildCheckoutSessionOptions(decimal amount, GatewayOptions options)
     {
+        var currency = options.Currency.ToLowerInvariant();
+
+        var lineItems = options.LineItems.Count > 0
+            ? options.LineItems
+                .Select(li => new SessionLineItemOptions
+                {
+                    Quantity = li.Quantity,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = currency,
+                        UnitAmount = checked((long)Math.Round(
+                            li.UnitPrice * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = li.Name
+                        }
+                    }
+                })
+                .ToList()
+            :
+            [
+                new SessionLineItemOptions
+                {
+                    Quantity = 1,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = currency,
+                        UnitAmount = checked((long)Math.Round(
+                            amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = $"Order {options.OrderId}"
+                        }
+                    }
+                }
+            ];
+
         return new SessionCreateOptions
         {
             Mode = "payment",
@@ -220,23 +257,26 @@ public sealed class StripeGateway : Gateway
                     [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
                 }
             },
-            LineItems =
-            [
-                new SessionLineItemOptions
-                {
-                    Quantity = 1,
-                    PriceData = new SessionLineItemPriceDataOptions
+            LineItems = lineItems,
+            ShippingOptions = options.Shipping > 0
+                ?
+                [
+                    new SessionShippingOptionOptions
                     {
-                        Currency = options.Currency.ToLowerInvariant(),
-                        UnitAmount = checked((long)Math.Round(
-                            amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        ShippingRateData = new SessionShippingOptionShippingRateDataOptions
                         {
-                            Name = $"Order {options.OrderId}"
+                            Type = "fixed_amount",
+                            FixedAmount = new SessionShippingOptionShippingRateDataFixedAmountOptions
+                            {
+                                Amount = checked((long)Math.Round(
+                                    options.Shipping * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
+                                Currency = currency
+                            },
+                            DisplayName = options.ShippingDisplayName ?? "Shipping"
                         }
                     }
-                }
-            ]
+                ]
+                : null
         };
     }
 
