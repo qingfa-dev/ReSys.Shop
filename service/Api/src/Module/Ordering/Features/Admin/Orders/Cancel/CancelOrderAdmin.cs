@@ -61,7 +61,11 @@ public static partial class CancelOrderAdmin
             }
 
             foreach (var shipment in order.Shipments)
-                shipment.Cancel();
+            {
+                var shipmentCancelResult = shipment.Cancel();
+                if (shipmentCancelResult.IsFailure)
+                    return shipmentCancelResult.Errors;
+            }
 
             order.ShipmentState = ShipmentState.Canceled;
 

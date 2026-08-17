@@ -66,7 +66,11 @@ public static partial class CancelOrder
             }
 
             foreach (var shipment in entity.Shipments)
-                shipment.Cancel();
+            {
+                var shipmentCancelResult = shipment.Cancel();
+                if (shipmentCancelResult.IsFailure)
+                    return shipmentCancelResult.Errors;
+            }
 
             entity.ShipmentState = ShipmentState.Canceled;
 
