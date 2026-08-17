@@ -258,7 +258,7 @@ public sealed class StripeGateway : Gateway
                 }
             },
             LineItems = lineItems,
-            ShippingOptions = options.Shipping > 0
+            ShippingOptions = options.LineItems.Count > 0 && options.Shipping > 0
                 ?
                 [
                     new SessionShippingOptionOptions

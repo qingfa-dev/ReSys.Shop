@@ -111,6 +111,16 @@ public class StripeGatewayCheckoutSessionTests
         so.ShippingOptions.Should().BeNull();
     }
 
+    [Fact(DisplayName = "BuildCheckoutSessionOptions: no shipping option when no line items even if Shipping > 0")]
+    public void BuildCheckoutSessionOptions_NoShippingOption_WhenNoLineItemsButShippingPositive()
+    {
+        var options = BuildOptions() with { Shipping = 12.50m };
+
+        var so = StripeGateway.BuildCheckoutSessionOptions(37.50m, options);
+
+        so.ShippingOptions.Should().BeNull();
+    }
+
     [Fact(DisplayName = "BuildCheckoutSessionOptions: falls back to aggregate line when no line items")]
     public void BuildCheckoutSessionOptions_FallsBackToAggregate_WhenNoLineItems()
     {
