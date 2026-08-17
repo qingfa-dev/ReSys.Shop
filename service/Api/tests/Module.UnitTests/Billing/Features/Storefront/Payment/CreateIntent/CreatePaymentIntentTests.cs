@@ -99,7 +99,7 @@ public class CreatePaymentIntentTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be(PaymentRecordState.Pending.ToString());
+        result.Value.State.Should().Be(PaymentRecordState.Pending);
         result.Value.ResponseCode.Should().BeNull();
         result.Value.CheckoutUrl.Should().BeNull();
         _gatewayMock.Verify(x => x.CreateCheckoutSessionAsync(It.IsAny<decimal>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()), Times.Never);

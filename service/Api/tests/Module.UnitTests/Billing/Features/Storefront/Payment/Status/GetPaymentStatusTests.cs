@@ -68,7 +68,7 @@ public class GetPaymentStatusTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsCompleted.Should().BeTrue();
-        result.Value.State.Should().Be("Completed");
+        result.Value.State.Should().Be(PaymentRecordState.Completed);
         result.Value.Amount.Should().Be(100m);
     }
 
@@ -88,7 +88,7 @@ public class GetPaymentStatusTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsCompleted.Should().BeFalse();
-        result.Value.State.Should().Be("Processing");
+        result.Value.State.Should().Be(PaymentRecordState.Processing);
     }
 
     [Fact(DisplayName = "Handler: Should return NotFound when order does not exist")]

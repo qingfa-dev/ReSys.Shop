@@ -41,7 +41,7 @@ public static partial class GetPaymentStatus
                 OrderId = payment.OrderId,
                 Amount = payment.Amount,
                 Currency = payment.Currency,
-                State = payment.State.ToString(),
+                State = payment.State,
                 IsCompleted = payment.State == PaymentRecordState.Completed
             };
         }

@@ -1,3 +1,5 @@
+using Module.Billing.Domain.PaymentCaptures;
+
 namespace Module.Billing.Features.Admin.Shared.Models;
 
 #region  Parameters
@@ -12,7 +14,7 @@ public abstract record PaymentParameters
     public string Currency { get; init; } = string.Empty;
     public Guid OrderId { get; init; }
     public Guid PaymentMethodId { get; init; }
-    public string State { get; init; } = string.Empty;
+    public PaymentRecordState State { get; init; }
     public string? PaymentStatus { get; init; }
 }
 #endregion

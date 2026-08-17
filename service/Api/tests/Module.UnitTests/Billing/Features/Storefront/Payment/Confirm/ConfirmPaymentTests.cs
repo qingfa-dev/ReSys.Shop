@@ -66,7 +66,7 @@ public class ConfirmPaymentTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be("Completed");
+        result.Value.State.Should().Be(PaymentRecordState.Completed);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when payment in Checkout state")]
@@ -99,7 +99,7 @@ public class ConfirmPaymentTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be("Completed");
+        result.Value.State.Should().Be(PaymentRecordState.Completed);
     }
 
     [Fact(DisplayName = "Handler: Should return NotFound when payment does not exist")]

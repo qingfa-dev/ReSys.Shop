@@ -25,7 +25,7 @@ public static class PaymentModelMapping
             Currency = payment.Currency,
             OrderId = payment.OrderId,
             PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
-            State = payment.State.ToString(),
+            State = payment.State,
             ResponseCode = payment.ResponseCode,
             PaymentMethodName = payment.PaymentMethod?.Name,
             ClientSecret = payment.IntentClientSecret,
@@ -45,7 +45,7 @@ public static class PaymentModelMapping
             Currency = payment.Currency,
             OrderId = payment.OrderId,
             PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
-            State = payment.State.ToString()
+            State = payment.State
         };
     }
 }
