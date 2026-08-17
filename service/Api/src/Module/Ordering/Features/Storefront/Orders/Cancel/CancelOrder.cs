@@ -1,6 +1,8 @@
-using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
+using Module.Shipping.Domain.Shipments;
 
+using Shared.Application.Domain.Orders;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
@@ -14,7 +16,7 @@ public static partial class CancelOrder
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        IStockItemService stockItem,
+        IStockReservationService stockReservation,
         ISender sender,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
@@ -36,6 +38,7 @@ public static partial class CancelOrder
             // Check: Find the existing order scoped to current user.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Shipments)
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)
@@ -62,22 +65,17 @@ public static partial class CancelOrder
                 OrderLoggers.VoidPaymentsFailed(logger, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
+            foreach (var shipment in entity.Shipments)
+                shipment.Cancel();
+
+            entity.ShipmentState = ShipmentState.Canceled;
+
             // Release: Return consumed stock for previously placed orders.
             if (wasPlaced)
             {
-                foreach (var lineItem in entity.LineItems)
-                {
-                    var locationResult = await stockItem.GetStockLocationIdForVariantAsync(lineItem.VariantId, cancellationToken);
-                    if (locationResult.IsFailure)
-                        return locationResult.Errors;
-                    if (locationResult.Value is null)
-                        continue;
-
-                    var adjustResult = await stockItem.AdjustStockAsync(
-                        lineItem.VariantId, lineItem.Quantity, locationResult.Value.Value, entity.Id, cancellationToken);
-                    if (adjustResult.IsFailure)
-                        return adjustResult.Errors;
-                }
+                var returnResult = await stockReservation.ReturnConsumedForOrderAsync(entity.Id, cancellationToken);
+                if (returnResult.IsFailure)
+                    return returnResult.Errors;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);

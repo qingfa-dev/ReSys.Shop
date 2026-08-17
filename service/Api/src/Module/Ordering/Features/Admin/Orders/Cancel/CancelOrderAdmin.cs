@@ -1,8 +1,10 @@
 using Module.Billing.Features.Shared.Commands;
-using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Shared.Mappings;
+using Module.Shipping.Domain.Shipments;
 
+using Shared.Application.Domain.Orders;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
@@ -19,7 +21,7 @@ public static partial class CancelOrderAdmin
         INotificationService notificationService,
         ILogger<CommandHandler> logger,
         ISender sender,
-        IStockItemService stockItem) : ICommandHandler<Command, Response>
+        IStockReservationService stockReservation) : ICommandHandler<Command, Response>
     {
         /// <summary>Voids payments, releases inventory for placed orders, persists the cancellation, and notifies the customer.</summary>
         /// <param name="command">The command containing the order ID and cancellation details.</param>
@@ -31,6 +33,7 @@ public static partial class CancelOrderAdmin
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var order = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
+                .Include(o => o.Shipments)
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
@@ -57,22 +60,17 @@ public static partial class CancelOrderAdmin
                 OrderLoggers.VoidPaymentsFailed(logger, order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
+            foreach (var shipment in order.Shipments)
+                shipment.Cancel();
+
+            order.ShipmentState = ShipmentState.Canceled;
+
             // Release: Return consumed stock for previously placed orders.
             if (wasPlaced)
             {
-                foreach (var lineItem in order.LineItems)
-                {
-                    var locationResult = await stockItem.GetStockLocationIdForVariantAsync(lineItem.VariantId, cancellationToken);
-                    if (locationResult.IsFailure)
-                        return locationResult.Errors;
-                    if (locationResult.Value is null)
-                        continue;
-
-                    var adjustResult = await stockItem.AdjustStockAsync(
-                        lineItem.VariantId, lineItem.Quantity, locationResult.Value.Value, order.Id, cancellationToken);
-                    if (adjustResult.IsFailure)
-                        return adjustResult.Errors;
-                }
+                var returnResult = await stockReservation.ReturnConsumedForOrderAsync(order.Id, cancellationToken);
+                if (returnResult.IsFailure)
+                    return returnResult.Errors;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);

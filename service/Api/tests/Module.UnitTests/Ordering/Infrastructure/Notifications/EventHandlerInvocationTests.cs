@@ -1,6 +1,6 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Cancel;
-using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -61,13 +61,18 @@ public sealed class EventHandlerInvocationTests : IDisposable
             .Setup(x => x.Send(It.IsAny<IRequest<Result>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
+        var reservationServiceMock = new Mock<IStockReservationService>();
+        reservationServiceMock
+            .Setup(x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
         var handler = new CancelOrderAdmin.CommandHandler(
             _dbContext,
             _currentUserMock.Object,
             _notificationServiceMock.Object,
             _loggerMock.Object,
             senderMock.Object,
-            new Mock<IStockItemService>().Object);
+            reservationServiceMock.Object);
 
         var result = await handler.Handle(
             new CancelOrderAdmin.Command(order.Id, new CancelOrderAdmin.Request { Reason = "test" }),
