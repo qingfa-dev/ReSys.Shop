@@ -64,6 +64,33 @@ public class OrderPaymentStateTests
         order.PaymentState.Should().Be(OrderPaymentState.BalanceDue);
     }
 
+    [Fact(DisplayName = "RecomputePaymentState: canceled unpaid order yields Void")]
+    public void RecomputePaymentState_CanceledUnpaid_YieldsVoid()
+    {
+        var order = NewOrder(100m);
+        order.Status = OrderStatus.Canceled;
+
+        order.RecomputePaymentState();
+
+        order.PaymentTotal.Should().Be(0m);
+        order.PaymentState.Should().Be(OrderPaymentState.Void);
+    }
+
+    [Fact(DisplayName = "RecomputePaymentState: canceled paid order yields CreditOwed")]
+    public void RecomputePaymentState_CanceledPaid_YieldsCreditOwed()
+    {
+        var order = NewOrder(100m);
+        order.Status = OrderStatus.Canceled;
+        order.Total = 0m;
+        order.PaymentCaptures.Add(Capture(100m));
+
+        order.RecomputePaymentState();
+
+        order.PaymentTotal.Should().Be(100m);
+        order.OutstandingBalance.Should().Be(-100m);
+        order.PaymentState.Should().Be(OrderPaymentState.CreditOwed);
+    }
+
     [Fact(DisplayName = "MarkPaymentCompleted: stamps timestamp but no longer sets PaymentState")]
     public void MarkPaymentCompleted_StampsTimestampOnly()
     {

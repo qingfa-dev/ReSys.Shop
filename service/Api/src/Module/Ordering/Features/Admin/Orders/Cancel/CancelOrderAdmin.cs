@@ -44,6 +44,8 @@ public static partial class CancelOrderAdmin
             if (result.IsFailure)
                 return result.Errors;
 
+            order.RecomputePaymentState();
+
             // Call: Void pending payments via Payment module — fire-and-forget on failure.
             // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
             // keys); or extract to Billing IPaymentProcessingService and inject. Not a navigation fit.

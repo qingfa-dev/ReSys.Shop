@@ -50,6 +50,8 @@ public static partial class CancelOrder
             if (cancelResult.IsFailure)
                 return cancelResult.Errors;
 
+            entity.RecomputePaymentState();
+
             // Call: Cancel associated payments via MediatR.
             // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
             // keys); or extract to Billing IPaymentProcessingService and inject. Not a navigation fit.
