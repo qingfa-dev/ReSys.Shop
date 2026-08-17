@@ -144,7 +144,9 @@ Map the five timestamps, `Payments` (from `PaymentCaptures`), `Shipments`
 - Fixing `GetOrderTracking`'s unused shipment load / `EstimatedDeliveryAt`
   population (recorded in the audit doc only).
 - Removing the Storefront Track dialog or the Admin line-items management fetch.
-- Removing now-unused API methods (`OrderApi.listShipments`, `paymentApi.getPayments`) — kept for other callers; noted for future cleanup.
+- `OrderApi.listShipments` is **removed** (YAGNI): after the detail view stops
+  calling it, no caller remains. Its spec test is updated accordingly.
+  `PaymentApi.getPayments` is kept — still used by `usePaymentList.ts`.
 
 ## Testing
 
