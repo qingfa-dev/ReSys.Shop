@@ -1,5 +1,11 @@
+using Microsoft.Extensions.Logging.Abstractions;
+
+using Module.Ordering.Features.Storefront.RecordOrderShipmentState;
 using Module.Shipping.Domain.Shipments;
 using Module.Shipping.Features.Shared.Commands;
+using Module.Shipping.Services;
+
+using Shared.Application.Domain.Orders;
 
 namespace Module.UnitTests.Shipping.Features.Shared.Commands;
 
@@ -9,6 +15,8 @@ namespace Module.UnitTests.Shipping.Features.Shared.Commands;
 public class CreateShipmentTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<ISender> _senderMock;
+    private readonly ShipmentFulfillmentSyncService _syncService;
     private readonly CreateShipmentCommandHandler _handler;
 
     public CreateShipmentTests()
@@ -19,7 +27,15 @@ public class CreateShipmentTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Shipment).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new CreateShipmentCommandHandler(_dbContext);
+
+        _senderMock = new Mock<ISender>();
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<RecordOrderShipmentStateCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        _syncService = new ShipmentFulfillmentSyncService(
+            _dbContext, _senderMock.Object, NullLogger<ShipmentFulfillmentSyncService>.Instance);
+        _handler = new CreateShipmentCommandHandler(_dbContext, _syncService);
     }
 
     public void Dispose()
@@ -61,5 +77,22 @@ public class CreateShipmentTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         _dbContext.Set<Shipment>().Count().Should().Be(1);
+    }
+
+    [Fact(DisplayName = "Handle: syncs order fulfillment state after creating a shipment")]
+    public async Task Handle_ShouldSyncOrderFulfillment_AfterCreatingShipment()
+    {
+        var orderId = Guid.NewGuid();
+        var shippingMethodId = Guid.NewGuid();
+
+        var result = await _handler.Handle(
+            new CreateShipmentCommand { OrderId = orderId, ShippingMethodId = shippingMethodId },
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+
+        _senderMock.Verify(s => s.Send(
+            It.Is<RecordOrderShipmentStateCommand>(c => c.OrderId == orderId && c.FulfillmentState == ShipmentState.Pending),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }

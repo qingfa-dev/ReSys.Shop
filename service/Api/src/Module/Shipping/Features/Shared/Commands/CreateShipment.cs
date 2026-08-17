@@ -1,4 +1,5 @@
 using Module.Shipping.Domain.Shipments;
+using Module.Shipping.Services;
 
 namespace Module.Shipping.Features.Shared.Commands;
 
@@ -9,7 +10,9 @@ public sealed record CreateShipmentCommand : ICommand
 }
 
 /// <summary>Creates a Pending shipment for a placed order.</summary>
-public sealed class CreateShipmentCommandHandler(IApplicationDbContext dbContext)
+public sealed class CreateShipmentCommandHandler(
+    IApplicationDbContext dbContext,
+    ShipmentFulfillmentSyncService syncService)
     : ICommandHandler<CreateShipmentCommand>
 {
     public async Task<Result> Handle(
@@ -28,6 +31,7 @@ public sealed class CreateShipmentCommandHandler(IApplicationDbContext dbContext
 
         dbContext.Set<Shipment>().Add(createResult.Value);
         await dbContext.SaveChangesAsync(cancellationToken);
+        await syncService.SyncOrderFulfillmentAsync(command.OrderId, cancellationToken);
         return Result.Ok();
     }
 }
