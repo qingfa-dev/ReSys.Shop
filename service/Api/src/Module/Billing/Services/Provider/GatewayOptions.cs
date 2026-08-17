@@ -16,6 +16,8 @@ public sealed record GatewayOptions
     public string? SuccessUrl { get; init; }
     public string? CancelUrl { get; init; }
     public decimal Shipping { get; init; }
+    public string? ShippingDisplayName { get; init; }
+    public IReadOnlyList<GatewayLineItem> LineItems { get; init; } = [];
     public decimal Tax { get; init; }
     public decimal Subtotal { get; init; }
     public decimal Discount { get; init; }
@@ -23,3 +25,5 @@ public sealed record GatewayOptions
     public Dictionary<string, object?>? ShippingAddress { get; init; }
     public Dictionary<string, object?>? ProviderSpecific { get; init; }
 }
+
+public sealed record GatewayLineItem(string Name, int Quantity, decimal UnitPrice);

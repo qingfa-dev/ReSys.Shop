@@ -284,6 +284,47 @@ public class CreatePaymentIntentTests : IDisposable
         refreshed.State.Should().Be(PaymentRecordState.Void);
     }
 
+    [Fact(DisplayName = "Handler: passes per-product line items and shipping to the gateway")]
+    public async Task Handle_PassesLineItemsAndShippingToGateway()
+    {
+        GatewayOptions? captured = null;
+        _gatewayMock
+            .Setup(x => x.CreateCheckoutSessionAsync(It.IsAny<decimal>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .Callback<decimal, GatewayOptions, CancellationToken>((_, o, _) => captured = o)
+            .ReturnsAsync(new PaymentGatewayResponse("stripe", authorization: "cs_test_1", checkoutUrl: "https://checkout.stripe.com/c/pay/cs_test_1"));
+
+        var order = CreateOrder();
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card",
+            ProviderKey = GatewayConstants.Providers.Stripe, Active = true };
+        _dbContext.Set<PaymentMethod>().Add(pm);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var variantId = Guid.NewGuid();
+        _senderMock.Setup(x => x.Send(
+            It.Is<GetCartForCheckoutQuery>(q => q.CartId == order.Id),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<GetCartForCheckoutResponse>.Ok(new GetCartForCheckoutResponse
+            {
+                State = CheckoutState.PickDeliveryMethod,
+                Total = 37.50m,
+                ShipmentTotal = 12.50m,
+                ShippingMethodName = "Express",
+                Email = "test@example.com",
+                LineItems = [ new() { VariantId = variantId, Quantity = 2, Name = "Classic Tee", UnitPrice = 12.50m } ]
+            }));
+
+        var result = await _handler.Handle(
+            new CreatePaymentIntent.Command(new CreatePaymentIntent.Request { OrderId = order.Id, PaymentMethodId = pm.Id }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        captured.Should().NotBeNull();
+        captured!.Shipping.Should().Be(12.50m);
+        captured.ShippingDisplayName.Should().Be("Express");
+        captured.LineItems.Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new GatewayLineItem("Classic Tee", 2, 12.50m));
+    }
+
     private Order CreateOrder()
     {
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);

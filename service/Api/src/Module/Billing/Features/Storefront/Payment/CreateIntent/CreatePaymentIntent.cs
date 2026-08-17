@@ -151,6 +151,11 @@ public static partial class CreatePaymentIntent
                     Currency = string.IsNullOrWhiteSpace(command.Request.Currency)
                         ? GatewayConstants.Currency.Usd
                         : command.Request.Currency,
+                    Shipping = cart.ShipmentTotal,
+                    ShippingDisplayName = cart.ShippingMethodName,
+                    LineItems = cart.LineItems
+                        .Select(li => new GatewayLineItem(li.Name, li.Quantity, li.UnitPrice))
+                        .ToList(),
                 };
 
                 // Call: create hosted Checkout Session — no charge yet; webhook completes it.
