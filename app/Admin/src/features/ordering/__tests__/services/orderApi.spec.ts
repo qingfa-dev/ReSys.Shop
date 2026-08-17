@@ -236,21 +236,6 @@ describe('OrderApi.updateStatus', () => {
   })
 })
 
-describe('OrderApi.listShipments', () => {
-  it('calls GET with shipments URL scoped to the order', async () => {
-    mockGet.mockResolvedValue({
-      value: { items: [] },
-      isSuccess: true,
-      statusCode: 200,
-      message: null,
-      errors: [],
-      metadata: null,
-    })
-    await OrderApi.listShipments('o-1')
-    expect(mockGet).toHaveBeenCalledWith('/api/admin/shipping/shipments?orderId=o-1')
-  })
-})
-
 describe('OrderApi.updateShipmentStatus', () => {
   it('calls PUT with shipment status URL and request body', async () => {
     const req = { status: 'Shipped', trackingNumber: 'TRK-123' }

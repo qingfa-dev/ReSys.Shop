@@ -103,10 +103,6 @@ export class OrderApi {
     return put<Result<void>>(`/api/admin/ordering/orders/${id}/status`, request)
   }
 
-  static listShipments(orderId: string): Promise<Result<{ items: Shipment[] }>> {
-    return get<Result<{ items: Shipment[] }>>(`/api/admin/shipping/shipments?orderId=${orderId}`)
-  }
-
   static updateShipmentStatus(id: string, body: { status: ShipmentStatus; trackingNumber?: string }): Promise<Result<Shipment>> {
     return put<Result<Shipment>>(`/api/admin/shipping/shipments/${id}/status`, body)
   }
