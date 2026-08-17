@@ -1,6 +1,8 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Shared.Models;
 using Shared.Application.Domain.Orders;
+using Module.Billing.Domain.PaymentCaptures;
+using Module.Shipping.Domain.Shipments;
 
 namespace Module.Ordering.Features.Admin.Shared.Models;
 
@@ -86,6 +88,14 @@ public record OrderDetailResponse : OrderParameters
     public DateTimeOffset? CanceledAtUtc { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
     public DateTimeOffset? ModifiedAtUtc { get; init; }
+    public DateTimeOffset? PaymentProcessingAtUtc { get; init; }
+    public DateTimeOffset? PaymentCompletedAtUtc { get; init; }
+    public DateTimeOffset? PaymentFailedAtUtc { get; init; }
+    public DateTimeOffset? ShipmentShippedAtUtc { get; init; }
+    public DateTimeOffset? ShipmentDeliveredAtUtc { get; init; }
+    public List<PaymentCaptureSummary> Payments { get; init; } = [];
+    public List<ShipmentSummary> Shipments { get; init; } = [];
+    public List<OrderTimelineEvent> Timeline { get; init; } = [];
     public List<LineItemResponse> LineItems { get; init; } = [];
 }
 
@@ -117,6 +127,42 @@ public record LineItemResponse
     public string? ProductName { get; set; }
     public string? ProductImageUrl { get; set; }
     public DateTimeOffset CreatedAtUtc { get; init; }
+}
+
+public sealed record PaymentCaptureSummary
+{
+    public Guid Id { get; init; }
+    public string Number { get; init; } = string.Empty;
+    public decimal Amount { get; init; }
+    public string Currency { get; init; } = string.Empty;
+    public PaymentRecordState State { get; init; }
+    public string? PaymentStatus { get; init; }
+    public string ProviderKey { get; init; } = string.Empty;
+    public Guid? PaymentMethodId { get; init; }
+    public DateTimeOffset CreatedAtUtc { get; init; }
+    public DateTimeOffset? CompletedAtUtc { get; init; }
+    public DateTimeOffset? FailedAtUtc { get; init; }
+}
+
+public sealed record ShipmentSummary
+{
+    public Guid Id { get; init; }
+    public Guid OrderId { get; init; }
+    public Guid ShippingMethodId { get; init; }
+    public string? ShippingMethodName { get; init; }
+    public string TrackingNumber { get; init; } = string.Empty;
+    public ShipmentStatus Status { get; init; }
+    public DateTimeOffset? ShippedAtUtc { get; init; }
+    public DateTimeOffset? DeliveredAtUtc { get; init; }
+    public DateTimeOffset? EstimatedDeliveryAtUtc { get; init; }
+    public DateTimeOffset CreatedAtUtc { get; init; }
+}
+
+public sealed record OrderTimelineEvent
+{
+    public string Type { get; init; } = string.Empty;
+    public string Label { get; init; } = string.Empty;
+    public DateTimeOffset? OccurredAtUtc { get; init; }
 }
 
 /// <summary>Parameters for actions that select a shipping method by identifier.</summary>

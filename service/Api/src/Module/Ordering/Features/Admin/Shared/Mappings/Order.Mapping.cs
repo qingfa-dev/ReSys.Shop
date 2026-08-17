@@ -110,6 +110,43 @@ public static partial class OrderMapping
             CanceledAtUtc = entity.CanceledAtUtc,
             CreatedAtUtc = entity.CreatedAtUtc,
             ModifiedAtUtc = entity.ModifiedAtUtc,
+            PaymentProcessingAtUtc = entity.PaymentProcessingAtUtc,
+            PaymentCompletedAtUtc = entity.PaymentCompletedAtUtc,
+            PaymentFailedAtUtc = entity.PaymentFailedAtUtc,
+            ShipmentShippedAtUtc = entity.ShipmentShippedAtUtc,
+            ShipmentDeliveredAtUtc = entity.ShipmentDeliveredAtUtc,
+            Payments = entity.PaymentCaptures
+                .OrderBy(p => p.CreatedAtUtc)
+                .Select(p => new PaymentCaptureSummary
+                {
+                    Id = p.Id,
+                    Number = p.Number,
+                    Amount = p.Amount,
+                    Currency = p.Currency,
+                    State = p.State,
+                    PaymentStatus = p.PaymentStatus,
+                    ProviderKey = p.ProviderKey,
+                    PaymentMethodId = p.PaymentMethodId,
+                    CreatedAtUtc = p.CreatedAtUtc,
+                    CompletedAtUtc = p.CompletedAtUtc,
+                    FailedAtUtc = p.FailedAtUtc,
+                }).ToList(),
+            Shipments = entity.Shipments
+                .OrderBy(s => s.CreatedAtUtc)
+                .Select(s => new ShipmentSummary
+                {
+                    Id = s.Id,
+                    OrderId = s.OrderId,
+                    ShippingMethodId = s.ShippingMethodId,
+                    ShippingMethodName = s.ShippingMethod.Name,
+                    TrackingNumber = s.TrackingNumber,
+                    Status = s.Status,
+                    ShippedAtUtc = s.ShippedAtUtc,
+                    DeliveredAtUtc = s.DeliveredAtUtc,
+                    EstimatedDeliveryAtUtc = s.EstimatedDeliveryAtUtc,
+                    CreatedAtUtc = s.CreatedAtUtc,
+                }).ToList(),
+            Timeline = BuildTimeline(entity),
             LineItems = entity.LineItems
                 .OrderBy(li => li.CreatedAtUtc)
                 .Select(li => itemLookup is null
@@ -142,6 +179,27 @@ public static partial class OrderMapping
             CreatedAtUtc = entity.CreatedAtUtc,
             CompletedAtUtc = entity.CompletedAtUtc,
         };
+    }
+
+    /// <summary>Derives a chronological timeline from the order's existing timestamps (nulls skipped).</summary>
+    // Derive: Fixed timestamp -> event mapping, filtered to occurred events and sorted ascending.
+    internal static List<OrderTimelineEvent> BuildTimeline(Order entity)
+    {
+        return new List<OrderTimelineEvent>
+        {
+            new() { Type = "created", Label = "Order created", OccurredAtUtc = entity.CreatedAtUtc },
+            new() { Type = "placed", Label = "Order placed", OccurredAtUtc = entity.CompletedAtUtc },
+            new() { Type = "approved", Label = "Order approved", OccurredAtUtc = entity.ApprovedAtUtc },
+            new() { Type = "payment_processing", Label = "Payment processing", OccurredAtUtc = entity.PaymentProcessingAtUtc },
+            new() { Type = "payment_completed", Label = "Payment completed", OccurredAtUtc = entity.PaymentCompletedAtUtc },
+            new() { Type = "payment_failed", Label = "Payment failed", OccurredAtUtc = entity.PaymentFailedAtUtc },
+            new() { Type = "shipped", Label = "Order shipped", OccurredAtUtc = entity.ShipmentShippedAtUtc },
+            new() { Type = "delivered", Label = "Order delivered", OccurredAtUtc = entity.ShipmentDeliveredAtUtc },
+            new() { Type = "canceled", Label = "Order canceled", OccurredAtUtc = entity.CanceledAtUtc },
+        }
+        .Where(e => e.OccurredAtUtc.HasValue)
+        .OrderBy(e => e.OccurredAtUtc)
+        .ToList();
     }
 
     /// <summary>Maps a LineItem domain entity to a line item response DTO.</summary>
