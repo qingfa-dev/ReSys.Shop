@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.StockReservations;
@@ -136,6 +137,40 @@ public class CompleteCheckoutForPaymentTests : IDisposable
         _reservationServiceMock.Verify(
             s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact(DisplayName = "Handle: recomputes PaymentState to Paid when the capture is completed")]
+    public async Task Handle_RecomputesPaymentState_WhenCaptureCompleted()
+    {
+        var cart = BuildPlaceableCart();
+        cart.Total = 100m;
+        _dbContext.Set<Order>().Add(cart);
+
+        var capture = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), cart.Id).Value;
+        capture.State = PaymentRecordState.Completed;
+        capture.CapturedAmount = 100m;
+        _dbContext.Set<PaymentCapture>().Add(capture);
+
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<PaymentForCheckoutResponse>.Ok(new PaymentForCheckoutResponse
+            {
+                IsCompleted = true,
+                Amount = 100m,
+                PaymentMethodId = Guid.NewGuid(),
+                CompletedAtUtc = DateTimeOffset.UtcNow
+            }));
+
+        var result = await _handler.Handle(
+            new CompleteCheckoutForPaymentCommand { CartId = cart.Id, PaymentId = Guid.NewGuid() },
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var persisted = await _dbContext.Set<Order>().FindAsync([cart.Id], TestContext.Current.CancellationToken);
+        persisted!.PaymentState.Should().Be(OrderPaymentState.Paid);
+        persisted.PaymentTotal.Should().Be(100m);
     }
 
     [Fact(DisplayName = "Handle: returns PaymentNotCompleted when payment is not completed")]

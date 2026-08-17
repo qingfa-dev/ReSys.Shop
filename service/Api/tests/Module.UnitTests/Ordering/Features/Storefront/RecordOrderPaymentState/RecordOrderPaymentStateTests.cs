@@ -112,6 +112,27 @@ public class RecordOrderPaymentStateTests : IDisposable
         updated.PaymentTotal.Should().Be(amount);
     }
 
+    [Fact(DisplayName = "Failed recomputes PaymentState to BalanceDue")]
+    public async Task Failed_RecomputesPaymentState()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Total = 100m;
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(new RecordOrderPaymentStateCommand
+        {
+            OrderId = order.Id,
+            PaymentState = PaymentTimelineState.Failed,
+            AtUtc = DateTimeOffset.UtcNow
+        }, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
+        updated.PaymentState.Should().Be(OrderPaymentState.BalanceDue);
+        updated.PaymentFailedAtUtc.Should().NotBeNull();
+    }
+
     [Fact(DisplayName = "Unknown order returns NotFound")]
     public async Task UnknownOrder_ReturnsNotFound()
     {
