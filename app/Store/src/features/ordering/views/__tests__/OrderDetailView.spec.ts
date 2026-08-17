@@ -171,6 +171,9 @@ describe('OrderDetailView', () => {
     const buttons = wrapper.findAll('button')
     expect(buttons.some(b => b.text() === 'Track')).toBe(true)
     expect(buttons.some(b => b.text() === 'Reorder')).toBe(true)
+    expect(wrapper.text()).toContain('Order Timeline')
+    expect(wrapper.text()).toContain('Shipments')
+    expect(wrapper.text()).toContain('Payments')
   })
 
   it('renders the order line items with variant ids, quantities and totals', async () => {

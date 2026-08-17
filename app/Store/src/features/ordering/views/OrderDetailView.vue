@@ -165,6 +165,84 @@ onMounted(() => {
           </template>
         </DataTable>
 
+        <!-- Section: Timeline — chronological status events from the order payload -->
+        <Card class="mb-6">
+          <template #title>Order Timeline</template>
+          <template #content>
+            <Timeline
+              v-if="orders.currentOrder.timeline.length > 0"
+              :value="orders.currentOrder.timeline"
+              layout="vertical"
+              align="left"
+            >
+              <template #opposite="{ item }">
+                <span class="text-xs text-muted">{{ item.occurredAtUtc ? formatDateTimeUtc(item.occurredAtUtc) : '—' }}</span>
+              </template>
+              <template #content="{ item }">
+                <span class="font-medium">{{ item.label }}</span>
+              </template>
+            </Timeline>
+            <Message v-else severity="info" :closable="false">No timeline events available.</Message>
+          </template>
+        </Card>
+
+        <!-- Section: Shipments — tracking number and status per shipment -->
+        <Card class="mb-6">
+          <template #title>Shipments</template>
+          <template #content>
+            <DataTable
+              v-if="orders.currentOrder.shipments.length > 0"
+              :value="orders.currentOrder.shipments"
+              dataKey="id"
+              tableStyle="min-width: 30rem"
+            >
+              <Column header="Carrier">
+                <template #body="{ data }">{{ data.shippingMethodName ?? data.shippingMethodId }}</template>
+              </Column>
+              <Column header="Tracking Number">
+                <template #body="{ data }">{{ data.trackingNumber || '—' }}</template>
+              </Column>
+              <Column header="Status">
+                <template #body="{ data }"><Tag :value="data.status" /></template>
+              </Column>
+              <Column header="Shipped">
+                <template #body="{ data }">{{ data.shippedAtUtc ? formatDateTimeUtc(data.shippedAtUtc) : '—' }}</template>
+              </Column>
+              <Column header="Delivered">
+                <template #body="{ data }">{{ data.deliveredAtUtc ? formatDateTimeUtc(data.deliveredAtUtc) : '—' }}</template>
+              </Column>
+            </DataTable>
+            <Message v-else severity="info" :closable="false">No shipments yet.</Message>
+          </template>
+        </Card>
+
+        <!-- Section: Payments — recorded transactions and their states -->
+        <Card class="mb-6">
+          <template #title>Payments</template>
+          <template #content>
+            <DataTable
+              v-if="orders.currentOrder.payments.length > 0"
+              :value="orders.currentOrder.payments"
+              dataKey="id"
+              tableStyle="min-width: 30rem"
+            >
+              <Column header="Amount">
+                <template #body="{ data }">{{ formatCurrency(data.amount) }}</template>
+              </Column>
+              <Column header="State">
+                <template #body="{ data }"><Tag :value="data.state" /></template>
+              </Column>
+              <Column header="Payment Status">
+                <template #body="{ data }">{{ data.paymentStatus ?? '—' }}</template>
+              </Column>
+              <Column header="Completed">
+                <template #body="{ data }">{{ data.completedAtUtc ? formatDateTimeUtc(data.completedAtUtc) : '—' }}</template>
+              </Column>
+            </DataTable>
+            <Message v-else severity="info" :closable="false">No payments recorded.</Message>
+          </template>
+        </Card>
+
         <!-- Section: Summary & Shipping — totals card beside the delivery address -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card class="self-start">
