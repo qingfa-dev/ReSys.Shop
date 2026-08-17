@@ -44,7 +44,7 @@ public class GetLowStockItemsTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().ContainSingle();
-        result.Items.First().Status.Should().Be("low");
+        result.Items.First().Status.Should().Be(LowStockStatus.Low);
     }
 
     [Fact(DisplayName = "Handle: Pages results when params supplied")]

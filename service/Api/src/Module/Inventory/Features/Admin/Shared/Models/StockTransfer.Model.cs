@@ -1,3 +1,5 @@
+using Module.Inventory.Domain.StockTransfers;
+
 namespace Module.Inventory.Features.Admin.Shared.Models;
 
 public abstract record StockTransferParameters
@@ -9,7 +11,7 @@ public abstract record StockTransferParameters
     /// <summary>Gets the destination stock location identifier.</summary>
     public Guid DestinationLocationId { get; init; }
     /// <summary>Gets the current state of the transfer.</summary>
-    public string? State { get; init; }
+    public TransferState? State { get; init; }
 }
 
 public class StockTransferReceiveRequest

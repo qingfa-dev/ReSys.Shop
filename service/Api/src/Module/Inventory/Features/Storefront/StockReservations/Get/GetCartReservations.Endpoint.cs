@@ -31,7 +31,7 @@ public static partial class GetCartReservations
                     StockLocationId = r.Reservation.StockLocationId,
                     OrderId = r.Reservation.OrderId,
                     Quantity = r.Reservation.Quantity,
-                    State = r.Reservation.State.ToString(),
+                    State = r.Reservation.State,
                     ExpiresAtUtc = r.Reservation.ExpiresAtUtc,
                     Reason = r.Reservation.Reason,
                     CreatedAtUtc = r.Reservation.CreatedAtUtc,

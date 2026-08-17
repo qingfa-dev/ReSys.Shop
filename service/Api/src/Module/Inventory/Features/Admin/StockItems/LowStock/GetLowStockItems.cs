@@ -44,7 +44,7 @@ public static partial class GetLowStockItems
                     CountOnHand = si.CountOnHand,
                     Threshold = request.Request.Threshold ?? si.StockLocation!.LowStockThreshold,
                     Backorderable = si.Backorderable,
-                    Status = si.CountOnHand == 0 ? "out_of_stock" : "low"
+                    Status = si.CountOnHand == 0 ? LowStockStatus.OutOfStock : LowStockStatus.Low
                 })
                 .ToList();
 

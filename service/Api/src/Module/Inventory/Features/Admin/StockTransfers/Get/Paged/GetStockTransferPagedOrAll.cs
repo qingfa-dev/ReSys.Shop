@@ -34,7 +34,7 @@ public static partial class GetStockTransferPagedOrAll
                     Id = x.Id,
                     Number = x.Number,
                     Reference = x.Reference,
-                    State = x.State.ToString(),
+                    State = x.State,
                     SourceLocationId = x.SourceLocationId,
                     DestinationLocationId = x.DestinationLocationId,
                     TotalItems = x.TransferItems.Count,

@@ -20,7 +20,7 @@ public class StockTransferMappingTests
         response.Id.Should().Be(transfer.Id);
         response.Number.Should().Be(transfer.Number);
         response.Reference.Should().Be(transfer.Reference);
-        response.State.Should().Be(transfer.State.ToString());
+        response.State.Should().Be(transfer.State);
         response.SourceLocationId.Should().Be(transfer.SourceLocationId);
         response.DestinationLocationId.Should().Be(transfer.DestinationLocationId);
         response.CreatedAtUtc.Should().Be(transfer.CreatedAtUtc);
@@ -42,7 +42,7 @@ public class StockTransferMappingTests
         response.Id.Should().Be(transfer.Id);
         response.Number.Should().Be(transfer.Number);
         response.Reference.Should().Be(transfer.Reference);
-        response.State.Should().Be(transfer.State.ToString());
+        response.State.Should().Be(transfer.State);
         response.SourceLocationId.Should().Be(transfer.SourceLocationId);
         response.DestinationLocationId.Should().Be(transfer.DestinationLocationId);
         response.TotalItems.Should().Be(2);

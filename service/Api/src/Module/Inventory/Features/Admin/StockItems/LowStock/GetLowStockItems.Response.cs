@@ -8,6 +8,6 @@ public static partial class GetLowStockItems
     {
         public string LocationName { get; init; } = string.Empty;
         public int Threshold { get; init; }
-        public string Status { get; init; } = "low";
+        public LowStockStatus Status { get; init; } = LowStockStatus.Low;
     }
 }
