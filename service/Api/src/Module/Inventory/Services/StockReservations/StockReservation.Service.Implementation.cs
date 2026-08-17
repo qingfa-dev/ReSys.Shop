@@ -374,42 +374,65 @@ internal sealed partial class StockReservationService(
 
     public async Task<Result> ReturnConsumedForOrderAsync(Guid orderId, CancellationToken ct = default)
     {
-        var reservations = await dbContext.Set<StockReservation>()
-            .Where(r => r.CartToken == orderId.ToString()
-                        && r.State == ReservationState.Fulfilled)
-            .ToListAsync(ct);
+        await using var transaction = await dbContext.BeginTransactionAsync(
+            System.Data.IsolationLevel.Serializable, ct);
 
-        foreach (var reservation in reservations)
+        try
         {
-            var stockItem = await dbContext.Set<StockItem>()
-                .FirstOrDefaultAsync(
-                    si => si.VariantId == reservation.VariantId
-                          && si.StockLocationId == reservation.StockLocationId,
-                    ct);
-            if (stockItem is null)
-                return StockReservationResult.Errors.StockItemNotFound(reservation.VariantId);
+            var reservations = await dbContext.Set<StockReservation>()
+                .Where(r => r.CartToken == orderId.ToString()
+                            && r.State == ReservationState.Fulfilled)
+                .ToListAsync(ct);
 
-            var previous = stockItem.CountOnHand;
-            var restockResult = stockItem.Restock(reservation.Quantity);
-            if (restockResult.IsFailure)
-                return restockResult.Errors;
+            foreach (var reservation in reservations)
+            {
+                var stockItem = await dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(
+                        si => si.VariantId == reservation.VariantId
+                              && si.StockLocationId == reservation.StockLocationId,
+                        ct);
+                if (stockItem is null)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return StockReservationResult.Errors.StockItemNotFound(reservation.VariantId);
+                }
 
-            var movement = StockMovementMethod.Create(
-                stockItemId: stockItem.Id,
-                quantity: reservation.Quantity,
-                previousCountOnHand: previous,
-                originatorType: "Order",
-                originatorId: orderId,
-                reason: "canceled");
-            if (movement.IsSuccess)
-                dbContext.Set<StockMovement>().Add(movement.Value);
+                var previous = stockItem.CountOnHand;
+                var restockResult = stockItem.Restock(reservation.Quantity);
+                if (restockResult.IsFailure)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return restockResult.Errors;
+                }
 
-            reservation.Return();
-            reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+                var movement = StockMovementMethod.Create(
+                    stockItemId: stockItem.Id,
+                    quantity: reservation.Quantity,
+                    previousCountOnHand: previous,
+                    originatorType: "Order",
+                    originatorId: orderId,
+                    reason: "canceled");
+                if (movement.IsSuccess)
+                    dbContext.Set<StockMovement>().Add(movement.Value);
+
+                var returnResult = reservation.Return();
+                if (returnResult.IsFailure)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return returnResult.Errors;
+                }
+                reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            }
+
+            await dbContext.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+            return Result.Ok();
         }
-
-        await dbContext.SaveChangesAsync(ct);
-        return Result.Ok();
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
     }
 
     public async Task<Result> ReleaseReservationAsync(Guid reservationId, CancellationToken ct = default)

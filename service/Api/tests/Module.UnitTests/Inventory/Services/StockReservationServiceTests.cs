@@ -675,5 +675,52 @@ public class StockReservationServiceTests : IDisposable
         movement.OriginatorId.Should().Be(_orderId);
     }
 
+    [Fact(DisplayName = "ReturnConsumedForOrderAsync: restocks each location and releases all reservations")]
+    public async Task ReturnConsumedForOrderAsync_RestocksEachLocation_ReleasesAllReservations()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var locationA = await SeedStockItem(5);
+        var locationB = new StockItem
+        {
+            VariantId = _variantId, StockLocationId = Guid.NewGuid(),
+            CountOnHand = 3, Backorderable = false
+        };
+        _dbContext.Set<StockItem>().Add(locationB);
+        await _dbContext.SaveChangesAsync(ct);
+
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            _variantId, 2, ReservationState.Fulfilled, null,
+            locationA.StockLocationId, _orderId, _orderId.ToString(), DateTimeOffset.UtcNow));
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            _variantId, 1, ReservationState.Fulfilled, null,
+            locationB.StockLocationId, _orderId, _orderId.ToString(), DateTimeOffset.UtcNow));
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.ReturnConsumedForOrderAsync(_orderId, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+
+        _dbContext.ChangeTracker.Clear();
+        var reloadedA = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == locationA.Id, ct);
+        var reloadedB = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == locationB.Id, ct);
+        reloadedA.CountOnHand.Should().Be(7);
+        reloadedB.CountOnHand.Should().Be(4);
+
+        var reservations = await _dbContext.Set<StockReservation>().ToListAsync(ct);
+        reservations.Should().HaveCount(2);
+        reservations.Should().AllSatisfy(r => r.State.Should().Be(ReservationState.Released));
+
+        var movements = await _dbContext.Set<StockMovement>().ToListAsync(ct);
+        movements.Should().HaveCount(2);
+        movements.Should().AllSatisfy(m =>
+        {
+            m.Reason.Should().Be("canceled");
+            m.OriginatorType.Should().Be("Order");
+            m.OriginatorId.Should().Be(_orderId);
+        });
+        movements.Select(m => m.Quantity).Should().BeEquivalentTo([2, 1]);
+    }
+
     #endregion
 }
