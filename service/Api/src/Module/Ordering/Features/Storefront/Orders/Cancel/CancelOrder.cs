@@ -39,6 +39,7 @@ public static partial class CancelOrder
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Include(x => x.Shipments)
+                .Include(x => x.PaymentCaptures)
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)

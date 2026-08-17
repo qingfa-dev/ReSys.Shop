@@ -1,3 +1,4 @@
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Shipments;
@@ -24,11 +25,12 @@ public class CancelOrderAdminCascadeTests : IDisposable
     private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly CancelOrderAdminHandler.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
+    private readonly string _databaseName = Guid.NewGuid().ToString();
 
     public CancelOrderAdminCascadeTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(_databaseName)
             .Options;
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [
@@ -70,6 +72,14 @@ public class CancelOrderAdminCascadeTests : IDisposable
     {
         _dbContext.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    private ApplicationDbContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(_databaseName)
+            .Options;
+        return new ApplicationDbContext(options);
     }
 
     private async Task<Order> SeedPlacedOrderWithShipment()
@@ -139,5 +149,39 @@ public class CancelOrderAdminCascadeTests : IDisposable
         _reservationServiceMock.Verify(
             x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact(DisplayName = "Handler: Canceled paid order recomputes PaymentState to CreditOwed and keeps PaymentTotal")]
+    public async Task Handle_ShouldRecomputePaymentStateToCreditOwed_WhenCancelingPaidOrder()
+    {
+        var ct = TestContext.Current.CancellationToken;
+
+        var order = new Order
+        {
+            Number = "R-TEST-ADMIN-003",
+            Status = OrderStatus.Placed,
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            Email = "test@test.com",
+            Total = 0m,
+        };
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), order.Id).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.CapturedAmount = 100m;
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(
+            new CancelOrderAdminHandler.Command(order.Id, new CancelOrderAdminHandler.Request { Reason = "test" }),
+            ct);
+
+        result.IsSuccess.Should().BeTrue();
+
+        using var freshContext = CreateContext();
+        var persistedOrder = await freshContext.Set<Order>().SingleAsync(o => o.Id == order.Id, ct);
+        persistedOrder.PaymentState.Should().Be(OrderPaymentState.CreditOwed);
+        persistedOrder.PaymentTotal.Should().Be(100m);
     }
 }

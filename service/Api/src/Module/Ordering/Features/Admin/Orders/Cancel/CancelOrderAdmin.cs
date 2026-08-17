@@ -34,6 +34,7 @@ public static partial class CancelOrderAdmin
             var order = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
                 .Include(o => o.Shipments)
+                .Include(o => o.PaymentCaptures)
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
