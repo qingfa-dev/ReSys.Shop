@@ -55,6 +55,41 @@ export const OrderLineItemSchema = z.object({
   createdAtUtc: z.string(),
 })
 
+export const PaymentCaptureSummarySchema = z.object({
+  id: z.string(),
+  number: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  state: z.string(),
+  paymentStatus: z.string().nullable(),
+  providerKey: z.string(),
+  paymentMethodId: z.string().nullable(),
+  createdAtUtc: z.string(),
+  completedAtUtc: z.string().nullable(),
+  failedAtUtc: z.string().nullable(),
+})
+
+export const ShipmentStatusSchema = z.enum(['Pending', 'Ready', 'Shipped', 'Delivered', 'Backorder', 'Canceled'])
+
+export const ShipmentSummarySchema = z.object({
+  id: z.string(),
+  orderId: z.string(),
+  shippingMethodId: z.string(),
+  shippingMethodName: z.string().nullable(),
+  trackingNumber: z.string().nullable(),
+  status: ShipmentStatusSchema,
+  shippedAtUtc: z.string().nullable(),
+  deliveredAtUtc: z.string().nullable(),
+  estimatedDeliveryAtUtc: z.string().nullable(),
+  createdAtUtc: z.string(),
+})
+
+export const OrderTimelineEventSchema = z.object({
+  type: z.string(),
+  label: z.string(),
+  occurredAtUtc: z.string().nullable(),
+})
+
 export const OrderDetailSchema = z.object({
   id: z.string(),
   number: z.string(),
@@ -85,6 +120,14 @@ export const OrderDetailSchema = z.object({
   canceledAtUtc: z.string().nullable(),
   modifiedAtUtc: z.string().nullable(),
   specialInstructions: z.string().nullable(),
+  paymentProcessingAtUtc: z.string().nullable(),
+  paymentCompletedAtUtc: z.string().nullable(),
+  paymentFailedAtUtc: z.string().nullable(),
+  shipmentShippedAtUtc: z.string().nullable(),
+  shipmentDeliveredAtUtc: z.string().nullable(),
+  payments: z.array(PaymentCaptureSummarySchema),
+  shipments: z.array(ShipmentSummarySchema),
+  timeline: z.array(OrderTimelineEventSchema),
   lineItems: z.array(OrderLineItemSchema),
 })
 

@@ -54,6 +54,49 @@ export interface OrderDetail extends OrderListItem {
   modifiedAtUtc: string | null
   specialInstructions: string | null
   lineItems: OrderLineItem[]
+  paymentProcessingAtUtc: string | null
+  paymentCompletedAtUtc: string | null
+  paymentFailedAtUtc: string | null
+  shipmentShippedAtUtc: string | null
+  shipmentDeliveredAtUtc: string | null
+  payments: PaymentCaptureSummary[]
+  shipments: ShipmentSummary[]
+  timeline: OrderTimelineEvent[]
+}
+
+export interface PaymentCaptureSummary {
+  id: string
+  number: string
+  amount: number
+  currency: string
+  state: string
+  paymentStatus: string | null
+  providerKey: string
+  paymentMethodId: string | null
+  createdAtUtc: string
+  completedAtUtc: string | null
+  failedAtUtc: string | null
+}
+
+export type ShipmentStatus = 'Pending' | 'Ready' | 'Shipped' | 'Delivered' | 'Backorder' | 'Canceled'
+
+export interface ShipmentSummary {
+  id: string
+  orderId: string
+  shippingMethodId: string
+  shippingMethodName: string | null
+  trackingNumber: string | null
+  status: ShipmentStatus
+  shippedAtUtc: string | null
+  deliveredAtUtc: string | null
+  estimatedDeliveryAtUtc: string | null
+  createdAtUtc: string
+}
+
+export interface OrderTimelineEvent {
+  type: string
+  label: string
+  occurredAtUtc: string | null
 }
 
 export interface OrderTrackingResponse {
