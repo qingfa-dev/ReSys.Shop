@@ -51,5 +51,16 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.PaymentStateUpdated(order.Id));
     }
 
+    // Compute: PaymentTotal = net captured amount across all captures; OutstandingBalance = Total - PaymentTotal;
+    //           then derive PaymentState (Paid / BalanceDue / CreditOwed / Void). Idempotent.
+    public static Result RecomputePaymentState(this Order order)
+    {
+        order.PaymentTotal = order.PaymentCaptures.Sum(p => p.CapturedAmount)
+                           - order.PaymentCaptures.Sum(p => p.RefundedAmount);
+        order.OutstandingBalance = order.Total - order.PaymentTotal;
+        order.UpdatePaymentState();
+        return Result.Ok();
+    }
+
     #endregion
 }

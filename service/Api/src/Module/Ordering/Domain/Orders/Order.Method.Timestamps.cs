@@ -23,7 +23,6 @@ public static partial class OrderMethod
     {
         if (order.PaymentCompletedAtUtc is null || atUtc > order.PaymentCompletedAtUtc.Value)
             order.PaymentCompletedAtUtc = atUtc;
-        order.PaymentState = OrderPaymentState.Completed;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok();
     }
@@ -33,7 +32,6 @@ public static partial class OrderMethod
     {
         if (order.PaymentFailedAtUtc is null || atUtc > order.PaymentFailedAtUtc.Value)
             order.PaymentFailedAtUtc = atUtc;
-        order.PaymentState = OrderPaymentState.Failed;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok();
     }
