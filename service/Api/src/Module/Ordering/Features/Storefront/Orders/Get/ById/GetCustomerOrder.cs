@@ -29,6 +29,9 @@ public static partial class GetCustomerOrder
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Include(x => x.Adjustments)
+                .Include(x => x.PaymentCaptures)
+                .Include(x => x.Shipments)
+                    .ThenInclude(s => s.ShippingMethod)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == query.Id && x.UserId == userId, cancellationToken);
 
