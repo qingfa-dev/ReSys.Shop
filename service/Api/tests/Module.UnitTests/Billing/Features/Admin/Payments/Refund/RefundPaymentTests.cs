@@ -22,6 +22,7 @@ public class RefundPaymentTests : IDisposable
     private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
 
     private readonly Mock<IPaymentProcessingService> _processingServiceMock;
+    private readonly Mock<ISender> _senderMock;
     private readonly RefundPayment.CommandHandler _handler;
 
     public RefundPaymentTests()
@@ -45,7 +46,8 @@ public class RefundPaymentTests : IDisposable
         _processingServiceMock = new Mock<IPaymentProcessingService>();
         _processingServiceMock.Setup(x => x.RefundAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentProcessingResult());
-        _handler = new RefundPayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object, _processingServiceMock.Object);
+        _senderMock = new Mock<ISender>();
+        _handler = new RefundPayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object, _processingServiceMock.Object, _senderMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }

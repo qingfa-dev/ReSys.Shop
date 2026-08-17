@@ -7,6 +7,7 @@ using Module.Billing.Services.Webhook;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.CompleteCheckoutForPayment;
+using Module.Ordering.Features.Storefront.RecomputeOrderPaymentState;
 using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 using Module.Ordering.Features.Storefront.RegressCheckoutState;
 
@@ -261,6 +262,7 @@ public sealed partial class ProcessStripeWebhookEventJob
             }
         }
         await RecordStripeEventAsync(payment, stripeEvent, ct);
+        await _sender.Send(new RecomputeOrderPaymentStateCommand { OrderId = payment.OrderId }, ct);
     }
 
     // Webhook: charge.dispute.created — transition to Disputed state

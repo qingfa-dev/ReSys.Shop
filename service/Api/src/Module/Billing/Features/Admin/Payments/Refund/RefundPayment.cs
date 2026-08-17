@@ -16,7 +16,7 @@ public static partial class RefundPayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry, IPaymentProcessingService processingService)
+    public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry, IPaymentProcessingService processingService, ISender sender)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Refunds a completed payment.</summary>
@@ -77,6 +77,11 @@ public static partial class RefundPayment
                         return Result<Response>.Failure(retryResult.Errors[0]);
                 }
             }
+
+            await sender.Send(new Module.Ordering.Features.Storefront.RecomputeOrderPaymentState.RecomputeOrderPaymentStateCommand
+            {
+                OrderId = payment.OrderId
+            }, cancellationToken);
 
             // Map: Payment → response DTO
             var response = payment.MapToDetail<Response>();
