@@ -138,7 +138,7 @@ public static partial class OrderMapping
                     Id = s.Id,
                     OrderId = s.OrderId,
                     ShippingMethodId = s.ShippingMethodId,
-                    ShippingMethodName = s.ShippingMethod.Name,
+                    ShippingMethodName = s.ShippingMethod?.Name,
                     TrackingNumber = s.TrackingNumber,
                     Status = s.Status,
                     ShippedAtUtc = s.ShippedAtUtc,
