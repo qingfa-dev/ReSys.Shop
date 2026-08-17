@@ -10,6 +10,7 @@ public sealed class RecordOrderPaymentStateCommandHandler(IApplicationDbContext 
         RecordOrderPaymentStateCommand command, CancellationToken cancellationToken)
     {
         var order = await dbContext.Set<Order>()
+            .Include(o => o.PaymentCaptures)
             .FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
         if (order is null)
             return OrderResult.Errors.NotFound(command.OrderId);
@@ -23,6 +24,9 @@ public sealed class RecordOrderPaymentStateCommandHandler(IApplicationDbContext 
         };
         if (result.IsFailure)
             return result.Errors;
+
+        if (command.PaymentState is PaymentTimelineState.Completed or PaymentTimelineState.Failed)
+            order.RecomputePaymentState();
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result.Ok();

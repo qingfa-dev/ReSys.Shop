@@ -1,3 +1,4 @@
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.RecordOrderPaymentState;
 
@@ -80,6 +81,35 @@ public class RecordOrderPaymentStateTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
         updated.PaymentProcessingAtUtc.Should().NotBeNull();
+    }
+
+    [Fact(DisplayName = "Completed with a completed capture recomputes PaymentState to Paid")]
+    public async Task Completed_WithCompletedCapture_RecomputesPaymentState()
+    {
+        const decimal amount = 100m;
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.ItemTotal = amount;
+        order.Total = amount;
+        _dbContext.Set<Order>().Add(order);
+
+        var capture = PaymentCaptureMethod.Create(amount, Guid.NewGuid(), order.Id).Value;
+        capture.State = PaymentRecordState.Completed;
+        capture.CapturedAmount = amount;
+        _dbContext.Set<PaymentCapture>().Add(capture);
+
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(new RecordOrderPaymentStateCommand
+        {
+            OrderId = order.Id,
+            PaymentState = PaymentTimelineState.Completed,
+            AtUtc = DateTimeOffset.UtcNow
+        }, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
+        updated.PaymentState.Should().Be(OrderPaymentState.Paid);
+        updated.PaymentTotal.Should().Be(amount);
     }
 
     [Fact(DisplayName = "Unknown order returns NotFound")]

@@ -16,6 +16,7 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
     {
         var cart = await dbContext.Set<Order>()
             .Include(x => x.LineItems)
+            .Include(x => x.PaymentCaptures)
             .Where(x => x.Id == command.CartId && x.Status == OrderStatus.Draft)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -39,6 +40,8 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
 
         // Timestamp: mirror the payment completion onto the order's payment timeline.
         cart.MarkPaymentCompleted(paymentResult.Value.CompletedAtUtc ?? DateTimeOffset.UtcNow);
+
+        cart.RecomputePaymentState();
 
         // Record: persist the payment method onto the order before finalization —
         // the checkout prerequisite requires it, and the Billing capture is its source.
