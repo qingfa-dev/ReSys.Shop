@@ -21,13 +21,13 @@ public static class VariantValidator
             RuleFor(x => x.Price).ApplyPriceRules();
             RuleFor(x => x.Weight).ApplyWeightRules();
             RuleFor(x => x.WeightUnit)
-                .Must(v => string.IsNullOrEmpty(v) || Enum.TryParse<WeightUnit>(v, ignoreCase: true, out _))
+                .IsInEnum()
                 .WithMessage("Weight unit must be one of: G, Kg, Lb, Oz.");
             RuleFor(x => x.Height).ApplyDimensionRules();
             RuleFor(x => x.Width).ApplyDimensionRules();
             RuleFor(x => x.Depth).ApplyDimensionRules();
             RuleFor(x => x.DimensionsUnit)
-                .Must(v => string.IsNullOrEmpty(v) || Enum.TryParse<DimensionUnit>(v, ignoreCase: true, out _))
+                .IsInEnum()
                 .WithMessage("Dimensions unit must be one of: Mm, Cm, In, Ft.");
             RuleFor(x => x.CostPrice).ApplyCostPriceRules();
             RuleFor(x => x.CostCurrency).ApplyCostCurrencyRules();

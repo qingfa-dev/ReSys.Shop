@@ -74,7 +74,7 @@ public static partial class RegenerateEmbedding
                 ModelVersion = embedding.ModelVersion,
                 Vector = embedding.Vector?.ToArray() ?? [],
                 Dimensions = embedding.Dimensions,
-                Status = embedding.Status.ToString(),
+                Status = embedding.Status,
                 Error = embedding.Error,
                 HangfireJobId = embedding.HangfireJobId,
                 CompletedAtUtc = embedding.CompletedAtUtc

@@ -21,14 +21,11 @@ public static class VariantImageValidator
             // Validate: Position must be non-negative
             RuleFor(x => x.Position).ApplyPositionRules();
 
-            // Validate: Type must be a valid VariantImageType enum value when provided
-            When(x => !string.IsNullOrEmpty(x.Type), () =>
-            {
-                RuleFor(x => x.Type)
-                    .Must(x => Enum.TryParse<VariantImageType>(x, ignoreCase: true, out _))
-                    .WithErrorCode(VariantImageResult.Failure.InvalidType.Code)
-                    .WithMessage(VariantImageResult.Failure.InvalidType.Message);
-            });
+            // Validate: Type must be a valid VariantImageType enum value
+            RuleFor(x => x.Type)
+                .IsInEnum()
+                .WithErrorCode(VariantImageResult.Failure.InvalidType.Code)
+                .WithMessage(VariantImageResult.Failure.InvalidType.Message);
         }
     }
 

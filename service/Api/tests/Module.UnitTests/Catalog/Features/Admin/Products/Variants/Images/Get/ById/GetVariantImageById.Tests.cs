@@ -54,7 +54,7 @@ public class GetVariantImageByIdTests : IDisposable
         result.Value.ContentType.Should().Be("image/jpeg");
         result.Value.FileSize.Should().Be(2048);
         result.Value.Alt.Should().Be("Photo");
-        result.Value.Type.Should().Be("Default");
+        result.Value.Type.Should().Be(VariantImageType.Default);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when image not found")]

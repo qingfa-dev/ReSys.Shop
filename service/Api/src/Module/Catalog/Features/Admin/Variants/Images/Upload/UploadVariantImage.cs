@@ -73,10 +73,8 @@ public static partial class UploadVariantImage
 
             var fileResult = uploadResult.Value;
 
-            // Parse: Convert request type string to domain enum, fall back to Default
-            var imageType = Enum.TryParse<VariantImageType>(request.Type, ignoreCase: true, out var parsedType)
-                ? parsedType
-                : VariantImageType.Default;
+            // Parse: Assign typed request type to domain enum, fall back to Default
+            var imageType = request.Type;
 
             // Create: VariantImage domain entity from storage result metadata
             var fileName = Path.GetFileName(fileResult.Key);

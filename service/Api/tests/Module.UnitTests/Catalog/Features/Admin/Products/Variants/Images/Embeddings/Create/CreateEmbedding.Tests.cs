@@ -49,7 +49,7 @@ public class CreateEmbeddingTests : IDisposable
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Status.Should().Be("Pending");
+        result.Value.Status.Should().Be(EmbeddingStatus.Pending);
         result.Value.HangfireJobId.Should().Be(jobId);
 
         var saved = await _dbContext.Set<ImageEmbedding>()

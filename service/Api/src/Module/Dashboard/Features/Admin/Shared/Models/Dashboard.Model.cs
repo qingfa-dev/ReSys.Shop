@@ -52,9 +52,9 @@ public sealed record RecentProductData
 public sealed record ActivityItemData
 {
     public Guid Id { get; init; }
-    public string Type { get; init; } = string.Empty;
+    public ActivityType Type { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
-    public string Status { get; init; } = string.Empty;
+    public ActivityStatus Status { get; init; }
     public DateTimeOffset Timestamp { get; init; }
 }

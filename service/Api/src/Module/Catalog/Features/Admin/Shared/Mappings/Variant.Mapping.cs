@@ -40,8 +40,8 @@ public static partial class VariantMapping
         if (result.IsFailure)
             return result.Errors;
 
-        WeightUnit? parsedWeightUnit = request.WeightUnit is not null && Enum.TryParse<WeightUnit>(request.WeightUnit, ignoreCase: true, out var wu) ? wu : null;
-        DimensionUnit? parsedDimUnit = request.DimensionsUnit is not null && Enum.TryParse<DimensionUnit>(request.DimensionsUnit, ignoreCase: true, out var du) ? du : null;
+        WeightUnit? parsedWeightUnit = request.WeightUnit;
+        DimensionUnit? parsedDimUnit = request.DimensionsUnit;
 
         result = variant.UpdatePhysicalSpecs(
             weight: request.Weight,
@@ -79,11 +79,11 @@ public static partial class VariantMapping
             Position = entity.Position,
             TrackInventory = entity.TrackInventory,
             Weight = entity.Weight,
-            WeightUnit = entity.WeightUnit?.ToString(),
+            WeightUnit = entity.WeightUnit,
             Height = entity.Height,
             Width = entity.Width,
             Depth = entity.Depth,
-            DimensionsUnit = entity.DimensionsUnit?.ToString(),
+            DimensionsUnit = entity.DimensionsUnit,
             Price = entity.Price,
             CostPrice = entity.CostPrice,
             CostCurrency = entity.CostCurrency,
@@ -103,11 +103,11 @@ public static partial class VariantMapping
             Position = entity.Position,
             TrackInventory = entity.TrackInventory,
             Weight = entity.Weight,
-            WeightUnit = entity.WeightUnit?.ToString(),
+            WeightUnit = entity.WeightUnit,
             Height = entity.Height,
             Width = entity.Width,
             Depth = entity.Depth,
-            DimensionsUnit = entity.DimensionsUnit?.ToString(),
+            DimensionsUnit = entity.DimensionsUnit,
             Price = entity.Price,
             CostPrice = entity.CostPrice,
             CostCurrency = entity.CostCurrency,

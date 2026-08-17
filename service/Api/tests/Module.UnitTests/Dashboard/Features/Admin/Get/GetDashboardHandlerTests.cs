@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Dashboard.Features.Admin.Get;
+using Module.Dashboard.Features.Admin.Shared.Models;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockMovements;
@@ -238,8 +239,8 @@ public class GetDashboardHandlerTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         var activities = result.Value.RecentActivities;
         activities.Should().NotBeEmpty();
-        activities.Should().Contain(a => a.Type == "Order");
-        activities.Should().Contain(a => a.Type == "Stock");
+        activities.Should().Contain(a => a.Type == ActivityType.Order);
+        activities.Should().Contain(a => a.Type == ActivityType.Stock);
         activities.Should().BeInDescendingOrder(a => a.Timestamp);
     }
 

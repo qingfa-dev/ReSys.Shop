@@ -1,10 +1,12 @@
+using Module.Catalog.Domain.Variants.Images;
+
 namespace Module.Catalog.Features.Admin.Shared.Models;
 
 public abstract record VariantImageParameters
 {
     public string? Alt { get; init; } = null;
     public int Position { get; init; } = 0;
-    public string Type { get; init; } = string.Empty;
+    public VariantImageType Type { get; init; }
 }
 
 /// <summary>

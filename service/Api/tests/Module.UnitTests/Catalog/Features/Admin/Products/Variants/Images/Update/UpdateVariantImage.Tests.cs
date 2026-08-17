@@ -49,7 +49,7 @@ public class UpdateVariantImageTests : IDisposable
         {
             Alt = "New alt text",
             Position = 3,
-            Type = "Gallery"
+            Type = VariantImageType.Gallery
         };
 
         var result = await _handler.Handle(
@@ -59,7 +59,7 @@ public class UpdateVariantImageTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         result.Value.Alt.Should().Be("New alt text");
         result.Value.Position.Should().Be(3);
-        result.Value.Type.Should().Be("Gallery");
+        result.Value.Type.Should().Be(VariantImageType.Gallery);
 
         var persisted = await _dbContext.Set<VariantImage>()
             .FirstAsync(x => x.Id == image.Id, TestContext.Current.CancellationToken);
@@ -98,11 +98,11 @@ public class UpdateVariantImageTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         result.Value.Position.Should().Be(5);
         result.Value.Alt.Should().Be("Original alt");
-        result.Value.Type.Should().Be("Default");
+        result.Value.Type.Should().Be(VariantImageType.Default);
     }
 
-    [Fact(DisplayName = "Handler: Should demote the prior Default image when setting a new Default")]
-    public async Task Handle_ShouldDemotePriorDefault_WhenSettingNewDefault()
+    [Fact(DisplayName = "Handler: Should preserve the existing type when Type is Default (not provided)")]
+    public async Task Handle_ShouldPreserveType_WhenTypeIsDefault()
     {
         var variantId = Guid.NewGuid();
         var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
@@ -114,17 +114,17 @@ public class UpdateVariantImageTests : IDisposable
         _dbContext.Set<VariantImage>().AddRange(existing, image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new UpdateVariantImage.Request { Type = "Default" };
+        var request = new UpdateVariantImage.Request { Type = VariantImageType.Default };
         var result = await _handler.Handle(
             new UpdateVariantImage.Command(image.Id, request),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Type.Should().Be("Default");
+        result.Value.Type.Should().Be(VariantImageType.Gallery);
 
         var demoted = await _dbContext.Set<VariantImage>()
             .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);
-        demoted.Type.Should().Be(VariantImageType.Thumbnail);
+        demoted.Type.Should().Be(VariantImageType.Default);
     }
 
     [Fact(DisplayName = "Handler: Should demote the prior Search image when setting a new Search")]
@@ -140,13 +140,13 @@ public class UpdateVariantImageTests : IDisposable
         _dbContext.Set<VariantImage>().AddRange(existing, image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new UpdateVariantImage.Request { Type = "Search" };
+        var request = new UpdateVariantImage.Request { Type = VariantImageType.Search };
         var result = await _handler.Handle(
             new UpdateVariantImage.Command(image.Id, request),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Type.Should().Be("Search");
+        result.Value.Type.Should().Be(VariantImageType.Search);
 
         var demoted = await _dbContext.Set<VariantImage>()
             .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);

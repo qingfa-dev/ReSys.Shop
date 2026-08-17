@@ -1,3 +1,5 @@
+using Module.Catalog.Domain.Variants;
+
 namespace Module.Catalog.Features.Admin.Shared.Models;
 
 public abstract record VariantParameters
@@ -6,11 +8,11 @@ public abstract record VariantParameters
     public int Position { get; init; }
     public bool TrackInventory { get; init; } = true;
     public decimal? Weight { get; init; }
-    public string? WeightUnit { get; init; }
+    public WeightUnit? WeightUnit { get; init; }
     public decimal? Height { get; init; }
     public decimal? Width { get; init; }
     public decimal? Depth { get; init; }
-    public string? DimensionsUnit { get; init; }
+    public DimensionUnit? DimensionsUnit { get; init; }
     public decimal? Price { get; init; }
     public decimal? CostPrice { get; init; }
     public string? CostCurrency { get; init; }

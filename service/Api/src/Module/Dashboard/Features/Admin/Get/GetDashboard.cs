@@ -172,26 +172,38 @@ public static partial class GetDashboard
             };
         }
 
-        // Load: Aggregate recent order and stock movement activity for the dashboard feed
+        // Load: Fetch 20 most recent non-draft, non-canceled orders for activity feed.
+        // Project raw columns first; the OrderStatus→ActivityStatus switch cannot be
+        // translated by EF Core, so the mapping is applied in memory after materialization.
         private async Task<List<ActivityItemData>> BuildActivities(CancellationToken ct)
         {
-            // Load: Fetch 20 most recent non-draft, non-canceled orders for activity feed
             var recentOrders = await dbContext.Set<Order>()
                 .Where(o => !o.IsDeleted
                     && o.Status != OrderStatus.Draft
                     && o.Status != OrderStatus.Canceled)
                 .OrderByDescending(o => o.CreatedAtUtc)
                 .Take(20)
-                .Select(o => new ActivityItemData
+                .Select(o => new
                 {
-                    Id = o.Id,
-                    Type = "Order",
-                    Title = "Order #" + o.Number,
-                    Description = o.ItemCount + " item(s) · " + o.Currency + " " + o.Total.ToString("F2"),
-                    Status = o.Status.ToString(),
-                    Timestamp = o.CreatedAtUtc
+                    o.Id,
+                    o.Number,
+                    o.ItemCount,
+                    o.Currency,
+                    o.Total,
+                    o.Status,
+                    o.CreatedAtUtc
                 })
                 .ToListAsync(ct);
+
+            var orderActivities = recentOrders.Select(o => new ActivityItemData
+            {
+                Id = o.Id,
+                Type = ActivityType.Order,
+                Title = "Order #" + o.Number,
+                Description = o.ItemCount + " item(s) · " + o.Currency + " " + o.Total.ToString("F2"),
+                Status = MapOrderStatus(o.Status),
+                Timestamp = o.CreatedAtUtc
+            });
 
             // Load: Fetch 20 most recent stock movements for activity feed
             var recentMovements = await dbContext.Set<StockMovement>()
@@ -200,19 +212,30 @@ public static partial class GetDashboard
                 .Select(sm => new ActivityItemData
                 {
                     Id = sm.Id,
-                    Type = "Stock",
+                    Type = ActivityType.Stock,
                     Title = "Stock: " + (sm.Action ?? "Movement"),
                     Description = sm.Quantity + " units",
-                    Status = "Completed",
+                    Status = ActivityStatus.Completed,
                     Timestamp = sm.CreatedAtUtc
                 })
                 .ToListAsync(ct);
 
-            return recentOrders
+            return orderActivities
                 .Concat(recentMovements)
                 .OrderByDescending(a => a.Timestamp)
                 .Take(20)
                 .ToList();
         }
+
+        // Map: OrderStatus lifecycle members carry the same names as ActivityStatus,
+        // so a switch keeps the mapping explicit and independent of enum backing values.
+        private static ActivityStatus MapOrderStatus(OrderStatus status) => status switch
+        {
+            OrderStatus.Draft => ActivityStatus.Draft,
+            OrderStatus.Placed => ActivityStatus.Placed,
+            OrderStatus.Canceled => ActivityStatus.Canceled,
+            OrderStatus.Expired => ActivityStatus.Expired,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
     }
 }

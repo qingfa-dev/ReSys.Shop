@@ -37,7 +37,7 @@ public class GetEmbeddingTests : IDisposable
             new GetEmbedding.Query(variantImageId), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Status.Should().Be("Completed");
+        result.Value.Status.Should().Be(EmbeddingStatus.Completed);
         result.Value.HangfireJobId.Should().Be("job-123");
         result.Value.CompletedAtUtc.Should().NotBeNull();
     }

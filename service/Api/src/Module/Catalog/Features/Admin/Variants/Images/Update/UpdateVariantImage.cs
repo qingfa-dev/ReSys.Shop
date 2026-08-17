@@ -38,11 +38,8 @@ public static partial class UpdateVariantImage
             if (image is null)
                 return VariantImageResult.Failure.ById(imageId);
 
-            // Parse: Convert request type string to domain enum, preserve existing if not provided
-            var imageType = !string.IsNullOrEmpty(request.Type)
-                && Enum.TryParse<VariantImageType>(request.Type, ignoreCase: true, out var parsedType)
-                ? parsedType
-                : image.Type;
+            // Parse: Assign typed request type to domain enum, preserve existing when not provided
+            var imageType = request.Type == VariantImageType.Default ? image.Type : request.Type;
 
             // Demote: Enforce one Default and one Search per variant; demote the prior holder
             if (imageType is VariantImageType.Default or VariantImageType.Search && image.VariantId.HasValue)

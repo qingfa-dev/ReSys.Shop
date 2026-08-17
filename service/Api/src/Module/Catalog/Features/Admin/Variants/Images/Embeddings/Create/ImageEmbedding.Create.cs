@@ -68,7 +68,7 @@ public static partial class CreateEmbedding
                     ModelVersion = embedding.ModelVersion,
                     Vector = [],
                     Dimensions = 0,
-                    Status = embedding.Status.ToString(),
+                    Status = embedding.Status,
                     Error = embedding.Error,
                     HangfireJobId = embedding.HangfireJobId,
                     CompletedAtUtc = embedding.CompletedAtUtc

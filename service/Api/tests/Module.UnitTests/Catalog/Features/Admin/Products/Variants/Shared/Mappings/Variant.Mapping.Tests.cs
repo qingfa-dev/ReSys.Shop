@@ -45,11 +45,11 @@ public class VariantMappingTests
             CostPrice = 15.00m,
             CostCurrency = "USD",
             Weight = 1.5m,
-            WeightUnit = "kg",
+            WeightUnit = WeightUnit.Kg,
             Height = 10m,
             Width = 20m,
             Depth = 5m,
-            DimensionsUnit = "cm",
+            DimensionsUnit = DimensionUnit.Cm,
         };
 
         var result = request.MapToDomain(entity);

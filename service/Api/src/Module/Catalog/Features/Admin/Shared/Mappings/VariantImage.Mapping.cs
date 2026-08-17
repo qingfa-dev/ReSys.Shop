@@ -30,7 +30,7 @@ public static partial class VariantImageMapping
             Height = entity.Height,
             DimensionsUnit = entity.DimensionsUnit,
             Position = entity.Position,
-            Type = entity.Type.ToString(),
+            Type = entity.Type,
             CreatedAtUtc = entity.CreatedAtUtc,
         };
     }
@@ -58,7 +58,7 @@ public static partial class VariantImageMapping
             Height = entity.Height,
             DimensionsUnit = entity.DimensionsUnit,
             Position = entity.Position,
-            Type = entity.Type.ToString(),
+            Type = entity.Type,
             CreatedAtUtc = entity.CreatedAtUtc,
             Stream = stream,
         };
