@@ -20,11 +20,9 @@ import { formatCurrency } from '@/shared/utils/currency'
 import { formatDate } from '@/shared/utils/date'
 import { useOrderDetail } from '../composables/useOrderDetail'
 import { OrderApi } from '../services/orderApi'
-import { PaymentApi } from '@/features/payment/services/paymentApi'
+import Timeline from 'primevue/timeline'
 import type { Result } from '@/shared/types'
-import type { OrderDetail, OrderStatus, LineItem, OrderFulfillmentState, Shipment, ShipmentStatus } from '../types/order'
-import type { PaymentListItem } from '@/features/payment/types/payment'
-import { toPaymentQueryParams } from '@/features/payment/types/payment'
+import type { OrderDetail, OrderStatus, LineItem, OrderFulfillmentState, ShipmentSummary, ShipmentStatus } from '../types/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -41,9 +39,12 @@ const items = ref<LineItem[]>([])
 const itemsLoading = ref(false)
 const itemsLoaded = ref(false)
 
-const payments = ref<PaymentListItem[]>([])
-const paymentsLoading = ref(false)
-const paymentsLoaded = ref(false)
+// Shipments: Derive the editable shipment rows from the order detail payload.
+const shipments = computed<ShipmentSummary[]>(() => order.value?.shipments ?? [])
+// Payments: Derive the payment rows from the order detail payload.
+const payments = computed(() => order.value?.payments ?? [])
+// Timeline: Derive the status event list from the order detail payload.
+const timeline = computed(() => order.value?.timeline ?? [])
 
 const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Draft: 'warn',
@@ -56,9 +57,6 @@ function statusSeverity(status: OrderStatus | undefined): string {
   return status ? STATUS_SEVERITY[status] : 'secondary'
 }
 
-const shipments = ref<Shipment[]>([])
-const shipmentsLoading = ref(false)
-const shipmentsLoaded = ref(false)
 const savingShipmentId = ref<string | null>(null)
 const draftStatus = ref<Record<string, ShipmentStatus>>({})
 const trackingInputs = ref<Record<string, string>>({})
@@ -80,7 +78,7 @@ function allowedShipmentTargets(status: ShipmentStatus): ShipmentStatus[] {
 }
 
 // Guard: Save only when the selected target is reachable from the row's current status.
-function canSaveShipment(shipment: Shipment): boolean {
+function canSaveShipment(shipment: ShipmentSummary): boolean {
   const current = shipment.status
   const target = draftStatus.value[shipment.id] ?? current
   return target !== current && allowedShipmentTargets(current).includes(target)
@@ -99,28 +97,16 @@ function fulfillmentSeverity(state: OrderFulfillmentState | null | undefined): s
   return state ? FULFILLMENT_SEVERITY[state] : 'secondary'
 }
 
-function initShipmentDrafts(shipmentList: Shipment[]) {
+function initShipmentDrafts(shipmentList: ShipmentSummary[]) {
   // Seed: Track per-row status and tracking edits for the save flow.
   draftStatus.value = Object.fromEntries(shipmentList.map(s => [s.id, s.status]))
   trackingInputs.value = Object.fromEntries(shipmentList.map(s => [s.id, s.trackingNumber ?? '']))
 }
 
-async function loadShipments() {
-  if (shipmentsLoaded.value || shipmentsLoading.value) return
-  shipmentsLoading.value = true
-  // Load: Fetch the order's shipments once the detail page mounts.
-  const result = await OrderApi.listShipments(orderId.value)
-  shipmentsLoading.value = false
-  if (result.isSuccess) {
-    shipments.value = result.value.items
-    shipmentsLoaded.value = true
-    initShipmentDrafts(shipments.value)
-  } else {
-    handleResult(result)
-  }
-}
+// Seed: Rebuild the per-row status/tracking drafts whenever the payload shipments change.
+watch(shipments, (list) => initShipmentDrafts(list), { immediate: true })
 
-async function saveShipmentStatus(shipment: Shipment) {
+async function saveShipmentStatus(shipment: ShipmentSummary) {
   // Guard: A tracking number is required to mark a shipment as Shipped.
   if (draftStatus.value[shipment.id] === 'Shipped' && !trackingInputs.value[shipment.id]?.trim()) {
     notify.error('Shipment', 'A tracking number is required to mark the shipment as Shipped.')
@@ -135,9 +121,8 @@ async function saveShipmentStatus(shipment: Shipment) {
   savingShipmentId.value = null
   if (result.isSuccess) {
     notify.success('Shipment', `Shipment status updated to "${draftStatus.value[shipment.id]}".`)
+    // Refresh: Re-fetch the order so shipments and timeline reflect the new status.
     await fetchOrder(orderId.value)
-    shipmentsLoaded.value = false
-    await loadShipments()
   } else {
     handleResult(result)
   }
@@ -253,23 +238,8 @@ async function loadItems() {
   }
 }
 
-async function loadPayments() {
-  if (paymentsLoaded.value || paymentsLoading.value) return
-  paymentsLoading.value = true
-  // Load: Fetch payments lazily when the payments tab opens.
-  const result = await PaymentApi.getPayments(toPaymentQueryParams({ orderId: orderId.value, pageSize: 100 }))
-  paymentsLoading.value = false
-  if (result.isSuccess) {
-    payments.value = result.items
-    paymentsLoaded.value = true
-  } else {
-    handleResult(result)
-  }
-}
-
 watch(activeTab, (tab) => {
   if (tab === '1') loadItems()
-  else if (tab === '2') loadPayments()
 })
 
 watch(
@@ -277,20 +247,14 @@ watch(
   (id) => {
     if (id) {
       itemsLoaded.value = false
-      paymentsLoaded.value = false
-      shipmentsLoaded.value = false
       items.value = []
-      payments.value = []
-      shipments.value = []
       loadOrder()
-      loadShipments()
     }
   },
 )
 
 onMounted(() => {
   loadOrder()
-  loadShipments()
 })
 </script>
 
@@ -400,13 +364,35 @@ onMounted(() => {
                     <div class="text-sm text-muted-color">Modified</div>
                     <div class="font-medium">{{ order.modifiedAtUtc ? formatDate(order.modifiedAtUtc) : '—' }}</div>
                   </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Payment Processing</div>
+                    <div class="font-medium">{{ order.paymentProcessingAtUtc ? formatDate(order.paymentProcessingAtUtc) : '—' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Payment Completed</div>
+                    <div class="font-medium">{{ order.paymentCompletedAtUtc ? formatDate(order.paymentCompletedAtUtc) : '—' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Payment Failed</div>
+                    <div class="font-medium">{{ order.paymentFailedAtUtc ? formatDate(order.paymentFailedAtUtc) : '—' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Shipped</div>
+                    <div class="font-medium">{{ order.shipmentShippedAtUtc ? formatDate(order.shipmentShippedAtUtc) : '—' }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Delivered</div>
+                    <div class="font-medium">{{ order.shipmentDeliveredAtUtc ? formatDate(order.shipmentDeliveredAtUtc) : '—' }}</div>
+                  </div>
                 </div>
 
                 <!-- Section: Shipments — per-shipment tracking input and status control -->
                 <div class="mt-6">
                   <h3 class="font-semibold mb-2">Shipments</h3>
-                  <DataTable :value="shipments" :loading="shipmentsLoading" scrollable data-key="id" striped-rows>
-                    <Column field="shippingMethodId" header="Shipping Method" />
+                  <DataTable :value="shipments" scrollable data-key="id" striped-rows>
+                    <Column header="Shipping Method">
+                      <template #body="{ data }">{{ data.shippingMethodName ?? data.shippingMethodId }}</template>
+                    </Column>
                     <Column header="Tracking Number">
                       <template #body="{ data }">
                         <InputText
@@ -443,6 +429,19 @@ onMounted(() => {
                     <template #empty>No shipments yet for this order.</template>
                   </DataTable>
                 </div>
+
+                <!-- Section: Timeline — chronological status events derived from order timestamps -->
+                <div class="mt-6">
+                  <h3 class="font-semibold mb-2">Timeline</h3>
+                  <Timeline :value="timeline" layout="vertical" align="left">
+                    <template #opposite="{ item }">
+                      <span class="text-xs text-muted-color">{{ item.occurredAtUtc ? formatDate(item.occurredAtUtc) : '—' }}</span>
+                    </template>
+                    <template #content="{ item }">
+                      <span class="font-medium">{{ item.label }}</span>
+                    </template>
+                  </Timeline>
+                </div>
               </div>
               <p v-else class="text-muted-color">{{ loading ? 'Loading order...' : 'Order not found.' }}</p>
               </template>
@@ -475,8 +474,8 @@ onMounted(() => {
             <!-- Section: Payments — recorded transactions for the order -->
             <Card>
               <template #content>
-                <DataTable :value="payments" :loading="paymentsLoading" scrollable data-key="id" striped-rows>
-                  <Column field="id" header="Payment ID" />
+                <DataTable :value="payments" scrollable data-key="id" striped-rows>
+                  <Column field="number" header="Number" />
                   <Column field="amount" header="Amount">
                     <template #body="{ data }">{{ formatCurrency(data.amount, data.currency ?? 'USD') }}</template>
                   </Column>
