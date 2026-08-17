@@ -12,6 +12,7 @@ public interface IStockReservationService
     Task<Result<int>> ReleaseReservationsAsync(Guid? orderId = null, string? cartToken = null, CancellationToken ct = default);
     Task<Result<int>> ReleaseCartReservationsAsync(string cartToken, Guid? variantId = null, CancellationToken ct = default);
     Task<Result> ConsumeForOrderAsync(Guid orderId, IReadOnlyCollection<StockConsumeLine> lines, CancellationToken ct = default);
+    Task<Result> ReturnConsumedForOrderAsync(Guid orderId, CancellationToken ct = default);
     Task<Result> ReleaseReservationAsync(Guid reservationId, CancellationToken ct = default);
     Task<Result<int>> ExpireReservationsAsync(CancellationToken ct = default);
     Task<Result<List<(StockReservation Reservation, int RemainingSeconds)>>> GetReservationsForCartAsync(string cartToken, CancellationToken ct = default);

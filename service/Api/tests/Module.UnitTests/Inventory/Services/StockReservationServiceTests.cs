@@ -642,4 +642,38 @@ public class StockReservationServiceTests : IDisposable
     }
 
     #endregion
+
+    #region ReturnConsumedForOrderAsync
+
+    [Fact(DisplayName = "ReturnConsumedForOrderAsync: restocks on-hand, records canceled movement, and releases reservation")]
+    public async Task ReturnConsumedForOrderAsync_RestocksOnHand_RecordsCanceledMovement_ReleasesReservation()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var item = await SeedStockItem(5);
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            _variantId, 2, ReservationState.Fulfilled, null,
+            _stockLocationId, _orderId, _orderId.ToString(), DateTimeOffset.UtcNow));
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.ReturnConsumedForOrderAsync(_orderId, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        result.IsSuccess.Should().BeTrue();
+
+        _dbContext.ChangeTracker.Clear();
+        var reloaded = await _dbContext.Set<StockItem>().FirstAsync(s => s.Id == item.Id, ct);
+        reloaded.CountOnHand.Should().Be(7);
+
+        var reservation = await _dbContext.Set<StockReservation>().SingleAsync(ct);
+        reservation.State.Should().Be(ReservationState.Released);
+
+        var movement = await _dbContext.Set<StockMovement>().SingleAsync(ct);
+        movement.Quantity.Should().Be(2);
+        movement.PreviousCountOnHand.Should().Be(5);
+        movement.Reason.Should().Be("canceled");
+        movement.OriginatorType.Should().Be("Order");
+        movement.OriginatorId.Should().Be(_orderId);
+    }
+
+    #endregion
 }

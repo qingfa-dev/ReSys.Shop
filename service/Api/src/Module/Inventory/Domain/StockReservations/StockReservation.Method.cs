@@ -93,6 +93,16 @@ public static class StockReservationMethod
         return Result.Ok();
     }
 
+    // Update: Return a consumed (Fulfilled) reservation back to Released — used on order cancellation.
+    public static Result Return(this StockReservation reservation)
+    {
+        if (reservation.State != ReservationState.Fulfilled)
+            return StockReservationResult.Errors.InvalidStateTransition;
+        reservation.State = ReservationState.Released;
+        reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
     // Expire: Mark the reservation as expired at the current time
     public static Result Expire(this StockReservation reservation)
     {

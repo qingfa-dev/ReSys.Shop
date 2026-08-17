@@ -372,6 +372,46 @@ internal sealed partial class StockReservationService(
         return Result.Ok();
     }
 
+    public async Task<Result> ReturnConsumedForOrderAsync(Guid orderId, CancellationToken ct = default)
+    {
+        var reservations = await dbContext.Set<StockReservation>()
+            .Where(r => r.CartToken == orderId.ToString()
+                        && r.State == ReservationState.Fulfilled)
+            .ToListAsync(ct);
+
+        foreach (var reservation in reservations)
+        {
+            var stockItem = await dbContext.Set<StockItem>()
+                .FirstOrDefaultAsync(
+                    si => si.VariantId == reservation.VariantId
+                          && si.StockLocationId == reservation.StockLocationId,
+                    ct);
+            if (stockItem is null)
+                return StockReservationResult.Errors.StockItemNotFound(reservation.VariantId);
+
+            var previous = stockItem.CountOnHand;
+            var restockResult = stockItem.Restock(reservation.Quantity);
+            if (restockResult.IsFailure)
+                return restockResult.Errors;
+
+            var movement = StockMovementMethod.Create(
+                stockItemId: stockItem.Id,
+                quantity: reservation.Quantity,
+                previousCountOnHand: previous,
+                originatorType: "Order",
+                originatorId: orderId,
+                reason: "canceled");
+            if (movement.IsSuccess)
+                dbContext.Set<StockMovement>().Add(movement.Value);
+
+            reservation.Return();
+            reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        }
+
+        await dbContext.SaveChangesAsync(ct);
+        return Result.Ok();
+    }
+
     public async Task<Result> ReleaseReservationAsync(Guid reservationId, CancellationToken ct = default)
     {
         var reservation = await dbContext.Set<StockReservation>()
