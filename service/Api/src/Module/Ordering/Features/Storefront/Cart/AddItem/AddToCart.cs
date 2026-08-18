@@ -1,6 +1,8 @@
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 
 using Module.Inventory.Features.Shared;
+using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
 using Shared.Application.Systems.SystemInfos;
 using Module.Ordering.Domain.LineItems;
@@ -20,6 +22,7 @@ public static partial class AddToCart
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
         ISystemInfo systemInfo,
+        IStockItemService stockItem,
         IStockReservationService stockReservationService)
         : ICommandHandler<Command, Response>
     {
@@ -42,10 +45,31 @@ public static partial class AddToCart
 
             // Check: Variant exists in catalog — reject unknown products.
             var variant = await dbContext.Set<Variant>()
+                .Include(x => x.Product)
                 .FirstOrDefaultAsync(x => x.Id == request.VariantId, cancellationToken);
 
             if (variant is null)
                 return LineItemResult.Errors.VariantNotFound(request.VariantId);
+
+            // Check: Variant must be published — reject deleted or discontinued variants.
+            if (!variant.IsPublished())
+                return VariantResult.Errors.NotPurchasable;
+
+            // Check: Product must be active — reject draft, archived, or deleted products.
+            if (!variant.Product.IsAvailable())
+                return VariantResult.Errors.NotPurchasable;
+
+            // Check: Variant must have a price — reject unpriced variants instead of adding a free item.
+            if (variant.Price is null)
+                return VariantResult.Errors.NoDefaultPrice;
+
+            if (variant.Price < 0)
+                return LineItemResult.Errors.InvalidPrice;
+
+            // Check: Stock must be available for the requested quantity before touching the cart.
+            var availableResult = await stockItem.IsAvailableAsync(request.VariantId, request.Quantity, ct: cancellationToken);
+            if (!availableResult.IsSuccess || !availableResult.Value)
+                return OrderResult.Errors.CartQuantityInvalid;
 
             // Check: Find or create draft order for current user or guest session.
             var cart = await dbContext.Set<Order>()
@@ -105,7 +129,7 @@ public static partial class AddToCart
             }
 
             // Create: Add new line item to cart with variant price snapshot.
-            var lineItem = LineItemMethod.Create(cart.Id, request.VariantId, request.Quantity, variant.Price ?? 0);
+            var lineItem = LineItemMethod.Create(cart.Id, request.VariantId, request.Quantity, variant.Price.Value);
             if (lineItem.IsFailure)
                 return lineItem.Errors;
 

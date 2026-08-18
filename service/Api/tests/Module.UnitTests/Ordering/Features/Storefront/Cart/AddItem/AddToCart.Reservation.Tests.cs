@@ -1,7 +1,9 @@
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Services;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
@@ -17,6 +19,7 @@ public class AddToCartReservationTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IStockReservationService> _reservationServiceMock;
+    private readonly Mock<IStockItemService> _stockItemMock;
     private readonly Mock<ILogger<AddToCart.CommandHandler>> _loggerMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ISystemInfo> _systemInfoMock;
@@ -31,13 +34,17 @@ public class AddToCartReservationTests : IDisposable
         _dbContext = new ApplicationDbContext(options);
 
         _reservationServiceMock = new Mock<IStockReservationService>();
+        _stockItemMock = new Mock<IStockItemService>();
+        _stockItemMock
+            .Setup(x => x.IsAvailableAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _loggerMock = new Mock<ILogger<AddToCart.CommandHandler>>();
         _currentUserMock = new Mock<ICurrentUser>();
         _systemInfoMock = new Mock<ISystemInfo>();
         _systemInfoMock.Setup(x => x.DefaultCurrency).Returns("USD");
 
         _handler = new AddToCart.CommandHandler(
-            _dbContext, _loggerMock.Object, _currentUserMock.Object, _systemInfoMock.Object, _reservationServiceMock.Object);
+            _dbContext, _loggerMock.Object, _currentUserMock.Object, _systemInfoMock.Object, _stockItemMock.Object, _reservationServiceMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
@@ -48,7 +55,10 @@ public class AddToCartReservationTests : IDisposable
         var variantId = Guid.NewGuid();
         var locationId = Guid.NewGuid();
 
-        var variant = new Variant { Id = variantId, Sku = "SKU-001", Price = 9.99m };
+        var product = ProductMethod.Create("Test Product", status: ProductStatus.Active).Value;
+        _dbContext.Set<Product>().Add(product);
+
+        var variant = new Variant { Id = variantId, Sku = "SKU-001", Price = 9.99m, ProductId = product.Id };
         _dbContext.Set<Variant>().Add(variant);
 
         var location = StockLocationMethod.Create("Main").Value;
@@ -88,7 +98,10 @@ public class AddToCartReservationTests : IDisposable
         var variantId = Guid.NewGuid();
         var locationId = Guid.NewGuid();
 
-        var variant = new Variant { Id = variantId, Sku = "SKU-002", Price = 9.99m };
+        var product = ProductMethod.Create("Test Product", status: ProductStatus.Active).Value;
+        _dbContext.Set<Product>().Add(product);
+
+        var variant = new Variant { Id = variantId, Sku = "SKU-002", Price = 9.99m, ProductId = product.Id };
         _dbContext.Set<Variant>().Add(variant);
 
         var location = StockLocationMethod.Create("Main").Value;
