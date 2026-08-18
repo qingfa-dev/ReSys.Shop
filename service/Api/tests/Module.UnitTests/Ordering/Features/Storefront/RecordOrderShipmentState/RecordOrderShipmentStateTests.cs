@@ -11,6 +11,7 @@ namespace Module.UnitTests.Ordering.Features.Storefront.RecordOrderShipmentState
 public class RecordOrderShipmentStateTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<ILogger<RecordOrderShipmentStateCommandHandler>> _loggerMock;
     private readonly RecordOrderShipmentStateCommandHandler _handler;
 
     public RecordOrderShipmentStateTests()
@@ -20,7 +21,8 @@ public class RecordOrderShipmentStateTests : IDisposable
             .Options;
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Order).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new RecordOrderShipmentStateCommandHandler(_dbContext);
+        _loggerMock = new Mock<ILogger<RecordOrderShipmentStateCommandHandler>>();
+        _handler = new RecordOrderShipmentStateCommandHandler(_dbContext, _loggerMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
@@ -122,5 +124,33 @@ public class RecordOrderShipmentStateTests : IDisposable
         }, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+    }
+
+    [Theory(DisplayName = "Handler: sync on a terminal/abnormal order is a no-op — ShipmentState unchanged")]
+    [InlineData(OrderStatus.Canceled)]
+    [InlineData(OrderStatus.Completed)]
+    [InlineData(OrderStatus.Expired)]
+    public async Task Handle_NoOp_OnTerminalOrder(OrderStatus status)
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Status = status;
+        order.ShipmentState = ShipmentState.Shipped;
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(new RecordOrderShipmentStateCommand
+        {
+            OrderId = order.Id,
+            FulfillmentState = ShipmentState.Delivered,
+            ShippedAtUtc = DateTimeOffset.UtcNow,
+            DeliveredAtUtc = DateTimeOffset.UtcNow
+        }, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
+        updated.ShipmentState.Should().Be(ShipmentState.Shipped);
+        updated.Status.Should().Be(status);
+        updated.ShipmentShippedAtUtc.Should().BeNull();
+        updated.ShipmentDeliveredAtUtc.Should().BeNull();
     }
 }

@@ -1,4 +1,5 @@
 using Module.Billing.Domain.PaymentCaptures;
+using Module.Billing.Features.Shared.Commands;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Shipments;
@@ -82,7 +83,7 @@ public class CancelOrderAdminCascadeTests : IDisposable
         return new ApplicationDbContext(options);
     }
 
-    private async Task<Order> SeedPlacedOrderWithShipment()
+    private async Task<Order> SeedPlacedOrderWithShipment(ShipmentStatus shipmentStatus = ShipmentStatus.Pending)
     {
         var ct = TestContext.Current.CancellationToken;
 
@@ -98,6 +99,7 @@ public class CancelOrderAdminCascadeTests : IDisposable
 
         var method = ShippingMethodMethod.Create("Express", "flat_rate").Value;
         var shipment = ShipmentMethod.Create(order.Id, method.Id).Value;
+        shipment.Status = shipmentStatus;
         _dbContext.Set<ShippingMethod>().Add(method);
         _dbContext.Set<Shipment>().Add(shipment);
         await _dbContext.SaveChangesAsync(ct);
@@ -145,7 +147,66 @@ public class CancelOrderAdminCascadeTests : IDisposable
             new CancelOrderAdminHandler.Command(order.Id, new CancelOrderAdminHandler.Request { Reason = "test" }),
             ct);
 
-        result.IsSuccess.Should().BeTrue();
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(OrderResult.Errors.InvalidStatusTransition);
+        _senderMock.Verify(
+            x => x.Send(It.Is<VoidOrderPaymentsCommand>(c => c.OrderId == order.Id), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _reservationServiceMock.Verify(
+            x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure and not dispatch void when canceling a Completed order")]
+    public async Task Handle_ShouldReturnFailure_AndNotDispatchVoid_WhenCancelCompletedOrder()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var order = new Order
+        {
+            Number = "R-TEST-ADMIN-004",
+            Status = OrderStatus.Completed,
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            Email = "test@test.com",
+        };
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(
+            new CancelOrderAdminHandler.Command(order.Id, new CancelOrderAdminHandler.Request { Reason = "test" }),
+            ct);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(OrderResult.Errors.InvalidStatusTransition);
+        _senderMock.Verify(
+            x => x.Send(It.Is<VoidOrderPaymentsCommand>(c => c.OrderId == order.Id), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _reservationServiceMock.Verify(
+            x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure and not dispatch void when a shipment cannot be canceled")]
+    public async Task Handle_ShouldReturnFailure_AndNotDispatchVoid_WhenShipmentCannotBeCanceled()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var order = await SeedPlacedOrderWithShipment(shipmentStatus: ShipmentStatus.Delivered);
+
+        var result = await _handler.Handle(
+            new CancelOrderAdminHandler.Command(order.Id, new CancelOrderAdminHandler.Request { Reason = "test" }),
+            ct);
+
+        result.IsFailure.Should().BeTrue();
+
+        using var freshContext = CreateContext();
+        var persistedOrder = await freshContext.Set<Order>().SingleAsync(o => o.Id == order.Id, ct);
+        persistedOrder.Status.Should().Be(OrderStatus.Placed);
+
+        var shipment = await freshContext.Set<Shipment>().SingleAsync(ct);
+        shipment.Status.Should().Be(ShipmentStatus.Delivered);
+
+        _senderMock.Verify(
+            x => x.Send(It.Is<VoidOrderPaymentsCommand>(c => c.OrderId == order.Id), It.IsAny<CancellationToken>()),
+            Times.Never);
         _reservationServiceMock.Verify(
             x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);

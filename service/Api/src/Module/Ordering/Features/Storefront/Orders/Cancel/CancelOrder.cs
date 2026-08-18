@@ -47,11 +47,27 @@ public static partial class CancelOrder
 
             var wasPlaced = entity.Status == OrderStatus.Placed;
 
+            // Guard: Only Placed orders can be canceled — defense-in-depth beyond the domain guard,
+            // so a terminal/abnormal order fails before any side effect (void, shipment, stock).
+            if (entity.Status != OrderStatus.Placed)
+                return OrderResult.Errors.InvalidStatusTransition;
+
             var cancelResult = entity.Cancel(userId);
             if (cancelResult.IsFailure)
                 return cancelResult.Errors;
 
             entity.RecomputePaymentState();
+
+            // In-process: Cancel all shipments BEFORE dispatching the gateway void — a failed
+            // shipment guard returns without touching gateway payments.
+            foreach (var shipment in entity.Shipments)
+            {
+                var shipmentCancelResult = shipment.Cancel();
+                if (shipmentCancelResult.IsFailure)
+                    return shipmentCancelResult.Errors;
+            }
+
+            entity.ShipmentState = ShipmentState.Canceled;
 
             // Call: Cancel associated payments via MediatR.
             // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
@@ -67,15 +83,6 @@ public static partial class CancelOrder
             {
                 OrderLoggers.VoidPaymentsFailed(logger, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
-
-            foreach (var shipment in entity.Shipments)
-            {
-                var shipmentCancelResult = shipment.Cancel();
-                if (shipmentCancelResult.IsFailure)
-                    return shipmentCancelResult.Errors;
-            }
-
-            entity.ShipmentState = ShipmentState.Canceled;
 
             // Release: Return consumed stock for previously placed orders.
             if (wasPlaced)

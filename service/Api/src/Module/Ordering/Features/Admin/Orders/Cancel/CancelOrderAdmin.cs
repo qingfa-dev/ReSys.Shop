@@ -39,12 +39,29 @@ public static partial class CancelOrderAdmin
                 return OrderResult.Errors.NotFound(command.Id);
 
             var wasPlaced = order.Status == OrderStatus.Placed;
+
+            // Guard: Only Placed orders can be canceled — defense-in-depth beyond the domain guard,
+            // so a terminal/abnormal order fails before any side effect (void, shipment, stock).
+            if (order.Status != OrderStatus.Placed)
+                return OrderResult.Errors.InvalidStatusTransition;
+
             Guid.TryParse(currentUser.UserId, out var userId);
             var result = order.Cancel(userId);
             if (result.IsFailure)
                 return result.Errors;
 
             order.RecomputePaymentState();
+
+            // In-process: Cancel all shipments BEFORE dispatching the gateway void — a failed
+            // shipment guard returns without touching gateway payments.
+            foreach (var shipment in order.Shipments)
+            {
+                var shipmentCancelResult = shipment.Cancel();
+                if (shipmentCancelResult.IsFailure)
+                    return shipmentCancelResult.Errors;
+            }
+
+            order.ShipmentState = ShipmentState.Canceled;
 
             // Call: Void pending payments via Payment module — fire-and-forget on failure.
             // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
@@ -61,15 +78,6 @@ public static partial class CancelOrderAdmin
                 // Log: Payment void failure is non-fatal — order is already cancelled.
                 OrderLoggers.VoidPaymentsFailed(logger, order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
-
-            foreach (var shipment in order.Shipments)
-            {
-                var shipmentCancelResult = shipment.Cancel();
-                if (shipmentCancelResult.IsFailure)
-                    return shipmentCancelResult.Errors;
-            }
-
-            order.ShipmentState = ShipmentState.Canceled;
 
             // Release: Return consumed stock for previously placed orders.
             if (wasPlaced)
