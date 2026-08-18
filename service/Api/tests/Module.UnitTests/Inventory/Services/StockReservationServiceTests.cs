@@ -390,6 +390,55 @@ public class StockReservationServiceTests : IDisposable
 
     #endregion
 
+    #region ReleaseReservationAsync
+
+    [Fact(DisplayName = "ReleaseReservationAsync: Should release a reservation and set ModifiedAtUtc")]
+    public async Task ReleaseReservationAsync_ShouldReleaseReservation()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(5);
+        var reservation = await SeedCartReservation(2);
+
+        var result = await _service.ReleaseReservationAsync(reservation.Id, ct);
+
+        result.IsSuccess.Should().BeTrue();
+
+        var released = await _dbContext.Set<StockReservation>().SingleAsync(r => r.Id == reservation.Id, ct);
+        released.State.Should().Be(ReservationState.Released);
+        released.ModifiedAtUtc.Should().NotBeNull();
+
+        var stockItem = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
+        stockItem.CountOnHand.Should().Be(5);
+    }
+
+    [Fact(DisplayName = "ReleaseReservationAsync: Should return NotFound for unknown id")]
+    public async Task ReleaseReservationAsync_ShouldReturnNotFound_WhenReservationMissing()
+    {
+        var result = await _service.ReleaseReservationAsync(Guid.NewGuid(), TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(f => f.Code == "StockReservation.NotFound");
+    }
+
+    [Fact(DisplayName = "ReleaseReservationAsync: Should fail when reservation is not in Reserved state")]
+    public async Task ReleaseReservationAsync_ShouldFail_WhenNotReserved()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var reservation = StockReservationMethod.SeedForTest(
+            _variantId, 2, ReservationState.Released, DateTimeOffset.UtcNow.AddMinutes(-5),
+            _stockLocationId, _orderId, createdAtUtc: DateTimeOffset.UtcNow.AddMinutes(-10));
+        _dbContext.Set<StockReservation>().Add(reservation);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.ReleaseReservationAsync(reservation.Id, ct);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(f => f.Code == "StockReservation.InvalidStateTransition");
+    }
+
+    #endregion
+
     #region GetReservationsForCartAsync
 
     [Fact(DisplayName = "GetReservationsForCartAsync: Should return active reservations with remaining seconds")]
@@ -405,6 +454,24 @@ public class StockReservationServiceTests : IDisposable
         result.Value.Should().HaveCount(2);
         result.Value.Should().AllSatisfy(r => r.RemainingSeconds.Should().BeGreaterThan(0));
         result.Value.Select(r => r.Reservation.Quantity).Should().BeEquivalentTo([2, 3]);
+    }
+
+    [Fact(DisplayName = "GetReservationsForCartAsync: Should surface ModifiedAtUtc from the reservation entity")]
+    public async Task GetReservationsForCartAsync_ShouldReturnModifiedAtUtc()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var reservation = StockReservationMethod.SeedForTest(
+            _variantId, 2, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            _stockLocationId, _orderId, _cartToken, DateTimeOffset.UtcNow);
+        reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        _dbContext.Set<StockReservation>().Add(reservation);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.GetReservationsForCartAsync(_cartToken, ct);
+
+        result.IsSuccess.Should().BeTrue();
+        var item = result.Value.Should().ContainSingle().Subject;
+        item.Reservation.ModifiedAtUtc.Should().Be(reservation.ModifiedAtUtc);
     }
 
     [Fact(DisplayName = "GetReservationsForCartAsync: Should return empty when no reservations")]
