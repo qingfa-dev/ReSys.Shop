@@ -133,7 +133,7 @@ async function persistShipmentStatus(shipment: ShipmentSummary, status: Shipment
   }
 }
 
-// Gate: Mark Shipped is reachable only from Ready or Backorder.
+// Gate: Mark Shipped is reachable only from Ready.
 function canMarkShipped(shipment: ShipmentSummary): boolean {
   return allowedShipmentTargets(shipment.status).includes('Shipped')
 }
