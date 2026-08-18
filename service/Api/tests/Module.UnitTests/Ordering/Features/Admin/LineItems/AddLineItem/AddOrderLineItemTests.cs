@@ -49,6 +49,7 @@ public class AddOrderLineItemTests : IDisposable
         result.Value.Adjustments.Should().ContainSingle();
         result.Value.Payments.Should().ContainSingle();
         result.Value.Shipments.Should().ContainSingle();
+        result.Value.Shipments[0].ShippingMethodName.Should().Be("Express");
     }
 
     [Fact(DisplayName = "Handler: Should return not found when order missing")]

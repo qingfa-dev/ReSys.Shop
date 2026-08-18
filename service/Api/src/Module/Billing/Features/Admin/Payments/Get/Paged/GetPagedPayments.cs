@@ -25,10 +25,9 @@ public static partial class GetPagedPayments
             if (parsing.IsFailure)
                 return parsing.Errors;
 
-            // Load: Page of payment capture entities with payment method included (mapping reads the nav).
+            // Load: Page of payment capture entities (list-item mapping reads scalars only, so no navigation include is required).
             var pagedResult = await dbContext.Set<PaymentCapture>()
                 .AsNoTracking()
-                .Include(p => p.PaymentMethod)
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, cancellationToken);
 
