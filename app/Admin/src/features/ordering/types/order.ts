@@ -1,9 +1,9 @@
 import type { QueryingParameters } from '@/shared/types/querying'
 import type { PaymentRecordState } from '@/features/payment/types/payment'
 
-export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
+export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Completed' | 'Expired'
 
-export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Complete'
+export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Placed'
 
 export type OrderPaymentState = 'Completed' | 'Failed' | 'Void' | 'BalanceDue' | 'CreditOwed' | 'Paid' | 'Pending' | 'Checkout' | 'Invalid'
 

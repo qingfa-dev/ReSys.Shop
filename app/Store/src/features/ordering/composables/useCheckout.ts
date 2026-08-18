@@ -20,7 +20,7 @@ function stepOf(state: string | null): Step {
     case 'PickDeliveryMethod': return 2
     case 'PickPaymentMethod': return 3
     case 'Confirm': return 4
-    case 'Complete': return 5
+    case 'Placed': return 5
     default: return 1
   }
 }

@@ -1,8 +1,8 @@
 import type { AdjustmentSummary, ShippingAdjustmentSummary, ShippingCalculationSummary } from './cart'
 import type { PaymentRecordState } from '@/features/payment/types/payment'
 
-export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
-export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Complete'
+export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Completed' | 'Expired'
+export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Placed'
 export type OrderPaymentState = 'Completed' | 'Failed' | 'Void' | 'BalanceDue' | 'CreditOwed' | 'Paid' | 'Pending' | 'Checkout' | 'Invalid'
 export type OrderFulfillmentState = 'None' | 'Pending' | 'Partial' | 'Shipped' | 'Delivered' | 'Canceled'
 

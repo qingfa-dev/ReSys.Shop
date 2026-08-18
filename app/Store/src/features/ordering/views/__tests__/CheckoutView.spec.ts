@@ -489,10 +489,10 @@ describe('CheckoutView', () => {
     expect(vm.checkout.displayStep).toBe(2)
   })
 
-  // Bounce: Empty-cart redirect is skipped when the backend is at Complete.
+  // Bounce: Empty-cart redirect is skipped when the backend is at Placed.
   it('skips the empty-cart redirect on the confirmation step', async () => {
     mockedCartApi.getCart.mockResolvedValue(
-      ok({ id: 'cart-1', itemTotal: 0, total: 0, currency: 'USD', itemCount: 0, checkoutState: 'Complete', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, shippingCalculation: null, adjustments: [], items: [] }),
+      ok({ id: 'cart-1', itemTotal: 0, total: 0, currency: 'USD', itemCount: 0, checkoutState: 'Placed', shippingMethodId: null, shipAddressId: null, email: null, shipmentTotal: 0, adjustmentTotal: 0, shippingAdjustment: null, shippingCalculation: null, adjustments: [], items: [] }),
     )
     const { wrapper, router } = await mountView(false)
 

@@ -68,7 +68,7 @@ function makeOrder(): OrderDetailType {
     id: 'o-1',
     number: '1001',
     status: 'Placed',
-    checkoutState: 'Complete',
+    checkoutState: 'Placed',
     currency: 'USD',
     itemTotal: 200,
     adjustmentTotal: 0,

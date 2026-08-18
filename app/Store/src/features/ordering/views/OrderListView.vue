@@ -17,6 +17,7 @@ const statusSeverity: Record<OrderStatus, 'warn' | 'success' | 'danger' | 'secon
   Draft: 'warn',
   Placed: 'success',
   Canceled: 'danger',
+  Completed: 'success',
   Expired: 'secondary',
 }
 

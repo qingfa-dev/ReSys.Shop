@@ -27,13 +27,14 @@ const { items, loading, setFilter, setSearch, refresh } = useOrderList({
   defaultSort: ['-createdAtUtc'],
 })
 
-const STATUS_OPTIONS: OrderStatus[] = ['Draft', 'Placed', 'Canceled', 'Expired']
-const CHECKOUT_STATE_OPTIONS: CheckoutState[] = ['Address', 'PickDeliveryMethod', 'PickPaymentMethod', 'Confirm', 'Complete']
+const STATUS_OPTIONS: OrderStatus[] = ['Draft', 'Placed', 'Canceled', 'Completed', 'Expired']
+const CHECKOUT_STATE_OPTIONS: CheckoutState[] = ['Address', 'PickDeliveryMethod', 'PickPaymentMethod', 'Confirm', 'Placed']
 
 const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Draft: 'warn',
   Placed: 'success',
   Canceled: 'danger',
+  Completed: 'success',
   Expired: 'secondary',
 }
 

@@ -53,6 +53,7 @@ const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Draft: 'warn',
   Placed: 'success',
   Canceled: 'danger',
+  Completed: 'success',
   Expired: 'secondary',
 }
 

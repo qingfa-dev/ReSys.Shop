@@ -82,7 +82,7 @@ const orderDetail: OrderDetail = {
   status: 'Placed',
   total: 130,
   createdAtUtc: '2026-08-01T10:00:00Z',
-  checkoutState: 'Complete',
+  checkoutState: 'Placed',
   currency: 'USD',
   itemCount: 2,
   email: 'ada@example.com',

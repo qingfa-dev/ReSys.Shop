@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 // Validate: Order status and checkout state enum schemas for runtime type safety.
-export const OrderStatusSchema = z.enum(['Draft', 'Placed', 'Canceled', 'Expired'])
-export const CheckoutStateSchema = z.enum(['Address', 'PickDeliveryMethod', 'PickPaymentMethod', 'Confirm', 'Complete'])
+export const OrderStatusSchema = z.enum(['Draft', 'Placed', 'Canceled', 'Completed', 'Expired'])
+export const CheckoutStateSchema = z.enum(['Address', 'PickDeliveryMethod', 'PickPaymentMethod', 'Confirm', 'Placed'])
 export const OrderPaymentStateSchema = z.enum(['Completed', 'Failed', 'Void', 'BalanceDue', 'CreditOwed', 'Paid', 'Pending', 'Checkout', 'Invalid'])
 export const OrderFulfillmentStateSchema = z.enum(['None', 'Pending', 'Partial', 'Shipped', 'Delivered', 'Canceled'])
 export const PaymentRecordStateSchema = z.enum(['Checkout', 'Processing', 'Pending', 'Completed', 'Failed', 'Void', 'Disputed', 'Invalid'])
