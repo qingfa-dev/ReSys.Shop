@@ -93,14 +93,21 @@ public static class VariantImageValidator
 
     /// <summary>
     /// Validates update requests: applies common metadata rules only (no file).
+    /// The nullable Type rule skips null (not provided) and validates explicit values.
     /// </summary>
     public sealed class UpdateImageRequestValidator : AbstractValidator<UpdateImageRequest>
     {
         public UpdateImageRequestValidator()
         {
             // Validate: Common image metadata (alt, position, type)
-            RuleFor(x => (VariantImageParameters)x)
-                .ApplyVariantImageParametersRules();
+            RuleFor(x => x.Alt).ApplyAltRules();
+            RuleFor(x => x.Position).ApplyPositionRules();
+
+            // Validate: Type must be a valid VariantImageType enum value when provided
+            RuleFor(x => x.Type)
+                .IsInEnum()
+                .WithErrorCode(VariantImageResult.Failure.InvalidType.Code)
+                .WithMessage(VariantImageResult.Failure.InvalidType.Message);
         }
     }
 }

@@ -101,8 +101,8 @@ public class UpdateVariantImageTests : IDisposable
         result.Value.Type.Should().Be(VariantImageType.Default);
     }
 
-    [Fact(DisplayName = "Handler: Should preserve the existing type when Type is Default (not provided)")]
-    public async Task Handle_ShouldPreserveType_WhenTypeIsDefault()
+    [Fact(DisplayName = "Handler: Should preserve the existing type when Type is not provided (null)")]
+    public async Task Handle_ShouldPreserveType_WhenTypeNotProvided()
     {
         var variantId = Guid.NewGuid();
         var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
@@ -114,7 +114,7 @@ public class UpdateVariantImageTests : IDisposable
         _dbContext.Set<VariantImage>().AddRange(existing, image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new UpdateVariantImage.Request { Type = VariantImageType.Default };
+        var request = new UpdateVariantImage.Request { Position = 2 };
         var result = await _handler.Handle(
             new UpdateVariantImage.Command(image.Id, request),
             TestContext.Current.CancellationToken);
@@ -125,6 +125,32 @@ public class UpdateVariantImageTests : IDisposable
         var demoted = await _dbContext.Set<VariantImage>()
             .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);
         demoted.Type.Should().Be(VariantImageType.Default);
+    }
+
+    [Fact(DisplayName = "Handler: Should demote to Default when Type is explicitly Default")]
+    public async Task Handle_ShouldDemoteToDefault_WhenTypeIsDefault()
+    {
+        var variantId = Guid.NewGuid();
+        var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "old.jpg", 1024,
+            url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
+            position: 0, type: VariantImageType.Default, variantId: variantId).Value;
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "search.jpg", 1024,
+            url: "https://cdn.test.com/search.jpg", storagePath: "u/search.jpg",
+            position: 1, type: VariantImageType.Search, variantId: variantId).Value;
+        _dbContext.Set<VariantImage>().AddRange(existing, image);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new UpdateVariantImage.Request { Type = VariantImageType.Default };
+        var result = await _handler.Handle(
+            new UpdateVariantImage.Command(image.Id, request),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Type.Should().Be(VariantImageType.Default);
+
+        var demoted = await _dbContext.Set<VariantImage>()
+            .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);
+        demoted.Type.Should().Be(VariantImageType.Thumbnail);
     }
 
     [Fact(DisplayName = "Handler: Should demote the prior Search image when setting a new Search")]

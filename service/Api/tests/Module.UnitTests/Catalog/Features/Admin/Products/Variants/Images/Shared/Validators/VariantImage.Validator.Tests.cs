@@ -229,4 +229,13 @@ public class UpdateImageRequestValidatorTests
         result.ShouldHaveValidationErrorFor("Type")
             .WithErrorCode(VariantImageResult.Failure.InvalidType.Code);
     }
+
+    [Fact(DisplayName = "Update: Should pass when type is not provided (null)")]
+    public void Validate_WhenTypeNull_ShouldNotHaveError()
+    {
+        var model = new UpdateImageRequest { Alt = "Updated alt", Position = 2 };
+        var result = _sut.TestValidate(model);
+
+        result.ShouldNotHaveValidationErrorFor("Type");
+    }
 }

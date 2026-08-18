@@ -25,6 +25,10 @@ public record UploadImageRequest : VariantImageParameters
 /// </summary>
 public record UpdateImageRequest : VariantImageParameters
 {
+    /// <summary>
+    /// Explicit image type. Null means "not provided" and the existing type is preserved on update.
+    /// </summary>
+    public new VariantImageType? Type { get; init; }
 }
 
 /// <summary>
