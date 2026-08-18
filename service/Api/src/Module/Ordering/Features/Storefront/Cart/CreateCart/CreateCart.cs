@@ -27,6 +27,7 @@ public static partial class CreateCart
             // Check: Return existing draft cart if one already exists — avoids duplicates.
             var existingCart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .FirstOrDefaultAsync(x => (x.UserId == userId || x.SessionId == sessionId) && x.Status == OrderStatus.Draft, cancellationToken);
 
             if (existingCart is not null)

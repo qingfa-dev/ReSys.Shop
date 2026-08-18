@@ -1,7 +1,9 @@
+using Module.Billing.Domain.PaymentCaptures;
 using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.UpdateShippingMethod;
+using Module.Shipping.Domain.Shipments;
 using Module.Shipping.Domain.ShippingMethods;
 using Module.Shipping.Domain.ShippingRates;
 
@@ -82,5 +84,44 @@ public class UpdateOrderShippingMethodTests : IDisposable
         persisted.ShipmentTotal.Should().Be(12.99m);
         persisted.Adjustments.Should().ContainSingle(a => a.SourceType == "Shipping");
         persisted.Adjustments.First(a => a.SourceType == "Shipping").Amount.Should().Be(12.99m);
+    }
+
+    [Fact(DisplayName = "Handler: Should return populated detail collections after updating shipping method")]
+    public async Task Handle_ShouldReturnPopulatedDetailCollections()
+    {
+        var variant = new Variant { Weight = 1.0m, Sku = "SKU-011" };
+        var methodA = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
+        var methodB = ShippingMethodMethod.Create("Express", "flat_rate").Value;
+        var rateA = ShippingRateMethod.Create("Standard Rate", 5.00m, methodA.Id).Value;
+        var rateB = ShippingRateMethod.Create("Express Rate", 12.99m, methodB.Id).Value;
+        _dbContext.Set<Variant>().Add(variant);
+        _dbContext.Set<ShippingMethod>().AddRange(methodA, methodB);
+        _dbContext.Set<ShippingRate>().AddRange(rateA, rateB);
+
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new LineItem
+        {
+            Id = Guid.NewGuid(), OrderId = order.Id, VariantId = variant.Id,
+            Quantity = 1, Price = 100m, Total = 100m, Currency = "USD"
+        });
+        order.SetShippingMethod(methodA.Id).IsSuccess.Should().BeTrue();
+        order.ReplaceShippingAdjustment(5m, methodA.Id).IsSuccess.Should().BeTrue();
+        _dbContext.Set<Order>().Add(order);
+
+        _dbContext.Set<Shipment>().Add(ShipmentMethod.Create(order.Id, methodA.Id).Value);
+        _dbContext.Set<PaymentCapture>().Add(PaymentCaptureMethod.Create(100m, Guid.NewGuid(), order.Id).Value);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new UpdateOrderShippingMethod.Command(
+                order.Id,
+                new UpdateOrderShippingMethod.Request { ShippingMethodId = methodB.Id }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.LineItems.Should().ContainSingle();
+        result.Value.Adjustments.Should().NotBeEmpty();
+        result.Value.Payments.Should().ContainSingle();
+        result.Value.Shipments.Should().ContainSingle();
     }
 }

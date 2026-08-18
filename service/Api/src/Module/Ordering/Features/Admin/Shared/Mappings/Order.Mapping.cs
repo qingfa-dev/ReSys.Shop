@@ -77,7 +77,7 @@ public static partial class OrderMapping
             ItemTotal = entity.ItemTotal,
             AdjustmentTotal = entity.AdjustmentTotal,
             ShipmentTotal = entity.ShipmentTotal,
-            ShippingAdjustment = entity.Adjustments.FirstOrDefault(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping) is { } sa
+            ShippingAdjustment = (entity.Adjustments ?? []).FirstOrDefault(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping) is { } sa
                 ? new ShippingAdjustmentSummary { Id = sa.Id, Label = sa.Label, Amount = sa.Amount, ShippingMethodId = sa.SourceId }
                 : null,
             ShippingCalculation = entity.ShippingMethodId.HasValue
@@ -89,7 +89,7 @@ public static partial class OrderMapping
                     IsFreeShipping = entity.IsFreeShipping,
                 }
                 : null,
-            Adjustments = entity.Adjustments.Select(a => new AdjustmentSummary
+            Adjustments = (entity.Adjustments ?? []).Select(a => new AdjustmentSummary
             {
                 Id = a.Id,
                 Label = a.Label,
@@ -115,7 +115,7 @@ public static partial class OrderMapping
             PaymentFailedAtUtc = entity.PaymentFailedAtUtc,
             ShipmentShippedAtUtc = entity.ShipmentShippedAtUtc,
             ShipmentDeliveredAtUtc = entity.ShipmentDeliveredAtUtc,
-            Payments = entity.PaymentCaptures
+            Payments = (entity.PaymentCaptures ?? [])
                 .OrderBy(p => p.CreatedAtUtc)
                 .Select(p => new PaymentCaptureSummary
                 {
@@ -131,7 +131,7 @@ public static partial class OrderMapping
                     CompletedAtUtc = p.CompletedAtUtc,
                     FailedAtUtc = p.FailedAtUtc,
                 }).ToList(),
-            Shipments = entity.Shipments
+            Shipments = (entity.Shipments ?? [])
                 .OrderBy(s => s.CreatedAtUtc)
                 .Select(s => new ShipmentSummary
                 {
@@ -147,7 +147,7 @@ public static partial class OrderMapping
                     CreatedAtUtc = s.CreatedAtUtc,
                 }).ToList(),
             Timeline = BuildTimeline(entity),
-            LineItems = entity.LineItems
+            LineItems = (entity.LineItems ?? [])
                 .OrderBy(li => li.CreatedAtUtc)
                 .Select(li => itemLookup is null
                     ? li.MapToLineItemResponse<LineItemResponse>()

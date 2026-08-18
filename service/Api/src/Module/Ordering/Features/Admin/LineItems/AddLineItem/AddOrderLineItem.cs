@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Shared.Extensions;
 using Module.Ordering.Features.Admin.Shared.Mappings;
 namespace Module.Ordering.Features.Admin.Orders.LineItems.AddLineItem;
 /// <summary>Adds a new line item to an existing order, creating the line item entity and recalculating order totals.</summary>
@@ -18,7 +19,7 @@ public static partial class AddOrderLineItem
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Load the order first before creating any line item.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
+            var order = await dbContext.Set<Order>().IncludeOrderDetail().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
             if (order is null)
                 return (Result<Response>)OrderResult.Errors.NotFound(command.OrderId);
 

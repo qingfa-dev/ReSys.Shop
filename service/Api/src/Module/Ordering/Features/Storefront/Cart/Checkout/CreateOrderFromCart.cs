@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Shared.Extensions;
 using Module.Ordering.Features.Admin.Shared.Mappings;
 using Module.Billing.Features.Storefront.GetPaymentForCheckout;
 using Module.Billing.Features.Storefront.MarkPaymentPaid;
@@ -24,8 +25,7 @@ public static partial class CreateOrderFromCart
                 return OrderResult.Errors.UserNotAuthenticated;
 
             var cart = await dbContext.Set<Order>()
-                .Include(x => x.LineItems)
-                .Include(x => x.Adjustments)
+                .IncludeOrderDetail()
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
                 .FirstOrDefaultAsync(cancellationToken);
             if (cart is null)

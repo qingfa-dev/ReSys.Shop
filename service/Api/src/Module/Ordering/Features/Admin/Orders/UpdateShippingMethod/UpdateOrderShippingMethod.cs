@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Shared.Extensions;
 using Module.Ordering.Features.Admin.Shared.Mappings;
 using Module.Ordering.Features.Storefront.Shared.Services;
 
@@ -20,8 +21,7 @@ public static partial class UpdateOrderShippingMethod
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Find the order to update the shipping method on.
             var order = await dbContext.Set<Order>()
-                .Include(o => o.LineItems)
-                .Include(o => o.Adjustments)
+                .IncludeOrderDetail()
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);

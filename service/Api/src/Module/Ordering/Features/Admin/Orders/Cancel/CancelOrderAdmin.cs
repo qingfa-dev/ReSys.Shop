@@ -1,6 +1,7 @@
 using Module.Billing.Features.Shared.Commands;
 using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Shared.Extensions;
 using Module.Ordering.Features.Admin.Shared.Mappings;
 using Module.Shipping.Domain.Shipments;
 
@@ -32,9 +33,7 @@ public static partial class CancelOrderAdmin
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var order = await dbContext.Set<Order>()
-                .Include(o => o.LineItems)
-                .Include(o => o.Shipments)
-                .Include(o => o.PaymentCaptures)
+                .IncludeOrderDetail()
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
