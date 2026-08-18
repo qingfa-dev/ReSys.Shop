@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { PaymentRecordStateSchema } from '@/features/ordering/validations/order'
 
 // Validate: PaymentMethod shape matches StorePaymentMethodListItemResponse from backend
 export const PaymentMethodSchema = z.object({
@@ -23,7 +24,7 @@ export const PaymentIntentSchema = z.object({
   currency: z.string(),
   orderId: z.string(),
   paymentMethodId: z.string(),
-  state: z.string(),
+  state: PaymentRecordStateSchema,
   paymentStatus: z.string().nullable(),
   clientSecret: z.string().nullable(),
   responseCode: z.string().nullable(),
@@ -46,4 +47,14 @@ export const CreateSetupIntentRequestSchema = z.object({
 // Validate: ConfirmPaymentResponse extends PaymentIntent with confirmation message
 export const ConfirmPaymentResponseSchema = PaymentIntentSchema.extend({
   message: z.string(),
+})
+
+// Validate: PaymentStatusResponse matches GET api/storefront/cart/payment/intent/{orderId}
+export const PaymentStatusResponseSchema = z.object({
+  id: z.string(),
+  orderId: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  state: PaymentRecordStateSchema,
+  isCompleted: z.boolean(),
 })

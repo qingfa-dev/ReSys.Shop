@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useConfirm } from 'primevue/useconfirm'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
+import { useNotify } from '@/shared/composables/useNotify'
 import { formatCurrency } from '@/shared/utils/currency'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useOrders } from '../composables/useOrders'
 import { useAddresses } from '@/features/profile/composables/useAddresses'
 import { useShipping } from '@/features/shipping/composables'
 import { OrderApi } from '../services'
-import type { OrderStatus, OrderTrackingResponse } from '../types'
+import { CheckoutApi } from '../services/checkoutApi'
+import { getPaymentMethods } from '@/features/payment/services/paymentApi'
+import { PAYMENT_STATE_SEVERITY, type PaymentRecordState } from '@/features/payment/types/payment'
+import type { OrderStatus, OrderTrackingResponse, ShipmentStatus } from '../types'
 
 const route = useRoute()
 const orders = useOrders()
@@ -32,6 +37,31 @@ const statusSeverity: Record<OrderStatus, 'warn' | 'success' | 'danger' | 'secon
   Canceled: 'danger',
   Expired: 'secondary',
 }
+
+// Severity: Shipment status Tag mapping (mirrors the Admin SPA's fulfillment map).
+const shipmentSeverity: Record<ShipmentStatus, 'warn' | 'success' | 'danger' | 'secondary' | 'info'> = {
+  Pending: 'warn',
+  Ready: 'info',
+  Shipped: 'info',
+  Delivered: 'success',
+  Backorder: 'warn',
+  Canceled: 'danger',
+}
+
+// Dialog: Cancel-order confirmation plus notify feedback for the action buttons.
+const confirm = useConfirm()
+const notify = useNotify()
+const payNowLoading = ref(false)
+
+// Gate: Pay-now applies only to a placed order with an outstanding balance.
+const canPayNow = computed(
+  () => orders.currentOrder?.status === 'Placed' && (orders.currentOrder.outstandingBalance ?? 0) > 0,
+)
+
+// Gate: Cancel-order applies to draft or placed orders.
+const canCancelOrder = computed(
+  () => orders.currentOrder?.status === 'Draft' || orders.currentOrder?.status === 'Placed',
+)
 
 // Dialog: Tracking popup visibility for the Timeline of status events.
 const trackingOpen = ref(false)
@@ -81,6 +111,49 @@ onMounted(() => {
   void shipping.fetchMethods()
 })
 
+// Pay: Start a hosted-checkout payment for the outstanding balance.
+async function payNow(): Promise<void> {
+  const order = orders.currentOrder
+  if (!order) return
+  payNowLoading.value = true
+  try {
+    const methods = await getPaymentMethods({ pageSize: 50 })
+    const method = methods.isSuccess ? methods.items.find((m) => m.active) ?? null : null
+    if (!method) {
+      notify.warn('No payment methods available')
+      return
+    }
+    const result = await CheckoutApi.createPaymentIntent({ orderId: order.id, paymentMethodId: method.id })
+    if (result.isSuccess) {
+      // Redirect: Send the customer to the gateway's hosted checkout page.
+      if (result.value.checkoutUrl) {
+        window.location.href = result.value.checkoutUrl
+      } else {
+        notify.success('Payment started')
+      }
+    } else {
+      notify.error(result.message ?? 'Could not start payment')
+    }
+  } finally {
+    payNowLoading.value = false
+  }
+}
+
+// Cancel: Confirm with the user, then cancel and refresh the order detail.
+function confirmCancelOrder(): void {
+  const order = orders.currentOrder
+  if (!order) return
+  confirm.require({
+    message: `Cancel order ${order.number}?`,
+    header: 'Cancel order',
+    accept: async () => {
+      const ok = await orders.cancelOrder(order.id)
+      if (ok) await orders.fetchOrder(order.id)
+    },
+    reject: () => undefined,
+  })
+}
+
 // Reorder: cartStore has no reorder action, so the button stays disabled until then.
 </script>
 
@@ -102,12 +175,29 @@ onMounted(() => {
       </div>
 
       <template v-else-if="orders.currentOrder">
-        <!-- Section: Page Header — number, status tag, track and reorder actions -->
+        <!-- Section: Page Header — number, status tag and order actions -->
         <div class="mb-6 flex flex-wrap items-center gap-3">
           <h1 class="text-xl font-bold">{{ orders.currentOrder.number }}</h1>
           <Tag :value="orders.currentOrder.status" :severity="statusSeverity[orders.currentOrder.status]" rounded />
           <div class="ml-auto flex gap-2">
             <Button label="Track" icon="pi pi-history" severity="secondary" variant="text" @click="trackingOpen = true" />
+            <Button
+              v-if="canPayNow"
+              label="Pay now"
+              icon="pi pi-credit-card"
+              severity="primary"
+              :loading="payNowLoading"
+              @click="payNow"
+            />
+            <Button
+              v-if="canCancelOrder"
+              label="Cancel order"
+              icon="pi pi-times"
+              severity="danger"
+              variant="text"
+              :loading="orders.cancelLoading"
+              @click="confirmCancelOrder"
+            />
             <Button
               label="Reorder"
               icon="pi pi-refresh"
@@ -203,7 +293,7 @@ onMounted(() => {
                 <template #body="{ data }">{{ data.trackingNumber || '—' }}</template>
               </Column>
               <Column header="Status">
-                <template #body="{ data }"><Tag :value="data.status" /></template>
+                <template #body="{ data }"><Tag :value="data.status" :severity="shipmentSeverity[data.status as ShipmentStatus]" /></template>
               </Column>
               <Column header="Shipped">
                 <template #body="{ data }">{{ data.shippedAtUtc ? formatDateTimeUtc(data.shippedAtUtc) : '—' }}</template>
@@ -230,7 +320,7 @@ onMounted(() => {
                 <template #body="{ data }">{{ formatCurrency(data.amount) }}</template>
               </Column>
               <Column header="State">
-                <template #body="{ data }"><Tag :value="data.state" /></template>
+                <template #body="{ data }"><Tag :value="data.state" :severity="PAYMENT_STATE_SEVERITY[data.state as PaymentRecordState]" /></template>
               </Column>
               <Column header="Payment Status">
                 <template #body="{ data }">{{ data.paymentStatus ?? '—' }}</template>

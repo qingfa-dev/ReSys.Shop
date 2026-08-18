@@ -12,7 +12,10 @@ export type {
   CheckoutState,
   OrderPaymentState,
   OrderFulfillmentState,
+  ShipmentStatus,
   OrderListItem,
   OrderDetail,
+  PaymentCaptureSummary,
+  ShipmentSummary,
   OrderTrackingResponse,
 } from './order'

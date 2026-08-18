@@ -4,9 +4,44 @@
 // - CreateIntent:  CreatePaymentIntent.Request / StorePaymentDetailResponse
 // - Confirm:       ConfirmPayment.Response (StorePaymentDetailResponse + message)
 // - SetupIntent:   CreateSetupIntent.Request / StorePaymentDetailResponse
-// Enums (DisplayOn, PaymentRecordState) serialize as strings via JsonStringEnumConverter.
+// Enums (DisplayOn) serialize as strings via JsonStringEnumConverter.
 
 export type PaymentDisplayOn = 'Both' | 'Frontend' | 'Backend'
+
+// PaymentRecordState serializes as a JSON string via JsonStringEnumConverter.
+export type PaymentRecordState =
+  | 'Checkout'
+  | 'Processing'
+  | 'Pending'
+  | 'Completed'
+  | 'Failed'
+  | 'Void'
+  | 'Disputed'
+  | 'Invalid'
+
+// Severity: PrimeVue Tag severity per payment record state (mirrors Admin SPA).
+export const PAYMENT_STATE_SEVERITY: Record<PaymentRecordState, string> = {
+  Checkout: 'warn',
+  Processing: 'warn',
+  Pending: 'warn',
+  Completed: 'success',
+  Failed: 'danger',
+  Void: 'secondary',
+  Disputed: 'secondary',
+  Invalid: 'danger',
+}
+
+// Label: Wire-equivalent display label per payment record state.
+export const PAYMENT_STATE_LABEL: Record<PaymentRecordState, string> = {
+  Checkout: 'Checkout',
+  Processing: 'Processing',
+  Pending: 'Pending',
+  Completed: 'Completed',
+  Failed: 'Failed',
+  Void: 'Void',
+  Disputed: 'Disputed',
+  Invalid: 'Invalid',
+}
 
 // StorePaymentMethodListItemResponse — GET api/storefront/payment/methods (paged).
 export interface PaymentMethod {
@@ -31,7 +66,7 @@ export interface PaymentIntent {
   currency: string
   orderId: string
   paymentMethodId: string
-  state: string
+  state: PaymentRecordState
   paymentStatus: string | null
   clientSecret: string | null
   responseCode: string | null
@@ -64,6 +99,6 @@ export interface PaymentStatusResponse {
   orderId: string
   amount: number
   currency: string
-  state: string
+  state: PaymentRecordState
   isCompleted: boolean
 }

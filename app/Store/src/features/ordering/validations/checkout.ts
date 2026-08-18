@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { PaymentRecordStateSchema } from './order'
 
 // Validate: Checkout request schemas — partial updates for address, shipping, and payment steps.
 export const UpdateCheckoutRequestSchema = z.object({
@@ -32,5 +33,5 @@ export const PaymentIntentResponseSchema = z.object({
   clientSecret: z.string().nullable().optional(),
   responseCode: z.string().nullable().optional(),
   checkoutUrl: z.string().nullable().optional(),
-  state: z.string().nullable().optional(),
+  state: PaymentRecordStateSchema.nullable().optional(),
 })

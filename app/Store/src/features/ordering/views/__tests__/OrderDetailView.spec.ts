@@ -7,9 +7,42 @@ import OrderDetailView from '../OrderDetailView.vue'
 import { useOrders } from '../../composables/useOrders'
 import { useAddresses } from '@/features/profile/composables/useAddresses'
 import { OrderApi } from '../../services/orderApi'
-import { ok } from '@/shared/types/result'
-import type { OrderDetail, OrderTrackingResponse } from '../../types'
+import { CheckoutApi } from '../../services/checkoutApi'
+import { getPaymentMethods } from '@/features/payment/services/paymentApi'
+import { ok, pagedOk, noContent } from '@/shared/types/result'
+import { AddressApi } from '@/features/profile/services/addressApi'
+import type { OrderDetail, OrderTrackingResponse, PaymentCaptureSummary, ShipmentSummary } from '../../types'
+import type { PaymentMethod } from '@/features/payment/types/payment'
 import type { Address } from '@/features/profile/types'
+
+// Confirm: Stub the service so cancel clicks can be observed and accepted inline.
+type ConfirmOptions = { accept?: () => void }
+const { confirmRequire, notifyMock } = vi.hoisted(() => ({
+  confirmRequire: vi.fn<(options: ConfirmOptions) => void>(),
+  notifyMock: { error: vi.fn<() => void>(), success: vi.fn<() => void>(), info: vi.fn<() => void>(), warn: vi.fn<() => void>() },
+}))
+vi.mock('primevue/useconfirm', () => ({
+  useConfirm: () => ({ require: confirmRequire, close: vi.fn<() => void>() }),
+}))
+vi.mock('@/shared/composables/useNotify', () => ({
+  useNotify: () => notifyMock,
+}))
+
+// Stub: Payment method lookup and payment-intent creation used by the Pay-now action.
+vi.mock('@/features/payment/services/paymentApi', () => ({
+  getPaymentMethods: vi.fn<() => Promise<unknown>>(),
+}))
+vi.mock('../../services/checkoutApi', () => ({
+  CheckoutApi: { createPaymentIntent: vi.fn<() => Promise<unknown>>() },
+}))
+// Stub: Address fetch keeps loadOrder from hanging on a real network call.
+vi.mock('@/features/profile/services/addressApi', () => ({
+  AddressApi: { getAddresses: vi.fn<() => Promise<unknown>>() },
+}))
+
+const mockedPaymentMethods = vi.mocked(getPaymentMethods)
+const mockedCheckoutApi = vi.mocked(CheckoutApi)
+const mockedAddressApi = vi.mocked(AddressApi.getAddresses)
 
 // Polyfill: Dialog calls matchMedia on mount; jsdom does not provide it.
 function createMatchMediaStub(query: string) {
@@ -121,6 +154,51 @@ const shippingAddress: Address = {
   stateCode: null,
 }
 
+// Fixture: Active card gateway used by the Pay-now action.
+const paymentMethod: PaymentMethod = {
+  id: 'pm-stripe',
+  name: 'Credit Card',
+  code: null,
+  description: null,
+  providerKey: 'stripe',
+  preferences: null,
+  active: true,
+  autoCapture: true,
+  displayOn: 'Frontend',
+  position: 1,
+  presentation: null,
+  webhookEnabled: true,
+}
+
+// Fixture: Completed payment capture for the severity-mapped State tag.
+const paymentCapture: PaymentCaptureSummary = {
+  id: 'pay-1',
+  number: 'PAY-1001',
+  amount: 90,
+  currency: 'USD',
+  state: 'Completed',
+  paymentStatus: 'succeeded',
+  providerKey: 'stripe',
+  paymentMethodId: 'pm-stripe',
+  createdAtUtc: '2026-08-01T10:10:00Z',
+  completedAtUtc: '2026-08-01T10:12:00Z',
+  failedAtUtc: null,
+}
+
+// Fixture: Shipped shipment for the severity-mapped Status tag.
+const shipment: ShipmentSummary = {
+  id: 'sh-1',
+  orderId: 'o1',
+  shippingMethodId: 'sm-standard',
+  shippingMethodName: 'Standard',
+  trackingNumber: 'TRK-1001',
+  status: 'Shipped',
+  shippedAtUtc: '2026-08-02T09:00:00Z',
+  deliveredAtUtc: null,
+  estimatedDeliveryAtUtc: '2026-08-04T00:00:00Z',
+  createdAtUtc: '2026-08-01T10:20:00Z',
+}
+
 // Router: Memory-history router with the order detail route under /account/orders.
 function createTestRouter() {
   return createRouter({
@@ -135,6 +213,7 @@ function createTestRouter() {
 // Mount: PrimeVue + memory router; tracking comes from the mocked API module.
 async function mountView(router = createTestRouter()) {
   mockedApi.getOrderTracking.mockResolvedValue(ok(tracking))
+  mockedAddressApi.mockResolvedValue(pagedOk([], 1, 10, 0))
   await router.push('/account/orders/o1')
   await router.isReady()
   const wrapper = mount(OrderDetailView, {
@@ -159,6 +238,18 @@ function seedDetail() {
 describe('OrderDetailView', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Location: Provide a writable location so the checkout redirect can be asserted.
+    vi.stubGlobal('location', {
+      origin: 'http://localhost',
+      href: 'http://localhost/account/orders/o1',
+      pathname: '/account/orders/o1',
+      search: '',
+      hash: '',
+    })
+    // Reset: Singleton order refs persist across tests in this module.
+    const orders = useOrders()
+    orders.currentOrder = null
+    orders.error = null
   })
 
   it('renders the order number, status tag and header actions', async () => {
@@ -262,5 +353,90 @@ describe('OrderDetailView', () => {
     expect(wrapper.text()).toContain('$90.00')
     expect(wrapper.text()).toContain('Outstanding')
     expect(wrapper.text()).toContain('$40.00')
+  })
+
+  it('shows the Pay now button only for a placed order with an outstanding balance', async () => {
+    const { wrapper } = await mountView()
+    seedDetail()
+    await wrapper.vm.$nextTick()
+
+    // Gate: Fully paid order keeps the Pay-now action hidden.
+    expect(wrapper.findAll('button').find(b => b.text() === 'Pay now')).toBeUndefined()
+
+    const orders = useOrders()
+    orders.currentOrder = { ...orderDetail, outstandingBalance: 40 }
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('button').find(b => b.text() === 'Pay now')).toBeDefined()
+  })
+
+  it('starts a hosted payment with the first active method and redirects to checkout', async () => {
+    mockedPaymentMethods.mockResolvedValue(pagedOk([paymentMethod], 1, 50, 1))
+    mockedCheckoutApi.createPaymentIntent.mockResolvedValue(
+      ok({ id: 'pi-1', checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_123' }),
+    )
+    const { wrapper } = await mountView()
+    const orders = useOrders()
+    orders.currentOrder = { ...orderDetail, outstandingBalance: 40 }
+    await wrapper.vm.$nextTick()
+
+    const payNow = wrapper.findAll('button').find(b => b.text() === 'Pay now')!
+    await payNow.trigger('click')
+    await flushPromises()
+
+    expect(mockedPaymentMethods).toHaveBeenCalledWith({ pageSize: 50 })
+    expect(mockedCheckoutApi.createPaymentIntent).toHaveBeenCalledWith({ orderId: 'o1', paymentMethodId: 'pm-stripe' })
+    expect(window.location.href).toBe('https://checkout.stripe.com/c/pay/cs_test_123')
+  })
+
+  it('does not start payment when no active payment methods exist', async () => {
+    mockedPaymentMethods.mockResolvedValue(pagedOk([], 1, 50, 0))
+    const { wrapper } = await mountView()
+    const orders = useOrders()
+    orders.currentOrder = { ...orderDetail, outstandingBalance: 40 }
+    await wrapper.vm.$nextTick()
+
+    const payNow = wrapper.findAll('button').find(b => b.text() === 'Pay now')!
+    await payNow.trigger('click')
+    await flushPromises()
+
+    expect(mockedCheckoutApi.createPaymentIntent).not.toHaveBeenCalled()
+    expect(notifyMock.warn).toHaveBeenCalledWith('No payment methods available')
+  })
+
+  it('cancels the order through the confirm service and refreshes the detail', async () => {
+    mockedApi.cancelOrder.mockResolvedValue(noContent())
+    const { wrapper } = await mountView()
+    seedDetail()
+    await wrapper.vm.$nextTick()
+
+    const cancel = wrapper.findAll('button').find(b => b.text() === 'Cancel order')!
+    await cancel.trigger('click')
+    expect(confirmRequire).toHaveBeenCalled()
+    const options = confirmRequire.mock.calls[0]![0]
+    options.accept?.()
+    await flushPromises()
+
+    expect(mockedApi.cancelOrder).toHaveBeenCalledWith('o1')
+    expect(mockedApi.getOrder).toHaveBeenCalledWith('o1')
+  })
+
+  it('hides the Cancel order button once the order is no longer draft or placed', async () => {
+    const { wrapper } = await mountView()
+    const { orders } = seedDetail()
+    orders.currentOrder = { ...orderDetail, status: 'Canceled' }
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findAll('button').find(b => b.text() === 'Cancel order')).toBeUndefined()
+    expect(wrapper.findAll('button').find(b => b.text() === 'Pay now')).toBeUndefined()
+  })
+
+  it('applies severity maps to payment state and shipment status tags', async () => {
+    const { wrapper } = await mountView()
+    const orders = useOrders()
+    orders.currentOrder = { ...orderDetail, payments: [paymentCapture], shipments: [shipment] }
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.html()).toContain('p-tag-success')
+    expect(wrapper.html()).toContain('p-tag-info')
   })
 })

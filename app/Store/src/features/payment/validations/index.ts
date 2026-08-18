@@ -1,1 +1,1 @@
-export { PaymentMethodSchema, PaymentIntentSchema, CreatePaymentIntentRequestSchema, CreateSetupIntentRequestSchema, ConfirmPaymentResponseSchema } from './payment'
+export { PaymentMethodSchema, PaymentIntentSchema, CreatePaymentIntentRequestSchema, CreateSetupIntentRequestSchema, ConfirmPaymentResponseSchema, PaymentStatusResponseSchema } from './payment'

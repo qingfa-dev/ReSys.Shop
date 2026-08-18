@@ -1,4 +1,5 @@
 import type { AdjustmentSummary, ShippingAdjustmentSummary, ShippingCalculationSummary } from './cart'
+import type { PaymentRecordState } from '@/features/payment/types/payment'
 
 export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
 export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Complete'
@@ -69,7 +70,7 @@ export interface PaymentCaptureSummary {
   number: string
   amount: number
   currency: string
-  state: string
+  state: PaymentRecordState
   paymentStatus: string | null
   providerKey: string
   paymentMethodId: string | null

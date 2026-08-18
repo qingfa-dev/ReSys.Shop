@@ -1,3 +1,5 @@
+import type { PaymentRecordState } from '@/features/payment/types/payment'
+
 export interface UpdateCheckoutRequest {
   shipAddressId?: string
   billAddressId?: string
@@ -27,5 +29,5 @@ export interface PaymentIntentResponse {
   clientSecret?: string | null
   responseCode?: string | null
   checkoutUrl?: string | null
-  state?: string | null
+  state?: PaymentRecordState | null
 }

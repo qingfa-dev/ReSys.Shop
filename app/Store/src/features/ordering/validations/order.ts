@@ -5,6 +5,7 @@ export const OrderStatusSchema = z.enum(['Draft', 'Placed', 'Canceled', 'Expired
 export const CheckoutStateSchema = z.enum(['Address', 'PickDeliveryMethod', 'PickPaymentMethod', 'Confirm', 'Complete'])
 export const OrderPaymentStateSchema = z.enum(['Completed', 'Failed', 'Void', 'BalanceDue', 'CreditOwed', 'Paid', 'Pending', 'Checkout', 'Invalid'])
 export const OrderFulfillmentStateSchema = z.enum(['None', 'Pending', 'Partial', 'Shipped', 'Delivered', 'Canceled'])
+export const PaymentRecordStateSchema = z.enum(['Checkout', 'Processing', 'Pending', 'Completed', 'Failed', 'Void', 'Disputed', 'Invalid'])
 
 // Validate: Shipping adjustment summary shape shared by cart and order schemas.
 export const ShippingAdjustmentSummarySchema = z.object({
@@ -60,7 +61,7 @@ export const PaymentCaptureSummarySchema = z.object({
   number: z.string(),
   amount: z.number(),
   currency: z.string(),
-  state: z.string(),
+  state: PaymentRecordStateSchema,
   paymentStatus: z.string().nullable(),
   providerKey: z.string(),
   paymentMethodId: z.string().nullable(),
