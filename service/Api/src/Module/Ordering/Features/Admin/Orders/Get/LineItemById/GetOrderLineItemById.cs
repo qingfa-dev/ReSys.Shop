@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Features.Admin.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
 
@@ -27,7 +28,10 @@ public static partial class GetOrderLineItemById
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(query.LineItemId);
 
-            return lineItem.MapToLineItemResponse<Response>();
+            // Enrich: Resolve the parent product reference (id, name, primary image) for the line item.
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, [lineItem.VariantId], cancellationToken);
+
+            return lineItem.MapToLineItemResponse<Response>(itemLookup.GetValueOrDefault(lineItem.VariantId));
         }
     }
 }

@@ -212,6 +212,7 @@ public static partial class OrderMapping
         return new T
         {
             Id = entity.Id,
+            OrderId = entity.OrderId,
             VariantId = entity.VariantId,
             Quantity = entity.Quantity,
             Price = entity.Price,

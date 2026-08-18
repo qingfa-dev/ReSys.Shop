@@ -43,6 +43,7 @@ public static partial class GetOrderTracking
                 PaymentFailedAt = entity.PaymentFailedAtUtc,
                 ShippedAt = entity.ShipmentShippedAtUtc,
                 DeliveredAt = entity.ShipmentDeliveredAtUtc,
+                EstimatedDeliveryAt = shipment?.EstimatedDeliveryAtUtc,
             };
         }
     }

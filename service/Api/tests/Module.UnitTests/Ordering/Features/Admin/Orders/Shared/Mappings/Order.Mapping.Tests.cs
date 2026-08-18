@@ -1,8 +1,10 @@
 using Shared.Application.Domain.Orders;
 
+using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Shared.Mappings;
 using Module.Ordering.Features.Admin.Shared.Models;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
 
 namespace Module.UnitTests.Ordering.Features.Admin.Orders.Shared.Mappings;
 
@@ -153,6 +155,55 @@ public class OrderMappingTests
         var response = order.MapToDetail<OrderDetailResponse>();
 
         response.ShippingAdjustment.Should().BeNull();
+    }
+
+    [Fact(DisplayName = "MapToLineItemResponse: Should populate OrderId")]
+    public void MapToLineItemResponse_ShouldPopulateOrderId()
+    {
+        var orderId = Guid.NewGuid();
+        var lineItem = LineItemMethod.Create(orderId, Guid.NewGuid(), 2, 29.99m).Value;
+
+        var response = lineItem.MapToLineItemResponse<LineItemResponse>();
+
+        response.OrderId.Should().Be(orderId);
+        response.VariantId.Should().Be(lineItem.VariantId);
+        response.Quantity.Should().Be(2);
+        response.Price.Should().Be(29.99m);
+    }
+
+    [Fact(DisplayName = "MapToLineItemResponse with lookup: Should populate product fields and OrderId")]
+    public void MapToLineItemResponse_WithLookup_ShouldPopulateProductFieldsAndOrderId()
+    {
+        var orderId = Guid.NewGuid();
+        var lineItem = LineItemMethod.Create(orderId, Guid.NewGuid(), 2, 29.99m).Value;
+        var lookup = new CartItemLookup
+        {
+            Sku = "SKU-1",
+            ProductId = Guid.NewGuid(),
+            ProductName = "Test Product",
+            ProductImageUrl = "https://example.com/image.jpg",
+        };
+
+        var response = lineItem.MapToLineItemResponse<LineItemResponse>(lookup);
+
+        response.OrderId.Should().Be(orderId);
+        response.ProductId.Should().Be(lookup.ProductId);
+        response.ProductName.Should().Be(lookup.ProductName);
+        response.ProductImageUrl.Should().Be(lookup.ProductImageUrl);
+    }
+
+    [Fact(DisplayName = "MapToLineItemResponse with null lookup: Should still populate OrderId without product fields")]
+    public void MapToLineItemResponse_WithNullLookup_ShouldPopulateOrderIdWithoutProducts()
+    {
+        var orderId = Guid.NewGuid();
+        var lineItem = LineItemMethod.Create(orderId, Guid.NewGuid(), 2, 29.99m).Value;
+
+        var response = lineItem.MapToLineItemResponse<LineItemResponse>(null);
+
+        response.OrderId.Should().Be(orderId);
+        response.ProductId.Should().BeNull();
+        response.ProductName.Should().BeNull();
+        response.ProductImageUrl.Should().BeNull();
     }
 
     private static Order CreateOrder(Action<Order>? configure = null)
