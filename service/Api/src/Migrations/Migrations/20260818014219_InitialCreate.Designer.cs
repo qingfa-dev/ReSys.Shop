@@ -14,8 +14,8 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260816135038_IntialCreate")]
-    partial class IntialCreate
+    [Migration("20260818014219_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
