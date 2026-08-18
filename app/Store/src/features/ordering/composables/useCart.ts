@@ -1,5 +1,6 @@
 import { ref, computed, reactive } from 'vue'
 import { CartApi } from '../services/cartApi'
+import { HttpError } from '@/shared/api/client'
 import { emit, on } from '@/shared/composables/useStoreEvents'
 import type { CartLineItem, CheckoutState } from '../types'
 import type { ShippingAdjustmentSummary } from '../types/cart'
@@ -88,8 +89,9 @@ async function addItem(variantId: string, quantity = 1): Promise<boolean> {
     }
     loading.value = false
     return result.isSuccess
-  } catch {
-    error.value = 'Failed to add item'
+  } catch (err) {
+    // Preserve: Surface the server's rejection reason (e.g. out of stock, not purchasable).
+    error.value = err instanceof HttpError ? err.message : 'Failed to add item'
     loading.value = false
     return false
   }

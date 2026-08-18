@@ -37,6 +37,7 @@ export function useCheckout(getCart: () => CartRef) {
   const paymentState = ref<string | null>(null)
   const orderId = ref<string | null>(null)
   const email = ref('')
+  const specialInstructions = ref('')
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -78,8 +79,7 @@ export function useCheckout(getCart: () => CartRef) {
     }
   }
 
-  async function selectShippingRate(methodId: string): Promise<boolean> {
-    loading.value = true
+  async function selectShippingRate(methodId: string): Promise<boolean> {    loading.value = true
     error.value = null
     try {
       const result = await CheckoutApi.selectShippingRate({ shippingMethodId: methodId })
@@ -152,9 +152,25 @@ export function useCheckout(getCart: () => CartRef) {
     }
   }
 
-  // Guard: Ask the backend whether the cart is ready to place the order.
-  async function validateCheckout(): Promise<boolean> {
+  // Persist: Save the customer's order notes onto the draft cart before placement.
+  async function saveSpecialInstructions(): Promise<boolean> {
+    const value = specialInstructions.value.trim()
     loading.value = true
+    error.value = null
+    try {
+      const result = await CheckoutApi.updateCheckout({ specialInstructions: value || undefined })
+      if (!result.isSuccess) error.value = result.message
+      loading.value = false
+      return result.isSuccess
+    } catch {
+      error.value = 'Failed to save special instructions'
+      loading.value = false
+      return false
+    }
+  }
+
+  // Guard: Ask the backend whether the cart is ready to place the order.
+  async function validateCheckout(): Promise<boolean> {    loading.value = true
     error.value = null
     try {
       const result = await CheckoutApi.validateCheckout()
@@ -200,12 +216,13 @@ export function useCheckout(getCart: () => CartRef) {
     checkoutUrl.value = null
     paymentState.value = null
     orderId.value = null
+    specialInstructions.value = ''
     error.value = null
   }
 
   return reactive({
     backendStep, displayStep, shipAddressId, shippingMethodId, paymentMethodId, paymentIntentId,
-    paymentClientSecret, checkoutUrl, paymentState, orderId, email, loading, error, steps,
-    init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, validateCheckout, reset,
+    paymentClientSecret, checkoutUrl, paymentState, orderId, email, specialInstructions, loading, error, steps,
+    init, saveAddress, selectShippingRate, createPaymentIntent, placeOrder, saveSpecialInstructions, validateCheckout, reset,
   })
 }

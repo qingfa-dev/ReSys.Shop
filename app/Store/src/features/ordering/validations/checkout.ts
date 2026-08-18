@@ -7,6 +7,7 @@ export const UpdateCheckoutRequestSchema = z.object({
   billAddressId: z.string().optional(),
   currency: z.string().optional(),
   email: z.string().optional(),
+  specialInstructions: z.string().max(2000).optional(),
 })
 
 export const SelectShippingRateRequestSchema = z.object({

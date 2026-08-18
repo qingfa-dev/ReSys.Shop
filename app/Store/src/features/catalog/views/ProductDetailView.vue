@@ -157,7 +157,7 @@ async function addToCart(): Promise<boolean> {
   if (!variantId) return false
   const ok = await cart.addItem(variantId, detail.quantity)
   if (ok) notify.success('Added to cart')
-  else handleError(new Error(cart.error ?? 'Failed to add to cart'))
+  else notify.error(cart.error ?? 'Failed to add to cart')
   return ok
 }
 

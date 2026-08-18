@@ -336,6 +336,7 @@ describe('CheckoutView', () => {
       ok({ id: 'pi-1', clientSecret: 'cs-test', checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_123' }),
     )
     mockedCheckoutApi.validateCheckout.mockResolvedValue(ok(undefined))
+    mockedCheckoutApi.updateCheckout.mockResolvedValue(ok(undefined))
     const { wrapper } = await mountView(true)
 
     const vm = wrapper.vm as unknown as {
@@ -346,7 +347,7 @@ describe('CheckoutView', () => {
       }
       selectedPaymentMethodId: string | null
       onContinueFromPayment: () => Promise<void>
-      onConfirmAndPay: () => void
+      onConfirmAndPay: () => Promise<void>
     }
     // Drive the wizard to the payment panel (backend PickPaymentMethod -> display step 3).
     vm.checkout.displayStep = 3
@@ -366,7 +367,8 @@ describe('CheckoutView', () => {
     expect(vm.checkout.checkoutUrl).toBe('https://checkout.stripe.com/c/pay/cs_test_123')
 
     // Confirm and Pay → redirect to the hosted checkout.
-    vm.onConfirmAndPay()
+    await vm.onConfirmAndPay()
+    await flushPromises()
     expect(window.location.href).toBe('https://checkout.stripe.com/c/pay/cs_test_123')
   })
 

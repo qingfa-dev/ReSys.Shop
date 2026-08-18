@@ -141,6 +141,16 @@ describe('ProductGridCard', () => {
     expect(cart.addItem).toHaveBeenCalledWith('mv-1', 1)
   })
 
+  it('prevents the native anchor navigation when quick-add is clicked', async () => {
+    const wrapper = await mountCard()
+    const button = wrapper.find('[aria-label="Add to cart"]')
+
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+    button.element.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
+  })
+
   it('opens the quick-view popover with image, name, price and detail link', async () => {
     const wrapper = await mountCard()
 

@@ -5,6 +5,7 @@ export interface UpdateCheckoutRequest {
   billAddressId?: string
   currency?: string
   email?: string
+  specialInstructions?: string
 }
 
 export interface SelectShippingRateRequest {

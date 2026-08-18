@@ -85,21 +85,24 @@ async function toggleWishlist(): Promise<void> {
   emit("toggle-wishlist", props.product);
 }
 
-// Guard: Stop card navigation, then quick-add the master variant and emit for analytics.
+// Guard: Suppress anchor default before quick-adding the master variant and emitting for analytics.
 function onAddToCart(event: Event): void {
+  event.preventDefault();
   event.stopPropagation();
   void quickAdd(props.product.masterVariantId);
   emit("add-to-cart", props.product);
 }
 
-// Guard: Stop card navigation, then toggle wishlist membership.
+// Guard: Suppress anchor default before toggling wishlist membership.
 function onToggleWishlist(event: Event): void {
+  event.preventDefault();
   event.stopPropagation();
   void toggleWishlist();
 }
 
-// Guard: Stop card navigation before opening the quick-view popover.
+// Guard: Suppress anchor default before opening the quick-view popover.
 function onQuickView(event: Event): void {
+  event.preventDefault();
   event.stopPropagation();
   quickViewPopover.value?.toggle(event, quickViewButton.value?.$el);
 }

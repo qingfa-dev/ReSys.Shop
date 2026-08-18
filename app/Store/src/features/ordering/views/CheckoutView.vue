@@ -226,7 +226,10 @@ async function onContinueFromPayment(): Promise<void> {
 }
 
 // Action: Confirm the reviewed order and redirect to Stripe for the card charge.
-function onConfirmAndPay(): void {
+async function onConfirmAndPay(): Promise<void> {
+  // Persist: Save order notes before redirecting so they ride along with the order.
+  const saved = await checkout.saveSpecialInstructions()
+  if (!saved) return
   if (checkout.checkoutUrl) {
     window.location.href = checkout.checkoutUrl
   }
@@ -237,6 +240,9 @@ const total = computed(() => cart.total)
 
 // Action: Submit the order through the checkout store and land on confirmation.
 async function onPlaceOrder(): Promise<void> {
+  // Persist: Save order notes before placing so they are captured on the order.
+  const saved = await checkout.saveSpecialInstructions()
+  if (!saved) return
   await checkout.placeOrder()
 }
 
@@ -301,7 +307,7 @@ onMounted(async () => {
       <StepPanels>
         <!-- Panel: Shipping — saved-address picker or a new address form -->
         <StepPanel :value="1">
-          <div class="max-w-xl space-y-5">
+          <div class="max-w-xl space-y-5 p-4">
             <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
             <Message v-if="addresses.error" severity="error" :closable="false">{{ addresses.error }}</Message>
             <div class="grid gap-4">
@@ -377,7 +383,7 @@ onMounted(async () => {
 
         <!-- Panel: Delivery — shipping method selection from the shipping store -->
         <StepPanel :value="2">
-          <div class="max-w-xl space-y-5">
+          <div class="max-w-xl space-y-5 p-4">
             <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
             <Message v-if="shipping.error" severity="error" :closable="false">{{ shipping.error }}</Message>
             <RadioButtonGroup v-model="selectedShippingId" class="flex flex-col gap-3">
@@ -419,7 +425,7 @@ onMounted(async () => {
 
         <!-- Panel: Payment — customer-facing payment method selection and redirect -->
         <StepPanel :value="3">
-          <div class="max-w-xl space-y-5">
+          <div class="max-w-xl space-y-5 p-4">
             <Message v-if="checkout.error" severity="error" :closable="false">{{ checkout.error }}</Message>
             <Message v-if="paymentMethods.length === 0 && !checkout.loading" severity="warn" :closable="false">
               No payment methods are available.
@@ -459,7 +465,7 @@ onMounted(async () => {
 
         <!-- Panel: Review — item tickets and the order summary card before placement -->
         <StepPanel :value="4">
-          <div class="grid gap-6 lg:grid-cols-3">
+          <div class="grid gap-6 p-4 lg:grid-cols-3">
             <Message v-if="checkout.error" severity="error" :closable="false" class="lg:col-span-3">{{ checkout.error }}</Message>
 
             <!-- Zone: Items — ticket cards mirroring the cart drawer for a familiar read -->
@@ -496,6 +502,22 @@ onMounted(async () => {
                   <div class="text-sm text-muted">{{ item.quantity }} × {{ formatCurrency(item.price) }}</div>
                   <div class="font-semibold">{{ formatCurrency(item.total) }}</div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Zone: Notes — optional special instructions persisted with the order -->
+            <div class="rounded-lg border border-surface-200 bg-surface-0 p-4 lg:col-span-2">
+              <Label for="checkout-notes" class="mb-1 block text-sm font-medium">Special Instructions</Label>
+              <Textarea
+                id="checkout-notes"
+                v-model="checkout.specialInstructions"
+                :maxlength="2000"
+                rows="3"
+                placeholder="Delivery or gift notes (optional)"
+                class="w-full"
+              />
+              <div class="mt-1 text-right text-xs text-muted">
+                {{ checkout.specialInstructions.length }}/2000
               </div>
             </div>
 
@@ -542,7 +564,7 @@ onMounted(async () => {
 
         <!-- Panel: Confirmation — success message with order number and account link -->
         <StepPanel :value="5">
-          <div class="max-w-xl space-y-5 py-8 text-center">
+          <div class="max-w-xl space-y-5 p-4 py-8 text-center">
             <i class="pi pi-check-circle block text-5xl text-success" />
             <Message severity="success" :closable="false">
               <div class="flex flex-col items-center gap-1">
