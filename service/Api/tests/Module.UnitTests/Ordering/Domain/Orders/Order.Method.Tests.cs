@@ -2,6 +2,9 @@ using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
+using Module.Billing.Domain.PaymentCaptures;
+using Shared.Application.Domain.Orders;
+
 namespace Module.UnitTests.Ordering.Domain.Orders;
 
 [Trait("Category", "Unit")][Trait("Module", "Ordering")][Trait("Entity", "Order")]
@@ -98,6 +101,48 @@ public class OrderMethodTests
         var r = order.Cancel(Guid.Empty);
         r.IsFailure.Should().BeTrue();
         r.Errors[0].Should().Be(OrderResult.Errors.IdRequired);
+    }
+
+    [Fact]
+    public void Cancel_WhenCompleted_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Completed;
+        var r = order.Cancel(Guid.NewGuid());
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.InvalidStatusTransition);
+    }
+
+    [Fact]
+    public void Cancel_WhenExpired_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Expired;
+        var r = order.Cancel(Guid.NewGuid());
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.InvalidStatusTransition);
+    }
+
+    [Fact]
+    public void Resume_WhenDelivered_ShouldComplete()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Canceled;
+        order.ShipmentState = ShipmentState.Delivered;
+        var r = order.Resume();
+        r.IsSuccess.Should().BeTrue();
+        order.Status.Should().Be(OrderStatus.Completed);
+    }
+
+    [Fact]
+    public void Resume_WhenNotDelivered_StaysPlaced()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Canceled;
+        order.ShipmentState = ShipmentState.Pending;
+        var r = order.Resume();
+        r.IsSuccess.Should().BeTrue();
+        order.Status.Should().Be(OrderStatus.Placed);
     }
 
     [Fact]
@@ -688,6 +733,26 @@ public class OrderMethodTests
         order.OutstandingBalance = 0m;
         order.UpdatePaymentState();
         order.PaymentState.Should().Be(OrderPaymentState.Paid);
+    }
+
+    [Fact(DisplayName = "UpdatePaymentState maps fully refunded order to CreditOwed, not BalanceDue")]
+    public void UpdatePaymentState_FullyRefundedCompleted_IsCreditOwed()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Completed;
+        order.Total = 100m;
+        order.PaymentCaptures.Add(new PaymentCapture
+        {
+            OrderId = order.Id,
+            CapturedAmount = 100m,
+            RefundedAmount = 100m
+        });
+        order.RecomputePaymentState();
+        order.PaymentTotal.Should().Be(0m);
+        order.OutstandingBalance.Should().Be(100m);
+
+        order.UpdatePaymentState();
+        order.PaymentState.Should().Be(OrderPaymentState.CreditOwed);
     }
 
     [Fact(DisplayName = "AdvanceCheckoutState to PickPaymentMethod does not stamp PaymentProcessingAt")]

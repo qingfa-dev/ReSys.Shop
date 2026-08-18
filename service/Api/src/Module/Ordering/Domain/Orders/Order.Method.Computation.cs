@@ -36,11 +36,14 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.Recalculated(order.Id));
     }
 
-    // Compute: Derive PaymentState from OutstandingBalance and Cancellation status
+    // Compute: Derive PaymentState from OutstandingBalance, Cancellation status, and refunds.
+    //           Fully refunded orders map to CreditOwed (no outstanding debt), not BalanceDue.
     public static Result UpdatePaymentState(this Order order)
     {
         if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
             order.PaymentState = OrderPaymentState.Void;
+        else if (order.PaymentTotal == 0m && order.PaymentCaptures.Sum(p => p.RefundedAmount) > 0m)
+            order.PaymentState = OrderPaymentState.CreditOwed;
         else if (order.OutstandingBalance > 0m)
             order.PaymentState = OrderPaymentState.BalanceDue;
         else if (order.OutstandingBalance < 0m)
