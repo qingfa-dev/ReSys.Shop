@@ -73,6 +73,45 @@ public class RecordOrderShipmentStateTests : IDisposable
         updated.ShipmentState.Should().Be(ShipmentState.Delivered);
     }
 
+    [Fact(DisplayName = "Handler: delivered fulfillment auto-completes a placed order")]
+    public async Task Handle_Delivered_AutoCompletesPlacedOrder()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(new RecordOrderShipmentStateCommand
+        {
+            OrderId = order.Id,
+            FulfillmentState = ShipmentState.Delivered
+        }, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
+        updated.Status.Should().Be(OrderStatus.Completed);
+        updated.ModifiedBy.Should().Be("System");
+    }
+
+    [Fact(DisplayName = "Handler: non-delivered fulfillment keeps a placed order in Placed state")]
+    public async Task Handle_Shipped_KeepsPlacedOrderPlaced()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(new RecordOrderShipmentStateCommand
+        {
+            OrderId = order.Id,
+            FulfillmentState = ShipmentState.Shipped
+        }, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var updated = await _dbContext.Set<Order>().FirstAsync(o => o.Id == order.Id);
+        updated.Status.Should().Be(OrderStatus.Placed);
+    }
+
     [Fact(DisplayName = "Handler: unknown order returns NotFound")]
     public async Task Handle_UnknownOrder_ReturnsNotFound()
     {

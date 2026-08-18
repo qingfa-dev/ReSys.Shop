@@ -49,7 +49,7 @@ public class CompleteOrderTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Status.Should().Be(OrderStatus.Placed);
+        result.Value.Status.Should().Be(OrderStatus.Completed);
         result.Value.CompletedAtUtc.Should().NotBeNull();
         result.Value.LineItems.Should().ContainSingle();
         result.Value.Adjustments.Should().ContainSingle();

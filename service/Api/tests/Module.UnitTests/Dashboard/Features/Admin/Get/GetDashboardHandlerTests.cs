@@ -244,6 +244,30 @@ public class GetDashboardHandlerTests : IDisposable
         activities.Should().BeInDescendingOrder(a => a.Timestamp);
     }
 
+    [Fact(DisplayName = "Handle: completed order maps to completed activity status in the feed")]
+    public async Task Handle_CompletedOrder_MapsToCompletedActivityStatus()
+    {
+        var ct = TestContext.Current.CancellationToken;
+
+        _dbContext.Set<Order>().Add(new Order
+        {
+            Id = Guid.NewGuid(),
+            Number = "ORD-200",
+            Status = OrderStatus.Completed,
+            Total = 50m,
+            Currency = "USD",
+            ItemCount = 1,
+            CreatedAtUtc = DateTimeOffset.UtcNow.AddHours(-1)
+        });
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(new GetDashboard.Query(), ct);
+
+        result.IsSuccess.Should().BeTrue();
+        var activity = result.Value.RecentActivities.Single(a => a.Type == ActivityType.Order);
+        activity.Status.Should().Be(ActivityStatus.Completed);
+    }
+
     [Fact(DisplayName = "Handle: TrendHistory should have exactly 30 data points")]
     public async Task Handle_TrendHistory_ShouldHave30Points()
     {

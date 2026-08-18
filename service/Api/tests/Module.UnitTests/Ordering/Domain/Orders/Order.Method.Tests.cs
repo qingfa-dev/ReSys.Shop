@@ -324,6 +324,7 @@ public class OrderMethodTests
         order.Finalize();
         var r = order.Complete("tester");
         r.IsSuccess.Should().BeTrue();
+        order.Status.Should().Be(OrderStatus.Completed);
         order.CheckoutState.Should().Be(CheckoutState.Placed);
     }
 
