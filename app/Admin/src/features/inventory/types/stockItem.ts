@@ -125,5 +125,5 @@ export interface LowStockQuery {
 export interface LowStockItem extends StockItemListItem {
   locationName: string
   threshold: number
-  status: 'low' | 'out_of_stock'
+  status: 'Low' | 'OutOfStock'
 }

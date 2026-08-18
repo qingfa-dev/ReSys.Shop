@@ -7,15 +7,24 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
+import { useConfirm } from 'primevue/useconfirm'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
+import { useNotify } from '@/shared/composables/useNotify'
+import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { formatCurrency } from '@/shared/utils/currency'
 import { usePaymentList } from '../composables/usePaymentList'
-import type { PaymentListItem } from '../types/payment'
-import { PAYMENT_SEARCH_FIELDS } from '../types/payment'
+import { PaymentApi } from '../services/paymentApi'
+import { PAYMENT_STATE_SEVERITY, PAYMENT_SEARCH_FIELDS } from '../types/payment'
+import type { PaymentListItem, PaymentRecordState } from '../types/payment'
+import type { Result } from '@/shared/types'
 
 const { dt, exportCSV } = useDataTableExport()
 const selectedItems = ref<PaymentListItem[]>([])
 const search = ref('')
+const confirm = useConfirm()
+const notify = useNotify()
+const { handleResult } = useApiErrorHandler()
+const paymentActionId = ref<string | null>(null)
 
 const { items, loading, setSearch, refresh } = usePaymentList({
   defaultSearchFields: PAYMENT_SEARCH_FIELDS,
@@ -29,6 +38,58 @@ function onSearch(value: string) {
 function clearSearch() {
   search.value = ''
   setSearch('')
+}
+
+// Gate: Capture applies only to payments awaiting settlement.
+function canCapturePayment(state: PaymentRecordState): boolean {
+  return state === 'Pending' || state === 'Processing'
+}
+
+// Gate: Refund applies only to completed payments.
+function canRefundPayment(state: PaymentRecordState): boolean {
+  return state === 'Completed'
+}
+
+// Gate: Void applies only to payments that have not completed.
+function canVoidPayment(state: PaymentRecordState): boolean {
+  return state === 'Pending' || state === 'Processing'
+}
+
+// Trigger: Confirm before running a payment action on the row, then reload the list.
+function confirmPaymentAction<T>(payment: PaymentListItem, label: string, message: string, run: () => Promise<Result<T>>) {
+  confirm.require({
+    message,
+    header: `Confirm ${label}`,
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancel',
+    acceptLabel: label,
+    accept: async () => {
+      paymentActionId.value = payment.id
+      const result = await run()
+      paymentActionId.value = null
+      if (result.isSuccess) {
+        notify.success('Payment', `Payment ${label.toLowerCase()}d.`)
+        await refresh()
+      } else {
+        handleResult(result)
+      }
+    },
+  })
+}
+
+function capturePayment(payment: PaymentListItem) {
+  confirmPaymentAction(payment, 'Capture', 'Capture this payment?', () => PaymentApi.capturePayment(payment.id))
+}
+
+function refundPayment(payment: PaymentListItem) {
+  const amount = formatCurrency(payment.amount, payment.currency)
+  confirmPaymentAction(payment, 'Refund', `Refund ${amount} for this payment?`, () =>
+    PaymentApi.refundPayment(payment.id, { amount: payment.amount }),
+  )
+}
+
+function voidPayment(payment: PaymentListItem) {
+  confirmPaymentAction(payment, 'Void', 'Void this payment?', () => PaymentApi.voidPayment(payment.id))
 }
 </script>
 
@@ -96,12 +157,46 @@ function clearSearch() {
       <Column field="paymentMethodId" header="Method ID" />
       <Column field="state" header="State" :sortable="true">
         <template #body="{ data }">
-          <Tag :value="data.state" />
+          <Tag :value="data.state" :severity="PAYMENT_STATE_SEVERITY[data.state as PaymentRecordState]" />
         </template>
       </Column>
       <Column field="paymentStatus" header="Payment Status">
         <template #body="{ data }">
           {{ data.paymentStatus ?? '—' }}
+        </template>
+      </Column>
+      <!-- Section: Row Actions — per-row capture, refund, and void controls -->
+      <Column header="Actions">
+        <template #body="{ data }">
+          <div class="flex items-center gap-2">
+            <Button
+              v-if="canCapturePayment(data.state)"
+              icon="pi pi-check"
+              label="Capture"
+              size="small"
+              severity="primary"
+              :loading="paymentActionId === data.id"
+              @click="capturePayment(data)"
+            />
+            <Button
+              v-if="canRefundPayment(data.state)"
+              icon="pi pi-refresh"
+              label="Refund"
+              size="small"
+              severity="secondary"
+              :loading="paymentActionId === data.id"
+              @click="refundPayment(data)"
+            />
+            <Button
+              v-if="canVoidPayment(data.state)"
+              icon="pi pi-times"
+              label="Void"
+              size="small"
+              severity="danger"
+              :loading="paymentActionId === data.id"
+              @click="voidPayment(data)"
+            />
+          </div>
         </template>
       </Column>
       <!-- Section: Empty State — shown when no payments match -->

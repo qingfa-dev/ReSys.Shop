@@ -1,12 +1,44 @@
 import type { QueryingParameters } from '@/shared/types/querying'
 
+export type PaymentRecordState =
+  | 'Checkout'
+  | 'Processing'
+  | 'Pending'
+  | 'Completed'
+  | 'Failed'
+  | 'Void'
+  | 'Disputed'
+  | 'Invalid'
+
+export const PAYMENT_STATE_SEVERITY: Record<PaymentRecordState, string> = {
+  Checkout: 'warn',
+  Processing: 'warn',
+  Pending: 'warn',
+  Completed: 'success',
+  Failed: 'danger',
+  Void: 'secondary',
+  Disputed: 'secondary',
+  Invalid: 'danger',
+}
+
+export const PAYMENT_STATE_LABEL: Record<PaymentRecordState, string> = {
+  Checkout: 'Checkout',
+  Processing: 'Processing',
+  Pending: 'Pending',
+  Completed: 'Completed',
+  Failed: 'Failed',
+  Void: 'Void',
+  Disputed: 'Disputed',
+  Invalid: 'Invalid',
+}
+
 export interface PaymentListItem {
   id: string
   amount: number
   currency: string
   orderId: string
   paymentMethodId: string
-  state: string
+  state: PaymentRecordState
   paymentStatus?: string
 }
 
@@ -22,7 +54,7 @@ export interface PaymentDetail extends PaymentListItem {
 }
 
 export interface PaymentQuery {
-  state?: string
+  state?: PaymentRecordState
   paymentMethodId?: string
   orderId?: string
   search?: string
@@ -41,7 +73,7 @@ export const PAYMENT_SEARCH_FIELDS = ['number']
 export function toPaymentQueryParams(query: PaymentQuery): QueryingParameters {
   const filters: string[] = []
 
-  if (query.state !== undefined && query.state !== '') {
+  if (query.state !== undefined) {
     filters.push(`state=${query.state}`)
   }
   if (query.paymentMethodId !== undefined && query.paymentMethodId !== '') {

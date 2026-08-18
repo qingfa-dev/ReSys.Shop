@@ -20,9 +20,12 @@ import { formatCurrency } from '@/shared/utils/currency'
 import { formatDate } from '@/shared/utils/date'
 import { useOrderDetail } from '../composables/useOrderDetail'
 import { OrderApi } from '../services/orderApi'
+import { PaymentApi } from '../../payment/services/paymentApi'
+import { PAYMENT_STATE_SEVERITY } from '../../payment/types/payment'
+import type { PaymentRecordState } from '../../payment/types/payment'
 import Timeline from 'primevue/timeline'
 import type { Result } from '@/shared/types'
-import type { OrderDetail, OrderStatus, LineItem, OrderFulfillmentState, ShipmentSummary, ShipmentStatus } from '../types/order'
+import type { OrderDetail, OrderStatus, LineItem, OrderFulfillmentState, ShipmentSummary, ShipmentStatus, PaymentCaptureSummary } from '../types/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -60,6 +63,7 @@ function statusSeverity(status: OrderStatus | undefined): string {
 const savingShipmentId = ref<string | null>(null)
 const draftStatus = ref<Record<string, ShipmentStatus>>({})
 const trackingInputs = ref<Record<string, string>>({})
+const paymentActionId = ref<string | null>(null)
 
 // Transition: Return the shipment statuses reachable from the row's current status, mirroring ShipmentMethod guards.
 function allowedShipmentTargets(status: ShipmentStatus): ShipmentStatus[] {
@@ -112,20 +116,96 @@ async function saveShipmentStatus(shipment: ShipmentSummary) {
     notify.error('Shipment', 'A tracking number is required to mark the shipment as Shipped.')
     return
   }
+  await persistShipmentStatus(shipment, draftStatus.value[shipment.id] ?? shipment.status, trackingInputs.value[shipment.id])
+}
+
+// Save: Persist a shipment status transition and refresh the order on success.
+async function persistShipmentStatus(shipment: ShipmentSummary, status: ShipmentStatus, trackingNumber?: string) {
   savingShipmentId.value = shipment.id
-  // Save: Persist the edited status and tracking number for the shipment.
-  const result = await OrderApi.updateShipmentStatus(shipment.id, {
-    status: draftStatus.value[shipment.id] ?? shipment.status,
-    trackingNumber: trackingInputs.value[shipment.id],
-  })
+  const result = await OrderApi.updateShipmentStatus(shipment.id, { status, trackingNumber })
   savingShipmentId.value = null
   if (result.isSuccess) {
-    notify.success('Shipment', `Shipment status updated to "${draftStatus.value[shipment.id]}".`)
+    notify.success('Shipment', `Shipment status updated to "${status}".`)
     // Refresh: Re-fetch the order so shipments and timeline reflect the new status.
     await fetchOrder(orderId.value)
   } else {
     handleResult(result)
   }
+}
+
+// Gate: Mark Shipped is reachable only from Ready or Backorder.
+function canMarkShipped(shipment: ShipmentSummary): boolean {
+  return allowedShipmentTargets(shipment.status).includes('Shipped')
+}
+
+// Gate: Mark Delivered is reachable only from Shipped.
+function canMarkDelivered(shipment: ShipmentSummary): boolean {
+  return allowedShipmentTargets(shipment.status).includes('Delivered')
+}
+
+async function markShipmentShipped(shipment: ShipmentSummary) {
+  // Guard: A tracking number is required to mark a shipment as Shipped.
+  if (!trackingInputs.value[shipment.id]?.trim()) {
+    notify.error('Shipment', 'A tracking number is required to mark the shipment as Shipped.')
+    return
+  }
+  await persistShipmentStatus(shipment, 'Shipped', trackingInputs.value[shipment.id])
+}
+
+async function markShipmentDelivered(shipment: ShipmentSummary) {
+  await persistShipmentStatus(shipment, 'Delivered')
+}
+
+// Gate: Capture applies only to payments awaiting settlement.
+function canCapturePayment(state: PaymentRecordState): boolean {
+  return state === 'Pending' || state === 'Processing'
+}
+
+// Gate: Refund applies only to completed payments.
+function canRefundPayment(state: PaymentRecordState): boolean {
+  return state === 'Completed'
+}
+
+// Gate: Void applies only to payments that have not completed.
+function canVoidPayment(state: PaymentRecordState): boolean {
+  return state === 'Pending' || state === 'Processing'
+}
+
+// Trigger: Confirm before running a payment action on the row, then reload the order.
+function confirmPaymentAction<T>(payment: PaymentCaptureSummary, label: string, message: string, run: () => Promise<Result<T>>) {
+  confirm.require({
+    message,
+    header: `Confirm ${label}`,
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancel',
+    acceptLabel: label,
+    accept: async () => {
+      paymentActionId.value = payment.id
+      const result = await run()
+      paymentActionId.value = null
+      if (result.isSuccess) {
+        notify.success('Payment', `Payment ${label.toLowerCase()}d.`)
+        await fetchOrder(orderId.value)
+      } else {
+        handleResult(result)
+      }
+    },
+  })
+}
+
+function capturePayment(payment: PaymentCaptureSummary) {
+  confirmPaymentAction(payment, 'Capture', 'Capture this payment?', () => PaymentApi.capturePayment(payment.id))
+}
+
+function refundPayment(payment: PaymentCaptureSummary) {
+  const amount = formatCurrency(payment.amount, payment.currency)
+  confirmPaymentAction(payment, 'Refund', `Refund ${amount} for this payment?`, () =>
+    PaymentApi.refundPayment(payment.id, { amount: payment.amount }),
+  )
+}
+
+function voidPayment(payment: PaymentCaptureSummary) {
+  confirmPaymentAction(payment, 'Void', 'Void this payment?', () => PaymentApi.voidPayment(payment.id))
 }
 
 function currency(value: OrderDetail | null): string {
@@ -416,14 +496,34 @@ onMounted(() => {
                     </Column>
                     <Column header="Actions">
                       <template #body="{ data }">
-                        <Button
-                          icon="pi pi-save"
-                          label="Save"
-                          size="small"
-                          :disabled="!canSaveShipment(data)"
-                          :loading="savingShipmentId === data.id"
-                          @click="saveShipmentStatus(data)"
-                        />
+                        <div class="flex items-center gap-2">
+                          <Button
+                            icon="pi pi-save"
+                            label="Save"
+                            size="small"
+                            :disabled="!canSaveShipment(data)"
+                            :loading="savingShipmentId === data.id"
+                            @click="saveShipmentStatus(data)"
+                          />
+                          <Button
+                            icon="pi pi-send"
+                            label="Mark Shipped"
+                            size="small"
+                            severity="info"
+                            :disabled="!canMarkShipped(data)"
+                            :loading="savingShipmentId === data.id"
+                            @click="markShipmentShipped(data)"
+                          />
+                          <Button
+                            icon="pi pi-check"
+                            label="Mark Delivered"
+                            size="small"
+                            severity="success"
+                            :disabled="!canMarkDelivered(data)"
+                            :loading="savingShipmentId === data.id"
+                            @click="markShipmentDelivered(data)"
+                          />
+                        </div>
                       </template>
                     </Column>
                     <template #empty>No shipments yet for this order.</template>
@@ -480,10 +580,43 @@ onMounted(() => {
                     <template #body="{ data }">{{ formatCurrency(data.amount, data.currency ?? 'USD') }}</template>
                   </Column>
                   <Column field="state" header="State">
-                    <template #body="{ data }"><Tag :value="data.state" /></template>
+                    <template #body="{ data }"><Tag :value="data.state" :severity="PAYMENT_STATE_SEVERITY[data.state as PaymentRecordState]" /></template>
                   </Column>
                   <Column field="paymentStatus" header="Payment Status">
                     <template #body="{ data }">{{ data.paymentStatus ?? '—' }}</template>
+                  </Column>
+                  <Column header="Actions">
+                    <template #body="{ data }">
+                      <div class="flex items-center gap-2">
+                        <Button
+                          v-if="canCapturePayment(data.state)"
+                          icon="pi pi-check"
+                          label="Capture"
+                          size="small"
+                          severity="primary"
+                          :loading="paymentActionId === data.id"
+                          @click="capturePayment(data)"
+                        />
+                        <Button
+                          v-if="canRefundPayment(data.state)"
+                          icon="pi pi-refresh"
+                          label="Refund"
+                          size="small"
+                          severity="secondary"
+                          :loading="paymentActionId === data.id"
+                          @click="refundPayment(data)"
+                        />
+                        <Button
+                          v-if="canVoidPayment(data.state)"
+                          icon="pi pi-times"
+                          label="Void"
+                          size="small"
+                          severity="danger"
+                          :loading="paymentActionId === data.id"
+                          @click="voidPayment(data)"
+                        />
+                      </div>
+                    </template>
                   </Column>
                   <template #empty>No payments recorded.</template>
                 </DataTable>

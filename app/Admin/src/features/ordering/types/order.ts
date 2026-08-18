@@ -1,4 +1,5 @@
 import type { QueryingParameters } from '@/shared/types/querying'
+import type { PaymentRecordState } from '@/features/payment/types/payment'
 
 export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
 
@@ -175,7 +176,7 @@ export interface PaymentCaptureSummary {
   number: string
   amount: number
   currency: string
-  state: string
+  state: PaymentRecordState
   paymentStatus: string | null
   providerKey: string
   paymentMethodId: string | null
