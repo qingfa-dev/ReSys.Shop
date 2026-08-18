@@ -27,7 +27,7 @@ public static partial class OrderMethod
         if (recalcResult.IsFailure)
             return recalcResult.Errors;
 
-        order.CheckoutState = CheckoutState.Complete;
+        order.CheckoutState = CheckoutState.Placed;
 
         return Result.Ok(OrderResult.Success.Finalized(order.Id));
     }
@@ -196,7 +196,7 @@ public static partial class OrderMethod
 
         // Assign: Transition to Placed with permanent order number and completion timestamp
         order.Status = OrderStatus.Placed;
-        order.CheckoutState = CheckoutState.Complete;
+        order.CheckoutState = CheckoutState.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.Number = orderNumber;
         var recalcResult = order.RecalculateTotals();
@@ -214,7 +214,7 @@ public static partial class OrderMethod
             return OrderResult.Errors.InvalidStatusTransition;
 
         // Assign: Set completion state, record modifier identity and timestamp
-        order.CheckoutState = CheckoutState.Complete;
+        order.CheckoutState = CheckoutState.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
         order.ModifiedBy = modifiedBy;

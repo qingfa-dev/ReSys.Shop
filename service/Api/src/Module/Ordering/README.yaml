@@ -656,7 +656,7 @@ usage:
 
         // Place the order
         cart.Status = OrderStatus.Placed;
-        cart.CheckoutState = CheckoutState.Complete;
+        cart.CheckoutState = CheckoutState.Placed;
         cart.CompletedAtUtc = DateTimeOffset.UtcNow;
         cart.Number = GenerateOrderNumber();
 

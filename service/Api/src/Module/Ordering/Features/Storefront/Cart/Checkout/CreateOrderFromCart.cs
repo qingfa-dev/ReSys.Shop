@@ -32,7 +32,7 @@ public static partial class CreateOrderFromCart
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
             if (cart.CheckoutState != CheckoutState.PickPaymentMethod)
-                return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Complete);
+                return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Placed);
 
             // TODO(audit 2026-08-16): cross-module ISender — replace with direct navigation.
             // GetPaymentForCheckoutQuery reads a PaymentCapture reachable via Order.PaymentCaptures

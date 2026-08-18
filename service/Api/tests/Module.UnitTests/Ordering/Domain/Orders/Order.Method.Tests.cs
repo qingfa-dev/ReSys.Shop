@@ -281,7 +281,7 @@ public class OrderMethodTests
         var r = order.Place("R20260713-1A2B3C4D");
         r.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(OrderStatus.Placed);
-        order.CheckoutState.Should().Be(CheckoutState.Complete);
+        order.CheckoutState.Should().Be(CheckoutState.Placed);
         order.Number.Should().Be("R20260713-1A2B3C4D");
     }
 
@@ -324,7 +324,7 @@ public class OrderMethodTests
         order.Finalize();
         var r = order.Complete("tester");
         r.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Complete);
+        order.CheckoutState.Should().Be(CheckoutState.Placed);
     }
 
     [Fact]
@@ -608,12 +608,12 @@ public class OrderMethodTests
     public void RegressCheckoutState_FromComplete_Fails()
     {
         var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Complete;
+        order.CheckoutState = CheckoutState.Placed;
 
         var result = order.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
 
         result.IsFailure.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Complete);
+        order.CheckoutState.Should().Be(CheckoutState.Placed);
     }
 
     [Fact]

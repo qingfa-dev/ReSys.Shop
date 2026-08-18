@@ -49,7 +49,7 @@ public sealed class CompleteCheckoutForPaymentCommandHandler(
             cart.PaymentMethodId = paymentResult.Value.PaymentMethodId;
 
         if (cart.CheckoutState != CheckoutState.PickPaymentMethod)
-            return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Complete);
+            return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Placed);
 
         var placeResult = await placementService.PlaceAsync(cart, "System", cancellationToken);
         if (placeResult.IsFailure)

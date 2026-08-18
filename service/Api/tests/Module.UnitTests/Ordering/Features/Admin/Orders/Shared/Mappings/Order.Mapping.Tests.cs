@@ -254,7 +254,7 @@ public class OrderMappingTests
         order.PaymentState = OrderPaymentState.Paid;
         order.ShipmentState = ShipmentState.Pending;
         order.Status = OrderStatus.Placed;
-        order.CheckoutState = CheckoutState.Complete;
+        order.CheckoutState = CheckoutState.Placed;
         order.ItemCount = 5;
         order.ApprovedById = Guid.NewGuid();
         order.ApprovedAtUtc = DateTimeOffset.UtcNow;

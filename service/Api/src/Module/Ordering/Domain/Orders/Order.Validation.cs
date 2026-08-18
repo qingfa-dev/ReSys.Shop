@@ -19,7 +19,7 @@ public static class OrderValidation
                     CheckoutState.PickDeliveryMethod => o.BillAddressId != null && o.ShipAddressId != null,
                     CheckoutState.PickPaymentMethod => o.ShippingMethodId != null,
                     CheckoutState.Confirm => true,
-                    CheckoutState.Complete => true,
+                    CheckoutState.Placed => true,
                     _ => true
                 };
             })

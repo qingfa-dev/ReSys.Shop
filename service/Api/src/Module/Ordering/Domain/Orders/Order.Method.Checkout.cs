@@ -2,7 +2,7 @@ using Shared.Application.Domain.Orders;
 
 namespace Module.Ordering.Domain.Orders;
 
-// Invariant: CheckoutState progresses forward only; Canceled orders cannot advance; Complete state is terminal
+// Invariant: CheckoutState progresses forward only; Canceled orders cannot advance; Placed state is terminal
 public sealed partial class Order
 {
     #region Guard Methods
@@ -22,7 +22,7 @@ public sealed partial class Order
     // Validate: Whether email is required for checkout progression
     public bool RequireEmail() =>
         Status != OrderStatus.Draft &&
-        CheckoutState is CheckoutState.PickPaymentMethod or CheckoutState.Confirm or CheckoutState.Complete;
+        CheckoutState is CheckoutState.PickPaymentMethod or CheckoutState.Confirm or CheckoutState.Placed;
 
     // Validate: Whether the order can be canceled
     public bool AllowCancel() =>
@@ -50,8 +50,8 @@ public sealed partial class Order
             (CheckoutState.Address, CheckoutState.PickDeliveryMethod) => true,
             (CheckoutState.PickDeliveryMethod, CheckoutState.PickPaymentMethod) => true,
             (CheckoutState.PickPaymentMethod, CheckoutState.Confirm) => true,
-            (CheckoutState.PickPaymentMethod, CheckoutState.Complete) => true,
-            (CheckoutState.Confirm, CheckoutState.Complete) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.Placed) => true,
+            (CheckoutState.Confirm, CheckoutState.Placed) => true,
             _ => false
         };
         if (!validTransition)
