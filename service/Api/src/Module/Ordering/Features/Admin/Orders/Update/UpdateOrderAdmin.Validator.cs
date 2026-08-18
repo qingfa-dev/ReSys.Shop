@@ -19,6 +19,12 @@ public static partial class UpdateOrderAdmin
             {
                 RuleFor(x => x.Request.Email).ApplyEmailRules();
             });
+
+            // Validate: Special instructions must not exceed the maximum length.
+            When(x => x.Request.SpecialInstructions is not null, () =>
+            {
+                RuleFor(x => x.Request.SpecialInstructions).ApplySpecialInstructionsRules();
+            });
         }
     }
 }
