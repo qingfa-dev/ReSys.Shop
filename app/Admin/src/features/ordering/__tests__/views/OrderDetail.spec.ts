@@ -45,6 +45,7 @@ vi.mock('../../services/orderApi', () => ({
   OrderApi: {
     getOrder: vi.fn<(...args: unknown[]) => unknown>(),
     getLineItems: vi.fn<(...args: unknown[]) => unknown>(),
+    updateOrder: vi.fn<(...args: unknown[]) => unknown>(),
     approveOrder: vi.fn<(...args: unknown[]) => unknown>(),
     cancelOrder: vi.fn<(...args: unknown[]) => unknown>(),
     completeOrder: vi.fn<(...args: unknown[]) => unknown>(),
@@ -56,6 +57,7 @@ vi.mock('../../services/orderApi', () => ({
 const orderApiMock = OrderApi as unknown as {
   getOrder: ReturnType<typeof vi.fn>
   getLineItems: ReturnType<typeof vi.fn>
+  updateOrder: ReturnType<typeof vi.fn>
   approveOrder: ReturnType<typeof vi.fn>
   cancelOrder: ReturnType<typeof vi.fn>
   completeOrder: ReturnType<typeof vi.fn>
@@ -257,5 +259,67 @@ describe('OrderDetail shipment quick actions', () => {
       status: 'Delivered',
     })
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+  })
+
+  it('shows the current status in the status dropdown alongside its reachable targets', async () => {
+    const wrapper = await mountWith(makeOrder())
+
+    // Ready shipment: the dropdown must display the current status (Ready) plus its targets (Shipped, Canceled).
+    const readyRow = rowForShippingMethod(wrapper, 'Standard')
+    const readySelect = readyRow.find('.p-select')
+    expect(readySelect.exists()).toBe(true)
+    expect(readySelect.text()).toContain('Ready')
+
+    // Shipped shipment: the dropdown must display the current status (Shipped), not just its target (Delivered).
+    const shippedRow = rowForShippingMethod(wrapper, 'Express')
+    const shippedSelect = shippedRow.find('.p-select')
+    expect(shippedSelect.exists()).toBe(true)
+    expect(shippedSelect.text()).toContain('Shipped')
+  })
+
+  it('shows Payment State and Checkout State severity tags in the overview', async () => {
+    const order: OrderDetailType = {
+      ...makeOrder(),
+      paymentState: 'Paid',
+      checkoutState: 'Placed',
+    }
+    const wrapper = await mountWith(order)
+
+    const body = wrapper.text()
+    expect(body).toContain('Payment State')
+    expect(body).toContain('Paid')
+    expect(body).toContain('Checkout State')
+    expect(body).toContain('Placed')
+
+    // Paid payment state maps to success severity.
+    const paidTag = wrapper.findAll('.p-tag').find(t => t.text().trim() === 'Paid')
+    expect(paidTag?.classes()).toContain('p-tag-success')
+  })
+
+  it('edits and saves special instructions via updateOrder', async () => {
+    const order = makeOrder()
+    order.specialInstructions = 'leave at door'
+    const wrapper = await mountWith(order)
+    orderApiMock.updateOrder.mockResolvedValue({
+      isSuccess: true,
+      statusCode: 200,
+      message: null,
+      errors: [],
+      metadata: null,
+      value: { ...order, specialInstructions: 'ring the bell' },
+    })
+
+    const textarea = wrapper.find('textarea')
+    expect((textarea.element as HTMLTextAreaElement).value).toBe('leave at door')
+    await textarea.setValue('ring the bell')
+    await wrapper.findAll('button').find(b => b.text().trim() === 'Save')!.trigger('click')
+    await flushPromises()
+
+    expect(orderApiMock.updateOrder).toHaveBeenCalledWith('o-1', {
+      currency: 'USD',
+      specialInstructions: 'ring the bell',
+    })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+    expect(orderApiMock.getOrder).toHaveBeenCalledTimes(2)
   })
 })

@@ -25,7 +25,7 @@ import { PAYMENT_STATE_SEVERITY } from '../../payment/types/payment'
 import type { PaymentRecordState } from '../../payment/types/payment'
 import Timeline from 'primevue/timeline'
 import type { Result } from '@/shared/types'
-import type { OrderDetail, OrderStatus, LineItem, OrderFulfillmentState, ShipmentSummary, ShipmentStatus, PaymentCaptureSummary } from '../types/order'
+import type { OrderDetail, OrderStatus, OrderPaymentState, CheckoutState, LineItem, OrderFulfillmentState, ShipmentSummary, ShipmentStatus, PaymentCaptureSummary } from '../types/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,6 +65,29 @@ const savingShipmentId = ref<string | null>(null)
 const draftStatus = ref<Record<string, ShipmentStatus>>({})
 const trackingInputs = ref<Record<string, string>>({})
 const paymentActionId = ref<string | null>(null)
+const specialInstructions = ref('')
+const savingInstructions = ref(false)
+
+// Seed: Mirror the order's notes into the editable overview field.
+watch(order, (o) => {
+  specialInstructions.value = o?.specialInstructions ?? ''
+}, { immediate: true })
+
+// Save: Persist order notes through the admin update endpoint, then refresh.
+async function saveSpecialInstructions(): Promise<void> {
+  savingInstructions.value = true
+  const result = await OrderApi.updateOrder(orderId.value, {
+    currency: order.value?.currency ?? 'USD',
+    specialInstructions: specialInstructions.value,
+  })
+  savingInstructions.value = false
+  if (result.isSuccess) {
+    notify.success('Order', 'Special instructions updated.')
+    await fetchOrder(orderId.value)
+  } else {
+    handleResult(result)
+  }
+}
 
 // Transition: Return the shipment statuses reachable from the row's current status, mirroring ShipmentMethod guards.
 function allowedShipmentTargets(status: ShipmentStatus): ShipmentStatus[] {
@@ -80,6 +103,12 @@ function allowedShipmentTargets(status: ShipmentStatus): ShipmentStatus[] {
     default:
       return [] // Delivered and Canceled are terminal states.
   }
+}
+
+// Display: The status dropdown shows the current status plus the transitions reachable from it,
+// so the Select can render the current value (it is never one of its own targets).
+function shipmentStatusOptions(status: ShipmentStatus): ShipmentStatus[] {
+  return [status, ...allowedShipmentTargets(status)]
 }
 
 // Guard: Save only when the selected target is reachable from the row's current status.
@@ -100,6 +129,36 @@ const FULFILLMENT_SEVERITY: Record<OrderFulfillmentState, string> = {
 
 function fulfillmentSeverity(state: OrderFulfillmentState | null | undefined): string {
   return state ? FULFILLMENT_SEVERITY[state] : 'secondary'
+}
+
+// Severity: Map the order-level derived payment state to a PrimeVue Tag severity.
+const ORDER_PAYMENT_SEVERITY: Record<OrderPaymentState, string> = {
+  Paid: 'success',
+  Completed: 'success',
+  Pending: 'warn',
+  Checkout: 'warn',
+  BalanceDue: 'warn',
+  CreditOwed: 'warn',
+  Failed: 'danger',
+  Void: 'secondary',
+  Invalid: 'danger',
+}
+
+function orderPaymentSeverity(state: OrderPaymentState | null | undefined): string {
+  return state ? ORDER_PAYMENT_SEVERITY[state] : 'secondary'
+}
+
+// Severity: Map the checkout wizard step to a PrimeVue Tag severity.
+const CHECKOUT_SEVERITY: Record<CheckoutState, string> = {
+  Address: 'info',
+  PickDeliveryMethod: 'info',
+  PickPaymentMethod: 'info',
+  Confirm: 'info',
+  Placed: 'success',
+}
+
+function checkoutSeverity(state: CheckoutState | undefined): string {
+  return state ? CHECKOUT_SEVERITY[state] : 'secondary'
 }
 
 function initShipmentDrafts(shipmentList: ShipmentSummary[]) {
@@ -390,8 +449,13 @@ onMounted(() => {
                     <span v-else class="text-muted-color">—</span>
                   </div>
                   <div>
+                    <div class="text-sm text-muted-color">Payment State</div>
+                    <Tag v-if="order.paymentState" :value="order.paymentState" :severity="orderPaymentSeverity(order.paymentState)" />
+                    <span v-else class="text-muted-color">—</span>
+                  </div>
+                  <div>
                     <div class="text-sm text-muted-color">Checkout State</div>
-                    <div class="font-medium">{{ order.checkoutState }}</div>
+                    <Tag :value="order.checkoutState" :severity="checkoutSeverity(order.checkoutState)" />
                   </div>
                   <div>
                     <div class="text-sm text-muted-color">Email</div>
@@ -467,6 +531,26 @@ onMounted(() => {
                   </div>
                 </div>
 
+                <!-- Section: Special Instructions — editable order notes for fulfillment -->
+                <div class="mt-6">
+                  <h3 class="font-semibold mb-2">Special Instructions</h3>
+                  <div class="flex items-start gap-2">
+                    <Textarea
+                      v-model="specialInstructions"
+                      :maxlength="2000"
+                      rows="3"
+                      class="w-full"
+                      placeholder="No special instructions"
+                    />
+                    <Button
+                      label="Save"
+                      icon="pi pi-save"
+                      :loading="savingInstructions"
+                      @click="saveSpecialInstructions"
+                    />
+                  </div>
+                </div>
+
                 <!-- Section: Shipments — per-shipment tracking input and status control -->
                 <div class="mt-6">
                   <h3 class="font-semibold mb-2">Shipments</h3>
@@ -486,7 +570,7 @@ onMounted(() => {
                     </Column>
                     <Column header="Status">
                       <template #body="{ data }">
-                        <Select v-model="draftStatus[data.id]" :options="allowedShipmentTargets(data.status)" class="w-40" />
+                        <Select v-model="draftStatus[data.id]" :options="shipmentStatusOptions(data.status)" class="w-40" />
                       </template>
                     </Column>
                     <Column header="Shipped">
