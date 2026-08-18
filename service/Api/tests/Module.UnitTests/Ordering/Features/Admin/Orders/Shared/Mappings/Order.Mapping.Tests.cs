@@ -157,6 +157,35 @@ public class OrderMappingTests
         response.ShippingAdjustment.Should().BeNull();
     }
 
+    [Fact(DisplayName = "ToDetail with lookup: Should populate line items with product fields")]
+    public void ToDetail_WithLookup_ShouldPopulateLineItemsWithProducts()
+    {
+        var variantId = Guid.NewGuid();
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        var lineItem = LineItemMethod.Create(order.Id, variantId, 2, 29.99m).Value;
+        order.LineItems.Add(lineItem);
+
+        var lookup = new Dictionary<Guid, CartItemLookup>
+        {
+            [variantId] = new CartItemLookup
+            {
+                Sku = "SKU-1",
+                ProductId = Guid.NewGuid(),
+                ProductName = "Test Product",
+                ProductImageUrl = "https://example.com/image.jpg",
+            }
+        };
+
+        var response = order.MapToDetailWithLookup<OrderDetailResponse>(lookup);
+
+        var mapped = response.LineItems.Should().ContainSingle().Subject;
+        mapped.OrderId.Should().Be(order.Id);
+        mapped.VariantId.Should().Be(variantId);
+        mapped.ProductId.Should().Be(lookup[variantId].ProductId);
+        mapped.ProductName.Should().Be("Test Product");
+        mapped.ProductImageUrl.Should().Be("https://example.com/image.jpg");
+    }
+
     [Fact(DisplayName = "MapToLineItemResponse: Should populate OrderId")]
     public void MapToLineItemResponse_ShouldPopulateOrderId()
     {
