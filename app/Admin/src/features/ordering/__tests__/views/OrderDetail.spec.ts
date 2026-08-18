@@ -166,6 +166,43 @@ describe('OrderDetail shipment quick actions', () => {
     expect(shippedRow.findAll('button')[2].attributes('disabled')).toBeUndefined()
   })
 
+  it('disables Mark Shipped for Backorder and Pending shipments', async () => {
+    const order = makeOrder()
+    order.shipments = [
+      {
+        id: 's-backorder',
+        orderId: 'o-1',
+        shippingMethodId: 'sm-3',
+        shippingMethodName: 'Backorder Ship',
+        trackingNumber: null,
+        status: 'Backorder',
+        shippedAtUtc: null,
+        deliveredAtUtc: null,
+        estimatedDeliveryAtUtc: null,
+        createdAtUtc: '2026-01-01T00:00:00Z',
+      },
+      {
+        id: 's-pending',
+        orderId: 'o-1',
+        shippingMethodId: 'sm-4',
+        shippingMethodName: 'Pending Ship',
+        trackingNumber: null,
+        status: 'Pending',
+        shippedAtUtc: null,
+        deliveredAtUtc: null,
+        estimatedDeliveryAtUtc: null,
+        createdAtUtc: '2026-01-01T00:00:00Z',
+      },
+    ]
+    const wrapper = await mountWith(order)
+
+    const backorderRow = rowForShippingMethod(wrapper, 'Backorder Ship')
+    const pendingRow = rowForShippingMethod(wrapper, 'Pending Ship')
+
+    expect(backorderRow.findAll('button')[1].attributes('disabled')).toBeDefined()
+    expect(pendingRow.findAll('button')[1].attributes('disabled')).toBeDefined()
+  })
+
   it('marks a Ready shipment as Shipped with the tracking number', async () => {
     const wrapper = await mountWith(makeOrder())
     orderApiMock.updateShipmentStatus.mockResolvedValue({
