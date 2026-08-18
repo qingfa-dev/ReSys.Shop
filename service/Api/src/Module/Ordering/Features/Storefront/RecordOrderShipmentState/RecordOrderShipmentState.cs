@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Shared.Application.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.RecordOrderShipmentState;
 
@@ -19,6 +20,10 @@ public sealed class RecordOrderShipmentStateCommandHandler(IApplicationDbContext
         if (command.DeliveredAtUtc is not null)
             order.MarkDelivered(command.DeliveredAtUtc.Value);
         order.ShipmentState = command.FulfillmentState;
+
+        // Derive: Auto-complete when fully delivered and still in Placed state
+        if (command.FulfillmentState == ShipmentState.Delivered && order.Status == OrderStatus.Placed)
+            order.Complete("System");
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result.Ok();

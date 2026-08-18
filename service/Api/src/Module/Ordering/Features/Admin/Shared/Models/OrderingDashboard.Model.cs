@@ -27,5 +27,6 @@ public sealed record OrderStatusBreakdownData
     public int Draft { get; init; }
     public int Placed { get; init; }
     public int Canceled { get; init; }
+    public int Completed { get; init; }
     public int Expired { get; init; }
 }

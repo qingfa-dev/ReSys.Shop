@@ -206,14 +206,15 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.Finalized(order.Id));
     }
 
-    // Enforce: Only Placed orders can be marked complete
+    // Enforce: Only Placed orders can transition to Completed
     public static Result Complete(this Order order, string modifiedBy)
     {
         // Guard: Reject completion if order is not in Placed state
         if (order.Status != OrderStatus.Placed)
             return OrderResult.Errors.InvalidStatusTransition;
 
-        // Assign: Set completion state, record modifier identity and timestamp
+        // Assign: Transition Placed → Completed, record completion timestamp and modifier identity
+        order.Status = OrderStatus.Completed;
         order.CheckoutState = CheckoutState.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;

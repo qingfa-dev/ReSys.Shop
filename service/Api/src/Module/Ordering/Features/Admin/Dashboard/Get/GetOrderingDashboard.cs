@@ -30,6 +30,7 @@ public static partial class GetOrderingDashboard
                 Draft = await baseQuery.CountAsync(o => o.Status == OrderStatus.Draft, cancellationToken),
                 Placed = await baseQuery.CountAsync(o => o.Status == OrderStatus.Placed, cancellationToken),
                 Canceled = await baseQuery.CountAsync(o => o.Status == OrderStatus.Canceled, cancellationToken),
+                Completed = await baseQuery.CountAsync(o => o.Status == OrderStatus.Completed, cancellationToken),
                 Expired = await baseQuery.CountAsync(o => o.Status == OrderStatus.Expired, cancellationToken),
             };
 

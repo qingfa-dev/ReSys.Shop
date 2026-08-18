@@ -1,12 +1,13 @@
 namespace Module.Ordering.Domain.Orders;
 
-// Enumerate: Order lifecycle statuses — Draft, Placed, Canceled, Expired
-// Value 3 intentionally unused — reserved for future status
+// Enumerate: Order lifecycle statuses — Draft, Placed, Canceled, Completed, Expired
+// Completed occupies value 3; Expired keeps 4 to preserve the reserved gap history
 public enum OrderStatus
 {
     Draft = 0,
     Placed = 1,
     Canceled = 2,
+    Completed = 3,
     Expired = 4
 }
 

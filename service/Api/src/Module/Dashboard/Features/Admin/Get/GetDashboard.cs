@@ -234,6 +234,7 @@ public static partial class GetDashboard
             OrderStatus.Draft => ActivityStatus.Draft,
             OrderStatus.Placed => ActivityStatus.Placed,
             OrderStatus.Canceled => ActivityStatus.Canceled,
+            OrderStatus.Completed => ActivityStatus.Completed,
             OrderStatus.Expired => ActivityStatus.Expired,
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
