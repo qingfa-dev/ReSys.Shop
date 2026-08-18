@@ -42,6 +42,21 @@ export interface OrderDetail extends OrderRequest {
     amount: number
     shippingMethodId?: string
   } | null
+  // Backend: OrderDetailResponse.ShippingCalculation (Order.Model.cs); captured when shipping was applied.
+  shippingCalculation?: {
+    totalWeight: number
+    shippingRateId?: string | null
+    cost: number
+    isFreeShipping: boolean
+  } | null
+  // Backend: OrderDetailResponse.Adjustments (Order.Model.cs); persisted adjustment rows.
+  adjustments: {
+    id: string
+    label: string
+    amount: number
+    sourceType: string
+    shippingMethodId?: string | null
+  }[]
   total: number
   paymentTotal: number
   outstandingBalance: number
@@ -68,7 +83,11 @@ export interface OrderDetail extends OrderRequest {
 
 export interface LineItem {
   id: string
-  variantId: string
+  orderId: string
+  variantId: string | null
+  productId?: string | null
+  productName?: string | null
+  productImageUrl?: string | null
   quantity: number
   price: number
   total: number
@@ -190,7 +209,7 @@ export interface ShipmentSummary {
   orderId: string
   shippingMethodId: string
   shippingMethodName: string | null
-  trackingNumber: string | null
+  trackingNumber: string
   status: ShipmentStatus
   shippedAtUtc: string | null
   deliveredAtUtc: string | null

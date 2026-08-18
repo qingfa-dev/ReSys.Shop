@@ -68,8 +68,8 @@ function onDestinationLocationChange(value: string | null) {
   applyFilters()
 }
 
-function stateSeverity(state: StockTransferState): string {
-  return STATE_SEVERITY[state]
+function stateSeverity(state: StockTransferState | undefined): string {
+  return state ? STATE_SEVERITY[state] : 'secondary'
 }
 
 function navigateToNew() {

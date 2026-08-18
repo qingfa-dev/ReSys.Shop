@@ -86,7 +86,7 @@ export interface RestockResultResponse {
   previousCountOnHand: number
   newCountOnHand: number
   backordersFulfilled: number
-  partiallyFulfilled: boolean
+  partiallyFulfilled: number
   remainingQuantity: number
   movementId: string | null
 }
