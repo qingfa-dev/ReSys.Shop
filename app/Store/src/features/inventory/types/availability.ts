@@ -7,14 +7,14 @@
 // ReservationState serializes as a string (e.g. "Reserved").
 
 // Contract: POST api/storefront/cart/reserve — reserve stock request.
-// CartToken is not sent by the client — the backend derives it from the X-Cart-Token header.
+// Matches StockReservationReserveParameters — only VariantId, StockLocationId,
+// Quantity, TtlMinutes. OrderId/cartToken are derived server-side from the
+// X-Cart-Token header (Storefront.StockReservationReserve.Model.cs).
 export interface ReserveStockRequest {
   variantId: string
   stockLocationId: string
   quantity: number
-  orderId?: string | null
   ttlMinutes?: number
-  reason?: string | null
 }
 
 // Contract: POST api/storefront/cart/reserve — reservation confirmation response.
@@ -43,5 +43,7 @@ export interface CartReservationStatus {
   expiresAtUtc: string
   reason: string | null
   createdAtUtc: string
+  // ModifiedAtUtc — GetCartReservations.CartReservationStatus (Response.cs:19).
+  modifiedAtUtc?: string | null
   remainingSeconds: number
 }

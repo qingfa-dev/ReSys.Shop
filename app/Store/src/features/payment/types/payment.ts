@@ -50,6 +50,9 @@ export interface PaymentMethod {
   code: string | null
   description: string | null
   providerKey: string
+  // Settings inherited from PaymentMethodParameters but not set by the
+  // storefront mapping (stays null) — PaymentMethod.Model.cs:24.
+  settings?: Record<string, string> | null
   preferences: Record<string, string> | null
   active: boolean
   autoCapture: boolean
@@ -69,6 +72,8 @@ export interface PaymentIntent {
   state: PaymentRecordState
   paymentStatus: string | null
   clientSecret: string | null
+  // CheckoutUrl — StorePaymentDetailResponse (Storefront.Payment.Model.cs:17).
+  checkoutUrl?: string | null
   responseCode: string | null
   createdAtUtc: string
   modifiedAtUtc: string | null

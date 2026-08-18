@@ -18,6 +18,8 @@ export interface OrderListItem {
 
 export interface OrderLineItem {
   id: string
+  // OrderId is a non-null Guid — LineItemResponse (Order.Model.cs:124).
+  orderId: string
   variantId: string | null
   productId: string | null
   productName: string | null
@@ -86,7 +88,8 @@ export interface ShipmentSummary {
   orderId: string
   shippingMethodId: string
   shippingMethodName: string | null
-  trackingNumber: string | null
+  // TrackingNumber is non-null — ShipmentSummary (Order.Model.cs:153).
+  trackingNumber: string
   status: ShipmentStatus
   shippedAtUtc: string | null
   deliveredAtUtc: string | null

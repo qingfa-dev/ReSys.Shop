@@ -1,13 +1,12 @@
 import { z } from 'zod'
 
 // Validate: Stock reservation request — quantity must be a positive integer.
+// Backend derives orderId/cartToken server-side from the X-Cart-Token header.
 export const ReserveStockRequestSchema = z.object({
   variantId: z.string(),
   stockLocationId: z.string(),
   quantity: z.number().int().positive(),
-  orderId: z.string().nullable().optional(),
   ttlMinutes: z.number().int().positive().optional(),
-  reason: z.string().nullable().optional(),
 })
 
 // Validate: Cart reservation response including expiration timestamp.
@@ -35,5 +34,6 @@ export const CartReservationStatusSchema = z.object({
   expiresAtUtc: z.string(),
   reason: z.string().nullable(),
   createdAtUtc: z.string(),
+  modifiedAtUtc: z.string().nullable().optional(),
   remainingSeconds: z.number().int(),
 })

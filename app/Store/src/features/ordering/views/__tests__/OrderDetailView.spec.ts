@@ -113,8 +113,8 @@ const orderDetail: OrderDetail = {
   timeline: [],
   shippingAdjustment: null, shippingCalculation: null, adjustments: [],
   lineItems: [
-    { id: 'li-1', variantId: 'v-1', productId: null, productName: null, productImageUrl: null, quantity: 2, price: 50, total: 100, currency: 'USD', adjustmentTotal: 0, createdAtUtc: '2026-08-01T09:00:00Z' },
-    { id: 'li-2', variantId: 'v-2', productId: null, productName: null, productImageUrl: null, quantity: 1, price: 20, total: 20, currency: 'USD', adjustmentTotal: 0, createdAtUtc: '2026-08-01T09:01:00Z' },
+    { id: 'li-1', orderId: 'o1', variantId: 'v-1', productId: null, productName: null, productImageUrl: null, quantity: 2, price: 50, total: 100, currency: 'USD', adjustmentTotal: 0, createdAtUtc: '2026-08-01T09:00:00Z' },
+    { id: 'li-2', orderId: 'o1', variantId: 'v-2', productId: null, productName: null, productImageUrl: null, quantity: 1, price: 20, total: 20, currency: 'USD', adjustmentTotal: 0, createdAtUtc: '2026-08-01T09:01:00Z' },
   ],
 }
 

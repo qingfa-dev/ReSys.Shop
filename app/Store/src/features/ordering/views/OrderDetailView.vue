@@ -290,7 +290,7 @@ function confirmCancelOrder(): void {
                 <template #body="{ data }">{{ data.shippingMethodName ?? data.shippingMethodId }}</template>
               </Column>
               <Column header="Tracking Number">
-                <template #body="{ data }">{{ data.trackingNumber || '—' }}</template>
+                <template #body="{ data }">{{ data.trackingNumber }}</template>
               </Column>
               <Column header="Status">
                 <template #body="{ data }"><Tag :value="data.status" :severity="shipmentSeverity[data.status as ShipmentStatus]" /></template>

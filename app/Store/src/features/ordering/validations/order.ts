@@ -44,6 +44,7 @@ export const OrderListItemSchema = z.object({
 
 export const OrderLineItemSchema = z.object({
   id: z.string(),
+  orderId: z.string(),
   variantId: z.string().nullable(),
   productId: z.string().nullable(),
   productName: z.string().nullable(),
@@ -77,7 +78,7 @@ export const ShipmentSummarySchema = z.object({
   orderId: z.string(),
   shippingMethodId: z.string(),
   shippingMethodName: z.string().nullable(),
-  trackingNumber: z.string().nullable(),
+  trackingNumber: z.string(),
   status: ShipmentStatusSchema,
   shippedAtUtc: z.string().nullable(),
   deliveredAtUtc: z.string().nullable(),
