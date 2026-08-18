@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans`. Steps use `- [ ]` checkbox syntax.
 
-**Goal:** Fix double-deduction, missing sale stock-movement, and release/expiry stock inflation in the payment-success → inventory flow.
+**Goal:** Fix double-deduction, missing sale stock-movement, and release/expiry stock inflation in the payment-success → inventory flow, and add happy-path + branch-coverage unit tests for every module in the end-to-end flow.
 
-**Architecture:** Fix the reservation lifecycle at its two boundaries (create-intent releases the prior set; consume caps at the ordered quantity and releases surplus), remove erroneous `CountOnHand` mutations on release/expiry, add the sale `StockMovement` write, and wire up the expiry sweep + session-expiry release. Availability remains a derived value (`CountOnHand − Σ activeReserved`); no stored `Reserved`/`Available` columns are introduced.
+**Architecture:** Fix the reservation lifecycle at its two boundaries (create-intent releases the prior set; consume caps at the ordered quantity and releases surplus), remove erroneous `CountOnHand` mutations on release/expiry, add the sale `StockMovement` write, and wire up the expiry sweep + session-expiry release. Availability remains a derived value (`CountOnHand − Σ activeReserved`); no stored `Reserved`/`Available` columns are introduced. Phase 2 closes the remaining unit-test coverage gaps (CheckoutPlacementService, CompleteCheckoutForPayment, CreateShipment, ShipmentFulfillmentSyncService, UpdateShipmentStatus, plus consume happy-path/empty/multi-location branches and CreatePaymentIntent offline/compensation branches).
 
 **Tech Stack:** .NET 10, EF Core (InMemory test provider), MediatR, xUnit + FluentAssertions.
 
@@ -464,12 +464,287 @@ git commit -m "fix(billing): release reservations by cart token on session expir
 
 ---
 
+## Phase 2: Happy-Path & Branch-Coverage Unit Tests
+
+> Phase 1 (Tasks 1–6) fixed the bugs. Phase 2 closes unit-test coverage gaps for the orchestration and module boundaries that currently have NO direct tests. All tests are written against the fixed code and must pass immediately (no TDD red step — the implementation already exists); each task is a `write test → run → pass → commit` cycle. Run tests via the native runner (see Global Constraints).
+
+Coverage gaps identified by inspection:
+- `CheckoutPlacementService` (Ordering) — no direct test; exercised only indirectly through `CreateOrderFromCartTests`.
+- `CompleteCheckoutForPayment` (Ordering) — no test.
+- `CreateShipmentCommandHandler` (Shipping) — no test.
+- `ShipmentFulfillmentSyncService` (Shipping) — no test (only domain `Shipment.Fulfillment.Tests.cs` exists).
+- `UpdateShipmentStatus` (Shipping) — no test.
+- `ConsumeForOrderAsync` (Inventory) — no happy-path single-reservation test, no empty-lines test, no multi-location split test.
+- `CreatePaymentIntent` (Billing) — no offline-COD test asserting reservation release, no release-before-reserve ordering assertion (the Task 2 test asserts the call exists but not its position).
+
+---
+
+### Task 7: CheckoutPlacementService happy-path + branch tests (Ordering)
+
+**Files:**
+- Create: `service/Api/tests/Module.UnitTests/Ordering/Services/CheckoutPlacementServiceTests.cs`
+
+**Interfaces:**
+- Consumes: `CheckoutPlacementService(IApplicationDbContext, IStockReservationService, INotificationService, ISender, ILogger<CheckoutPlacementService>)`; `PlaceAsync(Order cart, string actor, CancellationToken ct)`.
+- Mocks: `IStockReservationService.ConsumeForOrderAsync`, `INotificationService.SendAsync`, `ISender.Send(CreateShipmentCommand)`.
+- Domain seeding mirrors `CreateOrderFromCartTests.cs:88-107` (draft `Order` via `OrderMethod.Create("USD", userId, Guid.Empty)`, `CheckoutState=PickPaymentMethod`, `BillAddressId`/`ShipAddressId`/`ShippingMethodId`/`Email` set, one `LineItem` with `VariantId`/`Quantity`/`Price`/`Total`/`Currency`).
+
+- [ ] **Step 1: Write the test class.** Cover these cases:
+
+```csharp
+// Happy path: consumes stock, places order, notifies, creates shipment
+PlaceAsync_ShouldPlaceOrder_ConsumeStock_Notify_AndCreateShipment
+// Branch: no ShippingMethodId → CreateShipmentCommand NOT sent
+PlaceAsync_ShouldSkipShipment_WhenNoShippingMethod
+// Branch: consume failure → order NOT placed, error returned, shipment not sent
+PlaceAsync_ShouldNotPlace_WhenConsumeFails
+```
+
+Assertions for happy path: `result.IsSuccess` true; persisted order `Status == Placed`; `Number` starts with `"R"`; `_senderMock.Verify(CreateShipmentCommand, Times.Once)`; `_reservationServiceMock.Verify(ConsumeForOrderAsync(cart.Id, It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), ...), Times.Once)`; `_notificationServiceMock.Verify(SendAsync, Times.Once)`. For the no-shipping-method branch: `_senderMock.Verify(CreateShipmentCommand, Times.Never)`. For consume-failure: mock `ConsumeForOrderAsync` returns `Result.Failure(StockReservationResult.Errors.InsufficientStock)`, assert `result.IsFailure`, persisted `Status == Draft`, `CreateShipmentCommand` never sent.
+
+- [ ] **Step 2: Build + run.**
+
+```bash
+dotnet build service/Api/tests/Module.UnitTests/Module.UnitTests.csproj -v q --nologo
+cd service/Api/tests/Module.UnitTests/bin/Debug/net10.0
+./Module.UnitTests -class "Module.UnitTests.Ordering.Services.CheckoutPlacementServiceTests"
+```
+Expected: PASS (`Failed: 0`).
+
+- [ ] **Step 3: Commit.**
+
+```bash
+git add service/Api/tests/Module.UnitTests/Ordering/Services/CheckoutPlacementServiceTests.cs
+git commit -m "test(ordering): add CheckoutPlacementService happy-path and branch coverage"
+```
+
+---
+
+### Task 8: CompleteCheckoutForPayment tests (Ordering)
+
+**Files:**
+- Create: `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/CompleteCheckoutForPayment/CompleteCheckoutForPaymentTests.cs`
+
+**Interfaces:**
+- Consumes: `CompleteCheckoutForPaymentCommandHandler(IApplicationDbContext, ISender, CheckoutPlacementService, ILogger<...>)`; `Handle(CompleteCheckoutForPaymentCommand, CancellationToken)`; `CompleteCheckoutForPaymentCommand { Guid CartId; Guid PaymentId; }`.
+- The handler re-verifies payment via `ISender.Send(GetPaymentForCheckoutQuery)` (mock it to return `IsCompleted=true`), then calls `placementService.PlaceAsync`. Use a real `CheckoutPlacementService` with mocked `IStockReservationService`/`INotificationService`/`ISender`, or mock `CheckoutPlacementService` directly if it can be constructed (it has no interface; construct it with real deps as in Task 7).
+
+- [ ] **Step 1: Write the test class.** Cover:
+
+```csharp
+// Happy path: draft cart + completed payment → placed, Placed=true
+Handle_ShouldPlaceOrder_WhenPaymentCompleted
+// Branch: non-draft cart → idempotent no-op, Placed=false, no consume
+Handle_ShouldReturnPlacedFalse_WhenCartNotDraft
+// Branch: payment not completed → PaymentNotCompleted error
+Handle_ShouldReturnPaymentNotCompleted_WhenPaymentNotCompleted
+```
+
+Assertions: happy path — `result.Value.Placed` true; persisted `Status == Placed`; `_reservationServiceMock.Verify(ConsumeForOrderAsync, Times.Once)`. Non-draft — `Placed` false; `ConsumeForOrderAsync` never called. Not-completed — `result.IsFailure`, `result.Errors[0].Code == "Order.Payment.NotCompleted"` (verify the actual code in `OrderResult.Errors.PaymentNotCompleted`).
+
+- [ ] **Step 2: Build + run.**
+
+```bash
+./Module.UnitTests -class "Module.UnitTests.Ordering.Features.Storefront.CompleteCheckoutForPayment.CompleteCheckoutForPaymentTests"
+```
+Expected: PASS.
+
+- [ ] **Step 3: Commit.**
+
+```bash
+git add service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/CompleteCheckoutForPayment/CompleteCheckoutForPaymentTests.cs
+git commit -m "test(ordering): add CompleteCheckoutForPayment idempotency and branch coverage"
+```
+
+---
+
+### Task 9: CreateShipment handler tests (Shipping)
+
+**Files:**
+- Create: `service/Api/tests/Module.UnitTests/Shipping/Features/Shared/Commands/CreateShipmentTests.cs`
+
+**Interfaces:**
+- Consumes: `CreateShipmentCommandHandler(IApplicationDbContext)`; `CreateShipmentCommand { Guid OrderId; Guid ShippingMethodId; }`.
+- Seeding: add `Shipment` via `ShipmentMethod.Create(orderId, shippingMethodId)`; use `AdditionalConfigurationsAssemblies = [typeof(Shipment).Assembly]`.
+
+- [ ] **Step 1: Write the test class.** Cover:
+
+```csharp
+// Happy path: creates a Pending shipment for order+method
+Handle_ShouldCreatePendingShipment
+// Branch: idempotent — existing shipment for order+method → no duplicate
+Handle_ShouldNotCreateDuplicate_WhenShipmentExists
+```
+
+Assertions: happy path — one `Shipment` persisted with `Status == Pending`, `OrderId`, `ShippingMethodId`. Idempotent — after seeding one shipment and calling again, `_dbContext.Set<Shipment>().Count() == 1` and result `IsSuccess`.
+
+- [ ] **Step 2: Build + run.**
+
+```bash
+./Module.UnitTests -class "Module.UnitTests.Shipping.Features.Shared.Commands.CreateShipmentTests"
+```
+Expected: PASS.
+
+- [ ] **Step 3: Commit.**
+
+```bash
+git add service/Api/tests/Module.UnitTests/Shipping/Features/Shared/Commands/CreateShipmentTests.cs
+git commit -m "test(shipping): add CreateShipment happy-path and idempotency coverage"
+```
+
+---
+
+### Task 10: ShipmentFulfillmentSyncService + UpdateShipmentStatus tests (Shipping)
+
+**Files:**
+- Create: `service/Api/tests/Module.UnitTests/Shipping/Services/ShipmentFulfillmentSyncServiceTests.cs`
+- Create: `service/Api/tests/Module.UnitTests/Shipping/Features/Admin/Shipments/UpdateStatus/UpdateShipmentStatusTests.cs`
+
+**Interfaces:**
+- `ShipmentFulfillmentSyncService(IApplicationDbContext, ISender, ILogger<...>)`; `SyncOrderFulfillmentAsync(Guid orderId, CancellationToken ct)`. Sends `RecordOrderShipmentStateCommand { OrderId, FulfillmentState, ShippedAtUtc, DeliveredAtUtc }` via `ISender`.
+- `UpdateShipmentStatus.CommandHandler(IApplicationDbContext, ShipmentFulfillmentSyncService)`; `Command(Guid Id, Request Request)`; `Request : ShipmentStatusParameters { ShipmentStatus Status; string? TrackingNumber; }`.
+
+- [ ] **Step 1: Write `ShipmentFulfillmentSyncServiceTests.cs`.** Cover:
+
+```csharp
+// Happy path: one Shipped shipment → sends RecordOrderShipmentStateCommand with FulfillmentState=Shipped
+SyncOrderFulfillmentAsync_ShouldSendShippedState_WhenOneShippedShipment
+// Branch: no shipments → sends FulfillmentState=None
+SyncOrderFulfillmentAsync_ShouldSendNone_WhenNoShipments
+// Branch: sender failure → logged, not thrown
+SyncOrderFulfillmentAsync_ShouldNotThrow_WhenSenderFails
+```
+
+Seed a `Shipment` with `Status = Shipped` and `ShippedAtUtc` set (set properties directly on a `ShipmentMethod.Create(...)` result). Assert `_senderMock.Verify(RecordOrderShipmentStateCommand with FulfillmentState==Shipped, Times.Once)`. For None: no shipments seeded → `FulfillmentState == ShipmentState.None`. For failure: `_senderMock` returns `Result.Failure(...)` → method completes without throwing.
+
+- [ ] **Step 2: Write `UpdateShipmentStatusTests.cs`.** Cover:
+
+```csharp
+// Happy path: Pending → Shipped with tracking number, order synced
+Handle_ShouldMarkShipped_AndSyncOrder
+// Branch: invalid transition (Pending → Delivered) → error
+Handle_ShouldReturnInvalidTransition_WhenSkippingStates
+// Branch: not found → error
+Handle_ShouldReturnNotFound_WhenShipmentMissing
+```
+
+Assertions: happy path — persisted `Status == Shipped`, `TrackingNumber` set; `_senderMock.Verify(RecordOrderShipmentStateCommand, Times.Once)`. Invalid — `result.IsFailure`, `result.Errors[0].Code == "Shipment.InvalidStateTransition"`. Not found — `result.Errors[0].Code == "Shipment.NotFound"`.
+
+- [ ] **Step 3: Build + run both classes.**
+
+```bash
+./Module.UnitTests -class "Module.UnitTests.Shipping.Services.ShipmentFulfillmentSyncServiceTests"
+./Module.UnitTests -class "Module.UnitTests.Shipping.Features.Admin.Shipments.UpdateStatus.UpdateShipmentStatusTests"
+```
+Expected: PASS (both).
+
+- [ ] **Step 4: Commit.**
+
+```bash
+git add service/Api/tests/Module.UnitTests/Shipping/Services/ShipmentFulfillmentSyncServiceTests.cs \
+        service/Api/tests/Module.UnitTests/Shipping/Features/Admin/Shipments/UpdateStatus/UpdateShipmentStatusTests.cs
+git commit -m "test(shipping): add fulfillment-sync and shipment-status branch coverage"
+```
+
+---
+
+### Task 11: ConsumeForOrderAsync happy-path + branch tests (Inventory)
+
+**Files:**
+- Modify: `service/Api/tests/Module.UnitTests/Inventory/Services/StockReservationServiceTests.cs` (add to existing `#region ConsumeForOrderAsync`).
+
+**Interfaces:**
+- `ConsumeForOrderAsync(Guid orderId, IReadOnlyCollection<StockConsumeLine> lines, CancellationToken)` — existing helpers `SeedStockItem(int)`, `SeedCartReservation(int, string?)` and fields `_variantId`, `_stockLocationId`, `_orderId` are in scope.
+
+- [ ] **Step 1: Add tests.** Cover:
+
+```csharp
+// Happy path: single reservation exactly matches line → fully Fulfilled, on-hand reduced
+ConsumeForOrderAsync_ConsumesExactReservation_AndMarksFulfilled
+// Branch: empty lines → Ok no-op, no changes
+ConsumeForOrderAsync_EmptyLines_ReturnsOkNoop
+// Branch: reservation split across two locations → both consumed, one movement each
+ConsumeForOrderAsync_SplitsAcrossLocations
+```
+
+Assertions: happy path — seed `SeedStockItem(10)` + `SeedCartReservation(3, _orderId.ToString())`, consume `[new(_variantId, 3)]` → `CountOnHand == 7`, one `Fulfilled` reservation, one `StockMovement` (`Quantity == -3`). Empty — `[ ]` lines → `IsSuccess`, `CountOnHand` unchanged, no movement. Split — seed two stock items (two locations) and two reservations of 2+1 via `StockReservationMethod.SeedForTest` (matching the existing helper pattern), consume `[new(_variantId, 3)]` → total `CountOnHand` reduced by 3, two `Fulfilled` reservations, two movements (quantities -2 and -1).
+
+- [ ] **Step 2: Build + run.**
+
+```bash
+./Module.UnitTests -class "Module.UnitTests.Inventory.Services.StockReservationServiceTests"
+```
+Expected: PASS (`Failed: 0`; count increases from 31).
+
+- [ ] **Step 3: Commit.**
+
+```bash
+git add service/Api/tests/Module.UnitTests/Inventory/Services/StockReservationServiceTests.cs
+git commit -m "test(inventory): add consume happy-path, empty, and multi-location coverage"
+```
+
+---
+
+### Task 12: CreatePaymentIntent offline + compensation branch tests (Billing)
+
+**Files:**
+- Modify: `service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs`
+
+**Interfaces:**
+- `CreatePaymentIntent.CommandHandler(IApplicationDbContext, ICurrentUser, IGatewayRegistry, IStockReservationService, ISender, ILogger<...>)`. Existing mocks in the fixture (`_reservationServiceMock`, `_gatewayMock`, `_gatewayRegistryMock`, `_senderMock`). The COD test already exists (`Handle_CodMethod_CreatesPendingPayment_NoGateway`).
+
+- [ ] **Step 1: Add tests.** Cover:
+
+```csharp
+// Branch: offline COD still releases prior reservations before reserving
+Handle_CodMethod_ReleasesPriorReservations_BeforeReserving
+// Branch: reservation failure releases already-reserved lines (compensation)
+Handle_ReserveFailure_ReleasesReservations
+```
+
+Assertions: COD release — set up a cart in `PickDeliveryMethod` state with a non-empty `LineItems`, run with a COD `PaymentMethod`; assert `_reservationServiceMock.Verify(ReleaseCartReservationsAsync(order.Id.ToString(), null, ...), Times.Once)` AND `ReserveForVariantAsync` called once per line. Compensation — mock `ReserveForVariantAsync` to return `InsufficientStock`; assert `ReleaseCartReservationsAsync` is called (the failure compensation at `CreatePaymentIntent.cs:86-87`).
+
+- [ ] **Step 2: Build + run.**
+
+```bash
+./Module.UnitTests -class "Module.UnitTests.Payment.Features.Storefront.Payment.CreateIntent.CreatePaymentIntentTests"
+```
+Expected: PASS (`Failed: 0`; count increases from 5).
+
+- [ ] **Step 3: Commit.**
+
+```bash
+git add service/Api/tests/Module.UnitTests/Billing/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs
+git commit -m "test(billing): add CreatePaymentIntent offline and compensation branch coverage"
+```
+
+---
+
 ## Self-Review
+
+- **Spec coverage (Phase 2):** T7 → `CheckoutPlacementService` orchestration; T8 → `CompleteCheckoutForPayment` webhook-placement idempotency; T9 → `CreateShipment` idempotency; T10 → shipping fulfillment sync + status transitions; T11 → consume happy-path/empty/multi-location; T12 → CreatePaymentIntent offline/compensation. Together these give each module in the end-to-end flow a direct happy-path + branch test.
+- **Placeholder scan:** no TBD/TODO; concrete assertions and class names in every step.
+- **Type consistency:** `StockConsumeLine(Guid VariantId, int Quantity)`; `RecordOrderShipmentStateCommand` fields match `RecordOrderShipmentState.Command.cs`; `ShipmentStatusParameters { Status, TrackingNumber }`; `ShipmentResult.Errors` codes (`Shipment.NotFound`, `Shipment.InvalidStateTransition`, `Shipment.OrderId.Required`, `Shipment.ShippingMethod.Required`) verified against `Shipment.Result.cs`.
 
 - **Spec coverage:** R1→T3, R2→T2, R3→T1, R4→T4, R5→T5, R6→T6, R7→T3 (unordered-variant release test), R8→deferred (NG1/O1). All P0 covered.
 - **Placeholder scan:** no TBD/TODO; concrete code in every implement step.
 - **Type consistency:** `StockConsumeLine(Guid VariantId, int Quantity)` matches `StockReservation.Service.Interface.cs:6`; `StockMovementMethod.Create` parameter order matches `StockMovement.Method.cs:20-29`; `ReleaseCartReservationsAsync(string, Guid?, CancellationToken)` vs `ReleaseReservationsAsync(Guid?, string?, CancellationToken)` overloads distinguished; `SeedCartReservation(quantity, cartToken)` helper exists at `StockReservationServiceTests.cs:60-68`; `SeedForTest` signature verified at `StockReservation.Method.cs:45-55`.
 - **Test-fixture gap:** `CreatePaymentIntentTests` constructor does not yet mock `ReleaseCartReservationsAsync` — Task 2 Step 1 notes the required constructor setup.
+
+## Phase 2 Completion Record
+
+| Task | Status | Commits | New tests |
+|------|--------|---------|-----------|
+| T7 — CheckoutPlacementService (Ordering) | ✅ | `fdd9c26aa` | 3 |
+| T8 — CompleteCheckoutForPayment (Ordering) | ✅ | `0bc00e41a` | 3 |
+| T9 — CreateShipment (Shipping) | ✅ | `e79fd46a1` | 2 |
+| T10 — ShipmentFulfillmentSyncService + UpdateShipmentStatus (Shipping) | ✅ | `0e07bd703` | 3 + 3 |
+| T11 — ConsumeForOrderAsync (Inventory) | ✅ | `9a9fbaf40` | 3 |
+| T12 — CreatePaymentIntent (Billing) | ✅ | `fb8231954` | 2 |
+
+Verification: full `Module.UnitTests` suite = **2744 tests** (was 2721 at baseline), `Failed: 3` — the 3 failures are the pre-existing `OrderStatusValueConverterTests` WIP NREs (unchanged, unrelated). Build clean (0 warnings / 0 errors).
+
+Note on T7: the plan's original "skip shipment when no shipping method" branch was re-scoped to "reject placement when shipping method missing" — `ValidateCheckoutPrerequisites` (`Order.Method.Checkout.cs:117`) requires `ShippingMethodId`, so the defensive `if (cart.ShippingMethodId.HasValue)` branch in `PlaceAsync` is unreachable for a placeable cart. The test asserts the actual behavior (`Order.DeliveryMethodRequired` error, `Draft` unchanged).
 
 ## Execution Handoff
 
