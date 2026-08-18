@@ -24,6 +24,7 @@ public static partial class RefundPayment
         {
             // Load: Payment capture by ID
             var payment = await dbContext.Set<PaymentCapture>()
+                .Include(p => p.PaymentMethod)
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
             // Check: Payment must exist
@@ -66,6 +67,7 @@ public static partial class RefundPayment
                 {
                     // Reload: Re-query payment from DB and re-validate refund eligibility
                     payment = await dbContext.Set<PaymentCapture>()
+                        .Include(p => p.PaymentMethod)
                         .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
                     if (payment is null)
                         return PaymentCaptureResult.Failure.NotFound;

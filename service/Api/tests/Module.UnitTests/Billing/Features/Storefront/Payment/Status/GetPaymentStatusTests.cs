@@ -72,6 +72,34 @@ public class GetPaymentStatusTests : IDisposable
         result.Value.Amount.Should().Be(100m);
     }
 
+    [Fact(DisplayName = "Handler: Should populate the full payment detail response")]
+    public async Task Handle_ShouldPopulateFullResponse()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = CreateTestPayment(orderId);
+        payment.Process();
+        payment.Complete();
+        payment.PaymentStatus = "succeeded";
+        payment.IntentClientSecret = "secret_123";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await SeedOrderAsync(orderId, TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new GetPaymentStatus.Query(orderId),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Id.Should().Be(payment.Id);
+        result.Value.OrderId.Should().Be(orderId);
+        result.Value.PaymentMethodId.Should().Be(payment.PaymentMethodId.GetValueOrDefault());
+        result.Value.Currency.Should().Be(payment.Currency);
+        result.Value.ResponseCode.Should().Be("pi_test_123");
+        result.Value.PaymentStatus.Should().Be("succeeded");
+        result.Value.ClientSecret.Should().Be("secret_123");
+        result.Value.IsCompleted.Should().BeTrue();
+    }
+
     [Fact(DisplayName = "Handler: Should return pending status for processing payment")]
     public async Task Handle_ShouldReturnPending_WhenProcessing()
     {

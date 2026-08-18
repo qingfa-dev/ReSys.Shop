@@ -1,4 +1,5 @@
 using Module.Billing.Domain.PaymentCaptures;
+using Module.Billing.Features.Storefront.Shared.Mappings;
 
 
 namespace Module.Billing.Features.Storefront.Payment.Status;
@@ -35,15 +36,8 @@ public static partial class GetPaymentStatus
             if (payment is null)
                 return PaymentCaptureResult.Failure.NotFound;
 
-            return new Response
-            {
-                Id = payment.Id,
-                OrderId = payment.OrderId,
-                Amount = payment.Amount,
-                Currency = payment.Currency,
-                State = payment.State,
-                IsCompleted = payment.State == PaymentRecordState.Completed
-            };
+            var response = payment.MapToStoreDetail<Response>();
+            return response with { IsCompleted = payment.State == PaymentRecordState.Completed };
         }
     }
 }

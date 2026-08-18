@@ -21,6 +21,7 @@ public static partial class GetPaymentById
             // Load: Payment capture by ID — no-tracking for read-only
             var payment = await dbContext.Set<PaymentCapture>()
                 .AsNoTracking()
+                .Include(p => p.PaymentMethod)
                 .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
             // Check: Payment must exist

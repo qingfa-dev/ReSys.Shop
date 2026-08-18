@@ -1,4 +1,5 @@
 using Module.Billing.Domain.PaymentCaptures;
+using Module.Billing.Domain.PaymentMethods;
 using Module.Billing.Features.Admin.Shared.Mappings;
 using Module.Billing.Features.Admin.Shared.Models;
 
@@ -84,6 +85,38 @@ public class PaymentMappingTests
         response.Amount.Should().Be(payment.Amount);
         response.OrderId.Should().Be(payment.OrderId);
         response.PaymentMethodId.Should().Be(payment.PaymentMethodId.GetValueOrDefault());
+    }
+
+    [Fact(DisplayName = "ToDetail: Should map PaymentStatus from entity")]
+    public void ToDetail_ShouldMapPaymentStatus()
+    {
+        var payment = CreatePayment(p => p.PaymentStatus = "succeeded");
+
+        var response = payment.MapToDetail<PaymentDetailResponse>();
+
+        response.PaymentStatus.Should().Be("succeeded");
+    }
+
+    [Fact(DisplayName = "ToDetail: Should map PaymentMethodName when PaymentMethod is present")]
+    public void ToDetail_ShouldMapPaymentMethodName()
+    {
+        var paymentMethod = PaymentMethodMethod.Create("Visa", "VISA", "CreditCard").Value;
+        var payment = CreatePayment();
+        payment.PaymentMethod = paymentMethod;
+
+        var response = payment.MapToDetail<PaymentDetailResponse>();
+
+        response.PaymentMethodName.Should().Be("Visa");
+    }
+
+    [Fact(DisplayName = "ToListItem: Should map PaymentStatus from entity")]
+    public void ToListItem_ShouldMapPaymentStatus()
+    {
+        var payment = CreatePayment(p => p.PaymentStatus = "succeeded");
+
+        var response = payment.MapToListItem<PaymentListItemResponse>();
+
+        response.PaymentStatus.Should().Be("succeeded");
     }
 
     [Fact(DisplayName = "ToListItem: Should handle null auditable fields")]

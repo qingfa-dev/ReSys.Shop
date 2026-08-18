@@ -23,6 +23,7 @@ public static partial class VoidPayment
         {
             // Load: Payment capture by ID
             var payment = await dbContext.Set<PaymentCapture>()
+                .Include(p => p.PaymentMethod)
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
             // Check: Payment must exist

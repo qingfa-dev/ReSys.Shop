@@ -25,13 +25,19 @@ public static partial class GetPagedPayments
             if (parsing.IsFailure)
                 return parsing.Errors;
 
-            // Load: Paged payment captures with sorting/filtering applied
+            // Load: Page of payment capture entities with payment method included (mapping reads the nav).
             var pagedResult = await dbContext.Set<PaymentCapture>()
                 .AsNoTracking()
+                .Include(p => p.PaymentMethod)
                 .ApplyQuerying(parsing.Value)
-                .ToPagedOrAllAsync(parsing.Value, x => x.MapToListItem<Response>(), cancellationToken);
+                .ToPagedOrAllAsync(parsing.Value, cancellationToken);
 
-            return pagedResult;
+            // Map: Convert each entity to a list item response in memory (method-call projection is not SQL-translatable).
+            var items = pagedResult.Items
+                .Select(p => p.MapToListItem<Response>())
+                .ToList();
+
+            return PagedResult<Response>.Create(items, pagedResult.PageNumber, pagedResult.PageSize, pagedResult.TotalCount);
         }
     }
 }

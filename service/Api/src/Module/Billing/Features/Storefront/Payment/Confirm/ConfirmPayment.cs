@@ -37,7 +37,11 @@ public static partial class ConfirmPayment
 
             // Check: Already completed by webhook — return immediately
             if (payment.State == PaymentRecordState.Completed)
-                return payment.MapToStoreDetail<Response>();
+            {
+                var completed = payment.MapToStoreDetail<Response>();
+                completed.Message = "Payment already completed";
+                return completed;
+            }
 
             // Check: State must allow completion
             if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
@@ -46,11 +50,17 @@ public static partial class ConfirmPayment
             // Update: Attempt to complete — webhook may have beaten us
             var completeResult = payment.Complete();
             if (completeResult.IsFailure)
-                return payment.MapToStoreDetail<Response>();
+            {
+                var failed = payment.MapToStoreDetail<Response>();
+                failed.Message = "Payment could not be confirmed";
+                return failed;
+            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return payment.MapToStoreDetail<Response>();
+            var confirmed = payment.MapToStoreDetail<Response>();
+            confirmed.Message = "Payment confirmed";
+            return confirmed;
         }
     }
 }

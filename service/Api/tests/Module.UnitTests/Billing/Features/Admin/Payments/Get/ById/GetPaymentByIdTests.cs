@@ -1,4 +1,5 @@
 using Module.Billing.Domain.PaymentCaptures;
+using Module.Billing.Domain.PaymentMethods;
 using Module.Billing.Features.Admin.Payments.Get.ById;
 
 
@@ -37,6 +38,21 @@ public class GetPaymentByIdTests : IDisposable
         result.Value.Id.Should().Be(payment.Id);
         result.Value.Number.Should().Be(payment.Number);
         result.Value.Amount.Should().Be(100m);
+    }
+
+    [Fact(DisplayName = "Handler: Should populate PaymentMethodName via the include")]
+    public async Task Handle_ShouldPopulatePaymentMethodName_WhenMethodIncluded()
+    {
+        var method = PaymentMethodMethod.Create("Visa", "VISA", "CreditCard").Value;
+        _dbContext.Set<PaymentMethod>().Add(method);
+        var payment = PaymentCaptureMethod.Create(100m, method.Id, Guid.NewGuid()).Value;
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(new GetPaymentById.Query(payment.Id), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.PaymentMethodName.Should().Be("Visa");
     }
 
     [Fact(DisplayName = "Handler: Should return NotFound when payment does not exist")]
