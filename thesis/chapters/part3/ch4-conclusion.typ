@@ -8,11 +8,11 @@ This thesis built a fashion e-commerce platform integrating a Vue 3 storefront, 
 
 *RQ1: How do fashion-specific embedding models compare with general-purpose models spanning CNN and ViT architectures?*
 
-Fashion-CLIP outperformed all three general-purpose models: mAP 0.8788 vs CLIP-generic 0.8341 (+5.4%), EfficientNet-B0 0.8158 (+7.7%), ResNet-50 0.8120 (+8.2%). The advantage holds at shallow (P\@5: 0.9304 vs 0.9025) and deep (P\@20: 0.8982 vs 0.8640) retrieval depths with lowest cross-fold variability (±0.0022).
+Fashion-CLIP outperformed all three general-purpose models: mAP 0.9309 vs CLIP-generic 0.9115 (+2.1%), EfficientNet-B0 0.8895 (+4.7%), ResNet-50 0.8857 (+5.1%). The advantage holds at shallow (P\@5: 0.9582 vs 0.9440) and deep (P\@20: 0.9374 vs 0.9239) retrieval depths with lowest cross-fold variability (±0.0068).
 
 *RQ2: What trade-offs exist between search accuracy and processing speed?*
 
-The trade-off is substantial. Fashion-CLIP (mAP 0.8788, 92.0 ms) represents the quality ceiling; EfficientNet-B0 (23.9 ms) achieves 92.8% of that accuracy at 26.0% of the latency. Domain fine-tuning provides accuracy without speed penalty (Fashion-CLIP vs CLIP-generic: +5.4% mAP at identical latency). For latency-sensitive deployments, EfficientNet-B0 is recommended; for quality-critical, Fashion-CLIP.
+The trade-off is substantial. Fashion-CLIP (mAP 0.9309, 96.8 ms) represents the quality ceiling; EfficientNet-B0 (37.8 ms) achieves 95.5% of that accuracy at 39.1% of the latency. Domain fine-tuning provides accuracy without speed penalty (Fashion-CLIP vs CLIP-generic: +2.1% mAP at identical latency). For latency-sensitive deployments, EfficientNet-B0 is recommended; for quality-critical, Fashion-CLIP.
 
 *RQ3: Can a service-oriented architecture with a dedicated AI sidecar effectively separate image inference from the main web application while maintaining acceptable response times?*
 
@@ -71,13 +71,13 @@ These directions define a roadmap from research demonstration to production-grad
     [IVFFlat cosine similarity queries under 10 ms (2.7--6.5 ms); vectors share PostgreSQL database with relational data.],
     [Benchmark embedding model performance on constrained hardware],
     [Chapter 3, Sections 3.2--3.5],
-    [Four models evaluated on 5,000 images. Fashion-CLIP: mAP 0.8788; EfficientNet-B0: 23.9 ms.],
+    [Four models evaluated on 5,000 images. Fashion-CLIP: mAP 0.9309; EfficientNet-B0: 37.8 ms.],
     [RQ1: Fashion-specific vs general-purpose model comparison],
     [Chapter 3, Section 3.3; Chapter 3, Section 3.5],
-    [Fashion-CLIP outperforms all general-purpose models: mAP 0.8788 vs 0.8120--0.8341 (+5.4--8.2%).],
+    [Fashion-CLIP outperforms all general-purpose models: mAP 0.9309 vs 0.8857--0.9115 (+2.1--5.1%).],
     [RQ2: Accuracy vs speed trade-offs],
     [Chapter 3, Sections 3.3--3.5],
-    [Fashion-CLIP: mAP 0.8788 at 92.0 ms; EfficientNet-B0: 92.8% of accuracy at 26.0% of latency (23.9 ms).],
+    [Fashion-CLIP: mAP 0.9309 at 96.8 ms; EfficientNet-B0: 95.5% of accuracy at 39.1% of latency (37.8 ms).],
     [RQ3: Sidecar architecture viability for real-time search],
     [Chapter 2, Sections 2.3.2--2.3.3; Chapter 3, Section 3.5],
     [End-to-end latency under one second; independent scaling and fault isolation without distributed overhead.],
