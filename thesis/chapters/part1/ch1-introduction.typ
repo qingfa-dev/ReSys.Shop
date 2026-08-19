@@ -86,15 +86,15 @@ The system is evaluated using quantitative metrics: Mean Average Precision (mAP)
 
 == Thesis Outline
 
-The thesis is organized into five chapters across three parts.
+This thesis is organized into three parts.
 
-*Part I: Introduction.* Chapter 1 establishes research context, the problem statement, objectives, research questions, scope, methodology, and outline.
+*Part 1: Introduction* (this part) establishes the research context, problem statement, objectives, research questions, scope, methodology, and this outline.
 
-*Part II: Thesis Content* contains three chapters:
+*Part 2: Thesis Content* contains three chapters:
 #list(
-  [*Chapter 1: Background.* Surveys vector embeddings, neural architectures, vector databases, prior work in fashion image retrieval, and the technology stack.],
+  [*Chapter 1: Background and Related Work.* Surveys vector embeddings, neural architectures, vector databases, prior work in fashion image retrieval, and the technology stack.],
   [*Chapter 2: Design and Implementation.* Functional and non-functional requirements, system architecture (DDD, C4, database, API, security), and concrete implementation (.NET backend, Python ML sidecar, Vue storefront).],
-  [*Chapter 3: Evaluation.* Systematic benchmark comparing retrieval accuracy and inference efficiency across embedding models using cross-validation on 5,000 fashion images.],
+  [*Chapter 3: Testing and Evaluation.* Systematic benchmark comparing retrieval accuracy and inference efficiency across embedding models using cross-validation on 5,000 fashion images.],
 )
 
-*Part III: Conclusion.* Chapter 4 synthesizes findings, evaluates contributions and limitations, and proposes future work.
+*Part 3: Conclusion and Future Work* synthesizes findings, evaluates contributions and limitations, and proposes future work.

@@ -36,7 +36,7 @@ Two input methods are supported: drag-and-drop onto the drop zone and file brows
 
 Each product card renders a thumbnail, name, formatted price, and colour-coded similarity badge (green for $>= 90%$, amber for $>= 80%$, grey below). The query image persists in a sidebar panel while scrolling results.
 
-The five visual search states are illustrated below.
+The four visual search states are illustrated below.
 
 // #figure(
 //   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-cbir-empty.png", width: 100%),

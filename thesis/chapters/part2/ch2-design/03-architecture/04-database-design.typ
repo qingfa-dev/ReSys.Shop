@@ -34,7 +34,7 @@ The *Ordering* domain centers on `Order`, linking one-to-many with `LineItem`. L
 
 ==== pgvector Integration
 
-PostgreSQL's *pgvector* extension @pgvector2023 executes vector similarity searches within the relational engine. The `variant_images` table stores feature vectors in an `embedding` column defined as `vector(512)`. The platform defaults to *HNSW* indexing @malkov2018efficient using cosine distance to meet the sub-second CBIR latency target (NFR-01a), with *IVFFlat* as a fallback for local environments (see Section 2.1.5 for index detail).
+PostgreSQL's *pgvector* extension @pgvector2023 executes vector similarity searches within the relational engine. The `variant_images` table stores feature vectors in an `embedding` column defined as `vector(512)`. The platform defaults to *HNSW* indexing @malkov2018efficient using cosine distance to meet the sub-second CBIR latency target (NFR-01a), with *IVFFlat* as a fallback for local environments (see Section 1.4.2 for index detail).
 
 - *Cosine Distance:* Query operator (`<=>`) measures angular distance. Results rank by similarity score $1 - "cosine_distance"$, filtered against a configurable threshold ($0.70$).
 - *Model Isolation:* Every record includes a `model_name` string (e.g., `"Fashion-CLIP"`). Search queries filter by active model to enforce embedding alignment.

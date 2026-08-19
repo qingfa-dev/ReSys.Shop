@@ -32,7 +32,7 @@ Cross-schema references use unconstrained UUIDs, enforcing module independence. 
 
 ==== pgvector Indexing Strategy
 
-Embeddings are stored in a `vector(512)` column with model-aware discriminators (e.g., `Fashion-CLIP`). The production HNSW index uses cosine distance for sub-second CBIR queries (see Section 2.3.4 for index detail and Section 2.1.5 for ANN algorithm comparison).
+Embeddings are stored in a `vector(512)` column with model-aware discriminators (e.g., `Fashion-CLIP`). The production HNSW index uses cosine distance for sub-second CBIR queries (see Section 2.3.4 for index detail and Section 1.4.2 for ANN algorithm comparison).
 
 // [SCREENSHOT: implementation-pgadmin-vector-column.png] pgAdmin column inspector showing the embedding column typed as vector(512), the model_name filter column, the hangfire_job_id tracking column, and the HNSW index entry with vector_cosine_ops.
 
