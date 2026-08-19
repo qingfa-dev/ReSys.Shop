@@ -13,7 +13,7 @@ The system maps environment configuration strings to four model categories:
 - *Multimodal CLIP:* `clip_vit_b32`, `clip_vit_b16`, `clip_vit_l14` (512-dim)
 - *Domain-Specific:* `fashion_clip` (512-dim)
 
-Swapping the active inference model requires updating the `EMBEDDING_MODEL` variable and restarting the container instance—a pure configuration change.
+Swapping the active inference model requires updating the `EMBEDDING_MODEL` variable and restarting the container instance, a pure configuration change.
 
 ==== Metadata Schema & Latent Space Isolation
 

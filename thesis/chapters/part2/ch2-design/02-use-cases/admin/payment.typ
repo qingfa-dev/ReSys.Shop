@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-PAY — Manage Payments],
+    [*Use Case*], [UC-ADM-PAY: Manage Payments],
     [*Actor*], [Administrator],
     [*Support*], [Payment Gateway],
     [*Goal*], [Capture, refund, void, and review payments.],
@@ -79,7 +79,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-PAY-METHOD — Manage Payment Methods],
+    [*Use Case*], [UC-ADM-PAY-METHOD: Manage Payment Methods],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, activate, and deactivate payment methods.],
     [*Pre/Post*], [

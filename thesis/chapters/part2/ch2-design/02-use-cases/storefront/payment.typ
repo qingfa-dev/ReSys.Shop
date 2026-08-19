@@ -14,7 +14,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-PAY — Payment Processing],
+    [*Use Case*], [UC-STR-PAY: Payment Processing],
     [*Actor*], [Customer],
     [*Support*], [Payment Gateway],
     [*Goal*], [Create and confirm payment for an order.],
@@ -69,7 +69,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-AUT — Authentication],
+    [*Use Case*], [UC-STR-AUT: Authentication],
     [*Actor*], [Customer],
     [*Support*], [Email Service, Google OAuth],
     [*Goal*], [Register, log in, and manage account credentials.],
@@ -126,7 +126,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-session-management.png",
-    width: 50%
+    width: 45%
   ),
   caption: [Use case diagram for Session Management (UC-STR-SES).],
 ) <fig-uc-str-ses-d>
@@ -138,7 +138,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-SES — Session Management],
+    [*Use Case*], [UC-STR-SES: Session Management],
     [*Actor*], [Customer],
     [*Goal*], [Maintain and terminate authenticated sessions.],
     [*Pre/Post*], [

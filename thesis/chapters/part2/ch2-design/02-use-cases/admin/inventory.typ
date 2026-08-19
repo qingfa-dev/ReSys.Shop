@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-LOC — Manage Stock Locations],
+    [*Use Case*], [UC-ADM-LOC: Manage Stock Locations],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, and remove stock locations.],
     [*Pre/Post*], [
@@ -49,7 +49,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-item-management.png",
-    height: 25%
+    height: 22%
   ),
   caption: [Use case diagram for Stock Item Management (UC-ADM-STK).],
 ) <fig-uc-adm-stk-d>
@@ -61,7 +61,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-STK — Manage Stock],
+    [*Use Case*], [UC-ADM-STK: Manage Stock],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, restock, transfer, and monitor stock levels.],
     [*Pre/Post*], [

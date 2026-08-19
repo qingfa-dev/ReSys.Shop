@@ -14,7 +14,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-BRW — Browse and Search Catalog],
+    [*Use Case*], [UC-STR-BRW: Browse and Search Catalog],
     [*Actor*], [Customer],
     [*Goal*], [Browse the product catalog, view product details, and search by keyword.],
     [*Pre/Post*], [
@@ -78,7 +78,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-SRC — Visual Search],
+    [*Use Case*], [UC-STR-SRC: Visual Search],
     [*Actor*], [Customer],
     [*Support*], [ML Service],
     [*Goal*], [Search for products by uploading a reference image and discover visually similar items.],

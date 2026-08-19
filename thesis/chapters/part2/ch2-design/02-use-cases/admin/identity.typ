@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-USR — Manage Users],
+    [*Use Case*], [UC-ADM-USR: Manage Users],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, enable, and disable user accounts.],
     [*Pre/Post*], [
@@ -50,7 +50,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-role-permission.png",
-    height: 30%
+    height: 25%
   ),
   caption: [Use case diagram for Role and Permission Governance (UC-ADM-ROL).],
 ) <fig-uc-adm-rol-d>
@@ -62,7 +62,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-ROL — Manage Roles and Permissions],
+    [*Use Case*], [UC-ADM-ROL: Manage Roles and Permissions],
     [*Actor*], [Administrator],
     [*Goal*], [Create and manage roles, assign permissions to roles, and grant roles to users.],
     [*Pre/Post*], [

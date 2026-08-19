@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-PROD — Manage Products],
+    [*Use Case*], [UC-ADM-PROD: Manage Products],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, and archive products in the catalog.],
     [*Pre/Post*], [
@@ -74,7 +74,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-VAR — Manage Variants],
+    [*Use Case*], [UC-ADM-VAR: Manage Variants],
     [*Actor*], [Administrator],
     [*Goal*], [Add and manage product variants including option-value configuration and pricing.],
     [*Pre/Post*], [
@@ -134,7 +134,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-IMG — Manage Images and Embeddings],
+    [*Use Case*], [UC-ADM-IMG: Manage Images and Embeddings],
     [*Actor*], [Administrator],
     [*Support*], [ML Service],
     [*Goal*], [Upload variant images and manage embedding generation.],
@@ -189,7 +189,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-TAX — Manage Taxonomies and Classification],
+    [*Use Case*], [UC-ADM-TAX: Manage Taxonomies and Classification],
     [*Actor*], [Administrator],
     [*Goal*], [Create and modify taxonomy structures and assign product classifications.],
     [*Pre/Post*], [
@@ -243,7 +243,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-OPT — Manage Option Types],
+    [*Use Case*], [UC-ADM-OPT: Manage Option Types],
     [*Actor*], [Administrator],
     [*Goal*], [Create, modify, and remove option types and their associated values.],
     [*Pre/Post*], [

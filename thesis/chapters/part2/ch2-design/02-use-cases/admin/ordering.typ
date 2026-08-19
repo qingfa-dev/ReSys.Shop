@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-ORD — Manage Orders],
+    [*Use Case*], [UC-ADM-ORD: Manage Orders],
     [*Actor*], [Administrator],
     [*Support*], [Payment Gateway],
     [*Goal*], [View, modify, and manage the lifecycle of customer orders.],
@@ -84,7 +84,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-ORD-ITEMS — Manage Order Details],
+    [*Use Case*], [UC-ADM-ORD-ITEMS: Manage Order Details],
     [*Actor*], [Administrator],
     [*Goal*], [Manage line items, shipping address, and billing address on existing orders.],
     [*Pre/Post*], [

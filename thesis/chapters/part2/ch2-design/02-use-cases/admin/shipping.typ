@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-SHP — Manage Shipping],
+    [*Use Case*], [UC-ADM-SHP: Manage Shipping],
     [*Actor*], [Administrator],
     [*Goal*], [Configure delivery methods and their associated shipping rates.],
     [*Pre/Post*], [
@@ -70,7 +70,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-REF — Manage Reference Data],
+    [*Use Case*], [UC-ADM-REF: Manage Reference Data],
     [*Actor*], [Administrator],
     [*Goal*], [Create and update country and state reference data.],
     [*Pre/Post*], [

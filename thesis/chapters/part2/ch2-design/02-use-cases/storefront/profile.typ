@@ -14,7 +14,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-PRF — Profile Management],
+    [*Use Case*], [UC-STR-PRF: Profile Management],
     [*Actor*], [Customer],
     [*Goal*], [Manage shipping addresses, wishlists, and notification preferences.],
     [*Pre/Post*], [
