@@ -34,7 +34,7 @@ This thesis makes five concrete contributions:
 
 == Limitations
 
-Several limitations constrain the generalisability of the findings. The benchmark uses 5,000 product images from a single dataset; results may not generalise to other markets. All figures were measured on a single laptop with CPU-only inference. The binary category-label ground truth is a coarse proxy for visual similarity. No formal user study was conducted. All models were used as published without fine-tuning. CLIP-based models' text-to-image capability was not evaluated. The enriched-label evaluation reduces P\@20 substantially (from \~0.90 under category-only labels to \~0.30 under category+colour+pattern labels) due to the finer-grained relevance criterion. RAM measurement via process-level tools proved unreliable; actual consumption ranges from 100 MB to over 600 MB per model.
+Several limitations constrain the generalisability of the findings. The benchmark uses 5,000 product images from a single dataset; results may not generalise to other markets. All figures were measured on a single laptop with CPU-only inference. The binary category-label ground truth is a coarse proxy for visual similarity. No formal user study was conducted. All models were used as published without fine-tuning. CLIP-based models' text-to-image capability was not evaluated. The enriched-label evaluation reduces P\@20 substantially (from \~0.90 under category-only labels to \~0.30 under category+colour+pattern labels, see Appendix A.2 and A.3) due to the finer-grained relevance criterion. RAM measurement via process-level tools proved unreliable; actual consumption ranges from 100 MB to over 600 MB per model.
 
 == Future Work
 
