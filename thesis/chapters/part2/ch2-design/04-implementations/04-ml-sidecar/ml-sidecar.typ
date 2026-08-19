@@ -4,20 +4,25 @@ The Python ML sidecar generates vector embeddings from product images over HTTP,
 
 ==== Model Management
 
-Six models span four architectures, selected from a decorator-based registry on first inference:
+Eleven models span four architecture families, selected from a decorator-based registry on first inference:
 
 #figure(
   table(
-    columns: (auto, auto, auto, 2fr),
+    columns: (auto, auto, auto, auto, 2fr),
     stroke: 0.5pt,
-    align: (left, center, center, left),
-    table.header([*Model ID*], [*Dim*], [*Architecture*], [*Source*]),
-    [fashion_clip], [512], [ViT-B/32 + CLIP], [patrickjohncyh/fashion-clip (HuggingFace)],
-    [clip_vit_b16], [512], [ViT-B/16 + CLIP], [OpenAI CLIP (torchvision)],
-    [openclip-vit-b-32], [512], [ViT-B/32 + CLIP], [OpenCLIP (HuggingFace)],
-    [efficientnet_b0], [1280], [EfficientNet-B0], [torchvision ImageNet1K_V1],
-    [resnet50], [2048], [ResNet-50], [torchvision ResNet50_Weights.DEFAULT],
-    [dinov2_vits14], [384], [ViT-S/14], [facebookresearch/dinov2 (torch.hub)],
+    align: (left, left, center, center, left),
+    table.header([*Model ID*], [*Family*], [*Dim*], [*Architecture*], [*Source*]),
+    table.cell(rowspan: 3)[*CNN*], [efficientnet-b0], [1280], [EfficientNet-B0], [torchvision ImageNet1K_V1],
+    [resnet-50], [2048], [ResNet-50], [torchvision ResNet50_Weights.DEFAULT],
+    [convnext-tiny], [768], [ConvNeXt-Tiny], [torchvision ConvNeXt_Tiny_Weights.DEFAULT],
+    table.cell(rowspan: 1)[*ViT*], [dinov2-vits14], [384], [ViT-S/14], [facebookresearch/dinov2 (torch.hub)],
+    table.cell(rowspan: 7)[*CLIP*], [fashion-clip], [512], [ViT-B/32 + CLIP], [patrickjohncyh/fashion-clip (HuggingFace)],
+    [clip-vit-b16], [512], [ViT-B/16 + CLIP], [OpenAI CLIP (torchvision)],
+    [clip-b32], [512], [ViT-B/32 + CLIP], [OpenCLIP (HuggingFace)],
+    [clip-l14], [768], [ViT-L/14 + CLIP], [OpenAI CLIP ViT-L/14],
+    [clip-generic], [512], [ViT-B/32 + CLIP], [OpenCLIP generic (HuggingFace)],
+    [siglip], [768], [ViT-B/16 + SigLIP], [google/siglip-base-patch16-224 (HuggingFace)],
+    [eva-clip], [512], [ViT-B/16 + EVA-CLIP], [OpenCLIP EVA-CLIP (HuggingFace)],
   ),
   kind: table,
   caption: [Registered embedding models with output dimensionality and architectural family.],
