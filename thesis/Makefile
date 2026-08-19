@@ -1,10 +1,12 @@
 # ReSys.Shop Thesis Diagram Generator
-# Renders all Mermaid (.mmd) and PlantUML (.puml) sources
+# Renders all Mermaid (.mmd), PlantUML (.puml), and benchmark chart sources
 # Source tree: figures/chapters/part2/{ch1,ch2,ch3}/
 # Output: PNG alongside each source file
+# Benchmark charts: spec/regenerate_charts.py -> figures/.../ch3-evaluation/diagrams/
 
 PLANTUML = java -jar plantuml.jar
 MMDC = mmdc
+CHARTS_SCRIPT = spec/regenerate_charts.py
 
 MMD_SRC := $(shell find figures/chapters -name '*.mmd' -type f)
 PUML_SRC := $(shell find figures/chapters -name '*.puml' -type f)
@@ -14,16 +16,30 @@ PUML_OUT := $(patsubst %.puml,%.png,$(PUML_SRC))
 
 ALL_OUT := $(MMD_OUT) $(PUML_OUT)
 
-.PHONY: all clean mermaid plantuml list
+BENCHMARK_CHARTS := \
+	figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_map.png \
+	figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_precision.png \
+	figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_recall.png \
+	figures/chapters/part2/ch3-evaluation/diagrams/P2S3.6_benchmark_latency.png \
+	figures/chapters/part2/ch3-evaluation/diagrams/P2S3.6_benchmark_throughput.png
 
-all: mermaid plantuml
-	@echo "=== All $(words $(ALL_OUT)) diagrams rendered ==="
+.PHONY: all clean mermaid plantuml charts list
+
+all: mermaid plantuml charts
+	@echo "=== All $(words $(ALL_OUT)) diagrams + $(words $(BENCHMARK_CHARTS)) charts rendered ==="
 
 mermaid: $(MMD_OUT)
 	@echo "--- Mermaid done ($(words $(MMD_OUT)) diagrams) ---"
 
 plantuml: $(PUML_OUT)
 	@echo "--- PlantUML done ($(words $(PUML_OUT)) diagrams) ---"
+
+charts: $(BENCHMARK_CHARTS)
+	@echo "--- Benchmark charts done ($(words $(BENCHMARK_CHARTS)) charts) ---"
+
+$(BENCHMARK_CHARTS): $(CHARTS_SCRIPT) ../benchmarks/outputs/thesis/results/thesis_results_category_only.json ../benchmarks/outputs/thesis/results/thesis_results.json
+	@echo "  [charts] regenerating benchmark charts from authoritative JSON"
+	@python3 $(CHARTS_SCRIPT)
 
 figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.png: figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.mmd
 	@echo "  [mmd-erd] $(notdir $<) -> $(notdir $@)"
