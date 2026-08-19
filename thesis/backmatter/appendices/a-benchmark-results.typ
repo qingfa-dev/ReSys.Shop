@@ -27,7 +27,7 @@ Under this broadest criterion, all four models achieve high precision (above 0.9
 
 == Category + Colour Ground Truth
 
-Under the category plus colour label scheme, a retrieved product is relevant only if it matches the query's master category and base colour. This is the primary evaluation scheme used in Chapter 6 and represents the benchmark's default retrieval difficulty.
+Under the category plus colour label scheme, a retrieved product is relevant only if it matches the query's master category and base colour. This is the primary evaluation scheme used in Chapter 3 and represents the benchmark's default retrieval difficulty.
 
 #figure(
   caption: [Retrieval Accuracy, Category + Colour Ground Truth (3-Fold CV, Mean ± SD)],

@@ -1,6 +1,6 @@
 === Frontend Applications
 
-The user-facing components consist of two Vue 3 single-page applications: a customer storefront (PrimeVue Aura theme) and an administration dashboard (PrimeVue Sakai theme with Chart.js 4). This section presents the implemented interfaces organized by the 26 use cases defined in Section 2.2.2.
+The user-facing components consist of two Vue 3 single-page applications: a customer storefront (PrimeVue Aura theme) and an administration dashboard (PrimeVue Sakai theme with Chart.js 4). This section presents the implemented interfaces organized by the 26 use cases defined in Section 2.2.
 
 ==== Frontend Architecture
 
