@@ -4,7 +4,7 @@ The Python ML sidecar generates vector embeddings from product images over HTTP,
 
 ==== Model Management
 
-Eleven models span four architecture families, selected from a decorator-based registry on first inference:
+Eleven models span three architecture families, selected from a decorator-based registry on first inference:
 
 #figure(
   table(
@@ -91,7 +91,7 @@ Response shape:
     "vector": [0.023, -0.154, ..., 0.042],
     "model": "fashion_clip",
     "dimensions": 512,
-    "inference_ms": 92.0
+    "inference_ms": 96.8
   },
   "isSuccess": true,
   "statusCode": 200
