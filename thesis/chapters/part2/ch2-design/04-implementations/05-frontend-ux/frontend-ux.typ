@@ -16,7 +16,7 @@ export interface Result<T> {
 }
 ```
 
-For visual search, the repository extends the base with a multipart upload method: `async searchByImage(file: File): Promise<Result<Product[]>>` dispatching `POST /api/storefront/search-by-image` with `Content-Type: multipart/form-data`.
+For visual search, the repository extends the base with a multipart upload method: `async searchByImage(file: File): Promise<Result<Product[]>>` dispatching `POST /api/storefront/catalog/products/images/search` with `Content-Type: multipart/form-data`.
 
 ==== Storefront Interfaces
 

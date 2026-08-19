@@ -46,7 +46,7 @@ The data layer adheres to five global design rules:
 - *Soft Deletion:* `IsDeleted` flag filtered globally by EF Core, preserving referential integrity.
 - *Audit Columns:* `CreatedAtUtc` and `ModifiedAtUtc` populated via EF Core save interceptors.
 - *Composite Indexes:* Targeted indexes on high-frequency access paths (`(UserId, Status)`, `(SessionId, Status)` on `orders`).
-- *Variable Vector Dimensions:* `pgvector` columns support per-model dimensionalities: $384$ (DINOv2-S), $512$ (Fashion-CLIP), $768$ (DINOv2-B), $1280$ (EfficientNet-B0), $2048$ (ResNet-50).
+- *Fixed Vector Dimensions:* The `embedding` column uses `vector(512)`, matching the Fashion-CLIP output dimensionality. Other candidate models (DINOv2-S at 384, ConvNeXt-Tiny at 768, EfficientNet-B0 at 1280, ResNet-50 at 2048) produce different dimensionalities; deploying them requires either per-model columns or a separate embedding table per dimension. The current single-column schema favours operational simplicity over model diversity.
 
 ==== Per-Context Schema Description
 

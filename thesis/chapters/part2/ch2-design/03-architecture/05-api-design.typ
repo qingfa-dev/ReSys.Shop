@@ -25,7 +25,7 @@ Handlers return `Result<T>`; success maps to 200/201/204, domain errors to RFC 7
 
 ==== Endpoint Organisation
 
-Endpoints follow the convention `/api/{module}/{surface}/{resource}`, where `surface` is `storefront` or `admin`. All `admin` routes enforce administrator policies via `.HasPermission()`. Eleven inter-module contract DTOs enable cross-module communication: `ReserveCartStock`, `ReleaseCartStockReservations`, `ConsumeCartStockReservations`, `CheckVariantAvailability` (Inventory); `GetCartForCheckout`, `GetCartForShipping`, `AdvanceCheckoutState` (Ordering); `GetPaymentForCheckout`, `MarkPaymentPaid` (Payment); `GetVariantDiscontinuedStatuses`, `GetVariantWeights` (Catalog).
+Endpoints follow the convention `/api/{surface}/{module}/{resource}`, where `surface` is `storefront` or `admin`. All `admin` routes enforce administrator policies via `.HasPermission()`. Eleven inter-module contract DTOs enable cross-module communication: `ReserveCartStock`, `ReleaseCartStockReservations`, `ConsumeCartStockReservations`, `CheckVariantAvailability` (Inventory); `GetCartForCheckout`, `GetCartForShipping`, `AdvanceCheckoutState` (Ordering); `GetPaymentForCheckout`, `MarkPaymentPaid` (Payment); `GetVariantDiscontinuedStatuses`, `GetVariantWeights` (Catalog).
 
 ==== API Endpoint Contract
 

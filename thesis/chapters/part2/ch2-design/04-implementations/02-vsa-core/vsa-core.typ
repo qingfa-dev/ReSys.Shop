@@ -52,7 +52,7 @@ public sealed class CommandHandler(IApplicationDbContext db, ISender sender)
 
 ==== Request Pipeline Architecture
 
-Each feature implements `ICarterModule` with thin endpoints that parse requests, construct MediatR commands, dispatch via `ISender`, and convert `Result<T>` to HTTP responses. Routes follow #raw("/api/{module}/{surface}/{resource}", lang: "http") with Carter auto-discovery at startup.
+Each feature implements `ICarterModule` with thin endpoints that parse requests, construct MediatR commands, dispatch via `ISender`, and convert `Result<T>` to HTTP responses. Routes follow #raw("/api/{surface}/{module}/{resource}", lang: "http") with Carter auto-discovery at startup.
 
 Three MediatR pipeline behaviors wrap every command: `LoggingBehavior` (outermost, captures request metadata and duration), `ValidationBehavior` (runs FluentValidation, short-circuits on failure), and `ExceptionMappingBehavior` (innermost, wraps unhandled exceptions).
 

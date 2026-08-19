@@ -9,7 +9,7 @@ Content-based image retrieval (CBIR) enables real-time visual product search acr
 
 ==== End-to-End Execution Pipeline
 
-1. *Client Validation (Vue 3):* The storefront verifies file format (JPEG, PNG, WebP) and size restrictions ($<= 10$ MB), providing immediate UI validation before dispatching a multipart form request to `POST /api/admin/catalog/storefront/search-by-image`.
+1. *Client Validation (Vue 3):* The storefront verifies file format (JPEG, PNG, WebP) and size restrictions ($<= 10$ MB), providing immediate UI validation before dispatching a multipart form request to `POST /api/storefront/catalog/products/images/search`.
 2. *Server Validation (.NET API):* The backend verifies binary header magic bytes—preventing file extension spoofing—validates the MIME type, and re-enforces the 10 MB payload ceiling.
 3. *Vector Extraction (ML Sidecar):* The backend proxies image bytes to the `/embeddings` endpoint. The sidecar executes preprocessing and model inference ($50 thin - thin 100$ ms latency), returning a 512-dimensional float vector with model metadata.
 4. *Vector Index Search (pgvector):* The backend queries the `variant_images` table using pgvector's `<=>` cosine distance operator:
