@@ -25,7 +25,7 @@ public static partial class UpdateCartItemQuantity
             When(x => x.Request is not null, () =>
             {
                 // Validate: Quantity must be within the allowed range.
-                RuleFor(x => x.Request!.Quantity)
+                RuleFor(x => x.Request.Quantity)
                     .ApplyQuantityRules();
             });
         }

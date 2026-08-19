@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Variants.Images;
 
 namespace Module.Catalog.Persistence.Seeders;
 
@@ -23,7 +23,7 @@ public sealed class CatalogVariantImageSeeder(IApplicationDbContext context, Dem
                 : VariantImageType.Default;
             var imgResult = VariantImageMethod.Create(
                 contentType: img.ContentType, fileName: img.FileName,
-                fileSize: img.FileSize, url: $"/api/catalog/variant-images/{imageId}/download",
+                fileSize: img.FileSize, url: $"/api/admin/catalog/variant-images/{imageId}/download",
                 storagePath: img.StoragePath, position: img.Position, alt: img.Alt,
                 type: type, variantId: Guid.Parse(img.VariantId));
             var image = imgResult.Value;

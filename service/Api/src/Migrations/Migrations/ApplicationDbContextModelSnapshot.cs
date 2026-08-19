@@ -25,6 +25,362 @@ namespace Api.Migrations.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.PaymentCapture", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("AvsResponse")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("avs_response");
+
+                    b.Property<decimal>("CapturedAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("captured_amount");
+
+                    b.Property<string>("CheckoutUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("checkout_url");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at_utc");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasDefaultValue("USD")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("CvvResponseCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("cvv_response_code");
+
+                    b.Property<string>("CvvResponseMessage")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("cvv_response_message");
+
+                    b.Property<DateTimeOffset?>("DisputedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("disputed_at_utc");
+
+                    b.Property<DateTimeOffset?>("FailedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("failed_at_utc");
+
+                    b.Property<string>("IntentClientSecret")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("intent_client_secret");
+
+                    b.Property<DateTimeOffset?>("LastStripeEventCreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_stripe_event_created_at_utc");
+
+                    b.Property<string>("LastStripeEventId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_stripe_event_id");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<Guid?>("PaymentMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_method_id");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("payment_status");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at_utc");
+
+                    b.PrimitiveCollection<string>("ProcessedStripeEventIds")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("processed_stripe_event_ids");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_key");
+
+                    b.Property<decimal>("RefundedAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("refunded_amount");
+
+                    b.Property<DateTimeOffset?>("RefundedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("refunded_at_utc");
+
+                    b.Property<string>("ResponseCode")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("response_code");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("SourceId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("source_type");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Checkout")
+                        .HasColumnName("state");
+
+                    b.Property<string>("StripePaymentIntentId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("stripe_payment_intent_id");
+
+                    b.Property<string>("StripeSessionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("stripe_session_id");
+
+                    b.Property<DateTimeOffset?>("VoidedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("voided_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_captures");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_payment_captures_order_id");
+
+                    b.HasIndex("PaymentMethodId")
+                        .HasDatabaseName("ix_payment_captures_payment_method_id");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("ix_payment_captures_state");
+
+                    b.ToTable("payment_captures", "payment");
+                });
+
+            modelBuilder.Entity("Module.Billing.Domain.PaymentMethods.PaymentMethod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("active");
+
+                    b.Property<bool>("AutoCapture")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("auto_capture");
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at_utc");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DisplayOn")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Both")
+                        .HasColumnName("display_on");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Position")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("position");
+
+                    b.Property<string>("Preferences")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("preferences");
+
+                    b.Property<string>("Presentation")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("presentation");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_key");
+
+                    b.Property<string>("Settings")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("settings");
+
+                    b.Property<string>("StatementDescriptorSuffix")
+                        .HasColumnType("text")
+                        .HasColumnName("statement_descriptor_suffix");
+
+                    b.Property<bool>("WebhookEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("webhook_enabled");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_methods");
+
+                    b.ToTable("payment_methods", "payment");
+                });
+
+            modelBuilder.Entity("Module.Billing.Domain.WebhookEvents.WebhookEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AttemptCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("attempt_count");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("payload");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at_utc");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Pending")
+                        .HasColumnName("state");
+
+                    b.Property<string>("StripeEventId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("stripe_event_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_webhook_events");
+
+                    b.HasIndex("StripeEventId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_webhook_events_stripe_event_id");
+
+                    b.ToTable("webhook_events", "payment");
+                });
+
             modelBuilder.Entity("Module.Catalog.Domain.OptionTypes.OptionType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -352,393 +708,6 @@ namespace Api.Migrations.Migrations
                     b.ToTable("products", "catalog");
                 });
 
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.Embeddings.ImageEmbedding", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CompletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at_utc");
-
-                    b.Property<int>("Dimensions")
-                        .HasColumnType("integer")
-                        .HasColumnName("dimensions");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("text")
-                        .HasColumnName("error");
-
-                    b.Property<string>("HangfireJobId")
-                        .HasColumnType("text")
-                        .HasColumnName("hangfire_job_id");
-
-                    b.Property<string>("ModelName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("model_name");
-
-                    b.Property<string>("ModelVersion")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("model_version");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Completed")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("VariantImageId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("variant_image_id");
-
-                    b.Property<Vector>("Vector")
-                        .HasColumnType("vector(512)")
-                        .HasColumnName("vector");
-
-                    b.HasKey("Id")
-                        .HasName("pk_product_image_embeddings");
-
-                    b.HasIndex("VariantImageId")
-                        .HasDatabaseName("ix_product_image_embeddings_variant_image_id");
-
-                    b.HasIndex("Vector")
-                        .HasDatabaseName("ix_product_image_embeddings_vector_ivfflat")
-                        .HasAnnotation("Npgsql:StorageParameter:lists", 100);
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Vector"), "ivfflat");
-                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Vector"), new[] { "vector_cosine_ops" });
-
-                    b.ToTable("product_image_embeddings", "catalog");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Alt")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasDefaultValue("Product image")
-                        .HasColumnName("alt");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasDefaultValue("image/jpeg")
-                        .HasColumnName("content_type");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("DimensionsUnit")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasDefaultValue("px")
-                        .HasColumnName("dimensions_unit");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("file_name");
-
-                    b.Property<int>("FileSize")
-                        .HasColumnType("integer")
-                        .HasColumnName("file_size");
-
-                    b.Property<int?>("Height")
-                        .HasColumnType("integer")
-                        .HasColumnName("height");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<int>("Position")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("position");
-
-                    b.Property<string>("StoragePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("storage_path");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("Default")
-                        .HasColumnName("type");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)")
-                        .HasColumnName("url");
-
-                    b.Property<Guid?>("VariantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("variant_id");
-
-                    b.Property<int?>("Width")
-                        .HasColumnType("integer")
-                        .HasColumnName("width");
-
-                    b.HasKey("Id")
-                        .HasName("pk_product_images");
-
-                    b.HasIndex("VariantId")
-                        .HasDatabaseName("ix_product_images_variant_id");
-
-                    b.ToTable("product_images", "catalog");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Options.OptionValueVariant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("OptionValueId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("option_value_id");
-
-                    b.Property<Guid>("VariantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("variant_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_option_value_variants");
-
-                    b.HasIndex("OptionValueId")
-                        .HasDatabaseName("ix_option_value_variants_option_value_id");
-
-                    b.HasIndex("VariantId", "OptionValueId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_option_value_variants_variant_id_option_value_id");
-
-                    b.ToTable("option_value_variants", "catalog");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Prices.Price", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("amount");
-
-                    b.Property<decimal?>("CompareAtAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("compare_at_amount");
-
-                    b.Property<string>("CountryIso")
-                        .HasMaxLength(2)
-                        .HasColumnType("character varying(2)")
-                        .HasColumnName("country_iso");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasDefaultValue("USD")
-                        .HasColumnName("currency");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_default");
-
-                    b.Property<Guid?>("PriceListId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("price_list_id");
-
-                    b.Property<Guid?>("VariantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("variant_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_prices");
-
-                    b.HasIndex("VariantId")
-                        .HasDatabaseName("ix_prices_variant_id");
-
-                    b.ToTable("prices", "catalog");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Variant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Barcode")
-                        .HasColumnType("text")
-                        .HasColumnName("barcode");
-
-                    b.Property<string>("CostCurrency")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasDefaultValue("USD")
-                        .HasColumnName("cost_currency");
-
-                    b.Property<decimal?>("CostPrice")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("cost_price");
-
-                    b.Property<DateTimeOffset?>("DeletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at_utc");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<decimal?>("Depth")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("depth");
-
-                    b.Property<string>("DimensionsUnit")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasDefaultValue("Cm")
-                        .HasColumnName("dimensions_unit");
-
-                    b.Property<DateTimeOffset?>("DiscontinuedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("discontinued_on");
-
-                    b.Property<decimal?>("Height")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("height");
-
-                    b.Property<string>("HsCode")
-                        .HasColumnType("text")
-                        .HasColumnName("hs_code");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<bool>("IsMaster")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_master");
-
-                    b.Property<int>("Position")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("position");
-
-                    b.Property<decimal?>("Price")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("price");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("product_id");
-
-                    b.Property<string>("Sku")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("sku");
-
-                    b.Property<bool>("TrackInventory")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("track_inventory");
-
-                    b.Property<decimal?>("Weight")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("weight");
-
-                    b.Property<string>("WeightUnit")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasDefaultValue("Kg")
-                        .HasColumnName("weight_unit");
-
-                    b.Property<decimal?>("Width")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("width");
-
-                    b.HasKey("Id")
-                        .HasName("pk_variants");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_variants_product_id");
-
-                    b.HasIndex("Sku")
-                        .IsUnique()
-                        .HasDatabaseName("ix_variants_sku");
-
-                    b.ToTable("variants", "catalog");
-                });
-
             modelBuilder.Entity("Module.Catalog.Domain.Taxonomies.Taxonomy", b =>
                 {
                     b.Property<Guid>("Id")
@@ -800,7 +769,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("taxonomies", "catalog");
                 });
 
-            modelBuilder.Entity("Module.Catalog.Domain.Taxonomies.Taxons.Rules.TaxonRule", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Taxons.Rules.TaxonRule", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -837,7 +806,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("taxon_rules", "catalog");
                 });
 
-            modelBuilder.Entity("Module.Catalog.Domain.Taxonomies.Taxons.Taxon", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Taxons.Taxon", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -1021,7 +990,762 @@ namespace Api.Migrations.Migrations
                     b.ToTable("taxa", "catalog");
                 });
 
-            modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockItems.StockItem", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Images.Embeddings.ImageEmbedding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at_utc");
+
+                    b.Property<int>("Dimensions")
+                        .HasColumnType("integer")
+                        .HasColumnName("dimensions");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<string>("HangfireJobId")
+                        .HasColumnType("text")
+                        .HasColumnName("hangfire_job_id");
+
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("model_name");
+
+                    b.Property<string>("ModelVersion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("model_version");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Completed")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("VariantImageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("variant_image_id");
+
+                    b.Property<Vector>("Vector")
+                        .HasColumnType("vector(512)")
+                        .HasColumnName("vector");
+
+                    b.HasKey("Id")
+                        .HasName("pk_variant_image_embeddings");
+
+                    b.HasIndex("VariantImageId")
+                        .HasDatabaseName("ix_variant_image_embeddings_variant_image_id");
+
+                    b.HasIndex("Vector")
+                        .HasDatabaseName("ix_product_image_embeddings_vector_ivfflat")
+                        .HasAnnotation("Npgsql:StorageParameter:lists", 100);
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Vector"), "ivfflat");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Vector"), new[] { "vector_cosine_ops" });
+
+                    b.ToTable("variant_image_embeddings", "catalog");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Images.VariantImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Alt")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasDefaultValue("Product image")
+                        .HasColumnName("alt");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("image/jpeg")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("DimensionsUnit")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("px")
+                        .HasColumnName("dimensions_unit");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<int>("FileSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("file_size");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("integer")
+                        .HasColumnName("height");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("Position")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("position");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("storage_path");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("Default")
+                        .HasColumnName("type");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("url");
+
+                    b.Property<Guid?>("VariantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("variant_id");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("integer")
+                        .HasColumnName("width");
+
+                    b.HasKey("Id")
+                        .HasName("pk_variant_images");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_variant_images_variant_id");
+
+                    b.ToTable("variant_images", "catalog");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Options.OptionValueVariant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("OptionValueId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("option_value_id");
+
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("variant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_option_value_variants");
+
+                    b.HasIndex("OptionValueId")
+                        .HasDatabaseName("ix_option_value_variants_option_value_id");
+
+                    b.HasIndex("VariantId", "OptionValueId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_option_value_variants_variant_id_option_value_id");
+
+                    b.ToTable("option_value_variants", "catalog");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Prices.Price", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("amount");
+
+                    b.Property<decimal?>("CompareAtAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("compare_at_amount");
+
+                    b.Property<string>("CountryIso")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("country_iso");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasDefaultValue("USD")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<Guid?>("PriceListId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("price_list_id");
+
+                    b.Property<Guid?>("VariantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("variant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_prices");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_prices_variant_id");
+
+                    b.ToTable("prices", "catalog");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Variant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Barcode")
+                        .HasColumnType("text")
+                        .HasColumnName("barcode");
+
+                    b.Property<string>("CostCurrency")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasDefaultValue("USD")
+                        .HasColumnName("cost_currency");
+
+                    b.Property<decimal?>("CostPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("cost_price");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at_utc");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<decimal?>("Depth")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("depth");
+
+                    b.Property<string>("DimensionsUnit")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Cm")
+                        .HasColumnName("dimensions_unit");
+
+                    b.Property<DateTimeOffset?>("DiscontinuedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("discontinued_on");
+
+                    b.Property<decimal?>("Height")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("height");
+
+                    b.Property<string>("HsCode")
+                        .HasColumnType("text")
+                        .HasColumnName("hs_code");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsMaster")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_master");
+
+                    b.Property<int>("Position")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("position");
+
+                    b.Property<decimal?>("Price")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("price");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("sku");
+
+                    b.Property<bool>("TrackInventory")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("track_inventory");
+
+                    b.Property<decimal?>("Weight")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("weight");
+
+                    b.Property<string>("WeightUnit")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Kg")
+                        .HasColumnName("weight_unit");
+
+                    b.Property<decimal?>("Width")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("width");
+
+                    b.HasKey("Id")
+                        .HasName("pk_variants");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_variants_product_id");
+
+                    b.HasIndex("Sku")
+                        .IsUnique()
+                        .HasDatabaseName("ix_variants_sku");
+
+                    b.ToTable("variants", "catalog");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.Addresses.Address", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address1")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address1");
+
+                    b.Property<string>("Address2")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address2");
+
+                    b.Property<string>("AddressType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("address_type");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("city");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("country_code");
+
+                    b.Property<string>("CountryName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("country_name");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDefaultBilling")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_default_billing");
+
+                    b.Property<bool>("IsDefaultShipping")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_default_shipping");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("label");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("StateCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("state_code");
+
+                    b.Property<string>("StateProvince")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("state_province");
+
+                    b.Property<Guid?>("UserProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_profile_id");
+
+                    b.Property<string>("ZipCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("zip_code");
+
+                    b.HasKey("Id")
+                        .HasName("pk_addresses");
+
+                    b.HasIndex("CountryCode")
+                        .HasDatabaseName("ix_addresses_country_code");
+
+                    b.HasIndex("UserProfileId")
+                        .HasDatabaseName("ix_addresses_user_profile_id");
+
+                    b.HasIndex("AddressType", "UserProfileId")
+                        .HasDatabaseName("ix_addresses_address_type_user_profile_id");
+
+                    b.ToTable("addresses", "profile");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("AcceptsEmailMarketing")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("accepts_email_marketing");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("avatar_url");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("bio");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_of_birth");
+
+                    b.Property<Guid?>("DefaultBillingAddressId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("default_billing_address_id");
+
+                    b.Property<Guid?>("DefaultShippingAddressId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("default_shipping_address_id");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("Gender")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("InternalNoteHtml")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)")
+                        .HasColumnName("internal_note_html");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name");
+
+                    b.Property<DateTimeOffset?>("LastOrderCompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_order_completed_at_utc");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("OrdersCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("orders_count");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("phone_number");
+
+                    b.Property<decimal>("TotalSpent")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("total_spent");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_profiles");
+
+                    b.HasIndex("DefaultBillingAddressId")
+                        .HasDatabaseName("ix_user_profiles_default_billing_address_id");
+
+                    b.HasIndex("DefaultShippingAddressId")
+                        .HasDatabaseName("ix_user_profiles_default_shipping_address_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_profiles_user_id");
+
+                    b.ToTable("user_profiles", "profile");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.WishedItems.WishedItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<int>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("variant_id");
+
+                    b.Property<Guid>("WishlistId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("wishlist_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_wished_items");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_wished_items_variant_id");
+
+                    b.HasIndex("WishlistId", "VariantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_wished_items_wishlist_id_variant_id");
+
+                    b.ToTable("wished_items", "profile");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.Wishlist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at_utc");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsPrivate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_private");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("token");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_wishlists");
+
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("ix_wishlists_token");
+
+                    b.HasIndex("UserId", "IsDefault")
+                        .HasDatabaseName("ix_wishlists_user_id_is_default");
+
+                    b.ToTable("wishlists", "profile");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockItems.StockItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -1074,82 +1798,14 @@ namespace Api.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_stock_items");
 
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_stock_items_variant_id");
+
                     b.HasIndex("StockLocationId", "VariantId")
                         .IsUnique()
                         .HasDatabaseName("ix_stock_items_stock_location_id_variant_id");
 
                     b.ToTable("stock_items", "inventory");
-                });
-
-            modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockItems.StockMovements.StockMovement", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Action")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("action");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<Guid?>("OriginatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("originator_id");
-
-                    b.Property<string>("OriginatorType")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("originator_type");
-
-                    b.Property<int>("PreviousCountOnHand")
-                        .HasColumnType("integer")
-                        .HasColumnName("previous_count_on_hand");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
-                        .HasColumnName("quantity");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("reason");
-
-                    b.Property<Guid>("StockItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("stock_item_id");
-
-                    b.Property<Guid?>("StockLocationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("stock_location_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_stock_movements");
-
-                    b.HasIndex("StockItemId")
-                        .HasDatabaseName("ix_stock_movements_stock_item_id");
-
-                    b.HasIndex("StockLocationId")
-                        .HasDatabaseName("ix_stock_movements_stock_location_id");
-
-                    b.ToTable("stock_movements", "inventory");
                 });
 
             modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockLocation", b =>
@@ -1292,7 +1948,84 @@ namespace Api.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_stock_locations");
 
+                    b.HasIndex("CountryId")
+                        .HasDatabaseName("ix_stock_locations_country_id");
+
+                    b.HasIndex("StateId")
+                        .HasDatabaseName("ix_stock_locations_state_id");
+
                     b.ToTable("stock_locations", "inventory");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockMovements.StockMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("action");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<Guid?>("OriginatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("originator_id");
+
+                    b.Property<string>("OriginatorType")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("originator_type");
+
+                    b.Property<int>("PreviousCountOnHand")
+                        .HasColumnType("integer")
+                        .HasColumnName("previous_count_on_hand");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid>("StockItemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("stock_item_id");
+
+                    b.Property<Guid?>("StockLocationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("stock_location_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_stock_movements");
+
+                    b.HasIndex("StockItemId")
+                        .HasDatabaseName("ix_stock_movements_stock_item_id");
+
+                    b.HasIndex("StockLocationId")
+                        .HasDatabaseName("ix_stock_movements_stock_location_id");
+
+                    b.ToTable("stock_movements", "inventory");
                 });
 
             modelBuilder.Entity("Module.Inventory.Domain.StockReservations.StockReservation", b =>
@@ -1318,10 +2051,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at_utc");
 
-                    b.Property<Guid?>("LineItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("line_item_id");
-
                     b.Property<DateTimeOffset?>("ModifiedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at_utc");
@@ -1340,7 +2069,8 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("quantity");
 
                     b.Property<string>("Reason")
-                        .HasColumnType("text")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("reason");
 
                     b.Property<uint>("RowVersion")
@@ -1364,6 +2094,12 @@ namespace Api.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_stock_reservations");
+
+                    b.HasIndex("StockLocationId")
+                        .HasDatabaseName("ix_stock_reservations_stock_location_id");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_stock_reservations_variant_id");
 
                     b.HasIndex("CartToken", "State")
                         .HasDatabaseName("ix_stock_reservations_cart_token_state");
@@ -1473,6 +2209,9 @@ namespace Api.Migrations.Migrations
 
                     b.HasIndex("StockTransferId")
                         .HasDatabaseName("ix_transfer_items_stock_transfer_id");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_transfer_items_variant_id");
 
                     b.ToTable("transfer_items", "inventory");
                 });
@@ -1853,6 +2592,12 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<bool>("IsFreeShipping")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_free_shipping");
+
                     b.Property<int>("ItemCount")
                         .HasColumnType("integer")
                         .HasColumnName("item_count");
@@ -1882,7 +2627,24 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("outstanding_balance");
 
+                    b.Property<DateTimeOffset?>("PaymentCompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_completed_at_utc");
+
+                    b.Property<DateTimeOffset?>("PaymentFailedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_failed_at_utc");
+
+                    b.Property<Guid?>("PaymentMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_method_id");
+
+                    b.Property<DateTimeOffset?>("PaymentProcessingAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_processing_at_utc");
+
                     b.Property<string>("PaymentState")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("payment_state");
 
@@ -1900,7 +2662,16 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("ship_address_id");
 
+                    b.Property<DateTimeOffset?>("ShipmentDeliveredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shipment_delivered_at_utc");
+
+                    b.Property<DateTimeOffset?>("ShipmentShippedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shipment_shipped_at_utc");
+
                     b.Property<string>("ShipmentState")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("shipment_state");
 
@@ -1912,6 +2683,10 @@ namespace Api.Migrations.Migrations
                     b.Property<Guid?>("ShippingMethodId")
                         .HasColumnType("uuid")
                         .HasColumnName("shipping_method_id");
+
+                    b.Property<Guid?>("ShippingRateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shipping_rate_id");
 
                     b.Property<string>("SpecialInstructions")
                         .HasMaxLength(2000)
@@ -1925,14 +2700,15 @@ namespace Api.Migrations.Migrations
                         .HasDefaultValue("Draft")
                         .HasColumnName("status");
 
-                    b.Property<Guid?>("StoreId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("store_id");
-
                     b.Property<decimal>("Total")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("total");
+
+                    b.Property<decimal>("TotalWeight")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_weight");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid")
@@ -1941,12 +2717,27 @@ namespace Api.Migrations.Migrations
                     b.HasKey("Id")
                         .HasName("pk_orders");
 
+                    b.HasIndex("BillAddressId")
+                        .HasDatabaseName("ix_orders_bill_address_id");
+
                     b.HasIndex("Number")
                         .IsUnique()
                         .HasDatabaseName("ix_orders_number");
 
+                    b.HasIndex("PaymentMethodId")
+                        .HasDatabaseName("ix_orders_payment_method_id");
+
                     b.HasIndex("SessionId")
                         .HasDatabaseName("ix_orders_session_id");
+
+                    b.HasIndex("ShipAddressId")
+                        .HasDatabaseName("ix_orders_ship_address_id");
+
+                    b.HasIndex("ShippingMethodId")
+                        .HasDatabaseName("ix_orders_shipping_method_id");
+
+                    b.HasIndex("ShippingRateId")
+                        .HasDatabaseName("ix_orders_shipping_rate_id");
 
                     b.HasIndex("SessionId", "Status")
                         .HasDatabaseName("ix_orders_session_id_status");
@@ -1957,21 +2748,15 @@ namespace Api.Migrations.Migrations
                     b.ToTable("orders", "ordering");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.PaymentCaptures.PaymentCapture", b =>
+            modelBuilder.Entity("Module.Shipping.Domain.Shipments.Shipment", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<string>("AvsResponse")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("avs_response");
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("address_id");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -1982,28 +2767,13 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("created_by");
 
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasDefaultValue("USD")
-                        .HasColumnName("currency");
+                    b.Property<DateTimeOffset?>("DeliveredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivered_at_utc");
 
-                    b.Property<string>("CvvResponseCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("cvv_response_code");
-
-                    b.Property<string>("CvvResponseMessage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("cvv_response_message");
-
-                    b.Property<string>("IntentClientSecret")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("intent_client_secret");
+                    b.Property<DateTimeOffset?>("EstimatedDeliveryAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("estimated_delivery_at_utc");
 
                     b.Property<DateTimeOffset?>("ModifiedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -2013,561 +2783,48 @@ namespace Api.Migrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("modified_by");
-
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("number");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<Guid?>("PaymentMethodId")
+                    b.Property<DateTimeOffset?>("ShippedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shipped_at_utc");
+
+                    b.Property<Guid>("ShippingMethodId")
                         .HasColumnType("uuid")
-                        .HasColumnName("payment_method_id");
+                        .HasColumnName("shipping_method_id");
 
-                    b.Property<string>("PaymentStatus")
-                        .HasColumnType("text")
-                        .HasColumnName("payment_status");
-
-                    b.PrimitiveCollection<string>("ProcessedStripeEventIds")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("processed_stripe_event_ids");
-
-                    b.Property<string>("ProviderKey")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("provider_key");
-
-                    b.Property<decimal>("RefundedAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("refunded_amount");
-
-                    b.Property<string>("ResponseCode")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("response_code");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<Guid?>("SourceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("source_id");
-
-                    b.Property<string>("SourceType")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("source_type");
-
-                    b.Property<string>("State")
+                    b.Property<string>("Status")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text")
-                        .HasDefaultValue("Checkout")
-                        .HasColumnName("state");
+                        .HasDefaultValue("Pending")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TrackingNumber")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("tracking_number");
 
                     b.HasKey("Id")
-                        .HasName("pk_payment_captures");
+                        .HasName("pk_shipments");
+
+                    b.HasIndex("AddressId")
+                        .HasDatabaseName("ix_shipments_address_id");
 
                     b.HasIndex("OrderId")
-                        .HasDatabaseName("ix_payment_captures_order_id");
+                        .HasDatabaseName("ix_shipments_order_id");
 
-                    b.HasIndex("PaymentMethodId")
-                        .HasDatabaseName("ix_payment_captures_payment_method_id");
+                    b.HasIndex("ShippingMethodId")
+                        .HasDatabaseName("ix_shipments_shipping_method_id");
 
-                    b.HasIndex("ResponseCode")
-                        .HasDatabaseName("ix_payment_captures_response_code")
-                        .HasFilter("response_code IS NOT NULL");
+                    b.HasIndex("OrderId", "Status")
+                        .HasDatabaseName("ix_shipments_order_id_status");
 
-                    b.ToTable("payment_captures", "payment");
-                });
-
-            modelBuilder.Entity("Module.Payment.Domain.PaymentMethods.PaymentMethod", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("active");
-
-                    b.Property<bool>("AutoCapture")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("auto_capture");
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset?>("DeletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at_utc");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("DisplayOn")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Both")
-                        .HasColumnName("display_on");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("name");
-
-                    b.Property<int>("Position")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("position");
-
-                    b.Property<string>("Preferences")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("preferences");
-
-                    b.Property<string>("Presentation")
-                        .HasColumnType("text")
-                        .HasColumnName("presentation");
-
-                    b.Property<string>("ProviderKey")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("provider_key");
-
-                    b.Property<string>("Settings")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("settings");
-
-                    b.Property<string>("StatementDescriptorSuffix")
-                        .HasColumnType("text")
-                        .HasColumnName("statement_descriptor_suffix");
-
-                    b.Property<bool>("WebhookEnabled")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("webhook_enabled");
-
-                    b.HasKey("Id")
-                        .HasName("pk_payment_methods");
-
-                    b.ToTable("payment_methods", "payment");
-                });
-
-            modelBuilder.Entity("Module.Profile.Domain.Addresses.Address", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Address1")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("address1");
-
-                    b.Property<string>("Address2")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("address2");
-
-                    b.Property<string>("AddressType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("address_type");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("city");
-
-                    b.Property<string>("CountryCode")
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("country_code");
-
-                    b.Property<string>("CountryName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("country_name");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("first_name");
-
-                    b.Property<bool>("IsDefault")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_default");
-
-                    b.Property<bool>("IsDefaultBilling")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_default_billing");
-
-                    b.Property<bool>("IsDefaultShipping")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_default_shipping");
-
-                    b.Property<string>("Label")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("label");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("last_name");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("phone");
-
-                    b.Property<string>("StateCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("state_code");
-
-                    b.Property<string>("StateProvince")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("state_province");
-
-                    b.Property<Guid?>("UserProfileId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_profile_id");
-
-                    b.Property<string>("ZipCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("zip_code");
-
-                    b.HasKey("Id")
-                        .HasName("pk_addresses");
-
-                    b.HasIndex("CountryCode")
-                        .HasDatabaseName("ix_addresses_country_code");
-
-                    b.HasIndex("UserProfileId")
-                        .HasDatabaseName("ix_addresses_user_profile_id");
-
-                    b.HasIndex("AddressType", "UserProfileId")
-                        .HasDatabaseName("ix_addresses_address_type_user_profile_id");
-
-                    b.ToTable("addresses", "profile");
-                });
-
-            modelBuilder.Entity("Module.Profile.Domain.UserProfile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("AcceptsEmailMarketing")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("accepts_email_marketing");
-
-                    b.Property<string>("AvatarUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("avatar_url");
-
-                    b.Property<string>("Bio")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("bio");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset?>("DateOfBirth")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("date_of_birth");
-
-                    b.Property<Guid?>("DefaultBillingAddressId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("default_billing_address_id");
-
-                    b.Property<Guid?>("DefaultShippingAddressId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("default_shipping_address_id");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("first_name");
-
-                    b.Property<string>("Gender")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("gender");
-
-                    b.Property<string>("InternalNoteHtml")
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)")
-                        .HasColumnName("internal_note_html");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("last_name");
-
-                    b.Property<DateTimeOffset?>("LastOrderCompletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_order_completed_at_utc");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<int>("OrdersCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("orders_count");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("phone_number");
-
-                    b.Property<decimal>("TotalSpent")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("total_spent");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_profiles");
-
-                    b.HasIndex("DefaultBillingAddressId")
-                        .HasDatabaseName("ix_user_profiles_default_billing_address_id");
-
-                    b.HasIndex("DefaultShippingAddressId")
-                        .HasDatabaseName("ix_user_profiles_default_shipping_address_id");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_profiles_user_id");
-
-                    b.ToTable("user_profiles", "profile");
-                });
-
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.WishedItems.WishedItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<int>("Quantity")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1)
-                        .HasColumnName("quantity");
-
-                    b.Property<Guid>("VariantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("variant_id");
-
-                    b.Property<Guid>("WishlistId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("wishlist_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_wished_items");
-
-                    b.HasIndex("WishlistId", "VariantId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_wished_items_wishlist_id_variant_id");
-
-                    b.ToTable("wished_items", "profile");
-                });
-
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset?>("DeletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at_utc");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<bool>("IsDefault")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_default");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<bool>("IsPrivate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_private");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("token");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_wishlists");
-
-                    b.HasIndex("Token")
-                        .IsUnique()
-                        .HasDatabaseName("ix_wishlists_token");
-
-                    b.HasIndex("UserId", "IsDefault")
-                        .HasDatabaseName("ix_wishlists_user_id_is_default");
-
-                    b.ToTable("wishlists", "profile");
+                    b.ToTable("shipments", "shipping");
                 });
 
             modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethod", b =>
@@ -2642,12 +2899,9 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("position");
 
                     b.Property<string>("Presentation")
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("presentation");
-
-                    b.Property<Guid?>("TaxCategoryId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tax_category_id");
 
                     b.Property<string>("TrackingUrl")
                         .HasMaxLength(2048)
@@ -2662,6 +2916,36 @@ namespace Api.Migrations.Migrations
                         .HasDatabaseName("ix_shipping_methods_code");
 
                     b.ToTable("shipping_methods", "shipping");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethodZone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("country_code");
+
+                    b.Property<Guid>("ShippingMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shipping_method_id");
+
+                    b.Property<string>("StateCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("state_code");
+
+                    b.HasKey("Id")
+                        .HasName("pk_shipping_method_zones");
+
+                    b.HasIndex("ShippingMethodId", "CountryCode", "StateCode")
+                        .HasDatabaseName("ix_shipping_method_zones_shipping_method_id_country_code_state");
+
+                    b.ToTable("shipping_method_zones", "shipping");
                 });
 
             modelBuilder.Entity("Module.Shipping.Domain.ShippingRates.ShippingRate", b =>
@@ -2742,6 +3026,9 @@ namespace Api.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_shipping_rates");
+
+                    b.HasIndex("ShippingMethodId")
+                        .HasDatabaseName("ix_shipping_rates_shipping_method_id");
 
                     b.ToTable("shipping_rates", "shipping");
                 });
@@ -3171,6 +3458,26 @@ namespace Api.Migrations.Migrations
                     b.ToTable("users", "identity");
                 });
 
+            modelBuilder.Entity("Module.Billing.Domain.PaymentCaptures.PaymentCapture", b =>
+                {
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("PaymentCaptures")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_captures_order_order_id");
+
+                    b.HasOne("Module.Billing.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
+                        .WithMany("Payments")
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payment_captures_payment_methods_payment_method_id");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("PaymentMethod");
+                });
+
             modelBuilder.Entity("Module.Catalog.Domain.OptionTypes.Values.OptionValue", b =>
                 {
                     b.HasOne("Module.Catalog.Domain.OptionTypes.OptionType", "OptionType")
@@ -3191,7 +3498,7 @@ namespace Api.Migrations.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_classifications_product_product_id");
 
-                    b.HasOne("Module.Catalog.Domain.Taxonomies.Taxons.Taxon", "Taxon")
+                    b.HasOne("Module.Catalog.Domain.Taxons.Taxon", "Taxon")
                         .WithMany("Classifications")
                         .HasForeignKey("TaxonId")
                         .HasConstraintName("fk_classifications_taxon_taxon_id");
@@ -3222,76 +3529,9 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.Embeddings.ImageEmbedding", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Taxons.Rules.TaxonRule", b =>
                 {
-                    b.HasOne("Module.Catalog.Domain.Products.Variants.Images.VariantImage", "VariantImage")
-                        .WithMany("ImageEmbedding")
-                        .HasForeignKey("VariantImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_image_embeddings_variant_image_variant_image_id");
-
-                    b.Navigation("VariantImage");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
-                {
-                    b.HasOne("Module.Catalog.Domain.Products.Variants.Variant", "Variant")
-                        .WithMany("VariantImages")
-                        .HasForeignKey("VariantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_product_images_variants_variant_id");
-
-                    b.Navigation("Variant");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Options.OptionValueVariant", b =>
-                {
-                    b.HasOne("Module.Catalog.Domain.OptionTypes.Values.OptionValue", "OptionValue")
-                        .WithMany()
-                        .HasForeignKey("OptionValueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_option_value_variants_option_values_option_value_id");
-
-                    b.HasOne("Module.Catalog.Domain.Products.Variants.Variant", "Variant")
-                        .WithMany("OptionValueVariants")
-                        .HasForeignKey("VariantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_option_value_variants_variant_variant_id");
-
-                    b.Navigation("OptionValue");
-
-                    b.Navigation("Variant");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Prices.Price", b =>
-                {
-                    b.HasOne("Module.Catalog.Domain.Products.Variants.Variant", "Variant")
-                        .WithMany("Prices")
-                        .HasForeignKey("VariantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_prices_variant_variant_id");
-
-                    b.Navigation("Variant");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Variant", b =>
-                {
-                    b.HasOne("Module.Catalog.Domain.Products.Product", "Product")
-                        .WithMany("Variants")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_variants_products_product_id");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Taxonomies.Taxons.Rules.TaxonRule", b =>
-                {
-                    b.HasOne("Module.Catalog.Domain.Taxonomies.Taxons.Taxon", "Taxon")
+                    b.HasOne("Module.Catalog.Domain.Taxons.Taxon", "Taxon")
                         .WithMany("TaxonRules")
                         .HasForeignKey("TaxonId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3301,9 +3541,9 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Taxon");
                 });
 
-            modelBuilder.Entity("Module.Catalog.Domain.Taxonomies.Taxons.Taxon", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Taxons.Taxon", b =>
                 {
-                    b.HasOne("Module.Catalog.Domain.Taxonomies.Taxons.Taxon", "Parent")
+                    b.HasOne("Module.Catalog.Domain.Taxons.Taxon", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -3321,131 +3561,76 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Taxonomy");
                 });
 
-            modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockItems.StockItem", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Images.Embeddings.ImageEmbedding", b =>
                 {
-                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "StockLocation")
-                        .WithMany("StockItems")
-                        .HasForeignKey("StockLocationId")
+                    b.HasOne("Module.Catalog.Domain.Variants.Images.VariantImage", "VariantImage")
+                        .WithMany("ImageEmbeddings")
+                        .HasForeignKey("VariantImageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_stock_items_stock_location_stock_location_id");
+                        .HasConstraintName("fk_variant_image_embeddings_variant_image_variant_image_id");
 
-                    b.Navigation("StockLocation");
+                    b.Navigation("VariantImage");
                 });
 
-            modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockItems.StockMovements.StockMovement", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Images.VariantImage", b =>
                 {
-                    b.HasOne("Module.Inventory.Domain.StockLocations.StockItems.StockItem", "StockItem")
-                        .WithMany("StockMovements")
-                        .HasForeignKey("StockItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_stock_movements_stock_items_stock_item_id");
-
-                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "StockLocation")
-                        .WithMany("StockMovements")
-                        .HasForeignKey("StockLocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_stock_movements_stock_locations_stock_location_id");
-
-                    b.Navigation("StockItem");
-
-                    b.Navigation("StockLocation");
-                });
-
-            modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.StockTransfer", b =>
-                {
-                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "DestinationLocation")
-                        .WithMany()
-                        .HasForeignKey("DestinationLocationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_stock_transfers_stock_locations_destination_location_id");
-
-                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "SourceLocation")
-                        .WithMany()
-                        .HasForeignKey("SourceLocationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_stock_transfers_stock_locations_source_location_id");
-
-                    b.Navigation("DestinationLocation");
-
-                    b.Navigation("SourceLocation");
-                });
-
-            modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.TransferItem", b =>
-                {
-                    b.HasOne("Module.Inventory.Domain.StockTransfers.StockTransfer", null)
-                        .WithMany("TransferItems")
-                        .HasForeignKey("StockTransferId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_transfer_items_stock_transfers_stock_transfer_id");
-                });
-
-            modelBuilder.Entity("Module.Location.Domain.States.State", b =>
-                {
-                    b.HasOne("Module.Location.Domain.Countries.Country", "Country")
-                        .WithMany("States")
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_states_countries_country_id");
-
-                    b.Navigation("Country");
-                });
-
-            modelBuilder.Entity("Module.Ordering.Domain.Adjustments.Adjustment", b =>
-                {
-                    b.HasOne("Module.Ordering.Domain.Orders.Order", null)
-                        .WithMany("Adjustments")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_adjustments_order_order_id");
-                });
-
-            modelBuilder.Entity("Module.Ordering.Domain.LineItems.LineItem", b =>
-                {
-                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
-                        .WithMany("LineItems")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_line_items_order_order_id");
-
-                    b.HasOne("Module.Catalog.Domain.Products.Variants.Variant", null)
-                        .WithMany()
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("VariantImages")
                         .HasForeignKey("VariantId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
-                        .HasConstraintName("fk_line_items_variants_variant_id");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_variant_images_variants_variant_id");
 
-                    b.Navigation("Order");
+                    b.Navigation("Variant");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.PaymentCaptures.PaymentCapture", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Options.OptionValueVariant", b =>
                 {
-                    b.HasOne("Module.Ordering.Domain.Orders.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrderId")
+                    b.HasOne("Module.Catalog.Domain.OptionTypes.Values.OptionValue", "OptionValue")
+                        .WithMany("OptionValueVariants")
+                        .HasForeignKey("OptionValueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_payment_captures_orders_order_id");
+                        .HasConstraintName("fk_option_value_variants_option_values_option_value_id");
 
-                    b.HasOne("Module.Payment.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
-                        .WithMany("Payments")
-                        .HasForeignKey("PaymentMethodId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_payment_captures_payment_methods_payment_method_id");
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("OptionValueVariants")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_option_value_variants_variant_variant_id");
 
-                    b.Navigation("PaymentMethod");
+                    b.Navigation("OptionValue");
+
+                    b.Navigation("Variant");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Addresses.Address", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Prices.Price", b =>
                 {
-                    b.HasOne("Module.Profile.Domain.UserProfile", "UserProfile")
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("Prices")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_prices_variant_variant_id");
+
+                    b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Variant", b =>
+                {
+                    b.HasOne("Module.Catalog.Domain.Products.Product", "Product")
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_variants_products_product_id");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.Addresses.Address", b =>
+                {
+                    b.HasOne("Module.Customer.Domain.UserProfile", "UserProfile")
                         .WithMany("Addresses")
                         .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -3454,15 +3639,15 @@ namespace Api.Migrations.Migrations
                     b.Navigation("UserProfile");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.UserProfile", b =>
+            modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
                 {
-                    b.HasOne("Module.Profile.Domain.Addresses.Address", null)
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "DefaultBillingAddress")
                         .WithMany()
                         .HasForeignKey("DefaultBillingAddressId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_user_profiles_addresses_default_billing_address_id");
 
-                    b.HasOne("Module.Profile.Domain.Addresses.Address", null)
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "DefaultShippingAddress")
                         .WithMany()
                         .HasForeignKey("DefaultShippingAddressId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -3471,11 +3656,11 @@ namespace Api.Migrations.Migrations
                     b.HasOne("Shared.Security.Identity.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_user_profiles_users_user_id");
 
-                    b.OwnsOne("Module.Profile.Domain.Notifications.NotificationPreferences", "Notifications", b1 =>
+                    b.OwnsOne("Module.Customer.Domain.Notifications.NotificationPreferences", "Notifications", b1 =>
                         {
                             b1.Property<Guid>("UserProfileId")
                                 .HasColumnType("uuid")
@@ -3503,7 +3688,7 @@ namespace Api.Migrations.Migrations
                                 .HasConstraintName("fk_user_profiles_user_profiles_id");
                         });
 
-                    b.OwnsOne("Module.Profile.Domain.Preferences.UserPreferences", "Preferences", b1 =>
+                    b.OwnsOne("Module.Customer.Domain.Preferences.UserPreferences", "Preferences", b1 =>
                         {
                             b1.Property<Guid>("UserProfileId")
                                 .HasColumnType("uuid")
@@ -3559,6 +3744,10 @@ namespace Api.Migrations.Migrations
                                 .HasConstraintName("fk_user_profiles_user_profiles_id");
                         });
 
+                    b.Navigation("DefaultBillingAddress");
+
+                    b.Navigation("DefaultShippingAddress");
+
                     b.Navigation("Notifications")
                         .IsRequired();
 
@@ -3568,28 +3757,316 @@ namespace Api.Migrations.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.WishedItems.WishedItem", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.WishedItems.WishedItem", b =>
                 {
-                    b.HasOne("Module.Profile.Domain.Wishlists.Wishlist", "Wishlist")
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("WishedItems")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_wished_items_variants_variant_id");
+
+                    b.HasOne("Module.Customer.Domain.Wishlists.Wishlist", "Wishlist")
                         .WithMany("WishedItems")
                         .HasForeignKey("WishlistId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_wished_items_wishlist_wishlist_id");
 
+                    b.Navigation("Variant");
+
                     b.Navigation("Wishlist");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.Wishlist", b =>
                 {
                     b.HasOne("Shared.Security.Identity.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_wishlists_users_user_id");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockItems.StockItem", b =>
+                {
+                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "StockLocation")
+                        .WithMany("StockItems")
+                        .HasForeignKey("StockLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_items_stock_location_stock_location_id");
+
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("StockItems")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_items_variants_variant_id");
+
+                    b.Navigation("StockLocation");
+
+                    b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockLocation", b =>
+                {
+                    b.HasOne("Module.Location.Domain.Countries.Country", "Country")
+                        .WithMany("StockLocations")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_locations_country_country_id");
+
+                    b.HasOne("Module.Location.Domain.States.State", "State")
+                        .WithMany("StockLocations")
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_locations_state_state_id");
+
+                    b.Navigation("Country");
+
+                    b.Navigation("State");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockMovements.StockMovement", b =>
+                {
+                    b.HasOne("Module.Inventory.Domain.StockItems.StockItem", "StockItem")
+                        .WithMany("StockMovements")
+                        .HasForeignKey("StockItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_movements_stock_items_stock_item_id");
+
+                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "StockLocation")
+                        .WithMany("StockMovements")
+                        .HasForeignKey("StockLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_stock_movements_stock_locations_stock_location_id");
+
+                    b.Navigation("StockItem");
+
+                    b.Navigation("StockLocation");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockReservations.StockReservation", b =>
+                {
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("StockReservations")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_reservations_order_order_id");
+
+                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "StockLocation")
+                        .WithMany("StockReservations")
+                        .HasForeignKey("StockLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_stock_reservations_stock_locations_stock_location_id");
+
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("StockReservations")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_reservations_variants_variant_id");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("StockLocation");
+
+                    b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.StockTransfer", b =>
+                {
+                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "DestinationLocation")
+                        .WithMany("DestinationStockTransfers")
+                        .HasForeignKey("DestinationLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_transfers_stock_locations_destination_location_id");
+
+                    b.HasOne("Module.Inventory.Domain.StockLocations.StockLocation", "SourceLocation")
+                        .WithMany("SourceStockTransfers")
+                        .HasForeignKey("SourceLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_transfers_stock_locations_source_location_id");
+
+                    b.Navigation("DestinationLocation");
+
+                    b.Navigation("SourceLocation");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.TransferItem", b =>
+                {
+                    b.HasOne("Module.Inventory.Domain.StockTransfers.StockTransfer", "StockTransfer")
+                        .WithMany("TransferItems")
+                        .HasForeignKey("StockTransferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_transfer_items_stock_transfers_stock_transfer_id");
+
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("TransferItems")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_transfer_items_variants_variant_id");
+
+                    b.Navigation("StockTransfer");
+
+                    b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("Module.Location.Domain.States.State", b =>
+                {
+                    b.HasOne("Module.Location.Domain.Countries.Country", "Country")
+                        .WithMany("States")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_states_countries_country_id");
+
+                    b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("Module.Ordering.Domain.Adjustments.Adjustment", b =>
+                {
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("Adjustments")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_adjustments_order_order_id");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Module.Ordering.Domain.LineItems.LineItem", b =>
+                {
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("LineItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_line_items_order_order_id");
+
+                    b.HasOne("Module.Catalog.Domain.Variants.Variant", "Variant")
+                        .WithMany("LineItems")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("fk_line_items_variants_variant_id");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("Module.Ordering.Domain.Orders.Order", b =>
+                {
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "BillAddress")
+                        .WithMany("BillingOrders")
+                        .HasForeignKey("BillAddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_addresses_bill_address_id");
+
+                    b.HasOne("Module.Billing.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
+                        .WithMany("Orders")
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_orders_payment_methods_payment_method_id");
+
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "ShipAddress")
+                        .WithMany("ShippingOrders")
+                        .HasForeignKey("ShipAddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_addresses_ship_address_id");
+
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
+                        .WithMany("Orders")
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_shipping_method_shipping_method_id");
+
+                    b.HasOne("Module.Shipping.Domain.ShippingRates.ShippingRate", "ShippingRate")
+                        .WithMany("Orders")
+                        .HasForeignKey("ShippingRateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_shipping_rate_shipping_rate_id");
+
+                    b.HasOne("Shared.Security.Identity.Domain.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_users_user_id");
+
+                    b.Navigation("BillAddress");
+
+                    b.Navigation("PaymentMethod");
+
+                    b.Navigation("ShipAddress");
+
+                    b.Navigation("ShippingMethod");
+
+                    b.Navigation("ShippingRate");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.Shipments.Shipment", b =>
+                {
+                    b.HasOne("Module.Customer.Domain.Addresses.Address", "Address")
+                        .WithMany("Shipments")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_shipments_addresses_address_id");
+
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
+                        .WithMany("Shipments")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipments_orders_order_id");
+
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
+                        .WithMany("Shipments")
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipments_shipping_method_shipping_method_id");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("ShippingMethod");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethodZone", b =>
+                {
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
+                        .WithMany("ShippingMethodZones")
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipping_method_zones_shipping_methods_shipping_method_id");
+
+                    b.Navigation("ShippingMethod");
+                });
+
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingRates.ShippingRate", b =>
+                {
+                    b.HasOne("Module.Shipping.Domain.ShippingMethods.ShippingMethod", "ShippingMethod")
+                        .WithMany("ShippingRates")
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipping_rates_shipping_methods_shipping_method_id");
+
+                    b.Navigation("ShippingMethod");
                 });
 
             modelBuilder.Entity("Shared.Security.Identity.Domain.Roles.Claims.RoleClaim", b =>
@@ -3692,11 +4169,23 @@ namespace Api.Migrations.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Module.Billing.Domain.PaymentMethods.PaymentMethod", b =>
+                {
+                    b.Navigation("Orders");
+
+                    b.Navigation("Payments");
+                });
+
             modelBuilder.Entity("Module.Catalog.Domain.OptionTypes.OptionType", b =>
                 {
                     b.Navigation("OptionValues");
 
                     b.Navigation("ProductOptionTypes");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.OptionTypes.Values.OptionValue", b =>
+                {
+                    b.Navigation("OptionValueVariants");
                 });
 
             modelBuilder.Entity("Module.Catalog.Domain.Products.Product", b =>
@@ -3708,26 +4197,12 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Variants");
                 });
 
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Images.VariantImage", b =>
-                {
-                    b.Navigation("ImageEmbedding");
-                });
-
-            modelBuilder.Entity("Module.Catalog.Domain.Products.Variants.Variant", b =>
-                {
-                    b.Navigation("OptionValueVariants");
-
-                    b.Navigation("Prices");
-
-                    b.Navigation("VariantImages");
-                });
-
             modelBuilder.Entity("Module.Catalog.Domain.Taxonomies.Taxonomy", b =>
                 {
                     b.Navigation("Taxons");
                 });
 
-            modelBuilder.Entity("Module.Catalog.Domain.Taxonomies.Taxons.Taxon", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Taxons.Taxon", b =>
                 {
                     b.Navigation("Children");
 
@@ -3736,16 +4211,65 @@ namespace Api.Migrations.Migrations
                     b.Navigation("TaxonRules");
                 });
 
-            modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockItems.StockItem", b =>
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Images.VariantImage", b =>
+                {
+                    b.Navigation("ImageEmbeddings");
+                });
+
+            modelBuilder.Entity("Module.Catalog.Domain.Variants.Variant", b =>
+                {
+                    b.Navigation("LineItems");
+
+                    b.Navigation("OptionValueVariants");
+
+                    b.Navigation("Prices");
+
+                    b.Navigation("StockItems");
+
+                    b.Navigation("StockReservations");
+
+                    b.Navigation("TransferItems");
+
+                    b.Navigation("VariantImages");
+
+                    b.Navigation("WishedItems");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.Addresses.Address", b =>
+                {
+                    b.Navigation("BillingOrders");
+
+                    b.Navigation("Shipments");
+
+                    b.Navigation("ShippingOrders");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.UserProfile", b =>
+                {
+                    b.Navigation("Addresses");
+                });
+
+            modelBuilder.Entity("Module.Customer.Domain.Wishlists.Wishlist", b =>
+                {
+                    b.Navigation("WishedItems");
+                });
+
+            modelBuilder.Entity("Module.Inventory.Domain.StockItems.StockItem", b =>
                 {
                     b.Navigation("StockMovements");
                 });
 
             modelBuilder.Entity("Module.Inventory.Domain.StockLocations.StockLocation", b =>
                 {
+                    b.Navigation("DestinationStockTransfers");
+
+                    b.Navigation("SourceStockTransfers");
+
                     b.Navigation("StockItems");
 
                     b.Navigation("StockMovements");
+
+                    b.Navigation("StockReservations");
                 });
 
             modelBuilder.Entity("Module.Inventory.Domain.StockTransfers.StockTransfer", b =>
@@ -3756,6 +4280,13 @@ namespace Api.Migrations.Migrations
             modelBuilder.Entity("Module.Location.Domain.Countries.Country", b =>
                 {
                     b.Navigation("States");
+
+                    b.Navigation("StockLocations");
+                });
+
+            modelBuilder.Entity("Module.Location.Domain.States.State", b =>
+                {
+                    b.Navigation("StockLocations");
                 });
 
             modelBuilder.Entity("Module.Ordering.Domain.Orders.Order", b =>
@@ -3763,21 +4294,28 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Adjustments");
 
                     b.Navigation("LineItems");
+
+                    b.Navigation("PaymentCaptures");
+
+                    b.Navigation("Shipments");
+
+                    b.Navigation("StockReservations");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.PaymentMethods.PaymentMethod", b =>
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingMethods.ShippingMethod", b =>
                 {
-                    b.Navigation("Payments");
+                    b.Navigation("Orders");
+
+                    b.Navigation("Shipments");
+
+                    b.Navigation("ShippingMethodZones");
+
+                    b.Navigation("ShippingRates");
                 });
 
-            modelBuilder.Entity("Module.Profile.Domain.UserProfile", b =>
+            modelBuilder.Entity("Module.Shipping.Domain.ShippingRates.ShippingRate", b =>
                 {
-                    b.Navigation("Addresses");
-                });
-
-            modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
-                {
-                    b.Navigation("WishedItems");
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Shared.Security.Identity.Domain.Roles.Role", b =>

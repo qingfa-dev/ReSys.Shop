@@ -1,5 +1,5 @@
 import { get, post, put, del } from '@/shared/api/client'
-import { CATALOG } from '@/shared/constants/api'
+
 import type { Result } from '@/shared/types'
 import type {
   CreateEmbeddingRequest,
@@ -8,21 +8,19 @@ import type {
 } from '../types/imageEmbedding'
 
 export class ImageEmbeddingApi {
-  private static readonly BASE = `${CATALOG}/variant-image-embeddings`
-
   static create(request: CreateEmbeddingRequest): Promise<Result<EmbeddingDetailResponse>> {
-    return post<Result<EmbeddingDetailResponse>>(ImageEmbeddingApi.BASE, request)
+    return post<Result<EmbeddingDetailResponse>>('/api/admin/catalog/variant-image-embeddings', request)
   }
 
   static regenerate(request: RegenerateEmbeddingRequest): Promise<Result<EmbeddingDetailResponse>> {
-    return put<Result<EmbeddingDetailResponse>>(`${ImageEmbeddingApi.BASE}/regenerate`, request)
+    return put<Result<EmbeddingDetailResponse>>('/api/admin/catalog/variant-image-embeddings/regenerate', request)
   }
 
   static get(variantImageId: string): Promise<Result<EmbeddingDetailResponse>> {
-    return get<Result<EmbeddingDetailResponse>>(`${ImageEmbeddingApi.BASE}/${variantImageId}`)
+    return get<Result<EmbeddingDetailResponse>>(`/api/admin/catalog/variant-image-embeddings/${variantImageId}`)
   }
 
-  static deleteEmbedding(variantImageId: string): Promise<Result<{ message: string }>> {
-    return del<Result<{ message: string }>>(`${ImageEmbeddingApi.BASE}/${variantImageId}`)
+  static deleteEmbedding(variantImageId: string): Promise<Result<void>> {
+    return del<Result<void>>(`/api/admin/catalog/variant-image-embeddings/${variantImageId}`)
   }
 }

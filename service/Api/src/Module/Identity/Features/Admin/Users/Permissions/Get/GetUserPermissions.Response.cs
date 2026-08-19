@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Permissions.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Users.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Users.Permissions.Get;
 
 public static partial class GetUserPermissions
 {
@@ -10,8 +10,5 @@ public static partial class GetUserPermissions
 
     public sealed record ResourceResponse : ResourceGroupListItemResponse<PermissionItemResponse>;
 
-    public sealed record PermissionItemResponse() : PermissionResponse
-    {
-        public bool IsAssigned { get; init; }
-    }
+    public sealed record PermissionItemResponse : PermissionAssignmentItemResponse;
 }

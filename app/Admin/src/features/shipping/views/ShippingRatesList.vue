@@ -20,6 +20,7 @@ const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
 const { dt, exportCSV } = useDataTableExport()
+const selectedItems = ref<ShippingRateListItem[]>([])
 const search = ref('')
 
 const { items, loading, setSearch, refresh } = useShippingRateList({
@@ -64,6 +65,43 @@ function confirmDelete(item: ShippingRateListItem) {
     },
   })
 }
+
+function bulkConfirmDelete() {
+  if (selectedItems.value.length === 0) return
+
+  confirm.require({
+    message: `Are you sure you want to delete ${selectedItems.value.length > 1 ? 'these shipping rates' : 'this shipping rate'}?`,
+    header: 'Confirm Delete',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      const ids = selectedItems.value.map(i => i.id)
+      const names = selectedItems.value.map(i => i.name)
+      let failed = 0
+      for (const id of ids) {
+        const result = await ShippingRateApi.deleteShippingRate(id)
+        if (!result.isSuccess) failed++
+      }
+      selectedItems.value = []
+      refresh()
+      if (failed === 0) {
+        notify.success(
+          ids.length > 1 ? 'Shipping rates deleted' : 'Shipping rate deleted',
+          ids.length > 1
+            ? `${ids.length} shipping rates have been removed.`
+            : `${names[0]} has been removed.`,
+        )
+      } else {
+        notify.error(
+          'Delete failed',
+          `${failed} of ${ids.length} could not be deleted.`,
+        )
+      }
+    },
+  })
+}
 </script>
 
 <template>
@@ -93,6 +131,13 @@ function confirmDelete(item: ShippingRateListItem) {
       />
       <div class="flex-1" />
       <Button
+        v-if="selectedItems.length > 0"
+        label="Delete"
+        icon="pi pi-trash"
+        severity="danger"
+        @click="bulkConfirmDelete"
+      />
+      <Button
         label="New Shipping Rate"
         icon="pi pi-plus"
         @click="navigateToNew"
@@ -114,6 +159,7 @@ function confirmDelete(item: ShippingRateListItem) {
     <!-- Section: Data Table — shipping rate grid -->
     <DataTable
       ref="dt"
+      v-model:selection="selectedItems"
       :value="items"
       :loading="loading"
       scrollable
@@ -122,6 +168,7 @@ function confirmDelete(item: ShippingRateListItem) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — rate identity and pricing fields -->
       <Column field="name" header="Name" :sortable="true" />
       <Column field="shippingMethodId" header="Shipping Method ID" :sortable="true" />

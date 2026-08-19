@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Emails.Change;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Change;
 
 public static partial class ChangeEmail
 {
@@ -7,8 +7,8 @@ public static partial class ChangeEmail
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/emails/change — initiate email address change
-            app.MapPost(IdentityFeature.Store.Emails.Change.Route, async (
+            // Map: POST /api/storefront/emails/change — initiate email address change
+            app.MapPost(IdentityFeature.Storefront.Emails.Change.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -20,8 +20,8 @@ public static partial class ChangeEmail
             .RequireAuthorization()
             .WithName(nameof(ChangeEmail))
             .WithTags(IdentityFeature.Tags.Authentication)
-            .WithSummary(IdentityFeature.Store.Emails.Change.Summary)
-            .WithDescription(IdentityFeature.Store.Emails.Change.Description)
+            .WithSummary(IdentityFeature.Storefront.Emails.Change.Summary)
+            .WithDescription(IdentityFeature.Storefront.Emails.Change.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

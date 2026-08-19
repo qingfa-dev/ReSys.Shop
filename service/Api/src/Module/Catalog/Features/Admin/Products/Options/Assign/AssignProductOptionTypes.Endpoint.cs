@@ -6,7 +6,7 @@ public static partial class AssignProductOptionTypes
 {
     /// <summary>
     /// POST endpoint that assigns option types to a product.
-    /// Route: api/catalog/product-option-types/assign
+    /// Route: api/admin/catalog/product-option-types/assign
     /// Permission: Products.OptionTypes.Assign
     /// </summary>
     public sealed class Endpoint : ICarterModule

@@ -12,7 +12,7 @@ import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
-import { IDENTITY } from '@/shared/constants/api'
+
 import { UserApi } from '../services/userApi'
 import type { UserListItem } from '../types/user'
 import { USER_FILTER_FIELDS, USER_SORT_FIELDS, USER_SEARCH_FIELDS } from '../types/user'
@@ -25,7 +25,7 @@ const search = ref('')
 const selectedItems = ref<UserListItem[]>([])
 
 const { items, loading, setSearch, refresh } = usePagedQuery<UserListItem>(
-  `${IDENTITY}/users`,
+  `/api/admin/identity/users`,
   {
     allowedFilterFields: USER_FILTER_FIELDS,
     allowedSortFields: USER_SORT_FIELDS,

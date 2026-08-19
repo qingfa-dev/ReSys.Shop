@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 
 namespace Module.Catalog.Persistence.Configurations.Products;
 
@@ -47,7 +47,7 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
 
         builder.Property(x => x.WeightUnit)
             .HasConversion<string>()
-            .HasMaxLength(10)
+            .HasMaxLength(VariantConstant.Constraints.MaxUnitStringLength)
             .HasDefaultValue(WeightUnit.Kg)
             .IsRequired(false);
 
@@ -65,7 +65,7 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
 
         builder.Property(x => x.DimensionsUnit)
             .HasConversion<string>()
-            .HasMaxLength(10)
+            .HasMaxLength(VariantConstant.Constraints.MaxUnitStringLength)
             .HasDefaultValue(DimensionUnit.Cm)
             .IsRequired(false);
 

@@ -2,14 +2,14 @@ using System.Security.Claims;
 
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Permissions.Revoke;
+using Module.Identity.Features.Shared.Admin.Roles.Permissions.Revoke;
 
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-using static Module.Identity.Features.Admin.Roles.Permissions.Revoke.RevokeRolePermissions;
+using static Module.Identity.Features.Shared.Admin.Roles.Permissions.Revoke.RevokeRolePermissions;
 
 namespace Module.UnitTests.Identity.Features.Admin.Roles.Permissions.Revoke;
 

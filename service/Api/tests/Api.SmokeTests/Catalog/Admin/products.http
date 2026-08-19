@@ -10,10 +10,10 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Create product – success
-# POST /api/catalog/products
+# POST /api/admin/catalog/products
 # Expected: 201 Created with location header
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/products
+POST {{baseUrl}}/api/admin/catalog/products
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -30,10 +30,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Create product – duplicate slug
-# POST /api/catalog/products
+# POST /api/admin/catalog/products
 # Expected: 409 Conflict – slug already exists
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/products
+POST {{baseUrl}}/api/admin/catalog/products
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -50,10 +50,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Create product – validation error (missing name)
-# POST /api/catalog/products
+# POST /api/admin/catalog/products
 # Expected: 400 Bad Request – name is required
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/products
+POST {{baseUrl}}/api/admin/catalog/products
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -70,37 +70,37 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. List products (paged)
-# GET /api/catalog/products
+# GET /api/admin/catalog/products
 # Expected: 200 OK – paged list of products
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/products?page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/admin/catalog/products?page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Get product by ID – success
-# GET /api/catalog/products/{id}
+# GET /api/admin/catalog/products/{id}
 # Expected: 200 OK – single product
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/products/{{existingProductId}}
+GET {{baseUrl}}/api/admin/catalog/products/{{existingProductId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Get product by ID – not found
-# GET /api/catalog/products/{id}
+# GET /api/admin/catalog/products/{id}
 # Expected: 404 Not Found
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/products/{{nonExistentId}}
+GET {{baseUrl}}/api/admin/catalog/products/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 7. Update product – success
-# PUT /api/catalog/products/{id}
+# PUT /api/admin/catalog/products/{id}
 # Expected: 200 OK – updated product
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/products/{{existingProductId}}
+PUT {{baseUrl}}/api/admin/catalog/products/{{existingProductId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -112,35 +112,35 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 8. Activate product – success
-# PATCH /api/catalog/products/{id}/activate
+# PATCH /api/admin/catalog/products/{id}/activate
 # Expected: 200 OK – product activated
 # ---------------------------------------------------------------------------
-PATCH {{baseUrl}}/api/catalog/products/{{existingProductId}}/activate
+PATCH {{baseUrl}}/api/admin/catalog/products/{{existingProductId}}/activate
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 9. Discontinue product – success
-# PATCH /api/catalog/products/{id}/discontinue
+# PATCH /api/admin/catalog/products/{id}/discontinue
 # Expected: 200 OK – product discontinued
 # ---------------------------------------------------------------------------
-PATCH {{baseUrl}}/api/catalog/products/{{existingProductId}}/discontinue
+PATCH {{baseUrl}}/api/admin/catalog/products/{{existingProductId}}/discontinue
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 10. Soft delete product – success
-# DELETE /api/catalog/products/{id}
+# DELETE /api/admin/catalog/products/{id}
 # Expected: 200 OK – product deleted
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/products/{{existingProductId}}
+DELETE {{baseUrl}}/api/admin/catalog/products/{{existingProductId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 11. No authentication – 401
-# GET /api/catalog/products
+# GET /api/admin/catalog/products
 # Expected: 401 Unauthorized – missing or invalid token
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/products
+GET {{baseUrl}}/api/admin/catalog/products
 Content-Type: {{contentType}}

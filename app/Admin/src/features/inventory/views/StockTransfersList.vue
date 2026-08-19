@@ -14,6 +14,7 @@ import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useStockTransferList } from '../composables/useStockTransferList'
 import { useActiveStockLocations } from '../composables/useActiveStockLocations'
 import type { StockTransferState } from '../types/stockTransfer'
+import type { StockTransferListItem } from '../types/stockTransfer'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
@@ -22,6 +23,7 @@ const search = ref('')
 const selectedState = ref<StockTransferState | null>(null)
 const selectedSourceLocation = ref<string | null>(null)
 const selectedDestinationLocation = ref<string | null>(null)
+const selectedItems = ref<StockTransferListItem[]>([])
 
 const { items, loading, setFilter, refresh } = useStockTransferList()
 
@@ -66,8 +68,8 @@ function onDestinationLocationChange(value: string | null) {
   applyFilters()
 }
 
-function stateSeverity(state: StockTransferState): string {
-  return STATE_SEVERITY[state]
+function stateSeverity(state: StockTransferState | undefined): string {
+  return state ? STATE_SEVERITY[state] : 'secondary'
 }
 
 function navigateToNew() {
@@ -148,12 +150,14 @@ function navigateToEdit(id: string) {
       ref="dt"
       :value="items"
       :loading="loading"
+      v-model:selection="selectedItems"
       scrollable
       paginator
       :rows="20"
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — transfer descriptor and state fields -->
       <Column field="number" header="Number" :sortable="true" />
       <Column field="reference" header="Reference">

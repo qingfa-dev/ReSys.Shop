@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Passwords.Reset;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Reset;
 
 public static partial class ResetPassword
 {
@@ -11,6 +11,7 @@ public static partial class ResetPassword
     {
         public Validator()
         {
+            RuleFor(x => x.UserId).NotEmpty();
             RuleFor(x => x.Token).ApplyUserTokenRules();
             RuleFor(x => x.NewPassword).ApplyUserPasswordRules(requireMinLength: true);
         }

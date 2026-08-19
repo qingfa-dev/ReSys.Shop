@@ -8,7 +8,6 @@ Building a production-capable e-commerce platform with integrated machine learni
 #include "f3/04-postgresql-pgvector.typ"
 #include "f3/05-redis-caching.typ"
 #include "f3/06-python-ml-sidecar.typ"
-#include "f3/07-aspire-orchestration.typ"
 #include "f3/08-hangfire-jobs.typ"
 #include "f3/09-identity-auth.typ"
 #include "f3/10-benchmark-framework.typ"

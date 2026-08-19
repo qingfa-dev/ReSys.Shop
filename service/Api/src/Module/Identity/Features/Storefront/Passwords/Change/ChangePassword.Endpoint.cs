@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Passwords.Change;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Change;
 
 public static partial class ChangePassword
 {
@@ -7,8 +7,8 @@ public static partial class ChangePassword
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/passwords/change — change password for authenticated user
-            app.MapPost(IdentityFeature.Store.Passwords.Change.Route, async (
+            // Map: POST /api/storefront/passwords/change — change password for authenticated user
+            app.MapPost(IdentityFeature.Storefront.Passwords.Change.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -20,8 +20,8 @@ public static partial class ChangePassword
             .RequireAuthorization()
             .WithName(nameof(ChangePassword))
             .WithTags(IdentityFeature.Tags.Authentication)
-            .WithSummary(IdentityFeature.Store.Passwords.Change.Summary)
-            .WithDescription(IdentityFeature.Store.Passwords.Change.Description)
+            .WithSummary(IdentityFeature.Storefront.Passwords.Change.Summary)
+            .WithDescription(IdentityFeature.Storefront.Passwords.Change.Description)
             .Produces<Result>(StatusCodes.Status202Accepted)
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

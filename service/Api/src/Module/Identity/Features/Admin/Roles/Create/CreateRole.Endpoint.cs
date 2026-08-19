@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Roles.Create;
+namespace Module.Identity.Features.Shared.Admin.Roles.Create;
 
 public static partial class CreateRole
 {

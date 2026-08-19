@@ -56,21 +56,25 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-PAY-METHOD\nPayment Method Configuration
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nPayment Subsystem" {
+rectangle {
 
-  usecase "Manage Payment Methods\nUC-ADM-PAY-METHOD" as UC_MAIN
+  ' UC-ADM-PAY-METHOD
+  usecase "Manage Payment Methods" as UC_MAIN
 
-  usecase "Create Payment Method\nUC-ADM-PAY-METHOD-NEW" as UC_CREATE
+  ' UC-ADM-PAY-METHOD-NEW
+  usecase "Create Payment Method" as UC_CREATE
 
-  usecase "Configure Method Settings\nUC-ADM-PAY-METHOD-CFG" as UC_CONFIG
+  ' UC-ADM-PAY-METHOD-CFG
+  usecase "Configure Method Settings" as UC_CONFIG
 
-  usecase "Toggle Method Status\nUC-ADM-PAY-METHOD-STS" as UC_TOGGLE
+  ' UC-ADM-PAY-METHOD-STS
+  usecase "Toggle Method Status" as UC_TOGGLE
 
-  usecase "Configure Gateway Credentials\nUC-ADM-PAY-METHOD-API" as UC_API
+  ' UC-ADM-PAY-METHOD-API
+  usecase "Configure Gateway Credentials" as UC_API
 
 }
 

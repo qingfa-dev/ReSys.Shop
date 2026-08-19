@@ -27,7 +27,7 @@ public sealed class ApproveOrderIntegrationTests(ApiFixture fixture) : OrderingI
     {
         var slug = $"approve-test-{Guid.NewGuid():N}";
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products",
+            "/api/admin/catalog/products",
             new { name = "Approve Test Product", slug, description = "Test product for approve order" });
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
@@ -35,7 +35,7 @@ public sealed class ApproveOrderIntegrationTests(ApiFixture fixture) : OrderingI
         created.Should().NotBeNull();
 
         HttpResponseMessage activateResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/products/{created!.Id}/activate");
+            $"/api/admin/catalog/products/{created!.Id}/activate");
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         Guid orderId;
@@ -60,7 +60,7 @@ public sealed class ApproveOrderIntegrationTests(ApiFixture fixture) : OrderingI
         }
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/ordering/orders/{orderId}/approve");
+            $"/api/admin/ordering/orders/{orderId}/approve");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -75,7 +75,7 @@ public sealed class ApproveOrderIntegrationTests(ApiFixture fixture) : OrderingI
     {
         Guid nonExistentId = Guid.NewGuid();
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/ordering/orders/{nonExistentId}/approve");
+            $"/api/admin/ordering/orders/{nonExistentId}/approve");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

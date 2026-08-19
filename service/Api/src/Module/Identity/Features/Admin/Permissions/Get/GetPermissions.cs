@@ -1,7 +1,7 @@
 using Shared.Security.Authorization.Registry;
 using Shared.Security.Identity.Domain.Permissions;
 
-namespace Module.Identity.Features.Admin.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Permissions.Get;
 
 /// <summary>
 /// Defines the use case for retrieving all available permissions.

@@ -9,8 +9,8 @@ public static partial class UpdateCheckout
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: PUT api/storefront/cart — update cart checkout details (email, addresses, instructions)
-            app.MapPut(OrderingFeature.Storefront.Cart.Update.Route, async (
+            // Map: PATCH api/storefront/cart — update cart checkout details (email, addresses, instructions)
+            app.MapPatch(OrderingFeature.Storefront.Cart.Update.Route, async (
                 [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(request), ct);

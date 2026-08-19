@@ -2,6 +2,8 @@ using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Concerns.Parameterizable;
 using Shared.Application.Domain.Models;
 
+using Module.Catalog.Domain.Variants.Options;
+
 namespace Module.Catalog.Domain.OptionTypes.Values;
 
 /// <summary>
@@ -26,6 +28,7 @@ public partial class OptionValue : Entity, IAuditable, IParameterizable
     #region Relationship
     public Guid OptionTypeId { get; set; }
     public OptionType OptionType { get; set; } = null!;
+    public ICollection<OptionValueVariant> OptionValueVariants { get; set; } = [];
     #endregion Relationship
 
     #region Constructor

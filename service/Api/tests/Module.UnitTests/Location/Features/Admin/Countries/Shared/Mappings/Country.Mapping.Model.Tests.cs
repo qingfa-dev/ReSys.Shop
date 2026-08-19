@@ -1,6 +1,6 @@
 using Module.Location.Domain.Countries;
-using Module.Location.Features.Admin.Countries.Shared.Mappings;
-using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Shared.Countries.Mappings;
+using Module.Location.Features.Shared.Countries.Models;
 
 namespace Module.UnitTests.Location.Features.Admin.Countries.Shared.Mappings;
 

@@ -1,4 +1,6 @@
-namespace Module.Identity.Features.Admin.Users.Roles.Sync;
+using Module.Identity.Features.Admin.Shared.Models;
+
+namespace Module.Identity.Features.Shared.Admin.Users.Roles.Sync;
 
 public static partial class SyncUserRoles
 {
@@ -6,12 +8,5 @@ public static partial class SyncUserRoles
     /// Represents the request contract for synchronizing a user's roles.
     /// This will replace the user's current roles with the specified list.
     /// </summary>
-    // EXCEPTION: feature-specific collection request — no domain entity base
-    public record Request
-    {
-        /// <summary>
-        /// Gets or initializes the complete collection of role names to be assigned to the user.
-        /// </summary>
-        public IEnumerable<string> Roles { get; init; } = [];
-    }
+    public record Request : RoleCollectionParameters;
 }

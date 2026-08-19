@@ -56,16 +56,17 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-PAY\nPayment Processing
 
 actor "Customer" as Customer
 actor "Payment Gateway" as Gateway <<system>>
 
-rectangle "ReSys.Shop\nStorefront Applications" {
+rectangle {
 
-  usecase "Create Payment Intent\nUC-STR-PAY-INTENT" as UC_INTENT
+  ' UC-STR-PAY-INTENT
+  usecase "Create Payment Intent" as UC_INTENT
 
-  usecase "Confirm Payment\nUC-STR-PAY-CONFIRM" as UC_CONFIRM
+  ' UC-STR-PAY-CONFIRM
+  usecase "Confirm Payment" as UC_CONFIRM
 
 }
 

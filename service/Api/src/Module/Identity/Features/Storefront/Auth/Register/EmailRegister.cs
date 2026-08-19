@@ -9,7 +9,7 @@ using Shared.Operational.Notifications.Templates;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Register;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Register;
 
 /// <summary>
 /// Defines the use case for email-based user registration.

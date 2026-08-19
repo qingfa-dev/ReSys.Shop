@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 
 using DomainRoles = Module.Identity.Domain.Roles;
-using Module.Identity.Features.Admin.Roles.Shared.Mappings;
 
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
+using Module.Identity.Features.Admin.Shared.Mappings;
+
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Get.PagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.PagedOrAll;
 
 /// <summary>
 /// Defines the use case for retrieving roles with paged or all results.

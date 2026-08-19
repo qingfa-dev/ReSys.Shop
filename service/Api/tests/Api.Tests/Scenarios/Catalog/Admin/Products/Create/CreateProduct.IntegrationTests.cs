@@ -21,7 +21,7 @@ public sealed class CreateProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", request);
+            "/api/admin/catalog/products", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -44,11 +44,11 @@ public sealed class CreateProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage firstResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", request);
+            "/api/admin/catalog/products", request);
         firstResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", request);
+            "/api/admin/catalog/products", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -64,7 +64,7 @@ public sealed class CreateProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", request);
+            "/api/admin/catalog/products", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -81,7 +81,7 @@ public sealed class CreateProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/products", request);
+            "/api/admin/catalog/products", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

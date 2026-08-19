@@ -56,17 +56,19 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-SHP\nShipping Method Configuration
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nInventory & Logistics Subsystem" {
+rectangle {
 
-  usecase "Configure Shipping Methods\nUC-ADM-SHP" as UC_MAIN
+  ' UC-ADM-SHP
+  usecase "Configure Shipping Methods" as UC_MAIN
 
-  usecase "Manage Shipping Methods\nUC-ADM-SHP-METHOD" as UC_METHOD
+  ' UC-ADM-SHP-METHOD
+  usecase "Manage Shipping Methods" as UC_METHOD
 
-  usecase "Manage Shipping Rates\nUC-ADM-SHP-RATE" as UC_RATE
+  ' UC-ADM-SHP-RATE
+  usecase "Manage Shipping Rates" as UC_RATE
 
 }
 

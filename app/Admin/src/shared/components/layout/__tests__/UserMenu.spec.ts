@@ -58,10 +58,10 @@ beforeEach(() => {
 })
 
 describe('UserMenu', () => {
-  it('renders avatar and user name when authenticated', () => {
+  it('renders user icon button when authenticated', () => {
     const { wrapper } = createWrapper()
-    expect(wrapper.text()).toContain('User One')
-    expect(wrapper.find('.p-avatar').exists()).toBe(true)
+    expect(wrapper.find('button').exists()).toBe(true)
+    expect(wrapper.find('.p-icon').exists()).toBe(true)
   })
 
   it('does not render when not authenticated', () => {
@@ -69,19 +69,19 @@ describe('UserMenu', () => {
       user: null,
       status: 'idle',
     })
-    expect(wrapper.find('.p-avatar').exists()).toBe(false)
+    expect(wrapper.find('button').exists()).toBe(false)
   })
 
-  it('opens popover on avatar click', async () => {
+  it('opens popover on icon click', async () => {
     const { wrapper } = createWrapper()
-    await wrapper.find('.cursor-pointer').trigger('click')
+    await wrapper.find('button').trigger('click')
     await wrapper.vm.$nextTick()
     expect(document.body.querySelector('.p-popover')).toBeTruthy()
   })
 
   it('shows logout button in popover', async () => {
     const { wrapper } = createWrapper()
-    await wrapper.find('.cursor-pointer').trigger('click')
+    await wrapper.find('button').trigger('click')
     await wrapper.vm.$nextTick()
     const logoutBtn = document.body.querySelector('button.logout-btn')
     expect(logoutBtn).toBeTruthy()
@@ -89,7 +89,7 @@ describe('UserMenu', () => {
 
   it('calls authStore.logout and shows toast on logout click', async () => {
     const { wrapper } = createWrapper()
-    await wrapper.find('.cursor-pointer').trigger('click')
+    await wrapper.find('button').trigger('click')
     await wrapper.vm.$nextTick()
 
     const logoutBtn = document.body.querySelector('button.logout-btn') as HTMLElement
@@ -104,7 +104,7 @@ describe('UserMenu', () => {
 
   it('disables logout button when isLoggingOut is true', async () => {
     const { wrapper } = createWrapper({ isLoggingOut: true })
-    await wrapper.find('.cursor-pointer').trigger('click')
+    await wrapper.find('button').trigger('click')
     await wrapper.vm.$nextTick()
     const logoutBtn = document.body.querySelector('button.logout-btn')
     expect(logoutBtn?.getAttribute('disabled')).toBeDefined()
@@ -112,7 +112,7 @@ describe('UserMenu', () => {
 
   it('redirects to login after logout', async () => {
     const { router, wrapper } = createWrapper()
-    await wrapper.find('.cursor-pointer').trigger('click')
+    await wrapper.find('button').trigger('click')
     await wrapper.vm.$nextTick()
 
     const logoutBtn = document.body.querySelector('button.logout-btn') as HTMLElement

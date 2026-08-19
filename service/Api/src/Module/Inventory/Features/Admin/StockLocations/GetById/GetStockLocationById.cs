@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Features.Admin.StockLocations.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockLocations.GetById;
 
@@ -22,7 +22,7 @@ public static partial class GetStockLocationById
 
             // Check: Return not-found if no location matches
             if (entity is null)
-                return StockLocationResult.Failure.NotFound;
+                return StockLocationResult.Errors.NotFound;
 
             // Transform: Map domain entity to response DTO
             return entity.MapToDetail<Response>();

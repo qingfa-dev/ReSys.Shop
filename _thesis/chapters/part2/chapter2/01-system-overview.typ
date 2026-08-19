@@ -172,8 +172,8 @@ The API uses *Carter* modules for clean endpoint registration:
 
     [ProductsModule (Admin)],
     [
-      `/api/catalog/products` \
-      `/api/catalog/products/{id}/images`
+      `/api/admin/catalog/products` \
+      `/api/admin/catalog/products/{id}/images`
     ],
     [CRUD \ CRUD],
   ),

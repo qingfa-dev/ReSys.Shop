@@ -3,22 +3,22 @@
 # =============================================================================
 
 ### Create order – success (201)
-POST {{baseUrl}}/api/ordering/orders
+POST {{baseUrl}}/api/admin/ordering/orders
 Authorization: Bearer {{adminToken}}
 Content-Type: {{contentType}}
 
 {}
 
 ### Get order by ID – success (200)
-GET {{baseUrl}}/api/ordering/orders/{{nonExistentId}}
+GET {{baseUrl}}/api/admin/ordering/orders/{{nonExistentId}}
 Authorization: Bearer {{adminToken}}
 
 ### List orders – success (200)
-GET {{baseUrl}}/api/ordering/orders?page=1&pageSize=10
+GET {{baseUrl}}/api/admin/ordering/orders?page=1&pageSize=10
 Authorization: Bearer {{adminToken}}
 
 ### Create order – no auth (401)
-POST {{baseUrl}}/api/ordering/orders
+POST {{baseUrl}}/api/admin/ordering/orders
 Content-Type: {{contentType}}
 
 {}

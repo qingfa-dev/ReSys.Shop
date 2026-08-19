@@ -1,4 +1,4 @@
-using Module.Ordering.Features.Admin.Orders.Shared.Validators;
+using Module.Ordering.Features.Admin.Shared.Validators;
 
 namespace Module.Ordering.Features.Admin.Orders.Create;
 

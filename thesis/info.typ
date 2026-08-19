@@ -11,8 +11,8 @@
       name: "Dr. Tran Cong An",
     ),
     thesis: (
-      title: [BUILDING A FASHION E-COMMERCE APPLICATION WITH IMAGE-BASED PRODUCT SEARCH AND MODEL BENCHMARKING],
-      short_title: "FASHION E-COMMERCE WITH CBIR & MODEL BENCHMARKING",
+      title: [BUILDING A FASHION \ E-COMMERCE APPLICATION \ WITH RECOMMENDATION AND \ IMAGE-BASED PRODUCT SEARCH],
+      short_title: "FASHION E-COMMERCE APP WITH RECOMMENDATION & IMAGE SEARCH",
       date: "December 2025",
       location: "Can Tho",
       degree: "BACHELOR OF ENGINEERING",
@@ -57,10 +57,10 @@
     advisor: (
       name: "TS. Trần Công Án",
     ),
-    thesis: (
-      title: [PHÁT TRIỂN ỨNG DỤNG \ THƯƠNG MẠI ĐIỆN TỬ BÁN THỜI TRANG \ TÍCH HỢP TÌM KIẾM SẢN PHẨM BẰNG HÌNH ẢNH \ VÀ ĐÁNH GIÁ HIỆU NĂNG MÔ HÌNH],
-      short_title: "TMĐT THỜI TRANG VỚI CBIR & ĐÁNH GIÁ MÔ HÌNH",
-      date: "Tháng 12 năm 2025",
+   thesis: (
+      title: [PHÁT TRIỂN ỨNG DỤNG \ THƯƠNG MẠI ĐIỆN TỬ BÁN THỜI TRANG \ TÍCH HỢP GỢI Ý VÀ TÌM KIẾM SẢN PHẨM BẰNG HÌNH ẢNH],
+      short_title: "ỨNG DỤNG TMĐT TÍCH HỢP GỢI Ý & TÌM KIẾM HÌNH ẢNH",
+      date: "Tháng 12/2025",
       location: "Cần Thơ",
       degree: "KỸ SƯ",
     ),

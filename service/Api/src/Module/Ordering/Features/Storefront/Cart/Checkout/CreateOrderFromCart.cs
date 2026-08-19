@@ -1,209 +1,81 @@
-using System.Data;
-
-using Microsoft.EntityFrameworkCore;
-
-using Module.Catalog.Domain.Products.Variants;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
-using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
-using Module.Payment.Domain.PaymentCaptures;
-
-using Shared.Operational.Notifications.Models;
-using Shared.Operational.Notifications.Services;
-using Shared.Operational.Notifications.Templates;
-
-using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
+using Module.Ordering.Features.Admin.Shared.Extensions;
+using Module.Ordering.Features.Admin.Shared.Mappings;
+using Module.Billing.Features.Storefront.GetPaymentForCheckout;
+using Module.Billing.Features.Storefront.MarkPaymentPaid;
+using Module.Ordering.Services;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
-/// <summary>Converts the current user's draft cart into a placed order with payment verification, stock deduction, inventory reservation, notification, and event publishing.</summary>
+
 public static partial class CreateOrderFromCart
 {
     public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        INotificationService notificationService)
+        ISender sender,
+        CheckoutPlacementService placementService)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>TTL in minutes for stock reservations. Set to 30 minutes by default. Overridable in tests.</summary>
-        internal int StockReservationExpiryMinutes { get; init; } = 30;
-        /// <summary>Validates checkout prerequisites, verifies payment, deducts stock, reserves inventory, places the order, publishes an event, and sends a notification.</summary>
-        /// <param name="command">The command containing checkout request with optional payment intent ID.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The created order response.</returns>
-        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Check: Find the current user's draft cart.
             var cart = await dbContext.Set<Order>()
-                .Include(x => x.LineItems)
+                .IncludeOrderDetail()
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
                 .FirstOrDefaultAsync(cancellationToken);
-
             if (cart is null)
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
-            // Validate: Checkout prerequisites (addresses, shipping method, email).
-            var prereqResult = cart.ValidateCheckoutPrerequisites();
-            if (prereqResult.IsFailure)
-                return prereqResult.Errors;
+            if (cart.CheckoutState != CheckoutState.PickPaymentMethod)
+                return OrderResult.Errors.InvalidCheckoutTransition(cart.CheckoutState, CheckoutState.Placed);
 
-            // Validate: Payment.
-            var paymentIntentId = command.Request.PaymentIntentId;
-            var payment = !string.IsNullOrWhiteSpace(paymentIntentId)
-                ? await dbContext.Set<PaymentCapture>()
-                    .FirstOrDefaultAsync(p => p.ResponseCode == paymentIntentId
-                                          && p.OrderId == cart.Id
-                                          && p.State == PaymentRecordState.Completed, cancellationToken)
-                : null;
-
-            var paymentResult = cart.ValidatePayment(
-                payment?.Amount ?? 0m,
-                payment?.State == PaymentRecordState.Completed);
+            // TODO(audit 2026-08-16): cross-module ISender — replace with direct navigation.
+            // GetPaymentForCheckoutQuery reads a PaymentCapture reachable via Order.PaymentCaptures
+            // (.Include(x => x.PaymentCaptures) + local filter). See AGENTS.md rule #2 candidates.
+            var paymentResult = await sender.Send(
+                new GetPaymentForCheckoutQuery { PaymentIntentId = command.Request.PaymentIntentId!, OrderId = cart.Id }, cancellationToken);
             if (paymentResult.IsFailure)
                 return paymentResult.Errors;
 
-            var paymentMarkResult = cart.MarkPaymentAsPaid();
-            if (paymentMarkResult.IsFailure)
-                return paymentMarkResult.Errors;
+            var p = paymentResult.Value!;
+            var isPaid = p.IsCompleted || (p.IsPending && p.IsOffline);
+            if (!isPaid || p.Amount <= 0)
+                return OrderResult.Errors.PaymentNotCompleted;
 
-            // Validate: Reject orders containing discontinued variants.
-            var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
-            var discontinuedVariantIds = await dbContext.Set<Variant>()
-                .Where(v => variantIds.Contains(v.Id) && v.DiscontinuedOn != null)
-                .Select(v => v.Id)
-                .ToHashSetAsync(cancellationToken);
+            // TODO(audit 2026-08-16): cross-module ISender — MarkPaymentPaidCommand wraps one guard +
+            // payment.Complete(); call payment.Complete() on the nav-loaded capture directly.
+            // COD stays Pending: only gateway-completed payments are marked paid here.
+            if (!p.IsOffline)
+                await sender.Send(new MarkPaymentPaidCommand
+                {
+                    OrderId = cart.Id,
+                    PaymentIntentId = command.Request.PaymentIntentId!
+                }, cancellationToken);
 
-            if (!cart.EnsureLineItemVariantsAreNotDiscontinued(discontinuedVariantIds))
-                return OrderResult.Errors.VariantDiscontinued;
+            // Timestamp: mirror the (already completed) payment onto the order timeline.
+            if (p.IsCompleted)
+                cart.MarkPaymentCompleted(p.CompletedAtUtc ?? DateTimeOffset.UtcNow);
 
-            // Explain: RepeatableRead ensures stock rows read for deduction are stable
-            // during the transaction — prevents stock double-deduction under concurrent checkouts.
-            // Retry: Wrap in retry loop for DbUpdateConcurrencyException (up to 3 attempts)
-            int maxRetries = 3;
-            for (int attempt = 0; attempt < maxRetries; attempt++)
-            {
-                bool isLastAttempt = attempt == maxRetries - 1;
-                await using var transaction = await dbContext.BeginTransactionAsync(
-                    IsolationLevel.RepeatableRead, cancellationToken);
+            // Record: persist the payment method onto the order before finalization —
+            // the checkout prerequisite requires it, and the Billing capture is its source.
+            if (p.PaymentMethodId.HasValue)
+                cart.PaymentMethodId = p.PaymentMethodId;
 
-                    // Generate: Unique order number inside transaction so rollback doesn't leak numbers
-                    var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
-                    if (numberResult.IsFailure)
-                        return numberResult.Errors;
-                    var placeResult = cart.Place(numberResult.Value);
-                    if (placeResult.IsFailure)
-                        return placeResult.Errors;
+            var placeResult = await placementService.PlaceAsync(cart, currentUser.UserName!, cancellationToken);
+            if (placeResult.IsFailure)
+                return placeResult.Errors;
 
-                    foreach (var lineItem in cart.LineItems)
-                    {
-                        // Deduct: Consume stock from locations with highest on-hand first.
-                        var stockItems = await dbContext.Set<StockItem>()
-                            .Where(si => si.VariantId == lineItem.VariantId)
-                            .OrderByDescending(si => si.CountOnHand)
-                            .ToListAsync(cancellationToken);
+            // Enrich: Resolve product references (id, name, primary image) for the placed order's line items.
+            var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, variantIds, cancellationToken);
 
-                        var remaining = lineItem.Quantity;
-                        foreach (var si in stockItems)
-                        {
-                            if (remaining <= 0) break;
-                            var take = Math.Min(si.CountOnHand, remaining);
-                            if (take <= 0) continue;
-
-                            // Update: Deduct stock via domain Pick() method.
-                            var pickResult = si.Pick(take);
-                            if (pickResult.IsFailure)
-                                return pickResult.Errors;
-
-                            remaining -= take;
-
-                            // Create: Reserve stock for this order.
-                            var reserveResult = StockReservationMethod.Reserve(
-                                si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryMinutes);
-                            if (reserveResult.IsFailure)
-                                return reserveResult.Errors;
-                            var reservation = reserveResult.Value;
-                            dbContext.Set<StockReservation>().Add(reservation);
-
-                            // Log: Record stock movement for audit trail.
-                            var movementResult = StockMovementMethod.Create(
-                                stockItemId: si.Id,
-                                quantity: -take,
-                                previousCountOnHand: si.CountOnHand,
-                                originatorType: AdjustmentConstant.AdjustableTypes.Order,
-                                originatorId: cart.Id,
-                                action: OrderConstant.StockAction.Ship,
-                                createdBy: currentUser.UserName ?? "System");
-
-                            if (movementResult.IsSuccess)
-                                dbContext.Set<StockMovement>().Add(movementResult.Value);
-                        }
-
-                        if (remaining > 0)
-                            return StockItemResult.Errors.InsufficientStock;
-                    }
-
-                    try
-                    {
-                        await dbContext.SaveChangesAsync(cancellationToken);
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        await transaction.RollbackAsync(cancellationToken);
-                        if (isLastAttempt)
-                            return StockItemResult.Errors.ConcurrencyConflict(
-                                cart.LineItems.First().VariantId);
-                        await Task.Delay(100 * (1 << attempt), cancellationToken);
-                        continue;
-                    }
-
-                    await transaction.CommitAsync(cancellationToken);
-                    break;
-
-            }
-
-            // Notify: Send order confirmation email to customer.
-            await SendOrderPlacedNotificationAsync(cart, cancellationToken);
-
-            // Log: Record placement in audit log.
-            OrderLoggers.Placed(logger, Number: cart.Number, Id: cart.Id, ActionBy: currentUser.UserName);
-
-            // Map: Return the created order as response.
-            return Result<Response>.Created(cart.MapToDetail<Response>());
-        }
-
-        private async Task SendOrderPlacedNotificationAsync(Order order, CancellationToken ct)
-        {
-            // Skip: No email on order — nothing to notify.
-            if (string.IsNullOrWhiteSpace(order.Email))
-                return;
-
-            // Notify: Send order confirmation with total and customer name.
-            var message = NotificationMessage.Create(
-                NotificationUseCase.OrderConfirmed,
-                NotificationRecipient.Create(order.Email, order.Number),
-                NotificationChannel.Email,
-                NotificationContext.Create(
-                    (NotificationParameterType.OrderNumber, order.Number),
-                    (NotificationParameterType.OrderTotal, order.Total.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
-                    (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
-
-            // Suppress: Notification failure must not block order placement — best-effort only.
-            var result = await notificationService.SendAsync(message, ct);
-            if (result.IsFailure)
-            {
-                OrderLoggers.ConfirmationNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
-            }
+            return Result<Response>.Created(
+                cart.MapToDetailWithLookup<Response>(itemLookup));
         }
     }
 }

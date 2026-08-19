@@ -14,13 +14,17 @@ public sealed class ShippingMethodSeeder(IApplicationDbContext context) : Abstra
 
         var methods = new[]
         {
-            ShippingMethodExtensions.Create("Standard Shipping", "FlatRate", code: "standard"),
-            ShippingMethodExtensions.Create("Express Shipping", "FlatRate", code: "express"),
-            ShippingMethodExtensions.Create("Free Shipping", "FreeShipping", code: "free"),
+            ShippingMethodMethod.Create("Standard Shipping", "FlatRate", code: "standard"),
+            ShippingMethodMethod.Create("Express Shipping", "FlatRate", code: "express"),
+            ShippingMethodMethod.Create("Free Shipping", "FreeShipping", code: "free"),
         };
 
         foreach (var result in methods)
-            Context.Set<ShippingMethod>().Add(result.Value);
+        {
+            var method = result.Value;
+            // Seed: Default worldwide zone ("*") so all methods remain available until zones are curated.
+            Context.Set<ShippingMethod>().Add(method);
+        }
 
         await SaveChangesWithIdempotencyAsync(cancellationToken);
 

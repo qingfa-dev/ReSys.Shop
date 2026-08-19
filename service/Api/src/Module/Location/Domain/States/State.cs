@@ -1,3 +1,4 @@
+using Module.Inventory.Domain.StockLocations;
 using Module.Location.Domain.Countries;
 
 using Shared.Application.Domain.Concerns.Auditable;
@@ -49,6 +50,7 @@ public sealed partial class State : Entity, IAuditable
     // Aggregate: Reference to parent country aggregate
     /// <summary>Navigation property to the parent country.</summary>
     public Country Country { get; set; } = null!;
+    public ICollection<StockLocation> StockLocations { get; set; } = [];
 
     #endregion Navigation
 }

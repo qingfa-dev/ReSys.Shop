@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace Shared.UnitTests.Application.Extensions.Exceptions;
 
 public sealed class ExceptionExtensionsTests

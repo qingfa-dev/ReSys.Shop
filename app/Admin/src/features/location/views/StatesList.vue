@@ -10,16 +10,19 @@ import Tag from 'primevue/tag'
 
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
+import { useActiveList } from '@/shared/composables'
 import { useNotify } from '@/shared/composables/useNotify'
 import { StateApi } from '../services/stateApi'
-import { useActiveCountries } from '../composables/useActiveCountries'
+import { CountryApi } from '../services/countryApi'
 import type { StateListItem } from '../types/state'
+import type { CountryListItem } from '../types/country'
+import { toCountryQueryParams } from '../types/country'
 import { STATE_FILTER_FIELDS, STATE_SORT_FIELDS } from '../types/state'
 
 const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
-const { items: activeCountries, load: loadActiveCountries } = useActiveCountries()
+const { items: activeCountries, load: loadActiveCountries } = useActiveList<CountryListItem>(() => CountryApi.getCountries(toCountryQueryParams({ isActive: true })))
 
 const { dt, exportCSV } = useDataTableExport()
 const selectedCountryId = ref<string | null>(null)
@@ -39,7 +42,7 @@ const {
   setFilter,
   refresh,
 } =
-  usePagedQuery<StateListItem>('api/locations/states', {
+  usePagedQuery<StateListItem>((params) => StateApi.getStates(params), {
     allowedFilterFields: STATE_FILTER_FIELDS,
     allowedSortFields: STATE_SORT_FIELDS,
     allowedSearchFields: STATE_FILTER_FIELDS,

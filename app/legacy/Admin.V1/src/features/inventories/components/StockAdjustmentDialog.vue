@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { inventoryService } from '../api/inventory.api';
+import { inventoryService } from '../api/admin/inventory.api';
 import { useToast } from '@/common/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';

@@ -2,7 +2,7 @@ using System.Net;
 
 using Api.Tests.Infrastructure;
 
-using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Shared.Countries.Models;
 
 namespace Api.Tests.Scenarios.Location.Store.Countries.GetById;
 
@@ -11,11 +11,11 @@ public sealed class GetStorefrontCountryByIdIntegrationTests(ApiFixture fixture)
     [Fact]
     public async Task GetCountryById_WithSeededCountry_Returns200()
     {
-        HttpResponseMessage allResponse = await Client.GetAsync("/api/store/locations/countries?pageSize=100");
+        HttpResponseMessage allResponse = await Client.GetAsync("/api/storefront/locations/countries?pageSize=100");
         PagedResult<CountryListItemResponse> allResult = await allResponse.ReadAsPagedResultAsync<CountryListItemResponse>();
         string firstId = allResult.Items.First().Id.ToString();
 
-        HttpResponseMessage response = await Client.GetAsync($"/api/store/locations/countries/{firstId}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/storefront/locations/countries/{firstId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -31,7 +31,7 @@ public sealed class GetStorefrontCountryByIdIntegrationTests(ApiFixture fixture)
     {
         Guid nonexistentId = Guid.NewGuid();
 
-        HttpResponseMessage response = await Client.GetAsync($"/api/store/locations/countries/{nonexistentId}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/storefront/locations/countries/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

@@ -10,10 +10,10 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Create taxonomy – success
-# POST /api/catalog/taxonomies
+# POST /api/admin/catalog/taxonomies
 # Expected: 201 Created with location header
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxonomies
+POST {{baseUrl}}/api/admin/catalog/taxonomies
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -24,10 +24,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Create taxonomy – duplicate
-# POST /api/catalog/taxonomies
+# POST /api/admin/catalog/taxonomies
 # Expected: 409 Conflict – name already exists
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/taxonomies
+POST {{baseUrl}}/api/admin/catalog/taxonomies
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -38,37 +38,37 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. List taxonomies (paged)
-# GET /api/catalog/taxonomies
+# GET /api/admin/catalog/taxonomies
 # Expected: 200 OK – paged list of taxonomies
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/taxonomies?page={{page}}&pageSize={{pageSize}}
+GET {{baseUrl}}/api/admin/catalog/taxonomies?page={{page}}&pageSize={{pageSize}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Get taxonomy by ID – success
-# GET /api/catalog/taxonomies/{id}
+# GET /api/admin/catalog/taxonomies/{id}
 # Expected: 200 OK – single taxonomy
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}
+GET {{baseUrl}}/api/admin/catalog/taxonomies/{{existingTaxonomyId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 5. Get taxonomy by ID – not found
-# GET /api/catalog/taxonomies/{id}
+# GET /api/admin/catalog/taxonomies/{id}
 # Expected: 404 Not Found
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/taxonomies/{{nonExistentId}}
+GET {{baseUrl}}/api/admin/catalog/taxonomies/{{nonExistentId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 6. Update taxonomy – success
-# PUT /api/catalog/taxonomies/{id}
+# PUT /api/admin/catalog/taxonomies/{id}
 # Expected: 200 OK – updated taxonomy
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}
+PUT {{baseUrl}}/api/admin/catalog/taxonomies/{{existingTaxonomyId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -79,18 +79,18 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 7. Soft delete taxonomy – success
-# DELETE /api/catalog/taxonomies/{id}
+# DELETE /api/admin/catalog/taxonomies/{id}
 # Expected: 200 OK – taxonomy soft-deleted
 # ---------------------------------------------------------------------------
-DELETE {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}
+DELETE {{baseUrl}}/api/admin/catalog/taxonomies/{{existingTaxonomyId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 8. Restore taxonomy – success
-# PATCH /api/catalog/taxonomies/{id}/restore
+# PATCH /api/admin/catalog/taxonomies/{id}/restore
 # Expected: 200 OK – taxonomy restored
 # ---------------------------------------------------------------------------
-PATCH {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/restore
+PATCH {{baseUrl}}/api/admin/catalog/taxonomies/{{existingTaxonomyId}}/restore
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}

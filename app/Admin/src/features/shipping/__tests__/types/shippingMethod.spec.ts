@@ -54,7 +54,6 @@ describe('SHIPPING_METHOD_FILTER_FIELDS', () => {
     expect(SHIPPING_METHOD_FILTER_FIELDS).toEqual([
       'availableToUsers',
       'calculatorType',
-      'taxCategoryId',
       'isDeleted',
     ])
   })

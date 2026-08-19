@@ -13,7 +13,6 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { OptionTypeApi } from '../services/optionTypeApi'
 import type { OptionTypeListItem } from '../types/optionType'
-import { OPTION_TYPE_FILTER_FIELDS, OPTION_TYPE_SORT_FIELDS } from '../types/optionType'
 import { tableFirst } from '../utils/tablePaging'
 
 const router = useRouter()
@@ -38,10 +37,7 @@ const {
   setSort,
   setFilter,
   refresh,
-} = usePagedQuery<OptionTypeListItem>('api/catalog/option-types', {
-  allowedFilterFields: OPTION_TYPE_FILTER_FIELDS,
-  allowedSortFields: OPTION_TYPE_SORT_FIELDS,
-  allowedSearchFields,
+} = usePagedQuery<OptionTypeListItem>((params) => OptionTypeApi.getOptionTypes(params), {
   defaultSearchFields: allowedSearchFields,
   defaultSearchMode: 'any',
   defaultSort: ['name'],

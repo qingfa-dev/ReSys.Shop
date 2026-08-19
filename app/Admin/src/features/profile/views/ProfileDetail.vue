@@ -57,13 +57,13 @@ async function initEditMode(userId: string) {
   const result = await fetchProfile(userId)
   if (!result.isSuccess) {
     handleResult(result)
-    router.push('/profile/profiles')
+    router.push('/customer/profiles')
     return
   }
   const p = profile.value
   if (!p) {
     notify.error('Profile not found')
-    router.push('/profile/profiles')
+    router.push('/customer/profiles')
     return
   }
   form.value = {
@@ -82,7 +82,7 @@ async function loadAddresses() {
   if (addressesLoaded.value) return
   addressesLoading.value = true
   const userId = route.params.id as string
-  const result = await AddressApi.getAddresses(userId, { userId, pageSize: 100 })
+  const result = await AddressApi.getAddresses(userId, { pageSize: 100 })
   addressesLoading.value = false
   if (result.isSuccess) {
     addresses.value = result.items
@@ -110,22 +110,22 @@ async function onSubmit(event: FormSubmitEvent) {
   loading.value = false
   if (result.isSuccess) {
     notify.success('Profile updated')
-    router.push('/profile/profiles')
+    router.push('/customer/profiles')
   } else {
     handleResult(result)
   }
 }
 
 function onCancel() {
-  router.push('/profile/profiles')
+  router.push('/customer/profiles')
 }
 
 function navigateToAddAddress() {
-  router.push(`/profile/addresses/new?userId=${route.params.id}`)
+  router.push(`/customer/addresses/new?userId=${route.params.id}`)
 }
 
 function navigateToEditAddress(id: string) {
-  router.push(`/profile/addresses/${id}?userId=${route.params.id}`)
+  router.push(`/customer/addresses/${id}?userId=${route.params.id}`)
 }
 
 function confirmDeleteAddress(id: string, label: string) {

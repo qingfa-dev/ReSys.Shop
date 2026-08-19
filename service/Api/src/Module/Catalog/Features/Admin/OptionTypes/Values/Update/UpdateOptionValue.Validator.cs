@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Validators;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.Catalog.Features.Admin.Optiontypes.Values.Update;
 
@@ -11,7 +11,7 @@ public static partial class UpdateOptionValue
             RuleFor(x => x.Id).NotEmpty();
 
             RuleFor(x => x.Request)
-                .ApplyOptionValueParametersRules();
+                .ApplyOptionValueRequestRules();
         }
     }
 }

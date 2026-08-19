@@ -1,0 +1,6 @@
+export { default as ProfileView } from './ProfileView.vue'
+export { default as AddressBookView } from './AddressBookView.vue'
+export { default as ChangePasswordView } from './ChangePasswordView.vue'
+export { default as NotificationPrefsView } from './NotificationPrefsView.vue'
+export { default as PreferencesView } from './PreferencesView.vue'
+export { default as WishlistsView } from './WishlistsView.vue'

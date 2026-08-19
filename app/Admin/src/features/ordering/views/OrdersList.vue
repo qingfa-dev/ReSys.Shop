@@ -12,11 +12,12 @@ import Select from 'primevue/select'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { useOrderList } from '../composables/useOrderList'
-import type { OrderStatus, CheckoutState } from '../types/order'
+import type { OrderListItem, OrderStatus, CheckoutState, OrderFulfillmentState } from '../types/order'
 import { ORDER_SEARCH_FIELDS } from '../types/order'
 
 const router = useRouter()
 const { dt, exportCSV } = useDataTableExport()
+const selectedItems = ref<OrderListItem[]>([])
 const search = ref('')
 const statusFilter = ref<OrderStatus | null>(null)
 const checkoutStateFilter = ref<CheckoutState | null>(null)
@@ -26,14 +27,24 @@ const { items, loading, setFilter, setSearch, refresh } = useOrderList({
   defaultSort: ['-createdAtUtc'],
 })
 
-const STATUS_OPTIONS: OrderStatus[] = ['Draft', 'Placed', 'Canceled', 'Expired']
-const CHECKOUT_STATE_OPTIONS: CheckoutState[] = ['Address', 'Delivery', 'Payment', 'Confirm', 'Complete']
+const STATUS_OPTIONS: OrderStatus[] = ['Draft', 'Placed', 'Canceled', 'Completed', 'Expired']
+const CHECKOUT_STATE_OPTIONS: CheckoutState[] = ['Address', 'PickDeliveryMethod', 'PickPaymentMethod', 'Confirm', 'Placed']
 
 const STATUS_SEVERITY: Record<OrderStatus, string> = {
   Draft: 'warn',
   Placed: 'success',
   Canceled: 'danger',
+  Completed: 'success',
   Expired: 'secondary',
+}
+
+const FULFILLMENT_SEVERITY: Record<OrderFulfillmentState, string> = {
+  None: 'secondary',
+  Pending: 'secondary',
+  Partial: 'warn',
+  Shipped: 'info',
+  Delivered: 'success',
+  Canceled: 'danger',
 }
 
 function onSearch(value: string) {
@@ -66,6 +77,14 @@ function onCheckoutStateFilterChange(value: CheckoutState | null | undefined) {
 
 function statusSeverity(status: OrderStatus): string {
   return STATUS_SEVERITY[status]
+}
+
+function fulfillmentSeverity(state: OrderFulfillmentState | null | undefined): string {
+  return state ? FULFILLMENT_SEVERITY[state] : 'secondary'
+}
+
+function formatFulfillmentState(state: string | null | undefined): string {
+  return state ?? '—'
 }
 
 function formatCurrency(value: number | null | undefined): string {
@@ -136,6 +155,7 @@ function navigateToDetail(id: string) {
     <!-- Section: Data Table — order grid with inline status and totals -->
     <DataTable
       ref="dt"
+      v-model:selection="selectedItems"
       :value="items"
       :loading="loading"
       scrollable
@@ -144,6 +164,7 @@ function navigateToDetail(id: string) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — order identity, status, and totals -->
       <Column field="number" header="Order #" :sortable="true" />
       <Column field="email" header="Customer">
@@ -154,6 +175,11 @@ function navigateToDetail(id: string) {
       <Column field="status" header="Status" :sortable="true">
         <template #body="{ data }">
           <Tag :value="data.status" :severity="statusSeverity(data.status)" />
+        </template>
+      </Column>
+      <Column field="fulfillmentState" header="Shipment">
+        <template #body="{ data }">
+          <Tag :value="formatFulfillmentState(data.fulfillmentState)" :severity="fulfillmentSeverity(data.fulfillmentState)" />
         </template>
       </Column>
       <Column field="total" header="Total" :sortable="true">

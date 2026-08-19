@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Features.Admin.Dashboard.Get;
 
 namespace Module.UnitTests.Inventory.Features.Admin.Dashboard.Get;

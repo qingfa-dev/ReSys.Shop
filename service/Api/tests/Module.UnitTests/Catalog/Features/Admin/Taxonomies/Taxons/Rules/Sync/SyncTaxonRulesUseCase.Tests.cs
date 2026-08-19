@@ -1,6 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
+using Module.Catalog.Features.Admin.Shared.Models;
 using Module.Catalog.Features.Admin.Taxons.Rules.Sync;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
@@ -54,13 +55,13 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
                     Value = "T-Shirt"
                 },
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_price",
                     MatchPolicy = "greater_than",
@@ -95,7 +96,7 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Id = existingRule.Id,
                     Type = "product_price",
@@ -136,14 +137,14 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Id = keep.Id,
                     Type = "product_price",
                     MatchPolicy = "greater_than",
                     Value = "25.00"
                 },
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_sku",
                     MatchPolicy = "is_equal_to",
@@ -210,7 +211,7 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
@@ -243,7 +244,7 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",

@@ -3,8 +3,8 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
-using Module.Catalog.Features.Admin.Products.Variants.Update;
+using Module.Catalog.Features.Admin.Shared.Models;
+using Module.Catalog.Features.Admin.Variants.Update;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.Update;
 
@@ -20,14 +20,14 @@ public sealed class UpdateVariantIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants?productId={product!.Id}");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -41,7 +41,7 @@ public sealed class UpdateVariantIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}", updateRequest);
+            $"/api/admin/catalog/variants/{variant!.Id}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -72,7 +72,7 @@ public sealed class UpdateVariantIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/variants/{nonexistentId}", request);
+            $"/api/admin/catalog/variants/{nonexistentId}", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

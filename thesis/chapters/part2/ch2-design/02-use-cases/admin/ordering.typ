@@ -15,66 +15,63 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Field*], [*Description*],
-    [*Use Case ID*], [UC-ADM-ORD],
-    [*Use Case Name*], [Manage Orders],
-    [*Primary Actor*], [Administrator],
-    [*Supporting Actors*], [Payment Gateway],
+    [*Use Case*], [UC-ADM-ORD — Manage Orders],
+    [*Actor*], [Administrator],
+    [*Support*], [Payment Gateway],
     [*Goal*], [View, modify, and manage the lifecycle of customer orders.],
-    [*Trigger*], [Administrator navigates to order management.],
-    [*Preconditions*], [
-      - Authenticated with order management permissions.
+    [*Pre/Post*], [
+      Pre: authenticated with order management permissions.
+      Post: order state transitions performed; status logged for audit.
     ],
-    [*Postconditions*], [
-      - Order state transitions performed. Status logged for audit.
-    ],
-    [*Main Success Scenario*], [
+    [*Scenario*], [
       *View Orders*
-      1. Navigates to order management.
-      2. System displays order list sorted by most recent.
-      3. Applies optional filters: status, date range, customer email.
-      4. Selects an order to view detail with line items, pricing, payment, shipment, addresses, and timeline.
+      + Navigates to order management.
+      + System displays order list sorted by most recent.
+      + Applies optional filters (status, date range, customer email).
+      + Selects order to view detail with line items, pricing, payment, shipment, addresses, timeline.
       ,
       *Update Order*
-      1. Opens an order and initiates edit.
-      2. System presents editable form with current values.
-      3. Modifies line items, addresses, or shipping method.
-      4. Submits. System validates modifications, recalculates totals, persists, and confirms.
+      + Opens order, initiates edit.
+      + System presents editable form with current values.
+      + Modifies line items, addresses, or shipping method.
+      + Submits; system validates modifications, recalculates totals, persists, confirms.
       ,
       *Approve Order*
-      1. Opens a pending order and verifies payment capture and inventory availability.
-      2. Selects approve. System validates and transitions order to approved. Confirms.
+      + Opens pending order, verifies payment capture and inventory availability.
+      + Selects approve; system validates, transitions order to approved, confirms.
       ,
       *Complete Order*
-      1. Opens an order in fulfilment state.
-      2. Verifies shipment dispatched.
-      3. Selects complete. System displays confirmation.
-      4. Confirms. System decrements on-hand inventory, transitions to completed, and logs. Confirms.
+      + Opens order in fulfilment state.
+      + Verifies shipment dispatched.
+      + Selects complete.
+      + System displays confirmation.
+      + Confirms; system decrements on-hand inventory, transitions to completed, logs, confirms.
       ,
       *Cancel Order*
-      1. Opens an order and selects cancel.
-      2. System displays confirmation with consequences summary.
-      3. Provides cancellation reason and confirms.
-      4. System releases reserved inventory, voids or refunds payment, transitions to cancelled. Confirms.
+      + Opens order, selects cancel.
+      + System displays confirmation with consequences summary.
+      + Provides cancellation reason, confirms.
+      + System releases reserved inventory, voids or refunds payment, transitions to cancelled, confirms.
       ,
       *Resume Order*
-      1. Locates a paused or stalled order.
-      2. Resolves the underlying issue.
-      3. Selects resume. System validates prerequisites, transitions back to pending. Confirms.
+      + Locates paused or stalled order.
+      + Resolves underlying issue.
+      + Selects resume; system validates prerequisites, transitions back to pending, confirms.
+      ,
     ],
-    [*Alternative Flows*], [
-      A1. No orders match: system displays empty message with suggestion to broaden filters.
-      A2. Payment not captured (Approve): system prevents and suggests capturing first.
-      A3. Payment gateway unreachable (Cancel): system cancels order, releases inventory, queues payment action.
-      A4. Prerequisites not met (Resume): system prevents and displays issues to resolve.
-      A5. Concurrent state change: system refreshes and notifies.
+    [*Alternatives*], [
+      + A1. No orders match → system displays empty message, suggests broadening filters.
+      + A2. Payment not captured (Approve) → system prevents, suggests capturing first.
+      + A3. Payment gateway unreachable (Cancel) → system cancels order, releases inventory, queues payment action.
+      + A4. Prerequisites not met (Resume) → system prevents, displays issues to resolve.
+      + A5. Concurrent state change → system refreshes, notifies.
     ],
-    [*Exception Flows*], [
-      E1. Order became immutable concurrently: system refreshes and notifies order is no longer editable.
-      E2. Payment gateway state mismatch: system prevents and advises verifying with gateway.
-      E3. Inventory decrement data conflict: system reports and suggests verifying stock levels.
+    [*Exceptions*], [
+      + E1. Order became immutable concurrently → system refreshes, notifies order is no longer editable.
+      + E2. Payment gateway state mismatch → system prevents, advises verifying with gateway.
+      + E3. Inventory decrement data conflict → system reports, suggests verifying stock levels.
     ],
-    [*Related Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-06, ORD-FR-07, ORD-FR-09, ORD-FR-13],
+    [*Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-06, ORD-FR-07, ORD-FR-09, ORD-FR-13],
   ),
     kind: table,
   caption: [Manage Orders.],
@@ -87,37 +84,30 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Field*], [*Description*],
-    [*Use Case ID*], [UC-ADM-ORD-ITEMS],
-    [*Use Case Name*], [Manage Order Details],
-    [*Primary Actor*], [Administrator],
-    [*Supporting Actors*], [None],
+    [*Use Case*], [UC-ADM-ORD-ITEMS — Manage Order Details],
+    [*Actor*], [Administrator],
     [*Goal*], [Manage line items, shipping address, and billing address on existing orders.],
-    [*Trigger*], [Administrator opens the order edit form from the order detail view.],
-    [*Preconditions*], [
-      - Authenticated with order update permissions.
-      - Order is in a mutable state.
+    [*Pre/Post*], [
+      Pre: authenticated with order update permissions; order is in a mutable state.
+      Post: order details updated with recalculated totals; change logged.
     ],
-    [*Postconditions*], [
-      - Order details updated with recalculated totals. Change logged.
+    [*Scenario*], [
+      + Opens order from listing.
+      + System displays order detail.
+      + Initiates edit action.
+      + System presents editable form with current values.
+      + Modifies line items (add, update, remove), shipping address, or billing address.
+      + Submits; system validates modifications (stock, address completeness), recalculates totals, persists, confirms.
     ],
-    [*Main Success Scenario*], [
-      1. Opens an order from the listing.
-      2. System displays order detail.
-      3. Initiates the edit action.
-      4. System presents the editable form with current values.
-      5. Modifies line items (add, update, remove), shipping address, or billing address.
-      6. Submits. System validates modifications (stock, address completeness), recalculates totals, persists, and confirms.
+    [*Alternatives*], [
+      + A1. Quantity exceeds stock → system rejects, shows max available.
+      + A2. All line items removed → system rejects, warns at least one is required.
+      + A3. Address incompatible with shipping method → system warns, prompts method change.
     ],
-    [*Alternative Flows*], [
-      A1. Quantity exceeds stock: system rejects and shows max available.
-      A2. All line items removed: system rejects and warns at least one is required.
-      A3. Address incompatible with shipping method: system warns and prompts method change.
+    [*Exceptions*], [
+      + E1. Order became immutable concurrently → system refreshes, notifies order is no longer editable.
     ],
-    [*Exception Flows*], [
-      E1. Order became immutable concurrently: system refreshes and notifies order is no longer editable.
-    ],
-    [*Related Requirements*], [ORD-FR-13],
+    [*Requirements*], [ORD-FR-13],
   ),
     kind: table,
   caption: [Manage Order Details.],

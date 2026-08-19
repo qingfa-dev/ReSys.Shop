@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Upload;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Upload;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Upload;
 
@@ -80,7 +80,7 @@ public class UploadVariantImageTests : IDisposable
             File = file,
             Alt = "Test image",
             Position = 1,
-            Type = "Gallery"
+            Type = VariantImageType.Gallery
         };
 
         var result = await _handler.Handle(
@@ -95,7 +95,7 @@ public class UploadVariantImageTests : IDisposable
         result.Value.FileSize.Should().Be(2048);
         result.Value.Alt.Should().Be("Test image");
         result.Value.Position.Should().Be(1);
-        result.Value.Type.Should().Be("Gallery");
+        result.Value.Type.Should().Be(VariantImageType.Gallery);
 
         var persisted = await _dbContext.Set<VariantImage>()
             .FirstOrDefaultAsync(x => x.Id == result.Value.Id, TestContext.Current.CancellationToken);
@@ -192,7 +192,7 @@ public class UploadVariantImageTests : IDisposable
             File = file,
             Alt = "Test",
             Position = 1,
-            Type = "Gallery"
+            Type = VariantImageType.Gallery
         };
 
         var result = await _handler.Handle(
@@ -212,7 +212,7 @@ public class UploadVariantImageTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         _dbContext.Set<Variant>().Add(variant);
 
-        var existing = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create(
+        var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create(
             "image/jpeg", "old.jpg", 1024,
             url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
             position: 0, type: VariantImageType.Search, variantId: variant.Id).Value;
@@ -241,13 +241,13 @@ public class UploadVariantImageTests : IDisposable
             ContentType = "image/jpeg"
         };
 
-        var request = new UploadVariantImage.Request { File = file, Type = "Search" };
+        var request = new UploadVariantImage.Request { File = file, Type = VariantImageType.Search };
         var result = await _handler.Handle(
             new UploadVariantImage.Command(variant.Id, request),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Type.Should().Be("Search");
+        result.Value.Type.Should().Be(VariantImageType.Search);
 
         var demoted = await _dbContext.Set<VariantImage>()
             .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);

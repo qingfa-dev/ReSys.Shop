@@ -163,8 +163,8 @@ const STATE_SEVERITY: Record<StockTransferState, string> = {
   Canceled: 'danger',
 }
 
-function stateSeverity(state: StockTransferState): string {
-  return STATE_SEVERITY[state]
+function stateSeverity(state: StockTransferState | undefined): string {
+  return state ? STATE_SEVERITY[state] : 'secondary'
 }
 
 function locationName(locationId: string): string {
@@ -373,7 +373,7 @@ watch(
 
             <div class="mt-2">
               <div class="font-semibold mb-2">Items</div>
-              <DataTable :value="detail.items" data-key="variantId" striped-rows>
+              <DataTable :value="detail.items" data-key="id" striped-rows>
                 <Column header="Variant">
                   <template #body="{ data }">{{ variantSku(data.variantId) }}</template>
                 </Column>

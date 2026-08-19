@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Roles.Revoke;
+namespace Module.Identity.Features.Shared.Admin.Users.Roles.Revoke;
 
 public static partial class RevokeUserRoles
 {

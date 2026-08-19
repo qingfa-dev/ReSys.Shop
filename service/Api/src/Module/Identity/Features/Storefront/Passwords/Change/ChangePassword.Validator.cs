@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Passwords.Change;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Change;
 
 public static partial class ChangePassword
 {

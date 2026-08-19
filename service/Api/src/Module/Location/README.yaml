@@ -257,7 +257,7 @@ abstractions:
         path: ./Features/Shared/LocationFeature.Storefront.cs
         description: >
           Route constants and tags for read-only Storefront endpoints
-          under api/store/locations/{countries|states}.
+          under api/storefront/locations/{countries|states}.
         purpose: >
           Centralizes Storefront route definitions for storefront SPA
           consumers without admin permission requirements.
@@ -491,7 +491,7 @@ usage:
         Storefront address forms need to populate a state/province
         dropdown based on the selected country.
       pattern: |
-        // GET api/store/locations/states?countryId={id}&isActive=true
+        // GET api/storefront/locations/states?countryId={id}&isActive=true
         var result = await sender.Send(
           new GetStorefrontStatePagedOrAll.Query(parameters));
         result.Match(

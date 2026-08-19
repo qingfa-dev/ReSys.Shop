@@ -1,11 +1,14 @@
-using Shared.Application.Contracts.Inventory;
-
+using Module.Billing.Features.Shared.Commands;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Shared.Services;
+using Module.Ordering.Features.Admin.Shared.Extensions;
+using Module.Shipping.Domain.Shipments;
+
+using Shared.Application.Domain.Orders;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
-/// <summary>Transitions an order to a new status (e.g., canceled) with side effects — inventory release and audit logging.</summary>
+/// <summary>Transitions an order to a new status (e.g., canceled) with side effects — payment voiding, shipment cancellation, inventory release and audit logging.</summary>
 public static partial class UpdateOrderStatus
 {
     public sealed record Command(Guid Id, Request Request) : ICommand;
@@ -14,10 +17,11 @@ public static partial class UpdateOrderStatus
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        IStockQuantityService stockChecker)
+        ISender sender,
+        IStockReservationService stockReservation)
         : ICommandHandler<Command>
     {
-        /// <summary>Applies a status transition (currently only cancel) to an order with inventory release and logging.</summary>
+        /// <summary>Applies a status transition (currently only cancel) to an order with payment voiding, shipment cancellation, inventory release and logging.</summary>
         /// <param name="command">The command containing the order ID and target status.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The result of the operation.</returns>
@@ -25,9 +29,9 @@ public static partial class UpdateOrderStatus
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            // Check: Find the order with line items for inventory operations.
+            // Check: Find the order with full detail (line items, shipments, payment captures) for the cancel side effects.
             var entity = await dbContext.Set<Order>()
-                .Include(x => x.LineItems)
+                .IncludeOrderDetail()
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
@@ -51,12 +55,34 @@ public static partial class UpdateOrderStatus
                     if (cancelResult.IsFailure)
                         return cancelResult.Errors;
 
-                    // Compensate: Release reserved inventory — the order will not be fulfilled.
-                    foreach (var li in entity.LineItems)
+                    entity.RecomputePaymentState();
+
+                    // In-process: Cancel all shipments BEFORE dispatching the gateway void — a failed
+                    // shipment guard returns without touching gateway payments.
+                    foreach (var shipment in entity.Shipments)
                     {
-                        var orderInventory = new OrderInventoryService(entity, li, dbContext, stockChecker);
-                        await orderInventory.RemoveAsync(li.Quantity, cancellationToken);
+                        var shipmentCancelResult = shipment.Cancel();
+                        if (shipmentCancelResult.IsFailure)
+                            return shipmentCancelResult.Errors;
                     }
+
+                    entity.ShipmentState = ShipmentState.Canceled;
+
+                    // Call: Void pending payments — fire-and-forget on failure (order already canceled).
+                    var voidResult = await sender.Send(
+                        new VoidOrderPaymentsCommand
+                        {
+                            OrderId = entity.Id,
+                            Reason = OrderConstant.CancelReasons.Admin
+                        },
+                        cancellationToken);
+                    if (voidResult.IsFailure)
+                        OrderLoggers.VoidPaymentsFailed(logger, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
+
+                    // Release: Return consumed stock for the placed order.
+                    var returnResult = await stockReservation.ReturnConsumedForOrderAsync(entity.Id, cancellationToken);
+                    if (returnResult.IsFailure)
+                        return returnResult.Errors;
                     break;
                 default:
                     return OrderResult.Errors.InvalidStatusTransition;

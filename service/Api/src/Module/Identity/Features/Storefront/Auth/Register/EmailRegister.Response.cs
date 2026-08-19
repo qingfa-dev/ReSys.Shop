@@ -1,6 +1,6 @@
 using Module.Identity.Features.Storefront.Shared.Models;
 
-namespace Module.Identity.Features.Storefront.Auth.Register;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Register;
 
 public static partial class EmailRegister
 {

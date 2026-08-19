@@ -21,7 +21,7 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
             slug = "revoke-class-product"
         };
         HttpResponseMessage createProductResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createProductResult = await createProductResponse.ReadApiResponseAsync();
         createProductResult.IsSuccess.Should().BeTrue();
         var product = createProductResult.DeserializeValue<IdResponse>();
@@ -33,7 +33,7 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
             presentation = "Revoke"
         };
         HttpResponseMessage createTaxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createTaxonomyRequest);
+            "/api/admin/catalog/taxonomies", createTaxonomyRequest);
         ApiResponse createTaxonomyResult = await createTaxonomyResponse.ReadApiResponseAsync();
         createTaxonomyResult.IsSuccess.Should().BeTrue();
         var taxonomy = createTaxonomyResult.DeserializeValue<IdResponse>();
@@ -46,7 +46,7 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
             taxonomyId = taxonomy!.Id
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", createTaxonRequest);
+            "/api/admin/catalog/taxons", createTaxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue();
         var taxon = createTaxonResult.DeserializeValue<IdResponse>();
@@ -58,7 +58,7 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
             items = new[] { new { taxonId = taxon!.Id, position = 0 } }
         };
         HttpResponseMessage assignResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-classifications/assign", assignRequest);
+            "/api/admin/catalog/product-classifications/assign", assignRequest);
         assignResponse.IsSuccessStatusCode.Should().BeTrue();
 
         var revokeRequest = new
@@ -68,7 +68,7 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-classifications/revoke", revokeRequest);
+            "/api/admin/catalog/product-classifications/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -86,7 +86,7 @@ public sealed class RevokeProductClassificationsIntegrationTests(ApiFixture fixt
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-classifications/revoke", revokeRequest);
+            "/api/admin/catalog/product-classifications/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

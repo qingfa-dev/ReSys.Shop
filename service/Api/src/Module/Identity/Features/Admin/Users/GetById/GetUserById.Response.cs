@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Users.GetById;
+namespace Module.Identity.Features.Shared.Admin.Users.GetById;
 
 public static partial class GetUserById
 {

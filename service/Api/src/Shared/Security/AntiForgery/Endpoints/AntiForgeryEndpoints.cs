@@ -20,7 +20,7 @@ public sealed class AntiForgeryEndpoints : ICarterModule
             .AllowAnonymous();
     }
 
-    internal static Microsoft.AspNetCore.Http.IResult HandleGetToken(IAntiforgery antiforgery, HttpContext context)
+    internal static IResult HandleGetToken(IAntiforgery antiforgery, HttpContext context)
     {
         Result<TokenResponse> result = GetToken(antiforgery, context);
 

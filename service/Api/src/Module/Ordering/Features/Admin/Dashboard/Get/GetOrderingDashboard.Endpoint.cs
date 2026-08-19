@@ -1,8 +1,4 @@
-using Carter;
-using MediatR;
 using Module.Ordering.Features.Shared;
-using Shared.Application.Extensions.Results;
-using Shared.Security.Authorization.Attributes;
 
 namespace Module.Ordering.Features.Admin.Dashboard.Get;
 
@@ -13,7 +9,7 @@ public static partial class GetOrderingDashboard
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: GET api/ordering/dashboard — get ordering dashboard metrics
+            // Map: GET api/admin/ordering/dashboard — get ordering dashboard metrics
             app.MapGet(OrderingDashboardFeature.Admin.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

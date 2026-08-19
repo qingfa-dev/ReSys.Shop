@@ -1,72 +1,15 @@
+using Shared.Application.Domain.Orders;
+
 namespace Module.Ordering.Domain.Orders;
 
-// Invariant: CheckoutState progresses forward only; Canceled orders cannot advance; Complete state is terminal
+// Invariant: CheckoutState progresses forward only; Canceled orders cannot advance; Placed state is terminal
 public sealed partial class Order
 {
-    #region Checkout Steps
-
-    // Invariant: Checkout flow steps must always include 'Complete'
-    public static readonly string[] DefaultCheckoutSteps = [OrderConstant.CheckoutStep.Address, OrderConstant.CheckoutStep.Delivery, OrderConstant.CheckoutStep.Payment, OrderConstant.CheckoutStep.Confirm, OrderConstant.CheckoutStep.Complete];
-
-    public string[] ResolvedCheckoutSteps
-    {
-        get
-        {
-            var steps = new List<string>();
-            if (DeliveryRequired()) steps.Add(OrderConstant.CheckoutStep.Delivery);
-            if (PaymentRequired()) steps.Add(OrderConstant.CheckoutStep.Payment);
-            if (ConfirmationRequired()) steps.Add(OrderConstant.CheckoutStep.Confirm);
-            steps.Add(OrderConstant.CheckoutStep.Complete);
-            return [.. steps];
-        }
-    }
-
-    #endregion
-
-    #region Checkout Queries
-
-    // Compute: Map internal CheckoutState to customer-facing step; 'Address' is the initial display step
-    public string CurrentCheckoutStep =>
-        CheckoutState == CheckoutState.Address ? OrderConstant.CheckoutStep.Address : CheckoutState.ToString().ToLowerInvariant();
-
-    // Compute: Steps completed before the current step, excluding 'Complete'
-    public string[] CompletedCheckoutSteps
-    {
-        get
-        {
-            var steps = ResolvedCheckoutSteps.Where(s => s != OrderConstant.CheckoutStep.Complete).ToList();
-            var idx = steps.IndexOf(CurrentCheckoutStep);
-            return idx > 0 ? steps.Take(idx).ToArray() : [];
-        }
-    }
-
-    // Compute: Whether the named step exists in the resolved checkout flow
-    public bool HasCheckoutStep(string step) =>
-        step is not null && ResolvedCheckoutSteps.Contains(step);
-
-    // Compute: Whether the named step has been passed
-    public bool PassedCheckoutStep(string step) =>
-        HasCheckoutStep(step) && CheckoutStepIndex(step) < CheckoutStepIndex(CheckoutState.ToString().ToLowerInvariant());
-
-    // Compute: Zero-based index of a checkout step
-    public int CheckoutStepIndex(string step) =>
-        ResolvedCheckoutSteps.IndexOf(step);
-
-    // Compute: Whether the order can be advanced to a given state
-    public bool CanGoToState(string state) =>
-        HasCheckoutStep(CheckoutState.ToString().ToLowerInvariant()) &&
-        HasCheckoutStep(state) &&
-        CheckoutStepIndex(state) > CheckoutStepIndex(CheckoutState.ToString().ToLowerInvariant());
-
-    #endregion
-
     #region Guard Methods
 
     // Validate: Whether the order has at least one line item (checkout prerequisite)
     public bool CheckoutAllowed() => LineItems.Count != 0;
 
-    // TODO: Implement product-type-based delivery check (physical vs digital).
-    //       Currently hardcoded true — all orders require delivery.
     public static bool DeliveryRequired() => true;
 
     // Validate: Whether payment is required (free orders skip payment)
@@ -79,12 +22,12 @@ public sealed partial class Order
     // Validate: Whether email is required for checkout progression
     public bool RequireEmail() =>
         Status != OrderStatus.Draft &&
-        CheckoutState is CheckoutState.Payment or CheckoutState.Confirm or CheckoutState.Complete;
+        CheckoutState is CheckoutState.PickPaymentMethod or CheckoutState.Confirm or CheckoutState.Placed;
 
     // Validate: Whether the order can be canceled
     public bool AllowCancel() =>
         Status == OrderStatus.Placed &&
-        (ShipmentState is null || ShipmentState is OrderConstant.ShipmentState.Ready or OrderConstant.ShipmentState.Backorder or OrderConstant.ShipmentState.Pending or OrderConstant.ShipmentState.Canceled);
+        (ShipmentState is ShipmentState.Pending or ShipmentState.Canceled);
 
     // Validate: Whether the order can be shipped
     public bool CanShip() =>
@@ -95,6 +38,58 @@ public sealed partial class Order
         Status == OrderStatus.Placed || Status == OrderStatus.Canceled;
 
     #endregion
+
+    // Enforce: Advance checkout state with strict transition validation
+    public Result AdvanceCheckoutState(CheckoutState target)
+    {
+        if (target == CheckoutState)
+            return Result.Ok();
+
+        var validTransition = (CheckoutState, target) switch
+        {
+            (CheckoutState.Address, CheckoutState.PickDeliveryMethod) => true,
+            (CheckoutState.PickDeliveryMethod, CheckoutState.PickPaymentMethod) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.Confirm) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.Placed) => true,
+            (CheckoutState.Confirm, CheckoutState.Placed) => true,
+            _ => false
+        };
+        if (!validTransition)
+            return OrderResult.Errors.InvalidCheckoutTransition(CheckoutState, target);
+        CheckoutState = target;
+        return Result.Ok();
+    }
+
+    // Enforce: Regress a Draft order's checkout step to Delivery when a payment-affecting change alters the total
+    public Result RegressCheckoutIfAmountChanged(decimal previousTotal)
+    {
+        if (Status == OrderStatus.Draft && CheckoutState >= CheckoutState.PickPaymentMethod && Total != previousTotal)
+            CheckoutState = CheckoutState.PickDeliveryMethod;
+        return Result.Ok();
+    }
+
+    // Enforce: Regress a Draft order to an earlier step so the customer can re-pick address, shipping, or payment
+    public Result RegressCheckoutState(CheckoutState target)
+    {
+        if (Status != OrderStatus.Draft)
+            return OrderResult.Errors.InvalidStatusTransition;
+
+        if (target == CheckoutState)
+            return Result.Ok();
+
+        var validTransition = (CheckoutState, target) switch
+        {
+            (CheckoutState.PickPaymentMethod, CheckoutState.PickDeliveryMethod) => true,
+            (CheckoutState.PickPaymentMethod, CheckoutState.Address) => true,
+            (CheckoutState.PickDeliveryMethod, CheckoutState.Address) => true,
+            _ => false
+        };
+        if (!validTransition)
+            return OrderResult.Errors.InvalidCheckoutTransition(CheckoutState, target);
+
+        CheckoutState = target;
+        return Result.Ok();
+    }
 
     // Validate: Ensure none of the order's line item variants are discontinued
     internal bool EnsureLineItemVariantsAreNotDiscontinued(HashSet<Guid> discontinuedVariantIds)
@@ -122,6 +117,9 @@ public static partial class OrderMethod
         if (order.ShippingMethodId is null)
             return OrderResult.Errors.DeliveryMethodRequired;
 
+        if (order.PaymentMethodId is null)
+            return OrderResult.Errors.PaymentMethodRequired;
+
         if (string.IsNullOrWhiteSpace(order.Email))
             return OrderResult.Errors.EmailRequired;
 
@@ -136,7 +134,7 @@ public static partial class OrderMethod
     /// </summary>
     public static Result MarkPaymentAsPaid(this Order order)
     {
-        order.PaymentState = OrderConstant.PaymentState.Paid;
+        order.PaymentState = OrderPaymentState.Paid;
         return Result.Ok(OrderResult.Success.Updated(order.Id));
     }
 
@@ -197,10 +195,12 @@ public static partial class OrderMethod
         if (order.Status != OrderStatus.Draft)
             return OrderResult.Errors.NotDraftForShippingMethod;
 
+        var previousTotal = order.Total;
         order.ShippingMethodId = methodId;
         order.ShipmentTotal = 0m;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
         order.RecalculateTotals();
+        order.RegressCheckoutIfAmountChanged(previousTotal);
 
         return Result.Ok(OrderResult.Success.Updated(order.Id));
     }
@@ -216,6 +216,31 @@ public static partial class OrderMethod
     /// </summary>
     public static bool HasShippingMethod(this Order order) =>
         order.ShippingMethodId.HasValue;
+
+        /// <summary>
+    /// Returns true if a payment method is selected.
+    /// </summary>
+    public static bool HasPayementMethod(this Order order) =>
+        order.PaymentMethodId.HasValue;
+
+    // Update: Record the customer's selected payment method on a Draft order.
+    public static Result SelectPaymentMethod(this Order order, Guid paymentMethodId)
+    {
+        if (order.Status != OrderStatus.Draft)
+            return OrderResult.Errors.NotDraft;
+
+        order.PaymentMethodId = paymentMethodId;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
+    // Update: Clear the selected payment method when the cart regresses (intent invalidated).
+    public static Result ClearPaymentMethod(this Order order)
+    {
+        order.PaymentMethodId = null;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
 
     /// <summary>
     /// Returns true if the order has a non-empty email.

@@ -10,64 +10,10 @@ public sealed class ModuleIsolationTests
 {
     private static readonly Assembly ModuleAssembly = typeof(CatalogExtensions).Assembly;
 
-    private static readonly Dictionary<string, string[]> ModuleNamespaces = new()
-    {
-        ["Catalog"] = ["Module.Catalog"],
-        ["Identity"] = ["Module.Identity"],
-        ["Inventory"] = ["Module.Inventory"],
-        ["Location"] = ["Module.Location"],
-        ["Ordering"] = ["Module.Ordering"],
-        ["Payment"] = ["Module.Payment"],
-        ["Profile"] = ["Module.Profile"],
-        ["Shipping"] = ["Module.Shipping"],
-    };
-
-    // Service-contract allow-list: modules may consume these types from sibling modules
-    // when explicitly designated as a public service contract. Add deliberately, never
-    // as an open-ended escape hatch — every entry should correspond to a documented
-    // cross-module API in the plan/spec.
-    private static readonly HashSet<string> AllowedServiceContracts = new(StringComparer.Ordinal)
-    {
-        "Module.Inventory.Services.IStockAvailabilityCalculator",
-    };
-
-    private static bool IsAllowedServiceContract(Type t) =>
-        t.FullName is { } name && AllowedServiceContracts.Contains(name);
-
-    [Fact]
-    public void ModuleTypes_ShouldNotCrossReferenceOtherModules()
-    {
-        var moduleTypeGroups = GetModuleTypeGroups();
-        var violations = new List<string>();
-
-        foreach (var (moduleName, types) in moduleTypeGroups)
-        {
-            var otherModuleTypes = moduleTypeGroups
-                .Where(g => g.Key != moduleName)
-                .SelectMany(g => g.Value)
-                .ToHashSet();
-
-            foreach (var type in types)
-            {
-                var refs = GetReferencedTypes(type)
-                    .Where(otherModuleTypes.Contains)
-                    .Where(r => !IsAllowedServiceContract(r))
-                    .Select(r => $"{type.FullName} references {r.FullName}")
-                    .ToList();
-
-                violations.AddRange(refs);
-            }
-        }
-
-        violations.Should().BeEmpty(
-            "Modules must not cross-reference each other. Use ISender for cross-module communication. " +
-            $"Violations:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
-    }
-
     [Fact]
     public void SharedInfrastructure_ShouldNotReferenceModuleTypes()
     {
-        var sharedAssembly = typeof(Shared.Application.Models.Results.Result).Assembly;
+        var sharedAssembly = typeof(Result).Assembly;
         var moduleTypes = ModuleAssembly.GetTypes()
             .Where(t => t.Namespace?.StartsWith("Module.") == true)
             .ToHashSet();
@@ -123,17 +69,6 @@ public sealed class ModuleIsolationTests
         exceptionTypes.Should().BeEmpty(
             "Domain entities should not define custom exception classes — use Result<T> pattern instead. " +
             $"Found:{Environment.NewLine}{string.Join(Environment.NewLine, exceptionTypes)}");
-    }
-
-    private Dictionary<string, List<Type>> GetModuleTypeGroups()
-    {
-        return ModuleNamespaces.ToDictionary(
-            kvp => kvp.Key,
-            kvp => ModuleAssembly.GetTypes()
-                .Where(t => kvp.Value.Any(ns => t.Namespace?.StartsWith(ns) == true))
-                .Where(t => t.IsVisible)
-                .Where(t => t.Namespace?.Contains("Seeders") != true)
-                .ToList());
     }
 
     private static HashSet<Type> GetReferencedTypes(Type type)

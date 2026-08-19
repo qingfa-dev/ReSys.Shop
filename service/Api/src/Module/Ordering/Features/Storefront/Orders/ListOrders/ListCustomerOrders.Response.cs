@@ -1,4 +1,4 @@
-using Module.Ordering.Features.Storefront.Orders.Shared.Models;
+using Module.Ordering.Features.Storefront.Shared.Models;
 
 namespace Module.Ordering.Features.Storefront.Orders.ListOrders;
 

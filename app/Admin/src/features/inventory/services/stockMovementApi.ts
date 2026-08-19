@@ -1,6 +1,6 @@
 import { get } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { INVENTORY } from '@/shared/constants/api'
+
 import type { Result, PagedResult } from '@/shared/types'
 import type {
   StockMovementQuery,
@@ -15,15 +15,13 @@ import {
 } from '../types/stockMovement'
 
 export class StockMovementApi {
-  private static readonly BASE = `${INVENTORY}/stock-movements`
-
   static getStockMovements(query: StockMovementQuery): Promise<PagedResult<StockMovementListItem>> {
     const parts: string[] = []
     if (query.fromUtc !== undefined) parts.push(`fromUtc=${encodeURIComponent(query.fromUtc)}`)
     if (query.toUtc !== undefined) parts.push(`toUtc=${encodeURIComponent(query.toUtc)}`)
     if (query.variantId !== undefined) parts.push(`variantId=${query.variantId}`)
     if (query.stockLocationId !== undefined) parts.push(`stockLocationId=${query.stockLocationId}`)
-    const url = `${StockMovementApi.BASE}${parts.length ? `?${parts.join('&')}` : ''}`
+    const url = `/api/admin/inventory/stock-movements${parts.length ? `?${parts.join('&')}` : ''}`
 
     const { fromUtc: _fromUtc, toUtc: _toUtc, variantId: _variantId, stockLocationId: _stockLocationId, ...rest } = query
     return getPaged<StockMovementListItem>(url, toStockMovementQueryParams(rest as StockMovementQuery), {
@@ -34,6 +32,6 @@ export class StockMovementApi {
   }
 
   static getStockMovement(id: string): Promise<Result<StockMovementDetail>> {
-    return get<Result<StockMovementDetail>>(`${StockMovementApi.BASE}/${id}`)
+    return get<Result<StockMovementDetail>>(`/api/admin/inventory/stock-movements/${id}`)
   }
 }

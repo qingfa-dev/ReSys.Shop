@@ -11,7 +11,7 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
 import { CountryApi } from '../services/countryApi'
 import type { CountryListItem } from '../types/country'
-import { COUNTRY_FILTER_FIELDS, COUNTRY_SORT_FIELDS } from '../types/country'
+import { COUNTRY_FILTER_FIELDS } from '../types/country'
 
 const router = useRouter()
 const confirm = useConfirm()
@@ -32,10 +32,7 @@ const {
   setPageSize,
   setSort,
   refresh,
-} = usePagedQuery<CountryListItem>('api/locations/countries', {
-  allowedFilterFields: COUNTRY_FILTER_FIELDS,
-  allowedSortFields: COUNTRY_SORT_FIELDS,
-  allowedSearchFields: COUNTRY_FILTER_FIELDS,
+} = usePagedQuery<CountryListItem>((params) => CountryApi.getCountries(params), {
   defaultSearchFields: COUNTRY_FILTER_FIELDS,
   defaultSearchMode: 'any',
   defaultSort: ['name'],

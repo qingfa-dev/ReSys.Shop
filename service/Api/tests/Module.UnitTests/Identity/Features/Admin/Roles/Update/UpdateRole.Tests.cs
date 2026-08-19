@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Update;
+using Module.Identity.Features.Shared.Admin.Roles.Update;
 
 using Shared.Security.Identity.Domain.Roles;
 

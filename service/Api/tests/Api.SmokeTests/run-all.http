@@ -27,7 +27,7 @@ Content-Type: {{contentType}}
 
 ### Register a new user
 # @name register
-POST {{baseUrl}}/api/store/identity/auth/register
+POST {{baseUrl}}/api/storefront/identity/auth/register
 Content-Type: {{contentType}}
 
 {
@@ -41,7 +41,7 @@ Content-Type: {{contentType}}
 
 ### Login with email
 # @name login
-POST {{baseUrl}}/api/store/identity/auth/login/password
+POST {{baseUrl}}/api/storefront/identity/auth/login/password
 Content-Type: {{contentType}}
 
 {
@@ -50,7 +50,7 @@ Content-Type: {{contentType}}
 }
 
 ### Get current session
-GET {{baseUrl}}/api/store/identity/auth/sessions
+GET {{baseUrl}}/api/storefront/identity/auth/sessions
 Content-Type: {{contentType}}
 Authorization: Bearer {{storeToken}}
 
@@ -59,11 +59,11 @@ Authorization: Bearer {{storeToken}}
 ### =======================================================
 
 ### List countries
-GET {{baseUrl}}/api/store/locations/countries
+GET {{baseUrl}}/api/storefront/locations/countries
 Content-Type: {{contentType}}
 
 ### List states
-GET {{baseUrl}}/api/store/locations/states
+GET {{baseUrl}}/api/storefront/locations/states
 Content-Type: {{contentType}}
 
 ### =======================================================
@@ -71,12 +71,12 @@ Content-Type: {{contentType}}
 ### =======================================================
 
 ### Get own profile
-GET {{baseUrl}}/api/store/profiles/profiles
+GET {{baseUrl}}/api/storefront/profiles/profiles
 Content-Type: {{contentType}}
 Authorization: Bearer {{storeToken}}
 
 ### List addresses
-GET {{baseUrl}}/api/store/profiles/addresses
+GET {{baseUrl}}/api/storefront/profiles/addresses
 Content-Type: {{contentType}}
 Authorization: Bearer {{storeToken}}
 
@@ -138,16 +138,16 @@ Authorization: Bearer {{adminToken}}
 ### =======================================================
 
 ### List products (admin)
-GET {{baseUrl}}/api/catalog/products?page=1&pageSize=10
+GET {{baseUrl}}/api/admin/catalog/products?page=1&pageSize=10
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### List taxonomies (admin)
-GET {{baseUrl}}/api/catalog/taxonomies?page=1&pageSize=10
+GET {{baseUrl}}/api/admin/catalog/taxonomies?page=1&pageSize=10
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### List option types (admin)
-GET {{baseUrl}}/api/catalog/option-types?page=1&pageSize=10
+GET {{baseUrl}}/api/admin/catalog/option-types?page=1&pageSize=10
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}

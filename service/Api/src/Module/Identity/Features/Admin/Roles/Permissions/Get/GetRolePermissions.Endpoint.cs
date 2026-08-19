@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Roles.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Get;
 
 public static partial class GetRolePermissions
 {

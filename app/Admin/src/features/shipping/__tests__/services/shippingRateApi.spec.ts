@@ -41,16 +41,15 @@ describe('ShippingRateApi.getShippingRates', () => {
     })
 
     await ShippingRateApi.getShippingRates({
-      shippingMethodId: 'sm-1',
-      selected: true,
-      sortBy: 'cost',
-      sortDirection: 'asc',
-      page: 1,
+      filter: 'shippingMethodId=sm-1,selected=true',
+      search: null,
+      sort: ['cost'],
+      pageNumber: 1,
       pageSize: 10,
     })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/shipping/shipping-rates',
+      '/api/admin/shipping/shipping-rates',
       {
         filter: 'shippingMethodId=sm-1,selected=true',
         search: null,
@@ -71,7 +70,7 @@ describe('ShippingRateApi.getShippingRate', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: 'sr-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ShippingRateApi.getShippingRate('sr-1')
-    expect(mockGet).toHaveBeenCalledWith('api/shipping/shipping-rates/sr-1')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/shipping/shipping-rates/sr-1')
   })
 })
 
@@ -85,7 +84,7 @@ describe('ShippingRateApi.createShippingRate', () => {
     }
     mockPost.mockResolvedValue({ value: { id: 'sr-1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await ShippingRateApi.createShippingRate(req)
-    expect(mockPost).toHaveBeenCalledWith('api/shipping/shipping-rates', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/shipping/shipping-rates', req)
   })
 })
 
@@ -94,7 +93,7 @@ describe('ShippingRateApi.updateShippingRate', () => {
     const req = { name: 'Standard Updated' }
     mockPut.mockResolvedValue({ value: { id: 'sr-1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await ShippingRateApi.updateShippingRate('sr-1', req)
-    expect(mockPut).toHaveBeenCalledWith('api/shipping/shipping-rates/sr-1', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/shipping/shipping-rates/sr-1', req)
   })
 })
 
@@ -102,6 +101,6 @@ describe('ShippingRateApi.deleteShippingRate', () => {
   it('calls DELETE with correct URL', async () => {
     mockDel.mockResolvedValue({ value: null, isSuccess: true, statusCode: 204, message: null, errors: [], metadata: null })
     await ShippingRateApi.deleteShippingRate('sr-1')
-    expect(mockDel).toHaveBeenCalledWith('api/shipping/shipping-rates/sr-1')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/shipping/shipping-rates/sr-1')
   })
 })

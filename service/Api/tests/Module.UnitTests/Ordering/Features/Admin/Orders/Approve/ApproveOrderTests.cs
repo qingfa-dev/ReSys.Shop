@@ -36,7 +36,7 @@ public class ApproveOrderTests : IDisposable
     [Fact(DisplayName = "Handler: Should approve a placed order")]
     public async Task Handle_ShouldApproveOrder_WhenPlaced()
     {
-        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

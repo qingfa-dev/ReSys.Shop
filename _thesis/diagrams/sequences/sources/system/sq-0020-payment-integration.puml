@@ -14,7 +14,7 @@ queue "Message Bus" as Bus <<Message Broker>>
 ' ─── Step 1: Intent Creation ─────────────────────────────────
 User -> Frontend: Click "Pay Now"
 activate Frontend
-    Frontend -> API: POST /api/payments/intent\n{orderId, amount}
+    Frontend -> API: POST /api/admin/payments/intent\n{orderId, amount}
     activate API
         API -> Stripe: PaymentIntent.Create(Amount, Currency)\nMetadata: OrderId
         activate Stripe

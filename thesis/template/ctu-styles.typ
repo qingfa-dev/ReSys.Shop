@@ -78,25 +78,25 @@
       show text: upper
       it
     }
-    v(0.6cm)
+    v(0.4cm)
   }
   
   show heading.where(level: 3): it => {
     set text(size: 13pt, weight: "bold")
-    v(0.3cm)
+    v(0.2cm)
     it
-    v(0.3cm)
+    v(0.2cm)
   }
   
   // Figures (CTU Format: Single line spacing, centered)
   show figure.where(kind: image): it => {
     set align(center)
     it.body
-    v(0.3cm)
+    v(0.2cm)
     set text(size: 12pt)
     set par(leading: 0.15cm) // Single spacing for captions
     [#it.caption]
-    v(0.6cm)
+    v(0.4cm)
   }
   
   // Tables: caption above with Typst-managed numbering
@@ -107,26 +107,26 @@
     set text(size: 12pt)
     set par(leading: 0.15cm)
 
-    v(0.2cm)
+    v(0.15cm)
     
     // Caption
     it.caption
 
-    v(0.2cm)
+    v(0.15cm)
 
     // Table
     it.body
 
-    v(0.6cm)
+    v(0.4cm)
   }
     
   // Code blocks
   show raw.where(block: true): it => {
-    set text(size: 10pt, font: "Courier New")
-    set par(leading: 0.15cm) // Single spacing for code
+    set text(size: 9pt, font: "Courier New")
+    set par(leading: 0.1cm) // Single spacing for code
     block(
       fill: rgb("#f5f5f5"),
-      inset: 0.3cm,
+      inset: 0.2cm,
       radius: 0.1cm,
       width: 100%,
       it

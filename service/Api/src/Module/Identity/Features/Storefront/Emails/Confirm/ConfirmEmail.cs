@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 
-using Shared.Application.Contracts.Profile;
+using Module.Customer.Features.Storefront.Profiles.Create;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Emails.Confirm;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Confirm;
 
 public static partial class ConfirmEmail
 {
@@ -114,6 +114,8 @@ public static partial class ConfirmEmail
         {
             try
             {
+                // TODO(audit 2026-08-16): cross-module ISender — CreateUserProfileCommand creates a
+                // foreign aggregate; keep ISender or extract a Customer IUserProfileService and inject.
                 var profileResult = await mediator.Send(
                     new CreateUserProfileCommand
                     {

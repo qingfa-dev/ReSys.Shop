@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Permissions;
 
-namespace Module.Identity.Features.Admin.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Permissions.Get;
 
 public static partial class GetPermissions
 {

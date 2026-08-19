@@ -16,7 +16,7 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -31,7 +31,7 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -45,7 +45,7 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -59,7 +59,7 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }

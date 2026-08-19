@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
@@ -73,7 +73,7 @@ public sealed class CheckoutConcurrencyTests(ApiFixture fixture) : OrderingInteg
             // partial-mutation side effects (no second movement, no half-
             // deducted stock).
             int movements = await verifyDb
-                .Set<Module.Inventory.Domain.StockLocations.StockItems.StockMovements.StockMovement>()
+                .Set<Module.Inventory.Domain.StockMovements.StockMovement>()
                 .Where(m => m.OriginatorType == "Order"
                             && (m.OriginatorId == cartAId || m.OriginatorId == cartBId))
                 .CountAsync(TestContext.Current.CancellationToken);
@@ -148,7 +148,6 @@ public sealed class CheckoutConcurrencyTests(ApiFixture fixture) : OrderingInteg
         Result<Order> orderResult = OrderMethod.Create(
             currency: "USD",
             userId: userId,
-            storeId: Guid.Empty,
             shipAddressId: Guid.NewGuid());
         orderResult.IsSuccess.Should().BeTrue();
 

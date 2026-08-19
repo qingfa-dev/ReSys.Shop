@@ -1,9 +1,12 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations;
-
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
+using Module.Ordering.Services;
+using Module.Shipping.Features.Shared.Commands;
 
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Services.StockReservations;
+using Module.Billing.Features.Storefront.GetPaymentForCheckout;
+using Module.Billing.Features.Storefront.MarkPaymentPaid;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
@@ -16,8 +19,10 @@ public class CreateOrderFromCartStockTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
-    private readonly Mock<ILogger<CreateOrderFromCart.CommandHandler>> _loggerMock;
+    private readonly Mock<ILogger<CheckoutPlacementService>> _loggerMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly Mock<ISender> _senderMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly CreateOrderFromCart.CommandHandler _handler;
 
     public CreateOrderFromCartStockTests()
@@ -27,8 +32,7 @@ public class CreateOrderFromCartStockTests : IDisposable
             .Options;
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [
-            typeof(Order).Assembly,
-            typeof(StockItem).Assembly
+            typeof(Order).Assembly
         ];
         _dbContext = new ApplicationDbContext(options);
 
@@ -36,13 +40,32 @@ public class CreateOrderFromCartStockTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("customer");
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
-        _loggerMock = new Mock<ILogger<CreateOrderFromCart.CommandHandler>>();
+        _loggerMock = new Mock<ILogger<CheckoutPlacementService>>();
         _notificationServiceMock = new Mock<INotificationService>();
         _notificationServiceMock
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
-        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
+        _senderMock = new Mock<ISender>();
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m, PaymentMethodId = Guid.NewGuid() });
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CreateShipmentCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        var placementService = new CheckoutPlacementService(
+            _dbContext, _reservationServiceMock.Object, _notificationServiceMock.Object, _senderMock.Object, _loggerMock.Object);
+
+        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _currentUserMock.Object, _senderMock.Object, placementService);
     }
 
     public void Dispose()
@@ -51,23 +74,13 @@ public class CreateOrderFromCartStockTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Stock: Should return insufficient stock when quantity exceeds stock")]
-    public async Task Handle_ShouldReturnInsufficientStock_WhenQuantityExceedsStock()
+    [Fact(DisplayName = "Stock: Should return failure when reservation consumption reports failure")]
+    public async Task Handle_ShouldReturnFailure_WhenReservationConsumptionFails()
     {
-        // Arrange: Seed location and limited stock
-        var location = StockLocationMethod.Create("Warehouse").Value;
-        _dbContext.Set<StockLocation>().Add(location);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var variantId = Guid.NewGuid();
-        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: variantId, countOnHand: 1).Value;
-        _dbContext.Set<StockItem>().Add(stockItem);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        // Arrange: Create a draft cart requesting more than the available stock
+        // Arrange: Create a draft cart
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart.CheckoutState = CheckoutState.Confirm;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
         cart.ShippingMethodId = Guid.NewGuid();
@@ -76,7 +89,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         {
             Id = Guid.NewGuid(),
             OrderId = cart.Id,
-            VariantId = variantId,
+            VariantId = Guid.NewGuid(),
             Quantity = 5,
             Price = 29.99m,
             Total = 149.95m,
@@ -85,77 +98,47 @@ public class CreateOrderFromCartStockTests : IDisposable
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
+        // Setup: Reservation consumption returns failure (simulates insufficient stock)
+        _reservationServiceMock
+            .Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure(StockReservationResult.Errors.InsufficientStock));
+
         // Act
         var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(StockItemResult.Errors.InsufficientStock.Code);
+        result.Errors[0].Code.Should().Be(StockReservationResult.Errors.InsufficientStock.Code);
     }
 
-    [Fact(DisplayName = "Stock: Should return insufficient stock when concurrent checkouts exceed single item",
-        Skip = "InMemory does not support serializable isolation. Requires PostgreSQL integration test.")]
-    public async Task Handle_Concurrent_Checkouts_Should_Not_Oversell()
+    [Fact(DisplayName = "Stock: Should verify stock reservations are consumed with correct cart ID")]
+    public async Task Handle_ShouldSendCorrectCartId_ToConsumeReservations()
     {
-        // Arrange: Seed location and single unit of stock
-        var location = StockLocationMethod.Create("Warehouse").Value;
-        _dbContext.Set<StockLocation>().Add(location);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var variantId = Guid.NewGuid();
-        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: variantId, countOnHand: 1).Value;
-        _dbContext.Set<StockItem>().Add(stockItem);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        // Arrange: Create two draft carts, each requesting the single unit
+        // Arrange: Create a draft cart
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-
-        var cart1 = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart1.CheckoutState = CheckoutState.Confirm;
-        cart1.BillAddressId = Guid.NewGuid();
-        cart1.ShipAddressId = Guid.NewGuid();
-        cart1.ShippingMethodId = Guid.NewGuid();
-        cart1.Email = "test@test.com";
-        cart1.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
+        cart.CheckoutState = CheckoutState.PickPaymentMethod;
+        cart.BillAddressId = Guid.NewGuid();
+        cart.ShipAddressId = Guid.NewGuid();
+        cart.ShippingMethodId = Guid.NewGuid();
+        cart.Email = "test@test.com";
+        cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
             Id = Guid.NewGuid(),
-            OrderId = cart1.Id,
-            VariantId = variantId,
-            Quantity = 1,
+            OrderId = cart.Id,
+            VariantId = Guid.NewGuid(),
+            Quantity = 2,
             Price = 29.99m,
-            Total = 29.99m,
+            Total = 59.98m,
             Currency = "USD"
         });
-        _dbContext.Set<Order>().Add(cart1);
-
-        var cart2 = OrderMethod.Create("USD", userId, Guid.Empty).Value;
-        cart2.CheckoutState = CheckoutState.Confirm;
-        cart2.BillAddressId = Guid.NewGuid();
-        cart2.ShipAddressId = Guid.NewGuid();
-        cart2.ShippingMethodId = Guid.NewGuid();
-        cart2.Email = "test@test.com";
-        cart2.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
-        {
-            Id = Guid.NewGuid(),
-            OrderId = cart2.Id,
-            VariantId = variantId,
-            Quantity = 1,
-            Price = 29.99m,
-            Total = 29.99m,
-            Currency = "USD"
-        });
-        _dbContext.Set<Order>().Add(cart2);
-
+        _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Act: Send both checkouts concurrently
-        var task1 = _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request { PaymentIntentId = null }), TestContext.Current.CancellationToken);
-        var task2 = _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request { PaymentIntentId = null }), TestContext.Current.CancellationToken);
+        // Act
+        var result = await _handler.Handle(new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()), TestContext.Current.CancellationToken);
 
-        var results = await Task.WhenAll(task1, task2);
-        var successes = results.Count(r => r.IsSuccess);
-
-        // Assert: At most one checkout should succeed
-        successes.Should().BeLessThanOrEqualTo(1);
+        // Assert: Verify reservations were consumed with the correct cart ID
+        _reservationServiceMock.Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

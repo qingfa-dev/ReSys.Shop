@@ -1,11 +1,9 @@
 import { getPaged } from '@/shared/api'
 import { get, post } from '@/shared/api/client'
-import { PAYMENT } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types'
+import type { Result, PagedResult, QueryingParameters } from '@/shared/types'
 import type {
   PaymentListItem,
   PaymentDetail,
-  PaymentQuery,
   CapturePaymentRequest,
   CapturePaymentResponse,
   RefundPaymentRequest,
@@ -16,14 +14,11 @@ import {
   PAYMENT_FILTER_FIELDS,
   PAYMENT_SORT_FIELDS,
   PAYMENT_SEARCH_FIELDS,
-  toPaymentQueryParams,
 } from '../types/payment'
 
 export class PaymentApi {
-  private static readonly BASE = `${PAYMENT}/payments`
-
-  static getPayments(query: PaymentQuery): Promise<PagedResult<PaymentListItem>> {
-    return getPaged<PaymentListItem>(PaymentApi.BASE, toPaymentQueryParams(query), {
+  static getPayments(params: QueryingParameters): Promise<PagedResult<PaymentListItem>> {
+    return getPaged<PaymentListItem>('/api/admin/billing/payments', params, {
       allowedFilterFields: PAYMENT_FILTER_FIELDS,
       allowedSortFields: PAYMENT_SORT_FIELDS,
       allowedSearchFields: PAYMENT_SEARCH_FIELDS,
@@ -31,18 +26,18 @@ export class PaymentApi {
   }
 
   static getPayment(id: string): Promise<Result<PaymentDetail>> {
-    return get<Result<PaymentDetail>>(`${PaymentApi.BASE}/${id}`)
+    return get<Result<PaymentDetail>>(`/api/admin/billing/payments/${id}`)
   }
 
   static capturePayment(id: string, request?: CapturePaymentRequest): Promise<Result<CapturePaymentResponse>> {
-    return post<Result<CapturePaymentResponse>>(`${PaymentApi.BASE}/${id}/capture`, request ?? {})
+    return post<Result<CapturePaymentResponse>>(`/api/admin/billing/payments/${id}/capture`, request ?? {})
   }
 
   static refundPayment(id: string, request: RefundPaymentRequest): Promise<Result<RefundPaymentResponse>> {
-    return post<Result<RefundPaymentResponse>>(`${PaymentApi.BASE}/${id}/refund`, request)
+    return post<Result<RefundPaymentResponse>>(`/api/admin/billing/payments/${id}/refund`, request)
   }
 
   static voidPayment(id: string): Promise<Result<VoidPaymentResponse>> {
-    return post<Result<VoidPaymentResponse>>(`${PaymentApi.BASE}/${id}/void`)
+    return post<Result<VoidPaymentResponse>>(`/api/admin/billing/payments/${id}/void`)
   }
 }

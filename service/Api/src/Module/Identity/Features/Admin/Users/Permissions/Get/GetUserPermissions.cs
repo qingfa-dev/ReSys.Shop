@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 
+using Module.Identity.Features.Admin.Shared.Mappings;
+
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Authorization.Registry;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Users.Permissions.Get;
 
 public static partial class GetUserPermissions
 {
@@ -42,30 +44,7 @@ public static partial class GetUserPermissions
 
             var effectivePermissions = permissionsResult.Value;
 
-            var categories = PermissionContext.All
-                .GroupBy(p => p.Category)
-                .Select(categoryGroup => new CategoryResponse
-                {
-                    Category = categoryGroup.Key,
-                    Resources = [.. categoryGroup
-                        .GroupBy(p => p.Resource)
-                        .Select(resourceGroup => new ResourceResponse
-                        {
-                            Resource = resourceGroup.Key,
-                            Permissions = [.. resourceGroup.Select(permission => new PermissionItemResponse
-                            {
-                                Identifier = permission.Identifier,
-                                Name = permission.Name,
-                                Description = permission.Description,
-                                Action = permission.Action,
-                                IsAssigned = effectivePermissions.Contains(permission.Identifier)
-                            })]
-                        })]
-                })
-                .ToList();
-
-            // EXCEPTION: composite permission response — no single domain entity
-            return new Response { Categories = categories };
+            return PermissionContext.All.MapToPermissionComposite<Response, CategoryResponse, ResourceResponse, PermissionItemResponse>(effectivePermissions);
         }
     }
 }

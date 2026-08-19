@@ -1,34 +1,68 @@
 @startuml order-state-machine
 
 skinparam backgroundColor White
-skinparam DefaultFontSize 12
+skinparam DefaultFontSize 13
+skinparam DefaultFontName Arial
+skinparam shadowing false
 
-[*] --> Address : create cart / start checkout
+skinparam activity {
+  BackgroundColor #F7F9FA
+  BorderColor #263238
+  BorderThickness 2
+  FontSize 13
+}
 
-Address --> Delivery : set shipping address
-Address --> [*] : cancel
+skinparam diamond {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  FontSize 12
+}
 
-Delivery --> Payment : select shipping method
-Delivery --> [*] : cancel
+start
 
-Payment --> Confirm : select payment method
-Payment --> [*] : cancel
+:Customer creates cart;
 
-Confirm --> Complete : confirm order
-Confirm --> [*] : cancel
+partition "Checkout Pipeline" {
+  :1. Enter **Address**;
+  
+  if (Cancel?) then (yes)
+    :Stop;
+    detach
+  else (no)
+    :2. Select **Delivery** method;
+    
+    if (Cancel?) then (yes)
+      :Stop;
+      detach
+    else (no)
+      :3. Select **Payment** method;
+      
+      if (Cancel?) then (yes)
+        :Release inventory;
+        stop
+      else (no)
+        :4. Review and **Confirm**;
+        
+        if (Cancel?) then (yes)
+          :Void payment;
+          stop
+        else (no)
+          :5. **Complete** order;
+          
+          :Reserve inventory;
+          :Lock order data;
+          :Send confirmation;
+          stop
+        endif
+      endif
+    endif
+  endif
+}
 
-Complete --> [*] : order finalized
-
-note right of Address
-  CheckoutState enum:
-  Address, Delivery, Payment,
-  Confirm, Complete
-end note
-
-note right of Complete
-  Order.Status becomes Pending
-  Finalized orders are immutable
-  except for Cancel transition
+note right
+  Forward-only stages
+  Cancel at any step
+  prior to completion
 end note
 
 @enduml

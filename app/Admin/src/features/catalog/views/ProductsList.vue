@@ -14,7 +14,6 @@ import { useNotify } from '@/shared/composables/useNotify'
 import { formatDateTimeUtc } from '@/shared/utils/date'
 import { ProductApi } from '../services/productApi'
 import type { ProductListItem } from '../types/product'
-import { PRODUCT_FILTER_FIELDS, PRODUCT_SORT_FIELDS } from '../types/product'
 import { statusAction } from '../utils/productStatus'
 
 const router = useRouter()
@@ -39,10 +38,7 @@ const {
   setSort,
   setFilter,
   refresh,
-} = usePagedQuery<ProductListItem>('api/catalog/products', {
-  allowedFilterFields: PRODUCT_FILTER_FIELDS,
-  allowedSortFields: PRODUCT_SORT_FIELDS,
-  allowedSearchFields,
+} = usePagedQuery<ProductListItem>((params) => ProductApi.getProducts(params), {
   defaultSearchFields: allowedSearchFields,
   defaultSearchMode: 'any',
   defaultSort: ['name'],

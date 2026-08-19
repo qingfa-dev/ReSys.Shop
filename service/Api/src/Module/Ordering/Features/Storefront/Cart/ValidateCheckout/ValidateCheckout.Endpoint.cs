@@ -9,8 +9,8 @@ public static partial class ValidateCheckout
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/storefront/cart/validate — validate the current checkout state
-            app.MapPost(OrderingFeature.Storefront.Cart.Validate.Route, async (ISender sender, CancellationToken ct) =>
+            // Map: GET api/storefront/cart/checkout — validate the current checkout state
+            app.MapGet(OrderingFeature.Storefront.Cart.ValidateCheckout.Route, async (ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
@@ -18,8 +18,8 @@ public static partial class ValidateCheckout
             .AllowAnonymous()
             .WithName(nameof(ValidateCheckout))
             .WithTags(OrderingFeature.Tags.Cart)
-            .WithSummary(OrderingFeature.Storefront.Cart.Validate.Summary)
-            .WithDescription(OrderingFeature.Storefront.Cart.Validate.Description)
+            .WithSummary(OrderingFeature.Storefront.Cart.ValidateCheckout.Summary)
+            .WithDescription(OrderingFeature.Storefront.Cart.ValidateCheckout.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest);
         }

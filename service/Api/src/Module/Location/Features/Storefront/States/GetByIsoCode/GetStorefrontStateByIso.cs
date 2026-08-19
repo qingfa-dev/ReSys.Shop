@@ -1,5 +1,5 @@
 using Module.Location.Domain.States;
-using Module.Location.Features.Admin.States.Shared.Mappings;
+using Module.Location.Features.Shared.States.Mappings;
 
 namespace Module.Location.Features.Storefront.States.GetByIsoCode;
 
@@ -18,10 +18,11 @@ public static partial class GetStorefrontStateByIso
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=request!=null, post=state found or NotFound returned
-            // Load: Retrieve state by abbreviation.
+            // Load: Retrieve state by abbreviation (case-insensitive).
+            var isoCode = request.IsoCode.ToUpperInvariant();
             var entity = await dbContext.Set<State>()
                 .FirstOrDefaultAsync(predicate: s =>
-                    s.Abbreviation == request.IsoCode, cancellationToken: cancellationToken);
+                    s.Abbreviation.ToUpper() == isoCode, cancellationToken: cancellationToken);
 
             if (entity is null)
                 return StateResult.Failure.NotFound;

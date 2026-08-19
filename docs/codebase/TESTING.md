@@ -64,7 +64,7 @@ cd benchmarks && uv run pytest --cov=benchmark --cov-fail-under=60  # Coverage (
 - **Main mocking approach (.NET)**:
   - **Database**: EF Core InMemory database (not mocked) — handlers test against real EF Core behavior. Each test creates a unique DB via `Guid.NewGuid().ToString()` for isolation.
   - **Interfaces**: Moq (`Mock<ICurrentUser>`, `Mock<INotificationService>`, `Mock<IPaymentGatewayActionProvider>`, etc.) with `Setup()` for behavior and `Verify()` for assertions
-  - **Cross-module calls**: NOT mocked in unit tests (modules in same assembly) — features use real `ISender`/MediatR against InMemory DB
+  - **Cross-module calls**: NOT mocked in unit tests (modules in same assembly) — features use real `ISender`/MediatR or direct service/navigation access against InMemory DB
 - **Mocking approach (Python)**: Standard pytest fixtures, `unittest.mock` or `pytest-mock` for external dependencies
 - **Mocking approach (Vue)**: Vitest built-in mocking (`vi.mock()`, `vi.fn()`) with `@vue/test-utils` for component mounting
 - **Isolation guarantees**:
@@ -85,7 +85,7 @@ cd benchmarks && uv run pytest --cov=benchmark --cov-fail-under=60  # Coverage (
   - No E2E/acceptance test suite — 49 `.http` files for manual testing only
   - Stripe webhook tests exist as unit tests (mocked gateway) but no integration test against Stripe test mode
   - Embedding service integration tests are marked but [TODO] — coverage extent unknown
-  - `ValidateVerticalSliceIsolation` build target is disabled (`Condition="false"` in `Directory.Build.targets:44`) — modules could theoretically cross-reference without build failure
+  - `ValidateVerticalSliceIsolation` build target guards against future module-split ProjectReference cycles (all modules share one `Module.csproj`; cross-module references are permitted)
   - [TODO] Flaky test catalog unknown — need to analyze CI history
 
 ### 6) Evidence

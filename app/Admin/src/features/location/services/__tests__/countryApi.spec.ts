@@ -40,11 +40,11 @@ describe('CountryApi.getCountries', () => {
       metadata: null,
     })
 
-    await CountryApi.getCountries({ isActive: true, page: 1, pageSize: 10 })
+    await CountryApi.getCountries({ filter: 'isActive=true', pageNumber: 1, pageSize: 10 })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/locations/countries',
-      { filter: 'isActive=true', search: null, sort: null, pageNumber: 1, pageSize: 10 },
+      '/api/admin/location/countries',
+      { filter: 'isActive=true', pageNumber: 1, pageSize: 10 },
       expect.objectContaining({ allowedFilterFields: expect.any(Array) }),
     )
   })
@@ -55,7 +55,7 @@ describe('CountryApi.getCountry', () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'US' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await CountryApi.getCountry('abc-123')
-    expect(mockGet).toHaveBeenCalledWith('api/locations/countries/abc-123')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/location/countries/abc-123')
   })
 })
 
@@ -64,7 +64,7 @@ describe('CountryApi.getCountryByIso', () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'United States', isoCode: 'US' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await CountryApi.getCountryByIso('US')
-    expect(mockGet).toHaveBeenCalledWith('api/locations/countries/by-iso/US')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/location/countries/by-iso/US')
   })
 })
 
@@ -74,7 +74,7 @@ describe('CountryApi.createCountry', () => {
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
 
     await CountryApi.createCountry(req)
-    expect(mockPost).toHaveBeenCalledWith('api/locations/countries', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/location/countries', req)
   })
 })
 
@@ -84,7 +84,7 @@ describe('CountryApi.updateCountry', () => {
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await CountryApi.updateCountry('abc-123', req)
-    expect(mockPut).toHaveBeenCalledWith('api/locations/countries/abc-123', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/location/countries/abc-123', req)
   })
 })
 
@@ -93,6 +93,6 @@ describe('CountryApi.deleteCountry', () => {
     mockDel.mockResolvedValue({ value: { id: '1', name: 'Canada' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await CountryApi.deleteCountry('abc-123')
-    expect(mockDel).toHaveBeenCalledWith('api/locations/countries/abc-123')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/location/countries/abc-123')
   })
 })

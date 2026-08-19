@@ -1,6 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
-using Module.Location.Features.Admin.Countries.Shared.Mappings;
+using Module.Location.Features.Shared.Countries.Mappings;
 
 namespace Module.Location.Features.Admin.Countries.Delete;
 

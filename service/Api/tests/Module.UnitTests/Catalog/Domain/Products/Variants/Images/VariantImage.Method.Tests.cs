@@ -1,5 +1,5 @@
 
-using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Variants.Images;
 
 namespace Module.UnitTests.Catalog.Domain.Products.Variants.Images;
 
@@ -18,7 +18,7 @@ public class VariantImageTests
         var fileSize = 1024;
 
         // Act
-        var result = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create(contentType, fileName, fileSize, url: "https://example.com/img.jpg", storagePath: "uploads/img.jpg", variantId: variantId);
+        var result = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create(contentType, fileName, fileSize, url: "https://example.com/img.jpg", storagePath: "uploads/img.jpg", variantId: variantId);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -31,7 +31,7 @@ public class VariantImageTests
     [Fact(DisplayName = "UpdateDetails: Should update image metadata")]
     public void UpdateDetails_WithValidParameters_ShouldUpdateMetadata()
     {
-        var imageResult = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "img.jpg", 1024, url: "https://example.com/img.jpg", storagePath: "uploads/img.jpg");
+        var imageResult = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "img.jpg", 1024, url: "https://example.com/img.jpg", storagePath: "uploads/img.jpg");
         imageResult.IsSuccess.Should().BeTrue();
         var image = imageResult.Value;
         var position = 1;
@@ -49,7 +49,7 @@ public class VariantImageTests
     [Fact(DisplayName = "UpdateDetails: Partial update should preserve other values")]
     public void UpdateDetails_WithOnlyPosition_ShouldPreserveOthers()
     {
-        var imageResult = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "img.jpg", 1024, url: "https://example.com/img.jpg", storagePath: "uploads/img.jpg", alt: "Old Alt");
+        var imageResult = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "img.jpg", 1024, url: "https://example.com/img.jpg", storagePath: "uploads/img.jpg", alt: "Old Alt");
         imageResult.IsSuccess.Should().BeTrue();
         var image = imageResult.Value;
 

@@ -52,21 +52,21 @@ export interface ProfileQuery {
   pageSize?: number
 }
 
-export const PROFILE_FILTER_FIELDS = [
+export const CUSTOMER_FILTER_FIELDS = [
   'gender',
   'isActive',
   'createdAtUtc',
   'modifiedAtUtc',
 ]
 
-export const PROFILE_SORT_FIELDS = [
+export const CUSTOMER_SORT_FIELDS = [
   'firstName',
   'lastName',
   'createdAtUtc',
   'modifiedAtUtc',
 ]
 
-export const PROFILE_SEARCH_FIELDS = ['firstName', 'lastName', 'email', 'bio']
+export const CUSTOMER_SEARCH_FIELDS = ['firstName', 'lastName', 'email', 'bio']
 
 export function toProfileQueryParams(query: ProfileQuery): QueryingParameters {
   const filters: string[] = []
@@ -87,7 +87,7 @@ export function toProfileQueryParams(query: ProfileQuery): QueryingParameters {
   return {
     filter: filters.length > 0 ? filters.join(',') : null,
     search: query.search ?? null,
-    searchFields: PROFILE_SEARCH_FIELDS,
+    searchFields: CUSTOMER_SEARCH_FIELDS,
     sort,
     pageNumber: query.page ?? null,
     pageSize: query.pageSize ?? null,

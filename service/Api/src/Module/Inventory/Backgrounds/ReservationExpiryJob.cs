@@ -1,8 +1,7 @@
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Services.StockReservations;
 
 namespace Module.Inventory.Backgrounds;
 
-/// <summary>Background job that expires overdue stock reservations and restores inventory.</summary>
 public sealed class ReservationExpiryJob
 {
     private readonly IStockReservationService _reservationService;
@@ -21,7 +20,8 @@ public sealed class ReservationExpiryJob
     /// <returns>The number of expired reservations processed.</returns>
     public async Task<int> RunAsync(CancellationToken ct = default)
     {
-        var expiredCount = await _reservationService.ExpireReservationsAndRestoreStockAsync(ct);
+        var result = await _reservationService.ExpireReservationsAsync(ct);
+        var expiredCount = result.IsSuccess ? result.Value : 0;
 
         if (expiredCount > 0)
             ReservationExpiryJobLoggers.SweepCompleted(_logger, expiredCount);

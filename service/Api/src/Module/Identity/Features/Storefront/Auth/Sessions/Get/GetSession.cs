@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Profile.Domain;
+using Module.Identity.Features.Storefront.Shared.Mappings;
 
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Sessions.Get;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
 
 /// <summary>
 /// Defines the use case for retrieving the current user's session.
@@ -32,7 +32,7 @@ public static partial class GetSession
         {
             // Check: Verify the caller is authenticated
             if (!currentUser.IsAuthenticated)
-                return UserProfileResult.Failure.AuthRequired;
+                return UserResult.Failure.Unauthorized;
 
             // Load: Retrieve the authenticated user
             var user = await userManager.FindByIdAsync(currentUser.UserId!);
@@ -44,16 +44,9 @@ public static partial class GetSession
 
             // Call: Fetch effective permissions via permission service
             var permissions = await permissionService.GetEffectiveUserPermissionsAsync(user.Id, cancellationToken);
+            var effectivePermissions = permissions.IsSuccess ? permissions.Value : new HashSet<string>();
 
-            // EXCEPTION: session response — composite from user, roles, and permissions
-            var response = new Response
-            {
-                Id = user.Id,
-                UserName = user.UserName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                Roles = roles.ToArray(),
-                Permissions = permissions.IsSuccess ? [.. permissions.Value] : []
-            };
+            var response = (user, roles.ToArray(), effectivePermissions).MapToSessionResponse<Response>();
 
             return Result<Response>.Ok(response, UserResult.Success.SessionRetrieved);
         }

@@ -1,12 +1,14 @@
 using Module.Catalog.Domain.OptionTypes;
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Domain.Products.Variants.Prices;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Products.Shared.Models;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Domain.Variants.Options;
+using Module.Catalog.Domain.Variants.Prices;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
+using Module.Catalog.Features.Storefront.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Products.Shared.Mappings;
 
@@ -33,10 +35,51 @@ public class ProductStoreMappingTests
         response.AvailableOn.Should().Be(product.AvailableOn);
         response.DiscontinueOn.Should().Be(product.DiscontinueOn);
         response.MasterVariantId.Should().Be(product.MasterVariantId);
+        response.VariantsCount.Should().Be(2);
         response.MasterVariant.Should().NotBeNull();
         response.MasterVariant!.Id.Should().Be(product.Variants.First(v => v.IsMaster).Id);
-        response.Variants.Should().HaveCount(1); // only non-deleted variants
-        response.Taxons.Should().HaveCount(1);
+        response.Variants.Should().HaveCount(2);
+        response.Classifications.Should().HaveCount(1);
+    }
+
+    [Fact(DisplayName = "MapToStoreDetail: Should map nested variant option values")]
+    public void MapToStoreDetail_ShouldMapVariantOptionValues()
+    {
+        var product = CreateProductWithOptionValues();
+
+        var response = product.MapToStoreDetail<StoreProductDetailResponse>();
+
+        response.MasterVariant.Should().NotBeNull();
+        response.MasterVariant!.OptionValues.Should().HaveCount(1);
+        response.MasterVariant!.OptionValues[0].Name.Should().Be("Red");
+        response.MasterVariant!.OptionValues[0].OptionTypeName.Should().Be("Color");
+    }
+
+    [Fact(DisplayName = "MapToStoreDetail: Should map nested variant prices")]
+    public void MapToStoreDetail_ShouldMapVariantPrices()
+    {
+        var product = CreateProduct();
+
+        var response = product.MapToStoreDetail<StoreProductDetailResponse>();
+
+        response.MasterVariant.Should().NotBeNull();
+        response.MasterVariant!.Prices.Should().HaveCount(1);
+        response.MasterVariant!.Prices[0].Amount.Should().Be(29.99m);
+        response.MasterVariant!.Prices[0].Currency.Should().Be("USD");
+    }
+
+    [Fact(DisplayName = "MapToStoreDetail: Should map classification with taxon")]
+    public void MapToStoreDetail_ShouldMapClassificationTaxon()
+    {
+        var product = CreateProduct();
+
+        var response = product.MapToStoreDetail<StoreProductDetailResponse>();
+
+        response.Classifications.Should().HaveCount(1);
+        var classification = response.Classifications[0];
+        classification.Id.Should().Be(product.Classifications.First().Taxon!.Id);
+        classification.Name.Should().Be("clothing");
+        classification.Slug.Should().Be("clothing");
     }
 
     [Fact(DisplayName = "MapToStoreVariant: Should map Variant to StoreProductVariantResponse")]
@@ -45,7 +88,7 @@ public class ProductStoreMappingTests
         var product = CreateProduct();
         var variant = product.Variants.First(v => v.IsMaster);
 
-        var response = variant.MapToStoreVariant();
+        var response = variant.MapToStoreVariant<StoreProductVariantResponse>();
 
         response.Should().NotBeNull();
         response.Id.Should().Be(variant.Id);
@@ -54,6 +97,22 @@ public class ProductStoreMappingTests
         response.Price.Should().Be(29.99m);
         response.Currency.Should().Be("USD");
         response.Images.Should().HaveCount(1);
+        response.Prices.Should().HaveCount(1);
+        response.Prices[0].Amount.Should().Be(29.99m);
+        response.Prices[0].Currency.Should().Be("USD");
+    }
+
+    [Fact(DisplayName = "MapToStoreVariant: Should map option values from variant")]
+    public void MapToStoreVariant_ShouldMapOptionValues()
+    {
+        var product = CreateProductWithOptionValues();
+        var variant = product.Variants.First(v => v.IsMaster);
+
+        var response = variant.MapToStoreVariant<StoreProductVariantResponse>();
+
+        response.OptionValues.Should().HaveCount(1);
+        response.OptionValues[0].Name.Should().Be("Red");
+        response.OptionValues[0].OptionTypeName.Should().Be("Color");
     }
 
     [Fact(DisplayName = "MapToStoreImage: Should map VariantImage to StoreProductImageResponse")]
@@ -61,7 +120,7 @@ public class ProductStoreMappingTests
     {
         var image = CreateImage();
 
-        var response = image.MapToStoreImage();
+        var response = image.MapToStoreListItem<StoreVariantImageListItemResponse>();
 
         response.Should().NotBeNull();
         response.Id.Should().Be(image.Id);
@@ -83,12 +142,17 @@ public class ProductStoreMappingTests
         response.Name.Should().Be(product.Name);
         response.Slug.Should().Be(product.Slug);
         response.Description.Should().Be(product.Description);
-        response.MinPrice.Should().Be(29.99m);
-        response.Currency.Should().Be("USD");
-        response.ThumbnailUrl.Should().NotBeNull();
-        response.ThumbnailAlt.Should().Be("Test image");
+        response.MasterVariant.Should().NotBeNull();
+        response.MasterVariant!.Price.Should().Be(29.99m);
+        response.MasterVariant!.Currency.Should().Be("USD");
+        response.MasterVariant!.Images.Should().NotBeEmpty();
+        response.MasterVariant!.Images[0].Alt.Should().Be("Test image");
+        response.MasterVariant!.Prices.Should().HaveCount(1);
+        response.MasterVariant!.Prices[0].Amount.Should().Be(29.99m);
         response.AvailableOn.Should().Be(product.AvailableOn);
-        response.VariantsCount.Should().Be(1);
+        response.VariantsCount.Should().Be(2);
+        response.Classifications.Should().HaveCount(1);
+        response.Classifications[0].Name.Should().Be("clothing");
     }
 
     [Fact(DisplayName = "MapToStoreListItem: Should handle missing master variant")]
@@ -101,10 +165,7 @@ public class ProductStoreMappingTests
 
         var response = product.MapToStoreListItem<StoreProductListItemResponse>();
 
-        response.MinPrice.Should().BeNull();
-        response.Currency.Should().BeNull();
-        response.ThumbnailUrl.Should().BeNull();
-        response.ThumbnailAlt.Should().BeNull();
+        response.MasterVariant.Should().BeNull();
         response.VariantsCount.Should().Be(0);
     }
 
@@ -129,6 +190,11 @@ public class ProductStoreMappingTests
         var variant = variantResult.Value;
         product.Variants.Add(variant);
 
+        var nonMasterVariantResult = VariantMethod.Create(
+            product.Id, "SKU-002", isMaster: false, position: 2);
+        nonMasterVariantResult.IsSuccess.Should().BeTrue();
+        product.Variants.Add(nonMasterVariantResult.Value);
+
         var priceResult = PriceMethod.Create(29.99m, "USD", variantId: variant.Id);
         priceResult.IsSuccess.Should().BeTrue();
         variant.Prices.Add(priceResult.Value);
@@ -137,9 +203,41 @@ public class ProductStoreMappingTests
         image.VariantId = variant.Id;
         variant.VariantImages.Add(image);
 
-        var classificationResult = ClassificationMethod.Create(productId: product.Id, taxonId: Guid.NewGuid());
+        var taxonResult = TaxonMethod.Create(
+            taxonomyId: Guid.NewGuid(), parentId: null, name: "Clothing", presentation: "Clothing",
+            description: null, position: 0, slug: "clothing", metaTitle: null, metaDescription: null, metaKeywords: null,
+            automatic: false, rulesMatchPolicy: null, sortOrder: null, hideFromNav: false,
+            imageUrl: null, squareImageUrl: null);
+        taxonResult.IsSuccess.Should().BeTrue();
+        var taxon = taxonResult.Value;
+        var classificationResult = ClassificationMethod.Create(productId: product.Id, taxonId: taxon.Id);
         classificationResult.IsSuccess.Should().BeTrue();
+        classificationResult.Value.Taxon = taxon;
         product.Classifications.Add(classificationResult.Value);
+
+        return product;
+    }
+
+    private static Product CreateProductWithOptionValues()
+    {
+        var product = CreateProduct();
+        var variant = product.Variants.First(v => v.IsMaster);
+
+        var optionTypeResult = OptionTypeMethod.Create("Color", "Color", filterable: true);
+        optionTypeResult.IsSuccess.Should().BeTrue();
+        var optionType = optionTypeResult.Value;
+
+        var optionValueResult = OptionValueMethod.Create(optionType.Id, "Red", "Red");
+        optionValueResult.IsSuccess.Should().BeTrue();
+        var optionValue = optionValueResult.Value;
+        optionValue.OptionType = optionType;
+        optionType.OptionValues.Add(optionValue);
+
+        var ovdResult = OptionValueVariantMethod.Create(variant.Id, optionValue.Id);
+        ovdResult.IsSuccess.Should().BeTrue();
+        var ovd = ovdResult.Value;
+        ovd.OptionValue = optionValue;
+        variant.OptionValueVariants.Add(ovd);
 
         return product;
     }

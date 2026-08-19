@@ -1,8 +1,11 @@
 import type { QueryingParameters } from '@/shared/types/querying'
+import type { PaymentRecordState } from '@/features/payment/types/payment'
 
-export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Expired'
+export type OrderStatus = 'Draft' | 'Placed' | 'Canceled' | 'Completed' | 'Expired'
 
-export type CheckoutState = 'Address' | 'Delivery' | 'Payment' | 'Confirm' | 'Complete'
+export type CheckoutState = 'Address' | 'PickDeliveryMethod' | 'PickPaymentMethod' | 'Confirm' | 'Placed'
+
+export type OrderPaymentState = 'Completed' | 'Failed' | 'Void' | 'BalanceDue' | 'CreditOwed' | 'Paid' | 'Pending' | 'Checkout' | 'Invalid'
 
 export interface OrderRequest {
   currency: string
@@ -19,8 +22,8 @@ export interface OrderListItem extends OrderRequest {
   status: OrderStatus
   total: number
   paymentTotal: number
-  paymentState?: string
-  shipmentState?: string
+  paymentState?: OrderPaymentState
+  fulfillmentState?: OrderFulfillmentState
   createdAtUtc: string
   completedAtUtc?: string
 }
@@ -33,13 +36,33 @@ export interface OrderDetail extends OrderRequest {
   itemTotal: number
   adjustmentTotal: number
   shipmentTotal: number
+  shippingAdjustment?: {
+    id: string
+    label: string
+    amount: number
+    shippingMethodId?: string
+  } | null
+  // Backend: OrderDetailResponse.ShippingCalculation (Order.Model.cs); captured when shipping was applied.
+  shippingCalculation?: {
+    totalWeight: number
+    shippingRateId?: string | null
+    cost: number
+    isFreeShipping: boolean
+  } | null
+  // Backend: OrderDetailResponse.Adjustments (Order.Model.cs); persisted adjustment rows.
+  adjustments: {
+    id: string
+    label: string
+    amount: number
+    sourceType: string
+    shippingMethodId?: string | null
+  }[]
   total: number
   paymentTotal: number
   outstandingBalance: number
-  paymentState?: string
-  shipmentState?: string
+  paymentState?: OrderPaymentState
+  fulfillmentState?: OrderFulfillmentState
   userId?: string
-  storeId?: string
   itemCount: number
   approvedById?: string
   approvedAtUtc?: string
@@ -47,11 +70,24 @@ export interface OrderDetail extends OrderRequest {
   canceledAtUtc?: string
   createdAtUtc: string
   modifiedAtUtc?: string
+  paymentProcessingAtUtc?: string
+  paymentCompletedAtUtc?: string
+  paymentFailedAtUtc?: string
+  shipmentShippedAtUtc?: string
+  shipmentDeliveredAtUtc?: string
+  lineItems: LineItem[]
+  payments: PaymentCaptureSummary[]
+  shipments: ShipmentSummary[]
+  timeline: OrderTimelineEvent[]
 }
 
 export interface LineItem {
   id: string
-  variantId: string
+  orderId: string
+  variantId: string | null
+  productId?: string | null
+  productName?: string | null
+  productImageUrl?: string | null
   quantity: number
   price: number
   total: number
@@ -64,7 +100,6 @@ export interface OrderQuery {
   status?: OrderStatus
   checkoutState?: CheckoutState
   currency?: string
-  storeId?: string
   search?: string
   sortBy?: 'number' | 'total' | 'completedAtUtc' | 'createdAtUtc' | 'status'
   sortDirection?: 'asc' | 'desc'
@@ -77,7 +112,6 @@ export const ORDER_FILTER_FIELDS = [
   'checkoutState',
   'currency',
   'userId',
-  'storeId',
   'isDeleted',
 ]
 
@@ -96,9 +130,6 @@ export function toOrderQueryParams(query: OrderQuery): QueryingParameters {
   }
   if (query.currency !== undefined && query.currency !== '') {
     filters.push(`currency=${query.currency}`)
-  }
-  if (query.storeId !== undefined && query.storeId !== '') {
-    filters.push(`storeId=${query.storeId}`)
   }
 
   let sort: string[] | null = null
@@ -141,4 +172,53 @@ export interface UpdateOrderAddressRequest {
 
 export interface UpdateOrderShippingMethodRequest {
   shippingMethodId: string
+}
+
+export type OrderFulfillmentState = 'None' | 'Pending' | 'Partial' | 'Shipped' | 'Delivered' | 'Canceled'
+
+export type ShipmentStatus = 'Pending' | 'Ready' | 'Shipped' | 'Delivered' | 'Backorder' | 'Canceled'
+
+export interface Shipment {
+  id: string
+  orderId: string
+  shippingMethodId: string
+  trackingNumber: string | null
+  status: ShipmentStatus
+  shippedAtUtc: string | null
+  deliveredAtUtc: string | null
+  estimatedDeliveryAtUtc: string | null
+  createdAtUtc: string
+}
+
+export interface PaymentCaptureSummary {
+  id: string
+  number: string
+  amount: number
+  currency: string
+  state: PaymentRecordState
+  paymentStatus: string | null
+  providerKey: string
+  paymentMethodId: string | null
+  createdAtUtc: string
+  completedAtUtc: string | null
+  failedAtUtc: string | null
+}
+
+export interface ShipmentSummary {
+  id: string
+  orderId: string
+  shippingMethodId: string
+  shippingMethodName: string | null
+  trackingNumber: string
+  status: ShipmentStatus
+  shippedAtUtc: string | null
+  deliveredAtUtc: string | null
+  estimatedDeliveryAtUtc: string | null
+  createdAtUtc: string
+}
+
+export interface OrderTimelineEvent {
+  type: string
+  label: string
+  occurredAtUtc: string | null
 }

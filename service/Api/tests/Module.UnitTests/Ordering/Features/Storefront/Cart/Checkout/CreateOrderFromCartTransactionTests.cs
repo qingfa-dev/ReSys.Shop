@@ -1,14 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-
-using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
+using Module.Ordering.Services;
 
+using Module.Inventory.Services.StockReservations;
+using Module.Billing.Features.Storefront.GetPaymentForCheckout;
+using Module.Billing.Features.Storefront.MarkPaymentPaid;
+using Module.Shipping.Features.Shared.Commands;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
@@ -18,56 +15,34 @@ namespace Module.UnitTests.Ordering.Features.Storefront.Cart.Checkout;
 [Trait("Module", "Ordering")]
 public class CreateOrderFromCartTransactionTests
 {
-    [Fact(DisplayName = "CreateOrderFromCart: stock deduction commits inside a Serializable transaction")]
-    public async Task Handle_StockDeduction_CommitsInsideTransaction()
+    [Fact(DisplayName = "CreateOrderFromCart: delegates stock consumption to IStockReservationService")]
+    public async Task Handle_DelegatesStockConsumption_ToService()
     {
         var opts = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Order).Assembly];
         var db = new ApplicationDbContext(opts);
 
         var userId = Guid.NewGuid();
-        var variantId = Guid.NewGuid();
-        var locationId = Guid.NewGuid();
-        var stockItemId = Guid.NewGuid();
-
-        db.Set<StockLocation>().Add(new StockLocation { Id = locationId, Name = "WH-1", Active = true });
-        var productId = Guid.NewGuid();
-        db.Set<Product>().Add(new Product
-        {
-            Id = productId, Name = "X", Slug = "x", IsDeleted = false,
-            AvailableOn = DateTimeOffset.UtcNow
-        });
-        db.Set<Variant>().Add(new Variant
-        {
-            Id = variantId, ProductId = productId, IsMaster = false, IsDeleted = false,
-            Sku = "TEST-SKU"
-        });
-        db.Set<StockItem>().Add(new StockItem
-        {
-            Id = stockItemId, VariantId = variantId, StockLocationId = locationId,
-            CountOnHand = 5, Backorderable = false
-        });
 
         var cart = new Order
         {
             Id = Guid.NewGuid(), UserId = userId, Status = OrderStatus.Draft,
             Number = "SEED", Currency = "USD", Email = "u@e.com",
-            CheckoutState = CheckoutState.Confirm,
+            CheckoutState = CheckoutState.PickPaymentMethod,
             BillAddressId = Guid.NewGuid(), ShipAddressId = Guid.NewGuid(),
             ShippingMethodId = Guid.NewGuid(),
             Total = 0m
         };
         db.Set<Order>().Add(cart);
-        db.Set<LineItem>().Add(new LineItem
+        db.Set<Module.Ordering.Domain.LineItems.LineItem>().Add(new Module.Ordering.Domain.LineItems.LineItem
         {
-            Id = Guid.NewGuid(), OrderId = cart.Id, VariantId = variantId, Quantity = 2
+            Id = Guid.NewGuid(), OrderId = cart.Id, VariantId = Guid.NewGuid(), Quantity = 2
         });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var logger = new Mock<ILogger<CreateOrderFromCart.CommandHandler>>();
+        var logger = new Mock<ILogger<CheckoutPlacementService>>();
         var currentUser = new Mock<ICurrentUser>();
         currentUser.Setup(x => x.UserId).Returns(userId.ToString());
         currentUser.Setup(x => x.UserName).Returns("tester");
@@ -76,8 +51,23 @@ public class CreateOrderFromCartTransactionTests
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
+        var sender = new Mock<ISender>();
+        sender.Setup(s => s.Send(It.IsAny<GetPaymentForCheckoutQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentForCheckoutResponse { IsCompleted = true, Amount = 10m, PaymentMethodId = Guid.NewGuid() });
+        sender.Setup(s => s.Send(It.IsAny<MarkPaymentPaidCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+        sender.Setup(s => s.Send(It.IsAny<CreateShipmentCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        var reservationService = new Mock<IStockReservationService>();
+        reservationService.Setup(s => s.ConsumeForOrderAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        var placementService = new CheckoutPlacementService(
+            db, reservationService.Object, notificationService.Object, sender.Object, logger.Object);
+
         var sut = new CreateOrderFromCart.CommandHandler(
-            db, logger.Object, currentUser.Object, notificationService.Object);
+            db, currentUser.Object, sender.Object, placementService);
 
         var result = await sut.Handle(
             new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
@@ -85,8 +75,7 @@ public class CreateOrderFromCartTransactionTests
 
         result.IsSuccess.Should().BeTrue();
 
-        var stockAfter = await db.Set<StockItem>()
-            .SingleAsync(si => si.Id == stockItemId, TestContext.Current.CancellationToken);
-        stockAfter.CountOnHand.Should().Be(3, "two units should be deducted from 5");
+        // Verify reservations were consumed for the order
+        reservationService.Verify(s => s.ConsumeForOrderAsync(cart.Id, It.IsAny<IReadOnlyCollection<StockConsumeLine>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

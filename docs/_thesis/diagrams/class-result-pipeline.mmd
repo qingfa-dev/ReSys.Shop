@@ -1,0 +1,100 @@
+```mermaid
+%% Class Diagram: Result Type Hierarchy and Pipeline Behaviors
+%% Based on Chapter 7 — Detailed Design
+
+classDiagram
+    class Result~T~ {
+        +bool IsSuccess
+        +bool IsFailure
+        +int StatusCode
+        +List~Error~ Errors
+        +T? Value
+        +ToResult() IResult
+    }
+
+    class Result {
+        +bool IsSuccess$
+        +bool IsFailure$
+        +int StatusCode$
+        +List~Error~ Errors$
+        +Created~T~(T value) Result~T~$
+        +Ok~T~(T value) Result~T~$
+        +NotFound(string code) Result$
+        +Conflict(string code) Result$
+        +Validation(string code) Result$
+        +Unexpected(string code) Result$
+    }
+
+    class Error {
+        +string Code
+        +string Message
+        +ErrorType Type
+        +Dictionary~string,object~? Metadata
+        +implicit operator Result(Error error)
+    }
+
+    class PagedResult~T~ {
+        +List~T~ Data
+        +int PageNumber
+        +int PageSize
+        +int TotalCount
+        +int TotalPages
+        +bool HasPreviousPage
+        +bool HasNextPage
+    }
+
+    class IPipelineBehavior~TRequest,TResponse~ {
+        <<interface>>
+        +Handle(TRequest, RequestHandlerDelegate~TResponse~) Task~TResponse~
+    }
+
+    class LoggingBehavior~TRequest,TResponse~ {
+        +Handle(...) Task~TResponse~
+    }
+
+    class ValidationBehavior~TRequest,TResponse~ {
+        -IValidator[] validators
+        +Handle(...) Task~TResponse~
+    }
+
+    class ExceptionMappingBehavior~TRequest,TResponse~ {
+        +Handle(...) Task~TResponse~
+    }
+
+    class ICommand~TResponse~ {
+        <<interface>>
+    }
+
+    class IQuery~TResponse~ {
+        <<interface>>
+    }
+
+    class ICommandHandler~TCommand,TResponse~ {
+        <<interface>>
+        +Handle(TCommand, CancellationToken) Task~TResponse~
+    }
+
+    class IQueryHandler~TQuery,TResponse~ {
+        <<interface>>
+        +Handle(TQuery, CancellationToken) Task~TResponse~
+    }
+
+    Result~T~ --> Result : uses factory methods
+    Result --> Error : contains
+    Result~T~ --> PagedResult~T~ : specialization
+    Error --> Result : implicit conversion
+    IPipelineBehavior~TRequest,TResponse~ <|-- LoggingBehavior~TRequest,TResponse~
+    IPipelineBehavior~TRequest,TResponse~ <|-- ValidationBehavior~TRequest,TResponse~
+    IPipelineBehavior~TRequest,TResponse~ <|-- ExceptionMappingBehavior~TRequest,TResponse~
+    ICommandHandler~TCommand,TResponse~ ..> ICommand~TResponse~ : processes
+    IQueryHandler~TQuery,TResponse~ ..> IQuery~TResponse~ : processes
+```
+
+## Diagram Description
+
+The class diagram shows the two most important type hierarchies in the system:
+
+1. **Result / Error types** — The `Result<T>` and `Error` types form the core of the explicit error-handling strategy. `Error` has an implicit conversion to `Result`, enabling handlers to return `Error` directly without wrapping it.
+2. **Pipeline behaviors** — The Decorator pattern implementation via MediatR's `IPipelineBehavior`. Each behavior wraps the next, forming a chain of responsibility.
+
+**Evidence**: `Shared/Application/Models/Results/Result.cs`, `Shared/Application/Models/Errors/Error.cs`, `Shared/Application/Mediators/Behaviours/`

@@ -1,0 +1,43 @@
+# =============================================================================
+# Profile - Store Preferences API Tests
+# =============================================================================
+# Base URL: {{baseUrl}}/api/storefront/profiles/preferences
+# Auth: Store Bearer Token required for most operations
+# =============================================================================
+
+### Get preferences (200)
+# Returns the current notification and display preferences for the authenticated user
+# Expected: 200 OK with preferences object
+GET {{baseUrl}}/api/storefront/profiles/preferences
+Authorization: Bearer {{storeToken}}
+
+### Update preferences - Success (200)
+# Updates the authenticated user's preferences
+# Expected: 200 OK with updated preferences
+PUT {{baseUrl}}/api/storefront/profiles/preferences
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "newsletter": true,
+  "orderUpdates": true,
+  "promotionalEmails": false,
+  "theme": "dark",
+  "language": "en-US"
+}
+
+### Get preferences - No Auth (401)
+# Attempts to get preferences without an Authorization header
+# Expected: 401 Unauthorized
+GET {{baseUrl}}/api/storefront/profiles/preferences
+
+### Update preferences - No Auth (401)
+# Attempts to update preferences without an Authorization header
+# Expected: 401 Unauthorized
+PUT {{baseUrl}}/api/storefront/profiles/preferences
+Content-Type: {{contentType}}
+
+{
+  "newsletter": true,
+  "theme": "dark"
+}

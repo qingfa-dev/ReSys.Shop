@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Roles.Get;
+namespace Module.Identity.Features.Shared.Admin.Users.Roles.Get;
 
 public static partial class GetUserRoles
 {

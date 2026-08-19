@@ -56,7 +56,6 @@ arrow {
 
 </style>
 
-title Use Case Detail: UC-SYS-EMB\nEmbedding Operations
 
 ' ============================================================
 ' EXTERNAL ACTORS / SYSTEMS
@@ -71,13 +70,19 @@ actor "External ML\nInference Service" as MLService <<system>>
 ' SYSTEM OF INTEREST
 ' ============================================================
 
-rectangle "ReSys.Shop\nSystem Processing Services" {
+rectangle {
 
-  usecase "Process Vector Embeddings\nUC-SYS-EMB" as UC_MAIN
+  ' UC-SYS-EMB
 
-  usecase "Generate Single Image\nEmbedding\nUC-SYS-EMB-GEN" as UC_GEN
+  usecase "Process Vector Embeddings" as UC_MAIN
 
-  usecase "Rebuild Catalog\nVector Index\nUC-SYS-EMB-REG" as UC_REG
+  ' UC-SYS-EMB-GEN
+
+  usecase "Generate Single Image\nEmbedding" as UC_GEN
+
+  ' UC-SYS-EMB-REG
+
+  usecase "Rebuild Catalog\nVector Index" as UC_REG
 
 }
 

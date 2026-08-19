@@ -8,14 +8,15 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
-import { IDENTITY } from '@/shared/constants/api'
+
 import type { PermissionMetadata } from '../types/permission'
 
 const { dt, exportCSV } = useDataTableExport()
 const search = ref('')
+const selectedItems = ref<PermissionMetadata[]>([])
 
 const { items, loading, setSearch, refresh } = usePagedQuery<PermissionMetadata>(
-  `${IDENTITY}/permissions`,
+  `/api/admin/identity/permissions`,
   {
     defaultPageSize: 100,
     allowedSearchFields: ['name', 'category', 'description'],
@@ -59,11 +60,13 @@ function clearSearch() {
       ref="dt"
       :value="items"
       :loading="loading"
+      v-model:selection="selectedItems"
       scrollable
       paginator
       :rows="50"
       data-key="name"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — permission identity and descriptive fields -->
       <Column field="name" header="Name" :sortable="true" />
       <Column field="category" header="Category" :sortable="true" />

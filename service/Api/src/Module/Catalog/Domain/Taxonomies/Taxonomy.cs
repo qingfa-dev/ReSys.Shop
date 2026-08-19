@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Concerns.Parameterizable;

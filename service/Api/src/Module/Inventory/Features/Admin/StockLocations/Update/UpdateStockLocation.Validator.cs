@@ -1,4 +1,4 @@
-using Module.Inventory.Features.Admin.StockLocations.Shared.Validators;
+using Module.Inventory.Features.Admin.Shared.Validators;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Update;
 

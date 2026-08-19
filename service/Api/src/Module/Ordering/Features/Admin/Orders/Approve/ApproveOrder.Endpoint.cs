@@ -9,7 +9,7 @@ public static partial class ApproveOrder
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/ordering/orders/{id:guid}/approve — approve a placed order
+            // Map: POST api/admin/ordering/orders/{id:guid}/approve — approve a placed order
             app.MapPost(OrderingFeature.Admin.Orders.Approve.Route, async ([FromRoute] Guid id, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(id), ct);

@@ -8,10 +8,13 @@ domain boundaries, principles, quality baselines.
 ## Non-Negotiable Rules
 
 1. **Result objects, not exceptions** — all domain operations return `Result<T>` or `Result`. Exceptions only for unrecoverable infrastructure failures.
-2. **Modules must not reference each other** — all 9 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Dashboard) live in one `Module` assembly and must not cross-reference. Communication via MediatR `ISender` only. Existing violations (39 `using Module.X.Domain...` references) being removed.
+2. **Modules share one assembly and may reference each other; behavior may use MediatR `ISender` or direct calls** — all 9 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Dashboard) live in one `Module` assembly. Cross-module `using` statements, EF Core FK relationships, navigations, and direct service calls are all permitted (no whitelist, no drift check — removed 2026-08-16). For behavior, prefer MediatR `ISender` when dispatching work to another module so it flows through the pipeline (validation, logging, transaction); call services or navigate relationships directly when that fits the feature slice.
+   - **TODO (replace the ISender convention):** the `ISender`-for-behavior convention is retained for now but is itself under review. Proposal options to replace it (see `brainstorming` skill): (a) keep `ISender` as-is, (b) direct cross-module service calls where the type is already referenced, (c) a module gateway/facade layer, (d) splitting modules into separate assemblies with explicit ProjectReferences. Run `/brainstorming` before choosing.
+   - **Replacement candidates (audited 2026-08-16):** navigations fit where `Order` is the hub — `GetPaymentForCheckout`/`GetCartForCheckout`/`GetCartForShipping` → load `Order` + `LineItems`/`PaymentCaptures` via `.Include`/direct nav; `MarkPaymentPaid` → `payment.Complete()` on the nav-loaded capture; `RecordOrderPaymentState` → `order.MarkPayment{Completed|Failed|Processing}`; `AdvanceCheckoutState`/`RegressCheckoutState` → `order.AdvanceCheckoutState()`/`Regress*`. Direct service calls fit where a foreign aggregate is created: `CreateShipment` (→ Shipping service), `CreateUserProfile` (→ Customer profile service). Keep `ISender` (pipeline/retry/transaction value): `VoidOrderPayments`, `CompleteCheckoutForPayment`.
 3. **Vertical slice feature files** — every C# feature action is `static partial class` split across files in `Features/{Admin|Storefront}/{Feature}/{Action}/`, each with Handler, Request, Response, Endpoint, Validator. Subdirectory always `Storefront` (not `Store`). Read-only queries may omit Request/Validator files.
 4. **Warnings-as-errors** — `TreatWarningsAsErrors=true` globally. Any warning fails build.
 5. **Forward-only dependency** — `Shared` depends on nothing within `service/`. `Module` depends only on `Shared`. `Api` composes both.
+6. **NO git stash / worktree / revert / restore / checkout -- without human permission** — never run `git stash`, `git checkout <ref> -- <path>`, `git restore`, `git revert`, `git reset --hard`, or any command that moves/rewrites/loses working-tree changes, unless the human explicitly asked for it and you got an explicit "yes" to run that specific command. If your tooling or hooks auto-stash or reset the working tree, STOP and report it immediately — do not silently continue. Recover lost changes only after the human confirms. Uncommitted work is precious and irreplaceable.
 
 ## Repository Map
 
@@ -25,12 +28,11 @@ domain boundaries, principles, quality baselines.
 - `docs/codebase/CONVENTIONS.md` — coding conventions
 - `docs/codebase/TESTING.md` — testing strategy
 - `docs/codebase/PROCESS.md` — doc-gardening, GC, feedback encoding, escalation boundaries
-- `docs/failures/` — failure memory: cross-module isolation violations, known incidents
+- `docs/failures/` — failure memory: known incidents
 - `plan/` — implementation plans (currently consolidating README docs across modules)
 - `guide/code-commenting/CommentingRules.xml` — comment convention rules
 - `Directory.Packages.props` — central NuGet package versions
 - `scripts/check-feature-conventions.sh` — feature file AC-001/002/003/005 drift checks
-- `scripts/check-cross-module-refs.sh` — cross-module namespace reference drift check
 
 ## Tech Stack
 
@@ -54,7 +56,6 @@ cd app/Store && pnpm run lint && pnpm run test:unit   # Store SPA verification
 cd service/Embedding && uv run ruff check . && uv run pytest  # Python verification
 cd benchmarks && uv run ruff check src/ && uv run pytest --ignore=src/tests/integration/  # Benchmark verification
 bash scripts/check-feature-conventions.sh             # Feature file completeness check
-bash scripts/check-cross-module-refs.sh               # Cross-module reference drift check
 ```
 
 ## Code Organization
@@ -74,7 +75,7 @@ bash scripts/check-cross-module-refs.sh               # Cross-module reference d
 
 - Dev JWT secret for non-Development environments rejected by `JwtSettingsValidator` (commit `770b6a06`); dev secrets in `dotnet user-secrets` (id `resys.shop.api`), bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`
 - `app/ReSys.Admin/` legacy admin SPA (npm, older deps) — use `app/Admin/` (pnpm) instead
-- `ValidateVerticalSliceIsolation` build target Condition="true" but emits `<Warning>` (not `<Error>`), so cross-module references don't fail build — see `docs/codebase/CONCERNS.md` for 39 known violations
+- `ValidateVerticalSliceIsolation` build target emits `<Warning>` for module ProjectReferences; cross-module references are permitted, so this only guards against future module-split ProjectReference cycles
 - CI/CD partial — `.github/workflows/ci.yml` runs build, unit tests, lint on PR/push for .NET, both Vue SPAs, Embedding service, Benchmarks. Integration tests (Testcontainers) and deployment not yet automated
 - `service/Embedding/Dockerfile` exists for Python sidecar; no Dockerfiles for .NET API or Vue SPAs (Aspire manages containers for local dev)
 - `Embedding/build/lib/` contains stale build artifacts — should be gitignored

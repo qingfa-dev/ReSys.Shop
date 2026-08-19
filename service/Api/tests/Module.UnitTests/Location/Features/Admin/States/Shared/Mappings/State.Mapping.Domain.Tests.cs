@@ -1,6 +1,6 @@
 using Module.Location.Domain.States;
-using Module.Location.Features.Admin.States.Shared.Mappings;
-using Module.Location.Features.Admin.States.Shared.Models;
+using Module.Location.Features.Shared.States.Mappings;
+using Module.Location.Features.Shared.States.Models;
 
 namespace Module.UnitTests.Location.Features.Admin.States.Shared.Mappings;
 

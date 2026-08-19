@@ -20,13 +20,13 @@ public sealed class GetProductByIdIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<CreateProductResponse>();
         created.Should().NotBeNull();
 
-        HttpResponseMessage response = await Client.GetAsAdminRawAsync($"/api/catalog/products/{created!.Id}");
+        HttpResponseMessage response = await Client.GetAsAdminRawAsync($"/api/admin/catalog/products/{created!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -49,7 +49,7 @@ public sealed class GetProductByIdIntegrationTests(ApiFixture fixture) : Catalog
     {
         Guid nonexistentId = Guid.NewGuid();
 
-        HttpResponseMessage response = await Client.GetAsAdminRawAsync($"/api/catalog/products/{nonexistentId}");
+        HttpResponseMessage response = await Client.GetAsAdminRawAsync($"/api/admin/catalog/products/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

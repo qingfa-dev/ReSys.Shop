@@ -12,7 +12,7 @@ database "PostgreSQL" as DB <<Persistence>>
 ' ─── View Stock ──────────────────────────────────────────────
 Admin -> Portal: View Inventory (SKU-123)
 activate Portal
-    Portal -> API: GET /api/inventory/SKU-123
+    Portal -> API: GET /api/admin/inventory/SKU-123
     activate API
         API -> DB: Query StockItems + InventoryUnits
         activate DB
@@ -31,7 +31,7 @@ deactivate Portal
 ' ─── Adjust Stock ────────────────────────────────────────────
 Admin -> Portal: Adjust Stock (+10)
 activate Portal
-    Portal -> API: POST /api/inventory/adjust
+    Portal -> API: POST /api/admin/inventory/adjust
     activate API
         
         API -> DB: Get StockItem

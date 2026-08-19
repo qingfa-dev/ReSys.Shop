@@ -1,7 +1,7 @@
 using Module.Shipping.Domain.ShippingMethods;
 using ShippingDomain = Module.Shipping.Domain.ShippingMethods.ShippingMethod;
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Models;
+using Module.Shipping.Features.Admin.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
 
@@ -26,7 +26,6 @@ public class ShippingMethodMappingTests
         response.Position.Should().Be(method.Position);
         response.AvailableToUsers.Should().Be(method.AvailableToUsers);
         response.CalculatorType.Should().Be(method.CalculatorType);
-        response.TaxCategoryId.Should().Be(method.TaxCategoryId);
         response.Presentation.Should().Be(method.Presentation);
         response.CreatedAtUtc.Should().Be(method.CreatedAtUtc);
         response.ModifiedAtUtc.Should().Be(method.ModifiedAtUtc);
@@ -52,7 +51,6 @@ public class ShippingMethodMappingTests
         response.Position.Should().Be(method.Position);
         response.AvailableToUsers.Should().Be(method.AvailableToUsers);
         response.CalculatorType.Should().Be(method.CalculatorType);
-        response.TaxCategoryId.Should().Be(method.TaxCategoryId);
         response.Presentation.Should().Be(method.Presentation);
         response.CreatedAtUtc.Should().Be(method.CreatedAtUtc);
         response.ModifiedAtUtc.Should().Be(method.ModifiedAtUtc);
@@ -66,7 +64,6 @@ public class ShippingMethodMappingTests
             Name = "Express",
             CalculatorType = "flat_rate",
             Code = "EXP",
-            TaxCategoryId = Guid.NewGuid(),
             TrackingUrl = "https://track.example.com",
             AdminName = "Express Admin",
             Position = 1,
@@ -82,7 +79,6 @@ public class ShippingMethodMappingTests
         entity.Name.Should().Be(request.Name);
         entity.CalculatorType.Should().Be(request.CalculatorType);
         entity.Code.Should().Be(request.Code);
-        entity.TaxCategoryId.Should().Be(request.TaxCategoryId);
         entity.TrackingUrl.Should().Be(request.TrackingUrl);
         entity.AdminName.Should().Be(request.AdminName);
         entity.Position.Should().Be(request.Position);
@@ -98,8 +94,7 @@ public class ShippingMethodMappingTests
         {
             Name = "Updated",
             CalculatorType = "weight",
-            Code = "UPD",
-            TaxCategoryId = Guid.NewGuid()
+            Code = "UPD"
         };
 
         var result = request.MapToDomain(method);
@@ -114,7 +109,7 @@ public class ShippingMethodMappingTests
 
     private static ShippingDomain CreateShippingMethod()
     {
-        var result = ShippingMethodExtensions.Create("Express", "flat_rate", "EXP", Guid.NewGuid());
+        var result = ShippingMethodMethod.Create("Express", "flat_rate", "EXP");
         result.IsSuccess.Should().BeTrue();
         var method = result.Value;
         method.TrackingUrl = "https://track.example.com";

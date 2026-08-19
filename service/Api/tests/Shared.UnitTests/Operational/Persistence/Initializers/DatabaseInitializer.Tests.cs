@@ -31,7 +31,7 @@ public class DatabaseInitializerTests
     private static ServiceProvider BuildProvider(Action<IServiceCollection> configure)
     {
         ServiceCollection services = new();
-        services.AddSingleton<ILoggerFactory>(LoggerFactory.Create(b => { }));
+        services.AddSingleton(LoggerFactory.Create(b => { }));
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection().Build());
         configure(services);
         return services.BuildServiceProvider();
@@ -47,7 +47,7 @@ public class DatabaseInitializerTests
 
         Mock<ILoggerFactory> factoryMock = new();
         factoryMock.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(loggerMock.Object);
-        services.AddSingleton<ILoggerFactory>(factoryMock.Object);
+        services.AddSingleton(factoryMock.Object);
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection().Build());
 
         configure(services);
@@ -126,7 +126,7 @@ public class DatabaseInitializerTests
                     builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
                     return new TestDbContext(builder.Options);
                 });
-                services.AddScoped<IDataSeeder>(_ => Mock.Of<IDataSeeder>());
+                services.AddScoped(_ => Mock.Of<IDataSeeder>());
             });
 
         await provider.InitializeDatabaseAsync(runSeeders: false);
@@ -184,7 +184,7 @@ public class DatabaseInitializerTests
                 builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
                 return new TestDbContext(builder.Options);
             });
-            services.AddScoped<IDataSeeder>(_ => seederMock.Object);
+            services.AddScoped(_ => seederMock.Object);
         });
 
         await provider.InitializeDatabaseAsync();
@@ -225,9 +225,9 @@ public class DatabaseInitializerTests
                 builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
                 return new TestDbContext(builder.Options);
             });
-            services.AddScoped<IDataSeeder>(_ => seeder1.Object);
-            services.AddScoped<IDataSeeder>(_ => seeder2.Object);
-            services.AddScoped<IDataSeeder>(_ => seeder3.Object);
+            services.AddScoped(_ => seeder1.Object);
+            services.AddScoped(_ => seeder2.Object);
+            services.AddScoped(_ => seeder3.Object);
         });
 
         await provider.InitializeDatabaseAsync();
@@ -252,7 +252,7 @@ public class DatabaseInitializerTests
                 seederMock
                     .Setup(s => s.SeedAsync(It.IsAny<CancellationToken>()))
                     .ReturnsAsync(Result.BadRequest(errors: [Error.Validation("TEST", "Something went wrong")]));
-                services.AddScoped<IDataSeeder>(_ => seederMock.Object);
+                services.AddScoped(_ => seederMock.Object);
             });
 
         await provider.InitializeDatabaseAsync();
@@ -289,8 +289,8 @@ public class DatabaseInitializerTests
             failingSeeder
                 .Setup(s => s.SeedAsync(It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new InvalidOperationException("Seeder crashed"));
-            services.AddScoped<IDataSeeder>(_ => failingSeeder.Object);
-            services.AddScoped<IDataSeeder>(_ => succeedingSeeder.Object);
+            services.AddScoped(_ => failingSeeder.Object);
+            services.AddScoped(_ => succeedingSeeder.Object);
         });
 
         await provider.InitializeDatabaseAsync();
@@ -322,8 +322,8 @@ public class DatabaseInitializerTests
                     .Setup(s => s.SeedAsync(It.IsAny<CancellationToken>()))
                     .ReturnsAsync(Result.BadRequest(errors: [Error.Validation("FAIL", "fail")]));
 
-                services.AddScoped<IDataSeeder>(_ => successSeeder.Object);
-                services.AddScoped<IDataSeeder>(_ => failSeeder.Object);
+                services.AddScoped(_ => successSeeder.Object);
+                services.AddScoped(_ => failSeeder.Object);
             });
 
         await provider.InitializeDatabaseAsync();
@@ -380,7 +380,7 @@ public class DatabaseInitializerTests
                 });
                 Mock<IDataSeeder> seederMock = new();
                 seederMock.Setup(s => s.Order).Returns(1);
-                services.AddScoped<IDataSeeder>(_ => seederMock.Object);
+                services.AddScoped(_ => seederMock.Object);
             });
 
         await provider.InitializeDatabaseAsync(runSeeders: false);

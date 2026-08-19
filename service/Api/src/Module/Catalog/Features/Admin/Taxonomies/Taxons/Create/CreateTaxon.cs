@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
-using Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 using Shared.Application.Domain.Concerns.Parameterizable;
 

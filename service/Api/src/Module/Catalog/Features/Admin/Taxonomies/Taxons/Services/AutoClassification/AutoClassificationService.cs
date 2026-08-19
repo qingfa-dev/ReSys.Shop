@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;

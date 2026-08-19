@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Products.Variants.Options;
+using Module.Catalog.Domain.Variants.Options;
 
 namespace Module.Catalog.Persistence.Configurations.Products;
 
@@ -18,7 +18,7 @@ public class OptionValueVariantConfiguration : IEntityTypeConfiguration<OptionVa
             .HasForeignKey(x => x.VariantId);
 
         builder.HasOne(x => x.OptionValue)
-            .WithMany()
+            .WithMany(ov => ov.OptionValueVariants)
             .HasForeignKey(x => x.OptionValueId);
         #endregion
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Create;
+using Module.Identity.Features.Shared.Admin.Roles.Create;
 
 using Shared.Security.Identity.Domain.Roles;
 

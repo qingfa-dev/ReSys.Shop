@@ -1,32 +1,28 @@
 import { post, get, put, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types'
+
+import type { Result, PagedResult, QueryingParameters } from '@/shared/types'
 import type {
   VariantRequest,
   VariantListItem,
   VariantDetail,
-  VariantQuery,
   OptionValueAssignment,
 } from '../types/variant'
 import {
-  toVariantQueryParams,
   VARIANT_FILTER_FIELDS,
   VARIANT_SORT_FIELDS,
   VARIANT_SEARCH_FIELDS,
 } from '../types/variant'
 
-const BASE = `${CATALOG}/variants`
-
 export class VariantApi {
   static getVariants(
     productId: string,
-    query: VariantQuery,
+    params: QueryingParameters,
   ): Promise<PagedResult<VariantListItem>> {
-    const url = productId ? `${BASE}?productId=${productId}` : BASE
+    const url = productId ? `/api/admin/catalog/variants?productId=${productId}` : '/api/admin/catalog/variants'
     return getPaged<VariantListItem>(
       url,
-      toVariantQueryParams(query),
+      params,
       {
         allowedFilterFields: VARIANT_FILTER_FIELDS,
         allowedSortFields: VARIANT_SORT_FIELDS,
@@ -36,14 +32,14 @@ export class VariantApi {
   }
 
   static getVariant(id: string): Promise<Result<VariantDetail>> {
-    return get<Result<VariantDetail>>(`${BASE}/${id}`)
+    return get<Result<VariantDetail>>(`/api/admin/catalog/variants/${id}`)
   }
 
   static createVariant(
     request: VariantRequest,
   ): Promise<Result<VariantDetail>> {
     return post<Result<VariantDetail>>(
-      BASE,
+      '/api/admin/catalog/variants',
       request,
     )
   }
@@ -52,18 +48,18 @@ export class VariantApi {
     id: string,
     request: VariantRequest,
   ): Promise<Result<VariantDetail>> {
-    return put<Result<VariantDetail>>(`${BASE}/${id}`, request)
+    return put<Result<VariantDetail>>(`/api/admin/catalog/variants/${id}`, request)
   }
 
   static deleteVariant(id: string): Promise<Result<void>> {
-    return del<Result<void>>(`${BASE}/${id}`)
+    return del<Result<void>>(`/api/admin/catalog/variants/${id}`)
   }
 
   static getOptionValues(
     variantId: string,
   ): Promise<PagedResult<OptionValueAssignment>> {
     return getPaged<OptionValueAssignment>(
-      `${CATALOG}/variant-option-values?variantId=${variantId}`,
+      `/api/admin/catalog/variant-option-values?variantId=${variantId}`,
       {},
     )
   }
@@ -73,7 +69,7 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return post<Result<void>>(
-      `${CATALOG}/variant-option-values/assign`,
+      '/api/admin/catalog/variant-option-values/assign',
       { variantId, optionValueIds },
     )
   }
@@ -83,7 +79,7 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return post<Result<void>>(
-      `${CATALOG}/variant-option-values/revoke`,
+      '/api/admin/catalog/variant-option-values/revoke',
       { variantId, optionValueIds },
     )
   }
@@ -93,7 +89,7 @@ export class VariantApi {
     optionValueIds: string[],
   ): Promise<Result<void>> {
     return put<Result<void>>(
-      `${CATALOG}/variant-option-values/sync`,
+      '/api/admin/catalog/variant-option-values/sync',
       { variantId, optionValueIds },
     )
   }

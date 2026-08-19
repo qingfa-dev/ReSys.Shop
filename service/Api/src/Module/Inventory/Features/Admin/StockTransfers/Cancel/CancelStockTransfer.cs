@@ -1,5 +1,5 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Cancel;

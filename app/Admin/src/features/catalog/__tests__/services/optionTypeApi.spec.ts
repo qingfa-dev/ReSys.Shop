@@ -40,11 +40,11 @@ describe('OptionTypeApi.getOptionTypes', () => {
       metadata: null,
     })
 
-    await OptionTypeApi.getOptionTypes({ filterable: true, page: 1, pageSize: 10 })
+    await OptionTypeApi.getOptionTypes({ filter: 'filterable=true', pageNumber: 1, pageSize: 10 })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/catalog/option-types',
-      { filter: 'filterable=true', search: null, sort: null, pageNumber: 1, pageSize: 10 },
+      '/api/admin/catalog/option-types',
+      { filter: 'filterable=true', pageNumber: 1, pageSize: 10 },
       expect.objectContaining({ allowedFilterFields: expect.any(Array) }),
     )
   })
@@ -55,7 +55,7 @@ describe('OptionTypeApi.getOptionType', () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'Size' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await OptionTypeApi.getOptionType('abc-123')
-    expect(mockGet).toHaveBeenCalledWith('api/catalog/option-types/abc-123')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/catalog/option-types/abc-123')
   })
 })
 
@@ -65,7 +65,7 @@ describe('OptionTypeApi.createOptionType', () => {
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
 
     await OptionTypeApi.createOptionType(req)
-    expect(mockPost).toHaveBeenCalledWith('api/catalog/option-types', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/catalog/option-types', req)
   })
 })
 
@@ -75,7 +75,7 @@ describe('OptionTypeApi.updateOptionType', () => {
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await OptionTypeApi.updateOptionType('abc-123', req)
-    expect(mockPut).toHaveBeenCalledWith('api/catalog/option-types/abc-123', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/catalog/option-types/abc-123', req)
   })
 })
 
@@ -84,6 +84,6 @@ describe('OptionTypeApi.deleteOptionType', () => {
     mockDel.mockResolvedValue({ value: { id: '1', name: 'Size' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await OptionTypeApi.deleteOptionType('abc-123')
-    expect(mockDel).toHaveBeenCalledWith('api/catalog/option-types/abc-123')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/catalog/option-types/abc-123')
   })
 })

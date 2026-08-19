@@ -482,20 +482,10 @@ abstractions:
         purpose: >
           Allows storefront consumers to see real-time availability
           before adding items to cart.
-      - id: D12
-        name: ReserveCartStock
-        type: handler
-        path: ./Features/Storefront/CartReservations/Reserve/ReserveCartStock.cs
-        description: >
-          Reserves stock for a cart item with configurable TTL,
-          decrementing available quantity.
-        purpose: >
-          Prevents overselling while customers are actively shopping
-          by holding stock during the session.
       - id: D13
         name: GetCartReservations
         type: handler
-        path: ./Features/Storefront/CartReservations/Status/GetCartReservations.cs
+        path: ./Features/Storefront/StockReservations/Get/GetCartReservations.Endpoint.cs
         description: >
           Returns active stock reservations with remaining TTL for
           the current shopping cart.

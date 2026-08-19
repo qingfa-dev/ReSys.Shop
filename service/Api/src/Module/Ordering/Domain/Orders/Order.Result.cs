@@ -88,6 +88,11 @@ public static class OrderResult
             code: "Order.CannotAdvanceState",
             message: "Order cannot advance from its current checkout state.");
 
+        /// <summary>Invalid checkout state transition.</summary>
+        public static Error InvalidCheckoutTransition(CheckoutState current, CheckoutState target) => Error.Conflict(
+            code: "Order.CheckoutState.InvalidTransition",
+            message: $"Cannot transition from {current} to {target}.");
+
         /// <summary>The requested status transition is not allowed.</summary>
         public static Error InvalidStatusTransition => Error.Validation(
             code: "Order.InvalidStatusTransition",
@@ -160,6 +165,11 @@ public static class OrderResult
             code: "Order.DeliveryMethodRequired",
             message: "A delivery method must be selected before proceeding.");
 
+        /// <summary>A shipping method must be selected before proceeding.</summary>
+        public static Error PaymentMethodRequired => Error.Validation(
+            code: "Order.PaymentMethodRequired",
+            message: "A payment method must be selected before proceeding.");
+
         /// <summary>Cannot finalize an order with no items.</summary>
         public static Error EmptyOrderCannotFinalize => Error.Validation(
             code: "Order.EmptyOrderCannotFinalize",
@@ -184,6 +194,11 @@ public static class OrderResult
         public static Error PaymentFailed => Error.Validation(
             code: "Order.PaymentFailed",
             message: "Payment verification failed; the payment intent is not in a completed state.");
+
+        /// <summary>Payment has not been completed or has zero amount.</summary>
+        public static Error PaymentNotCompleted => Error.Validation(
+            code: "Order.PaymentNotCompleted",
+            message: "Payment has not been completed or has zero amount.");
 
         /// <summary>Payment amount does not match the order total.</summary>
         public static Error PaymentAmountMismatch => Error.Validation(

@@ -1,7 +1,8 @@
-using Shared.Application.Contracts.Inventory;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Shared.Services;
+using Module.Shipping.Domain.Shipments;
 
+using Shared.Application.Domain.Orders;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
@@ -15,7 +16,7 @@ public static partial class CancelOrder
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        IStockQuantityService stockChecker,
+        IStockReservationService stockReservation,
         ISender sender,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
@@ -37,6 +38,8 @@ public static partial class CancelOrder
             // Check: Find the existing order scoped to current user.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Shipments)
+                .Include(x => x.PaymentCaptures)
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)
@@ -44,13 +47,33 @@ public static partial class CancelOrder
 
             var wasPlaced = entity.Status == OrderStatus.Placed;
 
+            // Guard: Only Placed orders can be canceled — defense-in-depth beyond the domain guard,
+            // so a terminal/abnormal order fails before any side effect (void, shipment, stock).
+            if (entity.Status != OrderStatus.Placed)
+                return OrderResult.Errors.InvalidStatusTransition;
+
             var cancelResult = entity.Cancel(userId);
             if (cancelResult.IsFailure)
                 return cancelResult.Errors;
 
+            entity.RecomputePaymentState();
+
+            // In-process: Cancel all shipments BEFORE dispatching the gateway void — a failed
+            // shipment guard returns without touching gateway payments.
+            foreach (var shipment in entity.Shipments)
+            {
+                var shipmentCancelResult = shipment.Cancel();
+                if (shipmentCancelResult.IsFailure)
+                    return shipmentCancelResult.Errors;
+            }
+
+            entity.ShipmentState = ShipmentState.Canceled;
+
             // Call: Cancel associated payments via MediatR.
+            // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
+            // keys); or extract to Billing IPaymentProcessingService and inject. Not a navigation fit.
             var voidResult = await sender.Send(
-                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand
+                new Billing.Features.Shared.Commands.VoidOrderPaymentsCommand
                 {
                     OrderId = entity.Id,
                     Reason = OrderConstant.CancelReasons.Customer
@@ -61,14 +84,12 @@ public static partial class CancelOrder
                 OrderLoggers.VoidPaymentsFailed(logger, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
-            // Compensate: Release inventory back to stock for previously placed orders.
+            // Release: Return consumed stock for previously placed orders.
             if (wasPlaced)
             {
-                foreach (var lineItem in entity.LineItems)
-                {
-                    var orderInventory = new OrderInventoryService(entity, lineItem, dbContext, stockChecker);
-                    await orderInventory.RemoveAsync(lineItem.Quantity, cancellationToken);
-                }
+                var returnResult = await stockReservation.ReturnConsumedForOrderAsync(entity.Id, cancellationToken);
+                if (returnResult.IsFailure)
+                    return returnResult.Errors;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);

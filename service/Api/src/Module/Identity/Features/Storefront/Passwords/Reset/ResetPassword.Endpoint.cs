@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Passwords.Reset;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Reset;
 
 public static partial class ResetPassword
 {
@@ -7,8 +7,8 @@ public static partial class ResetPassword
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/passwords/reset — finalise password reset with token
-            app.MapPost(IdentityFeature.Store.Passwords.Reset.Route, async (
+            // Map: POST /api/storefront/passwords/reset — finalise password reset with token
+            app.MapPost(IdentityFeature.Storefront.Passwords.Reset.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -20,8 +20,8 @@ public static partial class ResetPassword
             .AllowAnonymous()
             .WithName(nameof(ResetPassword))
             .WithTags(IdentityFeature.Tags.Authentication)
-            .WithSummary(IdentityFeature.Store.Passwords.Reset.Summary)
-            .WithDescription(IdentityFeature.Store.Passwords.Reset.Description)
+            .WithSummary(IdentityFeature.Storefront.Passwords.Reset.Summary)
+            .WithDescription(IdentityFeature.Storefront.Passwords.Reset.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);

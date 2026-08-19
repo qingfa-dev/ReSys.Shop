@@ -1,7 +1,7 @@
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.GetAll;
 
@@ -10,7 +10,7 @@ public sealed class GetAllOptionTypesIntegrationTests(ApiFixture fixture) : Cata
     [Fact]
     public async Task GetAllOptionTypes_ReturnsSeededOptionTypes()
     {
-        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/catalog/option-types?pageSize=100");
+        HttpResponseMessage response = await Client.GetAsAdminRawAsync("/api/admin/catalog/option-types?pageSize=100");
         PagedResult<OptionTypeListItemResponse> result = await response.ReadAsPagedResultAsync<OptionTypeListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();

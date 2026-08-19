@@ -2,6 +2,9 @@ using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
+using Module.Billing.Domain.PaymentCaptures;
+using Shared.Application.Domain.Orders;
+
 namespace Module.UnitTests.Ordering.Domain.Orders;
 
 [Trait("Category", "Unit")][Trait("Module", "Ordering")][Trait("Entity", "Order")]
@@ -10,13 +13,11 @@ public class OrderMethodTests
     [Fact]
     public void Create_WithValidParams_ShouldReturnOrder()
     {
-        var storeId = Guid.NewGuid();
-        var result = OrderMethod.Create("USD", Guid.NewGuid(), storeId);
+        var result = OrderMethod.Create("USD", Guid.NewGuid());
         var order = result.Value;
         result.IsSuccess.Should().BeTrue();
         order.Currency.Should().Be("USD");
         order.Status.Should().Be(OrderStatus.Draft);
-        order.StoreId.Should().Be(storeId);
         order.ItemTotal.Should().Be(0);
         order.Total.Should().Be(0);
     }
@@ -24,7 +25,7 @@ public class OrderMethodTests
     [Fact]
     public void Finalize_WithItems_ShouldSucceed()
     {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        var order = OrderMethod.Create("USD", null).Value;
         order.LineItems.Add(new() { Quantity = 1, Price = 10 });
         var r = order.Finalize();
         r.IsSuccess.Should().BeTrue();
@@ -100,6 +101,48 @@ public class OrderMethodTests
         var r = order.Cancel(Guid.Empty);
         r.IsFailure.Should().BeTrue();
         r.Errors[0].Should().Be(OrderResult.Errors.IdRequired);
+    }
+
+    [Fact]
+    public void Cancel_WhenCompleted_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Completed;
+        var r = order.Cancel(Guid.NewGuid());
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.InvalidStatusTransition);
+    }
+
+    [Fact]
+    public void Cancel_WhenExpired_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Expired;
+        var r = order.Cancel(Guid.NewGuid());
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.InvalidStatusTransition);
+    }
+
+    [Fact]
+    public void Resume_WhenDelivered_ShouldComplete()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Canceled;
+        order.ShipmentState = ShipmentState.Delivered;
+        var r = order.Resume();
+        r.IsSuccess.Should().BeTrue();
+        order.Status.Should().Be(OrderStatus.Completed);
+    }
+
+    [Fact]
+    public void Resume_WhenNotDelivered_StaysPlaced()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Canceled;
+        order.ShipmentState = ShipmentState.Pending;
+        var r = order.Resume();
+        r.IsSuccess.Should().BeTrue();
+        order.Status.Should().Be(OrderStatus.Placed);
     }
 
     [Fact]
@@ -277,12 +320,13 @@ public class OrderMethodTests
         order.BillAddressId = Guid.NewGuid();
         order.ShipAddressId = Guid.NewGuid();
         order.ShippingMethodId = Guid.NewGuid();
+        order.PaymentMethodId = Guid.NewGuid();
         order.Email = "test@test.com";
         order.LineItems.Add(new() { Quantity = 1, Price = 10 });
         var r = order.Place("R20260713-1A2B3C4D");
         r.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(OrderStatus.Placed);
-        order.CheckoutState.Should().Be(CheckoutState.Complete);
+        order.CheckoutState.Should().Be(CheckoutState.Placed);
         order.Number.Should().Be("R20260713-1A2B3C4D");
     }
 
@@ -297,6 +341,7 @@ public class OrderMethodTests
         order.BillAddressId = Guid.NewGuid();
         order.ShipAddressId = Guid.NewGuid();
         order.ShippingMethodId = Guid.NewGuid();
+        order.PaymentMethodId = Guid.NewGuid();
         order.Email = "test@test.com";
         order.LineItems.Add(new() { Quantity = 1, Price = 10 });
         var r = order.Place("R20260713-1A2B3C4D");
@@ -324,7 +369,8 @@ public class OrderMethodTests
         order.Finalize();
         var r = order.Complete("tester");
         r.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Complete);
+        order.Status.Should().Be(OrderStatus.Completed);
+        order.CheckoutState.Should().Be(CheckoutState.Placed);
     }
 
     [Fact]
@@ -468,5 +514,254 @@ public class OrderMethodTests
         order.LineItems.Add(new() { Quantity = 1, Price = 10 });
         order.Finalize();
         order.CanModifyLineItems().Should().BeFalse();
+    }
+
+    [Fact]
+    public void AdvanceCheckoutState_SameState_IsIdempotentNoOp()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.AdvanceCheckoutState(CheckoutState.PickPaymentMethod);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
+    }
+
+    [Fact]
+    public void RegressCheckoutIfAmountChanged_TotalDiffersAtPayment_RegressesToDelivery()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.RecalculateTotals();
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.RegressCheckoutIfAmountChanged(5m);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
+    }
+
+    [Fact]
+    public void RegressCheckoutIfAmountChanged_TotalUnchanged_KeepsState()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.RecalculateTotals();
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.RegressCheckoutIfAmountChanged(order.Total);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
+    }
+
+    [Fact]
+    public void RegressCheckoutIfAmountChanged_WhenNotDraft_DoesNotRegress()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.RecalculateTotals();
+        order.Status = OrderStatus.Placed;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.RegressCheckoutIfAmountChanged(5m);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
+    }
+
+    [Fact]
+    public void SetShippingMethod_ChangedRateAtPayment_RegressesToDelivery()
+    {
+        var methodA = Guid.NewGuid();
+        var methodB = Guid.NewGuid();
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10, Total = 10 });
+        order.ReplaceShippingAdjustment(5m, methodA);
+        order.ShippingMethodId = methodA;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var previousTotal = order.Total;
+        order.SetShippingMethod(methodB).IsSuccess.Should().BeTrue();
+        order.ReplaceShippingAdjustment(8m, methodB).IsSuccess.Should().BeTrue();
+        order.RegressCheckoutIfAmountChanged(previousTotal).IsSuccess.Should().BeTrue();
+
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_PaymentToDelivery_Succeeds()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_PaymentToAddress_Succeeds()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.RegressCheckoutState(CheckoutState.Address);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Address);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_DeliveryToAddress_Succeeds()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.PickDeliveryMethod;
+
+        var result = order.RegressCheckoutState(CheckoutState.Address);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Address);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_SameState_IsNoOp()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.RegressCheckoutState(CheckoutState.PickPaymentMethod);
+
+        result.IsSuccess.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_ForwardMove_Fails()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.PickDeliveryMethod;
+
+        var result = order.RegressCheckoutState(CheckoutState.PickPaymentMethod);
+
+        result.IsFailure.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickDeliveryMethod);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_FromComplete_Fails()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.CheckoutState = CheckoutState.Placed;
+
+        var result = order.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
+
+        result.IsFailure.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.Placed);
+    }
+
+    [Fact]
+    public void RegressCheckoutState_WhenPlaced_Fails()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        order.CheckoutState = CheckoutState.PickPaymentMethod;
+
+        var result = order.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
+
+        result.IsFailure.Should().BeTrue();
+        order.CheckoutState.Should().Be(CheckoutState.PickPaymentMethod);
+    }
+
+    [Fact(DisplayName = "MarkPaymentCompleted: stamps first time and is monotonic")]
+    public void MarkPaymentCompleted_IsMonotonic()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        var t1 = new DateTimeOffset(2026, 8, 14, 10, 0, 0, TimeSpan.Zero);
+        var t2 = t1.AddHours(1);
+
+        order.MarkPaymentCompleted(t2).IsSuccess.Should().BeTrue();
+        order.PaymentCompletedAtUtc.Should().Be(t2);
+
+        // A stale (older) completion must not move the timestamp backwards.
+        order.MarkPaymentCompleted(t1).IsSuccess.Should().BeTrue();
+        order.PaymentCompletedAtUtc.Should().Be(t2);
+
+        order.MarkPaymentCompleted(t2.AddMinutes(1)).IsSuccess.Should().BeTrue();
+        order.PaymentCompletedAtUtc.Should().Be(t2.AddMinutes(1));
+    }
+
+    [Fact(DisplayName = "MarkPaymentFailed: stamps and is monotonic")]
+    public void MarkPaymentFailed_IsMonotonic()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        var t1 = new DateTimeOffset(2026, 8, 14, 10, 0, 0, TimeSpan.Zero);
+
+        order.MarkPaymentFailed(t1).IsSuccess.Should().BeTrue();
+        order.PaymentFailedAtUtc.Should().Be(t1);
+    }
+
+    [Fact(DisplayName = "MarkPaymentProcessing/MarkShipped/MarkDelivered: first write wins")]
+    public void MarkShipmentTimestamps_FirstWriteWins()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        var t1 = new DateTimeOffset(2026, 8, 14, 10, 0, 0, TimeSpan.Zero);
+
+        order.MarkPaymentProcessing(t1);
+        order.MarkPaymentProcessing(t1.AddHours(1));
+        order.PaymentProcessingAtUtc.Should().Be(t1);
+
+        order.MarkShipped(t1);
+        order.MarkShipped(t1.AddHours(1));
+        order.ShipmentShippedAtUtc.Should().Be(t1);
+
+        order.MarkDelivered(t1);
+        order.MarkDelivered(t1.AddHours(1));
+        order.ShipmentDeliveredAtUtc.Should().Be(t1);
+    }
+
+    [Fact(DisplayName = "UpdatePaymentState derives BalanceDue/Paid/Void from balance")]
+    public void UpdatePaymentState_DerivesFromBalance()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.OutstandingBalance = 10m;
+        order.UpdatePaymentState();
+        order.PaymentState.Should().Be(OrderPaymentState.BalanceDue);
+
+        order.OutstandingBalance = 0m;
+        order.UpdatePaymentState();
+        order.PaymentState.Should().Be(OrderPaymentState.Paid);
+    }
+
+    [Fact(DisplayName = "UpdatePaymentState maps fully refunded order to CreditOwed, not BalanceDue")]
+    public void UpdatePaymentState_FullyRefundedCompleted_IsCreditOwed()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Completed;
+        order.Total = 100m;
+        order.PaymentCaptures.Add(new PaymentCapture
+        {
+            OrderId = order.Id,
+            CapturedAmount = 100m,
+            RefundedAmount = 100m
+        });
+        order.RecomputePaymentState();
+        order.PaymentTotal.Should().Be(0m);
+        order.OutstandingBalance.Should().Be(100m);
+
+        order.UpdatePaymentState();
+        order.PaymentState.Should().Be(OrderPaymentState.CreditOwed);
+    }
+
+    [Fact(DisplayName = "AdvanceCheckoutState to PickPaymentMethod does not stamp PaymentProcessingAt")]
+    public void AdvanceCheckoutState_PickPaymentMethod_DoesNotStampProcessing()
+    {
+        var order = OrderMethod.Create("USD", Guid.NewGuid()).Value;
+        order.AdvanceCheckoutState(CheckoutState.PickDeliveryMethod);
+        order.AdvanceCheckoutState(CheckoutState.PickPaymentMethod);
+
+        order.PaymentProcessingAtUtc.Should().BeNull();
     }
 }

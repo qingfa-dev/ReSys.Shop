@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Orders.Get.ById;
 
@@ -27,14 +28,22 @@ public static partial class GetCustomerOrder
             // Check: Retrieve order by identifier scoped to current user.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
+                .Include(x => x.PaymentCaptures)
+                .Include(x => x.Shipments)
+                    .ThenInclude(s => s.ShippingMethod)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == query.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)
                 return OrderResult.Errors.NotFound(query.Id);
 
-            // Map: Convert entity to response DTO.
-            return entity.MapToDetail<Response>();
+            // Enrich: Resolve product references (id, name, primary image) for the order line items.
+            var variantIds = entity.LineItems.Select(li => li.VariantId).Distinct().ToList();
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, variantIds, cancellationToken);
+
+            // Map: Convert entity to response DTO with enriched line items.
+            return entity.MapToDetailWithLookup<Response>(itemLookup);
         }
     }
 }

@@ -1,4 +1,3 @@
-using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
 
 namespace Module.Catalog.Features.Admin.Optiontypes.Values.Delete;

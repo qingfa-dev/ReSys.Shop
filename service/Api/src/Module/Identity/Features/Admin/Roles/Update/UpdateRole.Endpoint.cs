@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Roles.Update;
+namespace Module.Identity.Features.Shared.Admin.Roles.Update;
 
 public static partial class UpdateRole
 {

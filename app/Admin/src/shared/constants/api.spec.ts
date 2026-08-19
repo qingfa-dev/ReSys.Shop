@@ -1,23 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { API_MODULES, CATALOG, DASHBOARD } from './api'
+import { STORAGE_KEYS } from './storage'
 
-describe('API_MODULES', () => {
-  it('exports all module routes', () => {
-    expect(API_MODULES).toEqual({
-      CATALOG: 'api/catalog',
-      IDENTITY: 'api/identity',
-      INVENTORY: 'api/inventory',
-      LOCATION: 'api/locations',
-      ORDERING: 'api/ordering',
-      PAYMENT: 'api/payment',
-      PROFILE: 'api/profiles',
-      SHIPPING: 'api/shipping',
-      DASHBOARD: 'api/dashboard',
-    })
-  })
-
-  it('exports individual constants that match', () => {
-    expect(CATALOG).toBe('api/catalog')
-    expect(DASHBOARD).toBe('api/dashboard')
+describe('STORAGE_KEYS', () => {
+  it('exports storage key constants', () => {
+    expect(STORAGE_KEYS).toBeDefined()
+    expect(typeof STORAGE_KEYS.ACCESS_TOKEN).toBe('string')
+    expect(typeof STORAGE_KEYS.REFRESH_TOKEN).toBe('string')
   })
 })

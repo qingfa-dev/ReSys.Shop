@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Extensions;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateShipAddress;
 /// <summary>Updates the shipping address on a draft order, enforcing draft-only status before persisting the change.</summary>
@@ -18,7 +19,7 @@ public static partial class UpdateOrderShipAddress
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Find the order to update the shipping address on.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
+            var order = await dbContext.Set<Order>().IncludeOrderDetail().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 

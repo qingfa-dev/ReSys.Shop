@@ -228,7 +228,7 @@ public static class PermissionContext
         all.AddRange(LocationFeatureMetadata.All);
         all.AddRange(ProfileFeatureMetadata.All);
         all.AddRange(OrderingFeatureMetadata.All);
-        all.AddRange(PaymentFeatureMetadata.All);
+        all.AddRange(BillingFeatureMetadata.All);
         all.AddRange(InventoryFeatureMetadata.All);
         all.AddRange(ConfigurationFeatureMetadata.All);
         all.AddRange(DashboardFeatureMetadata.All);

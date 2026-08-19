@@ -9,7 +9,7 @@ public static partial class ResumeOrder
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/ordering/orders/{id:guid}/resume — resume a canceled order
+            // Map: POST api/admin/ordering/orders/{id:guid}/resume — resume a canceled order
             app.MapPost(OrderingFeature.Admin.Orders.Resume.Route, async ([FromRoute] Guid id, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(id), ct);

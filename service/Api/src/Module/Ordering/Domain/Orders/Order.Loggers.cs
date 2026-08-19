@@ -62,4 +62,10 @@ public static partial class OrderLoggers
         Level = LogLevel.Warning,
         Message = "Failed to send order resumed notification for order {OrderId}: {Errors}")]
     public static partial void ResumeNotificationFailed(ILogger logger, Guid OrderId, string Errors);
+
+    [LoggerMessage(
+        EventId = 3014,
+        Level = LogLevel.Warning,
+        Message = "Failed to auto-complete order {OrderId}: {Errors}")]
+    public static partial void CompletionFailed(ILogger logger, Guid OrderId, string Errors);
 }

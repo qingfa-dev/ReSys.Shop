@@ -56,7 +56,7 @@ public class ProductsModule : ICarterModule
             async ([FromBody] CreateProduct.Request request, ISender sender) =>
             {
                 var result = await sender.Send(new CreateProduct.Command(request));
-                return result.ToApiCreatedResponse(x => $"/api/catalog/products/{x.Id}");
+                return result.ToApiCreatedResponse(x => $"/api/admin/catalog/products/{x.Id}");
             })
             .RequireAccessPermission(FeaturePermissions.Admin.Catalog.Product.Create);
 

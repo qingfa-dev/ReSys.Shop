@@ -20,7 +20,7 @@ public static partial class UpdateOrderShippingMethod
 
             When(x => x.Request is not null, () =>
             {
-                RuleFor(x => x.Request!.ShippingMethodId)
+                RuleFor(x => x.Request.ShippingMethodId)
                     .ApplyShippingMethodIdRules();
             });
         }

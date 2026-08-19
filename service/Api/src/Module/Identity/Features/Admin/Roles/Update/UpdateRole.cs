@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Shared.Mappings;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Update;
+namespace Module.Identity.Features.Shared.Admin.Roles.Update;
 
 /// <summary>
 /// Defines the use case for updating an existing role.

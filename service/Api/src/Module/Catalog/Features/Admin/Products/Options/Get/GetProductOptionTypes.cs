@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Options;
-using Module.Catalog.Features.Admin.Products.Options.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Products.Options.Get;
 

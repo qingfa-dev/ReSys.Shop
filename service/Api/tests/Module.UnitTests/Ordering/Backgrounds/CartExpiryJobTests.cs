@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Ordering.Backgrounds;
 using Module.Ordering.Domain.Orders;
 

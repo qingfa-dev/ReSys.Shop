@@ -56,23 +56,27 @@ arrow {
 
 </style>
 
-title Use Case: UC-SYS-MNT\nBackground Maintenance
 
 actor "System Scheduler" as Scheduler <<system>>
 actor "ML Service" as ML <<system>>
 actor "Payment Gateway" as Gateway <<system>>
 
-rectangle "ReSys.Shop\nSystem Processing Services" {
+rectangle {
 
-  usecase "Monitor Service Health\nUC-SYS-MNT-HEALTH" as UC_HEALTH
+  ' UC-SYS-MNT-HEALTH
+  usecase "Monitor Service Health" as UC_HEALTH
 
-  usecase "Expire Abandoned Carts\nUC-SYS-MNT-CART" as UC_CARTS
+  ' UC-SYS-MNT-CART
+  usecase "Expire Abandoned Carts" as UC_CARTS
 
-  usecase "Release Expired Reservations\nUC-SYS-MNT-RES" as UC_RES
+  ' UC-SYS-MNT-RES
+  usecase "Release Expired Reservations" as UC_RES
 
-  usecase "Process Payment Webhooks\nUC-SYS-MNT-WEB" as UC_WEB
+  ' UC-SYS-MNT-WEB
+  usecase "Process Payment Webhooks" as UC_WEB
 
-  usecase "Maintain Search Index\nUC-SYS-MNT-INDEX" as UC_INDEX
+  ' UC-SYS-MNT-INDEX
+  usecase "Maintain Search Index" as UC_INDEX
 
 }
 

@@ -1,6 +1,6 @@
-using Module.Identity.Features.Storefront.Emails.Shared.Models;
+using Module.Identity.Features.Storefront.Shared.Models;
 
-namespace Module.Identity.Features.Storefront.Emails.Confirm;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Confirm;
 
 public static partial class ConfirmEmail
 {

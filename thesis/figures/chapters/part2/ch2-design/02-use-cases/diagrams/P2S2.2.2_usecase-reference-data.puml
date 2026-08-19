@@ -56,17 +56,19 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-REF\nReference Data Management
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nAdministration Portal" {
+rectangle {
 
-  usecase "Manage Reference Data\nUC-ADM-REF" as UC_MAIN
+  ' UC-ADM-REF
+  usecase "Manage Reference Data" as UC_MAIN
 
-  usecase "Manage Countries\nUC-ADM-REF-COUNTRY" as UC_COUNTRY
+  ' UC-ADM-REF-COUNTRY
+  usecase "Manage Countries" as UC_COUNTRY
 
-  usecase "Manage States\nUC-ADM-REF-STATE" as UC_STATE
+  ' UC-ADM-REF-STATE
+  usecase "Manage States" as UC_STATE
 
 }
 

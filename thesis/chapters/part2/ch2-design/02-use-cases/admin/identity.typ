@@ -3,7 +3,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-user-management.png",
-    width: 60%
+    width: 50%
   ),
   caption: [Use case diagram for User Management (UC-ADM-USR).],
 ) <fig-uc-adm-usr-d>
@@ -15,37 +15,31 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Field*], [*Description*],
-    [*Use Case ID*], [UC-ADM-USR],
-    [*Use Case Name*], [Manage Users],
-    [*Primary Actor*], [Administrator],
-    [*Supporting Actors*], [None],
+    [*Use Case*], [UC-ADM-USR — Manage Users],
+    [*Actor*], [Administrator],
     [*Goal*], [Create, update, enable, and disable user accounts.],
-    [*Trigger*], [Administrator navigates to user management.],
-    [*Preconditions*], [
-      - Authenticated with user management permissions.
+    [*Pre/Post*], [
+      Pre: authenticated with user management permissions.
+      Post: user account created or modified; status changes take effect on next authentication.
     ],
-    [*Postconditions*], [
-      - User account created or modified. Status changes take effect on next authentication.
+    [*Scenario*], [
+      + Navigates to user management.
+      + System displays user list with default sorting and pagination.
+      + Applies optional filters (email, name, role, account status).
+      + Creates new user account by entering email, name, assigning roles.
+      + Alternatively selects existing user to view detail or edit.
+      + Modifies profile fields, enables/disables account, or adjusts role assignments.
+      + Saves; system validates email uniqueness, persists, confirms; if account was disabled, all active sessions are revoked.
     ],
-    [*Main Success Scenario*], [
-      1. Navigates to user management.
-      2. System displays user list with default sorting and pagination.
-      3. Applies optional filters: email, name, role, account status.
-      4. Creates a new user account by entering email, name, and assigning roles.
-      5. Alternatively selects an existing user to view detail or edit.
-      6. Modifies profile fields, enables/disables account, or adjusts role assignments.
-      7. Saves. System validates email uniqueness, persists, and confirms. If account was disabled, all active sessions are revoked.
+    [*Alternatives*], [
+      + A1. Disable account → system revokes all active sessions immediately.
+      + A2. Re-enable disabled account → system restores active status.
+      + A3. Email already registered → system rejects, prompts for different email.
     ],
-    [*Alternative Flows*], [
-      A1. Disable account: system revokes all active sessions immediately.
-      A2. Re-enable disabled account: system restores active status.
-      A3. Email already registered: system rejects and prompts for a different email.
+    [*Exceptions*], [
+      + E1. Persistence failure → system reports, retains form data for retry.
     ],
-    [*Exception Flows*], [
-      E1. Persistence failure: system reports and retains form data for retry.
-    ],
-    [*Related Requirements*], [IDN-FR-09, IDN-FR-13],
+    [*Requirements*], [IDN-FR-09, IDN-FR-13],
   ),
     kind: table,
   caption: [Manage Users.],
@@ -56,7 +50,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-role-permission.png",
-    height: 50%
+    height: 30%
   ),
   caption: [Use case diagram for Role and Permission Governance (UC-ADM-ROL).],
 ) <fig-uc-adm-rol-d>
@@ -68,58 +62,53 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Field*], [*Description*],
-    [*Use Case ID*], [UC-ADM-ROL],
-    [*Use Case Name*], [Manage Roles and Permissions],
-    [*Primary Actor*], [Administrator],
-    [*Supporting Actors*], [None],
+    [*Use Case*], [UC-ADM-ROL — Manage Roles and Permissions],
+    [*Actor*], [Administrator],
     [*Goal*], [Create and manage roles, assign permissions to roles, and grant roles to users.],
-    [*Trigger*], [Administrator navigates to role management or user detail page.],
-    [*Preconditions*], [
-      - Authenticated with role and permission management rights.
+    [*Pre/Post*], [
+      Pre: authenticated with role and permission management rights.
+      Post: role and permission configuration updated; affected users receive updated permissions on next token.
     ],
-    [*Postconditions*], [
-      - Role and permission configuration updated. Affected users receive updated permissions on next token.
-    ],
-    [*Main Success Scenario*], [
+    [*Scenario*], [
       *Manage Roles*
-      1. Navigates to role management.
-      2. System displays list of roles with name, description, and permission count.
-      3. Creates a new role with name and description.
-      4. Assigns permissions from the permissions catalogue.
-      5. Optionally edits an existing role's name, description, or permission set.
-      6. Saves. System validates role name uniqueness, persists, and confirms.
+      + Navigates to role management.
+      + System displays list of roles with name, description, permission count.
+      + Creates new role with name and description.
+      + Assigns permissions from permissions catalogue.
+      + Optionally edits existing role's name, description, or permission set.
+      + Saves; system validates role name uniqueness, persists, confirms.
       ,
       *Assign User Roles*
-      1. Opens a user's detail page.
-      2. Opens the role assignment panel.
-      3. System displays all available roles with checkboxes for current assignments.
-      4. Selects roles to assign and deselects to revoke.
-      5. Saves. System persists and displays updated effective permissions.
+      + Opens user's detail page.
+      + Opens role assignment panel.
+      + System displays all available roles with checkboxes for current assignments.
+      + Selects roles to assign and deselects to revoke.
+      + Saves; system persists, displays updated effective permissions.
       ,
       *Grant Direct Permissions*
-      1. Opens a user's detail page.
-      2. Opens the direct permission panel.
-      3. System displays permissions catalogue with role-inherited and direct-grant indicators.
-      4. Selects permissions to grant directly and deselects to revoke.
-      5. Saves. System persists and recalculates effective permissions.
+      + Opens user's detail page.
+      + Opens direct permission panel.
+      + System displays permissions catalogue with role-inherited and direct-grant indicators.
+      + Selects permissions to grant directly and deselects to revoke.
+      + Saves; system persists, recalculates effective permissions.
       ,
       *View Permissions Catalogue*
-      1. Navigates to the permissions catalogue.
-      2. System displays all permission claims grouped by domain and module.
-      3. Applies optional filters: domain, category, keyword search.
-      4. Reviews the permission matrix to plan role designs or audit assignments.
+      + Navigates to permissions catalogue.
+      + System displays all permission claims grouped by domain and module.
+      + Applies optional filters (domain, category, keyword search).
+      + Reviews permission matrix to plan role designs or audit assignments.
+      ,
     ],
-    [*Alternative Flows*], [
-      A1. Remove role assigned to users: system warns affected users lose permissions.
-      A2. Revoke permission from role: system warns all users with this role lose it on next token.
-      A3. Revoke last role from user: system warns user loses all role-derived permissions.
-      A4. Grant already inherited from role: system accepts; effective permission unchanged but direct grant recorded.
+    [*Alternatives*], [
+      + A1. Remove role assigned to users → system warns affected users lose permissions.
+      + A2. Revoke permission from role → system warns all users with this role lose it on next token.
+      + A3. Revoke last role from user → system warns user loses all role-derived permissions.
+      + A4. Grant already inherited from role → system accepts; effective permission unchanged but direct grant recorded.
     ],
-    [*Exception Flows*], [
-      E1. Concurrent modification or role deleted: system refreshes and asks to retry.
+    [*Exceptions*], [
+      + E1. Concurrent modification or role deleted → system refreshes, asks to retry.
     ],
-    [*Related Requirements*], [IDN-FR-11, IDN-FR-12],
+    [*Requirements*], [IDN-FR-11, IDN-FR-12],
   ),
     kind: table,
   caption: [Manage Roles and Permissions.],

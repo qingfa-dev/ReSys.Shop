@@ -129,7 +129,7 @@ features:
     type: integration
     description: >
       Coordinates stock decrement on shipment and increment on cancellation
-      via OrderInventoryService for completed orders.
+      via IStockItemService.AdjustStockAsync for previously placed orders.
 
 abstractions:
   - category: Core Domain Entities
@@ -197,9 +197,9 @@ abstractions:
           Single entry point for all Order state mutations, ensuring
           invariant enforcement before any state change.
         contract: |
-          // Contract: pre=currency!=null&&storeId!=default, post=entity.Status==Draft
+          // Contract: pre=currency!=null, post=entity.Status==Draft
         methods:
-          - name: "Create(currency, userId, storeId, id?, sessionId?) → Result<Order>"
+          - name: "Create(currency, userId, id?, sessionId?, shipAddressId?) → Result<Order>"
             description: Factory that creates a new Draft order with zero totals.
           - name: "AdvanceCheckout(order) → Result"
             description: Transitions order to the next checkout state.
@@ -365,17 +365,6 @@ abstractions:
           Handles guest-to-user cart consolidation on login, ensuring no
           duplicate line items for the same variant.
       - id: B4
-        name: OrderInventoryService
-        type: class
-        path: ./Features/Shared/Services/OrderInventoryService.cs
-        description: >
-          Synchronizes inventory units for completed orders when line item
-          quantities change. Handles stock decrement on shipment and
-          increment on return or cancellation.
-        purpose: >
-          Bridges the Ordering and Inventory modules via IStockQuantityService
-          for stock-level coordination on order state changes.
-      - id: B5
         name: OrderResult
         type: class
         path: ./Domain/Orders/Order.Result.cs
@@ -667,7 +656,7 @@ usage:
 
         // Place the order
         cart.Status = OrderStatus.Placed;
-        cart.CheckoutState = CheckoutState.Complete;
+        cart.CheckoutState = CheckoutState.Placed;
         cart.CompletedAtUtc = DateTimeOffset.UtcNow;
         cart.Number = GenerateOrderNumber();
 
@@ -746,7 +735,7 @@ testing:
         [Fact]
         public void AdvanceCheckout_FromAddress_ToDelivery_WhenAddressesSet()
         {
-            var order = OrderMethod.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId).Value;
             order.BillAddressId = addressId;
             order.ShipAddressId = addressId;
 
@@ -759,7 +748,7 @@ testing:
         [Fact]
         public void AdvanceCheckout_FromAddress_ToDelivery_WhenNoAddresses_Rejects()
         {
-            var order = OrderMethod.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId).Value;
 
             var result = order.AdvanceCheckout();
 
@@ -776,7 +765,7 @@ testing:
         [Fact]
         public void RecalculateTotals_ComputesCorrectTotals()
         {
-            var order = OrderMethod.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId).Value;
             order.LineItems.Add(CreateLineItem(price: 10m, qty: 2));
             order.LineItems.Add(CreateLineItem(price: 5m, qty: 1));
 

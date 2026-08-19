@@ -2,6 +2,7 @@ using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
 using Module.Ordering.Domain.Orders;
+using Module.Catalog.Domain.Variants;
 
 namespace Module.Ordering.Domain.LineItems;
 
@@ -24,6 +25,7 @@ public sealed partial class LineItem : Entity, IAuditable
     public Guid OrderId { get; set; }
     public Order Order { get; set; } = null!;
     public Guid VariantId { get; set; }
+    public Variant Variant { get; set; } = null!;
     #endregion Relationships
 
     #region Auditing

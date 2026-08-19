@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 
 namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 

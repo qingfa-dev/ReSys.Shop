@@ -1,46 +1,44 @@
+using Module.Inventory.Domain.StockReservations;
+
 namespace Module.Inventory.Features.Shared;
 
 public static partial class InventoryFeature
 {
     public static class Storefront
     {
-        public const string Route = "api/storefront";
-
-        public static class StockAvailability
+        public static class StockItems
         {
-            public const string BaseRoute = $"{Route}/availability";
-
-            public static class Check
+            public static class GetAvailability
             {
-                public const string Route = $"{BaseRoute}/{{variantId:guid}}";
-                public const string Description = "Check stock availability for a variant across all stock locations";
-                public const string Summary = "Check variant availability";
+                public const string Route = "api/storefront/inventory/stock-items/{variantId:guid}/availability";
+                public const string Description = "Get per-location stock availability for a variant with optional cart token exclusion";
+                public const string Summary = "Get variant stock availability";
             }
         }
 
-        public static class CartReservations
+        public static class StockReservations
         {
-            public const string BaseRoute = $"{Route}/cart/reserve";
+            public const int TtlMinutesDefault = StockReservationConstant.Defaults.DefaultTtlMinutes;
 
             public static class Reserve
             {
-                public const string Route = BaseRoute;
-                public const string Description = "Reserve stock for a cart item with configurable TTL";
-                public const string Summary = "Reserve cart stock";
+                public const string Route = "api/storefront/inventory/stock-reservations";
+                public const string Description = "Reserve stock for a specific variant and location";
+                public const string Summary = "Reserve stock";
+            }
+
+            public static class Get
+            {
+                public const string Route = "api/storefront/inventory/stock-reservations";
+                public const string Description = "List active stock reservations for the current cart";
+                public const string Summary = "Get cart reservations";
             }
 
             public static class Release
             {
-                public const string Route = $"{BaseRoute}/{{reservationId:guid}}";
-                public const string Description = "Release a cart stock reservation";
-                public const string Summary = "Release cart reservation";
-            }
-
-            public static class Status
-            {
-                public const string Route = BaseRoute;
-                public const string Description = "Get active stock reservations for the current cart";
-                public const string Summary = "Get cart reservations";
+                public const string Route = "api/storefront/inventory/stock-reservations/{id:guid}";
+                public const string Description = "Release a single stock reservation by identifier";
+                public const string Summary = "Release reservation";
             }
         }
     }

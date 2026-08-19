@@ -65,7 +65,7 @@ public class DeleteStockLocationTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0]!.Code.Should().Be(StockLocationResult.Failure.NotFound.Code);
+        result.Errors[0]!.Code.Should().Be(StockLocationResult.Errors.NotFound.Code);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when location is active")]
@@ -80,7 +80,7 @@ public class DeleteStockLocationTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0]!.Code.Should().Be(StockLocationResult.Failure.CannotDeleteActive.Code);
+        result.Errors[0]!.Code.Should().Be(StockLocationResult.Errors.CannotDeleteActive.Code);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when location is default")]
@@ -96,6 +96,6 @@ public class DeleteStockLocationTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0]!.Code.Should().Be(StockLocationResult.Failure.CannotDeactivateDefault.Code);
+        result.Errors[0]!.Code.Should().Be(StockLocationResult.Errors.CannotDeactivateDefault.Code);
     }
 }

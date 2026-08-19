@@ -1,5 +1,5 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
-using Module.Identity.Features.Admin.Users.Shared.Validators;
+using Module.Identity.Features.Admin.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Validators;
 
 namespace Module.UnitTests.Identity.Features.Admin.Users.Shared.Validators;
 

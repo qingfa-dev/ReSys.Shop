@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockTransfers;
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 
 using Shared.Operational.Persistence.Data;
 
@@ -217,8 +218,9 @@ public sealed class ReservationExpiryIntegrationTests(ApiFixture fixture) : Inve
         // Act: Run expiry sweep
         IStockReservationService reservationService = scope.ServiceProvider
             .GetRequiredService<IStockReservationService>();
-        int expiredCount = await reservationService.ExpireReservationsAndRestoreStockAsync(
+        var expireResult = await reservationService.ExpireReservationsAsync(
             TestContext.Current.CancellationToken);
+        int expiredCount = expireResult.IsSuccess ? expireResult.Value : 0;
 
         // Assert
         expiredCount.Should().BeGreaterThanOrEqualTo(1, "at least the overdue reservation must be expired");

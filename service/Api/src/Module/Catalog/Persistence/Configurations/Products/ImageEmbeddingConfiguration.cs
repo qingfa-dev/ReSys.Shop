@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
 
 using Shared.Operational.Persistence.Configurations.Vectors;
 
@@ -10,7 +10,7 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
 {
     public void Configure(EntityTypeBuilder<ImageEmbedding> builder)
     {
-        builder.ToTable(CatalogSchema.TableNames.ProductImageEmbeddings, CatalogSchema.Name);
+        builder.ToTable(CatalogSchema.TableNames.VariantImageEmbeddings, CatalogSchema.Name);
 
         builder.HasKey(x => x.Id);
 
@@ -42,7 +42,7 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
 
         #region Relationships
         builder.HasOne(x => x.VariantImage)
-            .WithMany(i => i.ImageEmbedding)
+            .WithMany(i => i.ImageEmbeddings)
             .HasForeignKey(x => x.VariantImageId)
             .OnDelete(DeleteBehavior.Cascade);
         #endregion

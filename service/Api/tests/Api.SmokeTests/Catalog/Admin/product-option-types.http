@@ -10,19 +10,19 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Get assigned option types
-# GET /api/catalog/product-option-types?productId=
+# GET /api/admin/catalog/product-option-types?productId=
 # Expected: 200 OK – list of option types assigned to product
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/product-option-types?productId={{existingProductId}}
+GET {{baseUrl}}/api/admin/catalog/product-option-types?productId={{existingProductId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Assign option types – success
-# POST /api/catalog/product-option-types/assign (ProductId in body)
+# POST /api/admin/catalog/product-option-types/assign (ProductId in body)
 # Expected: 200 OK – option types assigned
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/product-option-types/assign
+POST {{baseUrl}}/api/admin/catalog/product-option-types/assign
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -33,10 +33,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Revoke option types – success
-# POST /api/catalog/product-option-types/revoke (ProductId in body)
+# POST /api/admin/catalog/product-option-types/revoke (ProductId in body)
 # Expected: 200 OK – option types revoked
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/product-option-types/revoke
+POST {{baseUrl}}/api/admin/catalog/product-option-types/revoke
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -47,10 +47,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Sync option types – success
-# PUT /api/catalog/product-option-types/sync (ProductId in body)
+# PUT /api/admin/catalog/product-option-types/sync (ProductId in body)
 # Expected: 200 OK – option types synchronized
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/product-option-types/sync
+PUT {{baseUrl}}/api/admin/catalog/product-option-types/sync
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 

@@ -21,13 +21,13 @@ public sealed class GetProductAvailabilityIntegrationTests(ApiFixture fixture) :
             slug = "availability-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         using var activateRequest = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{productId}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{productId}/activate");
         activateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);

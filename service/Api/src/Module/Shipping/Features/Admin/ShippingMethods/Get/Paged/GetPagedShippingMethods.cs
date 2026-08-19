@@ -1,5 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Mappings;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Get.Paged;
 

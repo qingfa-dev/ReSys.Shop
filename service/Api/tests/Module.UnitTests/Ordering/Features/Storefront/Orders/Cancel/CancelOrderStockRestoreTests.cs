@@ -1,10 +1,13 @@
-using Shared.Operational.Notifications.Models;
-using Shared.Operational.Notifications.Services;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
-using Module.Inventory.Services;
+using Module.Billing.Features.Shared.Commands;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+using Module.Shipping.Domain.Shipments;
+using Module.Shipping.Domain.ShippingMethods;
+
+using Shared.Application.Domain.Orders;
+using Shared.Operational.Notifications.Models;
+using Shared.Operational.Notifications.Services;
 
 using CancelOrderHandler = Module.Ordering.Features.Storefront.Orders.Cancel.CancelOrder;
 
@@ -20,22 +23,18 @@ public class CancelOrderStockRestoreTests : IDisposable
     private readonly Mock<ILogger<CancelOrderHandler.CommandHandler>> _loggerMock;
     private readonly Mock<ISender> _senderMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
     private readonly CancelOrderHandler.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
     private readonly Guid _variantId = Guid.NewGuid();
-    private readonly Guid _stockLocationId = Guid.NewGuid();
+    private readonly string _databaseName = Guid.NewGuid().ToString();
 
     public CancelOrderStockRestoreTests()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [
-            typeof(StockItem).Assembly,
             typeof(Order).Assembly
         ];
-        _dbContext = new ApplicationDbContext(options);
+        _dbContext = CreateContext();
 
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserId).Returns(_userId.ToString());
@@ -53,8 +52,13 @@ public class CancelOrderStockRestoreTests : IDisposable
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock
+            .Setup(x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
         _handler = new CancelOrderHandler.CommandHandler(
-            _dbContext, new StockQuantityService(_dbContext), _senderMock.Object,
+            _dbContext, _reservationServiceMock.Object, _senderMock.Object,
             _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
 
@@ -64,8 +68,16 @@ public class CancelOrderStockRestoreTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private async Task<Order> SeedCompletedOrderWithStock(
-        int lineItemQuantity = 3, int countOnHand = 10, Guid? orderUserId = null)
+    private ApplicationDbContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(_databaseName)
+            .Options;
+        return new ApplicationDbContext(options);
+    }
+
+    private async Task<Order> SeedPlacedOrderWithShipment(
+        Guid? orderUserId = null, ShipmentStatus shipmentStatus = ShipmentStatus.Pending)
     {
         var ct = TestContext.Current.CancellationToken;
         var orderUserIdValue = orderUserId ?? _userId;
@@ -81,60 +93,49 @@ public class CancelOrderStockRestoreTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(ct);
 
-        var lineItem = new LineItem
+        _dbContext.Set<LineItem>().Add(new LineItem
         {
             OrderId = order.Id,
             VariantId = _variantId,
-            Quantity = lineItemQuantity,
+            Quantity = 3,
             Price = 10m,
-            Total = 10m * lineItemQuantity
-        };
-        _dbContext.Set<LineItem>().Add(lineItem);
+            Total = 30m
+        });
         await _dbContext.SaveChangesAsync(ct);
 
-        _dbContext.Set<StockItem>().Add(new StockItem
-        {
-            VariantId = _variantId,
-            StockLocationId = _stockLocationId,
-            CountOnHand = countOnHand,
-            Backorderable = false
-        });
+        var method = ShippingMethodMethod.Create("Express", "flat_rate").Value;
+        var shipment = ShipmentMethod.Create(order.Id, method.Id).Value;
+        shipment.Status = shipmentStatus;
+        _dbContext.Set<ShippingMethod>().Add(method);
+        _dbContext.Set<Shipment>().Add(shipment);
         await _dbContext.SaveChangesAsync(ct);
 
         return order;
     }
 
-    [Fact(DisplayName = "Handler: Should restore stock when canceling completed order")]
-    public async Task Handle_ShouldRestoreStock_WhenCancelCompletedOrder()
+    [Fact(DisplayName = "Handler: Should cancel shipments, set ShipmentState, and return stock when canceling a placed order")]
+    public async Task Handle_ShouldCancelShipments_SetShipmentState_AndReturnStock_WhenCancelPlacedOrder()
     {
         var ct = TestContext.Current.CancellationToken;
-        var order = await SeedCompletedOrderWithStock(lineItemQuantity: 3, countOnHand: 5);
+        var order = await SeedPlacedOrderWithShipment();
 
         var result = await _handler.Handle(new CancelOrderHandler.Command(order.Id), ct);
 
         result.IsSuccess.Should().BeTrue();
-        var stockItem = await _dbContext.Set<StockItem>()
-            .FirstAsync(si => si.VariantId == _variantId, ct);
-        stockItem.CountOnHand.Should().Be(8);
+
+        var shipment = await _dbContext.Set<Shipment>().SingleAsync(ct);
+        shipment.Status.Should().Be(ShipmentStatus.Canceled);
+
+        var reloadedOrder = await _dbContext.Set<Order>().SingleAsync(o => o.Id == order.Id, ct);
+        reloadedOrder.ShipmentState.Should().Be(ShipmentState.Canceled);
+
+        _reservationServiceMock.Verify(
+            x => x.ReturnConsumedForOrderAsync(order.Id, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
-    [Fact(DisplayName = "Handler: Should create StockMovement when restoring stock on cancel")]
-    public async Task Handle_ShouldCreateMovement_OnStockRestore()
-    {
-        var ct = TestContext.Current.CancellationToken;
-        var order = await SeedCompletedOrderWithStock(lineItemQuantity: 3, countOnHand: 5);
-
-        await _handler.Handle(new CancelOrderHandler.Command(order.Id), ct);
-
-        var movements = await _dbContext.Set<StockMovement>().ToListAsync(ct);
-        movements.Should().HaveCount(1);
-        movements[0].Quantity.Should().Be(3);
-        movements[0].Reason.Should().Be("returned");
-        movements[0].OriginatorType.Should().Be("Order");
-    }
-
-    [Fact(DisplayName = "Handler: Should not restore stock when order is not completed")]
-    public async Task Handle_ShouldNotRestoreStock_WhenOrderNotCompleted()
+    [Fact(DisplayName = "Handler: Should not return stock when order is not placed")]
+    public async Task Handle_ShouldNotReturnStock_WhenOrderNotPlaced()
     {
         var ct = TestContext.Current.CancellationToken;
         var order = new Order
@@ -147,26 +148,68 @@ public class CancelOrderStockRestoreTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(ct);
 
-        var lineItem = new LineItem
-        {
-            OrderId = order.Id, VariantId = _variantId,
-            Quantity = 2, Price = 10m, Total = 20m
-        };
-        _dbContext.Set<LineItem>().Add(lineItem);
-        await _dbContext.SaveChangesAsync(ct);
+        var result = await _handler.Handle(new CancelOrderHandler.Command(order.Id), ct);
 
-        _dbContext.Set<StockItem>().Add(new StockItem
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(OrderResult.Errors.InvalidStatusTransition);
+        _senderMock.Verify(
+            x => x.Send(It.Is<VoidOrderPaymentsCommand>(c => c.OrderId == order.Id), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _reservationServiceMock.Verify(
+            x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure and not dispatch void when canceling a non-Placed order")]
+    public async Task Handle_ShouldReturnFailure_AndNotDispatchVoid_WhenOrderCompleted()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var order = new Order
         {
-            VariantId = _variantId, StockLocationId = _stockLocationId, CountOnHand = 10
-        });
+            Number = "R-TEST-004",
+            Status = OrderStatus.Completed,
+            UserId = _userId,
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            Email = "test@test.com",
+        };
+        _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(ct);
 
         var result = await _handler.Handle(new CancelOrderHandler.Command(order.Id), ct);
 
-        result.IsSuccess.Should().BeTrue();
-        var stockItem = await _dbContext.Set<StockItem>()
-            .FirstAsync(si => si.VariantId == _variantId, ct);
-        stockItem.CountOnHand.Should().Be(10);
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(OrderResult.Errors.InvalidStatusTransition);
+        _senderMock.Verify(
+            x => x.Send(It.Is<VoidOrderPaymentsCommand>(c => c.OrderId == order.Id), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _reservationServiceMock.Verify(
+            x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure and not persist cancellation when a shipment cannot be canceled")]
+    public async Task Handle_ShouldReturnFailure_AndNotPersist_WhenShipmentCannotBeCanceled()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var order = await SeedPlacedOrderWithShipment(shipmentStatus: ShipmentStatus.Shipped);
+
+        var result = await _handler.Handle(new CancelOrderHandler.Command(order.Id), ct);
+
+        result.IsFailure.Should().BeTrue();
+
+        using var freshContext = CreateContext();
+        var persistedOrder = await freshContext.Set<Order>().SingleAsync(o => o.Id == order.Id, ct);
+        persistedOrder.Status.Should().Be(OrderStatus.Placed);
+
+        var shipment = await freshContext.Set<Shipment>().SingleAsync(ct);
+        shipment.Status.Should().Be(ShipmentStatus.Shipped);
+
+        _senderMock.Verify(
+            x => x.Send(It.Is<VoidOrderPaymentsCommand>(c => c.OrderId == order.Id), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _reservationServiceMock.Verify(
+            x => x.ReturnConsumedForOrderAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when order already canceled")]

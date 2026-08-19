@@ -1,7 +1,6 @@
-using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.Get;
 
@@ -32,6 +31,7 @@ public static partial class GetCart
             // Load: Find the current user's active draft cart with line items
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .AsNoTracking()
@@ -43,54 +43,10 @@ public static partial class GetCart
 
             // Enrich: Look up variant skus, product names, and primary images for line items
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
-            var itemLookup = await BuildCartItemLookupAsync(dbContext, variantIds, cancellationToken);
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, variantIds, cancellationToken);
 
             // Map: Return cart with enriched line items
             return cart.MapToDetailWithItems<Response>(itemLookup);
-        }
-
-        /// <summary>Builds the enriched cart item lookup (sku, product name, primary image) for the given variant ids.</summary>
-        private static async Task<Dictionary<Guid, CartItemLookup>> BuildCartItemLookupAsync(
-            IApplicationDbContext dbContext,
-            IReadOnlyCollection<Guid> variantIds,
-            CancellationToken cancellationToken)
-        {
-            if (variantIds.Count == 0)
-                return new Dictionary<Guid, CartItemLookup>();
-
-            var variants = await dbContext.Set<Variant>()
-                .Where(v => variantIds.Contains(v.Id))
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
-
-            var productIds = variants.Select(v => v.ProductId).Distinct().ToList();
-            var products = await dbContext.Set<Product>()
-                .Where(p => productIds.Contains(p.Id))
-                .Include(p => p.Variants)
-                    .ThenInclude(v => v.VariantImages)
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
-
-            var productsById = products.ToDictionary(p => p.Id);
-
-            return variants.ToDictionary(v => v.Id, v =>
-            {
-                if (!productsById.TryGetValue(v.ProductId, out var product))
-                    return new CartItemLookup { Sku = v.Sku ?? string.Empty };
-
-                // Primary image: master variant's first image by position, falling back to the first image across all variants.
-                var masterVariant = product.Variants.FirstOrDefault(x => x.IsMaster);
-                var primaryImageUrl = (masterVariant?.VariantImages.OrderBy(i => i.Position).FirstOrDefault()
-                    ?? product.Variants.SelectMany(x => x.VariantImages).OrderBy(i => i.Position).FirstOrDefault())
-                    ?.Url;
-
-                return new CartItemLookup
-                {
-                    Sku = v.Sku ?? string.Empty,
-                    ProductName = product.Name,
-                    ProductImageUrl = primaryImageUrl,
-                };
-            });
         }
     }
 }

@@ -19,6 +19,7 @@ const router = useRouter()
 const confirm = useConfirm()
 const notify = useNotify()
 const { dt, exportCSV } = useDataTableExport()
+const selectedItems = ref<PaymentMethodListItem[]>([])
 const search = ref('')
 
 const { items, loading, setSearch, refresh } = usePaymentMethodList({
@@ -63,6 +64,43 @@ function confirmDelete(item: PaymentMethodListItem) {
     },
   })
 }
+
+function bulkConfirmDelete() {
+  if (selectedItems.value.length === 0) return
+
+  confirm.require({
+    message: `Are you sure you want to delete ${selectedItems.value.length > 1 ? 'these payment methods' : 'this payment method'}?`,
+    header: 'Confirm Delete',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      const ids = selectedItems.value.map(i => i.id)
+      const names = selectedItems.value.map(i => i.name)
+      let failed = 0
+      for (const id of ids) {
+        const result = await PaymentMethodApi.deletePaymentMethod(id)
+        if (!result.isSuccess) failed++
+      }
+      selectedItems.value = []
+      refresh()
+      if (failed === 0) {
+        notify.success(
+          ids.length > 1 ? 'Payment methods deleted' : 'Payment method deleted',
+          ids.length > 1
+            ? `${ids.length} payment methods have been removed.`
+            : `${names[0]} has been removed.`,
+        )
+      } else {
+        notify.error(
+          'Delete failed',
+          `${failed} of ${ids.length} could not be deleted.`,
+        )
+      }
+    },
+  })
+}
 </script>
 
 <template>
@@ -92,6 +130,13 @@ function confirmDelete(item: PaymentMethodListItem) {
       />
       <div class="flex-1" />
       <Button
+        v-if="selectedItems.length > 0"
+        label="Delete"
+        icon="pi pi-trash"
+        severity="danger"
+        @click="bulkConfirmDelete"
+      />
+      <Button
         label="New"
         icon="pi pi-plus"
         @click="navigateToNew"
@@ -113,6 +158,7 @@ function confirmDelete(item: PaymentMethodListItem) {
     <!-- Section: Data Table — payment method grid -->
     <DataTable
       ref="dt"
+      v-model:selection="selectedItems"
       :value="items"
       :loading="loading"
       scrollable
@@ -121,6 +167,7 @@ function confirmDelete(item: PaymentMethodListItem) {
       :rows-per-page-options="[10, 20, 50]"
       data-key="id"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <!-- Section: Table Columns — method identity and configuration fields -->
       <Column field="name" header="Name" :sortable="true" />
       <Column field="code" header="Code">

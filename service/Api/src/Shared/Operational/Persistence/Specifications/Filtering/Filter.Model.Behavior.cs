@@ -30,7 +30,7 @@ public sealed partial class FilterModel
     /// Reconstructs a canonical DSL string from the flat <see cref="Conditions"/> list.
     /// The output is always valid input for <see cref="FilterModelExtensions.FromString"/>
     /// apply-filter extension methods such as
-    /// <see cref="FilterModelEfCoreExtensions.ApplyFilter{T}(System.Linq.IQueryable{T}, FilterModel?)"/>.
+    /// <see cref="FilterModelEfCoreExtensions.ApplyFilter{T}(IQueryable{T}, FilterModel?)"/>.
     /// </summary>
     /// <remarks>
     /// This is a flat reconstruction — nested OR groups from the original parse are not

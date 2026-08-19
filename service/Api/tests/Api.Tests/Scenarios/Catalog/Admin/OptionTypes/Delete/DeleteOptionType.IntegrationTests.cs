@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.Delete;
 
@@ -21,7 +21,7 @@ public sealed class DeleteOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createRequest);
+            "/api/admin/catalog/option-types", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         OptionTypeDetailResponse? created = createResult.DeserializeValue<OptionTypeDetailResponse>();
@@ -29,7 +29,7 @@ public sealed class DeleteOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         Guid newId = created!.Id;
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/option-types/{newId}");
+            $"/api/admin/catalog/option-types/{newId}");
 
         deleteResponse.IsSuccessStatusCode.Should().BeTrue();
     }
@@ -40,7 +40,7 @@ public sealed class DeleteOptionTypeIntegrationTests(ApiFixture fixture) : Catal
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/option-types/{nonexistentId}");
+            $"/api/admin/catalog/option-types/{nonexistentId}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
@@ -47,6 +49,10 @@ public sealed partial class Adjustment : Entity, IAuditable
     // Assign: Identity of the principal that last mutated this adjustment — null when not yet modified
     public string? ModifiedBy { get; set; }
     #endregion Auditing
+
+    #region Relationship
+    public Order Order { get; set; } = null!;
+    #endregion
 
     #region Constructor
     // Boundary: Persistence → Domain — reserved for EF Core materialization; do not invoke from application code

@@ -1,11 +1,9 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Dashboard.Features.Admin.Get;
+using Module.Dashboard.Features.Admin.Shared.Models;
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Ordering.Domain.Orders;
 
 namespace Module.UnitTests.Dashboard.Features.Admin.Get;
@@ -241,9 +239,33 @@ public class GetDashboardHandlerTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         var activities = result.Value.RecentActivities;
         activities.Should().NotBeEmpty();
-        activities.Should().Contain(a => a.Type == "Order");
-        activities.Should().Contain(a => a.Type == "Stock");
+        activities.Should().Contain(a => a.Type == ActivityType.Order);
+        activities.Should().Contain(a => a.Type == ActivityType.Stock);
         activities.Should().BeInDescendingOrder(a => a.Timestamp);
+    }
+
+    [Fact(DisplayName = "Handle: completed order maps to completed activity status in the feed")]
+    public async Task Handle_CompletedOrder_MapsToCompletedActivityStatus()
+    {
+        var ct = TestContext.Current.CancellationToken;
+
+        _dbContext.Set<Order>().Add(new Order
+        {
+            Id = Guid.NewGuid(),
+            Number = "ORD-200",
+            Status = OrderStatus.Completed,
+            Total = 50m,
+            Currency = "USD",
+            ItemCount = 1,
+            CreatedAtUtc = DateTimeOffset.UtcNow.AddHours(-1)
+        });
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(new GetDashboard.Query(), ct);
+
+        result.IsSuccess.Should().BeTrue();
+        var activity = result.Value.RecentActivities.Single(a => a.Type == ActivityType.Order);
+        activity.Status.Should().Be(ActivityStatus.Completed);
     }
 
     [Fact(DisplayName = "Handle: TrendHistory should have exactly 30 data points")]

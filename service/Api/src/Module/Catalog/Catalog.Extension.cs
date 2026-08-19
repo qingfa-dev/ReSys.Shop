@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Clients;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Services;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
 using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy;
@@ -39,7 +39,7 @@ public static class CatalogExtensions
         builder.AddSeeder<CatalogProductTaxonSeeder>();
         builder.AddSeeder<CatalogEmbeddingSeeder>();
 
-        builder.Services.AddScoped<Module.Catalog.Persistence.Seeders.DemoJsonHelper>();
+        builder.Services.AddScoped<DemoJsonHelper>();
         builder.Services.AddVectorSearchService();
 
         return builder;

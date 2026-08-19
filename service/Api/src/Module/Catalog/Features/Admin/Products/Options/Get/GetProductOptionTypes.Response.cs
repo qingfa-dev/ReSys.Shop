@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Products.Options.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Products.Options.Get;
 

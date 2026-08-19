@@ -1,6 +1,5 @@
-using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxons.Shared.Mappings;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Taxons.Get.Paged;
 

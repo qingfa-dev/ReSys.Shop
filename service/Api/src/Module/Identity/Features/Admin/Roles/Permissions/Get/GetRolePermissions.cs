@@ -4,7 +4,7 @@ using Shared.Security.Authorization.Registry;
 using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Get;
 
 /// <summary>
 /// Defines the use case for retrieving permissions assigned to a role.

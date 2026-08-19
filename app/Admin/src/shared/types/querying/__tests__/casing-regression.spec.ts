@@ -26,7 +26,7 @@ import {
 } from '../../../../features/payment/types/paymentMethod'
 import {
   toProfileQueryParams,
-  PROFILE_SORT_FIELDS,
+  CUSTOMER_SORT_FIELDS,
 } from '../../../../features/profile/types/profile'
 import {
   toAddressQueryParams,
@@ -73,7 +73,7 @@ describe('querying casing regression', () => {
     {
       name: 'profile',
       params: () => toProfileQueryParams({ sortBy: 'firstName', sortDirection: 'asc' }),
-      sortFields: PROFILE_SORT_FIELDS,
+      sortFields: CUSTOMER_SORT_FIELDS,
     },
     {
       name: 'address',

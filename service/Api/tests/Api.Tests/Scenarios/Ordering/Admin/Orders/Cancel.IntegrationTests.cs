@@ -34,14 +34,14 @@ public sealed class CancelOrderIntegrationTests(ApiFixture fixture) : OrderingIn
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<CreateProductResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage activateResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/products/{created!.Id}/activate");
+            $"/api/admin/catalog/products/{created!.Id}/activate");
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         Guid orderId;
@@ -66,7 +66,7 @@ public sealed class CancelOrderIntegrationTests(ApiFixture fixture) : OrderingIn
         }
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/ordering/orders/{orderId}/cancel",
+            $"/api/admin/ordering/orders/{orderId}/cancel",
             new { reason = "Test cancellation" });
         ApiResponse result = await response.ReadApiResponseAsync();
 
@@ -82,7 +82,7 @@ public sealed class CancelOrderIntegrationTests(ApiFixture fixture) : OrderingIn
     {
         Guid nonExistentId = Guid.NewGuid();
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/ordering/orders/{nonExistentId}/cancel",
+            $"/api/admin/ordering/orders/{nonExistentId}/cancel",
             new { reason = "Test" });
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

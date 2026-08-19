@@ -1,6 +1,4 @@
-using FluentValidation.TestHelper;
-
-using Module.Identity.Features.Storefront.Emails.Confirm;
+using Module.Identity.Features.Shared.Storefront.Emails.Confirm;
 
 namespace Module.UnitTests.Identity.Features.Store.Emails.Confirm;
 

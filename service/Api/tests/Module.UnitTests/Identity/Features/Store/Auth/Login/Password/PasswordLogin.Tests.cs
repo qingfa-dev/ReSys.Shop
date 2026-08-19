@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-using Module.Identity.Features.Storefront.Auth.Login.Password;
+using Module.Identity.Features.Shared.Storefront.Auth.Login.Password;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.Tokens.Models;

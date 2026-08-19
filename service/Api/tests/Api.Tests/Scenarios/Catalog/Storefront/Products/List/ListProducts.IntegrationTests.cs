@@ -4,6 +4,8 @@ using System.Text.Json;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
+using Module.Catalog.Features.Admin.Shared.Models;
+
 namespace Api.Tests.Scenarios.Catalog.Storefront.Products.List;
 
 public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIntegrationTestBase(fixture)
@@ -22,13 +24,13 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
             slug = "listable-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         using var activateRequest = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{productId}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{productId}/activate");
         activateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);
@@ -52,13 +54,13 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
             slug = "searchable-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         using var activateRequest = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{productId}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{productId}/activate");
         activateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);
@@ -81,11 +83,45 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
         result.IsSuccess.Should().BeTrue();
     }
 
-    [Fact]
-    public async Task ListProducts_WithOptionValueAlias_ReturnsOk()
+    private async Task<Guid> CreateOptionTypeAsync()
     {
+        var request = new
+        {
+            name = "TestColor",
+            presentation = "TestColor",
+            position = 1,
+            filterable = true
+        };
+
+        HttpResponseMessage response = await Client.PostAsAdminRawAsync(
+            "/api/admin/catalog/option-types", request);
+        ApiResponse result = await response.ReadApiResponseAsync();
+        result.IsSuccess.Should().BeTrue();
+        OptionTypeDetailResponse? value = result.DeserializeValue<OptionTypeDetailResponse>();
+        value.Should().NotBeNull();
+        return value!.Id;
+    }
+
+    [Fact]
+    public async Task ListProducts_WithOptionValueIdParam_ReturnsOk()
+    {
+        Guid optionTypeId = await CreateOptionTypeAsync();
+        var request = new
+        {
+            name = "Red",
+            presentation = "Red",
+            optionTypeId = optionTypeId
+        };
+        HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
+            "/api/admin/catalog/option-values", request);
+        ApiResponse createResult = await createResponse.ReadApiResponseAsync();
+        createResult.IsSuccess.Should().BeTrue();
+        OptionValueListItemResponse? value = createResult.DeserializeValue<OptionValueListItemResponse>();
+        value.Should().NotBeNull();
+        Guid optionValueId = value!.Id;
+
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/storefront/products?optionValue=Red");
+            $"/api/storefront/products?optionValueId={optionValueId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -109,10 +145,25 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
     }
 
     [Fact]
-    public async Task ListProducts_WithAliasAndRawFilter_ReturnsOk()
+    public async Task ListProducts_WithTypedParamAndRawFilter_ReturnsOk()
     {
+        Guid optionTypeId = await CreateOptionTypeAsync();
+        var request = new
+        {
+            name = "Red",
+            presentation = "Red",
+            optionTypeId = optionTypeId
+        };
+        HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
+            "/api/admin/catalog/option-values", request);
+        ApiResponse createResult = await createResponse.ReadApiResponseAsync();
+        createResult.IsSuccess.Should().BeTrue();
+        OptionValueListItemResponse? value = createResult.DeserializeValue<OptionValueListItemResponse>();
+        value.Should().NotBeNull();
+        Guid optionValueId = value!.Id;
+
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/storefront/products?optionValue=Red&filter=Variants.OptionValueVariants.OptionValue.OptionType.Name=Color");
+            $"/api/storefront/products?optionValueId={optionValueId}&filter=Variants.OptionValueVariants.OptionValue.OptionType.Name=Color");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

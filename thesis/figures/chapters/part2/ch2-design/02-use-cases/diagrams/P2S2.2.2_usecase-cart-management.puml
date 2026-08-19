@@ -56,15 +56,16 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-CRT\nCart Management
 
 actor "Customer" as Customer
 
-rectangle "ReSys.Shop\nStorefront Applications" {
+rectangle {
 
-  usecase "Manage Cart Items\nUC-STR-CRT-ITEMS" as UC_ITEMS
+  ' UC-STR-CRT-ITEMS
+  usecase "Manage Cart Items" as UC_ITEMS
 
-  usecase "Associate Cart with Account\nUC-STR-CRT-ASSOC" as UC_ASSOCIATE
+  ' UC-STR-CRT-ASSOC
+  usecase "Associate Cart with Account" as UC_ASSOCIATE
 
 }
 

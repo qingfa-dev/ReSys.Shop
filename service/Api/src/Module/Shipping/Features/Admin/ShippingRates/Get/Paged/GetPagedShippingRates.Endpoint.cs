@@ -9,7 +9,7 @@ public static partial class GetPagedShippingRates
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(ShippingFeature.Admin.ShippingRates.GetAll.Route, async (
-                [AsParameters] QueryingParameters parameters,
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {

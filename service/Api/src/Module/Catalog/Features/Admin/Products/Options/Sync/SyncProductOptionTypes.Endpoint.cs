@@ -6,7 +6,7 @@ public static partial class SyncProductOptionTypes
 {
     /// <summary>
     /// PUT endpoint that synchronises the full set of option type associations for a product.
-    /// Route: api/catalog/product-option-types/sync
+    /// Route: api/admin/catalog/product-option-types/sync
     /// Permission: Products.OptionTypes.Sync
     /// </summary>
     public sealed class Endpoint : ICarterModule

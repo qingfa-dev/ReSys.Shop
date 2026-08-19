@@ -1,0 +1,80 @@
+```mermaid
+%% Class Diagram: Order Aggregate (Ordering Context)
+%% Based on Chapter 4 — Domain Analysis
+
+classDiagram
+    class Order {
+        +Guid Id
+        +string Number
+        +string? SessionId
+        +Guid? UserId
+        +OrderStatus Status
+        +CheckoutState CheckoutState
+        +string Currency
+        +decimal ItemTotal
+        +decimal AdjustmentTotal
+        +decimal ShipmentTotal
+        +decimal Total
+        +decimal PaymentTotal
+        +decimal OutstandingBalance
+        +string? PaymentState
+        +string? ShipmentState
+        +bool IsDeleted
+        +DateTimeOffset? CompletedAtUtc
+        +DateTimeOffset? CanceledAtUtc
+        --
+        +Checkout() Result~Order~
+        +Cancel(string reason) Result~Order~
+        +Finalize() Result~Order~
+    }
+
+    class LineItem {
+        +Guid Id
+        +Guid OrderId
+        +Guid VariantId
+        +int Quantity
+        +decimal Price
+        +decimal Total
+    }
+
+    class Adjustment {
+        +Guid Id
+        +Guid OrderId
+        +string Label
+        +decimal Amount
+        +bool IsIncluded
+    }
+
+    class OrderStatus {
+        <<enumeration>>
+        Draft
+        Pending
+        Complete
+        Canceled
+    }
+
+    class CheckoutState {
+        <<enumeration>>
+        Address
+        Delivery
+        Payment
+        Confirm
+        Complete
+    }
+
+    Order "1" --> "1..*" LineItem : contains
+    Order "1" --> "0..*" Adjustment : has
+    Order --> OrderStatus : status
+    Order --> CheckoutState : checkoutState
+```
+
+## Diagram Description
+
+The Order aggregate enforces **the most critical business invariants** in the system. Key design decisions:
+
+1. **Order.Total is computed** — It is the sum of `ItemTotal + AdjustmentTotal + ShipmentTotal`, stored for read performance but maintained by domain methods.
+2. **CheckoutState is a forward-only state machine** — No backward transitions except order cancellation.
+3. **LineItem references Variant (not Product)** — Customers buy specific size/color combinations.
+4. **Soft deletion with audit timestamps** — `CanceledAtUtc` and `CanceledById` record who canceled and when.
+
+**Evidence**: `Module/Ordering/Domain/Orders/Order.cs`, `Module/Ordering/Domain/LineItems/LineItem.cs`, `Module/Ordering/Domain/Adjustments/Adjustment.cs`

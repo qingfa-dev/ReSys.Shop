@@ -39,7 +39,6 @@ const form = ref<ShippingMethodForm>({
   trackingUrl: '',
   adminName: '',
   calculatorType: '',
-  taxCategoryId: '',
   position: 0,
   availableToUsers: true,
 })
@@ -64,7 +63,6 @@ async function initEditMode(id: string) {
       trackingUrl: m.trackingUrl ?? '',
       adminName: m.adminName ?? '',
       calculatorType: m.calculatorType,
-      taxCategoryId: m.taxCategoryId ?? '',
       position: m.position,
       availableToUsers: m.availableToUsers,
     }
@@ -88,7 +86,6 @@ async function onSubmit(event: FormSubmitEvent) {
     trackingUrl: data.trackingUrl || undefined,
     adminName: data.adminName || undefined,
     calculatorType: data.calculatorType,
-    taxCategoryId: data.taxCategoryId || undefined,
     position: data.position,
     availableToUsers: data.availableToUsers,
   }
@@ -182,11 +179,6 @@ function onCancel() {
                 <label class="text-surface-900 dark:text-surface-0 font-medium">Tracking URL</label>
                 <InputText fluid />
                 <small class="text-muted-color">Optional URL template with {trackingNumber} placeholder</small>
-                <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-              </FormField>
-              <FormField v-slot="$field" name="taxCategoryId" class="flex flex-col gap-1">
-                <label class="text-surface-900 dark:text-surface-0 font-medium">Tax Category ID</label>
-                <InputText fluid />
                 <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
               </FormField>
             </div>

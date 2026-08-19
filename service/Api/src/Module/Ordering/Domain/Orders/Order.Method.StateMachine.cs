@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Orders;
+
 using Module.Ordering.Domain.LineItems;
 
 namespace Module.Ordering.Domain.Orders;
@@ -27,17 +29,22 @@ public static partial class OrderMethod
         if (recalcResult.IsFailure)
             return recalcResult.Errors;
 
-        order.CheckoutState = CheckoutState.Complete;
+        order.CheckoutState = CheckoutState.Placed;
 
         return Result.Ok(OrderResult.Success.Finalized(order.Id));
     }
 
-    // Enforce: Only Placed orders can be canceled; cancellation is idempotent
+    // Enforce: Only Placed orders can be canceled; cancellation is idempotent.
+    //           Completed and Expired are terminal states and cannot be canceled.
     public static Result Cancel(this Order order, Guid canceledById)
     {
         // Guard: Reject cancel with empty user identifier
         if (canceledById == Guid.Empty)
             return OrderResult.Errors.IdRequired;
+
+        // Guard: Reject cancel from terminal states — Completed and Expired are immutable
+        if (order.Status is OrderStatus.Completed or OrderStatus.Expired)
+            return OrderResult.Errors.InvalidStatusTransition;
 
         // Guard: Prevent double-cancel and cancel-from-draft transitions
         if (order.Status == OrderStatus.Canceled)
@@ -54,7 +61,8 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.Canceled(order.Id));
     }
 
-    // Enforce: Only Canceled orders can be resumed — restores to Placed with cleared cancel metadata
+    // Enforce: Only Canceled orders can be resumed — restores to Placed with cleared cancel metadata.
+    //           If all shipments are already Delivered, completion is re-derived immediately.
     public static Result Resume(this Order order)
     {
         // Guard: Reject resume if order is not in Canceled state
@@ -66,6 +74,10 @@ public static partial class OrderMethod
         order.CanceledAtUtc = null;
         order.CanceledById = null;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+        // Derive: Re-complete immediately when shipments are already Delivered
+        if (order.ShipmentState == ShipmentState.Delivered)
+            return order.Complete("System");
 
         return Result.Ok(OrderResult.Success.Resumed(order.Id));
     }
@@ -196,7 +208,7 @@ public static partial class OrderMethod
 
         // Assign: Transition to Placed with permanent order number and completion timestamp
         order.Status = OrderStatus.Placed;
-        order.CheckoutState = CheckoutState.Complete;
+        order.CheckoutState = CheckoutState.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.Number = orderNumber;
         var recalcResult = order.RecalculateTotals();
@@ -206,15 +218,16 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.Finalized(order.Id));
     }
 
-    // Enforce: Only Placed orders can be marked complete
+    // Enforce: Only Placed orders can transition to Completed
     public static Result Complete(this Order order, string modifiedBy)
     {
         // Guard: Reject completion if order is not in Placed state
         if (order.Status != OrderStatus.Placed)
             return OrderResult.Errors.InvalidStatusTransition;
 
-        // Assign: Set completion state, record modifier identity and timestamp
-        order.CheckoutState = CheckoutState.Complete;
+        // Assign: Transition Placed → Completed, record completion timestamp and modifier identity
+        order.Status = OrderStatus.Completed;
+        order.CheckoutState = CheckoutState.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
         order.ModifiedBy = modifiedBy;

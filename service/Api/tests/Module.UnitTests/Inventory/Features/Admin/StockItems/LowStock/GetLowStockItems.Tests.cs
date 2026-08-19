@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Features.Admin.StockItems.LowStock;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockItems.LowStock;
@@ -44,7 +44,25 @@ public class GetLowStockItemsTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Items.Should().ContainSingle();
-        result.Items.First().Status.Should().Be("low");
+        result.Items.First().Status.Should().Be(LowStockStatus.Low);
+    }
+
+    [Fact(DisplayName = "Handle: Marks zero-on-hand items as OutOfStock")]
+    public async Task Handle_MarksZeroOnHandAsOutOfStock()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var loc = Guid.NewGuid();
+        _dbContext.Set<StockLocation>().Add(new StockLocation { Id = loc, Name = "Loc", Active = true, LowStockThreshold = 5 });
+        await _dbContext.SaveChangesAsync(ct);
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = Guid.NewGuid(), StockLocationId = loc, CountOnHand = 0 });
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _handler.Handle(
+            new GetLowStockItems.Query(new GetLowStockItems.Request(), new GetLowStockItems.Parameters()), ct);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Items.Should().ContainSingle();
+        result.Items.First().Status.Should().Be(LowStockStatus.OutOfStock);
     }
 
     [Fact(DisplayName = "Handle: Pages results when params supplied")]

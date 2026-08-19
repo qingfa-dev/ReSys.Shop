@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.External.Authenticate;
 
 public static partial class ExternalAuthenticate
 {
@@ -7,8 +7,8 @@ public static partial class ExternalAuthenticate
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/auth/login/external — authenticate via external OAuth provider (Google, Facebook)
-            app.MapPost(IdentityFeature.Store.Auth.Login.External.Authenticate.Route, async (
+            // Map: POST /api/storefront/auth/login/external — authenticate via external OAuth provider (Google, Facebook)
+            app.MapPost(IdentityFeature.Storefront.Auth.Login.External.Authenticate.Route, async (
                     [FromBody] Request request,
                     ISender sender,
                     CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class ExternalAuthenticate
                 .WithTags(IdentityFeature.Tags.Authentication)
                 .AllowAnonymous()
                 .RequireRateLimiting("auth")
-                .WithSummary(IdentityFeature.Store.Auth.Login.External.Authenticate.Summary)
-                .WithDescription(IdentityFeature.Store.Auth.Login.External.Authenticate.Description)
+                .WithSummary(IdentityFeature.Storefront.Auth.Login.External.Authenticate.Summary)
+                .WithDescription(IdentityFeature.Storefront.Auth.Login.External.Authenticate.Description)
                 .Produces<Result<Response>>()
                 .Produces<Result>(StatusCodes.Status400BadRequest)
                 .Produces<Result>(StatusCodes.Status401Unauthorized)

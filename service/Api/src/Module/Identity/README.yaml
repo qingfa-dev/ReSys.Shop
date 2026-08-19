@@ -653,7 +653,7 @@ usage:
       context: >
         A store user submits email/username and password via the login form.
       pattern: |
-        POST /api/store/identity/auth/login/password
+        POST /api/storefront/identity/auth/login/password
         {
           "credential": "user@example.com",
           "password": "SecureP@ss123"
@@ -664,7 +664,7 @@ usage:
       context: >
         A new customer creates an account via the registration form.
       pattern: |
-        POST /api/store/identity/auth/register
+        POST /api/storefront/identity/auth/register
         {
           "email": "newuser@example.com",
           "userName": "newuser",
@@ -688,18 +688,18 @@ usage:
         A user forgot their password and requests a reset.
       pattern: |
         # Step 1: Request reset
-        POST /api/store/identity/passwords/forgot
+        POST /api/storefront/identity/passwords/forgot
         { "email": "user@example.com" }
 
         # Step 2: Reset with token from email
-        POST /api/store/identity/passwords/reset
+        POST /api/storefront/identity/passwords/reset
         { "userId": "...", "token": "...", "newPassword": "NewP@ss123" }
     - id: S5
       title: Token Refresh
       context: >
         The access token expired and the client refreshes the session.
       pattern: |
-        POST /api/store/identity/auth/sessions/refresh
+        POST /api/storefront/identity/auth/sessions/refresh
         { "refreshToken": "..." }
         Response: { "accessToken": "...", "accessTokenExpiresIn": 3600, ... }
 

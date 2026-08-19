@@ -1,4 +1,4 @@
-using Module.Identity.Features.Admin.Permissions.Get;
+using Module.Identity.Features.Shared.Admin.Permissions.Get;
 
 namespace Module.UnitTests.Identity.Features.Admin.Permissions.Get;
 

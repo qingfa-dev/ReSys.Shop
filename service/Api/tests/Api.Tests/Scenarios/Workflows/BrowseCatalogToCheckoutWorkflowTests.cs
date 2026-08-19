@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Ordering.Domain.Orders;
-using Module.Profile.Domain;
+using Module.Customer.Domain;
 using Module.Shipping.Domain.ShippingMethods;
 
 using Shared.Operational.Persistence.Data;
@@ -47,14 +47,14 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
         var createBody = new { name = "Workflow Checkout Product", slug, description = "Test" };
 
         HttpResponseMessage createProductResp = await client.PostAsAdminRawAsync(
-            "/api/catalog/products", createBody);
+            "/api/admin/catalog/products", createBody);
         ApiResponse createProductResult = await createProductResp.ReadApiResponseAsync();
         createProductResult.IsSuccess.Should().BeTrue();
         var product = createProductResult.DeserializeValue<CreateProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage activateResp = await client.PatchAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/activate");
+            $"/api/admin/catalog/products/{product!.Id}/activate");
         activateResp.IsSuccessStatusCode.Should().BeTrue();
 
         Guid variantId;
@@ -112,12 +112,12 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
         var registerBody = new { email, userName, password, firstName = "Cart", lastName = "User" };
 
         HttpResponseMessage registerResp = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/register", registerBody);
+            "/api/storefront/identity/auth/register", registerBody);
         registerResp.IsSuccessStatusCode.Should().BeTrue();
 
         var loginBody = new { credential = email, password };
         HttpResponseMessage loginResp = await client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/password", loginBody);
+            "/api/storefront/identity/auth/login/password", loginBody);
         loginResp.StatusCode.Should().Be(HttpStatusCode.OK);
         ApiResponse loginResult = await loginResp.ReadApiResponseAsync();
         loginResult.IsSuccess.Should().BeTrue();
@@ -134,7 +134,7 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
             user.Should().NotBeNull();
             var profileResult = UserProfileMethod.Create("Test", "User", email, userId: user!.Id);
             profileResult.IsSuccess.Should().BeTrue();
-            db.Set<Module.Profile.Domain.UserProfile>().Add(profileResult.Value);
+            db.Set<Module.Customer.Domain.UserProfile>().Add(profileResult.Value);
             await db.SaveChangesAsync();
         }
 
@@ -157,7 +157,7 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
         };
 
         HttpResponseMessage addressResp = await client.PostAsJsonAsync(
-            "/api/store/profiles/addresses", addressBody);
+            "/api/storefront/profiles/addresses", addressBody);
         addressResp.IsSuccessStatusCode.Should().BeTrue();
         ApiResponse addressResult = await addressResp.ReadApiResponseAsync();
         var address = addressResult.DeserializeValue<AddressIdResponse>();
@@ -171,7 +171,7 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
             billAddressId = shipAddressId,
             shipAddressId = shipAddressId
         };
-        HttpResponseMessage updateCartResp = await client.PutAsJsonAsync(
+        HttpResponseMessage updateCartResp = await client.PatchAsJsonAsync(
             "/api/storefront/cart", updateCartBody);
         updateCartResp.IsSuccessStatusCode.Should().BeTrue();
 

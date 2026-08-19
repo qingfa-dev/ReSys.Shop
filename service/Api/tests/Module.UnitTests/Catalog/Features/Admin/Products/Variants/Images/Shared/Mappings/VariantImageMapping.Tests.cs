@@ -1,7 +1,7 @@
 
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 
@@ -48,7 +48,7 @@ public class VariantImageMappingTests
         result.Height.Should().Be(600);
         result.DimensionsUnit.Should().Be("px");
         result.Position.Should().Be(2);
-        result.Type.Should().Be("Gallery");
+        result.Type.Should().Be(VariantImageType.Gallery);
         result.CreatedAtUtc.Should().Be(createdAt);
     }
 

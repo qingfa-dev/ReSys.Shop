@@ -1,6 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Products.Shared.Models;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Related;
 
@@ -10,10 +9,6 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Related;
 public static partial class GetRelatedProducts
 {
     public sealed record Query(Guid Id, Parameters Parameters) : IPagedQuery<Response>;
-
-    public record Parameters : QueryingParameters;
-
-    public record Response : StoreProductListItemResponse;
 
     /// <summary>
     /// Retrieves related products for a given product using shared taxon strategy.

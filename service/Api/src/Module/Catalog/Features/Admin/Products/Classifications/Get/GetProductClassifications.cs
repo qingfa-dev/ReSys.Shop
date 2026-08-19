@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Get;
 
@@ -44,7 +44,7 @@ public static partial class GetProductClassifications
             var items = allTaxons.Select(t =>
             {
                 var isAssigned = assignedPositions.ContainsKey(t.Id);
-                return t.MapToListItem<Response>(
+                return t.MapToClassificationListItem<Response>(
                     isAssigned,
                     isAssigned ? assignedPositions[t.Id] : 0);
             }).OrderBy(i => i.Position).ToList();

@@ -20,7 +20,7 @@ public static partial class CancelOrderAdmin
 
             When(x => x.Request is not null, () =>
             {
-                RuleFor(x => x.Request!.Reason)
+                RuleFor(x => x.Request.Reason)
                     .MaximumLength(500)
                     .WithErrorCode(OrderResult.Errors.ReasonTooLong.Code)
                     .WithMessage(OrderResult.Errors.ReasonTooLong.Message);

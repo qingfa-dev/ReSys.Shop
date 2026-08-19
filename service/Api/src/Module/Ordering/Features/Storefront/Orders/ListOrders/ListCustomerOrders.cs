@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Storefront.Orders.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Orders.ListOrders;
 

@@ -1,4 +1,4 @@
-using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Shared.Countries.Models;
 
 namespace Module.Location.Features.Admin.Countries.GetPagedOrAll;
 

@@ -1,6 +1,5 @@
-using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
-using Module.Shipping.Domain.Calculators;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
 
@@ -39,44 +38,45 @@ public static partial class UpdateCheckout
             var addressChanged = req.ShipAddressId.HasValue && req.ShipAddressId != cart.ShipAddressId;
 
             // Update: Apply partial checkout field updates (email, addresses, instructions).
+            var previousTotal = cart.Total;
             var updateResult = cart.UpdateDetails(
                 req.Email, req.SpecialInstructions,
                 req.BillAddressId, req.ShipAddressId, null);
             if (updateResult.IsFailure)
                 return updateResult.Errors;
 
-            // Compute: Recalculate shipping cost when ship address changes and a method is selected.
+            // Apply: Recalculate the authoritative shipping cost after an address change.
             if (addressChanged && cart.ShippingMethodId.HasValue)
             {
-                var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
-                var variantWeights = await dbContext.Set<Catalog.Domain.Products.Variants.Variant>()
-                    .Where(v => variantIds.Contains(v.Id))
-                    .Select(v => new { v.Id, v.Weight })
-                    .ToListAsync(cancellationToken);
-
-                var weightMap = variantWeights.ToDictionary(v => v.Id, v => v.Weight ?? 0m);
-                var totalWeight = cart.CalculateTotalWeight(weightMap);
-
-                var calcResult = await ShippingRateCalculator.CalculateAsync(
-                    dbContext,
-                    cart.ShippingMethodId.Value,
-                    totalWeight,
-                    cart.Total,
-                    cancellationToken);
-
-                if (calcResult.IsSuccess)
-                {
-                    var (cost, _) = calcResult.Value;
-
-                    var shippingResult = cart.ReplaceShippingAdjustment(cost, cart.ShippingMethodId.Value);
-                    if (shippingResult.IsFailure)
-                        return shippingResult.Errors;
-                }
+                var costResult = await ShippingCostApplier.ApplyAsync(
+                    dbContext, cart, cart.ShippingMethodId.Value, cancellationToken);
+                if (costResult.IsFailure)
+                    return costResult.Errors;
             }
 
             var recalcResult = cart.RecalculateTotals();
             if (recalcResult.IsFailure)
                 return recalcResult.Errors;
+
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
+
+            // Re-pick: an address change at Payment regresses to Delivery so the
+            // customer re-confirms shipping cost and re-selects a payment method.
+            if (addressChanged && cart.CheckoutState == CheckoutState.PickPaymentMethod)
+            {
+                var regress = cart.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
+                if (regress.IsFailure)
+                    return regress.Errors;
+            }
+
+            // Advance: Address → Delivery once both addresses are set (fresh checkout).
+            if (cart.HasAddresses() && cart.CheckoutState == CheckoutState.Address)
+            {
+                var adv = cart.AdvanceCheckoutState(CheckoutState.PickDeliveryMethod);
+                if (adv.IsFailure)
+                    return adv.Errors;
+            }
+
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok(OrderResult.Success.CheckoutUpdated(cart.Id));

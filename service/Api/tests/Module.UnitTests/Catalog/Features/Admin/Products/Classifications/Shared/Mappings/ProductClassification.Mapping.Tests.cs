@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Products.Classifications;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Models;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Admin.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Classifications.Shared.Mappings;
 
@@ -57,7 +57,7 @@ public class ProductClassificationMappingTests
             PrettyName = "Clothing > T-Shirts",
         };
 
-        var response = taxon.MapToListItem<ClassificationItemResponse>(
+        var response = taxon.MapToClassificationListItem<ClassificationItemResponse>(
             isAssigned: true, position: 3);
 
         response.Should().NotBeNull();
@@ -78,7 +78,7 @@ public class ProductClassificationMappingTests
             PrettyName = "Accessories",
         };
 
-        var response = taxon.MapToListItem<ClassificationItemResponse>(
+        var response = taxon.MapToClassificationListItem<ClassificationItemResponse>(
             isAssigned: false, position: 5);
 
         response.IsAssigned.Should().BeFalse();
@@ -96,7 +96,7 @@ public class ProductClassificationMappingTests
             PrettyName = null!,
         };
 
-        var response = taxon.MapToListItem<ClassificationItemResponse>(
+        var response = taxon.MapToClassificationListItem<ClassificationItemResponse>(
             isAssigned: true, position: 1);
 
         response.PrettyName.Should().BeNull();

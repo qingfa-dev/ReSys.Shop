@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.GetById;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.GetById;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Get.ById;
 
@@ -32,7 +32,7 @@ public class GetVariantImageByIdTests : IDisposable
     public async Task Handle_ShouldReturnImage_WhenFound()
     {
         var variantId = Guid.NewGuid();
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create(
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create(
             "image/jpeg", "photo.jpg", 2048,
             url: "https://cdn.test.com/photo.jpg",
             storagePath: "uploads/photo.jpg",
@@ -54,7 +54,7 @@ public class GetVariantImageByIdTests : IDisposable
         result.Value.ContentType.Should().Be("image/jpeg");
         result.Value.FileSize.Should().Be(2048);
         result.Value.Alt.Should().Be("Photo");
-        result.Value.Type.Should().Be("Default");
+        result.Value.Type.Should().Be(VariantImageType.Default);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when image not found")]

@@ -1,7 +1,7 @@
 using Module.Shipping.Domain.ShippingRates;
 using RateDomain = Module.Shipping.Domain.ShippingRates.ShippingRate;
-using Module.Shipping.Features.Admin.ShippingRates.Shared.Mappings;
-using Module.Shipping.Features.Admin.ShippingRates.Shared.Models;
+using Module.Shipping.Features.Admin.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Shipping.Features.Admin.ShippingRates.Shared.Mappings;
 
@@ -113,7 +113,7 @@ public class ShippingRateMappingTests
 
     private static RateDomain CreateShippingRate()
     {
-        var result = ShippingRateExtensions.Create(
+        var result = ShippingRateMethod.Create(
             "Standard", 10.00m, Guid.NewGuid(), "3-5 days", 0.1m, 10.0m, 100.0m);
         result.IsSuccess.Should().BeTrue();
         return result.Value;

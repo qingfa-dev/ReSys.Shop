@@ -20,7 +20,7 @@ export interface StockTransferListItem {
   reference?: string
   sourceLocationId: string
   destinationLocationId: string
-  state: StockTransferState
+  state?: StockTransferState
   totalItems: number
   createdAtUtc: string
 }
@@ -31,10 +31,11 @@ export interface StockTransferDetail {
   reference?: string
   sourceLocationId: string
   destinationLocationId: string
-  state: StockTransferState
+  state?: StockTransferState
   createdAtUtc: string
   modifiedAtUtc?: string
   items: {
+    id: string
     variantId: string
     quantity: number
     receivedQuantity: number

@@ -37,7 +37,7 @@ public class WeightlessVariantFallbackTests : IDisposable
     [Fact(DisplayName = "Weightless: Unrestricted rate selected for weightless order")]
     public async Task Calculate_UnrestrictedRate_MatchesZeroWeight()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Flat Rate",
             cost: 5.99m,
             shippingMethodId: _methodId,
@@ -57,7 +57,7 @@ public class WeightlessVariantFallbackTests : IDisposable
     [Fact(DisplayName = "Weightless: Weight-specific rate matches weight=0")]
     public async Task Calculate_WeightSpecificRange_MatchesZeroWeight()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Standard",
             cost: 5.99m,
             shippingMethodId: _methodId,
@@ -77,7 +77,7 @@ public class WeightlessVariantFallbackTests : IDisposable
     [Fact(DisplayName = "Weightless: Zero weight matches explicit zero-bound rate")]
     public async Task Calculate_ExplicitZeroBound_MatchesExactlyZero()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Special",
             cost: 10.99m,
             shippingMethodId: _methodId,

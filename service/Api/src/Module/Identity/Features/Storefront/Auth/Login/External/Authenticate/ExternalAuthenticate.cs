@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profiles.Create;
-
+using Module.Customer.Features.Storefront.Profiles.Create;
+using Module.Identity.Features.Storefront.Shared.Mappings;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
@@ -10,7 +9,7 @@ using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Login.External.Authenticate;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.External.Authenticate;
 
 /// <summary>
 /// Defines the use case for external provider authentication.
@@ -27,7 +26,7 @@ public static partial class ExternalAuthenticate
         ISystemDateTime dateTime,
         ICurrentUser currentUser,
         ILogger<CommandHandler> logger,
-        IMediator mediator)
+        ISender sender)
         : ICommandHandler<Command, Response>
     {
         // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
@@ -138,14 +137,7 @@ public static partial class ExternalAuthenticate
                 IpAddress: currentUser.IpAddress,
                 ActionBy: user.UserName!);
 
-            // EXCEPTION: auth token response — no domain entity
-            return new Response
-            {
-                AccessToken = tokenResult.Value.Token,
-                AccessTokenExpiresIn = tokenResult.Value.ExpiresIn,
-                RefreshToken = refreshResult.Value.Token,
-                RefreshTokenExpiresIn = refreshResult.Value.ExpiresAt.ToUnixTimeSeconds()
-            };
+            return (tokenResult.Value, refreshResult.Value).MapToTokenResponse<Response>();
         }
 
         private static string GenerateUserName(string email)
@@ -159,26 +151,31 @@ public static partial class ExternalAuthenticate
         {
             try
             {
-                var profileResult = await mediator.Send(new CreateProfile.Command(user.Id, new CreateProfile.Request
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName ?? string.Empty,
-                    Email = user.Email!
-                }), cancellationToken);
+                // TODO(audit 2026-08-16): cross-module ISender — CreateUserProfileCommand creates a
+                // foreign aggregate; keep ISender or extract a Customer IUserProfileService and inject.
+                var profileResult = await sender.Send(
+                    new CreateUserProfileCommand
+                    {
+                        UserId = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName ?? string.Empty,
+                        Email = user.Email!
+                    },
+                    cancellationToken);
 
                 if (profileResult.IsFailure)
                 {
-                    UserProfileLoggers.Management.ProfileCreationFailed(
+                    UserLoggers.Profiles.ProfileCreationFailed(
                         logger, user.Id, string.Join("; ", profileResult.Errors.Select(e => $"{e.Code}: {e.Message}")));
                     return Result.Failure(UserResult.Failure.ProfileCreationFailed);
                 }
 
-                UserProfileLoggers.Management.ProfileCreated(logger, user.Id, profileResult.Value.Id);
+                UserLoggers.Profiles.ProfileCreated(logger, user.Id, profileResult.Value.ProfileId);
                 return Result.Ok();
             }
             catch (Exception ex)
             {
-                UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, ex.Message);
+                UserLoggers.Profiles.ProfileCreationFailed(logger, user.Id, ex.Message);
                 return Result.Unexpected(
                     exception: ex,
                     errors: [UserResult.Failure.ProfileCreationFailed]);

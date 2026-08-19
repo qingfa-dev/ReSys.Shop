@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Extensions;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -25,7 +26,7 @@ public static partial class ResumeOrder
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Find the order to resume.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
+            var order = await dbContext.Set<Order>().IncludeOrderDetail().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null) return (Result<Response>)OrderResult.Errors.NotFound(command.Id);
 
             // Call: Invoke domain resume logic — transitions from Canceled to previous status.

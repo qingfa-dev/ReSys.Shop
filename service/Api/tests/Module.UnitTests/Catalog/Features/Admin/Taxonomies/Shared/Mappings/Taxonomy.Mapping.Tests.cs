@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Shared.Mappings;
-using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Admin.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 using Shared.Application.Domain.Concerns.Parameterizable;
 

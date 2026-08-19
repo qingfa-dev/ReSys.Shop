@@ -56,17 +56,19 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-PRF\nProfile and Preferences
 
 actor "Customer" as Customer
 
-rectangle "ReSys.Shop\nCustomer Self-Service Subsystem" {
+rectangle {
 
-  usecase "Manage Addresses\nUC-STR-PRF-ADDR" as UC_ADDR
+  ' UC-STR-PRF-ADDR
+  usecase "Manage Addresses" as UC_ADDR
 
-  usecase "Manage Wishlists\nUC-STR-PRF-WISH" as UC_WISH
+  ' UC-STR-PRF-WISH
+  usecase "Manage Wishlists" as UC_WISH
 
-  usecase "Manage Notification Preferences\nUC-STR-PRF-NOTIF" as UC_NOTIF
+  ' UC-STR-PRF-NOTIF
+  usecase "Manage Notification Preferences" as UC_NOTIF
 
 }
 

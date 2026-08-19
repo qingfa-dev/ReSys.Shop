@@ -8,7 +8,7 @@
 # Authenticates using email and password.
 # Expect: 200 OK with accessToken, refreshToken, and user profile.
 # @name emailLogin
-POST {{baseUrl}}/api/store/identity/auth/login/password
+POST {{baseUrl}}/api/storefront/identity/auth/login/password
 Content-Type: {{contentType}}
 
 {
@@ -20,7 +20,7 @@ Content-Type: {{contentType}}
 # Authenticates using username instead of email.
 # Expect: 200 OK with accessToken, refreshToken, and user profile.
 # @name usernameLogin
-POST {{baseUrl}}/api/store/identity/auth/login/password
+POST {{baseUrl}}/api/storefront/identity/auth/login/password
 Content-Type: {{contentType}}
 
 {
@@ -31,7 +31,7 @@ Content-Type: {{contentType}}
 ### Login - Wrong Password (401)
 # Correct email but incorrect password.
 # Expect: 401 Unauthorized.
-POST {{baseUrl}}/api/store/identity/auth/login/password
+POST {{baseUrl}}/api/storefront/identity/auth/login/password
 Content-Type: {{contentType}}
 
 {
@@ -42,7 +42,7 @@ Content-Type: {{contentType}}
 ### Login - Non-Existent User (401)
 # Email does not exist in the system.
 # Expect: 401 Unauthorized (generic error to avoid user enumeration).
-POST {{baseUrl}}/api/store/identity/auth/login/password
+POST {{baseUrl}}/api/storefront/identity/auth/login/password
 Content-Type: {{contentType}}
 
 {
@@ -53,7 +53,7 @@ Content-Type: {{contentType}}
 ### External Provider Login - Success (200)
 # Authenticates via an external identity provider (Google).
 # Expect: 200 OK with accessToken, refreshToken, and user profile.
-POST {{baseUrl}}/api/store/identity/auth/login/external
+POST {{baseUrl}}/api/storefront/identity/auth/login/external
 Content-Type: {{contentType}}
 
 {
@@ -64,4 +64,4 @@ Content-Type: {{contentType}}
 ### List External Providers - Success (200)
 # Returns a list of configured external authentication providers.
 # Expect: 200 OK with an array of provider objects (name, iconUrl, enabled).
-GET {{baseUrl}}/api/store/identity/auth/login/external/providers
+GET {{baseUrl}}/api/storefront/identity/auth/login/external/providers

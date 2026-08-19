@@ -1,10 +1,9 @@
 import { getPaged } from '@/shared/api'
 import { get, post, put, del } from '@/shared/api/client'
-import { ORDERING } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types'
+
+import type { Result, PagedResult, QueryingParameters } from '@/shared/types'
 import type {
   OrderRequest,
-  OrderQuery,
   OrderListItem,
   OrderDetail,
   LineItem,
@@ -14,19 +13,18 @@ import type {
   UpdateOrderAddressRequest,
   UpdateOrderShippingMethodRequest,
   UpdateOrderStatusRequest,
+  Shipment,
+  ShipmentStatus,
 } from '../types/order'
 import {
   ORDER_FILTER_FIELDS,
   ORDER_SORT_FIELDS,
   ORDER_SEARCH_FIELDS,
-  toOrderQueryParams,
 } from '../types/order'
 
 export class OrderApi {
-  private static readonly BASE = `${ORDERING}/orders`
-
-  static getOrders(query: OrderQuery): Promise<PagedResult<OrderListItem>> {
-    return getPaged<OrderListItem>(OrderApi.BASE, toOrderQueryParams(query), {
+  static getOrders(params: QueryingParameters): Promise<PagedResult<OrderListItem>> {
+    return getPaged<OrderListItem>('/api/admin/ordering/orders', params, {
       allowedFilterFields: ORDER_FILTER_FIELDS,
       allowedSortFields: ORDER_SORT_FIELDS,
       allowedSearchFields: ORDER_SEARCH_FIELDS,
@@ -34,23 +32,23 @@ export class OrderApi {
   }
 
   static getOrder(id: string): Promise<Result<OrderDetail>> {
-    return get<Result<OrderDetail>>(`${OrderApi.BASE}/${id}`)
+    return get<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}`)
   }
 
-  static createOrder(request: OrderRequest & { storeId: string }): Promise<Result<OrderDetail>> {
-    return post<Result<OrderDetail>>(OrderApi.BASE, request)
+  static createOrder(request: OrderRequest ): Promise<Result<OrderDetail>> {
+    return post<Result<OrderDetail>>('/api/admin/ordering/orders', request)
   }
 
   static updateOrder(id: string, request: OrderRequest): Promise<Result<OrderDetail>> {
-    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}`, request)
+    return put<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}`, request)
   }
 
   static deleteOrder(id: string): Promise<Result<void>> {
-    return del<Result<void>>(`${OrderApi.BASE}/${id}`)
+    return del<Result<void>>(`/api/admin/ordering/orders/${id}`)
   }
 
-  static getLineItems(id: string, query: OrderQuery): Promise<PagedResult<LineItem>> {
-    return getPaged<LineItem>(`${OrderApi.BASE}/${id}/line-items`, toOrderQueryParams(query), {
+  static getLineItems(id: string, params: QueryingParameters): Promise<PagedResult<LineItem>> {
+    return getPaged<LineItem>(`/api/admin/ordering/orders/${id}/line-items`, params, {
       allowedFilterFields: ['OrderId', 'VariantId'],
       allowedSortFields: ['Quantity', 'Price', 'Total', 'CreatedAtUtc'],
       allowedSearchFields: [],
@@ -58,50 +56,54 @@ export class OrderApi {
   }
 
   static getLineItem(id: string, lineItemId: string): Promise<Result<LineItem>> {
-    return get<Result<LineItem>>(`${OrderApi.BASE}/${id}/line-items/${lineItemId}`)
+    return get<Result<LineItem>>(`/api/admin/ordering/orders/${id}/line-items/${lineItemId}`)
   }
 
   static addLineItem(id: string, request: AddLineItemRequest): Promise<Result<OrderDetail>> {
-    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/line-items`, request)
+    return post<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/line-items`, request)
   }
 
   static updateLineItem(id: string, lineItemId: string, request: UpdateLineItemRequest): Promise<Result<OrderDetail>> {
-    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/line-items/${lineItemId}`, request)
+    return put<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/line-items/${lineItemId}`, request)
   }
 
   static removeLineItem(id: string, lineItemId: string): Promise<Result<void>> {
-    return del<Result<void>>(`${OrderApi.BASE}/${id}/line-items/${lineItemId}`)
+    return del<Result<void>>(`/api/admin/ordering/orders/${id}/line-items/${lineItemId}`)
   }
 
   static cancelOrder(id: string, request?: CancelOrderRequest): Promise<Result<OrderDetail>> {
-    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/cancel`, request ?? {})
+    return post<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/cancel`, request ?? {})
   }
 
   static completeOrder(id: string): Promise<Result<OrderDetail>> {
-    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/complete`)
+    return post<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/complete`)
   }
 
   static approveOrder(id: string): Promise<Result<OrderDetail>> {
-    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/approve`)
+    return post<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/approve`)
   }
 
   static resumeOrder(id: string): Promise<Result<OrderDetail>> {
-    return post<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/resume`)
+    return post<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/resume`)
   }
 
   static updateShipAddress(id: string, request: UpdateOrderAddressRequest): Promise<Result<OrderDetail>> {
-    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/ship-address`, request)
+    return put<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/ship-address`, request)
   }
 
   static updateBillAddress(id: string, request: UpdateOrderAddressRequest): Promise<Result<OrderDetail>> {
-    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/bill-address`, request)
+    return put<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/bill-address`, request)
   }
 
   static updateShippingMethod(id: string, request: UpdateOrderShippingMethodRequest): Promise<Result<OrderDetail>> {
-    return put<Result<OrderDetail>>(`${OrderApi.BASE}/${id}/shipping-method`, request)
+    return put<Result<OrderDetail>>(`/api/admin/ordering/orders/${id}/shipping-method`, request)
   }
 
   static updateStatus(id: string, request: UpdateOrderStatusRequest): Promise<Result<void>> {
-    return put<Result<void>>(`${OrderApi.BASE}/${id}/status`, request)
+    return put<Result<void>>(`/api/admin/ordering/orders/${id}/status`, request)
+  }
+
+  static updateShipmentStatus(id: string, body: { status: ShipmentStatus; trackingNumber?: string }): Promise<Result<Shipment>> {
+    return put<Result<Shipment>>(`/api/admin/shipping/shipments/${id}/status`, body)
   }
 }

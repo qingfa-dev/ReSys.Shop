@@ -6,7 +6,7 @@ using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Roles;
 
-using static Module.Identity.Features.Admin.Roles.Permissions.Sync.SyncRolePermissions;
+using static Module.Identity.Features.Shared.Admin.Roles.Permissions.Sync.SyncRolePermissions;
 
 namespace Module.UnitTests.Identity.Features.Admin.Roles.Permissions.Sync;
 

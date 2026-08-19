@@ -62,8 +62,23 @@
 - **Using placement**: Outside namespace (`csharp_using_directive_placement = outside_namespace`)
 - **Global usings**: `Shared/GlobalUsings.cs` provides common imports to all projects
 - **Public exports**: No barrel file pattern; each type in its own file
-- **Module boundaries**: Modules MUST NOT reference each other (MediatR `ISender` only)
+- **Module boundaries**: Modules share one assembly and may reference each other (types, FKs, navigations, direct service calls). Prefer MediatR `ISender` for cross-module behavior so it flows through the pipeline
 - **Assembly reference chain**: `Api` → `Module` + `Shared` + `Migrations`; `Module` → `Shared`; `Shared` → `ServiceDefaults`
+- **Feature Shared folder layout**: Exactly one `Shared` folder per module and area:
+  `{Module}/Features/Admin/Shared/` and `{Module}/Features/Storefront/Shared/`. No per-feature
+  `Shared` folders may exist below `Features/{Admin|Storefront}/{FeaturePath}/`.
+- **Kind grouping**: `Shared` contains only `Mappings/`, `Models/`, `Validators/` subfolders.
+  Legacy `Validation`/`Validations` folders are normalized to `Validators`.
+- **File naming**: `{Entity}.{Kind}.cs` for Admin (e.g. `OptionType.Model.cs`,
+  `Product.Mapping.cs`, `Order.Validator.cs`) and `Storefront.{Entity}.{Kind}.cs` for Storefront
+  (e.g. `Storefront.OptionType.Model.cs`). The kind is the singular `Model`, `Mapping`, or
+  `Validator`; sub-type suffixes (`.Request`, `.Response`, `.Parameters`, `.Domain`,
+  `.Collection`, `.Action`) are merged into one file per (Entity, Kind).
+- **Namespaces**: `Module.{Module}.Features.{Area}.Shared.{KindDir}` where `{KindDir}` is the
+  plural folder name (`Mappings`/`Models`/`Validators`) and `{Area}` is `Admin` or `Storefront`.
+- **Services/Clients/Docs**: `Services/`, `Clients/`, `Docs/` (including `.gitkeep`) and
+  root-level files directly under a feature `Shared/` folder stay co-located with the feature
+  that consumes them; they are not consolidated into `Features/{Area}/Shared/`.
 - **InternalsVisibleTo**: Non-test projects expose internals to `{Name}.Tests`, `{Name}.UnitTests`, `{Name}.IntegrationTests`, and `DynamicProxyGenAssembly2` (Moq) — see `Directory.Build.props`
 
 #### TypeScript

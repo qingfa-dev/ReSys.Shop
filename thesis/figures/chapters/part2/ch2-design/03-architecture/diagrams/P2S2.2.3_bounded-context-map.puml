@@ -1,39 +1,37 @@
-@startuml bounded-context-map
+@startuml
+title Bounded Context Map
 
-skinparam component {
-    BackgroundColor White
-    BorderColor #333333
-    FontSize 11
-}
+left to right direction
 
-legend right
-  === Integration Pattern ===
-  All inter-context communication uses
-  in-process MediatR ISender dispatch.
-  Contexts share a conformist relationship
-  through the Shared Result<T> kernel.
-endlegend
+skinparam componentStyle rectangle
+skinparam shadowing false
 
-component "Catalog Context\nProducts, Variants, Images,\nTaxonomies, Option Types" as CATALOG #e1f5fe
-component "Ordering Context\nCarts, Orders, Line Items,\nAdjustments, Checkout" as ORDERING #fff3e0
-component "Payment Context\nPayment Intents, Captures,\nRefunds, Voids, Webhooks" as PAYMENT #e8f5e9
-component "Inventory Context\nStock Locations, Items,\nReservations, Movements" as INVENTORY #fce4ec
-component "Identity Context\nUsers, Roles, Permissions,\nJWT Tokens, OAuth" as IDENTITY #f3e5f5
-component "Profile Context\nAddresses, Wishlists,\nNotification Preferences" as PROFILE #e0f2f1
-component "Shipping Context\nMethods, Rates,\nCalculators, Zones" as SHIPPING #fff8e1
-component "Location Context\nCountries, States,\nISO Codes" as LOCATION #e8eaf6
+component Catalog
+component Ordering
+component Inventory
+component Payment
+component Shipping
+component Identity
+component Profile
+component Location
 
-CATALOG -down-> ORDERING : "Published Language:\nProductId, VariantId,\nPrice, SKU"
-CATALOG -right-> INVENTORY : "Published Language:\nVariantId"
-ORDERING -right-> PAYMENT : "Published Language:\nOrderId, Total,\nCurrency"
-ORDERING -down-> SHIPPING : "Published Language:\nOrderId, ShipmentTotal"
-INVENTORY -up-> ORDERING : "Published Language:\nStockItemId, Quantity"
-IDENTITY -right-> ORDERING : "Published Language:\nUserId"
-IDENTITY -down-> PROFILE : "Published Language:\nUserId"
-LOCATION -right-> PROFILE : "Published Language:\nCountryId, StateId"
-LOCATION -up-> SHIPPING : "Published Language:\nCountryId, StateId"
-LOCATION -left-> ORDERING : "Published Language:\nCountryId, StateId"
-PAYMENT -up-> ORDERING : "Published Language:\nPaymentIntentId,\nPaymentState"
-SHIPPING -up-> ORDERING : "Published Language:\nShippingMethodId,\nRate"
+Catalog --> Ordering : Published Language
+Catalog --> Inventory : Published Language
+Inventory --> Ordering : Published Language
+
+Ordering --> Payment : Published Language
+Ordering --> Shipping : Published Language
+
+Identity --> Ordering : Conformist
+Identity --> Profile : Shared Identity
+
+Location --> Profile : Reference Data
+Location --> Shipping : Reference Data
+Location --> Ordering : Reference Data
+
+note bottom
+All communication uses MediatR ISender.
+Contexts share Result<T> as Shared Kernel.
+end note
 
 @enduml

@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Users.Status;
+namespace Module.Identity.Features.Shared.Admin.Users.Status;
 
 public static partial class ToggleUserStatus
 {

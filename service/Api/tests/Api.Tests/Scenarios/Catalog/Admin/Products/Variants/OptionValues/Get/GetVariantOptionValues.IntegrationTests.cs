@@ -1,8 +1,8 @@
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Values.Get;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
+using Module.Catalog.Features.Admin.Variants.Values.Get;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.OptionValues.Get;
 
@@ -18,7 +18,7 @@ public sealed class GetVariantOptionValuesIntegrationTests(ApiFixture fixture) :
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
@@ -33,7 +33,7 @@ public sealed class GetVariantOptionValuesIntegrationTests(ApiFixture fixture) :
         };
 
         HttpResponseMessage optionTypeResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createOptionTypeRequest);
+            "/api/admin/catalog/option-types", createOptionTypeRequest);
         ApiResponse optionTypeResult = await optionTypeResponse.ReadApiResponseAsync();
         optionTypeResult.IsSuccess.Should().BeTrue();
         var optionType = optionTypeResult.DeserializeValue<OptionTypeResponse>();
@@ -48,14 +48,14 @@ public sealed class GetVariantOptionValuesIntegrationTests(ApiFixture fixture) :
         };
 
         HttpResponseMessage optionValueResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-values", createOptionValueRequest);
+            "/api/admin/catalog/option-values", createOptionValueRequest);
         ApiResponse optionValueResult = await optionValueResponse.ReadApiResponseAsync();
         optionValueResult.IsSuccess.Should().BeTrue();
         var optionValue = optionValueResult.DeserializeValue<OptionValueResponse>();
         optionValue.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants?productId={product!.Id}");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -70,11 +70,11 @@ public sealed class GetVariantOptionValuesIntegrationTests(ApiFixture fixture) :
         };
 
         HttpResponseMessage assignResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/variant-option-values/assign", assignRequest);
+            "/api/admin/catalog/variant-option-values/assign", assignRequest);
         assignResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variant-option-values?variantId={variant.Id}");
+            $"/api/admin/catalog/variant-option-values?variantId={variant.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();

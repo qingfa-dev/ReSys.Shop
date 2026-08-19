@@ -19,7 +19,7 @@ cd app/Admin && pnpm install && pnpm run dev                    # Dev server (po
 cd app/Admin && pnpm run lint                                   # Oxlint + ESLint
 cd app/Admin && pnpm run test:unit                              # Vitest unit tests
 
-# Store SPA (Vue 3 + Nuxt UI)
+# Store SPA (Vue 3 + PrimeVue 5)
 cd app/Store && pnpm install && pnpm run dev                    # Dev server (port 5174)
 cd app/Store && pnpm run lint && pnpm run test:unit
 
@@ -35,7 +35,6 @@ dotnet run --project infra/Aspire/src/ReSys.AppHost
 
 # Drift checks
 bash scripts/check-feature-conventions.sh                       # Feature file completeness (AC-001 through AC-005)
-bash scripts/check-cross-module-refs.sh                         # Cross-module namespace reference count (baseline: 32)
 ```
 
 ## Architecture
@@ -48,7 +47,7 @@ HTTP Request → Carter endpoint → FluentValidation → MediatR pipeline (Logg
   → Command/Query Handler → Domain logic + EF Core / external services → Mapster-mapped DTO response
 ```
 
-**Assembly dependency chain** (forward-only): `Api` → `Module` + `Shared` + `Migrations`; `Module` → `Shared`; `Shared` → `ServiceDefaults`. Modules must not reference each other — cross-module communication use MediatR `ISender.Send(new OtherModule.Command(...))` only. ~32 known violations tracked by `scripts/check-cross-module-refs.sh` (decreasing over time).
+**Assembly dependency chain** (forward-only): `Api` → `Module` + `Shared` + `Migrations`; `Module` → `Shared`; `Shared` → `ServiceDefaults`. Modules share one `Module` assembly and may reference each other's types; for behavior, cross-module work flows through MediatR `ISender.Send(new OtherModule.Command(...))` so it passes the pipeline.
 
 **Every feature** is `static partial class` split across files in one directory under `Features/{Admin|Storefront}/{Domain}/{Action}/`:
 - `{Action}.cs` — handler (`ICommandHandler` or `IQueryHandler`)
@@ -75,7 +74,7 @@ HTTP Request → Carter endpoint → FluentValidation → MediatR pipeline (Logg
 
 ### TypeScript (Vue SPAs)
 - **Admin:** PrimeVue + Sakai theme + Tailwind CSS 4. Path alias `@/` → `./src/`. Form validation with Vee-Validate + Zod. Auto-imports via `unplugin-auto-import`.
-- **Store:** Nuxt UI + Tailwind CSS 4. Same path alias pattern.
+- **Store:** PrimeVue 5 + Aura theme + Tailwind CSS 4. Same path alias pattern.
 - **Linting:** Dual linter — Oxlint + ESLint. Formatting via Oxfmt (no Prettier). `noUncheckedIndexedAccess: true` in both SPAs.
 - **Tests:** Vitest + jsdom, tests co-located in `src/**/__tests__/`.
 
@@ -99,7 +98,7 @@ Follow `guide/code-commenting/CommentingRules.xml`. Use `TODO`, `FIXME`, `HACK`,
 - **`TreatWarningsAsErrors=true`** — any compiler warning fails the build. Includes unused variables and nullable reference warnings. Always run `dotnet build` before committing C# changes.
 - **InMemory DB ≠ real PostgreSQL** — InMemory doesn't support pgvector, transaction isolation levels, or sequences. Tests passing with InMemory may fail against real PostgreSQL. Add integration tests for DB-specific features.
 - **Feature subdirectory naming:** Use `Storefront`, not `Store`, for new features. Identity, Location, and Profile still use `Store` — don't replicate in new code.
-- **Cross-module references:** When adding features, communicate across modules via `ISender`, never with direct `using Module.X.Domain...` references. Run `bash scripts/check-cross-module-refs.sh` after changes that touch multiple modules.
+- **Cross-module references:** Cross-module type references, direct service calls, and navigation/relationship access are all permitted (modules share one assembly). Use MediatR `ISender` when a command/query should flow through the pipeline (validation, logging, transaction); otherwise call the service or navigate the relationship directly.
 - **Dashboard module:** Exists but NOT registered in `Program.cs`. Don't add new Dashboard features without registering it first.
 - **Dev secrets:** Live in `dotnet user-secrets` (id: `resys.shop.api`), bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`. Dev JWT secret rejected for non-Development environments.
 - **Legacy code:** `app/legacy/` directories exist but deprecated and gitignored. Use `app/Admin/` (pnpm) for all admin UI work.

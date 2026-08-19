@@ -44,7 +44,7 @@ describe('StockMovementApi.getStockMovements', () => {
     })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/inventory/stock-movements?fromUtc=2026-01-01T08%3A30%3A00Z&toUtc=2026-01-31&variantId=v-1&stockLocationId=l-1',
+      '/api/admin/inventory/stock-movements?fromUtc=2026-01-01T08%3A30%3A00Z&toUtc=2026-01-31&variantId=v-1&stockLocationId=l-1',
       expect.objectContaining({ pageNumber: 1, pageSize: 10 }),
       expect.objectContaining({
         allowedFilterFields: ['stockItemId', 'originatorType'],
@@ -71,7 +71,7 @@ describe('StockMovementApi.getStockMovements', () => {
     await StockMovementApi.getStockMovements({ page: 1, pageSize: 10 })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/inventory/stock-movements',
+      '/api/admin/inventory/stock-movements',
       expect.objectContaining({ pageNumber: 1, pageSize: 10 }),
       expect.any(Object),
     )
@@ -116,6 +116,6 @@ describe('StockMovementApi.getStockMovement', () => {
   it('calls GET with correct URL', async () => {
     mockGet.mockResolvedValue({ value: { id: 'm-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await StockMovementApi.getStockMovement('m-1')
-    expect(mockGet).toHaveBeenCalledWith('api/inventory/stock-movements/m-1')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/inventory/stock-movements/m-1')
   })
 })

@@ -12,14 +12,9 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useProductOptions } from '../composables/useProductOptions'
-import { variantsListUrl } from '../utils/variantListUrl'
 import { VariantApi } from '../services/variantApi'
 import type { VariantListItem } from '../types/variant'
-import {
-  VARIANT_FILTER_FIELDS,
-  VARIANT_SORT_FIELDS,
-  VARIANT_SEARCH_FIELDS,
-} from '../types/variant'
+import { VARIANT_SEARCH_FIELDS } from '../types/variant'
 
 const route = useRoute()
 const router = useRouter()
@@ -87,11 +82,8 @@ const {
   setSort,
   refresh,
 } = usePagedQuery<VariantListItem>(
-  () => variantsListUrl(productId.value),
+  (params) => VariantApi.getVariants(productId.value ?? '', params),
   {
-    allowedFilterFields: VARIANT_FILTER_FIELDS,
-    allowedSortFields: VARIANT_SORT_FIELDS,
-    allowedSearchFields: VARIANT_SEARCH_FIELDS,
     defaultSearchFields: VARIANT_SEARCH_FIELDS,
     defaultSearchMode: 'any',
     defaultSort: ['position'],

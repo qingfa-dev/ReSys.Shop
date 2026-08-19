@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { inventoryService } from '@/features/inventories/api/inventory.api';
+import { inventoryService } from '@/features/inventories/api/admin/inventory.api';
 import { variantRepository } from '../api/variant.api';
 import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.vue';
 import StockAdjustmentDialog from '@/features/inventories/components/StockAdjustmentDialog.vue';
@@ -129,13 +129,13 @@ onMounted(() => {
             </div>
         </div>
 
-        <StockAdjustmentDialog 
-            v-if="adjustDialog" 
-            :stockItemId="selectedStockItem!.id" 
-            :sku="selectedStockItem!.sku" 
-            :variantName="selectedStockItem!.variantName" 
-            @updated="loadData" 
-            @close="adjustDialog = false" 
+        <StockAdjustmentDialog
+            v-if="adjustDialog"
+            :stockItemId="selectedStockItem!.id"
+            :sku="selectedStockItem!.sku"
+            :variantName="selectedStockItem!.variantName"
+            @updated="loadData"
+            @close="adjustDialog = false"
         />
 
         <Drawer v-model:visible="historyDrawer" position="right" class="w-full md:w-[500px]">

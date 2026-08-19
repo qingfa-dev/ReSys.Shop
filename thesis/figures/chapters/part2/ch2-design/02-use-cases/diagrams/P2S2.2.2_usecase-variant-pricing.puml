@@ -36,19 +36,23 @@ left to right direction
   }
 </style>
 
-title Use Case Detail: UC-ADM-VAR (Variant and Pricing Management)
 
 ' === ACTORS ===
 actor "Administrator" as Admin
 
 ' === SYSTEM BOUNDARY ===
-rectangle "ReSys.Shop - Catalog Subsystem" {
+rectangle {
 
-  usecase "Manage Product Variants\n(UC-ADM-VAR)" as UC_MAIN
-  usecase "Add Product Variant\n(UC-ADM-VAR-ADD)" as UC_ADD
-  usecase "Configure Option Values\n(UC-ADM-VAR-OPT)" as UC_OPT
-  usecase "Configure Base Pricing\n(UC-ADM-VAR-PRC)" as UC_PRC
-  usecase "Configure Promotional & Regional Rules\n(UC-ADM-VAR-DISC)" as UC_RULES
+  ' (UC-ADM-VAR)
+  usecase "Manage Product Variants" as UC_MAIN
+  ' (UC-ADM-VAR-ADD)
+  usecase "Add Product Variant" as UC_ADD
+  ' (UC-ADM-VAR-OPT)
+  usecase "Configure Option Values" as UC_OPT
+  ' (UC-ADM-VAR-PRC)
+  usecase "Configure Base Pricing" as UC_PRC
+  ' (UC-ADM-VAR-DISC)
+  usecase "Configure Promotional & Regional Rules" as UC_RULES
 
 }
 

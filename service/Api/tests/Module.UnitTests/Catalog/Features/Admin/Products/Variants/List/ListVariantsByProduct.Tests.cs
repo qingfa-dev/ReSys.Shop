@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Features.Admin.Products.Variants.Get.PagedOrAll;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Features.Admin.Variants.Get.PagedOrAll;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.List;
 

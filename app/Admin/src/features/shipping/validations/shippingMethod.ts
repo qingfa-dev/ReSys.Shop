@@ -18,9 +18,6 @@ export const shippingMethodCalculatorType = z.string()
   .min(1, 'Calculator type is required.')
   .max(100, 'Calculator type must not exceed 100 characters.')
 
-export const shippingMethodTaxCategoryId = z.string()
-  .optional()
-
 export const shippingMethodPosition = z.number()
   .int()
   .min(0, 'Position must be at least 0.')
@@ -33,7 +30,6 @@ export const shippingMethodSchema = z.object({
   trackingUrl: shippingMethodTrackingUrl,
   adminName: shippingMethodAdminName,
   calculatorType: shippingMethodCalculatorType,
-  taxCategoryId: shippingMethodTaxCategoryId,
   position: shippingMethodPosition,
   availableToUsers: shippingMethodAvailableToUsers,
 })

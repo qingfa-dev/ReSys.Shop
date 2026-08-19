@@ -1,8 +1,10 @@
+import type { OrderStatus } from './order'
+
 export interface RecentOrderData {
   id: string
   number: string
   total: number
-  status: string
+  status: OrderStatus
   createdAtUtc: string
 }
 

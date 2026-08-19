@@ -56,13 +56,13 @@ arrow {
 
 </style>
 
-title Use Case: UC-ADM-LOC\nStock Location Management
 
 actor "Administrator" as Admin
 
-rectangle "ReSys.Shop\nInventory & Logistics Subsystem" {
+rectangle {
 
-  usecase "Manage Stock Locations\nUC-ADM-LOC" as UC_MAIN
+  ' UC-ADM-LOC
+  usecase "Manage Stock Locations" as UC_MAIN
 
 }
 

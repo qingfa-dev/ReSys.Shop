@@ -9,8 +9,8 @@ public static partial class EmptyCart
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/storefront/cart/empty — remove all items from the cart
-            app.MapPost(OrderingFeature.Storefront.Cart.Empty.Route,
+            // Map: DELETE api/storefront/cart/items — remove all items from the cart
+            app.MapDelete(OrderingFeature.Storefront.Cart.RemoveAllItems.Route,
                 async (ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(), ct);
@@ -19,8 +19,8 @@ public static partial class EmptyCart
             .AllowAnonymous()
             .WithName(nameof(EmptyCart))
             .WithTags(OrderingFeature.Tags.Cart)
-            .WithSummary(OrderingFeature.Storefront.Cart.Empty.Summary)
-            .WithDescription(OrderingFeature.Storefront.Cart.Empty.Description)
+            .WithSummary(OrderingFeature.Storefront.Cart.RemoveAllItems.Summary)
+            .WithDescription(OrderingFeature.Storefront.Cart.RemoveAllItems.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest);
         }

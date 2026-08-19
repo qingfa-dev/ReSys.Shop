@@ -1,12 +1,12 @@
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
-using Microsoft.EntityFrameworkCore;
+
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Regenerate;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
+
+using Module.Catalog.Domain.Variants.Images.Embeddings;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Regenerate;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Services;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Regenerate;
 
@@ -52,7 +52,7 @@ public class RegenerateEmbeddingTests : IDisposable
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Status.Should().Be("Pending");
+        result.Value.Status.Should().Be(EmbeddingStatus.Pending);
         result.Value.HangfireJobId.Should().Be(jobId);
 
         var saved = await _dbContext.Set<ImageEmbedding>()
@@ -75,7 +75,7 @@ public class RegenerateEmbeddingTests : IDisposable
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Status.Should().Be("Pending");
+        result.Value.Status.Should().Be(EmbeddingStatus.Pending);
 
         var saved = await _dbContext.Set<ImageEmbedding>()
             .FirstOrDefaultAsync(e => e.VariantImageId == variantImageId);

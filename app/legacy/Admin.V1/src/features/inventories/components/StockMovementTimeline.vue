@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { inventoryService } from '../api/inventory.api';
+import { inventoryService } from '../api/admin/inventory.api';
 import type { StockMovement } from '../stock-movements/types/stock-movement.response';
 import type { ServerQueryingParameters } from '@/common/api/types/query.types';
 import { useFormatter } from '@/common/composables/formatter.use';

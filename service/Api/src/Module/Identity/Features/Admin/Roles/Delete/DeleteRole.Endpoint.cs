@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Roles.Delete;
+namespace Module.Identity.Features.Shared.Admin.Roles.Delete;
 
 public static partial class DeleteRole
 {

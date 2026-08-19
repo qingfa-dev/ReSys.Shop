@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Features.Admin.StockLocations.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Delete;
 
@@ -23,14 +23,14 @@ public static partial class DeleteStockLocation
 
             // Check: Reject deletion if location does not exist
             if (entity is null)
-                return StockLocationResult.Failure.NotFound;
+                return StockLocationResult.Errors.NotFound;
 
             // Guard: Only inactive, non-default locations can be deleted
             if (entity.Active)
-                return StockLocationResult.Failure.CannotDeleteActive;
+                return StockLocationResult.Errors.CannotDeleteActive;
 
             if (entity.Default)
-                return StockLocationResult.Failure.CannotDeactivateDefault;
+                return StockLocationResult.Errors.CannotDeactivateDefault;
 
             // Update: Soft-delete the location entity
             var deleteResult = entity.SoftDelete();

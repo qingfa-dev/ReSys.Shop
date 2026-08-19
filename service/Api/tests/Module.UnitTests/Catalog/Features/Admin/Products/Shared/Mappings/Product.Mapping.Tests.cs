@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Features.Admin.Products.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Shared.Mappings;
 
@@ -127,7 +127,7 @@ public class ProductMappingTests
     public void MapToListItem_ShouldIncludeVariantsCount()
     {
         var entity = ProductMethod.Create("Product", "product", status: ProductStatus.Draft).Value;
-        var variant = Module.Catalog.Domain.Products.Variants.VariantMethod.Create(entity.Id, "SKU-001", isMaster: true).Value;
+        var variant = Module.Catalog.Domain.Variants.VariantMethod.Create(entity.Id, "SKU-001", isMaster: true).Value;
         entity.Variants.Add(variant);
 
         var result = entity.MapToListItem<ProductListItemResponse>();

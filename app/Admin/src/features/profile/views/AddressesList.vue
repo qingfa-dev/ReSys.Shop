@@ -26,6 +26,7 @@ const notify = useNotify()
 const { handleResult } = useApiErrorHandler()
 const { dt, exportCSV } = useDataTableExport()
 const authStore = useAuthStore()
+const selectedItems = ref<AddressResponse[]>([])
 
 const search = ref('')
 
@@ -58,11 +59,11 @@ function clearSearch() {
 }
 
 function navigateToNew() {
-  router.push(initialUserId ? `/profile/addresses/new?userId=${encodeURIComponent(initialUserId)}` : '/profile/addresses/new')
+  router.push(initialUserId ? `/customer/addresses/new?userId=${encodeURIComponent(initialUserId)}` : '/customer/addresses/new')
 }
 
 function navigateToEdit(data: AddressResponse) {
-  router.push(`/profile/addresses/${data.id}?userId=${encodeURIComponent(data.userId)}`)
+  router.push(`/customer/addresses/${data.id}?userId=${encodeURIComponent(data.userId)}`)
 }
 
 function confirmDelete(data: AddressResponse) {
@@ -83,6 +84,42 @@ function confirmDelete(data: AddressResponse) {
         refresh()
       } else {
         handleResult(result)
+      }
+    },
+  })
+}
+
+function bulkConfirmDelete() {
+  if (selectedItems.value.length === 0) return
+
+  confirm.require({
+    message: `Are you sure you want to delete ${selectedItems.value.length > 1 ? 'these addresses' : 'this address'}?`,
+    header: 'Confirm Delete',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      let failed = 0
+      for (const item of selectedItems.value) {
+        const result = await AddressApi.deleteAddress(item.userId, item.id)
+        if (!result.isSuccess) failed++
+      }
+      const count = selectedItems.value.length
+      selectedItems.value = []
+      refresh()
+      if (failed === 0) {
+        notify.success(
+          count > 1 ? 'Addresses deleted' : 'Address deleted',
+          count > 1
+            ? `${count} addresses have been removed.`
+            : `Address has been removed.`,
+        )
+      } else {
+        notify.error(
+          'Delete failed',
+          `${failed} of ${count} could not be deleted.`,
+        )
       }
     },
   })
@@ -122,6 +159,13 @@ function confirmDelete(data: AddressResponse) {
         />
         <div class="flex-1" />
         <Button
+          v-if="selectedItems.length > 0"
+          label="Delete"
+          icon="pi pi-trash"
+          severity="danger"
+          @click="bulkConfirmDelete"
+        />
+        <Button
           label="New Address"
           icon="pi pi-plus"
           @click="navigateToNew"
@@ -143,6 +187,7 @@ function confirmDelete(data: AddressResponse) {
       <!-- Section: Data Table — address grid -->
       <DataTable
         ref="dt"
+        v-model:selection="selectedItems"
         :value="items"
         :loading="loading"
         scrollable
@@ -151,6 +196,7 @@ function confirmDelete(data: AddressResponse) {
         :rows-per-page-options="[10, 20, 50]"
         data-key="id"
       >
+        <Column selection-mode="multiple" header-style="width: 3rem" />
         <!-- Section: Table Columns — address identity and default flag fields -->
         <Column field="addressType" header="Type" :sortable="true" />
         <Column field="firstName" header="First Name" :sortable="true" />

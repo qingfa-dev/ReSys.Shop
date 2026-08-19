@@ -40,4 +40,12 @@ public static class ShippingMethodValidation
             .WithErrorCode(ShippingMethodResult.Errors.InvalidTrackingUrl.Code)
             .WithMessage(ShippingMethodResult.Errors.InvalidTrackingUrl.Message);
     }
+
+    public static IRuleBuilderOptions<T, string?> ApplyPresentationRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(ShippingMethodConstant.Constraints.MaxPresentationLength)
+            .WithErrorCode(ShippingMethodResult.Errors.PresentationTooLong.Code)
+            .WithMessage(ShippingMethodResult.Errors.PresentationTooLong.Message);
+    }
 }

@@ -6,7 +6,7 @@ public static partial class DiscontinueProduct
 {
     /// <summary>
     /// PATCH endpoint that discontinues (archives) a product by ID.
-    /// Route: api/catalog/products/{id:guid}/discontinue
+    /// Route: api/admin/catalog/products/{id:guid}/discontinue
     /// Permission: Products.ManageStatus
     /// </summary>
     public class Endpoint : ICarterModule

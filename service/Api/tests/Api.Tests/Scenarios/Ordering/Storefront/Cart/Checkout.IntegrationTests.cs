@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 
 using Shared.Operational.Persistence.Data;
 
@@ -33,7 +33,7 @@ public sealed class CheckoutIntegrationTests(ApiFixture fixture) : OrderingInteg
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
 
         if (!createResult.IsSuccess)
@@ -47,7 +47,7 @@ public sealed class CheckoutIntegrationTests(ApiFixture fixture) : OrderingInteg
         created.Should().NotBeNull();
 
         HttpResponseMessage activateResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/products/{created!.Id}/activate");
+            $"/api/admin/catalog/products/{created!.Id}/activate");
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         using (var scope = Fixture.Factory.Services.CreateScope())

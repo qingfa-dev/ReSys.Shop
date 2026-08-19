@@ -31,7 +31,7 @@ public sealed class StorageAntiForgeryGuardTests
         _optionsMock.Setup(x => x.Value).Returns(new AntiForgeryOptions());
 
         _cacheServiceMock
-            .Setup(x => x.GetOrCreateAsync<int>(
+            .Setup(x => x.GetOrCreateAsync(
                 It.IsAny<string>(),
                 It.IsAny<Func<CancellationToken, ValueTask<int>>>(),
                 It.IsAny<CachingEntryOption?>(),
@@ -45,7 +45,7 @@ public sealed class StorageAntiForgeryGuardTests
             });
 
         _cacheServiceMock
-            .Setup(x => x.SetAsync<int>(
+            .Setup(x => x.SetAsync(
                 It.IsAny<string>(),
                 It.IsAny<int>(),
                 It.IsAny<CachingEntryOption?>(),

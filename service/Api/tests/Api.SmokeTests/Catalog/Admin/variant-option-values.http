@@ -10,19 +10,19 @@
 
 ### ---------------------------------------------------------------------------
 ### 1. Get option values with status
-# GET /api/catalog/variant-option-values?variantId=
+# GET /api/admin/catalog/variant-option-values?variantId=
 # Expected: 200 OK – list of option values with assignment status
 # ---------------------------------------------------------------------------
-GET {{baseUrl}}/api/catalog/variant-option-values?variantId={{existingVariantId}}
+GET {{baseUrl}}/api/admin/catalog/variant-option-values?variantId={{existingVariantId}}
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 2. Assign option values – success
-# POST /api/catalog/variant-option-values/assign (VariantId in body)
+# POST /api/admin/catalog/variant-option-values/assign (VariantId in body)
 # Expected: 200 OK – option values assigned
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variant-option-values/assign
+POST {{baseUrl}}/api/admin/catalog/variant-option-values/assign
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -33,10 +33,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 3. Revoke option values – success
-# POST /api/catalog/variant-option-values/revoke (VariantId in body)
+# POST /api/admin/catalog/variant-option-values/revoke (VariantId in body)
 # Expected: 200 OK – option values revoked
 # ---------------------------------------------------------------------------
-POST {{baseUrl}}/api/catalog/variant-option-values/revoke
+POST {{baseUrl}}/api/admin/catalog/variant-option-values/revoke
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 
@@ -47,10 +47,10 @@ Authorization: Bearer {{adminToken}}
 
 ### ---------------------------------------------------------------------------
 ### 4. Sync option values – success
-# PUT /api/catalog/variant-option-values/sync (VariantId in body)
+# PUT /api/admin/catalog/variant-option-values/sync (VariantId in body)
 # Expected: 200 OK – option values synchronized
 # ---------------------------------------------------------------------------
-PUT {{baseUrl}}/api/catalog/variant-option-values/sync
+PUT {{baseUrl}}/api/admin/catalog/variant-option-values/sync
 Content-Type: {{contentType}}
 Authorization: Bearer {{adminToken}}
 

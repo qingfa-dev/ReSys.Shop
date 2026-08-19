@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Delete;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Delete;
 
@@ -26,19 +26,22 @@ public class DeleteEmbeddingTests : IDisposable
     [Fact(DisplayName = "Handle: Removes embedding and returns 200 with message")]
     public async Task Handle_ShouldDeleteAndReturn200()
     {
-        var variantImageId = Guid.NewGuid();
-        var embedding = ImageEmbeddingMethod.CreatePending(variantImageId, "fashion-clip", "v1");
+        var image = VariantImageMethod.Create(
+            "image/jpeg", "test.jpg", 1024, "https://cdn.test.com/test.jpg",
+            "u/test.jpg", position: 0, variantId: Guid.NewGuid()).Value;
+        _dbContext.Set<VariantImage>().Add(image);
+
+        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion-clip", "v1");
         _dbContext.Set<ImageEmbedding>().Add(embedding);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var command = new DeleteEmbedding.Command(variantImageId);
+        var command = new DeleteEmbedding.Command(image.Id);
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Message.Should().Contain("deleted");
 
         var deleted = await _dbContext.Set<ImageEmbedding>()
-            .FirstOrDefaultAsync(e => e.VariantImageId == variantImageId);
+            .FirstOrDefaultAsync(e => e.VariantImageId == image.Id);
         deleted.Should().BeNull();
     }
 

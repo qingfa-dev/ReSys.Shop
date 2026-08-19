@@ -1,6 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Shared.Application.Mediators.Queries;
-using Shared.Operational.Persistence.Data;
+using Module.Ordering.Features.Admin.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Dashboard.Get;
 
@@ -31,6 +30,7 @@ public static partial class GetOrderingDashboard
                 Draft = await baseQuery.CountAsync(o => o.Status == OrderStatus.Draft, cancellationToken),
                 Placed = await baseQuery.CountAsync(o => o.Status == OrderStatus.Placed, cancellationToken),
                 Canceled = await baseQuery.CountAsync(o => o.Status == OrderStatus.Canceled, cancellationToken),
+                Completed = await baseQuery.CountAsync(o => o.Status == OrderStatus.Completed, cancellationToken),
                 Expired = await baseQuery.CountAsync(o => o.Status == OrderStatus.Expired, cancellationToken),
             };
 
@@ -43,8 +43,8 @@ public static partial class GetOrderingDashboard
                     Id = o.Id,
                     Number = o.Number,
                     Total = o.Total,
-                    Status = o.Status.ToString(),
-                    CreatedAtUtc = o.CreatedAtUtc.DateTime
+                    Status = o.Status,
+                    CreatedAtUtc = o.CreatedAtUtc
                 })
                 .ToListAsync(cancellationToken);
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Storefront.Passwords.Reset;
+using Module.Identity.Features.Shared.Storefront.Passwords.Reset;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;

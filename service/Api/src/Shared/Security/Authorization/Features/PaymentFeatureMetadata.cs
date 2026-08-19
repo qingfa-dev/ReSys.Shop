@@ -3,7 +3,7 @@ using Shared.Security.Identity.Domain.Permissions;
 
 namespace Shared.Security.Authorization.Features;
 
-public static class PaymentFeatureMetadata
+public static class BillingFeatureMetadata
 {
     public static string ModuleName => "Payment";
 

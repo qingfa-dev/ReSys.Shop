@@ -1,6 +1,6 @@
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Permissions.Assign;
+namespace Module.Identity.Features.Shared.Admin.Users.Permissions.Assign;
 
 public static partial class AssignUserPermissions
 {

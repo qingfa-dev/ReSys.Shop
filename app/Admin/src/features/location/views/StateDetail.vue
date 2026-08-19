@@ -8,8 +8,11 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
+import { useActiveList } from '@/shared/composables'
 import { StateApi } from '../services/stateApi'
-import { useActiveCountries } from '../composables/useActiveCountries'
+import { CountryApi } from '../services/countryApi'
+import type { CountryListItem } from '../types/country'
+import { toCountryQueryParams } from '../types/country'
 import { stateSchema, stateName, stateAbbreviation, stateCountryId } from '../validations/state'
 import type { StateForm } from '../validations/state'
 
@@ -17,7 +20,7 @@ const route = useRoute()
 const router = useRouter()
 const notify = useNotify()
 const { handleResult } = useApiErrorHandler()
-const { items: activeCountries, load: loadActiveCountries } = useActiveCountries()
+const { items: activeCountries, load: loadActiveCountries } = useActiveList<CountryListItem>(() => CountryApi.getCountries(toCountryQueryParams({ isActive: true })))
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => (isEdit.value ? 'Edit State' : 'New State'))

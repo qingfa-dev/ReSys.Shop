@@ -14,34 +14,33 @@ NC='\033[0m'
 pass() { echo -e "${GREEN}PASS${NC}: $1"; }
 fail() { echo -e "${RED}FAIL${NC}: $1"; FAIL=1; }
 
-# Helper: filter out lines with // EXCEPTION comment
-no_exception() { rg -v '//\s*EXCEPTION' || true; }
-
 # AC-001: No Command/Query inlines domain fields
 echo "--- AC-001: Command/Query must wrap Request/Id/Slug/Parameters ---"
 # Find all sealed record Command/Query lines
 all=$(rg -n 'sealed record (Command|Query)\([^)]*\)\s*:' -g '*.cs' "$MODULE_DIR" \
   | rg ': I(Command|Query|PagedQuery)(<|$)' || true)
 real_violations=""
-while IFS= read -r line; do
-  # Extract just the parameter list between parentheses
-  params=$(echo "$line" | rg -o '\([^)]*\)' | head -1)
-  # Allowed: single wrapping param (Request or Parameters)
-  if echo "$params" | rg -q '^\(\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
-  # Allowed: single Guid param ending in Id
-  if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*\)$'; then continue; fi
-  # Allowed: single string param
-  if echo "$params" | rg -q '^\(\s*string\s+\w+\s*\)$'; then continue; fi
-  # Allowed: Guid Id, Request/Parameters
-  if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
-  # Allowed: multiple Guid Ids (e.g. Guid TaxonomyId, Guid Id, Request)
-  if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*(\s*,\s*[a-zA-Z]+\s+\w*Id\s*)*(,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*)?\)$'; then continue; fi
-  # Allowed: wrapping Request plus Parameters (e.g. Request Request, Parameters Parameters)
-  if echo "$params" | rg -q '^\(\s*(Querying)?Request\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
-  # Allowed: single string param plus Parameters (e.g. string CartToken, Parameters Parameters)
-  if echo "$params" | rg -q '^\(\s*string\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
-  real_violations+="$line"$'\n'
-done < <(echo "$all" | no_exception)
+if [[ -n "$all" ]]; then
+  while IFS= read -r line; do
+    # Extract just the parameter list between parentheses
+    params=$(echo "$line" | rg -o '\([^)]*\)' | head -1)
+    # Allowed: single wrapping param (Request or Parameters)
+    if echo "$params" | rg -q '^\(\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
+    # Allowed: single Guid param ending in Id
+    if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*\)$'; then continue; fi
+    # Allowed: single string param
+    if echo "$params" | rg -q '^\(\s*string\s+\w+\s*\)$'; then continue; fi
+    # Allowed: Guid Id, Request/Parameters
+    if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*\)$'; then continue; fi
+    # Allowed: multiple Guid Ids (e.g. Guid TaxonomyId, Guid Id, Request)
+    if echo "$params" | rg -q '^\(\s*[a-zA-Z]+\s+\w*Id\s*(\s*,\s*[a-zA-Z]+\s+\w*Id\s*)*(,\s*(Querying)?(Request|Parameters)(\s+\w+)?\s*)?\)$'; then continue; fi
+    # Allowed: wrapping Request plus Parameters (e.g. Request Request, Parameters Parameters)
+    if echo "$params" | rg -q '^\(\s*(Querying)?Request\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
+    # Allowed: single string param plus Parameters (e.g. string CartToken, Parameters Parameters)
+    if echo "$params" | rg -q '^\(\s*string\s+\w+\s*,\s*(Querying)?Parameters\s+\w+\s*\)$'; then continue; fi
+    real_violations+="$line"$'\n'
+  done < <(echo "$all")
+fi
 
 if [[ -z "$real_violations" ]]; then
   pass "AC-001: All Commands/Queries follow allowed patterns"
@@ -50,43 +49,37 @@ else
   echo "$real_violations" | head -20
 fi
 
-# AC-002: No standalone Response records (must inherit from base type or have // EXCEPTION)
+# AC-002: No standalone Response records (must inherit from base type)
 echo "--- AC-002: Response must inherit from base type ---"
 violations=$(rg -n 'public (sealed )?record Response\b' -g '*.cs' "$MODULE_DIR" \
-  | rg -v 'Response\s*:' || true)
-# Filter out lines where the preceding line or same line has // EXCEPTION
+  | rg -v 'Response\s*\(?\)?\s*:' || true)
 real_violations=""
-while IFS= read -r line; do
-  file=$(echo "$line" | cut -d: -f1)
-  lineno=$(echo "$line" | cut -d: -f2)
-  # Check if this line or the line before has EXCEPTION
-  if sed -n "${lineno}p" "$file" | rg -q '//\s*EXCEPTION'; then continue; fi
-  if [ "$lineno" -gt 1 ] && sed -n "$((lineno-1))p" "$file" | rg -q '//\s*EXCEPTION'; then continue; fi
-  real_violations+="$line"$'\n'
-done < <(echo "$violations")
+if [[ -n "$violations" ]]; then
+  while IFS= read -r line; do
+    real_violations+="$line"$'\n'
+  done < <(echo "$violations")
+fi
 if [[ -z "$real_violations" ]]; then
-  pass "AC-002: All Response records have a base type or exception comment"
+  pass "AC-002: All Response records have a base type"
 else
-  fail "AC-002: Found Response records without base type or exception"
+  fail "AC-002: Found Response records without base type"
   echo "$real_violations"
 fi
 
-# AC-003: No standalone Request records (must inherit from base type or have // EXCEPTION)
+# AC-003: No standalone Request records (must inherit from base type)
 echo "--- AC-003: Request must inherit from base type ---"
-violations=$(rg -n 'public record Request\b' -g '*.cs' "$MODULE_DIR" \
-  | rg -v 'Request\s*:' || true)
+violations=$(rg -n 'public (sealed )?record Request\b' -g '*.cs' "$MODULE_DIR" \
+  | rg -v 'Request\s*\(?\)?\s*:' || true)
 real_violations=""
-while IFS= read -r line; do
-  file=$(echo "$line" | cut -d: -f1)
-  lineno=$(echo "$line" | cut -d: -f2)
-  if sed -n "${lineno}p" "$file" | rg -q '//\s*EXCEPTION'; then continue; fi
-  if [ "$lineno" -gt 1 ] && sed -n "$((lineno-1))p" "$file" | rg -q '//\s*EXCEPTION'; then continue; fi
-  real_violations+="$line"$'\n'
-done < <(echo "$violations")
+if [[ -n "$violations" ]]; then
+  while IFS= read -r line; do
+    real_violations+="$line"$'\n'
+  done < <(echo "$violations")
+fi
 if [[ -z "$real_violations" ]]; then
-  pass "AC-003: All Request records have a base type or exception comment"
+  pass "AC-003: All Request records have a base type"
 else
-  fail "AC-003: Found Request records without base type or exception"
+  fail "AC-003: Found Request records without base type"
   echo "$real_violations"
 fi
 
@@ -108,6 +101,22 @@ if [[ "$IFORM_FILE_VIOLATIONS" -eq 0 ]]; then
   pass "AC-005: No Command carries IFormFile directly"
 else
   fail "AC-005: Found $IFORM_FILE_VIOLATIONS Command(s) with IFormFile"
+fi
+
+# AC-006: No per-feature Shared kind dirs (only Features/{Admin|Storefront}/Shared allowed)
+echo "--- AC-006: Shared kind dirs only under Features/{Admin|Storefront}/Shared ---"
+ac006_violations=""
+while IFS= read -r d; do
+  if ! echo "$d" | rg -q 'Features/(Admin|Storefront)/Shared/(Mappings|Models|Validators|Validations|Validation)$'; then
+    ac006_violations+="$d"$'\n'
+  fi
+done < <(find "$MODULE_DIR" -type d \( -path '*/Shared/Mappings' -o -path '*/Shared/Models' -o -path '*/Shared/Validators' -o -path '*/Shared/Validation' -o -path '*/Shared/Validations' \) 2>/dev/null || true)
+
+if [[ -z "$ac006_violations" ]]; then
+  pass "AC-006: No per-feature Shared kind dirs (consolidated layout enforced)"
+else
+  fail "AC-006: Per-feature Shared kind dirs found (must consolidate into Features/{Admin|Storefront}/Shared/)"
+  echo "$ac006_violations"
 fi
 
 echo "---"

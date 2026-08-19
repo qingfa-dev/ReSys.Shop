@@ -1,6 +1,12 @@
+using Microsoft.Extensions.Configuration;
+
 using ReSys.ServiceDefaults.Constants;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
+
+// Load this AppHost project's user-secrets (UserSecretsId in the csproj) so the
+// Stripe key can be configured once via `dotnet user-secrets` instead of a shell export.
+builder.Configuration.AddUserSecrets<Program>();
 
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
     .WithImage(Images.Pgvector.Optimized);
@@ -24,9 +30,46 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WithReference(database)
     .WithReference(redis)
     .WithReference(embedding)
+    .WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))
     .WithHttpHealthCheck("/health")
+    .WithHttpsEndpoint(port: 5001, name: "https")
     .WithExternalHttpEndpoints()
-    .WithOtlpExporter();
+    .WithOtlpExporter()
+    .WaitFor(redis)
+    .WaitFor(postgres);
+
+// Resolve the Stripe key from user-secrets ("Stripe:ApiKey") with the process
+// env var as a fallback, so both `dotnet user-secrets set` and shell export work.
+var stripeApiKey = builder.Configuration["Stripe:ApiKey"]
+    ?? Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+if (!string.IsNullOrEmpty(stripeApiKey))
+{
+    // Runs the host `stripe` binary (NOT a container): the container approach cannot
+    // reach the host API via localhost on Linux. --forward-to is resolved inside a
+    // WithArgs callback that runs after Aspire has allocated the API's endpoints, so
+    // AllocatedEndpoint yields the real https://localhost:5001 URL (the object[] and
+    // $"" forms both stringify the EndpointReference to its type name). --skip-verify
+    // is required for the Aspire dev certificate.
+    builder.AddExecutable("stripe-listen", "stripe", Environment.CurrentDirectory)
+        .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
+        .WithArgs(context =>
+        {
+            context.Args.Add("listen");
+            context.Args.Add("--skip-verify");
+            context.Args.Add("--latest");
+            context.Args.Add("--events");
+            context.Args.Add("payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,payment_intent.processing,payment_intent.canceled,checkout.session.completed,checkout.session.expired,charge.refunded,charge.dispute.created");
+            context.Args.Add("--forward-to");
+            context.Args.Add($"{api.GetEndpoint("https").EndpointAnnotation.AllocatedEndpoint}/api/storefront/billing/webhooks/stripe");
+        })
+        .WaitFor(api);
+    Console.WriteLine("[stripe] stripe-listen resource added (forwarding to https://localhost:5001/api/storefront/billing/webhooks/stripe, --skip-verify).");
+}
+else
+{
+    Console.WriteLine("[stripe] WARNING: STRIPE_SECRET_KEY is not set in this process; the 'stripe-listen' webhook resource will NOT be created.");
+    Console.WriteLine("[stripe]   Export it in the terminal that runs this AppHost, then restart: export STRIPE_SECRET_KEY=sk_test_...");
+}
 
 #pragma warning disable ASPIRECERTIFICATES001
 builder.AddViteApp(Application.Admin, "../../../../app/Admin")
@@ -38,7 +81,7 @@ builder.AddViteApp(Application.Admin, "../../../../app/Admin")
 #pragma warning restore ASPIRECERTIFICATES001
 
 #pragma warning disable ASPIRECERTIFICATES001
-builder.AddViteApp(Application.Store, "../../../../app/Storefront")
+builder.AddViteApp(Application.Store, "../../../../app/Store")
     .WithPnpm()
     .WithReference(api)
     .WithHttpsEndpoint(port: 5174, env: "PORT")

@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.Delete;
 
@@ -19,7 +19,7 @@ public sealed class DeleteVariantIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
@@ -34,14 +34,14 @@ public sealed class DeleteVariantIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage addResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/variants", addVariantRequest);
+            "/api/admin/catalog/variants", addVariantRequest);
         ApiResponse addResult = await addResponse.ReadApiResponseAsync();
         addResult.IsSuccess.Should().BeTrue();
         var created = addResult.DeserializeValue<VariantDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/variants/{created!.Id}");
+            $"/api/admin/catalog/variants/{created!.Id}");
 
         deleteResponse.IsSuccessStatusCode.Should().BeTrue();
     }
@@ -57,7 +57,7 @@ public sealed class DeleteVariantIntegrationTests(ApiFixture fixture) : CatalogI
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/variants/{nonexistentId}");
+            $"/api/admin/catalog/variants/{nonexistentId}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -66,7 +66,7 @@ public sealed class DeleteVariantIntegrationTests(ApiFixture fixture) : CatalogI
     public async Task DeleteVariant_WithoutAuth_Returns401()
     {
         HttpResponseMessage response = await Client.DeleteAsync(
-            "/api/catalog/variants/00000000-0000-0000-0000-000000000000");
+            "/api/admin/catalog/variants/00000000-0000-0000-0000-000000000000");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

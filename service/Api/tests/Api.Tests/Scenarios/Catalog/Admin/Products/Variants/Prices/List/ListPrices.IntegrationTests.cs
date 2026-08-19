@@ -1,8 +1,7 @@
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Prices.Shared.Models;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.Prices.List;
 
@@ -18,14 +17,14 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants?productId={product!.Id}");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -41,11 +40,11 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage setResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/variant-prices", setPriceRequest);
+            "/api/admin/catalog/variant-prices", setPriceRequest);
         setResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variant-prices?variantId={variant.Id}");
+            $"/api/admin/catalog/variant-prices?variantId={variant.Id}");
         var result = await response.ReadAsPagedResultAsync<PriceResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -73,14 +72,14 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants?productId={product!.Id}");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -89,7 +88,7 @@ public sealed class ListPricesIntegrationTests(ApiFixture fixture) : CatalogInte
         variant.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variant-prices?variantId={variant!.Id}");
+            $"/api/admin/catalog/variant-prices?variantId={variant!.Id}");
         var result = await response.ReadAsPagedResultAsync<PriceResponse>();
 
         result.IsSuccess.Should().BeTrue();

@@ -1,6 +1,6 @@
 using Module.Identity.Features.Storefront.Shared.Models;
 
-namespace Module.Identity.Features.Storefront.Auth.Logout;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Logout;
 
 public static partial class Logout
 {

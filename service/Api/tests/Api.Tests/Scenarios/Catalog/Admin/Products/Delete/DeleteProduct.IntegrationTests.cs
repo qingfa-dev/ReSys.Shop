@@ -17,14 +17,14 @@ public sealed class DeleteProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<CreateProductResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/products/{created!.Id}");
+            $"/api/admin/catalog/products/{created!.Id}");
 
         deleteResponse.IsSuccessStatusCode.Should().BeTrue();
     }
@@ -40,7 +40,7 @@ public sealed class DeleteProductIntegrationTests(ApiFixture fixture) : CatalogI
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/products/{nonexistentId}");
+            $"/api/admin/catalog/products/{nonexistentId}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -49,7 +49,7 @@ public sealed class DeleteProductIntegrationTests(ApiFixture fixture) : CatalogI
     public async Task DeleteProduct_WithoutAuth_Returns401()
     {
         HttpResponseMessage response = await Client.DeleteAsync(
-            "/api/catalog/products/00000000-0000-0000-0000-000000000000");
+            "/api/admin/catalog/products/00000000-0000-0000-0000-000000000000");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

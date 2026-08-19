@@ -22,20 +22,20 @@ public sealed class GetProductDetailIntegrationTests(ApiFixture fixture) : Catal
             description = "A visible storefront product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         using var activateRequest = new HttpRequestMessage(
-            HttpMethod.Patch, $"/api/catalog/products/{productId}/activate");
+            HttpMethod.Patch, $"/api/admin/catalog/products/{productId}/activate");
         activateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/storefront/products/visible-product");
+            $"/api/storefront/products/{productId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -44,7 +44,7 @@ public sealed class GetProductDetailIntegrationTests(ApiFixture fixture) : Catal
     public async Task GetProductDetail_WithNonexistentSlug_Returns404()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/storefront/products/nonexistent-slug");
+            $"/api/storefront/products/{Guid.NewGuid()}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -60,12 +60,13 @@ public sealed class GetProductDetailIntegrationTests(ApiFixture fixture) : Catal
             slug = "draft-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
+        string productId = createResult.DeserializeValue<IdResponse>()!.Id;
 
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/storefront/products/draft-product");
+            $"/api/storefront/products/{productId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

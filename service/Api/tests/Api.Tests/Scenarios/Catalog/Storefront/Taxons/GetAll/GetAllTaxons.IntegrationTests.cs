@@ -21,7 +21,7 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
             presentation = "Storefront"
         };
         HttpResponseMessage createTaxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createTaxonomyRequest);
+            "/api/admin/catalog/taxonomies", createTaxonomyRequest);
         ApiResponse createTaxonomyResult = await createTaxonomyResponse.ReadApiResponseAsync();
         createTaxonomyResult.IsSuccess.Should().BeTrue();
         string taxonomyId = createTaxonomyResult.DeserializeValue<IdResponse>()!.Id;
@@ -33,7 +33,7 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
             taxonomyId = taxonomyId
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", createTaxonRequest);
+            "/api/admin/catalog/taxons", createTaxonRequest);
         createTaxonResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync("/api/storefront/taxons");

@@ -1,5 +1,4 @@
-using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
 namespace Module.Catalog.Features.Admin.Taxons.Reposition;
@@ -9,13 +8,13 @@ namespace Module.Catalog.Features.Admin.Taxons.Reposition;
 /// </summary>
 public static partial class RepositionTaxon
 {
-    public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid Id, Request Request) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ITaxonHierarchyService hierarchyService,
         ILogger<CommandHandler> logger)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>
         /// Repositions a taxon under a new parent with ancestor-cycle validation and hierarchy rebuild.
@@ -24,7 +23,7 @@ public static partial class RepositionTaxon
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
         // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var id = command.Id;
             var request = command.Request;
@@ -47,7 +46,7 @@ public static partial class RepositionTaxon
 
             // Skip: No-op when neither position nor parent has changed
             if (!positionChanged && !parentChanged)
-                return new Response { Id = id };
+                return Result.Ok();
 
             if (request.ParentId.HasValue && request.ParentId.Value != entity.ParentId)
             {
@@ -84,7 +83,7 @@ public static partial class RepositionTaxon
                 TaxonLoggers.HierarchyRebuildFinished(logger, entity.TaxonomyId);
             }
 
-            return new Response { Id = id };
+            return Result.Ok();
         }
     }
 }

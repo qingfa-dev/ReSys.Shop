@@ -1,12 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
 
 using Pgvector;
-
-using Shared.Operational.Persistence.Data;
+using Pgvector.EntityFrameworkCore;
 
 namespace Module.Catalog.Features.Storefront.Products.Shared.Services;
 
@@ -25,47 +21,59 @@ public sealed class VectorSearchService : IVectorSearchService
         Vector queryVector, string modelName, int topK,
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
-        if (_isNpgsql)
-        {
-            return await NpgsqlSearchAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
-        }
-        else
-        {
-            return await InMemorySearchAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
-        }
+        var ranked = _isNpgsql
+            ? await NpgsqlRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken)
+            : await InMemoryRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
+
+        return ranked.Select(r => r.VariantId).ToList();
     }
 
-    private async Task<List<Guid>> NpgsqlSearchAsync(
+    public async Task<List<(Guid VariantId, double Score)>> FindSimilarWithScoresAsync(
+        Vector queryVector, string modelName, int topK,
+        Guid? excludeProductId = null, CancellationToken cancellationToken = default)
+    {
+        var ranked = _isNpgsql
+            ? await NpgsqlRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken)
+            : await InMemoryRankByVariantAsync(queryVector, modelName, topK, excludeProductId, cancellationToken);
+
+        return ranked.Select(r => (r.VariantId, Score: 1.0 - r.Distance)).ToList();
+    }
+
+    /// <summary>
+    /// Ranks variants by their closest "Search"-type image embedding using pgvector's
+    /// cosine distance operator (&lt;=&gt;), translated by EF.Functions.CosineDistance.
+    /// Equivalent to the SQL "DISTINCT ON (variant_id) ... ORDER BY distance" pattern,
+    /// expressed as GroupBy + Min so EF Core can translate it without raw SQL.
+    /// </summary>
+    private async Task<List<(Guid VariantId, double Distance)>> NpgsqlRankByVariantAsync(
         Vector queryVector, string modelName, int topK,
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
-        var sql = @"
-            SELECT DISTINCT ON (v.id) v.*
-            FROM catalog.variants v
-            INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
-            INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
-            WHERE v.is_deleted = false
-              AND vi.type = 'Search'
-              AND ie.model_name = {1}" +
-            (excludeProductId.HasValue ? "\n              AND v.product_id != {2}" : "") + @"
-            ORDER BY v.id, ie.vector <=> {0}::vector
-            LIMIT {3}";
-
-        object[] parameters;
+        var query = _dbContext.Set<ImageEmbedding>()
+            .Include(e => e.VariantImage)
+            .Where(e => e.VariantImage.Type == VariantImageType.Search
+                     && e.ModelName == modelName
+                     && e.Vector != null
+                     && e.VariantImage.VariantId != null);
+                     
         if (excludeProductId.HasValue)
-            parameters = [queryVector, modelName, excludeProductId.Value, topK];
-        else
-            parameters = [queryVector, modelName, topK];
+            query = query.Where(e => e.VariantImage.Variant!.ProductId != excludeProductId.Value);
 
-        var variants = await _dbContext.Set<Variant>()
-            .FromSqlRaw(sql, parameters)
-            .AsNoTracking()
+        return await query
+            .Select(e => new
+            {
+                VariantId = e.VariantImage.VariantId!.Value,
+                Distance = e.Vector!.CosineDistance(queryVector)
+            })
+            .GroupBy(x => x.VariantId)
+            .Select(g => new { VariantId = g.Key, Distance = g.Min(x => x.Distance) })
+            .OrderBy(x => x.Distance)
+            .Take(topK)
+            .Select(x => new ValueTuple<Guid, double>(x.VariantId, x.Distance))
             .ToListAsync(cancellationToken);
-
-        return variants.Select(v => v.Id).ToList();
     }
 
-    private async Task<List<Guid>> InMemorySearchAsync(
+    private async Task<List<(Guid VariantId, double Distance)>> InMemoryRankByVariantAsync(
         Vector queryVector, string modelName, int topK,
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
@@ -77,8 +85,7 @@ public sealed class VectorSearchService : IVectorSearchService
             .Where(e => e.ModelName == modelName
                      && e.Vector != null
                      && e.VariantImage.Type == VariantImageType.Search
-                     && e.VariantImage.VariantId != null
-                     && !e.VariantImage.Variant!.IsDeleted);
+                     && e.VariantImage.VariantId != null);
 
         if (excludeProductId.HasValue)
             query = query.Where(e => e.VariantImage.Variant!.ProductId != excludeProductId.Value);
@@ -87,10 +94,14 @@ public sealed class VectorSearchService : IVectorSearchService
 
         return embeddings
             .GroupBy(e => e.VariantImage.VariantId!.Value)
-            .Select(g => g.OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray())).First())
-            .OrderBy(e => CosineDistance(queryArray, e.Vector!.ToArray()))
+            .Select(g => new
+            {
+                VariantId = g.Key,
+                Distance = g.Min(e => CosineDistance(queryArray, e.Vector!.ToArray()))
+            })
+            .OrderBy(x => x.Distance)
             .Take(topK)
-            .Select(e => e.VariantImage.VariantId!.Value)
+            .Select(x => (x.VariantId, x.Distance))
             .ToList();
     }
 

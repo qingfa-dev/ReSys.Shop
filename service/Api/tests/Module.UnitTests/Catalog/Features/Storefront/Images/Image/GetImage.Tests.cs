@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Storefront.Images.Get.Image;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Storefront.Products.Images.Get;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Images.Image;
 
@@ -11,8 +11,7 @@ public class GetImageTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IStorageService> _storageServiceMock;
-    private readonly string _tempDir;
-    private readonly GetImage.QueryHandler _handler;
+    private readonly GetImageById.QueryHandler _handler;
 
     public GetImageTests()
     {
@@ -23,53 +22,42 @@ public class GetImageTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _tempDir = Path.Combine(Path.GetTempPath(), $"imgtest-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(_tempDir);
-
         _storageServiceMock = new Mock<IStorageService>();
 
-        _handler = new GetImage.QueryHandler(_dbContext, _storageServiceMock.Object);
+        _handler = new GetImageById.QueryHandler(_dbContext, _storageServiceMock.Object);
     }
 
     public void Dispose()
     {
         _dbContext.Dispose();
-        if (Directory.Exists(_tempDir))
-            Directory.Delete(_tempDir, recursive: true);
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should return full path when VariantImage exists and file is on disk")]
-    public async Task Handle_ShouldReturnFullPath_WhenImageAndFileExist()
+    [Fact(DisplayName = "Handler: Should return stream and content type when VariantImage exists")]
+    public async Task Handle_ShouldReturnStream_WhenImageExists()
     {
-        var fileName = "test.jpg";
-        var storagePath = $"images/{fileName}";
-        var fileDir = Path.Combine(_tempDir, "images");
-        var filePath = Path.Combine(fileDir, fileName);
-        Directory.CreateDirectory(fileDir);
-        await File.WriteAllTextAsync(filePath, "fake-image-data", TestContext.Current.CancellationToken);
-
         var image = new VariantImage
         {
             Id = Guid.NewGuid(),
             FileName = "test.jpg",
             ContentType = "image/jpeg",
-            StoragePath = storagePath,
+            StoragePath = "images/test.jpg",
             Url = string.Empty
         };
         _dbContext.Set<VariantImage>().Add(image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
+        var stream = new MemoryStream(new byte[] { 1, 2, 3 });
         _storageServiceMock
-            .Setup(s => s.ResolvePathAsync(storagePath, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<string>.Ok(filePath));
+            .Setup(s => s.DownloadAsync(image.StoragePath, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<DownloadResult>.Ok(new DownloadResult { Content = stream }));
 
         var result = await _handler.Handle(
-            new GetImage.Query(image.Id),
+            new GetImageById.Query(image.Id),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.FullPath.Should().Be(filePath);
+        result.Value.Stream.Should().NotBeNull();
         result.Value.ContentType.Should().Be("image/jpeg");
     }
 
@@ -77,62 +65,57 @@ public class GetImageTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenImageDoesNotExist()
     {
         var result = await _handler.Handle(
-            new GetImage.Query(Guid.NewGuid()),
+            new GetImageById.Query(Guid.NewGuid()),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when file does not exist on disk")]
-    public async Task Handle_ShouldReturnFailure_WhenFileDoesNotExist()
+    [Fact(DisplayName = "Handler: Should return failure when download fails")]
+    public async Task Handle_ShouldReturnFailure_WhenDownloadFails()
     {
-        var storagePath = "images/missing.jpg";
-        var missingPath = Path.Combine(_tempDir, "images", "missing.jpg");
-
         var image = new VariantImage
         {
             Id = Guid.NewGuid(),
             FileName = "missing.jpg",
             ContentType = "image/jpeg",
-            StoragePath = storagePath,
+            StoragePath = "images/missing.jpg",
             Url = string.Empty
         };
         _dbContext.Set<VariantImage>().Add(image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _storageServiceMock
-            .Setup(s => s.ResolvePathAsync(storagePath, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<string>.Ok(missingPath));
+            .Setup(s => s.DownloadAsync(image.StoragePath, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<DownloadResult>.NotFound("File not found"));
 
         var result = await _handler.Handle(
-            new GetImage.Query(image.Id),
+            new GetImageById.Query(image.Id),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when storage resolves to error")]
-    public async Task Handle_ShouldReturnFailure_WhenResolvePathFails()
+    [Fact(DisplayName = "Handler: Should return failure when storage download fails")]
+    public async Task Handle_ShouldReturnFailure_WhenStorageDownloadFails()
     {
-        var storagePath = "images/test.jpg";
-
         var image = new VariantImage
         {
             Id = Guid.NewGuid(),
             FileName = "test.jpg",
             ContentType = "image/jpeg",
-            StoragePath = storagePath,
+            StoragePath = "images/test.jpg",
             Url = string.Empty
         };
         _dbContext.Set<VariantImage>().Add(image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _storageServiceMock
-            .Setup(s => s.ResolvePathAsync(storagePath, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<string>.NotFound("Path not found"));
+            .Setup(s => s.DownloadAsync(image.StoragePath, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<DownloadResult>.NotFound("Path not found"));
 
         var result = await _handler.Handle(
-            new GetImage.Query(image.Id),
+            new GetImageById.Query(image.Id),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();

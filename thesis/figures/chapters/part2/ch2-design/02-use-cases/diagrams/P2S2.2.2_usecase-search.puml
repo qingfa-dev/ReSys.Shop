@@ -56,18 +56,20 @@ arrow {
 
 </style>
 
-title Use Case: UC-STR-SRC\nProduct Search
 
 actor "Customer" as Customer
 actor "ML Service" as ML <<system>>
 
-rectangle "ReSys.Shop\nProduct Discovery Subsystem" {
+rectangle {
 
-  usecase "Search Products\nUC-STR-SRC" as UC_SEARCH
+  ' UC-STR-SRC
+  usecase "Search Products" as UC_SEARCH
 
-  usecase "Search by Image (CBIR)\nUC-STR-SRC-CBIR" as UC_CBIR
+  ' UC-STR-SRC-CBIR
+  usecase "Search by Image (CBIR)" as UC_CBIR
 
-  usecase "View Similar Products\nUC-STR-SRC-SIMILAR" as UC_SIMILAR
+  ' UC-STR-SRC-SIMILAR
+  usecase "View Similar Products" as UC_SIMILAR
 
 }
 

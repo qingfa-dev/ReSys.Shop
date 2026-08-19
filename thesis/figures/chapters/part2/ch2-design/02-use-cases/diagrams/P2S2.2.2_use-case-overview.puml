@@ -47,59 +47,85 @@ actor "Administrator" as Admin
 actor "Customer" as Customer
 actor "System\n(Background)" as SysActor
 
-rectangle "ReSys.Shop" {
+rectangle {
 
   package "Catalog" {
-    usecase "Manage Products\n[UC-ADM-PROD]" as UC_ADM_PROD
-    usecase "Manage Variants\n[UC-ADM-VAR]" as UC_ADM_VAR
-    usecase "Manage Images\nand Embeddings\n[UC-ADM-IMG]" as UC_ADM_IMG
-    usecase "Manage Taxonomies\nand Classification\n[UC-ADM-TAX]" as UC_ADM_TAX
-    usecase "Manage Option\nTypes\n[UC-ADM-OPT]" as UC_ADM_OPT
-    usecase "Browse and Search\nCatalog\n[UC-STR-BRW]" as UC_STR_BRW
-    usecase "Visual Search\n[UC-STR-SRC]" as UC_STR_SRC
+    ' [UC-ADM-PROD]
+    usecase "Manage Products" as UC_ADM_PROD
+    ' [UC-ADM-VAR]
+    usecase "Manage Variants" as UC_ADM_VAR
+    ' [UC-ADM-IMG]
+    usecase "Manage Images\nand Embeddings" as UC_ADM_IMG
+    ' [UC-ADM-TAX]
+    usecase "Manage Taxonomies\nand Classification" as UC_ADM_TAX
+    ' [UC-ADM-OPT]
+    usecase "Manage Option\nTypes" as UC_ADM_OPT
+    ' [UC-STR-BRW]
+    usecase "Browse and Search\nCatalog" as UC_STR_BRW
+    ' [UC-STR-SRC]
+    usecase "Visual Search" as UC_STR_SRC
   }
 
   package "Ordering" {
-    usecase "Manage Orders\n[UC-ADM-ORD]" as UC_ADM_ORD
-    usecase "Manage Order\nDetails\n[UC-ADM-ORD-ITEMS]" as UC_ADM_ORD_ITEMS
-    usecase "Manage Cart\n[UC-STR-CRT]" as UC_STR_CRT
-    usecase "Checkout\n[UC-STR-CHK]" as UC_STR_CHK
-    usecase "Order History\n[UC-STR-OHI]" as UC_STR_OHI
+    ' [UC-ADM-ORD]
+    usecase "Manage Orders" as UC_ADM_ORD
+    ' [UC-ADM-ORD-ITEMS]
+    usecase "Manage Order\nDetails" as UC_ADM_ORD_ITEMS
+    ' [UC-STR-CRT]
+    usecase "Manage Cart" as UC_STR_CRT
+    ' [UC-STR-CHK]
+    usecase "Checkout" as UC_STR_CHK
+    ' [UC-STR-OHI]
+    usecase "Order History" as UC_STR_OHI
   }
 
   package "Payment" {
-    usecase "Manage Payments\n[UC-ADM-PAY]" as UC_ADM_PAY
-    usecase "Manage Payment\nMethods\n[UC-ADM-PAY-METHOD]" as UC_ADM_PAY_METHOD
-    usecase "Payment\nProcessing\n[UC-STR-PAY]" as UC_STR_PAY
+    ' [UC-ADM-PAY]
+    usecase "Manage Payments" as UC_ADM_PAY
+    ' [UC-ADM-PAY-METHOD]
+    usecase "Manage Payment\nMethods" as UC_ADM_PAY_METHOD
+    ' [UC-STR-PAY]
+    usecase "Payment\nProcessing" as UC_STR_PAY
   }
 
   package "Inventory" {
-    usecase "Manage Stock\n[UC-ADM-STK]" as UC_ADM_STK
-    usecase "Manage Stock\nLocations\n[UC-ADM-LOC]" as UC_ADM_LOC
+    ' [UC-ADM-STK]
+    usecase "Manage Stock" as UC_ADM_STK
+    ' [UC-ADM-LOC]
+    usecase "Manage Stock\nLocations" as UC_ADM_LOC
   }
 
   package "Identity" {
-    usecase "Manage Users\n[UC-ADM-USR]" as UC_ADM_USR
-    usecase "Manage Roles\nand Permissions\n[UC-ADM-ROL]" as UC_ADM_ROL
-    usecase "Authentication\n[UC-STR-AUT]" as UC_STR_AUT
-    usecase "Session\nManagement\n[UC-STR-SES]" as UC_STR_SES
+    ' [UC-ADM-USR]
+    usecase "Manage Users" as UC_ADM_USR
+    ' [UC-ADM-ROL]
+    usecase "Manage Roles\nand Permissions" as UC_ADM_ROL
+    ' [UC-STR-AUT]
+    usecase "Authentication" as UC_STR_AUT
+    ' [UC-STR-SES]
+    usecase "Session\nManagement" as UC_STR_SES
   }
 
   package "Shipping" {
-    usecase "Manage Shipping\n[UC-ADM-SHP]" as UC_ADM_SHP
+    ' [UC-ADM-SHP]
+    usecase "Manage Shipping" as UC_ADM_SHP
   }
 
   package "Location" {
-    usecase "Manage Reference\nData\n[UC-ADM-REF]" as UC_ADM_REF
+    ' [UC-ADM-REF]
+    usecase "Manage Reference\nData" as UC_ADM_REF
   }
 
   package "Profile" {
-    usecase "Profile\nManagement\n[UC-STR-PRF]" as UC_STR_PRF
+    ' [UC-STR-PRF]
+    usecase "Profile\nManagement" as UC_STR_PRF
   }
 
   package "System Services" {
-    usecase "Embedding\nOperations\n[UC-SYS-EMB]" as UC_SYS_EMB
-    usecase "System\nMaintenance\n[UC-SYS-MNT]" as UC_SYS_MNT
+    ' [UC-SYS-EMB]
+    usecase "Embedding\nOperations" as UC_SYS_EMB
+    ' [UC-SYS-MNT]
+    usecase "System\nMaintenance" as UC_SYS_MNT
   }
 }
 

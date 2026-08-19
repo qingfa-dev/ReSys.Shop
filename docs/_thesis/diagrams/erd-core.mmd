@@ -1,0 +1,133 @@
+```mermaid
+%% ERD: Core Business Entities
+%% Based on Chapter 5 — Database Design
+
+erDiagram
+    PRODUCT {
+        uuid id PK
+        string name
+        string description
+        string slug UK
+        string status
+        string meta_title
+        string meta_description
+        datetime available_on
+        datetime discontinue_on
+        string style_code
+        string season_name
+        string material_composition
+        string department
+        string gender_target
+        uuid master_variant_id
+        bool is_deleted
+        datetime created_at_utc
+        datetime modified_at_utc
+    }
+
+    VARIANT {
+        uuid id PK
+        uuid product_id FK
+        bool is_master
+        string sku UK
+        string barcode
+        decimal price
+        decimal cost_price
+        bool track_inventory
+        decimal weight
+        decimal height
+        decimal width
+        decimal depth
+        bool is_deleted
+    }
+
+    VARIANT_IMAGE {
+        uuid id PK
+        uuid variant_id FK
+        string file_path
+        string alt_text
+        int position
+        vector embedding "pgvector(512)"
+    }
+
+    OPTION_TYPE {
+        uuid id PK
+        string name
+        string presentation
+        int position
+    }
+
+    OPTION_VALUE {
+        uuid id PK
+        uuid option_type_id FK
+        string name
+        string presentation
+        int position
+    }
+
+    TAXONOMY {
+        uuid id PK
+        string name
+        string slug UK
+        int position
+    }
+
+    TAXON {
+        uuid id PK
+        uuid taxonomy_id FK
+        uuid parent_id FK "self-referencing"
+        string name
+        string slug
+        int position
+    }
+
+    ORDER {
+        uuid id PK
+        string number UK
+        string session_id
+        uuid user_id FK
+        string status
+        string checkout_state
+        string currency
+        decimal item_total
+        decimal adjustment_total
+        decimal shipment_total
+        decimal total
+        decimal payment_total
+        decimal outstanding_balance
+        string payment_state
+        string shipment_state
+        bool is_deleted
+    }
+
+    LINE_ITEM {
+        uuid id PK
+        uuid order_id FK
+        uuid variant_id FK
+        int quantity
+        decimal price
+        decimal total
+    }
+
+    PRODUCT ||--o{ VARIANT : "has"
+    VARIANT ||--o{ VARIANT_IMAGE : "has"
+    PRODUCT ||--o{ PRODUCT_OPTION_TYPE : "configures"
+    OPTION_TYPE ||--o{ OPTION_VALUE : "defines"
+    TAXONOMY ||--o{ TAXON : "contains"
+    TAXON ||--o{ TAXON : "nests"
+    PRODUCT ||--o{ CLASSIFICATION : "classified_by"
+    CLASSIFICATION }o--|| TAXON : "belongs_to"
+    ORDER ||--o{ LINE_ITEM : "contains"
+    LINE_ITEM }o--|| VARIANT : "references"
+```
+
+## Diagram Description
+
+This ERD shows the core business entities for the Catalog and Ordering domains. Key design decisions:
+
+1. **Product → Variant (1:n)** — A product can have many variants; exactly one is the master variant.
+2. **Variant → VariantImage (1:n)** — Each image has a `pgvector(512)` embedding column for CBIR.
+3. **Taxon self-reference** — Taxons form a tree (parent_id references another taxon).
+4. **Order → LineItem (1:n)** — Line items reference variants (not products directly) because customers buy specific size/color combinations.
+5. **Soft deletion** — `is_deleted` on most entities enables recoverable deletion with audit trail.
+
+**Evidence**: `Module/Catalog/Domain/Products/Product.cs`, `Module/Catalog/Domain/Products/Variants/Variant.cs`, `Module/Ordering/Domain/Orders/Order.cs`

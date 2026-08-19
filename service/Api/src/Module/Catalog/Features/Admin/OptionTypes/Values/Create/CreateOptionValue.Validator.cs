@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Optiontypes.Values.Shared.Validators;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.Catalog.Features.Admin.Optiontypes.Values.Create;
 
@@ -9,7 +9,7 @@ public static partial class CreateOptionValue
         public Validator()
         {
             RuleFor(x => x.Request)
-                .ApplyOptionValueParametersRules();
+                .ApplyOptionValueRequestRules();
         }
     }
 }

@@ -31,7 +31,7 @@ internal static class SearchExpressionBuilder
             ? model.Term.Value
             : model.Term.Value.ToLowerInvariant();
 
-        System.Linq.Expressions.Expression? body = null;
+        LinqExpr? body = null;
 
         foreach (string field in fields)
         {
@@ -39,7 +39,7 @@ internal static class SearchExpressionBuilder
             if (propertyInfo is null) continue;
 
             System.Linq.Expressions.MemberExpression property = LinqExpr.Property(parameter, propertyInfo);
-            System.Linq.Expressions.Expression propertyValue = property;
+            LinqExpr propertyValue = property;
 
             if (propertyInfo.PropertyType != typeof(string))
             {

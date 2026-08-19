@@ -6,9 +6,10 @@ using Module.Identity;
 using Module.Inventory;
 using Module.Location;
 using Module.Ordering;
-using Module.Payment;
-using Module.Profile;
+using Module.Billing;
+using Module.Customer;
 using Module.Shipping;
+using Module.Dashboard;
 
 using ReSys.ServiceDefaults;
 
@@ -44,12 +45,13 @@ builder.AddOperational(additionalAssemblies);
 // Configure: Add modular
 builder.AddLocationModule();
 builder.AddIdentityModule();
-builder.AddProfilesModule();
+builder.AddCustomerModule();
 builder.AddCatalogModule();
 builder.AddInventoryModule();
 builder.AddOrderingModule();
-builder.AddPaymentModule();
+builder.AddBillingModule();
 builder.AddShippingModule();
+builder.AddDashboardModule();
 
 // Initialize: Register database init state, hosted service, and health check
 builder.Services.AddSingleton<IDatabaseInitializationState, DatabaseInitializationState>();
@@ -66,7 +68,6 @@ app.MapDefaultEndpoints();
 app.UseGovernance();
 app.UsePerformance();
 app.UseSecurity();
-app.UseRateLimiter();
 app.UseOperational();
 app.UseObservability();
 app.UseApplication();

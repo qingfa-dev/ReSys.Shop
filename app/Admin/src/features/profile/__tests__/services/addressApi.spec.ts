@@ -41,17 +41,16 @@ describe('AddressApi.getAddresses', () => {
     })
 
     await AddressApi.getAddresses('u-1', {
-      userId: 'u-1',
-      addressType: 'Shipping',
-      isDefault: true,
-      sortBy: 'city',
-      sortDirection: 'desc',
-      page: 1,
+      filter: 'addressType=Shipping,isDefault=true',
+      search: null,
+      searchFields: ['firstName', 'lastName', 'address1', 'city', 'countryName', 'label', 'phone'],
+      sort: ['-city'],
+      pageNumber: 1,
       pageSize: 10,
     })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/profiles/addresses?userId=u-1',
+      '/api/admin/customer/addresses?userId=u-1',
       {
         filter: 'addressType=Shipping,isDefault=true',
         search: null,
@@ -73,7 +72,7 @@ describe('AddressApi.getAddress', () => {
   it('calls GET with id in URL and userId query parameter', async () => {
     mockGet.mockResolvedValue({ value: { id: 'a-1' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await AddressApi.getAddress('u-1', 'a-1')
-    expect(mockGet).toHaveBeenCalledWith('api/profiles/addresses/a-1?userId=u-1')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/customer/addresses/a-1?userId=u-1')
   })
 })
 
@@ -90,7 +89,7 @@ describe('AddressApi.createAddress', () => {
     }
     mockPost.mockResolvedValue({ value: { id: 'a-1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
     await AddressApi.createAddress(req)
-    expect(mockPost).toHaveBeenCalledWith('api/profiles/addresses', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/customer/addresses', req)
   })
 })
 
@@ -107,7 +106,7 @@ describe('AddressApi.updateAddress', () => {
     }
     mockPut.mockResolvedValue({ value: { id: 'a-1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
     await AddressApi.updateAddress('a-1', req)
-    expect(mockPut).toHaveBeenCalledWith('api/profiles/addresses/a-1', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/customer/addresses/a-1', req)
   })
 })
 
@@ -115,6 +114,6 @@ describe('AddressApi.deleteAddress', () => {
   it('calls DELETE with id in URL and userId query parameter', async () => {
     mockDel.mockResolvedValue({ value: null, isSuccess: true, statusCode: 204, message: null, errors: [], metadata: null })
     await AddressApi.deleteAddress('u-1', 'a-1')
-    expect(mockDel).toHaveBeenCalledWith('api/profiles/addresses/a-1?userId=u-1')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/customer/addresses/a-1?userId=u-1')
   })
 })

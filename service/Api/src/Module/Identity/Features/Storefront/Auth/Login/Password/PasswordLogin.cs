@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 
+using Module.Identity.Features.Storefront.Shared.Mappings;
+
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Auth.Login.Password;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.Password;
 
 /// <summary>
 /// Defines the use case for password-based authentication.
@@ -76,14 +78,7 @@ public static partial class PasswordLogin
 
             UserLoggers.Auth.LoginSucceeded(logger, UserId: user.Id, IpAddress: currentUser.IpAddress, ActionBy: user.UserName!);
 
-            // EXCEPTION: auth token response — no domain entity
-            return new Response()
-            {
-                AccessToken = tokenResult.Value.Token,
-                AccessTokenExpiresIn = tokenResult.Value.ExpiresIn,
-                RefreshToken = refreshResult.Value.Token,
-                RefreshTokenExpiresIn = refreshResult.Value.ExpiresAt.ToUnixTimeSeconds()
-            };
+            return (tokenResult.Value, refreshResult.Value).MapToTokenResponse<Response>();
         }
 
         internal async Task<User?> FindUserByCredentialAsync(string credential)

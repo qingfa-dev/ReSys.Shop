@@ -38,4 +38,19 @@ public static class AdjustmentValidation
             .WithErrorCode(AdjustmentResult.Errors.TypeTooLong.Code)
             .WithMessage(AdjustmentResult.Errors.TypeTooLong.Message);
     }
+
+    // Validate: State must be one of the known lifecycle states — free-form strings break state-machine transitions
+    public static IRuleBuilderOptions<T, string?> ApplyStateRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(AdjustmentResult.Errors.StateRequired.Code)
+            .WithMessage(AdjustmentResult.Errors.StateRequired.Message)
+            .MaximumLength(AdjustmentConstant.Constraints.MaxStateLength)
+            .WithErrorCode(AdjustmentResult.Errors.StateTooLong.Code)
+            .WithMessage(AdjustmentResult.Errors.StateTooLong.Message)
+            .Must(state => state is "open" or "closed")
+            .WithErrorCode(AdjustmentResult.Errors.StateInvalid.Code)
+            .WithMessage(AdjustmentResult.Errors.StateInvalid.Message);
+    }
 }

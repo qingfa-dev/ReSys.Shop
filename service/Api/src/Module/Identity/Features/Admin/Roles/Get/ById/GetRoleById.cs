@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Shared.Mappings;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Get.ById;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.ById;
 
 /// <summary>
 /// Defines the use case for retrieving a role by its ID.

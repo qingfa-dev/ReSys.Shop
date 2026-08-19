@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Login.Password;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Login.Password;
 
 public static partial class PasswordLogin
 {
@@ -7,8 +7,8 @@ public static partial class PasswordLogin
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/auth/login/password — authenticate with email and password
-            app.MapPost(IdentityFeature.Store.Auth.Login.Password.Route, async (
+            // Map: POST /api/storefront/auth/login/password — authenticate with email and password
+            app.MapPost(IdentityFeature.Storefront.Auth.Login.Password.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class PasswordLogin
             .WithTags(IdentityFeature.Tags.Authentication)
             .AllowAnonymous()
             .RequireRateLimiting("auth")
-            .WithSummary(IdentityFeature.Store.Auth.Login.Password.Summary)
-            .WithDescription(IdentityFeature.Store.Auth.Login.Password.Description)
+            .WithSummary(IdentityFeature.Storefront.Auth.Login.Password.Summary)
+            .WithDescription(IdentityFeature.Storefront.Auth.Login.Password.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

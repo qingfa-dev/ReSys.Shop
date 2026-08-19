@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Features.Admin.Products.Variants.Update;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Features.Admin.Variants.Update;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Update;
 
@@ -52,11 +52,11 @@ public class UpdateVariantTests : IDisposable
             CostPrice = 15m,
             CostCurrency = "USD",
             Weight = 1.5m,
-            WeightUnit = "kg",
+            WeightUnit = WeightUnit.Kg,
             Height = 10m,
             Width = 20m,
             Depth = 5m,
-            DimensionsUnit = "cm",
+            DimensionsUnit = DimensionUnit.Cm,
         };
 
         var result = await _handler.Handle(new UpdateVariant.Command(variant.Id, request), TestContext.Current.CancellationToken);

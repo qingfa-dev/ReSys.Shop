@@ -2,7 +2,9 @@
 Inference-related API endpoints.
 """
 import asyncio
+import logging
 import time
+from functools import lru_cache
 from pathlib import Path
 from typing import List
 
@@ -19,43 +21,19 @@ from embedding.schemas import (
     ValueResult,
 )
 from embedding.services.inference_engine import InferenceEngine
-from fastapi import APIRouter, Depends, File, Request, Response, Security, UploadFile, status
-from fastapi.security import APIKeyHeader
+from fastapi import APIRouter, Depends, File, Request, Response, UploadFile, status
 
 router = APIRouter(tags=["inference"])
-
-# API Key header scheme for sidecar security
-api_key_header = APIKeyHeader(name=Constants.Strings.X_API_KEY_HEADER, auto_error=False)
+logger = logging.getLogger(__name__)
 
 
-async def verify_api_key(api_key: str = Security(api_key_header)) -> str:
-    """Validate: Sidecar API key matches the configured secret.
-
-    Args:
-        api_key: The API key from the X-API-Key header.
-
-    Returns:
-        The validated API key string.
-
-    Raises:
-        HTTPException: With status 403 if the key does not match.
-    """
-    if api_key != settings.API_KEY:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=403, detail="Invalid API Key")
-    return api_key
-
-
+@lru_cache(maxsize=1)
 def get_engine() -> InferenceEngine:
     """Dependency provider: Returns a cached InferenceEngine singleton.
 
     Uses lru_cache(maxsize=1) to ensure a single instance per process.
     """
-    from functools import lru_cache
-    @lru_cache(maxsize=1)
-    def _get():
-        return InferenceEngine()
-    return _get()
+    return InferenceEngine()
 
 
 @router.post(
@@ -70,7 +48,6 @@ async def create_embedding(
     request: Request,
     body: EmbeddingRequest,
     response: Response,
-    key: str = Depends(verify_api_key),
     engine: InferenceEngine = Depends(get_engine),
 ):
     """Generates a high-dimensional vector embedding for the provided image URL.
@@ -79,7 +56,6 @@ async def create_embedding(
         request: FastAPI request object (injected by the framework).
         body: The embedding request containing image_url and optional model.
         response: FastAPI response object (injected, used to set status code).
-        key: Validated API key (injected by Depends).
         engine: Cached InferenceEngine instance (injected by Depends).
 
     Returns:
@@ -87,20 +63,41 @@ async def create_embedding(
     """
     start_time = time.time()
 
-    # Defer: Run CPU-intensive inference in a thread pool to avoid blocking the event loop
-    result = await asyncio.to_thread(engine.embed, body.image_url, body.model)
+    try:
+        # Defer: Run CPU-intensive inference in a thread pool to avoid blocking the event loop
+        result = await asyncio.to_thread(engine.embed, body.image_url, body.model)
 
-    if not result.is_success:
-        response.status_code = result.status_code
-        return result
+        if not result.is_success:
+            response.status_code = result.status_code
+            return result
 
-    duration = (time.time() - start_time) * 1000
+        duration = (time.time() - start_time) * 1000
 
-    return InferenceResults.Success.Embedding(
-        vector=result.value,
-        model_name=body.model,
-        duration_ms=duration
-    )
+        return InferenceResults.Success.Embedding(
+            vector=result.value,
+            model_name=body.model,
+            duration_ms=duration
+        )
+    except MemoryError:
+        logger.critical(
+            "Out of memory during embedding inference for model=%s",
+            body.model,
+            exc_info=True
+        )
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return InferenceResults.Errors.CommunicationFailed(
+            "Out of memory during inference"
+        )
+    except Exception as e:
+        logger.error(
+            "Embedding inference failed: %s: %s",
+            type(e).__name__,
+            e,
+            exc_info=True
+        )
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        error_msg = f"Inference error: {type(e).__name__}: {e}"
+        return InferenceResults.Errors.CommunicationFailed(error_msg)
 
 
 @router.post(
@@ -116,7 +113,6 @@ async def create_embedding_from_bytes(
     response: Response,
     image: UploadFile = File(...),
     model: str = settings.EMBEDDING_MODEL,
-    key: str = Depends(verify_api_key),
     engine: InferenceEngine = Depends(get_engine),
 ):
     """Generates an embedding from a multipart image upload.
@@ -126,7 +122,6 @@ async def create_embedding_from_bytes(
         response: FastAPI response object (injected, used to set status code).
         image: The uploaded image file (multipart form data).
         model: Model identifier (default from settings.EMBEDDING_MODEL).
-        key: Validated API key (injected by Depends).
         engine: Cached InferenceEngine instance (injected by Depends).
 
     Returns:
@@ -136,23 +131,45 @@ async def create_embedding_from_bytes(
     import time as _time
 
     start_time = _time.time()
-    # Read: Load uploaded file bytes into memory
-    image_bytes = await image.read()
 
-    # Defer: Run CPU-intensive inference in a thread pool
-    result = await _asyncio.to_thread(engine.embed_bytes, image_bytes, model)
+    try:
+        # Read: Load uploaded file bytes into memory
+        image_bytes = await image.read()
 
-    if not result.is_success:
-        response.status_code = result.status_code
-        return result
+        # Defer: Run CPU-intensive inference in a thread pool
+        result = await _asyncio.to_thread(engine.embed_bytes, image_bytes, model)
 
-    duration = (_time.time() - start_time) * 1000
+        if not result.is_success:
+            response.status_code = result.status_code
+            return result
 
-    return InferenceResults.Success.Embedding(
-        vector=result.value,
-        model_name=model,
-        duration_ms=duration
-    )
+        duration = (_time.time() - start_time) * 1000
+
+        return InferenceResults.Success.Embedding(
+            vector=result.value,
+            model_name=model,
+            duration_ms=duration
+        )
+    except MemoryError:
+        logger.critical(
+            "Out of memory during byte embedding inference for model=%s",
+            model,
+            exc_info=True
+        )
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return InferenceResults.Errors.CommunicationFailed(
+            "Out of memory during inference"
+        )
+    except Exception as e:
+        logger.error(
+            "Byte embedding inference failed: %s: %s",
+            type(e).__name__,
+            e,
+            exc_info=True
+        )
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        error_msg = f"Inference error: {type(e).__name__}: {e}"
+        return InferenceResults.Errors.CommunicationFailed(error_msg)
 
 
 @router.get(
@@ -161,14 +178,11 @@ async def create_embedding_from_bytes(
     summary="List Available Models",
     description="Returns metadata for both registered skills and discovered ONNX models."
 )
-async def list_models(key: str = Depends(verify_api_key)):
+async def list_models():
     """Dynamic discovery of all models including disk-based ONNX models.
 
     Combines explicitly registered PyTorch skills with ONNX models discovered
     on disk under the configured ONNX_MODEL_DIR.
-
-    Args:
-        key: Validated API key (injected by Depends).
 
     Returns:
         ValueResult containing a list of ModelMetadata for all available models.

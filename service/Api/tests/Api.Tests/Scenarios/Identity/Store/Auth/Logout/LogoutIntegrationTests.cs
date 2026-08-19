@@ -12,7 +12,7 @@ public sealed class LogoutIntegrationTests(ApiFixture fixture) : IdentityIntegra
         var request = new { };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/logout", request);
+            "/api/storefront/identity/auth/logout", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -26,7 +26,7 @@ public sealed class LogoutIntegrationTests(ApiFixture fixture) : IdentityIntegra
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/logout", request);
+            "/api/storefront/identity/auth/logout", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

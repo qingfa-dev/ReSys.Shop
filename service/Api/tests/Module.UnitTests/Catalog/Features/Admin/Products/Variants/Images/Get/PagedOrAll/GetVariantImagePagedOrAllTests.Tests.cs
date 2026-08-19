@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Get.PagedOrAll;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Get.PagedOrAll;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Get.PagedOrAll;
 

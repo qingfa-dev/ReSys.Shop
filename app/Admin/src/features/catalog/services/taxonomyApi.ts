@@ -1,46 +1,43 @@
 import { post, get, put, patch, del } from '@/shared/api/client'
 import { getPaged } from '@/shared/api'
-import { CATALOG } from '@/shared/constants/api'
-import type { Result, PagedResult } from '@/shared/types'
+
+import type { Result, PagedResult, QueryingParameters } from '@/shared/types'
 import type {
   TaxonomyRequest,
   TaxonomyListItem,
   TaxonomyDetail,
-  TaxonomyQuery,
 } from '../types/taxonomy'
 import {
-  toTaxonomyQueryParams,
   TAXONOMY_FILTER_FIELDS,
   TAXONOMY_SORT_FIELDS,
 } from '../types/taxonomy'
 
 export class TaxonomyApi {
-  private static readonly BASE = `${CATALOG}/taxonomies`
-
-  static getTaxonomies(query: TaxonomyQuery): Promise<PagedResult<TaxonomyListItem>> {
-    return getPaged<TaxonomyListItem>(TaxonomyApi.BASE, toTaxonomyQueryParams(query), {
+  static getTaxonomies(params: QueryingParameters): Promise<PagedResult<TaxonomyListItem>> {
+    return getPaged<TaxonomyListItem>('/api/admin/catalog/taxonomies', params, {
       allowedFilterFields: TAXONOMY_FILTER_FIELDS,
       allowedSortFields: TAXONOMY_SORT_FIELDS,
+      allowedSearchFields: ['name', 'presentation'],
     })
   }
 
   static getTaxonomy(id: string): Promise<Result<TaxonomyDetail>> {
-    return get<Result<TaxonomyDetail>>(`${TaxonomyApi.BASE}/${id}`)
+    return get<Result<TaxonomyDetail>>(`/api/admin/catalog/taxonomies/${id}`)
   }
 
   static createTaxonomy(request: TaxonomyRequest): Promise<Result<TaxonomyDetail>> {
-    return post<Result<TaxonomyDetail>>(TaxonomyApi.BASE, request)
+    return post<Result<TaxonomyDetail>>('/api/admin/catalog/taxonomies', request)
   }
 
   static updateTaxonomy(id: string, request: TaxonomyRequest): Promise<Result<TaxonomyDetail>> {
-    return put<Result<TaxonomyDetail>>(`${TaxonomyApi.BASE}/${id}`, request)
+    return put<Result<TaxonomyDetail>>(`/api/admin/catalog/taxonomies/${id}`, request)
   }
 
   static deleteTaxonomy(id: string): Promise<Result<TaxonomyListItem>> {
-    return del<Result<TaxonomyListItem>>(`${TaxonomyApi.BASE}/${id}`)
+    return del<Result<TaxonomyListItem>>(`/api/admin/catalog/taxonomies/${id}`)
   }
 
   static restoreTaxonomy(id: string): Promise<Result<void>> {
-    return patch<Result<void>>(`${TaxonomyApi.BASE}/${id}/restore`)
+    return patch<Result<void>>(`/api/admin/catalog/taxonomies/${id}/restore`)
   }
 }

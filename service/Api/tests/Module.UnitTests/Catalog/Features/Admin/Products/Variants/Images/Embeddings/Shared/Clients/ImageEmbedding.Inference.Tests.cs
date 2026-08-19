@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
-using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
+using Module.Catalog.Features.Admin.Variants.Images.Embeddings.Shared.Clients;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
 

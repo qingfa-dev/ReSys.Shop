@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Users.Delete;
-using Module.Profile.Domain;
+using Module.Identity.Features.Shared.Admin.Users.Delete;
+using Module.Customer.Domain;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Identity.Domain.Users;

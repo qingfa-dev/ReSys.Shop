@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Users.Shared.Validators;
+using Module.Identity.Features.Admin.Shared.Validators;
 
-namespace Module.Identity.Features.Admin.Users.Create;
+namespace Module.Identity.Features.Shared.Admin.Users.Create;
 
 public static partial class CreateUser
 {

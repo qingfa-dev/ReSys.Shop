@@ -16,7 +16,7 @@ public sealed class ExternalLoginIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/external", request);
+            "/api/storefront/identity/auth/login/external", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -31,7 +31,7 @@ public sealed class ExternalLoginIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/login/external", request);
+            "/api/storefront/identity/auth/login/external", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }

@@ -1,6 +1,6 @@
 using Shared.Governance.Conventions;
 
-using Module.Identity.Features.Storefront.Emails.Change;
+using Module.Identity.Features.Shared.Storefront.Emails.Change;
 
 namespace Module.UnitTests.Identity.Features.Store.Emails.Change;
 

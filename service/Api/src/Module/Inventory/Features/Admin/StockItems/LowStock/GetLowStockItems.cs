@@ -1,4 +1,4 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 
 namespace Module.Inventory.Features.Admin.StockItems.LowStock;
 
@@ -42,9 +42,9 @@ public static partial class GetLowStockItems
                     StockLocationId = si.StockLocationId,
                     LocationName = si.StockLocation!.Name,
                     CountOnHand = si.CountOnHand,
-                    Threshold = request.Request.Threshold ?? si.StockLocation.LowStockThreshold,
+                    Threshold = request.Request.Threshold ?? si.StockLocation!.LowStockThreshold,
                     Backorderable = si.Backorderable,
-                    Status = si.CountOnHand == 0 ? "out_of_stock" : "low"
+                    Status = si.CountOnHand == 0 ? LowStockStatus.OutOfStock : LowStockStatus.Low
                 })
                 .ToList();
 

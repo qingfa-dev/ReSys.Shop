@@ -1,11 +1,8 @@
-using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
 public static partial class UpdateOrderStatus
 {
-    public sealed record Request
-    {
-        public OrderStatus Status { get; init; }
-    }
+    public sealed record Request : OrderStatusUpdateParameters;
 }

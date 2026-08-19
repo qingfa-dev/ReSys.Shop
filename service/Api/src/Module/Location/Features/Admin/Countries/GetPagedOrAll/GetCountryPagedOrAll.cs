@@ -1,7 +1,5 @@
 using Module.Location.Domain.Countries;
-using Module.Location.Features.Admin.Countries.Shared.Mappings;
-
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
+using Module.Location.Features.Shared.Countries.Mappings;
 
 namespace Module.Location.Features.Admin.Countries.GetPagedOrAll;
 

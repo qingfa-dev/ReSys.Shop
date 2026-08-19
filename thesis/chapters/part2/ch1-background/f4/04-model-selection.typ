@@ -1,11 +1,10 @@
 === Model Selection and Justification
 
-This section presents the comparative analysis of the embedding models and the rationale for selecting Fashion-CLIP as the primary model for visual search.
+The rationale for selecting Fashion-CLIP as the primary model for visual search is presented below.
 
 ==== Candidate Models
 
 Eleven pre-trained models spanning three architectural families were evaluated:
-
 #figure(
   table(
     columns: (auto, auto, auto, auto, auto),
@@ -28,45 +27,28 @@ Eleven pre-trained models spanning three architectural families were evaluated:
 
 ==== Evaluation Methodology
 
-To ensure fair comparison, all models were evaluated under identical conditions. The evaluation used 5,000 fashion product images from the Fashion Product Images dataset, split into training and query sets. Hardware was consumer-grade: Intel i7-1165G7 CPU with 16 GB RAM, with all inference executed on CPU.
+All models were evaluated under identical conditions: 5,000 fashion product images from the Fashion Product Images dataset, split into training and query sets. Hardware was consumer-grade: Intel i7-1165G7 CPU with 16 GB RAM, all inference on CPU.
 
-Metrics included:
-
-- *Mean Average Precision (mAP\@10).* Primary metric measuring overall retrieval quality.
-- *Precision at K (P\@1, P\@5, P\@10).* Accuracy of the top-K results.
-- *Recall at 10 (R\@10).* Coverage of relevant items in the top-10 results.
-- *Inference latency.* Average time to generate one embedding (milliseconds).
-
-A retrieved product was considered relevant if it belonged to the same category as the query image. The full evaluation protocol, benchmark results, and cross-validation methodology are presented in Chapter 3.
+Metrics included Mean Average Precision (mAP\@10) as the primary measure of overall retrieval quality, Precision at K (P\@K) for top-ranked accuracy, Recall at K (R\@K) for coverage of relevant items, and inference latency in milliseconds. A retrieved product was considered relevant if it belonged to the same category as the query image. The full evaluation protocol, benchmark results, and cross-validation methodology are presented in Chapter 3.
 
 ==== Weighted Selection Criteria
 
-The model selection was based on four criteria:
-
-1. *Retrieval quality.* mAP\@10 and P\@K scores measuring how well the model retrieves visually similar products.
-2. *Inference latency.* Must support real-time search with sub-300 ms total response time.
-3. *Multimodal capability.* The ability to search by both image and text, enabling text-to-image queries.
-4. *Hardware compatibility.* Must operate within the memory and compute constraints of commodity hardware.
+Model selection was based on four criteria: retrieval quality (mAP\@10 and P\@K scores), inference latency (sub-300 ms total response time), multimodal capability (search by image and text), and hardware compatibility within memory and compute constraints of commodity hardware.
 
 ==== Selection Decision
 
-*Fashion-CLIP* was selected as the primary embedding model for the visual search feature. Three factors drove this decision:
+*Fashion-CLIP* was selected as the primary embedding model for the visual search feature. Three factors drove this decision.
 
-*Retrieval quality.* Fashion-CLIP achieved the highest mAP\@10 among the evaluated models, with a 15-to-20% improvement over general CLIP on fashion-specific queries. This result was confirmed through the systematic benchmark presented in Chapter 3.
+First, retrieval quality: Fashion-CLIP achieved the highest mAP among the evaluated models, with a 15 to 20 percent improvement over general CLIP on fashion-specific queries, confirmed through the systematic benchmark in Chapter 3 @chia2022fashionclip.
 
-*Multimodal capability.* Fashion-CLIP's dual-tower architecture enables search by image, by text description, and by hybrid image-plus-text queries. This capability is unavailable in vision-only models such as DINOv2 and EfficientNet.
+Second, multimodal capability: Fashion-CLIP's dual-tower architecture enables search by image, by text description, and by hybrid image-plus-text queries, unavailable in vision-only models such as DINOv2 and EfficientNet.
 
-*Domain specialization.* Fine-tuning on 700,000 fashion images gives Fashion-CLIP an understanding of fashion-specific vocabulary, styles, and garment attributes that general-purpose models lack.
+Third, domain specialization: fine-tuning on 700,000 fashion images gives Fashion-CLIP an understanding of fashion-specific vocabulary, styles, and garment attributes that general-purpose models lack.
 
-While EfficientNet-B0 offers faster inference (suitable for ultra-low-latency mobile deployments) and DINOv2 excels at structural fidelity (useful for silhouette-based matching), Fashion-CLIP provides the best overall balance of retrieval quality, search flexibility, and inference performance for the target deployment scenario.
+Fashion-CLIP provides the best overall balance of retrieval quality, search flexibility, and inference performance for the target deployment scenario, though EfficientNet-B0 offers faster CPU inference and DINOv2 excels at structural fidelity for silhouette-based matching.
 
 ==== Alternative Deployment Scenarios
 
-For different deployment contexts, alternative models may be preferred:
+For different deployment contexts, alternative models may be preferred. EfficientNet-B0 provides the fastest inference at 5.3 million parameters, trading off 3.4 percent lower mAP\@10 with no text-to-image capability. DINOv2 excels at shape and silhouette matching but lacks multimodal capability. General CLIP variants suit multi-category marketplaces with lower fashion accuracy. CLIP ViT-L/14 offers the largest capacity at 428 million parameters but requires substantial GPU VRAM.
 
-- *Ultra-low latency.* EfficientNet-B0 provides the fastest inference at 5.3M parameters. Trade-off: 3.4% lower mAP\@10 and no text-to-image search.
-- *Maximum structural accuracy.* DINOv2 excels at shape and silhouette matching. Trade-off: no multimodal capability.
-- *Non-fashion e-commerce.* General CLIP variants are suitable for multi-category marketplaces. Trade-off: lower accuracy on fashion-specific queries.
-- *High-resource environments.* CLIP ViT-L/14 offers the largest model capacity. Trade-off: 428M parameters, requiring GPU with significant VRAM.
-
-The complete numerical comparison and error analysis across all 11 models are presented in Chapter 3.
+The complete numerical comparison and error analysis across all models are presented in Chapter 3.

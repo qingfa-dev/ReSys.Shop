@@ -1,8 +1,7 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
-using Shared.Application.Mediators.Queries;
-using Shared.Operational.Persistence.Data;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.Dashboard.Get;
 
@@ -73,7 +72,7 @@ public static partial class GetInventoryDashboard
                     Quantity = sm.Quantity,
                     Action = sm.Action,
                     Reason = sm.Reason,
-                    CreatedAtUtc = sm.CreatedAtUtc.DateTime
+                    CreatedAtUtc = sm.CreatedAtUtc
                 })
                 .ToListAsync(cancellationToken);
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Storefront.Emails.Resend;
+using Module.Identity.Features.Shared.Storefront.Emails.Resend;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Governance.Conventions;

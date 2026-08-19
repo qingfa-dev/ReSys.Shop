@@ -4,7 +4,6 @@ export {
   shippingMethodTrackingUrl,
   shippingMethodAdminName,
   shippingMethodCalculatorType,
-  shippingMethodTaxCategoryId,
   shippingMethodPosition,
   shippingMethodAvailableToUsers,
   shippingMethodSchema,

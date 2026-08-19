@@ -1,9 +1,8 @@
+using Module.Ordering.Features.Admin.Shared.Models;
+
 namespace Module.Ordering.Features.Admin.Orders.UpdateShipAddress;
 
 public static partial class UpdateOrderShipAddress
 {
-    public sealed record Request
-    {
-        public Guid AddressId { get; init; }
-    }
+    public sealed record Request : OrderAddressActionParameters;
 }

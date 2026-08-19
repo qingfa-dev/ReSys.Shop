@@ -23,7 +23,6 @@ import { OptionValueApi } from '../services/optionValueApi'
 import { optionTypeSchema, optionTypeName, optionTypePresentation, optionTypePosition } from '../validations/optionType'
 import type { OptionTypeForm } from '../validations/optionType'
 import type { OptionValueListItem } from '../types/optionValue'
-import { OPTION_VALUE_FILTER_FIELDS, OPTION_VALUE_SORT_FIELDS } from '../types/optionValue'
 import OptionValueFormDialog from '../components/OptionValueFormDialog.vue'
 
 const route = useRoute()
@@ -65,10 +64,7 @@ const {
   setSearch: setValueSearch,
   setFilter: setValueFilter,
   refresh: refreshValues,
-} = usePagedQuery<OptionValueListItem>('api/catalog/option-values', {
-  allowedFilterFields: OPTION_VALUE_FILTER_FIELDS,
-  allowedSortFields: OPTION_VALUE_SORT_FIELDS,
-  allowedSearchFields: valueSearchFields,
+} = usePagedQuery<OptionValueListItem>((params) => OptionValueApi.getOptionValues(params), {
   defaultSearchFields: valueSearchFields,
   defaultSearchMode: 'any',
   defaultSort: ['position', 'name'],

@@ -8,7 +8,7 @@ using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Storefront.Emails.Change;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Change;
 
 public static partial class ChangeEmail
 {

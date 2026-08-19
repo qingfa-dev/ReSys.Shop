@@ -15,7 +15,7 @@ public sealed class RefreshSessionIntegrationTests(ApiFixture fixture) : Identit
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/sessions/refresh", request);
+            "/api/storefront/identity/auth/sessions/refresh", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -29,7 +29,7 @@ public sealed class RefreshSessionIntegrationTests(ApiFixture fixture) : Identit
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/auth/sessions/refresh", request);
+            "/api/storefront/identity/auth/sessions/refresh", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

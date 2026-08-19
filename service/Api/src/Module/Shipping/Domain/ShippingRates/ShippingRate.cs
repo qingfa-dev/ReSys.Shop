@@ -1,3 +1,6 @@
+using Module.Ordering.Domain.Orders;
+using Module.Shipping.Domain.ShippingMethods;
+
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
@@ -21,6 +24,8 @@ public sealed partial class ShippingRate : Entity, IAuditable
 
     #region Relationships
     public Guid ShippingMethodId { get; set; }
+    public ShippingMethod ShippingMethod { get; set; } = null!;
+    public ICollection<Order> Orders { get; set; } = [];
     #endregion Relationships
 
     #region Auditing

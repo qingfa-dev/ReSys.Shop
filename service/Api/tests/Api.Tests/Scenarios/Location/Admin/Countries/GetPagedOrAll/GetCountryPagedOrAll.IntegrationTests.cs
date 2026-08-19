@@ -1,6 +1,6 @@
 using Api.Tests.Infrastructure;
 
-using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Shared.Countries.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.Countries.GetPagedOrAll;
 

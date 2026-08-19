@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 
-using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Variants.Images;
 
 namespace Module.Catalog.Persistence.Configurations.Products;
 
@@ -9,7 +9,7 @@ public class VariantImageConfiguration : IEntityTypeConfiguration<VariantImage>
 {
     public void Configure(EntityTypeBuilder<VariantImage> builder)
     {
-        builder.ToTable(CatalogSchema.TableNames.ProductImages, CatalogSchema.Name);
+        builder.ToTable(CatalogSchema.TableNames.VariantImages, CatalogSchema.Name);
 
         builder.HasKey(x => x.Id);
 
@@ -61,7 +61,7 @@ public class VariantImageConfiguration : IEntityTypeConfiguration<VariantImage>
             .HasForeignKey(x => x.VariantId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(x => x.ImageEmbedding)
+        builder.HasMany(x => x.ImageEmbeddings)
             .WithOne(e => e.VariantImage)
             .HasForeignKey(e => e.VariantImageId)
             .OnDelete(DeleteBehavior.Cascade);

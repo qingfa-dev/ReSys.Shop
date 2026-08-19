@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Images;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Get;

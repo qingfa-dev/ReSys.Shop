@@ -21,7 +21,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
             slug = "related-base-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string productId = createResult.DeserializeValue<IdResponse>()!.Id;
@@ -42,7 +42,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
             presentation = "Related"
         };
         HttpResponseMessage createTaxonomyResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createTaxonomyRequest);
+            "/api/admin/catalog/taxonomies", createTaxonomyRequest);
         ApiResponse createTaxonomyResult = await createTaxonomyResponse.ReadApiResponseAsync();
         createTaxonomyResult.IsSuccess.Should().BeTrue();
         string taxonomyId = createTaxonomyResult.DeserializeValue<IdResponse>()!.Id;
@@ -54,7 +54,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
             taxonomyId = taxonomyId
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxons", createTaxonRequest);
+            "/api/admin/catalog/taxons", createTaxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue();
         string taxonId = createTaxonResult.DeserializeValue<IdResponse>()!.Id;
@@ -65,7 +65,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
             slug = "product-alpha"
         };
         HttpResponseMessage createProduct1Response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProduct1Request);
+            "/api/admin/catalog/products", createProduct1Request);
         ApiResponse createProduct1Result = await createProduct1Response.ReadApiResponseAsync();
         createProduct1Result.IsSuccess.Should().BeTrue();
         string product1Id = createProduct1Result.DeserializeValue<IdResponse>()!.Id;
@@ -76,7 +76,7 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
             slug = "product-beta"
         };
         HttpResponseMessage createProduct2Response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProduct2Request);
+            "/api/admin/catalog/products", createProduct2Request);
         ApiResponse createProduct2Result = await createProduct2Response.ReadApiResponseAsync();
         createProduct2Result.IsSuccess.Should().BeTrue();
         string product2Id = createProduct2Result.DeserializeValue<IdResponse>()!.Id;
@@ -92,18 +92,18 @@ public sealed class GetRelatedProductsIntegrationTests(ApiFixture fixture) : Cat
             items = new[] { new { taxonId, position = 0 } }
         };
         await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-classifications/assign", assignRequest1);
+            "/api/admin/catalog/product-classifications/assign", assignRequest1);
         await Client.PostAsAdminRawAsync(
-            "/api/catalog/product-classifications/assign", assignRequest2);
+            "/api/admin/catalog/product-classifications/assign", assignRequest2);
 
         using var activateRequest1 = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{product1Id}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{product1Id}/activate");
         activateRequest1.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         await Client.SendAsync(activateRequest1);
 
         using var activateRequest2 = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{product2Id}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{product2Id}/activate");
         activateRequest2.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         await Client.SendAsync(activateRequest2);

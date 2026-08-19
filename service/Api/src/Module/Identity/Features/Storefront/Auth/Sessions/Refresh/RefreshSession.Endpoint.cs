@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Auth.Sessions.Refresh;
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Refresh;
 
 public static partial class RefreshSession
 {
@@ -7,8 +7,8 @@ public static partial class RefreshSession
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/auth/sessions/refresh — refresh an expired JWT access token
-            app.MapPost(IdentityFeature.Store.Auth.Sessions.Refresh.Route, async (
+            // Map: POST /api/storefront/auth/sessions/refresh — refresh an expired JWT access token
+            app.MapPost(IdentityFeature.Storefront.Auth.Sessions.Refresh.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -20,8 +20,8 @@ public static partial class RefreshSession
             .WithName(nameof(RefreshSession))
             .WithTags(IdentityFeature.Tags.Authentication)
             .AllowAnonymous()
-            .WithSummary(IdentityFeature.Store.Auth.Sessions.Refresh.Summary)
-            .WithDescription(IdentityFeature.Store.Auth.Sessions.Refresh.Description)
+            .WithSummary(IdentityFeature.Storefront.Auth.Sessions.Refresh.Summary)
+            .WithDescription(IdentityFeature.Storefront.Auth.Sessions.Refresh.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

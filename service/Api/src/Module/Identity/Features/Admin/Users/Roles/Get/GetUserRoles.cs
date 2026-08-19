@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Roles.Get;
+namespace Module.Identity.Features.Shared.Admin.Users.Roles.Get;
 
 public static partial class GetUserRoles
 {

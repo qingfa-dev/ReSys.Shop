@@ -1,14 +1,12 @@
+using Module.Catalog.Features.Storefront.Shared.Models;
+
 namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 
 public static partial class GetSimilarProducts
 {
-    // EXCEPTION: search-result DTO — composite of variant + product data, no domain entity
-    public sealed record Response
+    /// <summary>Product list item enriched with the visual similarity score.</summary>
+    public sealed record Response : StoreProductListItemResponse
     {
-        public Guid VariantId { get; init; }
-        public Guid ProductId { get; init; }
-        public string ProductName { get; init; } = string.Empty;
-        public string Sku { get; init; } = string.Empty;
-        public decimal Price { get; init; }
+        public double SimilarityScore { get; init; }
     }
 }

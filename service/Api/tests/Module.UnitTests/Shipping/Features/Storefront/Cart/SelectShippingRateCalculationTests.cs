@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
@@ -61,9 +61,9 @@ public class SelectShippingRateCalculationTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var method = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
+        var method = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
         _dbContext.Set<ShippingMethod>().Add(method);
-        var rate = ShippingRateExtensions.Create("Standard Rate", 5.99m, method.Id).Value;
+        var rate = ShippingRateMethod.Create("Standard Rate", 5.99m, method.Id).Value;
         _dbContext.Set<ShippingRate>().Add(rate);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -102,11 +102,11 @@ public class SelectShippingRateCalculationTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var method1 = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
-        var method2 = ShippingMethodExtensions.Create("Express", "flat_rate").Value;
+        var method1 = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
+        var method2 = ShippingMethodMethod.Create("Express", "flat_rate").Value;
         _dbContext.Set<ShippingMethod>().AddRange(method1, method2);
-        var rate1 = ShippingRateExtensions.Create("Standard Rate", 5.99m, method1.Id).Value;
-        var rate2 = ShippingRateExtensions.Create("Express Rate", 12.99m, method2.Id).Value;
+        var rate1 = ShippingRateMethod.Create("Standard Rate", 5.99m, method1.Id).Value;
+        var rate2 = ShippingRateMethod.Create("Express Rate", 12.99m, method2.Id).Value;
         _dbContext.Set<ShippingRate>().AddRange(rate1, rate2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -136,6 +136,48 @@ public class SelectShippingRateCalculationTests : IDisposable
         orderAfter.Adjustments.First(a => a.SourceType == "Shipping").Amount.Should().Be(12.99m);
         orderAfter.Adjustments.First(a => a.SourceType == "Shipping").SourceId.Should().Be(method2.Id);
         orderAfter.ShipmentTotal.Should().Be(12.99m);
+    }
+
+    [Fact(DisplayName = "Handler: Free shipping threshold applies zero shipment total")]
+    public async Task Handle_FreeShippingThreshold_AppliesZeroShipmentTotal()
+    {
+        var variant = new Variant { Weight = 0.5m, Sku = "SKU-006" };
+        _dbContext.Set<Variant>().Add(variant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var order = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
+        order.Total = 100m;
+        order.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
+        {
+            Id = Guid.NewGuid(), OrderId = order.Id, VariantId = variant.Id,
+            Quantity = 2, Price = 50m, Total = 100m, Currency = "USD"
+        });
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var method = ShippingMethodMethod.Create("Standard", "flat_rate").Value;
+        _dbContext.Set<ShippingMethod>().Add(method);
+        var rate = ShippingRateMethod.Create(
+            name: "Standard Rate", cost: 5.99m, shippingMethodId: method.Id,
+            freeShippingThreshold: 50m).Value;
+        _dbContext.Set<ShippingRate>().Add(rate);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new SelectShippingRate.Command(new SelectShippingRate.Request
+            {
+                ShippingMethodId = method.Id
+            }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+
+        var orderAfter = await _dbContext.Set<Order>()
+            .Include(o => o.Adjustments)
+            .FirstAsync(o => o.Id == order.Id, TestContext.Current.CancellationToken);
+        orderAfter.ShipmentTotal.Should().Be(0m);
+        orderAfter.Adjustments.Should().ContainSingle(a => a.SourceType == "Shipping");
+        orderAfter.Adjustments.First(a => a.SourceType == "Shipping").Amount.Should().Be(0m);
     }
 
     [Fact(DisplayName = "Handler: Should return unauthenticated when user not valid")]

@@ -1,4 +1,4 @@
-using Module.Catalog.Features.Admin.Products.ProductClassifications.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 using Module.Catalog.Features.Admin.Products.ProductClassifications.Sync;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Classifications.Sync;

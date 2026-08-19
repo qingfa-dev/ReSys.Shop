@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Passwords.Forgot;
+namespace Module.Identity.Features.Shared.Storefront.Passwords.Forgot;
 
 public static partial class RequestPasswordReset
 {
@@ -7,8 +7,8 @@ public static partial class RequestPasswordReset
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/passwords/forgot — send password reset email
-            app.MapPost(IdentityFeature.Store.Passwords.Forgot.Route, async (
+            // Map: POST /api/storefront/passwords/forgot — send password reset email
+            app.MapPost(IdentityFeature.Storefront.Passwords.Forgot.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
@@ -21,8 +21,8 @@ public static partial class RequestPasswordReset
             .RequireRateLimiting("forgot-password")
             .WithName(nameof(RequestPasswordReset))
             .WithTags(IdentityFeature.Tags.Authentication)
-            .WithSummary(IdentityFeature.Store.Passwords.Forgot.Summary)
-            .WithDescription(IdentityFeature.Store.Passwords.Forgot.Description)
+            .WithSummary(IdentityFeature.Storefront.Passwords.Forgot.Summary)
+            .WithDescription(IdentityFeature.Storefront.Passwords.Forgot.Description)
             .Produces<Result>(StatusCodes.Status204NoContent)
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);

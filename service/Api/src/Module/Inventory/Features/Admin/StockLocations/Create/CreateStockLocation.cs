@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Features.Admin.StockLocations.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Create;
 
@@ -28,7 +28,7 @@ public static partial class CreateStockLocation
                 .AnyAsync(x => x.Name == request.Name, cancellationToken);
 
             if (nameExists)
-                return StockLocationResult.Failure.DuplicateName;
+                return StockLocationResult.Errors.DuplicateName;
 
             // Create: Map the request to a new StockLocation entity.
             var result = request.MapToDomain();

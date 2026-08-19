@@ -40,10 +40,10 @@ describe('StateApi.getStates', () => {
       metadata: null,
     })
 
-    await StateApi.getStates({ countryId: 'abc-123' })
+    await StateApi.getStates({ filter: 'countryId=abc-123' })
 
     expect(mockGetPaged).toHaveBeenCalledWith(
-      'api/locations/states',
+      '/api/admin/location/states',
       expect.objectContaining({ filter: 'countryId=abc-123' }),
       expect.any(Object),
     )
@@ -55,7 +55,7 @@ describe('StateApi.getState', () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'California' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await StateApi.getState('xyz-456')
-    expect(mockGet).toHaveBeenCalledWith('api/locations/states/xyz-456')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/location/states/xyz-456')
   })
 })
 
@@ -64,7 +64,7 @@ describe('StateApi.getStateByIso', () => {
     mockGet.mockResolvedValue({ value: { id: '1', name: 'New York', abbreviation: 'NY' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await StateApi.getStateByIso('NY')
-    expect(mockGet).toHaveBeenCalledWith('api/locations/states/by-iso/NY')
+    expect(mockGet).toHaveBeenCalledWith('/api/admin/location/states/by-iso/NY')
   })
 })
 
@@ -74,7 +74,7 @@ describe('StateApi.createState', () => {
     mockPost.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 201, message: null, errors: [], metadata: null })
 
     await StateApi.createState(req)
-    expect(mockPost).toHaveBeenCalledWith('api/locations/states', req)
+    expect(mockPost).toHaveBeenCalledWith('/api/admin/location/states', req)
   })
 })
 
@@ -84,7 +84,7 @@ describe('StateApi.updateState', () => {
     mockPut.mockResolvedValue({ value: { id: '1', ...req }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await StateApi.updateState('xyz-456', req)
-    expect(mockPut).toHaveBeenCalledWith('api/locations/states/xyz-456', req)
+    expect(mockPut).toHaveBeenCalledWith('/api/admin/location/states/xyz-456', req)
   })
 })
 
@@ -93,6 +93,6 @@ describe('StateApi.deleteState', () => {
     mockDel.mockResolvedValue({ value: { id: '1', name: 'Texas' }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
 
     await StateApi.deleteState('xyz-456')
-    expect(mockDel).toHaveBeenCalledWith('api/locations/states/xyz-456')
+    expect(mockDel).toHaveBeenCalledWith('/api/admin/location/states/xyz-456')
   })
 })

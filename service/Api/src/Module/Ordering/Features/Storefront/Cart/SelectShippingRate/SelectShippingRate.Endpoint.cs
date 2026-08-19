@@ -9,8 +9,8 @@ public static partial class SelectShippingRate
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST api/storefront/cart/shipping-rate — select a shipping rate for the order
-            app.MapPost(OrderingFeature.Storefront.Cart.SelectShippingRate.Route, async (
+            // Map: PATCH api/storefront/cart/shipping-rate — select a shipping rate for the order
+            app.MapPatch(OrderingFeature.Storefront.Cart.SelectShippingRate.Route, async (
                 [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(request), ct);

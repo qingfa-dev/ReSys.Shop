@@ -40,7 +40,7 @@ When a bug is found, the fix must also harden the harness so the same class of b
 4. **Examples**:
    - Bug: handler returns `Ok` for an already-existing slug → Add `Conflict` to `Result.Method.cs` and document in `principles.yml#result-not-exceptions` example.
    - Bug: `Nullable` warning escaping build → Ensure `TreatWarningsAsErrors=true` and add Roslyn analyzer rule.
-   - Bug: two modules importing from each other → Enable `ValidateVerticalSliceIsolation` or add a Roslyn analyzer.
+   - Bug: two modules importing from each other → This is permitted; prefer MediatR `ISender` for cross-module behavior and enable `ValidateVerticalSliceIsolation` only if modules are ever split into separate projects.
 
 ### 4) Escalation Boundaries
 

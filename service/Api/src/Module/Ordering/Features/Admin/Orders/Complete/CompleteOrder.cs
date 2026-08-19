@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Extensions;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Complete;
 /// <summary>Marks a placed order as complete, finalizing the order lifecycle with timestamp and user attribution.</summary>
@@ -18,7 +19,7 @@ public static partial class CompleteOrder
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Find the order to complete.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
+            var order = await dbContext.Set<Order>().IncludeOrderDetail().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
@@ -30,7 +31,9 @@ public static partial class CompleteOrder
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the updated entity as response.
-            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Completed(order.Id, currentUser.UserName ?? "System"));
+            return Result<Response>.Ok(
+                order.MapToDetail<Response>(),
+                OrderResult.Success.Completed(order.Id, currentUser.UserName ?? "System"));
         }
     }
 }

@@ -1,4 +1,4 @@
-using Module.Ordering.Features.Storefront.Cart.Shared.Validators;
+using Module.Ordering.Features.Storefront.Shared.Validators;
 
 namespace Module.Ordering.Features.Storefront.Cart.AddItem;
 

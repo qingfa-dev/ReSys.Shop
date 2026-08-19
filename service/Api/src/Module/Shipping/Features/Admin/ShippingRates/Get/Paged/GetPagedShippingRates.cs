@@ -1,12 +1,12 @@
 using Module.Shipping.Domain.ShippingRates;
-using Module.Shipping.Features.Admin.ShippingRates.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Mappings;
 
 namespace Module.Shipping.Features.Admin.ShippingRates.Get.Paged;
 
 /// <summary>Retrieves a paged list of shipping rates ordered by name.</summary>
 public static partial class GetPagedShippingRates
 {
-    public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>

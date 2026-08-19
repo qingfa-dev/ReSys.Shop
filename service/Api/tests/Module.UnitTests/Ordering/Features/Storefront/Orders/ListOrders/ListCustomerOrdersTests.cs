@@ -38,11 +38,11 @@ public class ListCustomerOrdersTests : IDisposable
     [Fact(DisplayName = "Handler: Should list customer orders")]
     public async Task Handle_ShouldReturnOrders_WhenOrdersExist()
     {
-        var cart1 = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
+        var cart1 = OrderMethod.Create("USD", _userId).Value;
         cart1.Number = "R20260520-ABC123";
         cart1.Status = OrderStatus.Placed;
 
-        var cart2 = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
+        var cart2 = OrderMethod.Create("USD", _userId).Value;
         cart2.Number = "R20260520-DEF456";
         cart2.Status = OrderStatus.Placed;
 

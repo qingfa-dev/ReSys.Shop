@@ -1,6 +1,6 @@
 using CatalogDomain = Module.Catalog.Domain.Products;
-using CatalogFeatureSharedModels = Module.Catalog.Features.Admin.Products.Shared.Models;
-using CatalogFeatureValidation = Module.Catalog.Features.Admin.Products.Shared.Validation;
+using CatalogFeatureSharedModels = Module.Catalog.Features.Admin.Shared.Models;
+using CatalogFeatureValidation = Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Shared.Validation;
 

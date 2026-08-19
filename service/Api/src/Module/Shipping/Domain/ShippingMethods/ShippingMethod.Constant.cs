@@ -1,11 +1,5 @@
 namespace Module.Shipping.Domain.ShippingMethods;
 
-public enum ShippingMethodCategory
-{
-    FlatRate,
-    FreeShipping,
-    Calculated
-}
 
 public static class ShippingMethodConstant
 {
@@ -17,6 +11,7 @@ public static class ShippingMethodConstant
         public const int MaxTrackingUrlLength = 2048;
         public const int MaxAdminNameLength = 255;
         public const int MaxCalculatorTypeLength = 100;
+        public const int MaxPresentationLength = 500;
     }
 
     public static class Defaults
@@ -46,7 +41,6 @@ public static class ShippingMethodConstant
         [
             nameof(ShippingMethod.AvailableToUsers),
             nameof(ShippingMethod.CalculatorType),
-            nameof(ShippingMethod.TaxCategoryId),
             nameof(ShippingMethod.IsDeleted)
         ];
     }

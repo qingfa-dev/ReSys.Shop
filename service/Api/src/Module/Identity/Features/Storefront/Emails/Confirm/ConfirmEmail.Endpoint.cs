@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Storefront.Emails.Confirm;
+namespace Module.Identity.Features.Shared.Storefront.Emails.Confirm;
 
 public static partial class ConfirmEmail
 {
@@ -7,13 +7,13 @@ public static partial class ConfirmEmail
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: POST /api/store/emails/confirm — confirm email or finalise email change
-            app.MapPost(IdentityFeature.Store.Emails.Confirm.Route, Handle)
+            // Map: POST /api/storefront/emails/confirm — confirm email or finalise email change
+            app.MapPost(IdentityFeature.Storefront.Emails.Confirm.Route, Handle)
                 .AllowAnonymous()
                 .WithName(nameof(ConfirmEmail))
                 .WithTags(IdentityFeature.Tags.Authentication)
-                .WithSummary(IdentityFeature.Store.Emails.Confirm.Summary)
-                .WithDescription(IdentityFeature.Store.Emails.Confirm.Description)
+                .WithSummary(IdentityFeature.Storefront.Emails.Confirm.Summary)
+                .WithDescription(IdentityFeature.Storefront.Emails.Confirm.Description)
                 .Produces<Result>()
                 .Produces<Result>(StatusCodes.Status400BadRequest)
                 .Produces<Result>(StatusCodes.Status404NotFound)

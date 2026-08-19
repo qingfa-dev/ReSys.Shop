@@ -1,6 +1,6 @@
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 
@@ -28,6 +28,7 @@ public static partial class AssociateCartWithUser
             // Check: Find the guest cart scoped to the current session.
             var guestOrder = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
+                .Include(o => o.Adjustments)
                 .FirstOrDefaultAsync(o => o.Id == command.Request.GuestOrderId && o.UserId == null && o.SessionId == sessionId, cancellationToken);
 
             if (guestOrder is null)
@@ -36,6 +37,7 @@ public static partial class AssociateCartWithUser
             // Check: Find existing user cart — may or may not exist.
             var userOrder = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
+                .Include(o => o.Adjustments)
                 .FirstOrDefaultAsync(o => o.UserId == userId && o.Status == OrderStatus.Draft, cancellationToken);
 
             if (userOrder is null)
