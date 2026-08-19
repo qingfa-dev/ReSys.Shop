@@ -47,7 +47,7 @@ Fashion-CLIP further trains CLIP on over 700,000 fashion product images paired w
 - Style categories ("streetwear," "preppy," "athleisure").
 - Occasion suitability ("office wear," "cocktail party," "beach vacation").
 
-Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports a 15-to-20% improvement on fashion retrieval over general CLIP, confirmed in the benchmark evaluation presented in Chapter 3.
+Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports an improvement on fashion retrieval over general CLIP; the benchmark evaluation in Chapter 3 (§3.5) measured a 2.13% mAP advantage under category-only evaluation @chia2022fashionclip.
 #figure(
   image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_fashion-clip.png", height: 50%),
   caption: [Fashion-CLIP dual-tower architecture: image and text towers independently encode their inputs into 512-dimensional embeddings converging in a shared latent space],

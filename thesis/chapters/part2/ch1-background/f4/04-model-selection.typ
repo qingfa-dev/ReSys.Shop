@@ -39,7 +39,7 @@ Model selection was based on four criteria: retrieval quality (mAP\@10 and P\@K 
 
 *Fashion-CLIP* was selected as the primary embedding model for the visual search feature. Three factors drove this decision.
 
-First, retrieval quality: Fashion-CLIP achieved the highest mAP among the evaluated models, with a 15 to 20 percent improvement over general CLIP on fashion-specific queries, confirmed through the systematic benchmark in Chapter 3 @chia2022fashionclip.
+First, retrieval quality: Fashion-CLIP achieved the highest mAP among the evaluated models, outperforming general CLIP by 2.13% under category-only evaluation, as confirmed in Chapter 3 (§3.5) @chia2022fashionclip.
 
 Second, multimodal capability: Fashion-CLIP's dual-tower architecture enables search by image, by text description, and by hybrid image-plus-text queries, unavailable in vision-only models such as DINOv2 and EfficientNet.
 
@@ -49,6 +49,6 @@ Fashion-CLIP provides the best overall balance of retrieval quality, search flex
 
 ==== Alternative Deployment Scenarios
 
-For different deployment contexts, alternative models may be preferred. EfficientNet-B0 provides the fastest inference at 5.3 million parameters, trading off 3.4 percent lower mAP\@10 with no text-to-image capability. DINOv2 excels at shape and silhouette matching but lacks multimodal capability. General CLIP variants suit multi-category marketplaces with lower fashion accuracy. CLIP ViT-L/14 offers the largest capacity at 428 million parameters but requires substantial GPU VRAM.
+For different deployment contexts, alternative models may be preferred. EfficientNet-B0 provides the fastest inference at 5.3 million parameters, trading off 4.65% lower mAP with no text-to-image capability. DINOv2 excels at shape and silhouette matching but lacks multimodal capability. General CLIP variants suit multi-category marketplaces with lower fashion accuracy. CLIP ViT-L/14 offers the largest capacity at 428 million parameters but requires substantial GPU VRAM.
 
 The complete numerical comparison and error analysis across all models are presented in Chapter 3.
