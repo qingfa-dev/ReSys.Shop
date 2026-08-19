@@ -75,7 +75,7 @@ Endpoints follow the convention `/api/{module}/{surface}/{resource}`, where `sur
     [1],
   ),
   kind: table,
-  caption: [ReSys.Shop API endpoint contract: approximately 262 Carter endpoints across nine business modules.],
+  caption: [ReSys.Shop API endpoint contract: approximately 262 Carter endpoints across eight business modules.],
 ) <tbl-api-contract>
 
 ==== Error Handling
