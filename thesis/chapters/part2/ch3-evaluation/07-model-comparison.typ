@@ -13,19 +13,19 @@
     table.header(
       [*Model*], [*mAP*], [*P\@10*], [*R\@10*], [*Latency (ms)*], [*Throughput*], [*Load (ms)*], [*Storage (MB)*],
     ),
-    [Fashion-CLIP], [*0.8788*], [*0.9155*], [*0.0646*], [92.0], [18.0], [5,441.8], [3.3],
-    [CLIP-generic], [0.8341], [0.8862], [0.0597], [92.9], [19.9], [6,514.0], [3.3],
-    [EfficientNet-B0], [0.8158], [0.8703], [0.0571], [*23.9*], [*33.2*], [*126.3*], [8.1],
-    [ResNet-50], [0.8120], [0.8671], [0.0551], [64.0], [12.9], [286.1], [13.0],
+    [Fashion-CLIP], [*0.9309*], [*0.9493*], [*0.0483*], [96.8], [18.5], [5 255.4], [3.3],
+    [CLIP-generic], [0.9115], [0.9364], [0.0459], [86.6], [21.4], [6 848.5], [3.3],
+    [EfficientNet-B0], [0.8895], [0.9229], [0.0426], [*37.8*], [*30.2*], [*110.2*], [8.1],
+    [ResNet-50], [0.8857], [0.9203], [0.0470], [61.9], [13.5], [374.1], [13.0],
   ),
   kind: table,
 ) <tbl-comparison>
 
-Fashion-CLIP occupies the high-accuracy cluster alone: mAP 0.8788 leads every other model by at least 5.4%, while its 92.0 ms inference time remains within the sub-second interactive budget. CLIP-generic (0.8341) and EfficientNet-B0 (0.8158) form the middle tier from different architecture families: CLIP-generic achieves higher accuracy, EfficientNet-B0 delivers fastest inference (23.9 ms) and highest throughput (33.2 img/s). ResNet-50 occupies the lowest tier on all dimensions: lowest mAP (0.8120), lowest throughput (12.9 img/s), largest storage (13.0 MB).
+Fashion-CLIP occupies the high-accuracy cluster alone: mAP 0.9309 leads every other model by at least 2.13%, while its 96.8 ms inference time remains within the sub-second interactive budget. CLIP-generic (0.9115) and EfficientNet-B0 (0.8895) form the middle tier from different architecture families: CLIP-generic achieves higher accuracy, EfficientNet-B0 delivers fastest inference (37.8 ms) and highest throughput (30.2 img/s). ResNet-50 occupies the lowest tier on all dimensions: lowest mAP (0.8857), lowest throughput (13.5 img/s), largest storage (13.0 MB).
 
 === Deployment Recommendations
 
-For retrieval quality, Fashion-CLIP is recommended (mAP 0.8788). Its 92.0 ms inference is acceptable for interactive search; the pluggable model architecture enables lazy-loading and embedding caching. For CPU-only or latency-sensitive deployments, EfficientNet-B0 is recommended: 23.9 ms inference achieves 92.8% of Fashion-CLIP's mAP at 26.0% of the latency, with 126.3 ms load time enabling rapid cold-start recovery. The pluggable configuration mechanism (Section 2.3) enables transitioning between recommendations by changing a single environment variable; embeddings tagged by model name allow multiple models to coexist.
+For retrieval quality, Fashion-CLIP is recommended (mAP 0.9309). Its 96.8 ms inference is acceptable for interactive search; the pluggable model architecture enables lazy-loading and embedding caching. For CPU-only or latency-sensitive deployments, EfficientNet-B0 is recommended: 37.8 ms inference achieves 95.55% of Fashion-CLIP's mAP at 39.1% of the latency, with 110.2 ms load time enabling rapid cold-start recovery. The pluggable configuration mechanism (Section 2.3) enables transitioning between recommendations by changing a single environment variable; embeddings tagged by model name allow multiple models to coexist.
 
 === Limitations
 
@@ -35,7 +35,7 @@ The Fashion Product Images Dataset originates from a single e-commerce platform 
 
 Five findings emerge from the benchmark:
 
-1. *Domain-specific fine-tuning matters.* Fashion-CLIP's 6.1% relative mAP improvement over generic CLIP confirms that domain adaptation yields measurable gains.
+1. *Domain-specific fine-tuning matters.* Fashion-CLIP's 2.13% relative mAP improvement over generic CLIP confirms that domain adaptation yields measurable gains.
 2. *Architecture choice dominates the trade-off.* CNN and transformer-based models occupy distinct accuracy-efficiency regions; practitioners should choose family by operational constraints, then select the best model within that family.
 3. *The pluggable model architecture is a practical enabler.* Switching models via one environment variable transforms evaluation into systematic comparison, enabling production A/B testing and graceful fallback.
 4. *Commodity CPU hardware suffices.* Even CLIP models complete inference within 200 ms; combined with pgvector IVFFlat indexes (2.7--6.5 ms), total end-to-end latency stays under one second.
