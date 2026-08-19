@@ -12,7 +12,7 @@
 //   caption: [User edit dialog: Full Name, Email (read-only), Enabled toggle, Roles multi-select checkboxes (Admin, Manager, Customer: Customer checked). Save/Cancel.],
 // ) <fig-admin-user-edit>
 
-*Role management.* Role table: name, description, user count, creation date. Expanding a role shows permission assignments in an expandable tree grouped by domain, each with `domain:category:action` checkbox toggles (see screenshots below).
+*Role management.* Role table: name, description, user count, creation date. Expanding a role shows permission assignments in an expandable tree grouped by domain, each with `domain.category.resource.action` checkbox toggles (see screenshots below).
 
 // #figure(
 //   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-role-list.png", width: 100%),

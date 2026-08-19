@@ -50,16 +50,16 @@ public sealed class PermissionPolicyProvider : IAuthorizationPolicyProvider
 }
 ```
 
-Operations enforce granular resource-action claims. Ten `FeatureMetadata` files define the permission registry across modules, each mapping to the `PermissionContext` static catalogue. Permissions use the format `Domain.Category.Resource.Action`:
+Operations enforce granular resource-action claims. Ten `FeatureMetadata` files define the permission registry across modules, each mapping to the `PermissionContext` static catalogue. Permissions use the dot-separated format `domain.category.resource.action`:
 
 ```text
-catalog.products.create
-catalog.products.update
-catalog.variants.delete
-identity.roles.manage
-ordering.orders.approve
-payment.intents.capture
-inventory.stock.transfer
+admin.catalog.products.create
+admin.catalog.products.update
+admin.catalog.products_variants.delete
+admin.identity.roles.manage
+admin.ordering.orders.approve
+admin.ordering.payments.capture
+admin.inventory.stockitems.transfer
 ```
 
 A custom `IAuthorizationPolicyProvider` resolves claim strings to policies dynamically at runtime, allowing permission modifications in the database without application redeployments.

@@ -54,7 +54,7 @@ The platform is partitioned into eight *bounded contexts* along business capabil
     [Identity],
     [
       - JWT authentication with refresh token rotation\
-      - RBAC with `domain:category:action` claims
+      - RBAC with `domain.category.resource.action` claims
     ],
     [`UserId`, `Email`, `PermissionClaim`],
 

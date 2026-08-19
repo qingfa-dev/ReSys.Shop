@@ -14,7 +14,7 @@ The platform uses pinned versions across three ecosystems: .NET 10 for transacti
     [*Backend Runtime*], [.NET 10 / ASP.NET Core 10.0.9 (C\# 13)],
     [*API Framework*], [Carter 10.0.0, MediatR 14.1.0, FluentValidation 12.1.1],
     [*Object Mapping*], [Mapster 10.0.9],
-    [*ORM and Database*], [EF Core 10.0.9, Npgsql 10.0.2, pgvector 0.3.2],
+    [*ORM and Database*], [EF Core 10.0.9, Npgsql 10.0.2, pgvector 0.7.0],
     [*Caching Layer*], [HybridCache 10.6.0, StackExchange.Redis 10.0.9],
     [*Background Jobs*], [Hangfire 1.8.23 (Redis-backed)],
     [*Observability*], [OpenTelemetry 1.16.0],

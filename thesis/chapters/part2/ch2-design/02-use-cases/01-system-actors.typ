@@ -16,7 +16,7 @@ The *Administrator* operates a separate administration interface.
 
 - *Catalog.* CRUD products with fashion metadata; variants and pricing; image uploads triggering embedding pipeline; taxonomies, option types, product classification.
 - *Operations.* Order review, payment capture/refund, shipment management; real-time stock monitoring per location with audit history.
-- *Governance.* User CRUD; role assignment (Customer, Administrator); permission grants (domain:category:action).
+- *Governance.* User CRUD; role assignment (Customer, Administrator); permission grants (`domain.category.resource.action`).
 
 ==== System
 

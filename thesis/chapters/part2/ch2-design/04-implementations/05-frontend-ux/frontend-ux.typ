@@ -20,7 +20,7 @@ For visual search, the repository extends the base with a multipart upload metho
 
 ==== Storefront Interfaces
 
-The customer storefront implements eight use cases covering product discovery, purchasing, and account management.
+The customer storefront implements nine use cases covering product discovery, purchasing, and account management.
 
 #include "f1-visual-search.typ"
 #include "f2-catalog-cart.typ"

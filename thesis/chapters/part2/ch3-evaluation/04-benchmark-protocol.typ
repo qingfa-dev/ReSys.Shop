@@ -23,7 +23,7 @@ Four representative models spanning four architectural families were selected fr
 
 === Evaluation Metrics
 
-Five accuracy and five efficiency metrics were measured per model.
+Three accuracy metric families (mAP, P\@K, R\@K), evaluated at three depths (K\=5, 10, 20), and five efficiency metrics were measured per model.
 
 #figure(
   table(
@@ -58,7 +58,7 @@ The protocol used 3-fold stratified cross-validation preserving category distrib
     [*Component*], [*Specification*],
     [CPU], [Intel Core i7-1165G7 (4 cores / 8 threads, 2.80 GHz)],
     [RAM], [16 GB DDR4],
-    [Database], [PostgreSQL 16, pgvector 0.7.0],
+    [Database], [PostgreSQL 17, pgvector 0.7.0],
   ),
   caption: [Hardware environment. All benchmarks executed on CPU without GPU acceleration.],
   kind: table,

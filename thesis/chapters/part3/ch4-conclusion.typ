@@ -26,7 +26,7 @@ All four technical objectives were met. Model integration was demonstrated throu
 
 This thesis makes five concrete contributions:
 
-- *A four-model benchmark for fashion image retrieval.* Systematic evaluation with seven accuracy and five efficiency metrics across four architecture families, eleven models supported, 3-fold cross-validation protocol.
+- *A four-model benchmark for fashion image retrieval.* Systematic evaluation with seven reported accuracy columns (three metric families at three depths) and five efficiency metrics across four architecture families, eleven models supported, 3-fold cross-validation protocol.
 - *A reference CBIR implementation integrated into a production-style e-commerce platform.* Demonstrates that open-source tools (PyTorch, FastAPI, pgvector, .NET 10) deliver competitive visual search.
 - *A pluggable model architecture enabling runtime model switching.* Strategy-pattern Model Manager controlled via environment variable decouples model selection from application code.
 - *Demonstration of pgvector's ACID-compliant vector storage.* Embeddings in the same PostgreSQL database as product data eliminate stale-index bugs.
@@ -95,7 +95,7 @@ These directions define a roadmap from research demonstration to production-grad
     [Vue 3 storefront: drag-and-drop upload, similarity badges, product-card display, client-side validation.],
     [Evaluate the results],
     [Chapter 3, Sections 3.2--3.5],
-    [Four-model benchmark, 3-fold cross-validation on 5,000 images, seven accuracy and five efficiency metrics.],
+    [Four-model benchmark, 3-fold cross-validation on 5,000 images, seven reported accuracy columns (three metric families at three depths) and five efficiency metrics.],
   ),
   caption: [Requirements traceability: mapping from Chapter 1 objectives and research questions to the chapters where they are addressed, with key findings confirming each was met.],
   kind: table,

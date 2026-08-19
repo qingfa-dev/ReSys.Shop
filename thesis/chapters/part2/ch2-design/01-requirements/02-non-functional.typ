@@ -25,7 +25,7 @@ Five quality dimensions define production-readiness constraints with atomic, mea
       *Token Lifecycle:* JWT access tokens @jones2015jwt expire after *15 minutes* with single-use refresh token rotation.
     ],
     [NFR-02b], [Security], [
-      *Endpoint Authorization:* Enforce fine-grained claims (`domain:category:action`) at the API middleware boundary.
+      *Endpoint Authorization:* Enforce fine-grained claims (`domain.category.resource.action`) at the API middleware boundary.
     ],
     [NFR-02c], [Security], [
       *Rate Limiting:* Authentication *5 attempts/min*; registration *3 attempts/hour* per client IP.
