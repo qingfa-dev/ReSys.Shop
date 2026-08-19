@@ -28,19 +28,37 @@ public static partial class UpdateShipmentStatus
             if (shipment is null)
                 return ShipmentResult.Errors.NotFound(command.Id);
 
-            // Transition: Apply the domain transition for the target status
-            Result transitionResult = command.Request.Status switch
-            {
-                ShipmentStatus.Ready => shipment.MarkReady(),
-                ShipmentStatus.Shipped => shipment.MarkShipped(command.Request.TrackingNumber ?? ""),
-                ShipmentStatus.Delivered => shipment.MarkDelivered(),
-                ShipmentStatus.Backorder => shipment.Backorder(),
-                ShipmentStatus.Canceled => shipment.Cancel(),
-                _ => Result.Failure(ShipmentResult.Errors.InvalidTransition(shipment.Status, command.Request.Status))
-            };
+            // Transition: Apply the domain transition only when the target status differs from the current one
+            // (a tracking-only edit arrives with the current status and must not re-run the transition guard).
+            bool statusChanged = command.Request.Status != shipment.Status;
+            bool transitionedToShipped = statusChanged && command.Request.Status == ShipmentStatus.Shipped;
 
-            if (transitionResult.IsFailure)
-                return transitionResult.Errors;
+            if (statusChanged)
+            {
+                Result transitionResult = command.Request.Status switch
+                {
+                    ShipmentStatus.Ready => shipment.MarkReady(),
+                    ShipmentStatus.Shipped => shipment.MarkShipped(command.Request.TrackingNumber ?? ""),
+                    ShipmentStatus.Delivered => shipment.MarkDelivered(),
+                    ShipmentStatus.Backorder => shipment.Backorder(),
+                    ShipmentStatus.Canceled => shipment.Cancel(),
+                    _ => Result.Failure(ShipmentResult.Errors.InvalidTransition(shipment.Status, command.Request.Status))
+                };
+
+                if (transitionResult.IsFailure)
+                    return transitionResult.Errors;
+            }
+
+            // Update: Persist an independently-provided tracking number (tracking-only edit or a non-Shipped
+            // transition). The Shipped transition already applied it via MarkShipped, so it is skipped there.
+            if (!transitionedToShipped
+                && command.Request.TrackingNumber is { Length: > 0 } tracking
+                && !string.IsNullOrWhiteSpace(tracking))
+            {
+                var trackingResult = shipment.UpdateTrackingNumber(tracking);
+                if (trackingResult.IsFailure)
+                    return trackingResult.Errors;
+            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

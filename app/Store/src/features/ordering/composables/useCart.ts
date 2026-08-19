@@ -209,6 +209,8 @@ function reset(): void {
 // Subscribe: Re-associate guest cart on login, clear on logout.
 on('auth:login', () => associateGuestCart())
 on('auth:logout', () => reset())
+// Subscribe: Refetch after checkout so the placed order's cart no longer lingers.
+on('checkout:placed', () => { void fetchCart(true) })
 
 let cartInstance: ReturnType<typeof createCart> | null = null
 

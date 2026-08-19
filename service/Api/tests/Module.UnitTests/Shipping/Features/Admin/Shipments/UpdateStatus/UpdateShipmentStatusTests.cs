@@ -96,4 +96,63 @@ public class UpdateShipmentStatusTests : IDisposable
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Shipment.NotFound");
     }
+
+    [Fact(DisplayName = "Handle: persists a tracking-only edit when the status is unchanged")]
+    public async Task Handle_ShouldPersistTrackingEdit_WhenStatusUnchanged()
+    {
+        var shipment = ShipmentMethod.Create(Guid.NewGuid(), Guid.NewGuid()).Value;
+        shipment.Status = ShipmentStatus.Shipped;
+        shipment.TrackingNumber = "OLD-TRK";
+        _dbContext.Set<Shipment>().Add(shipment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new UpdateShipmentStatus.Command(
+                shipment.Id,
+                new UpdateShipmentStatus.Request { Status = ShipmentStatus.Shipped, TrackingNumber = "NEW-TRK" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+
+        var persisted = await _dbContext.Set<Shipment>().FirstAsync(s => s.Id == shipment.Id, TestContext.Current.CancellationToken);
+        persisted.Status.Should().Be(ShipmentStatus.Shipped);
+        persisted.TrackingNumber.Should().Be("NEW-TRK");
+    }
+
+    [Fact(DisplayName = "Handle: persists a tracking number alongside a non-Shipped transition")]
+    public async Task Handle_ShouldPersistTracking_OnReadyTransition()
+    {
+        var shipment = ShipmentMethod.Create(Guid.NewGuid(), Guid.NewGuid()).Value;
+        _dbContext.Set<Shipment>().Add(shipment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new UpdateShipmentStatus.Command(
+                shipment.Id,
+                new UpdateShipmentStatus.Request { Status = ShipmentStatus.Ready, TrackingNumber = "PRE-TRK" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+
+        var persisted = await _dbContext.Set<Shipment>().FirstAsync(s => s.Id == shipment.Id, TestContext.Current.CancellationToken);
+        persisted.Status.Should().Be(ShipmentStatus.Ready);
+        persisted.TrackingNumber.Should().Be("PRE-TRK");
+    }
+
+    [Fact(DisplayName = "Handle: rejects a tracking edit on a Pending shipment")]
+    public async Task Handle_ShouldRejectTrackingEdit_WhenPending()
+    {
+        var shipment = ShipmentMethod.Create(Guid.NewGuid(), Guid.NewGuid()).Value;
+        _dbContext.Set<Shipment>().Add(shipment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new UpdateShipmentStatus.Command(
+                shipment.Id,
+                new UpdateShipmentStatus.Request { Status = ShipmentStatus.Pending, TrackingNumber = "TRK" }),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("Shipment.InvalidStateTransition");
+    }
 }

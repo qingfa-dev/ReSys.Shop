@@ -74,4 +74,20 @@ describe('useCart', () => {
     expect(cart.total).toBe(0)
     expect(cart.items).toHaveLength(0)
   })
+
+  it('refetches the cart when checkout:placed is emitted', async () => {
+    const empty = { id: '00000000-0000-0000-0000-000000000000', items: [], itemTotal: 0, shipmentTotal: 0, adjustmentTotal: 0, total: 0, currency: 'USD', itemCount: 0, checkoutState: null, shippingMethodId: null, shipAddressId: null, email: null, shippingAdjustment: null, shippingCalculation: null, adjustments: [] }
+    mockedCartApi.getCart.mockResolvedValue(ok(empty))
+    const cart = useCart()
+    cart.items = [lineItem]
+    cart.total = 104.99
+
+    const { emit } = await import('@/shared/composables/useStoreEvents')
+    await emit({ type: 'checkout:placed', orderId: 'o-1' })
+    await new Promise((r) => setTimeout(r, 0))
+
+    expect(mockedCartApi.getCart).toHaveBeenCalled()
+    expect(cart.items).toHaveLength(0)
+    expect(cart.total).toBe(0)
+  })
 })

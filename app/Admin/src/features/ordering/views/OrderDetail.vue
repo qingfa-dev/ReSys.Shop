@@ -111,11 +111,18 @@ function shipmentStatusOptions(status: ShipmentStatus): ShipmentStatus[] {
   return [status, ...allowedShipmentTargets(status)]
 }
 
-// Guard: Save only when the selected target is reachable from the row's current status.
+// Guard: Save when the status changed to a reachable target OR the tracking number was edited.
 function canSaveShipment(shipment: ShipmentSummary): boolean {
   const current = shipment.status
   const target = draftStatus.value[shipment.id] ?? current
-  return target !== current && allowedShipmentTargets(current).includes(target)
+  const statusChanged = target !== current && allowedShipmentTargets(current).includes(target)
+  const trackingChanged = (trackingInputs.value[shipment.id] ?? '') !== (shipment.trackingNumber ?? '')
+  return statusChanged || trackingChanged
+}
+
+// Guard: Tracking numbers are editable only once the shipment leaves Pending (Ready, Backorder, Shipped, Delivered).
+function canEditTracking(shipment: ShipmentSummary): boolean {
+  return shipment.status !== 'Pending' && shipment.status !== 'Canceled'
 }
 
 const FULFILLMENT_SEVERITY: Record<OrderFulfillmentState, string> = {
@@ -171,12 +178,19 @@ function initShipmentDrafts(shipmentList: ShipmentSummary[]) {
 watch(shipments, (list) => initShipmentDrafts(list), { immediate: true })
 
 async function saveShipmentStatus(shipment: ShipmentSummary) {
-  // Guard: A tracking number is required to mark a shipment as Shipped.
-  if (draftStatus.value[shipment.id] === 'Shipped' && !trackingInputs.value[shipment.id]?.trim()) {
+  const target = draftStatus.value[shipment.id] ?? shipment.status
+  const tracking = trackingInputs.value[shipment.id] ?? ''
+  // Guard: Transitioning to Shipped requires a tracking number.
+  if (target === 'Shipped' && target !== shipment.status && !tracking.trim()) {
     notify.error('Shipment', 'A tracking number is required to mark the shipment as Shipped.')
     return
   }
-  await persistShipmentStatus(shipment, draftStatus.value[shipment.id] ?? shipment.status, trackingInputs.value[shipment.id])
+  // Guard: Tracking edits are allowed only beyond Pending (Ready, Backorder, Shipped, Delivered).
+  if (tracking !== (shipment.trackingNumber ?? '') && !canEditTracking(shipment)) {
+    notify.error('Shipment', 'Tracking number can only be set once the shipment leaves Pending.')
+    return
+  }
+  await persistShipmentStatus(shipment, target, tracking)
 }
 
 // Save: Persist a shipment status transition and refresh the order on success.
@@ -564,6 +578,7 @@ onMounted(() => {
                           v-model="trackingInputs[data.id]"
                           class="w-full"
                           :class="{ 'ring-2 ring-primary': draftStatus[data.id] === 'Shipped' }"
+                          :disabled="!canEditTracking(data)"
                           placeholder="Required when shipped"
                         />
                       </template>

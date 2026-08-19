@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePageTitle } from '@/shared/composables/usePageTitle'
+import { emit } from '@/shared/composables/useStoreEvents'
 import { getPaymentStatus } from '@/features/payment/services/paymentApi'
 
 usePageTitle('Processing Payment')
@@ -13,6 +14,7 @@ let timer: ReturnType<typeof setInterval> | null = null
 
 // Poll: Wait for the webhook to complete the payment and auto-place the order.
 async function poll(): Promise<void> {
+  if (status.value === 'completed') return
   const orderId = typeof route.query.order === 'string' ? route.query.order : null
   if (!orderId) {
     status.value = 'timeout'
@@ -25,6 +27,8 @@ async function poll(): Promise<void> {
   if (result.isSuccess && result.value.isCompleted) {
     status.value = 'completed'
     stopPolling()
+    // Notify: Signal placement so the cart refreshes and orders reload.
+    emit({ type: 'checkout:placed', orderId })
   } else if (!result.isSuccess) {
     error.value = result.message ?? 'Could not read payment status.'
   }

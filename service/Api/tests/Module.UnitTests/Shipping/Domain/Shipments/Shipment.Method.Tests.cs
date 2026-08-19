@@ -154,4 +154,56 @@ public class ShipmentMethodTests
         delivered.Cancel().IsFailure.Should().BeTrue();
         delivered.Status.Should().Be(ShipmentStatus.Delivered);
     }
+
+    [Fact(DisplayName = "UpdateTrackingNumber: Ready accepts a replacement")]
+    public void UpdateTrackingNumber_FromReady_Succeeds()
+    {
+        var shipment = CreateShipment();
+        shipment.MarkReady();
+        shipment.UpdateTrackingNumber("NEW-TRK").IsSuccess.Should().BeTrue();
+        shipment.TrackingNumber.Should().Be("NEW-TRK");
+        shipment.ModifiedAtUtc.Should().NotBeNull();
+    }
+
+    [Fact(DisplayName = "UpdateTrackingNumber: Shipped and Delivered accept a replacement")]
+    public void UpdateTrackingNumber_FromShippedAndDelivered_Succeeds()
+    {
+        var shipped = CreateShipment();
+        shipped.MarkReady();
+        shipped.MarkShipped("OLD");
+        shipped.UpdateTrackingNumber("NEW").IsSuccess.Should().BeTrue();
+        shipped.TrackingNumber.Should().Be("NEW");
+
+        var delivered = CreateShipment();
+        delivered.MarkReady();
+        delivered.MarkShipped("OLD");
+        delivered.MarkDelivered();
+        delivered.UpdateTrackingNumber("NEW").IsSuccess.Should().BeTrue();
+        delivered.TrackingNumber.Should().Be("NEW");
+    }
+
+    [Fact(DisplayName = "UpdateTrackingNumber: Pending rejects a tracking number")]
+    public void UpdateTrackingNumber_FromPending_Fails()
+    {
+        var shipment = CreateShipment();
+        shipment.UpdateTrackingNumber("TRK").IsFailure.Should().BeTrue();
+        shipment.TrackingNumber.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "UpdateTrackingNumber: Canceled rejects a tracking number")]
+    public void UpdateTrackingNumber_FromCanceled_Fails()
+    {
+        var shipment = CreateShipment();
+        shipment.Cancel();
+        shipment.UpdateTrackingNumber("TRK").IsFailure.Should().BeTrue();
+        shipment.TrackingNumber.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "UpdateTrackingNumber: empty value is rejected")]
+    public void UpdateTrackingNumber_Empty_Fails()
+    {
+        var shipment = CreateShipment();
+        shipment.MarkReady();
+        shipment.UpdateTrackingNumber("  ").IsFailure.Should().BeTrue();
+    }
 }

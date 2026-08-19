@@ -56,4 +56,19 @@ public static partial class ShipmentMethod
         shipment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok();
     }
+
+    // Update: Replace the tracking number once the shipment is beyond Pending.
+    // Tracking is editable in Ready, Backorder, Shipped, and Delivered states; Pending and Canceled reject it.
+    public static Result UpdateTrackingNumber(this Shipment shipment, string trackingNumber)
+    {
+        if (string.IsNullOrWhiteSpace(trackingNumber))
+            return ShipmentResult.Errors.TrackingNumberRequired;
+        if (trackingNumber.Length > ShipmentConstant.Constraints.MaxTrackingLength)
+            return ShipmentResult.Errors.TrackingNumberTooLong;
+        if (shipment.Status is ShipmentStatus.Pending or ShipmentStatus.Canceled)
+            return ShipmentResult.Errors.InvalidTransition(shipment.Status, shipment.Status);
+        shipment.TrackingNumber = trackingNumber;
+        shipment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
 }

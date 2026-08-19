@@ -322,4 +322,50 @@ describe('OrderDetail shipment quick actions', () => {
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
     expect(orderApiMock.getOrder).toHaveBeenCalledTimes(2)
   })
+
+  it('saves a tracking-number-only edit on a Shipped shipment without changing the status', async () => {
+    const wrapper = await mountWith(makeOrder())
+    orderApiMock.updateShipmentStatus.mockResolvedValue({
+      isSuccess: true,
+      statusCode: 200,
+      message: null,
+      errors: [],
+      metadata: null,
+      value: { id: 's-shipped', status: 'Shipped' },
+    })
+
+    const shippedRow = rowForShippingMethod(wrapper, 'Express')
+    const trackingInput = shippedRow.find('input')
+    await trackingInput.setValue('TRK-NEW')
+    await shippedRow.findAll('button')[0].trigger('click')
+    await flushPromises()
+
+    expect(orderApiMock.updateShipmentStatus).toHaveBeenCalledWith('s-shipped', {
+      status: 'Shipped',
+      trackingNumber: 'TRK-NEW',
+    })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+  })
+
+  it('disables the tracking input for a Pending shipment', async () => {
+    const order = makeOrder()
+    order.shipments = [
+      {
+        id: 's-pending',
+        orderId: 'o-1',
+        shippingMethodId: 'sm-4',
+        shippingMethodName: 'Pending Ship',
+        trackingNumber: null,
+        status: 'Pending',
+        shippedAtUtc: null,
+        deliveredAtUtc: null,
+        estimatedDeliveryAtUtc: null,
+        createdAtUtc: '2026-01-01T00:00:00Z',
+      },
+    ]
+    const wrapper = await mountWith(order)
+    const pendingRow = rowForShippingMethod(wrapper, 'Pending Ship')
+    const trackingInput = pendingRow.find('input').element as HTMLInputElement
+    expect(trackingInput.disabled).toBe(true)
+  })
 })
