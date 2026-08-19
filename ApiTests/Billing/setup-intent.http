@@ -1,5 +1,0 @@
-POST {{base_url}}/api/storefront/billing/payment-methods/setup-intent
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-### Expected: 200, setupIntentClientSecret
