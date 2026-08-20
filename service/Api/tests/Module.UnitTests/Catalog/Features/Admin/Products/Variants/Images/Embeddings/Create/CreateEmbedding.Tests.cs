@@ -44,7 +44,7 @@ public class CreateEmbeddingTests : IDisposable
             It.IsAny<Job>(), It.IsAny<EnqueuedState>())).Returns(jobId);
 
         var command = new CreateEmbedding.Command(new CreateEmbedding.Request
-            { VariantImageId = variantImageId, ModelName = "fashion-clip" });
+            { VariantImageId = variantImageId, ModelName = "fashion_clip" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -64,11 +64,11 @@ public class CreateEmbeddingTests : IDisposable
     {
         var variantImageId = Guid.NewGuid();
         _dbContext.Set<ImageEmbedding>().Add(
-            ImageEmbeddingMethod.CreatePending(variantImageId, "fashion-clip", "v1"));
+            ImageEmbeddingMethod.CreatePending(variantImageId, "fashion_clip", "v1"));
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var command = new CreateEmbedding.Command(new CreateEmbedding.Request
-            { VariantImageId = variantImageId, ModelName = "fashion-clip" });
+            { VariantImageId = variantImageId, ModelName = "fashion_clip" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
         result.IsFailure.Should().BeTrue();

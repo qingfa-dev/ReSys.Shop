@@ -31,7 +31,7 @@ public class DeleteEmbeddingTests : IDisposable
             "u/test.jpg", position: 0, variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);
 
-        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion-clip", "v1");
+        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion_clip", "v1");
         _dbContext.Set<ImageEmbedding>().Add(embedding);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

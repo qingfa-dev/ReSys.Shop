@@ -76,7 +76,7 @@ class CLIPEmbedder(BaseEmbedder):
 
 
 @ModelRegistry.register(
-    "openclip-vit-b-32",
+    "clip_b32",
     metadata={
         "name": "OpenCLIP ViT-B/32",
         "dimension": Constants.Dimensions.CLIP_VIT_B16,
@@ -89,7 +89,7 @@ class OpenClipB32Embedder(CLIPEmbedder):
 
     def __init__(self):
         super().__init__(variant="ViT-B/32")
-        self.name = "openclip-vit-b-32"
+        self.name = "clip_b32"
 
 
 @ModelRegistry.register(
