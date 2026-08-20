@@ -13,11 +13,15 @@ Six models span four architecture families, selected from a decorator-based regi
     align: (left, left, center, center, left),
     table.header([*Model ID*], [*Family*], [*Dim*], [*Architecture*], [*Source*]),
     table.cell(rowspan: 2)[*CNN*], [efficientnet-b0], [1280], [EfficientNet-B0], [torchvision ImageNet1K_V1],
-    [resnet-50], [2048], [ResNet-50], [torchvision ResNet50_Weights.DEFAULT],
+    [resnet-50], [2048], [ResNet-50], [torchvision ResNet50_Weights],
     table.cell(rowspan: 1)[*ViT*], [dinov2-vits14], [384], [ViT-S/14], [facebookresearch/dinov2 (torch.hub)],
     table.cell(rowspan: 2)[*CLIP*], [clip-vit-b16], [512], [ViT-B/16 + CLIP], [OpenAI CLIP (torchvision)],
     [openclip-vit-b-32], [512], [ViT-B/32 + CLIP], [OpenCLIP (HuggingFace)],
-    table.cell(rowspan: 1)[*Fashion*], [fashion-clip], [512], [ViT-B/32 + CLIP], [patrickjohncyh/fashion-clip (HuggingFace)],
+    table.cell(rowspan: 1)[*Fashion*],
+    [fashion-clip],
+    [512],
+    [ViT-B/32 + CLIP],
+    [patrickjohncyh/fashion-clip (HuggingFace)],
   ),
   kind: table,
   caption: [Registered embedding models with output dimensionality and architectural family.],
@@ -98,7 +102,10 @@ Response shape:
 ==== CBIR Search Flow
 
 #figure(
-  image("../../../../../figures/chapters/part2/ch2-design/04-implementations/diagrams/P2S2.2.4_cbir-search-sequence.png", width: 100%),
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/04-implementations/diagrams/P2S2.2.4_cbir-search-sequence.png",
+    width: 100%,
+  ),
   caption: [CBIR search sequence: end-to-end flow spanning customer upload, embedding extraction, pgvector search, and ranked results rendering.],
 ) <fig-cbir-sequence>
 

@@ -53,7 +53,7 @@ Three complementary strategies maintain integrity under concurrent throughput:
     table.header([*Pattern*], [*Implementation*], [*Applied To*]),
     [Optimistic Locking], [PostgreSQL `xmin` column via EF Core `IsRowVersion()`], [General entity updates (HTTP 409 on stale write)],
     [Pessimistic Locking], [`SELECT FOR UPDATE` row locks], [Stock allocation during checkout (serializes low-quantity purchases)],
-    [Repeatable Read], [`IsolationLevel.RepeatableRead` transaction scope], [Sequential order code generation (prevents phantom reads)],
+    [Repeatable Read], [IsolationLevel.RepeatableRead transaction scope], [Sequential order code generation (prevents phantom reads)],
   ),
   kind: table,
   caption: [Concurrency control mechanisms across system domains.],

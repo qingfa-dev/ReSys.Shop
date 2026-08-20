@@ -27,3 +27,4 @@ One row per finding from thesis-review-MASTER-FIXLIST.md.
 | T2-21 | DeepFashion missing co-author | fixed | real paper (Shi Qiu) | bibliography.bib | yes | Added "Qiu, Shi" to liu2016deepfashion |
 | T2-22 | Sequential selection claim | fixed | benchmarks split script (seed 42, stratified) | b-dataset.typ | yes | "sequentially"→"stratified random sampling" |
 | T3-1..6 | Polish items | fixed | | 4 files | yes | Section 2.2.2→2.2, support actors added, Chapter 6→3 ×2 |
+| S4-1 | Frontend-UX screenshots (Option C, 46 shots) | planned | plan/feature-thesis-screenshots-1.md (verified against Admin/Store SPA source, Audit 2026-08-20) | plan/feature-thesis-screenshots-1.md; screenshots/ dir (to create); f1-f10 .typ (to edit); remediation-log.md; verify_remediation.py | yes | 35 kept + 3 new + 8 restored = 46; 6 fabricated screenshots removed; capture via Playwright at 1920x1200 @2x, fullPage PNG; target ~169 pages <=170. See plan for task matrix. |
