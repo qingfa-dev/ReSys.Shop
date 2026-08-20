@@ -49,11 +49,14 @@ public sealed class VectorSearchService : IVectorSearchService
         Vector queryVector, string modelName, int topK,
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
+        var queryDim = queryVector.ToArray().Length;
+
         var query = _dbContext.Set<ImageEmbedding>()
             .Include(e => e.VariantImage)
             .Where(e => e.VariantImage.Type == VariantImageType.Search
                      && e.ModelName == modelName
                      && e.Vector != null
+                     && e.Dimensions == queryDim
                      && e.VariantImage.VariantId != null);
                      
         if (excludeProductId.HasValue)
@@ -78,12 +81,14 @@ public sealed class VectorSearchService : IVectorSearchService
         Guid? excludeProductId, CancellationToken cancellationToken)
     {
         var queryArray = queryVector.ToArray();
+        var queryDim = queryArray.Length;
 
         var query = _dbContext.Set<ImageEmbedding>()
             .Include(e => e.VariantImage)
                 .ThenInclude(vi => vi.Variant)
             .Where(e => e.ModelName == modelName
                      && e.Vector != null
+                     && e.Dimensions == queryDim
                      && e.VariantImage.Type == VariantImageType.Search
                      && e.VariantImage.VariantId != null);
 

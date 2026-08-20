@@ -1033,7 +1033,7 @@ namespace Api.Migrations.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     model_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     model_version = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    vector = table.Column<Vector>(type: "vector(512)", nullable: true),
+                    vector = table.Column<Vector>(type: "vector", nullable: true),
                     dimensions = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<string>(type: "text", nullable: false, defaultValue: "Completed"),
                     error = table.Column<string>(type: "text", nullable: true),
@@ -1945,13 +1945,10 @@ namespace Api.Migrations.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_product_image_embeddings_vector_ivfflat",
+                name: "ix_product_image_embeddings_model_name",
                 schema: "catalog",
                 table: "variant_image_embeddings",
-                column: "vector")
-                .Annotation("Npgsql:IndexMethod", "ivfflat")
-                .Annotation("Npgsql:IndexOperators", new[] { "vector_cosine_ops" })
-                .Annotation("Npgsql:StorageParameter:lists", 100);
+                column: "model_name");
 
             migrationBuilder.CreateIndex(
                 name: "ix_variant_image_embeddings_variant_image_id",

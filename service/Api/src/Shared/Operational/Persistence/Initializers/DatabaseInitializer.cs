@@ -54,7 +54,7 @@ public static partial class DatabaseInitializer
             // Ensure the pgvector extension exists before applying migrations
         await EnsureVectorExtensionAsync(scope, logger);
 
-        if (runMigrations)
+            if (runMigrations)
             {
                 await RunMigrationsAsync(scope, logger);
             }
@@ -62,6 +62,10 @@ public static partial class DatabaseInitializer
             {
                 Loggers.LogMigrationsSkipped(logger);
             }
+
+            // Per-model HNSW vector indexes — created after migrations because
+            // EF Core cannot generate expression indexes with dimension casts.
+            await EnsureVectorIndexesAsync(scope, logger);
 
             if (runSeeders)
             {
@@ -125,6 +129,53 @@ public static partial class DatabaseInitializer
         catch (Exception ex)
         {
             Loggers.LogVectorExtensionFailed(logger, ex.Message);
+            throw new InvalidOperationException(
+                "pgvector extension is required but could not be created. " +
+                "Ensure the PostgreSQL instance has pgvector installed (use pgvector/pgvector Docker image).", ex);
+        }
+    }
+
+    private static async Task EnsureVectorIndexesAsync(IServiceScope scope, ILogger logger)
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        if (dbContext is not DbContext efContext) return;
+
+        // Per-model HNSW partial indexes on the untyped vector column.
+        // pgvector requires expression indexes with dimension casts (::vector(dim))
+        // for untyped vector columns — EF Core can't generate these.
+        (string Slug, int Dim)[] models =
+        [
+            ("fashion_clip", 512),
+            ("clip_b32", 512),
+            ("clip_l14", 768),
+            ("clip_vit_b16", 512),
+            ("clip_generic", 512),
+            ("dinov2_vits14", 384),
+            ("convnext_tiny", 768),
+            ("siglip", 768),
+            ("eva_clip", 512),
+            ("efficientnet_b0", 1280),
+            ("resnet50", 2048),
+        ];
+
+        try
+        {
+            foreach (var (slug, dim) in models)
+            {
+                var indexName = $"ix_product_image_embeddings_vector_hnsw_{slug}";
+                await efContext.Database.ExecuteSqlRawAsync(
+                    "CREATE INDEX IF NOT EXISTS \"{0}\" " +
+                    "ON catalog.variant_image_embeddings " +
+                    "USING hnsw ((vector::vector({1})) vector_cosine_ops) " +
+                    "WHERE model_name = '{2}'", indexName, dim, slug);
+            }
+
+            logger.LogInformation("Ensured {Count} per-model HNSW vector indexes", models.Length);
+        }
+        catch (Exception ex)
+        {
+            // Non-fatal: indexes improve query performance but aren't required for correctness
+            logger.LogWarning(ex, "Failed to ensure per-model HNSW vector indexes: {Message}", ex.Message);
         }
     }
 

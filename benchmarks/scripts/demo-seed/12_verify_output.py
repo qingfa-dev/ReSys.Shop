@@ -41,7 +41,6 @@ def main() -> None:
         "option_values": "004_demo_option_values.json",
         "stock_locations": "009_demo_stock_locations.json",
         "stock_items": "010_demo_stock_items.json",
-        "embeddings": "012_demo_embeddings.json",
     }
     data: dict[str, list[dict]] = {}
     for key, name in files.items():
@@ -52,6 +51,15 @@ def main() -> None:
             data[key] = []
         else:
             data[key] = json.loads(fp.read_text())
+
+    # Load embeddings from 012_demo_embeddings/ folder (per-model JSON files)
+    embeddings_dir = out / "012_demo_embeddings"
+    embeddings: list[dict] = []
+    if embeddings_dir.exists():
+        for json_file in sorted(embeddings_dir.glob("*.json")):
+            entries = json.loads(json_file.read_text())
+            embeddings.extend(entries)
+    data["embeddings"] = embeddings
 
     products = data["products"]
     variants = data["variants"]

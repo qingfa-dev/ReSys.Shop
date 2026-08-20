@@ -6,7 +6,8 @@ namespace Module.Catalog.Persistence.Seeders;
 public class DemoJsonHelper
 {
     private readonly string _basePath;
-    private static readonly JsonSerializerOptions JsonOptions = new()
+
+    public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -26,4 +27,6 @@ public class DemoJsonHelper
         var json = File.ReadAllText(fullPath);
         return JsonSerializer.Deserialize<T[]>(json, JsonOptions);
     }
+
+    public string GetBasePath() => _basePath;
 }
