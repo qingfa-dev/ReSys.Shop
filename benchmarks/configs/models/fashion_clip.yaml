@@ -1,4 +1,4 @@
-id: fashion-clip
+id: fashion_clip
 name: "FashionCLIP"
 class: "FashionClipModel"
 module: "benchmark.models.fashion_clip"

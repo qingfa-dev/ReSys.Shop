@@ -10,9 +10,9 @@ def test_registry_not_empty():
 
 
 def test_registry_keys():
-    expected = {"fashion-clip", "clip-b32", "clip-l14", "clip-vit-b16",
-                "siglip", "eva-clip", "efficientnet-b0", "convnext-tiny", "dinov2-vits14",
-                "resnet-50", "clip-generic"}
+    expected = {"fashion_clip", "clip_b32", "clip_l14", "clip_vit_b16",
+                "siglip", "eva_clip", "efficientnet_b0", "convnext_tiny", "dinov2_vits14",
+                "resnet50", "clip_generic"}
     assert set(REGISTRY.keys()) == expected
 
 

@@ -1,4 +1,4 @@
-id: eva-clip
+id: eva_clip
 name: "EVA-CLIP"
 class: "EvaClipModel"
 module: "benchmark.models.eva_clip"

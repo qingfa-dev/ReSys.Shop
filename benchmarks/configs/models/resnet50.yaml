@@ -1,0 +1,10 @@
+id: resnet50
+name: "ResNet-50"
+class: "ResNet50Model"
+module: "benchmark.models.resnet50"
+backbone: "ResNet-50"
+embedding_dim: 2048
+pretrained: "DEFAULT"
+batch_size: 64
+image_size: 224
+normalize_embeddings: true

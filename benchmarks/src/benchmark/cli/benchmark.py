@@ -143,7 +143,7 @@ def run(
         uv run benchmark run \\
             --dataset-root data/raw/deepfashion \\
             --split-file data/splits/deepfashion/test.json \\
-            --models fashion-clip,clip-b32 \\
+            --models fashion_clip,clip_b32 \\
             --k 1,5,10,20
     """
     setup_logging(level=log_level, log_file=output / "logs" / LOG.RUN)
@@ -296,7 +296,7 @@ def thesis(
 
         uv run benchmark thesis \
             --dataset-root data/raw/deepfashion \
-            --models fashion-clip,resnet-50 \
+            --models fashion_clip,resnet50 \
             --folds 3
     """
     setup_logging(level=log_level, log_file=output / "logs" / LOG.THESIS)
@@ -402,7 +402,7 @@ def pipeline(
 
         uv run benchmark pipeline \\
             --dataset-root data/raw/deepfashion \\
-            --models fashion-clip,resnet-50 \\
+            --models fashion_clip,resnet50 \\
             --folds 3
     """
     setup_logging(level=log_level, log_file=output / "logs" / LOG.PIPELINE)

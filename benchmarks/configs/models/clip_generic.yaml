@@ -1,7 +1,7 @@
-id: clip_b32
-name: "CLIP ViT-B/32"
-class: "ClipB32Model"
-module: "benchmark.models.clip_b32"
+id: clip_generic
+name: "CLIP-generic"
+class: "ClipGenericModel"
+module: "benchmark.models.clip_generic"
 backbone: "ViT-B/32"
 embedding_dim: 512
 pretrained: "openai/clip-vit-base-patch32"

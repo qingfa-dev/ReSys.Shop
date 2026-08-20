@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from shared import SCRIPTS_DIR  # noqa: E402
 
 # script ID → benchmark registry slug
-DEFAULT_MODEL_SLUGS = ["fashion-clip", "efficientnet-b0", "dinov2-vits14", "clip-vit-b16"]
+DEFAULT_MODEL_SLUGS = list(get_registry(device="cpu").keys())
 
 
 def main() -> None:
@@ -41,6 +41,21 @@ def main() -> None:
     print(f"Models: {args.models}")
 
     all_embeddings: list[dict] = []
+    out_path = args.output / "012_demo_embeddings.json"
+
+    # Resume from existing file if present
+    if out_path.exists():
+        existing = json.loads(out_path.read_text())
+        done_models = {e["model_name"] for e in existing}
+        all_embeddings = existing
+        skipped = [s for s in args.models if s in done_models]
+        if skipped:
+            print(f"Resuming: skipping already-done models: {skipped}")
+        args.models = [s for s in args.models if s not in done_models]
+        if not args.models:
+            print("All models already done.")
+            return
+
     registry = get_registry(device="cpu")
 
     for slug in args.models:
@@ -73,11 +88,15 @@ def main() -> None:
                 print(f"  WARN: {rec['storage_path']}: {e}")
                 continue
 
+        # Write after each model so progress is saved
+        out_path.write_text(json.dumps(all_embeddings, indent=2))
+        print(f"  Saved {len(all_embeddings)} total embeddings after {slug}")
+
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    (args.output / "012_demo_embeddings.json").write_text(json.dumps(all_embeddings, indent=2))
-    print(f"\nWritten {len(all_embeddings)} embeddings for {len(search_records)} images x {args.models}")
+    print(f"\nWritten {len(all_embeddings)} embeddings for {len(search_records)} images x {len(args.models)} models")
+    print(f"Models: {args.models}")
 
 
 if __name__ == "__main__":

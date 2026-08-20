@@ -129,7 +129,7 @@ class PLACEHOLDERS:
 
 
 THESIS_MODEL_KEYS: list[str] = [
-    "fashion-clip", "resnet-50", "efficientnet-b0", "clip-generic",
+    "fashion_clip", "resnet50", "efficientnet_b0", "clip_generic",
 ]
 
 FILE_ENCODING: str = "utf-8"

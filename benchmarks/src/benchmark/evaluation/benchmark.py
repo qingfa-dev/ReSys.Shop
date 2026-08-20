@@ -15,7 +15,7 @@ Usage (split-aware)::
 
     runner = BenchmarkRunner(dataset=query_ds, gallery_dataset=gallery_ds,
                              k_values=[1, 5, 10, 20])
-    results = runner.run(["fashion-clip", "clip-b32"])
+    results = runner.run(["fashion_clip", "clip_b32"])
 """
 from __future__ import annotations
 
