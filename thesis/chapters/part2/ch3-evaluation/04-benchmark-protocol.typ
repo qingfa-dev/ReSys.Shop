@@ -4,7 +4,7 @@ The evaluation uses the Fashion Product Images Dataset: 5,000 catalogue images a
 
 === Models Evaluated
 
-Four representative models spanning four architectural families were selected from the eleven supported by the benchmark framework:
+Four representative models spanning four architectural families were selected from the six supported by the benchmark framework:
 
 #figure(
   table(

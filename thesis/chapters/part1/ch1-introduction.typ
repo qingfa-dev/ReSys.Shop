@@ -72,7 +72,7 @@ This section describes the methodology and tools used to implement and evaluate 
 
 === Development Methodology
 
-The project follows *Design Science Research* (DSR) @hevner2004design @peffers2008design across four phases: Research and Planning (literature review, model and tool selection), Design (technology stack, system architecture, schema design), Implementation (.NET backend with VSA, Python FastAPI sidecar, Vue 3 storefront), and Testing and Evaluation (mAP accuracy with cross-validation, inference latency, throughput across 11 models).
+The project follows *Design Science Research* (DSR) @hevner2004design @peffers2008design across four phases: Research and Planning (literature review, model and tool selection), Design (technology stack, system architecture, schema design), Implementation (.NET backend with VSA, Python FastAPI sidecar, Vue 3 storefront), and Testing and Evaluation (mAP accuracy with cross-validation, inference latency, throughput across six models).
 
 === Technologies Used
 

@@ -20,13 +20,13 @@ The sidecar architecture successfully separated ML inference from web applicatio
 
 === Achievement of Technical Objectives
 
-All four technical objectives were met. Model integration was demonstrated through the operational search pipeline. Polyglot architecture delivered clean separation via the sidecar pattern. pgvector feasibility was confirmed: IVFFlat queries execute under 10 ms (2.7-6.5 ms). Benchmark evaluation produced empirical accuracy and efficiency metrics across four models and eleven supported architectures.
+All four technical objectives were met. Model integration was demonstrated through the operational search pipeline. Polyglot architecture delivered clean separation via the sidecar pattern. pgvector feasibility was confirmed: IVFFlat queries execute under 10 ms (2.7-6.5 ms). Benchmark evaluation produced empirical accuracy and efficiency metrics across four models and six supported architectures.
 
 == Contributions
 
 This thesis makes five concrete contributions:
 
-- *A four-model benchmark for fashion image retrieval.* Systematic evaluation with seven reported accuracy columns (three metric families at three depths) and five efficiency metrics across four architecture families, eleven models supported, 3-fold cross-validation protocol.
+- *A four-model benchmark for fashion image retrieval.* Systematic evaluation with seven reported accuracy columns (three metric families at three depths) and five efficiency metrics across four architecture families, six models supported, 3-fold cross-validation protocol.
 - *A reference CBIR implementation integrated into a production-style e-commerce platform.* Demonstrates that open-source tools (PyTorch, FastAPI, pgvector, .NET 10) deliver competitive visual search.
 - *A pluggable model architecture enabling runtime model switching.* Strategy-pattern Model Manager controlled via environment variable decouples model selection from application code.
 - *Demonstration of pgvector's ACID-compliant vector storage.* Embeddings in the same PostgreSQL database as product data eliminate stale-index bugs.

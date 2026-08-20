@@ -61,7 +61,7 @@ Authentication, authorization, and user management with JWT access tokens and re
     [IDN-FR-04], [Token Rotation], [Invalidate previous refresh tokens upon issuance, returning a new access/refresh pair.], [High],
     [IDN-FR-05], [Reuse Detection], [Revoke all active refresh tokens for a user if a previously consumed token is presented.], [High],
     [IDN-FR-06], [Guest Sessions], [Support guest sessions via signed cookies, enabling anonymous cart management and browsing.], [High],
-    [IDN-FR-07], [Role-Based Access], [Enforce RBAC with permission claims formatted as `domain.category.resource.action` at middleware boundaries.], [High],
+    [IDN-FR-07], [Role-Based Access], [Enforce RBAC with permission claims formatted as domain.category.resource.action at middleware boundaries.], [High],
     [IDN-FR-11], [Role Management], [Create, update, delete, and list roles; manage permission assignments per role.], [Medium],
     [IDN-FR-12], [User-Role Assignment], [Assign and revoke roles per user, supporting direct permission overrides.], [Medium],
     [IDN-FR-13], [User Status], [Enable or disable user accounts without purging user record history.], [Medium],

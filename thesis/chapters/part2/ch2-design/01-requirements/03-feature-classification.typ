@@ -30,7 +30,7 @@ Platform features are categorized into Core Research contributions and Supportin
     [Model Benchmark System], 
     [Core Research], 
     [
-      *Secondary Contribution:* Systematic benchmarking of retrieval accuracy and latency across 11 embedding models, providing model selection guidelines for deployment.
+      *Secondary Contribution:* Systematic benchmarking of retrieval accuracy and latency across six embedding models, providing model selection guidelines for deployment.
     ],
 
     [Product Catalog], 

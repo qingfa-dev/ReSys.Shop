@@ -4,7 +4,7 @@ The Python ML sidecar generates vector embeddings from product images over HTTP,
 
 ==== Model Management
 
-Eleven models span three architecture families, selected from a decorator-based registry on first inference:
+Six models span four architecture families, selected from a decorator-based registry on first inference:
 
 #figure(
   table(
@@ -12,17 +12,12 @@ Eleven models span three architecture families, selected from a decorator-based 
     stroke: 0.5pt,
     align: (left, left, center, center, left),
     table.header([*Model ID*], [*Family*], [*Dim*], [*Architecture*], [*Source*]),
-    table.cell(rowspan: 3)[*CNN*], [efficientnet-b0], [1280], [EfficientNet-B0], [torchvision ImageNet1K_V1],
+    table.cell(rowspan: 2)[*CNN*], [efficientnet-b0], [1280], [EfficientNet-B0], [torchvision ImageNet1K_V1],
     [resnet-50], [2048], [ResNet-50], [torchvision ResNet50_Weights.DEFAULT],
-    [convnext-tiny], [768], [ConvNeXt-Tiny], [torchvision ConvNeXt_Tiny_Weights.DEFAULT],
     table.cell(rowspan: 1)[*ViT*], [dinov2-vits14], [384], [ViT-S/14], [facebookresearch/dinov2 (torch.hub)],
-    table.cell(rowspan: 7)[*CLIP*], [fashion-clip], [512], [ViT-B/32 + CLIP], [patrickjohncyh/fashion-clip (HuggingFace)],
-    [clip-vit-b16], [512], [ViT-B/16 + CLIP], [OpenAI CLIP (torchvision)],
-    [clip-b32], [512], [ViT-B/32 + CLIP], [OpenCLIP (HuggingFace)],
-    [clip-l14], [768], [ViT-L/14 + CLIP], [OpenAI CLIP ViT-L/14],
-    [clip-generic], [512], [ViT-B/32 + CLIP], [OpenCLIP generic (HuggingFace)],
-    [siglip], [768], [ViT-B/16 + SigLIP], [google/siglip-base-patch16-224 (HuggingFace)],
-    [eva-clip], [512], [ViT-B/16 + EVA-CLIP], [OpenCLIP EVA-CLIP (HuggingFace)],
+    table.cell(rowspan: 2)[*CLIP*], [clip-vit-b16], [512], [ViT-B/16 + CLIP], [OpenAI CLIP (torchvision)],
+    [openclip-vit-b-32], [512], [ViT-B/32 + CLIP], [OpenCLIP (HuggingFace)],
+    table.cell(rowspan: 1)[*Fashion*], [fashion-clip], [512], [ViT-B/32 + CLIP], [patrickjohncyh/fashion-clip (HuggingFace)],
   ),
   kind: table,
   caption: [Registered embedding models with output dimensionality and architectural family.],
