@@ -8,8 +8,8 @@ public class EmbeddingRequest
     [JsonPropertyName("image_url")]
     public string ImageUrl { get; set; } = string.Empty;
 
-    [JsonPropertyName("model")]
-    public string Model { get; set; } = VariantImageConstant.Defaults.DefaultEmbeddingModel;
+    [JsonPropertyName("model_name")]
+    public string ModelName { get; set; } = VariantImageConstant.Defaults.DefaultEmbeddingModel;
 }
 
 public class EmbeddingResponse

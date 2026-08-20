@@ -22,7 +22,7 @@ export class CatalogImageApi {
     const form = new FormData()
     form.append('image', file)
     if (topK) form.append('topK', String(topK))
-    if (model) form.append('model', model)
+    if (model) form.append('modelName', model)
     const result = await post<PagedResult<SearchByImageResponse>>('/api/storefront/catalog/products/images/search', form)
     return result
   }

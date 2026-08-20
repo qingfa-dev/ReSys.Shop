@@ -20,7 +20,7 @@ def test_embeddings_real_models(model_name, expected_dim):
     """
     payload = {
         "image_url": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1000",
-        "model": model_name
+        "model_name": model_name
     }
 
     response = client.post("/embeddings", json=payload)
@@ -43,7 +43,7 @@ def test_embeddings_real_models(model_name, expected_dim):
 
 def test_invalid_model_returns_failure_result():
     """Verify that requesting an invalid model returns a 404."""
-    payload = {"image_url": "http://test.com/img.jpg", "model": "invalid_model_name"}
+    payload = {"image_url": "http://test.com/img.jpg", "model_name": "invalid_model_name"}
 
     response = client.post("/embeddings", json=payload)
 

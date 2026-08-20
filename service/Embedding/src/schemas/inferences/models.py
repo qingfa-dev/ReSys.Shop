@@ -9,17 +9,17 @@ from pydantic import BaseModel, Field
 class EmbeddingRequest(BaseModel):
     """Request model for generating a high-dimensional vector embedding from an image.
 
-    Invariant: image_url must be a valid HTTP/HTTPS URL; model defaults to efficientnet_b0.
+    Invariant: image_url must be a valid HTTP/HTTPS URL; model defaults to fashion_clip.
     """
     image_url: str = Field(
         ...,
         description="The publicly accessible HTTP/HTTPS URL of the image to be processed.",
         json_schema_extra={"example": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1000"}
     )
-    model: str = Field(
-        default="efficientnet_b0",
+    model_name: str = Field(
+        default="fashion_clip",
         description="The identifier of the ML model to use.",
-        json_schema_extra={"example": "efficientnet_b0"}
+        json_schema_extra={"example": "fashion_clip"}
     )
 
 

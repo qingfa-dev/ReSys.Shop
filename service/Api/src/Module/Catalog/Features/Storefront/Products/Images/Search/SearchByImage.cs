@@ -49,7 +49,7 @@ public static partial class SearchByImage
             await image.CopyToAsync(ms, cancellationToken);
             var imageBytes = ms.ToArray();
 
-            var modelName = command.Request.Model ?? DefaultModel;
+            var modelName = command.Request.ModelName ?? DefaultModel;
             var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
 
             // Call: Generate embedding vector from uploaded image via inference service

@@ -20,13 +20,13 @@ public class InferenceModelsTests
         var request = new EmbeddingRequest
         {
             ImageUrl = "http://test/img.jpg",
-            Model = "efficientnet_b0"
+            ModelName = "efficientnet_b0"
         };
 
         var json = JsonSerializer.Serialize(request, JsonOptions);
 
         json.Should().Contain("\"image_url\"");
-        json.Should().Contain("\"model\"");
+        json.Should().Contain("\"model_name\"");
         json.Should().NotContain("\"ImageUrl\"");
         json.Should().NotContain("\"Model\"");
     }
@@ -34,13 +34,13 @@ public class InferenceModelsTests
     [Fact(DisplayName = "EmbeddingRequest: Deserializes from snake_case JSON")]
     public void EmbeddingRequest_DeserializesFromCamelCase()
     {
-        var json = """{"image_url":"http://test/img.jpg","model":"efficientnet_b0"}""";
+        var json = """{"image_url":"http://test/img.jpg","model_name":"efficientnet_b0"}""";
 
         var request = JsonSerializer.Deserialize<EmbeddingRequest>(json, JsonOptions);
 
         request.Should().NotBeNull();
         request!.ImageUrl.Should().Be("http://test/img.jpg");
-        request.Model.Should().Be("efficientnet_b0");
+        request.ModelName.Should().Be("efficientnet_b0");
     }
 
     [Fact(DisplayName = "EmbeddingResponse: JSON property names use snake_case")]

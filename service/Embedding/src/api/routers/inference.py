@@ -65,7 +65,7 @@ async def create_embedding(
 
     try:
         # Defer: Run CPU-intensive inference in a thread pool to avoid blocking the event loop
-        result = await asyncio.to_thread(engine.embed, body.image_url, body.model)
+        result = await asyncio.to_thread(engine.embed, body.image_url, body.model_name)
 
         if not result.is_success:
             response.status_code = result.status_code
@@ -75,13 +75,13 @@ async def create_embedding(
 
         return InferenceResults.Success.Embedding(
             vector=result.value,
-            model_name=body.model,
+            model_name=body.model_name,
             duration_ms=duration
         )
     except MemoryError:
         logger.critical(
             "Out of memory during embedding inference for model=%s",
-            body.model,
+            body.model_name,
             exc_info=True
         )
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -112,7 +112,7 @@ async def create_embedding_from_bytes(
     request: Request,
     response: Response,
     image: UploadFile = File(...),
-    model: str = settings.EMBEDDING_MODEL,
+    model_name: str = settings.EMBEDDING_MODEL,
     engine: InferenceEngine = Depends(get_engine),
 ):
     """Generates an embedding from a multipart image upload.
@@ -121,7 +121,7 @@ async def create_embedding_from_bytes(
         request: FastAPI request object (injected).
         response: FastAPI response object (injected, used to set status code).
         image: The uploaded image file (multipart form data).
-        model: Model identifier (default from settings.EMBEDDING_MODEL).
+        model_name: Model identifier (default from settings.EMBEDDING_MODEL).
         engine: Cached InferenceEngine instance (injected by Depends).
 
     Returns:
@@ -137,7 +137,7 @@ async def create_embedding_from_bytes(
         image_bytes = await image.read()
 
         # Defer: Run CPU-intensive inference in a thread pool
-        result = await _asyncio.to_thread(engine.embed_bytes, image_bytes, model)
+        result = await _asyncio.to_thread(engine.embed_bytes, image_bytes, model_name)
 
         if not result.is_success:
             response.status_code = result.status_code
@@ -147,13 +147,13 @@ async def create_embedding_from_bytes(
 
         return InferenceResults.Success.Embedding(
             vector=result.value,
-            model_name=model,
+            model_name=model_name,
             duration_ms=duration
         )
     except MemoryError:
         logger.critical(
             "Out of memory during byte embedding inference for model=%s",
-            model,
+            model_name,
             exc_info=True
         )
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE

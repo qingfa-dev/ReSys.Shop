@@ -28,7 +28,7 @@ def test_inference(
     """Sends a POST request to the inference API."""
     payload = {
         "image_url": image_url,
-        "model": model
+        "model_name": model
     }
     headers = {
         "X-API-Key": api_key,
