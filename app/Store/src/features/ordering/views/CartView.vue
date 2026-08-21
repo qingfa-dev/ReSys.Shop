@@ -47,7 +47,7 @@ function clearCoupon(): void {
 
 <template>
   <!-- Section: Page Header — title for the cart surface -->
-  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
     <h1 class="mb-8 text-2xl font-bold">Shopping Cart</h1>
 
     <!-- Empty State: Browse the catalog when no items are in the cart -->

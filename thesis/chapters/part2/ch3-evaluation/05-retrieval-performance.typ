@@ -1,12 +1,12 @@
 == Retrieval Performance and Accuracy
 
 #figure(
-  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_map.png", width: 100%),
+  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_map.png", width: 75%),
   caption: [mAP comparison across four evaluated models. Fashion-CLIP leads at 0.9309, followed by CLIP-generic (0.9115), EfficientNet-B0 (0.8895), and ResNet-50 (0.8857).],
 ) <fig-benchmark-map>
 
 #figure(
-  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_precision.png", width: 100%),
+  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_precision.png", width: 75%),
   caption: [Precision at K (K = 5, 10, 20) across four evaluated models. Fashion-CLIP maintains the highest precision at every retrieval depth.],
 ) <fig-benchmark-precision>
 

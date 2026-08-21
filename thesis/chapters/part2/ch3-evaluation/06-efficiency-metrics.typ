@@ -1,12 +1,12 @@
 == Computational Efficiency and Resource Trade-offs
 
 #figure(
-  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.6_benchmark_latency.png", width: 100%),
+  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.6_benchmark_latency.png", width: 75%),
   caption: [Inference latency comparison across four evaluated models. EfficientNet-B0 leads at 37.8 ms, followed by ResNet-50 (61.9 ms), CLIP-generic (86.6 ms), and Fashion-CLIP (96.8 ms).],
 ) <fig-benchmark-latency>
 
 #figure(
-  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.6_benchmark_throughput.png", width: 100%),
+  image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.6_benchmark_throughput.png", width: 75%),
   caption: [Throughput comparison across four evaluated models. EfficientNet-B0 leads at 30.2 img/s, followed by CLIP-generic (21.4), Fashion-CLIP (18.5), and ResNet-50 (13.5).],
 ) <fig-benchmark-throughput>
 

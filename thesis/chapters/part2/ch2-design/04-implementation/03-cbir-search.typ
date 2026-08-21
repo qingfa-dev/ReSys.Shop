@@ -3,7 +3,7 @@
 Content-based image retrieval (CBIR) enables real-time visual product search across four distinct architectural layers: the Vue 3 storefront, .NET API backend, Python ML sidecar, and PostgreSQL with pgvector. The end-to-end pipeline is engineered to complete within a strict 1-second total latency budget. @fig-cbir-sequence details the cross-service sequence.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_cbir-search-sequence.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/04-implementations/diagrams/P2S2.2.4_cbir-search-sequence.png", width: 100%),
   caption: [CBIR search sequence: end-to-end flow spanning customer upload, embedding extraction, pgvector search, and ranked results rendering.],
 ) <fig-cbir-sequence>
 
