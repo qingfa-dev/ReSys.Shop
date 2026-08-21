@@ -31,6 +31,9 @@ from benchmark._constants import (
     EXIT,
     FAISS_PARAMS,
     FILE_ENCODING,
+    GROUND_TRUTH,
+    GROUND_TRUTH_DEFAULT,
+    GROUND_TRUTH_HELP,
     LOG,
     MAGIC,
     PLACEHOLDER,
@@ -129,6 +132,9 @@ def run(
         help="Device to run models on (cpu, cuda, mps, auto).", show_default=True)] = "auto",
     seed: Annotated[int, typer.Option("--seed",
         help="Random seed for reproducibility.", show_default=True)] = MAGIC.SEED,
+    ground_truth: Annotated[str, typer.Option("--ground-truth",
+        help=GROUND_TRUTH_HELP,
+        show_default=True)] = GROUND_TRUTH_DEFAULT,
     log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = DFLT.LOG_LEVEL,
 ) -> None:
     """Run the full benchmark pipeline.
@@ -171,6 +177,13 @@ def run(
         console.print(f"Available: {all_keys}")
         raise typer.Exit(code=EXIT.EXIT_FAILURE)
 
+    if ground_truth not in GROUND_TRUTH:
+        console.print(
+            f"[red]Unknown --ground-truth '{ground_truth}'. "
+            f"Choose from: {list(GROUND_TRUTH)}[/red]"
+        )
+        raise typer.Exit(code=EXIT.EXIT_FAILURE)
+    label_field = GROUND_TRUTH[ground_truth]
 
     top_k = [int(v) for v in k.split(",")]
     # ── print run config ──────────────────────────────────────────────────────
@@ -178,6 +191,7 @@ def run(
     config_table.add_column("Key", style="bold")
     config_table.add_column("Value")
     config_table.add_row("Models", ", ".join(model_keys))
+    config_table.add_row("Ground truth", f"{ground_truth} ({label_field})")
     config_table.add_row("K values", str(top_k))
     config_table.add_row("Dataset root", str(dataset_root))
     config_table.add_row("Split file", str(split_file))
@@ -192,7 +206,7 @@ def run(
 
     # ── load dataset ──────────────────────────────────────────────────────────
     dataset = FashionDataset(dataset_root=dataset_root, split_file=split_file, split=SPLIT.TEST)
-    dataset.load()
+    dataset.load(label_field=label_field)
 
     gallery_dataset: FashionDataset | None = None
     if gallery_split_file:
@@ -201,7 +215,7 @@ def run(
             split_file=gallery_split_file,
             split=SPLIT.TRAIN,
         )
-        gallery_dataset.load()
+        gallery_dataset.load(label_field=label_field)
 
     errors = validate_dataset(dataset)
     if errors:
@@ -284,6 +298,9 @@ def thesis(
         help="Secondary label field for pattern-aware evaluation "
              "(e.g., 'label_pattern'). When set, a second evaluation pass "
              "produces thesis_results_pattern.json.")] = None,
+    ground_truth: Annotated[str, typer.Option("--ground-truth",
+        help=GROUND_TRUTH_HELP,
+        show_default=True)] = GROUND_TRUTH_DEFAULT,
     log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = DFLT.LOG_LEVEL,
 ) -> None:
     """Run the thesis benchmark (k-fold cross-validation).
@@ -305,12 +322,21 @@ def thesis(
     from benchmark.reporting import write_thesis_tables
     model_keys = THESIS_MODEL_KEYS if models == CLI_STR.ALL else [k.strip() for k in models.split(",")]
 
+    if ground_truth not in GROUND_TRUTH:
+        console.print(
+            f"[red]Unknown --ground-truth '{ground_truth}'. "
+            f"Choose from: {list(GROUND_TRUTH)}[/red]"
+        )
+        raise typer.Exit(code=EXIT.EXIT_FAILURE)
+    label_field = GROUND_TRUTH[ground_truth]
+
     top_k = [int(v) for v in k.split(",")]
 
     config_table = Table(title="Thesis Benchmark Configuration", show_header=False)
     config_table.add_column("Key", style="bold")
     config_table.add_column("Value")
     config_table.add_row("Models", ", ".join(model_keys))
+    config_table.add_row("Ground truth", f"{ground_truth} ({label_field})")
     config_table.add_row("Folds", str(folds))
     config_table.add_row("K values", str(top_k))
     config_table.add_row("Dataset root", str(dataset_root))
@@ -329,6 +355,7 @@ def thesis(
         use_cache=not no_cache,
         batch_size=batch_size,
         secondary_label=secondary_label,
+        label_field=label_field,
     )
     results = runner.run(model_keys=model_keys)
 

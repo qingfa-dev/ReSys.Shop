@@ -4,7 +4,7 @@ The rationale for selecting Fashion-CLIP as the primary model for visual search 
 
 ==== Candidate Models
 
-Eleven pre-trained models spanning three architectural families were evaluated:
+Ten candidate pre-trained models spanning three architectural families were considered; six representative models were evaluated in the benchmark:
 #figure(
   table(
     columns: (auto, auto, auto, auto, auto),

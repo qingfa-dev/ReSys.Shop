@@ -112,6 +112,7 @@ class DATASET_FIELDS:
     ID: str = "id"
     IMAGE_PATH: str = "image_path"
     LABEL: str = "label"
+    LABEL_CATEGORY: str = "label_category"
     PRODUCT_ID: str = "product_id"
     SPLIT: str = "split"
     MASTER_CATEGORY: str = "masterCategory"
@@ -131,6 +132,24 @@ class PLACEHOLDERS:
 THESIS_MODEL_KEYS: list[str] = [
     "fashion_clip", "resnet50", "efficientnet_b0", "clip_generic",
 ]
+
+# Ground-truth relevance options — selectable before running the benchmark.
+# Each maps a human-readable option name to the label field written into the
+# fold split JSON files by ``GroundTruth._build_sample_meta``.
+#   - category                  : masterCategory/subCategory only (coarsest)
+#   - category_colour           : category + normalised colour (thesis default)
+#   - category_colour_pattern   : category + colour + pattern (finest)
+GROUND_TRUTH: dict[str, str] = {
+    "category": "label_category",
+    "category_colour": "label",
+    "category_colour_pattern": "label_pattern",
+}
+GROUND_TRUTH_DEFAULT: str = "category_colour"
+GROUND_TRUTH_HELP: str = (
+    "Relevance ground truth: 'category' (master+sub category only), "
+    "'category_colour' (category + normalised colour), or "
+    "'category_colour_pattern' (category + colour + pattern)."
+)
 
 FILE_ENCODING: str = "utf-8"
 
@@ -240,6 +259,7 @@ __all__ = [
     "MAGIC", "STR", "SPLIT", "CLI_STR", "FIELD", "PLACEHOLDER",
     "DFLT", "PAT", "OUT", "LOG", "CONST", "EXIT", "FAISS_PARAMS", "CHART",
     "THESIS_MODEL_KEYS", "FILE_ENCODING", "PALETTE",
+    "GROUND_TRUTH", "GROUND_TRUTH_DEFAULT", "GROUND_TRUTH_HELP",
     "MagicNumbers", "Strings", "SPLITS", "CLI", "DATASET_FIELDS", "PLACEHOLDERS",
     "Defaults", "Patterns", "OutputFiles", "LogFiles", "Constraints", "ResultCodes",
     "FAISS", "Chart",

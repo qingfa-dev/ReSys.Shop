@@ -4,7 +4,7 @@ The evaluation uses the Fashion Product Images Dataset: 5,000 catalogue images a
 
 === Models Evaluated
 
-Four representative models spanning four architectural families were selected from the six supported by the benchmark framework:
+Six models spanning four architectural families were evaluated by the benchmark framework (selected from the eleven candidates it supports):
 
 #figure(
   table(
@@ -13,11 +13,11 @@ Four representative models spanning four architectural families were selected fr
     align: (left, left),
     table.header([*Architecture*], [*Evaluated Models (dimension)*]),
     [Convolutional Neural Network], [ResNet-50 (2,048-dim), EfficientNet-B0 (1,280-dim)],
-    [Vision Transformer], [DINOv2 ViT-S/14 (384-dim) -- framework-supported],
-    [CLIP-based], [CLIP ViT-B/16 (512-dim) -- generic wrapper],
+    [Vision Transformer], [DINOv2 ViT-S/14 (384-dim): self-supervised ViT],
+    [CLIP-based], [CLIP ViT-B/16 (512-dim): generic CLIP wrapper, CLIP ViT-B/32 (512-dim): OpenAI CLIP],
     [Fashion-specific], [Fashion-CLIP (512-dim), fine-tuned on 700,000+ fashion images],
   ),
-  caption: [Four evaluated models representing CNN, ViT, CLIP, and domain-tuned architectures.],
+  caption: [Six evaluated models representing CNN, ViT, CLIP, and domain-tuned architectures.],
   kind: table,
 ) <tbl-model-architecture>
 

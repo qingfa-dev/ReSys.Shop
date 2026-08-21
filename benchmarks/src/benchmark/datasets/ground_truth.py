@@ -148,19 +148,28 @@ class GroundTruth:
     def _build_sample_meta(row: pd.Series, has_pattern: bool) -> dict[str, str]:
         """Build the metadata entry for one product in a split file.
 
-        Always produces ``label`` (category + colour).  When ``has_pattern``
-        is True and the row contains a ``pattern`` value other than
-        ``"Unknown"``, also produces ``label_pattern`` (category + colour +
-        pattern).  Products with missing pattern fall back to the same value
-        as ``label``.
+        Produces three selectable ground-truth label fields:
+
+        - ``label_category`` — masterCategory/subCategory only (coarsest).
+        - ``label``         — category + normalised colour (thesis default).
+        - ``label_pattern`` — category + colour + pattern (finest), emitted
+          only when ``has_pattern`` is True and the row's pattern is not
+          ``"Unknown"``; falls back to the ``label`` value otherwise.
+
+        The benchmark selects which field to use as relevance ground truth via
+        the ``--ground-truth`` CLI option (see ``GROUND_TRUTH`` in
+        ``_constants``).
         """
         if pd.notna(row.get("subCategory")):
-            base = f"{row['masterCategory']}/{row['subCategory']}/{row['_norm_colour']}"
+            category = f"{row['masterCategory']}/{row['subCategory']}"
+            base = f"{category}/{row['_norm_colour']}"
         else:
-            base = str(row["masterCategory"])
+            category = str(row["masterCategory"])
+            base = category
 
         meta: dict[str, str] = {
             "image_path": PAT.IMAGE_PATH.format(product_id=row["id"]),
+            "label_category": category,
             "label": base,
             "product_id": str(row["id"]),
         }

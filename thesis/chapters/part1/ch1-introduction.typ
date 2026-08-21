@@ -1,6 +1,6 @@
 == Context and Motivation
 
-Global fashion e-commerce revenue exceeded *770 billion USD* in 2024, with projections surpassing *one trillion by 2030* @statista2024fashion. Yet keyword search fails where the domain succeeds: fashion products are defined by silhouette, drape, print density, and colour -- attributes that resist textual description. Shoppers who fail to find what they are looking for frequently abandon the session rather than reformulate the query @pinterest2023visual.
+Global fashion e-commerce revenue exceeded *770 billion USD* in 2024, with projections surpassing *one trillion by 2030* @statista2024fashion. Yet keyword search fails where the domain succeeds: fashion products are defined by silhouette, drape, print density, and colour, attributes that resist textual description. Shoppers who fail to find what they are looking for frequently abandon the session rather than reformulate the query @pinterest2023visual.
 
 *Content-Based Image Retrieval (CBIR)* addresses this gap by replacing textual intermediaries with direct visual comparison. Products are indexed not by human-authored labels but by *dense vector embeddings* computed from images, with similarity measured through mathematical distance functions. A query image of a dress with a particular neckline and print pattern retrieves visually similar products without any keyword translation step. Pre-trained convolutional neural networks @he2016deep @tan2019efficientnet, vision transformers @radford2021learning, and fashion-specific models @chia2022fashionclip have substantially advanced this capability.
 
@@ -82,7 +82,7 @@ The system is built using a modular stack designed for performance and scalabili
 - *Frontend:* Vue 3 with TypeScript, Vite, Pinia.
 - *Database:* PostgreSQL with pgvector for relational and vector data in a single ACID database.
 
-The system is evaluated using quantitative metrics: Mean Average Precision (mAP) with 3-fold cross-validation for retrieval accuracy, per-image inference latency and throughput (images/second) for efficiency, across four representative models and the Fashion Product Images Dataset @kaggle-fashion-dataset (5,000 images). Detailed results appear in Chapter 3.
+The system is evaluated using quantitative metrics: Mean Average Precision (mAP) with 3-fold cross-validation for retrieval accuracy, per-image inference latency and throughput (images/second) for efficiency, across six models spanning CNN, vision-transformer, and CLIP architectures and the Fashion Product Images Dataset @kaggle-fashion-dataset (5,000 images). Detailed results appear in Chapter 3.
 
 == Thesis Outline
 

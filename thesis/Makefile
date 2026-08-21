@@ -2,11 +2,12 @@
 # Renders all Mermaid (.mmd), PlantUML (.puml), and benchmark chart sources
 # Source tree: figures/chapters/part2/{ch1,ch2,ch3}/
 # Output: PNG alongside each source file
-# Benchmark charts: spec/regenerate_charts.py -> figures/.../ch3-evaluation/diagrams/
+# Benchmark charts: figures/.../ch3-evaluation/diagrams/generate_benchmark_figures.py
+# (generator co-located with its output PNGs, mirroring the 04-implementations/diagram convention)
 
 PLANTUML = java -jar plantuml.jar
 MMDC = mmdc
-CHARTS_SCRIPT = spec/regenerate_charts.py
+CHARTS_SCRIPT = figures/chapters/part2/ch3-evaluation/diagrams/generate_benchmark_figures.py
 
 MMD_SRC := $(shell find figures/chapters -name '*.mmd' -type f)
 PUML_SRC := $(shell find figures/chapters -name '*.puml' -type f)
@@ -37,7 +38,7 @@ plantuml: $(PUML_OUT)
 charts: $(BENCHMARK_CHARTS)
 	@echo "--- Benchmark charts done ($(words $(BENCHMARK_CHARTS)) charts) ---"
 
-$(BENCHMARK_CHARTS): $(CHARTS_SCRIPT) ../benchmarks/outputs/thesis/results/thesis_results_category_only.json ../benchmarks/outputs/thesis/results/thesis_results.json
+$(BENCHMARK_CHARTS): $(CHARTS_SCRIPT) ../benchmarks/outputs/thesis_catonly/results/thesis_results.json
 	@echo "  [charts] regenerating benchmark charts from authoritative JSON"
 	@python3 $(CHARTS_SCRIPT)
 

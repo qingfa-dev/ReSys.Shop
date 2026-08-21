@@ -1,18 +1,20 @@
-// Manually updated from authoritative benchmark JSON (thesis_results_category_only.json)
-// Matches Appendix A.1 — category-only binary relevance ground truth.
-// Updated: 2026-08-19
+// Manually updated from authoritative benchmark JSON (outputs/thesis_catonly/results/thesis_results.json)
+// Matches Appendix A.1 - category-only binary relevance ground truth.
+// Updated: 2026-08-22
 
 #figure(
-  caption: [Thesis Benchmark — Aggregate Retrieval Metrics (3-Fold CV)],
+  caption: [Thesis Benchmark: Aggregate Retrieval Metrics (3-Fold CV)],
   table(
     columns: 8,
     align: (left,) + (center,) * 7,
     table.header(
       [*Model*], [*mAP (mean ± SD)*], [*P@5*], [*P@10*], [*P@20*], [*R@5*], [*R@10*], [*R@20*],
     ),
-    [FashionCLIP], [*0.9309 ± 0.0068*], [*0.9582*], [*0.9493*], [*0.9374*], [*0.0280*], [*0.0483*], [*0.0810*],
-    [CLIP-generic], [0.9115 ± 0.0077], [0.9440], [0.9364], [0.9239], [0.0264], [0.0459], [0.0768],
-    [EfficientNet-B0], [0.8895 ± 0.0056], [0.9340], [0.9229], [0.9077], [0.0249], [0.0426], [0.0720],
-    [ResNet-50], [0.8857 ± 0.0114], [0.9327], [0.9203], [0.9035], [0.0274], [0.0470], [0.0799],
+    [FashionCLIP], [*0.9336 ± 0.0060*], [*0.9607*], [*0.9527*], [*0.9383*], [*0.0282*], [*0.0488*], [*0.0816*],
+    [DINOv2 ViT-S/14], [0.9299 ± 0.0058], [0.9572], [0.9491], [0.9360], [0.0275], [0.0484], [0.0813],
+    [CLIP ViT-B/16], [0.9202 ± 0.0043], [0.9515], [0.9423], [0.9297], [0.0275], [0.0474], [0.0790],
+    [CLIP ViT-B/32], [0.9184 ± 0.0060], [0.9482], [0.9408], [0.9282], [0.0272], [0.0474], [0.0785],
+    [ResNet-50], [0.9132 ± 0.0057], [0.9457], [0.9364], [0.9246], [0.0262], [0.0452], [0.0766],
+    [EfficientNet-B0], [0.9077 ± 0.0076], [0.9439], [0.9342], [0.9205], [0.0257], [0.0443], [0.0748],
   )
 ) <tab:thesis-aggregate>
