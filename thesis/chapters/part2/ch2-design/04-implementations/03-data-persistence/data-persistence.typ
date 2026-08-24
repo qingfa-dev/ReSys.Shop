@@ -23,7 +23,7 @@ Each bounded context owns an isolated schema. @tbl-schema-mapping outlines the d
     [`location`], [`countries`, `states`],
   ),
   kind: table,
-  caption: [Schema-per-context mapping. Cross-schema references use UUID attributes without database-level foreign key constraints.],
+  caption: [Schema-per-context mapping with UUID references, no cross-schema foreign keys.],
 ) <tbl-schema-mapping>
 
 Cross-schema references use unconstrained UUIDs, enforcing module independence. Product embeddings reside in `catalog.product_image_embeddings` alongside product metadata, participating in the same ACID transactions.

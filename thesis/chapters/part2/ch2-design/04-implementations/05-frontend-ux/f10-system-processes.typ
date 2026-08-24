@@ -4,15 +4,15 @@ Background automation is monitored through the Hangfire dashboard accessible at 
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/hangfire-dashboard-overview.png", width: 100%),
-  caption: [Hangfire dashboard overview: metrics bar (Jobs, Retries, Recurring Jobs, Servers), realtime and history graphs.],
+  caption: [Hangfire dashboard overview: job metrics with realtime and history graphs.],
 ) <fig-hangfire-overview>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/hangfire-queues.png", width: 100%),
-  caption: [Queues: table with Queue, Length, Fetched, and next jobs per queue, plus per-state job counts (Enqueued, Scheduled, Processing, Succeeded, Failed, Deleted, Awaiting).],
+  caption: [Queues: queue depths, next jobs, and per-state job counts.],
 ) <fig-hangfire-queues>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/hangfire-job-detail.png", width: 100%),
-  caption: [Job detail: job method and state at top, parameters table, state history timeline.],
+  caption: [Job detail: method, parameters table, state history timeline.],
 ) <fig-hangfire-job-detail>

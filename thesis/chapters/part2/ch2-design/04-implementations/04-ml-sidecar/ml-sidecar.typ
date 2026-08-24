@@ -79,7 +79,7 @@ API endpoints:
     [GET], [`/health`], [Readiness probe: validates CUDA/MPS, active model, and synthetic forward pass.],
   ),
   kind: table,
-  caption: [ML sidecar API endpoints. All inference endpoints require `X-API-Key` authentication.],
+  caption: [ML sidecar API endpoints requiring `X-API-Key` authentication.],
 ) <tbl-api-endpoints>
 
 Response shape:
@@ -106,7 +106,7 @@ Response shape:
     "../../../../../figures/chapters/part2/ch2-design/04-implementations/diagrams/P2S2.2.4_cbir-search-sequence.png",
     width: 100%,
   ),
-  caption: [CBIR search sequence: end-to-end flow spanning customer upload, embedding extraction, pgvector search, and ranked results rendering.],
+  caption: [CBIR search sequence: upload, embedding extraction, pgvector search, results.],
 ) <fig-cbir-sequence>
 
 Six stages across four architectural layers:
@@ -118,6 +118,6 @@ Six stages across four architectural layers:
 5. *Post-Processing.* Converts distance to similarity ($1 - text("distance")$), filters below $0.7$, deduplicates by product.
 6. *UI Rendering (Vue 3).* Renders product grid with thumbnails, prices, and similarity scores within the sub-second budget.
 
-The pluggable architecture supports automated benchmarking (update `EMBEDDING_MODEL`, restart, sequential evaluation of all models without code changes) and production A/B testing via dual sidecar instances with distinct models.
+The pluggable architecture supports automated benchmarking (update `EMBEDDING_MODEL`, restart, sequential benchmarking of all models without code changes) and production A/B testing via dual sidecar instances with distinct models.
 
 // [SCREENSHOT: postman-embedding-request.png] API client showing POST /embeddings/bytes with fashion image upload and 512-dim float vector response.

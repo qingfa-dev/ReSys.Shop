@@ -27,8 +27,8 @@ Where supervised learning requires expensive human labels, *self-supervised lear
   [Repeat across 142 million uncurated images.],
 )
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_dinov2.png", width: 80%),
-  caption: [DINOv2 architecture: image patches pass through transformer layers with self-attention to produce a feature vector],
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_dinov2.png", width: 85%),
+  caption: [DINOv2 architecture: self-attention over image patches],
 ) <fig-dinov2-arch>
 
 DINOv2 produces features with strong object-level structure: silhouettes, part geometry, and garment boundaries without category labels, making it adaptable to fashion domains where curated labels are scarce.
@@ -52,7 +52,7 @@ DINOv2 excels at *structural fidelity*: shapes, silhouettes, and proportions. It
     [Training data], [142M images], [142M images],
     [Training method], [Self-supervised], [Self-supervised],
   ),
-  caption: [DINOv2 model specifications evaluated in this project],
+  caption: [DINOv2 model specifications assessed in this project],
 )
 
 ==== Trade-offs and Limitations

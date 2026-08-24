@@ -1,6 +1,6 @@
 = Full Benchmark Results <appendix-a>
 
-This appendix presents the complete retrieval accuracy and operational efficiency results from the 3-fold cross-validation benchmark described in Chapter 3. All six evaluated models are reported under three ground-truth label schemes.
+This appendix presents the complete retrieval accuracy and operational efficiency results from the 3-fold cross-validation benchmark described in Chapter 3. All six benchmarked models are reported under three ground-truth label schemes.
 
 == Category-Only Ground Truth (5 Categories)
 
@@ -88,21 +88,21 @@ The pattern-constrained scheme produces the lowest absolute scores (mAP 0.16--0.
     table.header(
       [*Model*], [*Latency (ms)*], [*Throughput*], [*Load (ms)*], [*Storage (MB)*], [*RAM (MB)*], [*Dim*],
     ),
-    [EfficientNet-B0], [42.6 ± 5.6], [21.4 ± 1.0], [118.3], [8.1], [N/A], [1280],
-    [ResNet-50], [96.6 ± 7.4], [10.2 ± 0.0], [385.6], [13.0], [N/A], [2048],
-    [DINOv2 ViT-S/14], [126.3 ± 5.1], [10.2 ± 0.2], [1 223.4], [2.4], [N/A], [384],
-    [CLIP ViT-B/16], [235.5 ± 7.3], [4.0 ± 0.1], [6 518.5], [3.3], [N/A], [512],
-    [CLIP ViT-B/32], [140.5 ± 7.8], [11.9 ± 0.2], [1 868.8], [3.3], [N/A], [512],
-    [FashionCLIP], [113.6 ± 3.7], [14.2 ± 0.5], [5 109.9], [3.3], [N/A], [512],
+    [EfficientNet-B0], [42.6 ± 5.6], [21.4 ± 1.0], [118.3], [8.1], [~100], [1280],
+    [ResNet-50], [96.6 ± 7.4], [10.2 ± 0.0], [385.6], [13.0], [~150], [2048],
+    [DINOv2 ViT-S/14], [126.3 ± 5.1], [10.2 ± 0.2], [1 223.4], [2.4], [~250], [384],
+    [CLIP ViT-B/16], [235.5 ± 7.3], [4.0 ± 0.1], [6 518.5], [3.3], [~600], [512],
+    [CLIP ViT-B/32], [140.5 ± 7.8], [11.9 ± 0.2], [1 868.8], [3.3], [~600], [512],
+    [FashionCLIP], [113.6 ± 3.7], [14.2 ± 0.5], [5 109.9], [3.3], [~600], [512],
   ),
   kind: table,
 )
 
-EfficientNet-B0 achieves the lowest inference latency (42.6 ms) and highest throughput (21.4 images per second), making it the most computationally efficient model. CLIP-based models (FashionCLIP, CLIP ViT-B/16, CLIP ViT-B/32) and DINOv2 incur the highest model load times (1.2--6.5 seconds) due to their transformer architectures and larger weight files. ResNet-50 requires the most storage (13.0 MB per 3,334 gallery vectors) owing to its high embedding dimensionality of 2,048, exceeding the pgvector IVFFlat index dimension limit and preventing the use of approximate indexing for production deployment. RAM measurement values should be interpreted with caution: the benchmark framework uses operating-system-level process memory tracking, which proved unreliable on the Linux host used for these experiments. Actual model memory consumption ranges from approximately 100 MB (EfficientNet-B0) to over 600 MB (CLIP-based) when accounting for both model weights and PyTorch runtime overhead.
+EfficientNet-B0 achieves the lowest inference latency (42.6 ms) and highest throughput (21.4 images per second), making it the most computationally efficient model. CLIP-based models (FashionCLIP, CLIP ViT-B/16, CLIP ViT-B/32) and DINOv2 incur the highest model load times (1.2--6.5 seconds) due to their transformer architectures and larger weight files. ResNet-50 requires the most storage (13.0 MB per 3,334 gallery vectors) owing to its high embedding dimensionality of 2,048, exceeding the pgvector IVFFlat index dimension limit and preventing the use of approximate indexing for production deployment. RAM values are estimates derived from each model's parameter count plus PyTorch runtime overhead, because direct process-level measurement via psutil proved unreliable on the Linux host used for these experiments. These figures are indicative rather than instrumented; actual values vary with batch size and runtime overhead, scaling from approximately 100 MB (EfficientNet-B0) to over 600 MB (CLIP-based).
 
 == Per-Fold Variability
 
-The per-fold results for the primary evaluation scheme (category only) are presented below to provide transparency on the cross-validation procedure and to permit independent verification of aggregate statistics.
+The per-fold results for the primary label scheme (category only) are presented below to provide transparency on the cross-validation procedure and to permit independent verification of aggregate statistics.
 
 #figure(
   caption: [Per-Fold Breakdown, Category-Only Ground Truth],

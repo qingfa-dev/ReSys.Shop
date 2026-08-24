@@ -10,25 +10,25 @@ Checkout progresses through the five-state pipeline (Address, Delivery, Payment,
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-checkout-address.png", width: 100%),
-  caption: [Address step: Stepper wizard (Address highlighted), saved-address picker with inline "Add New Address" form, "Continue to Delivery" button.],
+  caption: [Address step: stepper wizard, saved-address picker with inline add form.],
 ) <fig-checkout-address>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-checkout-delivery.png", width: 100%),
-  caption: [Delivery step: Stepper wizard (Address complete, Delivery highlighted), shipping methods with carrier names, delivery dates, and rates. "Continue to Payment" button.],
+  caption: [Delivery step: shipping methods with carriers, delivery dates, and rates.],
 ) <fig-checkout-delivery>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-checkout-payment.png", width: 100%),
-  caption: [Payment step: Stepper wizard through Delivery, payment methods (Credit Card, Cash on Delivery, Bogus Test Card) with radio buttons. "Continue" button.],
+  caption: [Payment step: stepper wizard with Credit Card and Cash on Delivery options.],
 ) <fig-checkout-payment>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-checkout-confirm.png", width: 100%),
-  caption: [Confirm step: Stepper wizard through Payment, read-only summary with line items table, address blocks, delivery/payment methods, totals. "Place Order" button.],
+  caption: [Confirm step: read-only summary with totals and Place Order action.],
 ) <fig-checkout-confirm>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-checkout-complete.png", width: 100%),
-  caption: [Complete step: Stepper wizard all five stages with checkmarks, success confirmation with generated order number, order summary, "Continue Shopping" link.],
+  caption: [Complete step: confirmation with generated order number and summary.],
 ) <fig-checkout-complete>

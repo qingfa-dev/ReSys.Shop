@@ -40,20 +40,20 @@ The four visual search states are illustrated below.
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-cbir-empty.png", width: 100%),
-  caption: [Visual search empty state: prominent drop zone with dashed border, cloud-upload icon, and format note "JPEG, PNG, or WebP up to 10 MB".],
+  caption: [Visual search empty state: drop zone with format note (max 10 MB).],
 ) <fig-cbir-empty>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-cbir-upload.png", width: 100%),
-  caption: [Upload state: selected image displayed as large preview with filename; "Search Similar Products" button below; collapsed "Change image" control above.],
+  caption: [Upload state: selected-image preview with Search Similar Products button.],
 ) <fig-cbir-upload>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-cbir-params.png", width: 100%),
-  caption: [Search parameters panel: ML model selector (Fashion-CLIP) and three sliders (top-k results, similarity threshold, maximum search time).],
+  caption: [Search parameters panel: Fashion-CLIP model selector and three sliders.],
 ) <fig-cbir-params>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-cbir-results.png", width: 100%),
-  caption: [Results state: "Results (N)" product card grid with thumbnails, names, prices, and colour-coded similarity badges; query image persists in the sidebar.],
+  caption: [Results state: product grid with similarity badges; query image in sidebar.],
 ) <fig-cbir-results>

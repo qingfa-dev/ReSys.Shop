@@ -2,7 +2,7 @@ This chapter closes the thesis: summary, research questions, contributions, limi
 
 == Summary of Work
 
-This thesis built a fashion e-commerce platform integrating a Vue 3 storefront, .NET 10 modular monolith, and Python ML sidecar. The visual search pipeline was evaluated through systematic benchmark of six models under 3-fold cross-validation on 5,000 fashion images. Three principal findings emerged. Domain-specific pre-training provides measurable retrieval advantages. The accuracy-efficiency trade-off can be managed through architecture choice. The polyglot sidecar architecture is viable for .NET enterprise stacks, achieving interactive response times on commodity hardware.
+This thesis built a fashion e-commerce platform integrating a Vue 3 storefront, .NET 10 modular monolith, and Python ML sidecar. The visual search pipeline was assessed through systematic benchmarking of six models under 3-fold cross-validation on 5,000 fashion images. Three principal findings emerged. Domain-specific pre-training provides measurable retrieval advantages. The accuracy-efficiency trade-off can be managed through architecture choice. The polyglot sidecar architecture is viable for .NET enterprise stacks, achieving interactive response times on commodity hardware.
 
 === Answering the Research Questions
 
@@ -16,17 +16,17 @@ The trade-off is large. Fashion-CLIP (mAP 0.9336, 113.6 ms) is the most accurate
 
 *RQ3: Can a service-oriented architecture with a dedicated AI sidecar effectively separate image inference from the main web application while maintaining acceptable response times?*
 
-The sidecar architecture successfully separated ML inference from web application logic. End-to-end search latency remained under one second on CPU. Independent scaling and fault isolation were achieved without distributed infrastructure overhead, demonstrating viability for real-time interactive search on consumer-grade hardware.
+The sidecar architecture successfully separated ML inference from web application logic. End-to-end search latency remained under one second on CPU. Independent scaling and fault isolation are enabled by the sidecar boundary without distributed infrastructure overhead; this study validates the latency and model-separation behaviour, treating the scaling and isolation guarantees as architectural design properties rather than experimentally stress-tested results, and demonstrates viability for real-time interactive search on consumer-grade hardware.
 
 === Achievement of Technical Objectives
 
-All four technical objectives were met. Model integration was demonstrated through the operational search pipeline. Polyglot architecture achieved clean separation using the sidecar pattern. pgvector proved feasible: IVFFlat queries execute under 10 ms (2.7-6.5 ms). Benchmark evaluation yielded accuracy and efficiency metrics across six evaluated models spanning four architectural families.
+All four technical objectives were met. Model integration was demonstrated through the operational search pipeline. Polyglot architecture achieved clean separation using the sidecar pattern. pgvector proved feasible: IVFFlat queries execute under 10 ms (2.7-6.5 ms). Benchmark analysis yielded accuracy and efficiency metrics across six benchmarked models spanning four architectural families.
 
 == Contributions
 
 This thesis makes five concrete contributions:
 
-- *A six-model benchmark for fashion image retrieval.* Systematic evaluation with seven reported accuracy columns (three metric families at three depths) and five efficiency metrics across four architecture families, six models supported, 3-fold cross-validation protocol, plus a three-way ground-truth sensitivity analysis.
+- *A six-model benchmark for fashion image retrieval.* Systematic benchmarking with seven reported accuracy columns (three metric families at three depths) and five efficiency metrics across four architecture families, six models supported, 3-fold cross-validation protocol, plus a three-way ground-truth sensitivity analysis.
 - *A reference CBIR implementation integrated into a production-style e-commerce platform.* This shows that open-source tools (PyTorch, FastAPI, pgvector, .NET 10) can support competitive visual search.
 - *A pluggable model architecture enabling runtime model switching.* Strategy-pattern Model Manager controlled via environment variable decouples model selection from application code.
 - *Demonstration of pgvector's ACID-compliant vector storage.* Embeddings in the same PostgreSQL database as product data eliminate stale-index bugs.
@@ -36,7 +36,7 @@ As referenced by the title's *Recommendation*, product recommendation in this wo
 
 == Limitations
 
-Several limitations affect how well these findings apply more broadly. The benchmark uses 5,000 product images from a single dataset; results may not generalise to other markets. All figures were measured on a single laptop with CPU-only inference. The binary category-label ground truth is an imperfect stand-in for visual similarity. No formal user study was conducted. All models were used as published without fine-tuning. CLIP-based models' text-to-image capability was not evaluated. The enriched-label evaluation reduces P\@20 substantially (from \~0.90 under category-only labels to \~0.30 under category+colour+pattern labels, see Appendix A.2 and A.3) due to the finer-grained relevance criterion. RAM figures are approximate, estimated from each model's parameter count plus PyTorch runtime overhead (ranging from ~100 MB for EfficientNet-B0 to ~600 MB for the CLIP-family models) because direct process-level measurement proved unreliable. The 5,000-image evaluation establishes retrieval quality and relative model ranking, but does not characterise behaviour at production catalogue scale (millions of items), where index build time, query throughput under concurrent load, and embedding-storage growth become the dominant operational concerns. Finally, Fashion-CLIP's retrieval advantage over general-purpose CLIP may partly reflect differences in its 700K-image fashion pre-training corpus rather than architecture or fine-tuning alone; isolating each factor's contribution is outside this thesis's scope.
+Several limitations affect how well these findings apply more broadly. The benchmark uses 5,000 product images from a single dataset; results may not generalise to other markets. All figures were measured on a single laptop with CPU-only inference. The binary category-label ground truth is an imperfect stand-in for visual similarity. No formal user study was conducted. All models were used as published without fine-tuning. CLIP-based models' text-to-image capability was not assessed. The enriched-label scheme reduces P\@20 substantially (from \~0.90 under category-only labels to \~0.30 under category+colour+pattern labels, see Appendix A.2 and A.3) due to the finer-grained relevance criterion. RAM figures are approximate, estimated from each model's parameter count plus PyTorch runtime overhead (ranging from ~100 MB for EfficientNet-B0 to ~600 MB for the CLIP-family models) because direct process-level measurement proved unreliable. The 5,000-image benchmark establishes retrieval quality and relative model ranking, but does not characterise behaviour at production catalogue scale (millions of items), where index build time, query throughput under concurrent load, and embedding-storage growth become the dominant operational concerns. Finally, Fashion-CLIP's retrieval advantage over general-purpose CLIP may partly reflect differences in its 700K-image fashion pre-training corpus rather than architecture or fine-tuning alone; isolating each factor's contribution is outside this thesis's scope.
 
 === Ethical Considerations
 
@@ -76,17 +76,17 @@ These directions outline next steps from research demonstration toward a product
     [Chapter 2, Section 2.3.4, Section 2.4.3],
     [IVFFlat cosine similarity queries under 10 ms (2.7--6.5 ms); vectors share PostgreSQL database with relational data.],
     [Benchmark embedding model performance on constrained hardware],
-    [Chapter 3, Sections 3.2--3.7],
-    [Six models evaluated on 5,000 images. Fashion-CLIP: mAP 0.9336; EfficientNet-B0: 42.6 ms.],
+    [Chapter 3, Sections 3.3--3.8],
+    [Six models benchmarked on 5,000 images. Fashion-CLIP: mAP 0.9336; EfficientNet-B0: 42.6 ms.],
     [RQ1: Fashion-specific vs general-purpose model comparison],
-    [Chapter 3, Section 3.3; Chapter 3, Section 3.5],
+    [Chapter 3, Section 3.4; Chapter 3, Section 3.6],
     [Fashion-CLIP outperforms all other models: mAP 0.9336 vs 0.9077--0.9299 (+0.40--2.86%); DINOv2 ViT-S/14 closes to within 0.40% on category-only retrieval.],
     [RQ2: Accuracy vs speed trade-offs],
-    [Chapter 3, Sections 3.3--3.6],
+    [Chapter 3, Sections 3.4--3.7],
     [Fashion-CLIP: mAP 0.9336 at 113.6 ms; EfficientNet-B0: 97.2% of accuracy at 37.5% of latency (42.6 ms).],
     [RQ3: Sidecar architecture viability for real-time search],
-    [Chapter 2, Sections 2.3.2--2.3.3; Chapter 3, Section 3.7.4],
-    [End-to-end latency under one second; independent scaling and fault isolation without distributed overhead.],
+    [Chapter 2, Sections 2.3.2--2.3.3; Chapter 3, Section 3.8.4],
+    [End-to-end latency under one second; independent scaling and fault isolation as architectural design properties of the sidecar boundary without distributed overhead.],
     [Build AI service],
     [Chapter 2, Section 2.3.2],
     [Python FastAPI service with three-layer architecture, lazy-loading, containerised via Docker.],
@@ -99,14 +99,14 @@ These directions outline next steps from research demonstration toward a product
     [Create the user interface],
     [Chapter 2, Sections 2.3.3 and 2.3.5],
     [Vue 3 storefront: drag-and-drop upload, similarity badges, product-card display, client-side validation.],
-    [Evaluate the results],
-    [Chapter 3, Sections 3.2--3.7],
+    [Assess the results],
+    [Chapter 3, Sections 3.3--3.8],
     [Six-model benchmark, 3-fold cross-validation on 5,000 images, seven reported accuracy columns (three metric families at three depths) and five efficiency metrics, plus three-way ground-truth sensitivity.],
   ),
-  caption: [Requirements traceability: mapping from Chapter 1 objectives and research questions to the chapters where they are addressed, with key findings showing each was met.],
+  caption: [Requirements traceability mapping objectives and research questions to chapters.],
   kind: table,
 ) <tbl-traceability>
 
-The traceability table shows thesis completeness: every objective finds resolution in the architecture, implementation, and evaluation chapters.
+The traceability table shows thesis completeness: every objective finds resolution in the architecture, implementation, and analysis chapters.
 
 This thesis demonstrated that integrating deep learning-based visual search into a conventional e-commerce platform is technically feasible with open-source tools on modest hardware. The contributions are offered as building blocks for practitioners enabling customers to search by showing, not describing.

@@ -4,15 +4,15 @@ Three management areas: address book with type labels and default-address toggle
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-profile-addresses.png", width: 100%),
-  caption: [Address book: saved address cards with recipient name, phone, full address, type badge. Edit/Delete icons per card. "Add New Address" button with inline form.],
+  caption: [Address book: address cards with edit/delete and inline add-new form.],
 ) <fig-profile-addresses>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-profile-wishlists.png", width: 100%),
-  caption: [Wishlists: grid of cards with name, item count, privacy toggle, delete icon. Expanded card shows product thumbnails.],
+  caption: [Wishlists: cards with item counts, privacy toggles, product thumbnails.],
 ) <fig-profile-wishlists>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/storefront-profile-notifications.png", width: 100%),
-  caption: [Notifications: two-column toggle table (Order Updates: Email/SMS, Promotions: Email/SMS, Stock Alerts: Email/SMS).],
+  caption: [Notification preferences: Email/SMS toggles per notification category.],
 ) <fig-profile-notifications>

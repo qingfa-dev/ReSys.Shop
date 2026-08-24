@@ -1,6 +1,6 @@
 === Feature Classification
 
-Platform features are categorized into Core Research contributions and Supporting Infrastructure to define thesis scope. Core contributions are detailed in Sections 2.3 and 2.4; supporting modules provide a realistic e-commerce environment for evaluation (Section 3.2).
+Platform features are categorized into Core Research contributions and Supporting Infrastructure to define thesis scope. Core contributions are detailed in Sections 2.3 and 2.4; supporting modules provide a realistic e-commerce environment for the benchmark experiments (Chapter 3).
 
 #figure(
   table(
@@ -36,7 +36,7 @@ Platform features are categorized into Core Research contributions and Supportin
     [Product Catalog], 
     [Supporting], 
     [
-      *Evaluation Domain:* Structured fashion product data serving as the vector search target.
+      *Benchmark Domain:* Structured fashion product data serving as the vector search target.
     ],
 
     [Order System], 
@@ -58,5 +58,5 @@ Platform features are categorized into Core Research contributions and Supportin
     ],
   ),
   kind: table,
-  caption: [Classification of system feature areas into Core Research contributions and Supporting Infrastructure components.],
+  caption: [Feature areas classified as Core Research vs Supporting Infrastructure.],
 ) <tbl-feature-classification>

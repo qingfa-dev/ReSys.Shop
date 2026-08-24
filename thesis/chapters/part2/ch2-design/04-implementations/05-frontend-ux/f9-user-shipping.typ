@@ -4,12 +4,12 @@
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-user-list.png", width: 100%),
-  caption: [Users: table with avatar (initials fallback), Name, Email, Registered, Status toggle, Roles badges, Last Login. Toolbar: search, status/role filters, "Add User" button.],
+  caption: [User list with status toggle and roles; search and filter toolbar.],
 ) <fig-admin-user-list>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-user-edit.png", width: 100%),
-  caption: [User edit form: Full Name, Email, Enabled toggle, Roles multi-select checkboxes. Save/Cancel.],
+  caption: [User edit form: name, email, enabled toggle, role checkboxes.],
 ) <fig-admin-user-edit>
 
 *Role management.* Role table: name, description, user count, creation date. Expanding a role shows permission assignments in an expandable tree grouped by domain, each with `domain.category.resource.action` checkbox toggles (see screenshots below).
@@ -21,7 +21,7 @@
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-role-permissions.png", width: 100%),
-  caption: [Role editor: domain list and permissions tree (Products: Create/Read/Update/Delete; Variants; Images; Taxonomies) with `domain.category.resource.action` checkbox toggles. "Save Permissions" button.],
+  caption: [Role editor: permissions tree with domain.category.resource.action toggles.],
 ) <fig-admin-role-permissions>
 
 ===== Shipping Configuration: UC-ADM-SHP
@@ -30,7 +30,7 @@ Shipping methods table: carrier name, delivery estimate, active toggle, rates co
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-shipping-methods.png", width: 100%),
-  caption: [Shipping methods: table with name, carrier, delivery estimate, active toggle, rates count badge.],
+  caption: [Shipping methods: carrier, delivery estimate, active toggle, rates count.],
 ) <fig-admin-shipping-methods>
 
 #figure(

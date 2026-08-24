@@ -17,8 +17,8 @@ During training, CLIP processed 400 million image-text pairs from the public web
 
 CLIP has two separate towers:
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_clip-vit-b16.png", width: 70%),
-  caption: [CLIP ViT-B/16 dual-tower architecture: images and text are converted to vectors in the same embedding space, allowing direct comparison],
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_clip-vit-b16.png", width: 75%),
+  caption: [CLIP ViT-B/16 dual-tower architecture],
 ) <fig-clip-arch>
 
 - *Image Tower.* Processes the image using a Vision Transformer (ViT-B/16, ViT-B/32, or ViT-L/14).
@@ -47,13 +47,13 @@ Fashion-CLIP further trains CLIP on over 700,000 fashion product images paired w
 - Style categories ("streetwear," "preppy," "athleisure").
 - Occasion suitability ("office wear," "cocktail party," "beach vacation").
 
-Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports an improvement on fashion retrieval over general CLIP; the benchmark evaluation in Chapter 3 (§3.5) measured a 1.46% relative mAP advantage under category-only evaluation @chia2022fashionclip.
+Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports an improvement on fashion retrieval over general CLIP; the benchmark analysis in Chapter 3 (§3.6) measured a 1.46% relative mAP advantage under category-only relevance @chia2022fashionclip.
 #figure(
   image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_fashion-clip.png", height: 50%),
-  caption: [Fashion-CLIP dual-tower architecture: image and text towers independently encode their inputs into 512-dimensional embeddings converging in a shared latent space],
+  caption: [Fashion-CLIP dual-tower architecture with shared 512-dimensional embeddings],
 ) <fig-fashion-clip-arch>
 
-==== Evaluated CLIP Variants
+==== Benchmarked CLIP Variants
 
 #figure(
   table(
@@ -66,5 +66,5 @@ Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embed
     [Fashion-CLIP], [Dual-tower (ViT + text transformer)], [Contrastive, fine-tuned on 700K fashion images], [Fashion-specific],
   ),
     kind: table,
-  caption: [CLIP variants evaluated],
+  caption: [CLIP variants benchmarked],
 ) <tbl-clip-models>

@@ -4,12 +4,12 @@ Filterable, paginated order grid with order number, customer name (linked), chec
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-orders-grid.png", width: 100%),
-  caption: [Order management: data table with Order Number, Customer, Checkout State (coloured badges), Payment Status, Shipment Status, Total, Created. Filter bar with status multi-select and checkout-state filters, date range, search.],
+  caption: [Order management: table with checkout/payment/shipment statuses and filters.],
 ) <fig-admin-orders-grid>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-order-detail.png", width: 100%),
-  caption: [Order detail: header with Order Number, customer link, status badge. State transition timeline (Created to Address Set to Delivery Selected to Payment Confirmed). Line items table. Address blocks. Payment section with transaction ID, state, Capture/Refund buttons. Shipment tracking. Action buttons.],
+  caption: [Order detail: status header, state timeline, line items, payment actions.],
 ) <fig-admin-order-detail>
 
 ===== Payment Management: UC-ADM-PAY, UC-ADM-PAY-METHOD
@@ -18,12 +18,12 @@ Payment detail panel shows payment intent ID, gateway provider, transaction ID, 
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-payment-detail.png", width: 100%),
-  caption: [Payment detail: Payment Intent ID, gateway badge, amount, state timeline. Action bar with Refund/Void. Payment log table. Webhook event log.],
+  caption: [Payment detail: Payment Intent ID, gateway, timeline, refund/void actions.],
 ) <fig-admin-payment-detail>
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-payment-methods.png", width: 100%),
-  caption: [Payment methods: table with gateway name, active toggle, supported currencies, Edit/Delete. "Add Payment Method" button.],
+  caption: [Payment methods: gateways with active toggles and supported currencies.],
 ) <fig-admin-payment-methods>
 
 ===== Dashboard
@@ -32,5 +32,5 @@ The admin dashboard summarises key operational metrics for orders, revenue, inve
 
 #figure(
   image("../../../../../figures/chapters/part2/ch2-design/04-implementations/screenshots/admin-dashboard.png", width: 100%),
-  caption: [Admin dashboard: operational overview with order/revenue/inventory summary cards and navigation into each management surface.],
+  caption: [Admin dashboard: order/revenue/inventory summary cards.],
 ) <fig-admin-dashboard>

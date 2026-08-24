@@ -2,12 +2,12 @@
 
 #figure(
   image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_map.png", width: 75%),
-  caption: [mAP comparison across six evaluated models. Fashion-CLIP leads at 0.9336, followed by DINOv2 ViT-S/14 (0.9299), CLIP ViT-B/16 (0.9202), CLIP ViT-B/32 (0.9184), ResNet-50 (0.9132), and EfficientNet-B0 (0.9077).],
+  caption: [mAP comparison across six benchmarked models, with Fashion-CLIP leading at 0.9336.],
 ) <fig-benchmark-map>
 
 #figure(
   image("../../../figures/chapters/part2/ch3-evaluation/diagrams/P2S3.5_benchmark_precision.png", width: 75%),
-  caption: [Precision at K (K = 5, 10, 20) across six evaluated models. Fashion-CLIP maintains the highest precision at every retrieval depth.],
+  caption: [Precision at K = 5, 10, and 20, with Fashion-CLIP highest across all six models.],
 ) <fig-benchmark-precision>
 
 #figure(
@@ -33,11 +33,11 @@ Fashion-CLIP achieved the highest retrieval accuracy across every metric, but th
 
 The three transformer-based models (Fashion-CLIP, DINOv2 ViT-S/14, and the two CLIP ViT-B variants) form the top tier, separated from the two CNN models (ResNet-50, EfficientNet-B0) by roughly 0.5--1.5 percentage points in mAP. ResNet-50's higher embedding dimensionality (2,048 vs 1,280 for EfficientNet-B0, 512 for the CLIP family) does not improve category-level retrieval, consistent with higher dimensionality benefiting finer-grained distinctions rather than coarse category classification.
 
-With only 3 folds, formal significance testing has limited power. Using the non-overlapping-bounds heuristic, Fashion-CLIP's lower mAP bound (mean minus two standard deviations: 0.9216) exceeds the upper bounds of the two CNN models (ResNet-50 0.9246, EfficientNet-B0 0.9229) only marginally, and overlaps the upper bounds of DINOv2 (0.9415) and the CLIP ViT-B variants. Four of the six models therefore form a statistically indistinguishable cluster on category-only retrieval; the two CNNs sit at its lower edge.
+With only 3 folds, formal significance testing has limited power. Using the non-overlapping-bounds heuristic (mean ± two standard deviations), Fashion-CLIP's lower mAP bound (0.9216) overlaps the upper bounds of every other model — DINOv2 (0.9415), CLIP ViT-B/16 (0.9288), CLIP ViT-B/32 (0.9304), ResNet-50 (0.9246), and EfficientNet-B0 (0.9229). No model can therefore be separated from any other at this heuristic level: the full six-model field forms a statistically indistinguishable cluster on category-only retrieval, and Fashion-CLIP's lead should be read as the highest observed mean rather than a demonstrated advantage.
 
 === Ground-Truth Sensitivity
 
-The category-only scheme above is the broadest relevance definition and yields the highest absolute scores. To validate that the model ranking is not an artefact of this single label scheme, all six models were re-evaluated under two progressively stricter ground-truth definitions: *category + colour* (requiring master category and base colour agreement) and *category + colour + pattern* (additionally requiring pattern-attribute agreement). The three configurations are summarised below and reported in full in Appendix A.
+The category-only scheme above is the broadest relevance definition and yields the highest absolute scores. To validate that the model ranking is not an artefact of this single label scheme, all six models were re-measured under two progressively stricter ground-truth definitions: *category + colour* (requiring master category and base colour agreement) and *category + colour + pattern* (additionally requiring pattern-attribute agreement). The three configurations are summarised below and reported in full in Appendix A.
 
 #figure(
   caption: [mAP Under Three Ground-Truth Definitions (6 Models, 3-Fold CV)],

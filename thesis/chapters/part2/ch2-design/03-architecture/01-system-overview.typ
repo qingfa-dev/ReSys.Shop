@@ -32,7 +32,7 @@ ReSys.Shop has three services -- a Vue 3 frontend, a .NET 10 backend @microsoft-
     ],
   ),
     kind: table,
-  caption: [System services and their technology stacks. Each service communicates through well-defined HTTP contracts.],
+  caption: [System services with technology stacks and HTTP contracts.],
 ) <tbl-system-services>
 
 Internally, the backend is partitioned into eight bounded contexts, each owning a dedicated database schema. @tbl-contexts-overview lists each context, its aggregate root, and key domain entities.
@@ -79,5 +79,5 @@ Internally, the backend is partitioned into eight bounded contexts, each owning 
     ],
   ),
     kind: table,
-  caption: [Bounded contexts with aggregate roots and key domain entities. Each context owns its database schema and communicates through MediatR dispatch only.],
+  caption: [Bounded contexts with aggregate roots, key entities, and MediatR dispatch.],
 ) <tbl-contexts-overview>

@@ -29,7 +29,7 @@ The platform uses pinned versions across three ecosystems: .NET 10 for transacti
     [*Test Suites*], [xUnit v3 3.2.2, pytest >= 8.0, Vitest 4, Playwright],
   ),
   kind: table,
-  caption: [Principal technologies grouped by architectural role with pinned version specifications.],
+  caption: [Principal technologies grouped by architectural role with pinned versions.],
 ) <tbl-framework-matrix>
 
 ==== Service Containerization

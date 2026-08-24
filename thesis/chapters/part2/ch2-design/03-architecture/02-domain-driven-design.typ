@@ -10,7 +10,7 @@ The platform is partitioned into eight *bounded contexts* along business capabil
 
 #figure(
   image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_bounded-context-map.png", width: 100%),
-  caption: [Bounded Context Map showing the eight business contexts with Published Language identifiers exchanged via in-process MediatR dispatch.],
+  caption: [Bounded Context Map: eight contexts with Published Language identifiers.],
 ) <fig-bounded-context-map>
 
 #figure(
@@ -66,7 +66,7 @@ The platform is partitioned into eight *bounded contexts* along business capabil
 
     [Shipping],
     [
-      - Delivery method definitions, rate evaluation, and zone configuration
+      - Delivery method definitions, rate calculation, and zone configuration
     ],
     [`ShippingMethodId`, `Rate`],
 
@@ -77,7 +77,7 @@ The platform is partitioned into eight *bounded contexts* along business capabil
     [`CountryId`, `StateId`, `IsoCode`],
   ),
   kind: table,
-  caption: [Bounded context responsibilities and Published Language identifiers. The Published Language column lists the value types that other contexts may reference by identifier only, never by importing the source context's namespace.],
+  caption: [Bounded context responsibilities and Published Language identifiers.],
 ) <tbl-context-responsibilities>
 
 ==== Aggregates and Invariants
@@ -133,7 +133,7 @@ Explicit state machines inside domain entities govern checkout and payment workf
 Checkout advances through five forward-only stages: Address, Delivery, Payment, Confirm, and Complete (@fig-order-state-machine). Users can cancel at any pre-completion stage.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_order-state-machine.png", width: 70%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_order-state-machine.png", height: 60%),
   caption: [Order checkout state machine showing forward-only stages and cancellation paths.],
 ) <fig-order-state-machine>
 
@@ -142,6 +142,6 @@ Checkout advances through five forward-only stages: Address, Delivery, Payment, 
 Payment intents follow a lifecycle from `Pending` through `Processing` to `Succeeded` or `Failed` (@fig-payment-state-machine). Authorized intents support capture and refund operations.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_payment-state-machine.png", width: 70%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_payment-state-machine.png", height: 60%),
   caption: [Payment intent lifecycle and terminal states.],
 ) <fig-payment-state-machine>
