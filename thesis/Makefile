@@ -2,6 +2,8 @@
 # Renders all Mermaid (.mmd), PlantUML (.puml), and benchmark chart sources
 # Source tree: figures/chapters/part2/{ch1,ch2,ch3}/
 # Output: PNG alongside each source file
+# ERD core + per-schema diagrams render with the neutral theme (see rules below);
+# all other Mermaid diagrams use the default theme.
 # Benchmark charts: figures/.../ch3-evaluation/diagrams/generate_benchmark_figures.py
 # (generator co-located with its output PNGs, mirroring the 04-implementations/diagram convention)
 
@@ -46,6 +48,10 @@ figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.png
 	@echo "  [mmd-erd] $(notdir $<) -> $(notdir $@)"
 	@$(MMDC) -i $< -o $@ -w 2400 -s 1 -b transparent -t neutral
 
+figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-%.png: figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-%.mmd
+	@echo "  [mmd-erd-schema] $(notdir $<) -> $(notdir $@)"
+	@$(MMDC) -i $< -o $@ -w 1600 -s 2 -b transparent -t neutral
+
 %.png: %.mmd
 	@echo "  [mmd] $(notdir $<) -> $(notdir $@)"
 	@$(MMDC) -i $< -o $@ -w 4800 -s 2 -b transparent -t default
@@ -53,7 +59,7 @@ figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.png
 %.png: %.puml
 	@echo "  [puml] $(notdir $<) -> $(notdir $@)"
 	@$(PLANTUML) -tpng -output "$(abspath $(dir $@))" "$<" > /dev/null 2>&1; \
-	STARTUML_NAME=$$(grep -oP '@startuml \K.*' "$<" || echo ""); \
+	STARTUML_NAME=$$(grep -oP '@start(uml|wbs) \K.*' "$<" || echo ""); \
 	if [ -n "$$STARTUML_NAME" ]; then \
 	  GEN_PNG="$(abspath $(dir $@))/$$STARTUML_NAME.png"; \
 	  if [ -f "$$GEN_PNG" ] && [ "$$GEN_PNG" != "$(abspath $@)" ]; then \

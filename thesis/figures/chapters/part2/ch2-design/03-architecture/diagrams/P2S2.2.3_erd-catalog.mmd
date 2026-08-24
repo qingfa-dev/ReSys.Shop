@@ -1,0 +1,122 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '96px'}}}%%
+erDiagram
+
+  Product {
+    uuid id PK
+    string slug UK
+    string name
+    string status
+    string style_code
+    string season_name
+    string department
+    string gender_target
+    uuid master_variant_id FK
+    bool is_deleted
+  }
+
+  Variant {
+    uuid id PK
+    uuid product_id FK
+    bool is_master
+    string sku UK
+    decimal price
+    decimal cost_price
+    bool track_inventory
+    decimal weight
+    decimal height
+    decimal width
+    decimal depth
+    bool is_deleted
+  }
+
+  VariantImage {
+    uuid id PK
+    uuid variant_id FK
+    string url
+    string storage_path
+    string type
+    int position
+  }
+
+  VariantImageEmbedding {
+    uuid id PK
+    uuid variant_image_id FK
+    string model_name
+    vector(512) vector
+    int dimensions
+    string status
+  }
+
+  Price {
+    uuid id PK
+    uuid variant_id FK
+    decimal amount
+    decimal compare_at_amount
+    string currency
+    bool is_default
+  }
+
+  OptionType {
+    uuid id PK
+    string name
+    int position
+    bool filterable
+  }
+
+  OptionValue {
+    uuid id PK
+    uuid option_type_id FK
+    string name
+    int position
+  }
+
+  ProductOptionType {
+    uuid id PK
+    uuid product_id FK
+    uuid option_type_id FK
+  }
+
+  OptionValueVariant {
+    uuid id PK
+    uuid variant_id FK
+    uuid option_value_id FK
+  }
+
+  Taxonomy {
+    uuid id PK
+    string name
+    int position
+  }
+
+  Taxon {
+    uuid id PK
+    uuid taxonomy_id FK
+    uuid parent_id FK
+    string name
+    string slug
+    int position
+    int lft
+    int rgt
+    int depth
+  }
+
+  Classification {
+    uuid id PK
+    uuid product_id FK
+    uuid taxon_id FK
+    bool is_automatic
+  }
+
+  Product ||--o{ Variant : ""
+  Product ||--o{ ProductOptionType : ""
+  Product ||--o{ Classification : ""
+  Variant ||--o{ VariantImage : ""
+  VariantImage ||--o{ VariantImageEmbedding : ""
+  Variant ||--o{ Price : ""
+  Variant ||--o{ OptionValueVariant : ""
+  OptionType ||--o{ OptionValue : ""
+  OptionType ||--o{ ProductOptionType : ""
+  OptionValue ||--o{ OptionValueVariant : ""
+  Taxonomy ||--o{ Taxon : ""
+  Taxon ||--o{ Taxon : "parent"
+  Taxon ||--o{ Classification : ""
