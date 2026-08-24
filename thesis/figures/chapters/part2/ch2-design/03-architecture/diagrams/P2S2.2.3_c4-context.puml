@@ -17,14 +17,12 @@ System_Boundary(c1, "ReSys.Shop System") {
 System_Ext(stripe, "Stripe", "Payment processing and webhook sender")
 System_Ext(sendgrid, "SendGrid / SMTP", "Transactional email delivery")
 System_Ext(s3, "S3-Compatible Storage", "Object storage for product images")
-System_Ext(google, "Google OAuth", "External identity provider")
 
 Rel(customer, resys, "Searches, browses, checks out", "HTTPS")
 Rel(admin, resys, "Administers catalog, orders, users", "HTTPS")
 Rel(stripe, resys, "POSTs payment events", "HTTPS (webhook)")
 Rel(resys, sendgrid, "Sends transactional emails", "SMTP / HTTPS")
 Rel(resys, s3, "Stores/retrieves images", "HTTPS (S3 API)")
-Rel(resys, google, "Redirects for OAuth login", "HTTPS (OAuth 2.0)")
 Rel(resys, ml_sidecar, "Requests image embeddings", "HTTP internal")
 
 @enduml

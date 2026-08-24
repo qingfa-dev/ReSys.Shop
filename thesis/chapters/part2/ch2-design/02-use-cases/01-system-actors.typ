@@ -1,7 +1,7 @@
 === System Actors
 
 Three categories of actors interact with the platform, separated by access level and interaction surface.
-Individual use cases may additionally reference supporting external systems (ML Service, Payment Gateway, Email Service, OAuth Provider) under a Support field, a standard UML convention distinct from the three primary actors.
+Individual use cases may additionally reference supporting external systems (ML Service, Payment Gateway, Email Service) under a Support field, a standard UML convention distinct from the three primary actors.
 
 ==== Customer
 
@@ -9,7 +9,7 @@ The *Customer* accesses the browser-based *storefront*.
 
 - *Discovery.* Browse catalog with faceted filters, keyword search, and visual CBIR (Section 2.3.3). Guests browse and cart without registration; session promoted on login.
 - *Purchase.* Persistent cart, multi-step checkout (address, delivery, payment, confirm).
-- *Account.* Register or Google OAuth login; manage profile, addresses, wishlists, order history.
+- *Account.* Register or log in; manage profile, addresses, wishlists, order history.
 
 ==== Administrator
 

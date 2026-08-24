@@ -43,7 +43,7 @@ Endpoints follow the convention `/api/{surface}/{module}/{resource}`, where `sur
     [80],
     [Identity],
     [Users, roles, permissions catalogue],
-    [Login (password/Google), register, logout, session refresh, email, password reset],
+    [Login, register, logout, session refresh, email, password reset],
     [37],
     [Ordering],
     [Orders, line items, status transitions, shipping/billing address, dashboard],
@@ -75,7 +75,7 @@ Endpoints follow the convention `/api/{surface}/{module}/{resource}`, where `sur
     [1],
   ),
   kind: table,
-  caption: [ReSys.Shop API endpoint contract: approximately 262 Carter endpoints across eight business modules.],
+  caption: [ReSys.Shop API contract: ~262 Carter endpoints across eight modules.],
 ) <tbl-api-contract>
 
 ==== Error Handling

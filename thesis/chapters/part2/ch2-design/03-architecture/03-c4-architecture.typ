@@ -8,18 +8,17 @@ The system context shows how ReSys.Shop fits into its operating environment, inc
 
 #figure(
   image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_c4-context.png", width: 100%),
-  caption: [System Context diagram: ReSys.Shop system boundary showing user roles and external integration dependencies.],
+  caption: [System Context diagram: ReSys.Shop boundary, user roles, external integrations.],
 ) <fig-c4-context>
 
 The platform interacts with two human user groups:
 - *Customers:* Browse the catalog, run visual and keyword searches, manage carts, and complete checkouts.
 - *Administrators:* Manage products, process orders, track inventory, and administer user accounts.
 
-Five external integrations:
+Four external integrations:
 - *Stripe:* Payment intent lifecycles and webhook notifications via signature verification.
 - *SendGrid:* Transactional emails (order confirmations, password resets, shipping updates).
 - *S3-Compatible Storage:* Product asset persistence.
-- *Google OAuth:* Customer single sign-on authentication.
 - *Python ML Sidecar:* Image embedding generation within the container orchestration boundary.
 
 ==== Container
@@ -28,7 +27,7 @@ The container view decomposes ReSys.Shop into six standalone deployable processe
 
 #figure(
   image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_c4-container.png", width: 100%),
-  caption: [Container diagram showing Vue 3 SPAs, .NET 10 API backend, Python ML sidecar, PostgreSQL with pgvector, and Redis.],
+  caption: [Containers: Vue 3 SPAs, .NET 10 API, ML sidecar, PostgreSQL/pgvector, Redis.],
 ) <fig-c4-container>
 
 The deployable units:
@@ -46,7 +45,7 @@ The component view details the internal structure of the API Backend container (
 
 #figure(
   image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_c4-component.png", width: 100%),
-  caption: [Component diagram detailing the API Backend architecture and the three-layer Python ML sidecar.],
+  caption: [Component diagram: API Backend internals and three-layer Python ML sidecar.],
 ) <fig-c4-component>
 
 HTTP requests enter through Carter modules, which validate parameters and dispatch commands or queries via MediatR's `ISender` through logging, validation, and exception-handling pipeline behaviors.

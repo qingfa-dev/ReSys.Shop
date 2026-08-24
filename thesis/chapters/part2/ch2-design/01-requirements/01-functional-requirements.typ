@@ -1,6 +1,6 @@
 === Functional Requirements
 
-Functional requirements are organized by business module. Each has a unique identifier that is used throughout the design, implementation, and evaluation chapters.
+Functional requirements are organized by business module. Each has a unique identifier that is used throughout the design, implementation, and testing chapters.
 
 ==== Catalog Module
 
@@ -57,7 +57,6 @@ Authentication, authorization, and user management with JWT access tokens and re
 
     [IDN-FR-01], [Registration], [Register customer accounts with email, password, and basic profile information.], [High],
     [IDN-FR-02], [Password Login], [Authenticate via email and password, issuing a 15-minute JWT access token and refresh token.], [High],
-    [IDN-FR-03], [OAuth Login], [Authenticate via Google OAuth 2.0 as an alternative to password credentials.], [Medium],
     [IDN-FR-04], [Token Rotation], [Invalidate previous refresh tokens upon issuance, returning a new access/refresh pair.], [High],
     [IDN-FR-05], [Reuse Detection], [Revoke all active refresh tokens for a user if a previously consumed token is presented.], [High],
     [IDN-FR-06], [Guest Sessions], [Support guest sessions via signed cookies, enabling anonymous cart management and browsing.], [High],
@@ -70,7 +69,6 @@ Authentication, authorization, and user management with JWT access tokens and re
     [IDN-FR-15], [Email Lifecycle], [Confirm email addresses via verification tokens and support email modification requests.], [Medium],
     [IDN-FR-16], [Session Management], [Retrieve current sessions, inspect refresh tokens, and terminate sessions via logout.], [High],
     [IDN-FR-09], [User Governance], [Manage user accounts, role bindings, and permission grants via administrative endpoints.], [Medium],
-    [IDN-FR-10], [Two-Factor Auth], [Provide optional TOTP-based two-factor authentication.], [Low],
   ),
   kind: table,
   caption: [Identity module functional requirements.],
@@ -183,8 +181,8 @@ Delivery options, geographic zones, and rate calculation.
     [SHP-FR-04], [Method Management], [Create, update, activate, deactivate, and delete shipping methods via administrative endpoints.], [Medium],
     [SHP-FR-05], [Rate Lifecycle], [Manage rate matrices mapped to shipping methods, geographic zones, and weight/value tiers.], [Medium],
     [SHP-FR-02], [Rate Calculation], [Calculate shipping costs dynamically based on address zone, method, cart weight, and total value.], [Medium],
-    [SHP-FR-06], [Storefront Evaluation], [Evaluate and display eligible shipping methods and rates during checkout.], [High],
-    [SHP-FR-03], [Shipment Tracking], [Assign carrier identifiers and tracking tracking numbers to active shipments.], [Low],
+    [SHP-FR-06], [Storefront Rate Selection], [Calculate and display eligible shipping methods and rates during checkout.], [High],
+    [SHP-FR-03], [Shipment Status Tracking], [Progress active shipments through their state lifecycle (Pending, Ready, Shipped, Delivered) via administrative status updates.], [Low],
   ),
   kind: table,
   caption: [Shipping module functional requirements.],
