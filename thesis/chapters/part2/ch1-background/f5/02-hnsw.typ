@@ -10,6 +10,6 @@ HNSW is the preferred index for production-scale vector search @malkov2018effici
 *Configuration parameters:*
 
 - *M.* Connections per node. Default 16. Higher improves recall at cost of memory and build time.
-- *ef_construction.* Candidates evaluated during index build. Higher produces better index at cost of build time.
+- *ef_construction.* Candidates assessed during index build. Higher produces better index at cost of build time.
 
 HNSW's logarithmic query cost makes it suitable for interactive fashion retrieval at millions of catalog items @malkov2018efficient, where sub-100 ms latency is required.

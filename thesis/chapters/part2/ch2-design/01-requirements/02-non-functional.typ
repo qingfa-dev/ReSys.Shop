@@ -1,6 +1,6 @@
 === Non-Functional Requirements
 
-Five quality dimensions define production-readiness constraints with atomic, measurable targets. Verification is evaluated in Chapter 3.
+Five quality dimensions define production-readiness constraints with atomic, measurable targets. Verification is assessed in Chapter 3.
 
 #figure(
   table(
@@ -28,20 +28,20 @@ Five quality dimensions define production-readiness constraints with atomic, mea
       *Endpoint Authorization:* Enforce fine-grained claims (`domain.category.resource.action`) at the API middleware boundary.
     ],
     [NFR-02c], [Security], [
-      *Rate Limiting:* Authentication *5 attempts/min*; registration *3 attempts/hour* per client IP.
+      *Rate Limiting:* Per-IP fixed-window rate-limit policies for authentication, registration, password reset, payment, and webhook endpoints, configurable via the `RateLimit` settings.
     ],
     [NFR-02d], [Security], [
       *Upload Hardening:* Validate files via magic-byte header inspection, enforce extension allowlists, cap at *10 MB*.
     ],
     [NFR-02e], [Security], [
-      *Transport Security:* Inject security headers (`CSP`, `HSTS`, `X-Frame-Options`, `X-Content-Type-Options`).
+      *Transport Security:* Inject security headers (`CSP`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) via middleware; HSTS is applied by the reverse-proxy layer in deployment.
     ],
 
     [NFR-03a], [Modularity], [
-      *Compile-Time Isolation:* Zero direct cross-module references within a single .NET assembly via build policy checks.
+      *Single-Assembly Modularity:* All business modules compile into one `Module` assembly with forward-only dependencies (`Shared` → `Module` → `Api`); cross-module references are permitted and guarded by build targets.
     ],
     [NFR-03b], [Modularity], [
-      *Decoupled Messaging:* Route inter-module communications exclusively through MediatR in-process dispatch.
+      *Decoupled Behaviour:* Route inter-module work through MediatR in-process dispatch where pipeline value (validation, logging, transactions) applies; direct service calls and navigations are used where they fit the feature slice.
     ],
     [NFR-03c], [Modularity], [
       *Module Testability:* Each module independently testable without initializing foreign contexts.
@@ -54,14 +54,14 @@ Five quality dimensions define production-readiness constraints with atomic, mea
       *Structured Logging:* Unique correlation identifier in every log entry across distributed execution paths.
     ],
     [NFR-04c], [Observability], [
-      *Health Monitoring:* Dedicated endpoints verifying database, cache, and sidecar connectivity.
+      *Health Monitoring:* .NET `/health/live` and `/health/ready` endpoints verifying database and cache connectivity; the Python sidecar exposes its own readiness (`/health`) and liveness (`/alive`) endpoints.
     ],
 
     [NFR-05a], [Reliability], [
       *Job Durability:* Background tasks via Hangfire @hangfire-docs backed by Redis @redis-docs to survive process restarts.
     ],
     [NFR-05b], [Reliability], [
-      *Automated Maintenance:* Daily purge of carts inactive for *7 days* and release associated inventory reservations.
+      *Automated Maintenance:* Scheduled purge of carts inactive for *7 days* (hourly recurring job) and release of associated inventory reservations.
     ],
     [NFR-05c], [Reliability], [
       *Webhook Idempotency:* Idempotency key checks on Stripe webhooks to prevent duplicate state updates.

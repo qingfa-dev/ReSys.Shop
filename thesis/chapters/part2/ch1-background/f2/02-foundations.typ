@@ -17,7 +17,7 @@ Within this space:
 
 ==== Measuring Similarity: Cosine Similarity
 
-To evaluate how closely two images match, the system measures the directional angle between their corresponding embedding vectors $bold(A)$ and $bold(B)$ using *cosine similarity*:
+To measure how closely two images match, the system measures the directional angle between their corresponding embedding vectors $bold(A)$ and $bold(B)$ using *cosine similarity*:
 
 $ "Cosine Similarity"(bold(A), bold(B)) = (bold(A) dot bold(B)) / (||bold(A)||_2 times ||bold(B)||_2) $
 

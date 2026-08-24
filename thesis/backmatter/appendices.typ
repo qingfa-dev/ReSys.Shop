@@ -2,4 +2,3 @@
 #include "appendices/a-benchmark-results.typ"
 #include "appendices/b-dataset.typ"
 #include "appendices/c-hardware.typ"
-#include "appendices/d-database.typ"

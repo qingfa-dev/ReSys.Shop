@@ -1,10 +1,22 @@
-=== Use Case Summary Matrix
+=== Use Case Overview
 
-@tbl-uc-summary consolidates all use cases across the three actors and provides traceability to the functional requirements defined in Section 2.1.
+The platform's 26 use cases are organised around three actors and grouped by business module, as summarised in @tbl-uc-summary and structured by the work breakdown in @fig-uc-overview. The Administrator interacts with seven modules (Catalog, Ordering, Payment, Inventory, Identity, Shipping, Location); the Customer interacts with five modules (Catalog, Ordering, Payment, Identity, Profile); and the System performs background operations through the System Services module.
+
+These modules map onto the feature classification of Section 2.1.3. The Core Research contributions (Visual Search, the ML embedding pipeline, and the model benchmark system) are embodied by UC-STR-SRC (Visual Search), UC-SYS-EMB (Embedding Operations), and UC-ADM-IMG (Image and Embedding Management). The Supporting infrastructure areas (Product Catalog, Order System, Inventory, Authentication) retain full detail across their catalog, ordering, inventory, and identity use cases. Peripheral modules absent from that classification (Payment, Shipping, Profile, Location, and System Maintenance) are specified in condensed form in the following sections.
+
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-overview-wbs.png",
+    width: 100%
+  ),
+  caption: [Work breakdown of the 26 use cases into the Administration, Storefront, and Background Services work areas.]
+) <fig-uc-overview>
+
+The work breakdown above decomposes the 26 use cases into the three actor work areas (Administration, Storefront, Background Services); @tbl-uc-summary below provides the traceability from every use case to the functional requirements defined in Section 2.1.
 
 #figure(
   table(
-    columns: (auto, auto, auto, auto, auto),
+    columns: (auto, 1.2fr, auto, auto, 1.6fr),
     stroke: 0.5pt,
     table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Module*], [*Related FR*]),
 
@@ -37,7 +49,7 @@
     [UC-STR-OHI], [Order history], [Customer], [Ordering], [ORD-FR-07, ORD-FR-14],
 
     [UC-STR-PAY], [Payment processing], [Customer], [Payment], [PAY-FR-01, PAY-FR-02],
-    [UC-STR-AUT], [Authentication], [Customer], [Identity], [IDN-FR-01, IDN-FR-02, IDN-FR-03, IDN-FR-08, IDN-FR-14],
+    [UC-STR-AUT], [Authentication], [Customer], [Identity], [IDN-FR-01, IDN-FR-02, IDN-FR-08, IDN-FR-14],
     [UC-STR-SES], [Session management], [Customer], [Identity], [IDN-FR-04, IDN-FR-05, IDN-FR-16],
 
     [UC-STR-PRF], [Profile management], [Customer], [Profile], [PRF-FR-01, PRF-FR-02, PRF-FR-03],
@@ -47,6 +59,6 @@
   ),
   kind: table,
   caption: [
-    Use case summary matrix. All use cases are listed with their actor, associated business module, and traceability to functional requirements defined in Section 2.1.
+    All 26 use cases with actor, module, and requirement traceability.
   ],
 ) <tbl-uc-summary>

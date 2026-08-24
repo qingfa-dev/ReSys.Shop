@@ -4,7 +4,7 @@ The rationale for selecting Fashion-CLIP as the primary model for visual search 
 
 ==== Candidate Models
 
-Eleven candidate pre-trained models spanning three architectural families were considered; six representative models were evaluated in the benchmark:
+Eleven candidate pre-trained models spanning three architectural families were considered; six representative models were benchmarked:
 #figure(
   table(
     columns: (auto, auto, auto, auto, auto),
@@ -23,14 +23,14 @@ Eleven candidate pre-trained models spanning three architectural families were c
     [CLIP ViT-L/14], [ViT + Text], [768], [428M], [Contrastive (400M pairs)],
     [Fashion-CLIP], [ViT + Text], [512], [150M], [Fine-tuned (700K fashion)],
   ),
-  caption: [Candidate embedding models evaluated for fashion product retrieval. All models are pre-trained and publicly available.],
+  caption: [Candidate pre-trained embedding models assessed for fashion product retrieval],
 ) <tbl-candidate-models>
 
-==== Evaluation Methodology
+==== Benchmark Methodology
 
-All models were evaluated under identical conditions: 5,000 fashion product images from the Fashion Product Images dataset, split into training and query sets. Hardware was consumer-grade: Intel i7-1165G7 CPU with 16 GB RAM, all inference on CPU.
+All models were assessed under identical conditions: 5,000 fashion product images from the Fashion Product Images dataset, split into training and query sets. Hardware was consumer-grade: Intel i7-1165G7 CPU with 16 GB RAM, all inference on CPU.
 
-Metrics included Mean Average Precision (mAP\@10) as the primary measure of overall retrieval quality, Precision at K (P\@K) for top-ranked accuracy, Recall at K (R\@K) for coverage of relevant items, and inference latency in milliseconds. A retrieved product was considered relevant if it belonged to the same category as the query image. The full evaluation protocol, benchmark results, and cross-validation methodology are presented in Chapter 3.
+Metrics included Mean Average Precision (mAP\@10) as the primary measure of overall retrieval quality, Precision at K (P\@K) for top-ranked accuracy, Recall at K (R\@K) for coverage of relevant items, and inference latency in milliseconds. A retrieved product was considered relevant if it belonged to the same category as the query image. The full benchmark protocol, results, and cross-validation methodology are presented in Chapter 3.
 
 ==== Weighted Selection Criteria
 
@@ -40,7 +40,7 @@ Model selection was based on four criteria: retrieval quality (mAP\@10 and P\@K 
 
 *Fashion-CLIP* was selected as the primary embedding model for the visual search feature. Three factors drove this decision.
 
-First, retrieval quality: Fashion-CLIP achieved the highest mAP among the evaluated models, outperforming generic CLIP ViT-B/16 by 1.46% under category-only evaluation @chia2022fashionclip.
+First, retrieval quality: Fashion-CLIP achieved the highest mAP among the assessed models, outperforming generic CLIP ViT-B/16 by 1.46% under category-only relevance @chia2022fashionclip.
 
 Second, multimodal capability: Fashion-CLIP's dual-tower architecture enables search by image, by text description, and by hybrid image-plus-text queries, unavailable in vision-only models such as DINOv2 and EfficientNet.
 
