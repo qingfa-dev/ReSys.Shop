@@ -1,6 +1,6 @@
 == System Modeling
 
-Three actors interact with the platform across 26 use cases, organised into a functional work breakdown structure (WBS) and a summary matrix with detailed scenario specifications. The use case specifications provide full traceability to the functional requirements defined in Section 2.1.
+Three actors interact with the platform across 26 use cases in total. These are organised into a functional work breakdown structure (WBS) and a summary matrix with detailed scenario specifications. The use case specifications provide full traceability to the functional requirements defined in Section 2.1.
 
 - *System Actors.* Customer, Administrator, and System: roles, responsibilities, interaction surfaces.
 - *Functional Decomposition.* WBS: three functional areas with constituent modules and sub-functions.

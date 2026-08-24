@@ -23,7 +23,7 @@ $ "Cosine Similarity"(bold(A), bold(B)) = (bold(A) dot bold(B)) / (||bold(A)||_2
 
 Where $bold(A) dot bold(B)$ represents the vector dot product, and $||bold(A)||_2$ and $||bold(B)||_2$ denote the Euclidean norms ($L_2$ norms) of each vector.
 
-Cosine similarity produces values ranging from $+1.0$ (identical vector orientation) to $0.0$ (orthogonal vectors) down to $-1.0$ (opposite orientations). For normalized fashion embeddings, scores above $0.70$ generally correspond to strong visual similarity perceptible to human shoppers.
+Cosine similarity produces values ranging from $+1.0$ (identical vector orientation) to $0.0$ (orthogonal vectors) down to $-1.0$ (opposite orientations). For normalized fashion embeddings, scores above $0.70$ generally correspond to strong visual similarity that shoppers can see.
 
 // Diagram placeholder: Visualisation of cosine similarity in 2D vector space
 // #figure(image("figures/chapters/cosine-similarity.png", width: 70%), caption: [Geometric interpretation of cosine similarity between embedding vectors in vector space.])

@@ -1,6 +1,6 @@
 == System Architecture & Design
 
-Six dimensions define the platform architecture, from service composition through domain modelling to database, API, and security layers. The design follows a service-oriented approach: a Vue 3 frontend, a .NET 10 modular monolith backend, and a Python FastAPI machine learning sidecar, each independently deployable.
+The platform architecture covers six parts: how the services are organized, domain modelling, and the database, API, and security layers. The design follows a service-oriented approach: a Vue 3 frontend, a .NET 10 modular monolith backend, and a Python FastAPI machine learning sidecar, each independently deployable.
 
 - *System Overview.* Three services, eight bounded contexts, technology stack summary.
 - *Domain-Driven Design.* Context map, aggregate roots with invariants, state machines.

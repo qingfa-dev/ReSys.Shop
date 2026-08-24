@@ -23,7 +23,7 @@ Every feature is structured across five files: #raw("{Feature}.cs", lang: "cshar
 
 // [SCREENSHOT: implementation-vsa-feature-directory.png] IDE Solution Explorer showing the CreateProduct feature directory with five co-located files highlighted, illustrating the vertical slice file organization within the Catalog module.
 
-Inter-module communication relies exclusively on `ISender.Send()` messages. Bounded contexts never import foreign context namespaces, enforcing isolation within a single assembly via static analysis and build policies.
+Communication between modules uses only `ISender.Send()` messages. Bounded contexts never import another context's namespace. This keeps the modules isolated within a single assembly, checked using static analysis and build rules.
 
 ```csharp
 public sealed record Command(Request Request) : ICommand<Response>;

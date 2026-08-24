@@ -1,6 +1,6 @@
 === CLIP and Fashion-CLIP
 
-CLIP (Contrastive Language-Image Pre-training) bridges vision and language, enabling search using both visual and textual queries. Fashion-CLIP, its domain-specialized variant, is the primary model for visual search.
+CLIP (Contrastive Language-Image Pre-training) connects vision and language, enabling search using both visual and textual queries. Fashion-CLIP, its domain-specialized variant, is the primary model for visual search.
 
 ==== Contrastive Language-Image Pre-Training
 
@@ -47,7 +47,7 @@ Fashion-CLIP further trains CLIP on over 700,000 fashion product images paired w
 - Style categories ("streetwear," "preppy," "athleisure").
 - Occasion suitability ("office wear," "cocktail party," "beach vacation").
 
-Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports an improvement on fashion retrieval over general CLIP; the benchmark evaluation in Chapter 3 (§3.5) measured a 2.13% mAP advantage under category-only evaluation @chia2022fashionclip.
+Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports an improvement on fashion retrieval over general CLIP; the benchmark evaluation in Chapter 3 (§3.5) measured a 1.46% relative mAP advantage under category-only evaluation @chia2022fashionclip.
 #figure(
   image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_fashion-clip.png", height: 50%),
   caption: [Fashion-CLIP dual-tower architecture: image and text towers independently encode their inputs into 512-dimensional embeddings converging in a shared latent space],

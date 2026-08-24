@@ -1,6 +1,6 @@
 == Vector Databases
 
-Once images are converted to embeddings, those vectors must be stored and searched efficiently. This section explains the challenge of vector similarity search at scale, introduces two indexing algorithms, and describes pgvector, the PostgreSQL extension used in this project.
+Once images are converted to embeddings, those vectors must be stored and searched efficiently. The following subsections explain the challenge of vector similarity search at scale, introduce two indexing algorithms, and describe pgvector, the PostgreSQL extension used in this project.
 
 #include "f5/01-ann-search.typ"
 #include "f5/02-hnsw.typ"

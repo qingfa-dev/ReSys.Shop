@@ -25,7 +25,7 @@ ReSys.Shop combines three patterns:
 - *Vertical slice architecture* within each module @bogard2018vertical. Each feature is a self-contained folder with handler, endpoint, and validator.
 - *Python sidecar.* Embedding generation runs in a dedicated FastAPI service over HTTP, isolated from the .NET runtime.
 
-This combines monolith deployment simplicity, microservice-level code isolation, and ML capability without distributed infrastructure overhead @newman2019monolith.
+This combination gives the simplicity of monolith deployment, code isolation similar to microservices, and machine learning capability, without the extra operational cost of a full microservices setup @newman2019monolith.
 
 // Diagram placeholder: Architecture patterns comparison
 // #figure(image("figures/chapters/arch-patterns.png", width: 90%), caption: [Monolith, modular monolith, microservices, and vertical slice compared.])

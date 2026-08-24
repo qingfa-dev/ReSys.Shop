@@ -4,7 +4,7 @@ The rationale for selecting Fashion-CLIP as the primary model for visual search 
 
 ==== Candidate Models
 
-Ten candidate pre-trained models spanning three architectural families were considered; six representative models were evaluated in the benchmark:
+Eleven candidate pre-trained models spanning three architectural families were considered; six representative models were evaluated in the benchmark:
 #figure(
   table(
     columns: (auto, auto, auto, auto, auto),
@@ -13,6 +13,7 @@ Ten candidate pre-trained models spanning three architectural families were cons
     table.header([*Model*], [*Architecture*], [*Dim*], [*Parameters*], [*Training Method*]),
     [ResNet-50], [CNN], [2048], [25.6M], [Supervised (ImageNet)],
     [ResNet-101], [CNN], [2048], [44.5M], [Supervised (ImageNet)],
+    [ResNet-152], [CNN], [2048], [60.2M], [Supervised (ImageNet)],
     [EfficientNet-B0], [CNN], [1280], [5.3M], [Supervised (ImageNet)],
     [EfficientNet-B4], [CNN], [1792], [19.3M], [Supervised (ImageNet)],
     [DINOv2 ViT-S/14], [ViT], [384], [21M], [Self-supervised (142M images)],
@@ -39,16 +40,16 @@ Model selection was based on four criteria: retrieval quality (mAP\@10 and P\@K 
 
 *Fashion-CLIP* was selected as the primary embedding model for the visual search feature. Three factors drove this decision.
 
-First, retrieval quality: Fashion-CLIP achieved the highest mAP among the evaluated models, outperforming general CLIP by 2.13% under category-only evaluation, as confirmed in Chapter 3 (§3.5) @chia2022fashionclip.
+First, retrieval quality: Fashion-CLIP achieved the highest mAP among the evaluated models, outperforming generic CLIP ViT-B/16 by 1.46% under category-only evaluation @chia2022fashionclip.
 
 Second, multimodal capability: Fashion-CLIP's dual-tower architecture enables search by image, by text description, and by hybrid image-plus-text queries, unavailable in vision-only models such as DINOv2 and EfficientNet.
 
 Third, domain specialization: fine-tuning on 700,000 fashion images gives Fashion-CLIP an understanding of fashion-specific vocabulary, styles, and garment attributes that general-purpose models lack.
 
-Fashion-CLIP provides the best overall balance of retrieval quality, search flexibility, and inference performance for the target deployment scenario, though EfficientNet-B0 offers faster CPU inference and DINOv2 excels at structural fidelity for silhouette-based matching.
+Fashion-CLIP provides the strongest overall combination of retrieval quality, search flexibility, and inference performance for the target deployment scenario, though EfficientNet-B0 offers faster CPU inference and DINOv2 excels at structural fidelity for silhouette-based matching.
 
 ==== Alternative Deployment Scenarios
 
-For different deployment contexts, alternative models may be preferred. EfficientNet-B0 provides the fastest inference at 5.3 million parameters, trading off 4.65% lower mAP with no text-to-image capability. DINOv2 excels at shape and silhouette matching but lacks multimodal capability. General CLIP variants suit multi-category marketplaces with lower fashion accuracy. CLIP ViT-L/14 offers the largest capacity at 428 million parameters but requires substantial GPU VRAM.
+For different deployment contexts, alternative models may be preferred. EfficientNet-B0 provides the fastest inference at 5.3 million parameters, trading off 2.86% lower mAP with no text-to-image capability. DINOv2 excels at shape and silhouette matching but lacks multimodal capability. General CLIP variants suit multi-category marketplaces with lower fashion accuracy. CLIP ViT-L/14 offers the largest capacity at 428 million parameters but requires substantial GPU VRAM.
 
 The complete numerical comparison and error analysis across all models are presented in Chapter 3.

@@ -123,4 +123,4 @@ The per-fold results for the primary evaluation scheme (category only) are prese
   kind: table,
 )
 
-All six models exhibit low fold-to-fold variability (standard deviation 0.0043--0.0076), confirming that the 3-fold stratified split preserves the dataset's category distribution effectively and that model performance is stable across different partitionings of the data.
+All six models exhibit low fold-to-fold variability (standard deviation 0.0043--0.0076); the 3-fold stratified split therefore preserves the dataset's category distribution effectively, and model performance stays stable across different partitionings of the data.

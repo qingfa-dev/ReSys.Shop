@@ -27,7 +27,7 @@ Six models span four architecture families, selected from a decorator-based regi
   caption: [Registered embedding models with output dimensionality and architectural family.],
 ) <tbl-registered-models>
 
-All models conform to `BaseEmbedder` via the Template Method pattern. The base class orchestrates loading, forwarding, and L2-normalisation; subclasses provide only the forward pass. Models load lazily on first request within `torch.no_grad()`. The `device` property resolves CUDA, MPS, or CPU at runtime.
+All models conform to `BaseEmbedder` via the Template Method pattern. The base class handles loading, forwarding, and L2-normalisation; subclasses provide only the forward pass. Models load lazily on first request within `torch.no_grad()`. The `device` property resolves CUDA, MPS, or CPU at runtime.
 
 ```python
 class BaseEmbedder(ABC):

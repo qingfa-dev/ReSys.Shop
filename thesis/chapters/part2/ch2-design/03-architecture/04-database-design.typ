@@ -14,7 +14,7 @@ Each of the eight bounded contexts manages its own dedicated database schema:
 - *Shipping:* `shipping_methods`, `shipping_rates`, and `shipping_zones`.
 - *Location:* `countries` and `states` reference data.
 
-Cross-context relationships use identifier references (UUIDs) without database-level foreign key constraints. An order references `UserId` and `VariantId` as loose attributes, maintaining logical module isolation while avoiding distributed transaction overhead.
+Cross-context relationships use identifier references (UUIDs) without database-level foreign key constraints. An order references `UserId` and `VariantId` as loose attributes. This keeps the modules logically separate and avoids the cost of coordinating transactions across multiple contexts.
 
 ==== Core Entity-Relationship Model
 
@@ -34,7 +34,7 @@ The *Ordering* domain centers on `Order`, linking one-to-many with `LineItem`. L
 
 ==== pgvector Integration
 
-PostgreSQL's *pgvector* extension @pgvector2023 executes vector similarity searches within the relational engine. The `variant_images` table stores feature vectors in an `embedding` column defined as `vector(512)`. The platform defaults to *HNSW* indexing @malkov2018efficient using cosine distance to meet the sub-second CBIR latency target (NFR-01a), with *IVFFlat* as a fallback for local environments (see Section 1.4.2 for index detail).
+PostgreSQL's *pgvector* extension @pgvector2023 runs vector similarity searches inside the relational database. The `variant_images` table stores feature vectors in an `embedding` column defined as `vector(512)`. The platform defaults to *HNSW* indexing @malkov2018efficient using cosine distance to meet the sub-second CBIR latency target (NFR-01a), with *IVFFlat* as a fallback for local environments (see Section 1.4.2 for index detail).
 
 - *Cosine Distance:* Query operator (`<=>`) measures angular distance. Results rank by similarity score $1 - "cosine_distance"$, filtered against a configurable threshold ($0.70$).
 - *Model Isolation:* Every record includes a `model_name` string (e.g., `"Fashion-CLIP"`). Search queries filter by active model to enforce embedding alignment.

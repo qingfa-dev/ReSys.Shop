@@ -1,6 +1,6 @@
 === API Design
 
-The API exposes a RESTful interface via *Carter* modules and the *MediatR* CQRS pattern @young2010cqrs, registering approximately 262 endpoints across nine modules.
+The API exposes a RESTful interface via *Carter* modules and the *MediatR* CQRS pattern @young2010cqrs, registering approximately 262 endpoints across eight modules.
 
 ==== API Architecture
 

@@ -1,6 +1,6 @@
 === System Actors
 
-Three categories of actors interact with the platform, distinguished by access level and interaction surface.
+Three categories of actors interact with the platform, separated by access level and interaction surface.
 Individual use cases may additionally reference supporting external systems (ML Service, Payment Gateway, Email Service, OAuth Provider) under a Support field, a standard UML convention distinct from the three primary actors.
 
 ==== Customer

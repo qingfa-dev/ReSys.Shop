@@ -7,7 +7,7 @@ Key features:
 - *Similarity operators.* `<=>` for cosine distance, `<->` for Euclidean.
 - *Indexing.* HNSW and IVFFlat for fast approximate search.
 
-The critical advantage is transactional consistency: vectors and product metadata share the same ACID boundary, eliminating dual-database drift. Combined queries can search for visually similar products filtered by category and price range in one query plan.
+The critical advantage is transactional consistency: vectors and product metadata share the same ACID boundary, avoiding the inconsistency problems that occur when a vector store and a relational database are kept separate. Combined queries can search for visually similar products filtered by category and price range in one query plan.
 
 ```sql
 CREATE INDEX ON products USING hnsw (image_embedding vector_cosine_ops);

@@ -4,7 +4,7 @@ The backend follows *Domain-Driven Design* (DDD) with eight bounded contexts, ea
 
 ==== Bounded Context Map
 
-The platform is partitioned into eight *bounded contexts* along business capability boundaries. Each context independently owns its state model, business logic, and vocabulary. Integration follows a *Conformist* pattern with core abstractions from the Shared Kernel (`Result<T>`, `ICommand`, `IQuery`). Context-to-context communication relies exclusively on *MediatR* `ISender` in-process dispatch without direct compile-time project references.
+The platform is partitioned into eight *bounded contexts* along business capability boundaries. Each context independently owns its state model, business logic, and vocabulary. Integration follows a *Conformist* pattern with core abstractions from the Shared Kernel (`Result<T>`, `ICommand`, `IQuery`). Context-to-context communication uses only *MediatR* `ISender` in-process dispatch without direct compile-time project references.
 
 @fig-bounded-context-map illustrates the eight contexts and their inter-module communication pathways. @tbl-context-responsibilities details each context's business capabilities and Published Language boundaries.
 

@@ -64,7 +64,7 @@
 
       #v(1fr)
 
-      #text(size: 13pt)[#data.thesis.location, 01/2026]
+      #text(size: 13pt)[#data.thesis.location, 12/2025]
       #v(0.5cm)
     ]
   ]

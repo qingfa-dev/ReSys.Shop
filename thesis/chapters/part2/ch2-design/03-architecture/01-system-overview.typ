@@ -1,6 +1,6 @@
 === System Overview
 
-ReSys.Shop comprises three services -- a Vue 3 frontend, a .NET 10 backend @microsoft-aspnet-core, and a Python *FastAPI* ML sidecar @paszke2019pytorch -- and eight *bounded contexts* using *Domain-Driven Design* with MediatR dispatch between modules.
+ReSys.Shop has three services -- a Vue 3 frontend, a .NET 10 backend @microsoft-aspnet-core, and a Python *FastAPI* ML sidecar @paszke2019pytorch -- and eight *bounded contexts* using *Domain-Driven Design* with MediatR dispatch between modules.
 
 #figure(
   table(

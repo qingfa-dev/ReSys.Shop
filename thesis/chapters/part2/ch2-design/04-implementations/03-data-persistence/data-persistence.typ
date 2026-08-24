@@ -1,6 +1,6 @@
 === Data Persistence Architecture
 
-The persistence layer maps eight bounded contexts to dedicated PostgreSQL schemas, co-locating vector embeddings with relational product data in a single PostgreSQL 17 instance.
+The persistence layer maps eight bounded contexts to dedicated PostgreSQL schemas. Vector embeddings and relational product data are stored together, in a single PostgreSQL 17 instance.
 
 ==== Schema Organisation and Vector Storage
 

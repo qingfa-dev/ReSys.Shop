@@ -1,6 +1,6 @@
 == Platform Architecture and Technology Stack
 
-Building a production-capable e-commerce platform with integrated machine learning requires deliberate architectural and technology choices. This section surveys architectural patterns, describes each technology in the ReSys.Shop stack, and provides the rationale for each selection.
+Building a working e-commerce platform with machine learning built in requires careful architecture and technology choices. The following subsections describe each technology in the ReSys.Shop stack and the reasons for each choice.
 
 #include "f3/01-architectural-patterns.typ"
 #include "f3/02-dotnet-backend.typ"

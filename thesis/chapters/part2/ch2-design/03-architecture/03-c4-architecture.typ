@@ -4,7 +4,7 @@ The C4 model structures software architecture across four abstraction levels: sy
 
 ==== System Context
 
-The system context positions ReSys.Shop within its operational environment, defining user roles and external dependencies (@fig-c4-context).
+The system context shows how ReSys.Shop fits into its operating environment, including user roles and external dependencies (@fig-c4-context).
 
 #figure(
   image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_c4-context.png", width: 100%),

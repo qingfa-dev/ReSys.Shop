@@ -1,6 +1,6 @@
 === Functional Requirements
 
-Functional requirements are organized by business module with unique identifiers traceable throughout design, implementation, and evaluation chapters.
+Functional requirements are organized by business module. Each has a unique identifier that is used throughout the design, implementation, and evaluation chapters.
 
 ==== Catalog Module
 
