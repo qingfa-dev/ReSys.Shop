@@ -25,7 +25,7 @@ Every feature is structured across five files: #raw("{Feature}.cs", lang: "cshar
 
 Communication between modules uses only `ISender.Send()` messages. Bounded contexts never import another context's namespace. This keeps the modules isolated within a single assembly, checked using static analysis and build rules.
 
-```csharp
+```cs
 public sealed record Command(Request Request) : ICommand<Response>;
 
 public sealed class CommandHandler(IApplicationDbContext db, ISender sender)

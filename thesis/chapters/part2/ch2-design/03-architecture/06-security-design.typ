@@ -6,7 +6,7 @@ The security framework operates across three layers: authentication, authorizati
 
 JWT authentication is configured via `JwtSettings` with HS256 algorithm, 15-minute access token expiration, and 30-day maximum token age. Single-use refresh token rotation is enforced: exchanging an expired access token consumes the current refresh token and issues a new pair. If a refresh token that has already been used is submitted again, this is treated as a possible security breach. All active refresh tokens for that user are immediately revoked, and the user must log in again. Unauthenticated shoppers receive an HTTP-only cookie tracking an anonymous session ID; on login, the guest cart automatically merges with the user's persistent cart.
 
-```csharp
+```cs
 // JWT configuration (JwtSettings)
 public sealed class JwtSettings
 {
@@ -30,7 +30,7 @@ Role-Based Access Control separates administrative and storefront surfaces. Unpr
 
 A three-layer permission architecture resolves claims at runtime:
 
-```csharp
+```cs
 // Permission resolution pipeline
 // L1: IPermissionCache      - in-memory cache of resolved permissions per user
 // L2: IPermissionService    - merges role-derived + direct-grant permissions

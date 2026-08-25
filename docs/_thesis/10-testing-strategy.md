@@ -34,7 +34,7 @@ The project implements a four-layer testing strategy:
 - `ApplicationDbContext.AdditionalConfigurationsAssemblies` must be set *before* first use to load module entity configs
 
 **Sample test pattern** (Create Product):
-```csharp
+```cs
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Feature", "ProductCreate")]

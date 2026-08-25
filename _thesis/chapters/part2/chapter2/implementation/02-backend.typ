@@ -15,7 +15,7 @@ The fundamental structure of the data layer is designed around the *Vertical Sli
 
 #figure(
   placement: none,
-  ```csharp
+  ```cs
   // ReSys.Core/Data/ShopDbContext.cs
   public class ShopDbContext : DbContext, IApplicationDbContext
   {

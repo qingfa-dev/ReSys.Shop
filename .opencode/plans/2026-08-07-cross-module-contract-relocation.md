@@ -113,7 +113,7 @@
 
 Create `Module/Inventory/Features/Storefront/ReserveCartStock/ReserveCartStock.Command.cs`:
 
-```csharp
+```cs
 namespace Module.Inventory.Features.Storefront.Contracts.ReserveCartStock;
 
 public sealed record ReserveCartStockCommand : ICommand<ReserveCartStockResponse>
@@ -132,7 +132,7 @@ public sealed record ReserveLineItem
 
 Wait — namespace should NOT include `Contracts`. Fix:
 
-```csharp
+```cs
 namespace Module.Inventory.Features.Storefront.ReserveCartStock;
 
 public sealed record ReserveCartStockCommand : ICommand<ReserveCartStockResponse>
@@ -153,7 +153,7 @@ public sealed record ReserveLineItem
 
 Create `Module/Inventory/Features/Storefront/ReserveCartStock/ReserveCartStock.Response.cs`:
 
-```csharp
+```cs
 namespace Module.Inventory.Features.Storefront.ReserveCartStock;
 
 public sealed record ReserveCartStockResponse
@@ -199,7 +199,7 @@ git commit -m "refactor(inventory): move ReserveCartStock from Shared to feature
 
 Create `Module/Inventory/Features/Storefront/ConsumeCartStockReservations/ConsumeCartStockReservations.Command.cs`:
 
-```csharp
+```cs
 namespace Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
 
 public sealed record ConsumeCartStockReservationsCommand : ICommand
@@ -240,7 +240,7 @@ git commit -m "refactor(inventory): move ConsumeCartStockReservations from Share
 
 Create `Module/Inventory/Features/Storefront/ReleaseCartStockReservations/ReleaseCartStockReservations.Command.cs`:
 
-```csharp
+```cs
 namespace Module.Inventory.Features.Storefront.ReleaseCartStockReservations;
 
 public sealed record ReleaseCartStockReservationsCommand : ICommand
@@ -282,7 +282,7 @@ git commit -m "refactor(inventory): move ReleaseCartStockReservations from Share
 
 Create `Module/Inventory/Features/Storefront/CheckVariantAvailability/CheckVariantAvailability.Query.cs`:
 
-```csharp
+```cs
 namespace Module.Inventory.Features.Storefront.CheckVariantAvailability;
 
 public sealed record CheckVariantAvailabilityQuery(Guid VariantId, int Quantity)
@@ -293,7 +293,7 @@ public sealed record CheckVariantAvailabilityQuery(Guid VariantId, int Quantity)
 
 Create `Module/Inventory/Features/Storefront/CheckVariantAvailability/CheckVariantAvailability.Response.cs`:
 
-```csharp
+```cs
 namespace Module.Inventory.Features.Storefront.CheckVariantAvailability;
 
 public sealed record CheckVariantAvailabilityResponse
@@ -368,7 +368,7 @@ git commit -m "refactor(inventory): move IStockQuantityService to Services/Abstr
 
 Create `Module/Ordering/Features/Storefront/GetCartForCheckout/GetCartForCheckout.Query.cs`:
 
-```csharp
+```cs
 namespace Module.Ordering.Features.Storefront.GetCartForCheckout;
 
 public sealed record GetCartForCheckoutQuery : IQuery<GetCartForCheckoutResponse>
@@ -381,7 +381,7 @@ public sealed record GetCartForCheckoutQuery : IQuery<GetCartForCheckoutResponse
 
 Create `Module/Ordering/Features/Storefront/GetCartForCheckout/GetCartForCheckout.Response.cs`:
 
-```csharp
+```cs
 namespace Module.Ordering.Features.Storefront.GetCartForCheckout;
 
 public sealed record GetCartForCheckoutResponse
@@ -431,7 +431,7 @@ git commit -m "refactor(ordering): move GetCartForCheckout from Shared to featur
 
 Create `Module/Ordering/Features/Storefront/AdvanceCheckoutState/AdvanceCheckoutState.Command.cs`:
 
-```csharp
+```cs
 namespace Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 
 public sealed record AdvanceCheckoutStateCommand : ICommand
@@ -475,7 +475,7 @@ git commit -m "refactor(ordering): move AdvanceCheckoutState from Shared to feat
 
 Create `Module/Ordering/Features/Storefront/GetCartForShipping/GetCartForShipping.Query.cs`:
 
-```csharp
+```cs
 namespace Module.Ordering.Features.Storefront.GetCartForShipping;
 
 public sealed record GetCartForShippingQuery(Guid CartId) : IQuery<CartForShippingResponse>;
@@ -485,7 +485,7 @@ public sealed record GetCartForShippingQuery(Guid CartId) : IQuery<CartForShippi
 
 Create `Module/Ordering/Features/Storefront/GetCartForShipping/GetCartForShipping.Response.cs`:
 
-```csharp
+```cs
 namespace Module.Ordering.Features.Storefront.GetCartForShipping;
 
 public sealed record CartForShippingResponse
@@ -507,7 +507,7 @@ Remove `using Shared.Application.Contracts.Ordering;` and `using Shared.Applicat
 
 Replace the MediatR weights query (lines 25-28) with direct DB query:
 
-```csharp
+```cs
 var variantWeights = await dbContext.Set<Catalog.Domain.Products.Variants.Variant>()
     .Where(v => variantIds.Contains(v.Id))
     .Select(v => new { v.Id, v.Weight })
@@ -544,7 +544,7 @@ git commit -m "refactor(ordering): move GetCartForShipping, rewrite weight calc,
 
 Create `Module/Payment/Features/Storefront/GetPaymentForCheckout/GetPaymentForCheckout.Query.cs`:
 
-```csharp
+```cs
 namespace Module.Payment.Features.Storefront.GetPaymentForCheckout;
 
 public sealed record GetPaymentForCheckoutQuery : IQuery<PaymentForCheckoutResponse>
@@ -558,7 +558,7 @@ public sealed record GetPaymentForCheckoutQuery : IQuery<PaymentForCheckoutRespo
 
 Create `Module/Payment/Features/Storefront/GetPaymentForCheckout/GetPaymentForCheckout.Response.cs`:
 
-```csharp
+```cs
 namespace Module.Payment.Features.Storefront.GetPaymentForCheckout;
 
 public sealed record PaymentForCheckoutResponse
@@ -601,7 +601,7 @@ git commit -m "refactor(payment): move GetPaymentForCheckout from Shared to feat
 
 Create `Module/Payment/Features/Storefront/MarkPaymentPaid/MarkPaymentPaid.Command.cs`:
 
-```csharp
+```cs
 namespace Module.Payment.Features.Storefront.MarkPaymentPaid;
 
 public sealed record MarkPaymentPaidCommand : ICommand
@@ -659,7 +659,7 @@ In `Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs`:
 Remove `using Shared.Application.Contracts.Catalog;`
 
 Remove the entire block (lines ~66-78):
-```csharp
+```cs
 // Validate: Reject orders containing discontinued variants via ISender.
 var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
 var discResult = await sender.Send(new GetVariantDiscontinuedStatusesQuery { VariantIds = variantIds }, cancellationToken);
@@ -695,7 +695,7 @@ git commit -m "refactor(catalog): delete dead GetVariantDiscontinuedStatusesQuer
 
 Create `Module/Profile/Features/Storefront/Profiles/Create/CreateProfile.Command.cs`:
 
-```csharp
+```cs
 namespace Module.Profile.Features.Storefront.Profiles.Create;
 
 public sealed record CreateUserProfileCommand : ICommand<CreateUserProfileResult>
@@ -746,7 +746,7 @@ In `Module/Location/Features/Shared/Queries/CountryExistsByIsoHandler.cs`:
 
 Add before the handler class:
 
-```csharp
+```cs
 public sealed record CountryExistsByIsoQuery(string IsoCode) : IQuery<bool>;
 ```
 
@@ -758,7 +758,7 @@ In `Module/Location/Features/Shared/Queries/StateExistsByIsoHandler.cs`:
 
 Add before the handler class:
 
-```csharp
+```cs
 public sealed record StateExistsByIsoQuery(string CountryCode, string StateCode) : IQuery<bool>;
 ```
 
@@ -796,7 +796,7 @@ Update these 4 handler files — remove `using Shared.Application.Contracts.Inve
 - [ ] **Step 2: Update Ordering consumers**
 
 `Module/Ordering/.../Cart/Checkout/CreateOrderFromCart.cs`:
-```csharp
+```cs
 // Remove:
 using Shared.Application.Contracts.Catalog;
 using Shared.Application.Contracts.Inventory;
@@ -809,7 +809,7 @@ using Module.Payment.Features.Storefront.MarkPaymentPaid;
 ```
 
 `Module/Ordering/.../Cart/AddItem/AddToCart.cs`:
-```csharp
+```cs
 // Remove:
 using Shared.Application.Contracts.Inventory;
 
@@ -818,7 +818,7 @@ using Module.Inventory.Features.Storefront.ReserveCartStock;
 ```
 
 `Module/Ordering/.../Cart/UpdateItemQuantity/UpdateCartItemQuantity.cs`:
-```csharp
+```cs
 // Remove:
 using Shared.Application.Contracts.Inventory;
 
@@ -827,7 +827,7 @@ using Module.Inventory.Features.Storefront.CheckVariantAvailability;
 ```
 
 `Module/Ordering/.../GetCartForShipping/GetCartForShipping.cs`:
-```csharp
+```cs
 // Remove:
 using Shared.Application.Contracts.Catalog;
 using Shared.Application.Contracts.Ordering;
@@ -838,7 +838,7 @@ using Shared.Application.Contracts.Ordering;
 - [ ] **Step 3: Update Payment consumer**
 
 `Module/Payment/.../Payment/CreateIntent/CreatePaymentIntent.cs`:
-```csharp
+```cs
 // Remove:
 using Shared.Application.Contracts.Ordering;
 using Shared.Application.Contracts.Inventory;
@@ -853,7 +853,7 @@ using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 - [ ] **Step 4: Update Profile consumer**
 
 `Module/Profile/.../Addresses/Validators/Address.Validator.cs`:
-```csharp
+```cs
 // Remove:
 // (uses Shared.Application.Contracts.Location indirectly via sender.Send)
 
@@ -864,7 +864,7 @@ using Module.Location.Features.Shared.Queries;
 - [ ] **Step 5: Update Identity consumers**
 
 `Module/Identity/.../Emails/Confirm/ConfirmEmail.cs`:
-```csharp
+```cs
 // Remove:
 using Shared.Application.Contracts.Profile;
 
@@ -873,7 +873,7 @@ using Module.Profile.Features.Storefront.Profiles.Create;
 ```
 
 `Module/Identity/.../Auth/Login/External/Authenticate/ExternalAuthenticate.cs`:
-```csharp
+```cs
 // Remove:
 using Shared.Application.Contracts.Profile;
 
@@ -902,7 +902,7 @@ git commit -m "refactor: update all consumer using statements for relocated cont
 Remove `using Shared.Application.Contracts.Catalog;` and `using Shared.Application.Contracts.Inventory;` and `using Shared.Application.Contracts.Payment;`.
 
 Add:
-```csharp
+```cs
 using Module.Inventory.Features.Storefront.ConsumeCartStockReservations;
 using Module.Payment.Features.Storefront.GetPaymentForCheckout;
 using Module.Payment.Features.Storefront.MarkPaymentPaid;
@@ -935,12 +935,12 @@ Replace `using Shared.Application.Contracts.Inventory;` with `using Module.Inven
 - [ ] **Step 6: Update CreatePaymentIntentTests.cs**
 
 Replace:
-```csharp
+```cs
 using Shared.Application.Contracts.Ordering;
 using Shared.Application.Contracts.Inventory;
 ```
 With:
-```csharp
+```cs
 using Module.Ordering.Features.Storefront.GetCartForCheckout;
 using Module.Ordering.Features.Storefront.AdvanceCheckoutState;
 using Module.Inventory.Features.Storefront.ReserveCartStock;

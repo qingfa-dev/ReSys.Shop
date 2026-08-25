@@ -15,7 +15,7 @@
 
 The endpoint convention uses a `static partial class` with a nested `Endpoint` class implementing `ICarterModule`:
 
-```csharp
+```cs
 public static partial class CreateProduct
 {
     public sealed class Endpoint : ICarterModule

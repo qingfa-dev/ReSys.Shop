@@ -6,7 +6,7 @@ comments to identify violations.
 ## AP-1 — Redundancy
 Comment restates what the code already says.
 
-```csharp
+```cs
 // ❌ Assign: Set order ID to 123
 order.Id = 123;
 
@@ -21,7 +21,7 @@ order.Id = paymentResponse.OrderId;
 ## AP-2 — Vagueness
 Label is present but subject gives no useful information.
 
-```csharp
+```cs
 // ❌ Process: Handle the order
 // ✅ Validate: Order meets minimum purchase and in-stock requirements before payment
 ```
@@ -33,7 +33,7 @@ Label is present but subject gives no useful information.
 ## AP-3 — Over-commenting
 Every trivial line carries a comment, drowning signal in noise.
 
-```csharp
+```cs
 // ❌
 // Create: New list
 var items = new List<Item>();
@@ -71,7 +71,7 @@ Mixed capitalisation, missing colons, or inconsistent label usage.
 ## AP-5 — Stale Comments
 Comment describes old behaviour the code has since evolved beyond.
 
-```csharp
+```cs
 // ❌ Create: Simple product entity   ← code is no longer simple
 var product = await ProductFactory.CreateWithInventoryTracking(sku, name, price, supplier, warehouseLocation);
 

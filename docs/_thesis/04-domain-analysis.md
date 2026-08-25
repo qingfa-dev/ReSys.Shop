@@ -111,7 +111,7 @@ An aggregate is a cluster of associated objects treated as a single unit for dat
 
 All domain entities inherit from `Entity` (defined in `Shared.Application.Domain.Models`):
 
-```csharp
+```cs
 public abstract class Entity
 {
     public Guid Id { get; protected set; }

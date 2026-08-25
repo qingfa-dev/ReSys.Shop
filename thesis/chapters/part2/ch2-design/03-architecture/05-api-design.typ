@@ -8,7 +8,7 @@ Each request follows a standard MediatR pipeline: Carter endpoint → `LoggingBe
 
 A representative endpoint pattern:
 
-```csharp
+```cs
 public void AddRoutes(IEndpointRouteBuilder app)
 {
     app.MapPost(CatalogFeature.Admin.Products.Create.Route,

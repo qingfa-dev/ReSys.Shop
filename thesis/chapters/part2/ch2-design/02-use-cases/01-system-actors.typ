@@ -24,6 +24,6 @@ The *Administrator* operates a separate administration interface.
 The *System* actor runs automated background jobs via *Hangfire* @hangfire-docs and *Redis* @redis-docs.
 
 - *Embedding Generation.* Process uploaded images via ML sidecar.
-- *Cart Expiry.* Daily job: delete carts inactive 7 days, release inventory.
+- *Cart Expiry.* Hourly job: delete carts inactive 7 days, release inventory.
 - *Inventory Reservation.* Hold stock during checkout; expire after 15-minute inactivity.
-- *Maintenance.* Periodic HNSW index rebuilds; async payment webhook validation.
+- *Maintenance.* Per-model HNSW index initialisation at startup; async payment webhook validation.

@@ -159,7 +159,7 @@ The identity schema extends ASP.NET Identity with custom `User`, `Role`, and `Us
 
 ### 5.5.1 Vector Column Configuration
 
-```csharp
+```cs
 // From Vector.Configuration.cs — updated for multi-model support
 builder.Entity<VariantImage>()
     .Property(v => v.Embedding)

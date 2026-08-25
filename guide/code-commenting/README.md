@@ -110,7 +110,7 @@ Logging, tracing, or metrics?        → CAT-9 (Log / Trace / Monitor / Audit / 
 | `Verify:` | Confirm post-condition or system state after an operation. |
 | `Assert:` | Development-time invariant; stripped or silent in production. |
 
-```csharp
+```cs
 // Validate: Email format matches RFC 5322 and domain whitelist
 if (!Regex.IsMatch(email, pattern) || !IsAllowedDomain(email))
     throw new InvalidEmailException(email);
@@ -130,7 +130,7 @@ if not (0 < amount <= MAX_TRANSACTION_AMOUNT):
 ```
 
 **Anti-pattern:**
-```csharp
+```cs
 // ❌ Check: check the order
 // ✅ Check: Order total exceeds zero before payment gateway call
 ```
@@ -153,7 +153,7 @@ if not (0 < amount <= MAX_TRANSACTION_AMOUNT):
 | `Initialize:` | Populate defaults or calculated values during object setup. |
 | `Reset:` ⭐ | Return an object to a known default state without full re-creation. |
 
-```csharp
+```cs
 // Assign: Priority based on customer tier — premium orders fulfil first
 order.Priority = customer.Tier == Tier.Premium ? Priority.High : Priority.Normal;
 
@@ -183,7 +183,7 @@ var backupPrefs = user.Preferences.DeepClone();
 | `Sort:` | Order data by a business-meaningful criterion. State the criterion. |
 | `Explain:` ⭐ | Describe algorithmic or mathematical reasoning behind a non-obvious choice. |
 
-```csharp
+```cs
 // Compute: Order total inclusive of regional tax rate (subtotal × (1 + taxRate))
 order.Total = order.Subtotal * (1 + taxRate);
 
@@ -216,7 +216,7 @@ insertion_sort(items)
 | `Subscribe:` | Register a listener for domain or integration events. |
 | `Policy:` ⭐ | Reference a named business or compliance policy for grep-based audits. |
 
-```csharp
+```cs
 // Enforce: Minimum order amount policy (configured per region in appsettings)
 if (order.Total < _settings.MinimumOrderAmount)
     throw new BusinessRuleViolationException(...);
@@ -247,7 +247,7 @@ order.RaiseEvent(new InventoryReservedEvent(order.Items));
 | `Break:` | Exit a loop or pipeline early on a well-defined condition. |
 | `Circuit:` ⭐ | Open a circuit breaker; name the threshold and state. |
 
-```csharp
+```cs
 // Await: External payment API — 30 s timeout, CancellationToken from caller
 var response = await _httpClient.PostAsync(endpoint, payload, cts.Token);
 
@@ -277,7 +277,7 @@ await _circuitBreaker.ExecuteAsync(() => _service.CallAsync(request));
 | `Pool:` | Borrow or return from a managed resource pool. |
 | `Dispose:` | Explicitly release managed and unmanaged resources. |
 
-```csharp
+```cs
 // Acquire: Distributed lock to prevent concurrent inventory mutation (TTL 2 min)
 using var dLock = await _lockProvider.AcquireAsync($"inv-{sku}", TimeSpan.FromMinutes(2));
 
@@ -303,7 +303,7 @@ await _sessionStore.PurgeExpiredAsync(olderThan: TimeSpan.FromHours(24));
 | `Escalate:` | Re-throw or forward an error to a higher-level handler. |
 | `Suppress:` | Intentionally swallow a non-critical exception. **Always document why.** |
 
-```csharp
+```cs
 // Catch: Payment gateway timeout — queue for async retry via outbox
 catch (PaymentTimeoutException ex)
 {
@@ -335,7 +335,7 @@ catch (TelemetryException) { /* intentionally empty */ }
 | `Deserialize:` | Reconstruct a typed object from raw transmitted data. |
 | `Webhook:` | Handle and validate an inbound webhook request. |
 
-```csharp
+```cs
 // Call: Identity provider (Okta) v2 API to validate bearer token
 var identity = await _idp.ValidateTokenAsync(bearerToken);
 
@@ -362,7 +362,7 @@ if (!_webhookValidator.IsValid(req.Headers, req.Body))
 | `Profile:` | Bracket a performance-sensitive section for measurement. |
 | `Debug:` | Temporary diagnostic output — **must be removed before merging to main.** Use with `TEMP`. |
 
-```csharp
+```cs
 // Log: Order processed — structured fields for Kibana dashboard query
 _logger.LogInformation(
     "Order {OrderId} processed for {CustomerId} — total {Total}",
@@ -395,7 +395,7 @@ Use `KEY=VALUE` form so parsers can extract values without natural-language inte
 | `Boundary:` | Architectural boundary agents must respect. Prevents cross-layer leaks. | `LAYER → LAYER — REASON` |
 | `Context:` | Background context not in the code but needed for correct interpretation. | `DESCRIPTION — see REF` |
 
-```csharp
+```cs
 // Invariant: Total >= 0; Status is never null; Items.Count >= 1 when Status == Placed
 public class Order { }
 
@@ -513,7 +513,7 @@ Required tags: `@param` `@returns` `@throws` `@remarks`
 
 ### C# — XML Documentation Comments
 
-```csharp
+```cs
 /// <summary>
 /// Processes payment for a confirmed order.
 /// </summary>
