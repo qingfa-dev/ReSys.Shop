@@ -40,7 +40,7 @@ The Catalog schema is product-centric. Product is the root aggregate: it owns va
 The Identity schema is built on ASP.NET Identity Core. User is the aggregate root; it owns role and claim assignments, external logins, tokens, and rotating refresh tokens, and it will persist WebAuthn passkeys. Credentials are stored as Argon2 hashes, and single-use refresh tokens rotate through a token family so that a reused token revokes the whole session.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-identity.png", height: 40%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-identity.png", width: 100%),
   caption: [Identity schema: ASP.NET Identity user aggregate.],
 ) <fig-erd-identity>
 
@@ -100,7 +100,7 @@ The Profile schema is customer-centric. UserProfile is the 1:1 root complementin
 
 ==== pgvector Integration
 
-PostgreSQL's pgvector extension runs vector similarity searches inside the relational database. The variant_image_embeddings table stores feature vectors in a vector(512) column, matching the Fashion-CLIP output dimensionality. The platform defaults to HNSW indexing with cosine distance to meet the sub-second CBIR latency target (NFR-01a), with IVFFlat as a fallback for local environments (see Section 1.4.2 for index detail).
+PostgreSQL's pgvector extension runs vector similarity searches inside the relational database. The variant_image_embeddings table stores feature vectors in an untyped vector column; per-model HNSW partial indexes cast the column to each model's dimensionality (e.g., 512 for Fashion-CLIP) and filter by model_name, using cosine distance to meet the sub-second CBIR latency target (NFR-GRP-01) (see Section 1.4.2 for index detail).
 
 - *Cosine Distance:* The query operator (<=>) measures angular distance. Results rank by similarity score $1 - "cosine_distance"$, filtered against a configurable threshold ($0.70$).
 - *Model Isolation:* Every record carries a model_name (e.g., Fashion-CLIP). Search queries filter by the active model to enforce embedding alignment.
@@ -113,4 +113,4 @@ The data layer follows five global design rules:
 - *Soft Deletion:* The soft-deletion flag is filtered globally by EF Core, preserving referential integrity.
 - *Audit Columns:* Creation and modification timestamps are populated by EF Core save interceptors.
 - *Composite Indexes:* Targeted indexes serve high-frequency access paths, such as (user_id, status) and (session_id, status) on orders.
-- *Fixed Vector Dimensions:* The vector column uses vector(512), matching Fashion-CLIP. Other candidate models produce different dimensionalities, which would require per-model columns or a separate embedding table; the current single-column schema favours operational simplicity.
+- *Variable-Dimension Vector Storage:* The vector column is untyped `vector`, and a per-model HNSW partial index casts it to each model's dimensionality (512 for Fashion-CLIP, 384 for DINOv2 ViT-S/14, 768 for CLIP ViT-L/14, 1,280 for EfficientNet-B0, 2,048 for ResNet-50) and filters by `model_name`, letting one column serve models of differing output sizes.

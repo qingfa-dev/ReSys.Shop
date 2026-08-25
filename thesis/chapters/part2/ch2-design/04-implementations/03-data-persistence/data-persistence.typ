@@ -32,13 +32,13 @@ Cross-schema references use unconstrained UUIDs, enforcing module independence. 
 
 ==== pgvector Indexing Strategy
 
-Embeddings are stored in a `vector(512)` column with model-aware discriminators (e.g., `Fashion-CLIP`). The production HNSW index uses cosine distance for sub-second CBIR queries (see Section 2.3.4 for index detail and Section 1.4.2 for ANN algorithm comparison).
+Embeddings are stored in an untyped `vector` column, discriminated per model through a `model_name` filter column (e.g., `fashion_clip`). Per-model HNSW partial indexes cast the column to each model's dimensionality and use cosine distance for sub-second CBIR queries (see Section 2.3.4 for index detail and Section 1.4.2 for ANN algorithm comparison).
 
-// [SCREENSHOT: implementation-pgadmin-vector-column.png] pgAdmin column inspector showing the embedding column typed as vector(512), the model_name filter column, the hangfire_job_id tracking column, and the HNSW index entry with vector_cosine_ops.
+// [SCREENSHOT: implementation-pgadmin-vector-column.png] pgAdmin column inspector showing the untyped embedding column, the model_name filter column, the hangfire_job_id tracking column, and the per-model HNSW index entry with vector_cosine_ops.
 
 ==== Model-Aware Vector Search
 
-Each embedding carries a `model_name` discriminator. Cosine similarity search proceeds through four stages: candidate retrieval via `<=>` filtered by `model_name`, distance-to-similarity transformation, threshold filtering ($>= 0.70$), and deduplication by parent product.
+Each embedding carries a `model_name` discriminator and its `dimensions`. Cosine similarity search retrieves candidates via `<=>` filtered by `model_name` and dimension, transforms distance to similarity, and deduplicates to one result per product; the storefront additionally applies a configurable minimum-similarity threshold and score weighting to the returned scores.
 
 ==== Concurrency and Data Integrity
 

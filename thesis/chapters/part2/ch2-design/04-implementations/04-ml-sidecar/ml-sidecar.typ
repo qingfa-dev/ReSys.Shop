@@ -115,7 +115,7 @@ Six stages across four architectural layers:
 2. *Server Validation (.NET API).* Verifies magic bytes, reapplies payload ceiling.
 3. *Vector Extraction (ML Sidecar).* Forwards image bytes to `/embeddings`; sidecar executes preprocessing and inference.
 4. *Vector Search (pgvector).* Queries via cosine distance `<=>` filtered by `model_name`; HNSW enables sub-10 ms lookup.
-5. *Post-Processing.* Converts distance to similarity ($1 - text("distance")$), filters below $0.7$, deduplicates by product.
+5. *Post-Processing.* Converts distance to similarity ($1 - text("distance")$), deduplicates by product; the storefront then applies a configurable minimum-similarity threshold to the returned scores.
 6. *UI Rendering (Vue 3).* Renders product grid with thumbnails, prices, and similarity scores within the sub-second budget.
 
 The pluggable architecture supports automated benchmarking (update `EMBEDDING_MODEL`, restart, sequential benchmarking of all models without code changes) and production A/B testing via dual sidecar instances with distinct models.

@@ -1,7 +1,42 @@
-%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '78px'}}}%%
+%%{
+  init: {
+    'theme': 'neutral',
+
+    'themeVariables': {
+      'fontSize': '69px',
+      'fontFamily': 'Times New Roman, serif',
+
+      'primaryColor': '#ffffff',
+      'primaryTextColor': '#111111',
+      'primaryBorderColor': '#222222',
+
+      'secondaryColor': '#ffffff',
+      'tertiaryColor': '#ffffff',
+
+      'lineColor': '#555555'
+    },
+
+    'er': {
+      'layoutDirection': 'BT',
+
+      'minEntityWidth': 190,
+      'minEntityHeight': 78,
+
+      'entityPadding': 7,
+
+      'nodeSpacing': 18,
+      'rankSpacing': 32,
+
+      'diagramPadding': 6
+    }
+  }
+}%%
+
 erDiagram
 
-  %% ==================== CATALOG (catalog) ====================
+  %% ============================================================
+  %% CATALOG
+  %% ============================================================
 
   Product {
     uuid id PK
@@ -29,7 +64,7 @@ erDiagram
     uuid id PK
     uuid variant_image_id FK
     string model_name
-    vector(512) vector
+    vector_512 vector
   }
 
   OptionType {
@@ -74,7 +109,10 @@ erDiagram
     uuid taxon_id FK
   }
 
-  %% ==================== IDENTITY (identity) ====================
+
+  %% ============================================================
+  %% IDENTITY
+  %% ============================================================
 
   User {
     uuid id PK
@@ -104,7 +142,10 @@ erDiagram
     string provider_key
   }
 
-  %% ==================== ORDERING (ordering) ====================
+
+  %% ============================================================
+  %% ORDERING
+  %% ============================================================
 
   Order {
     uuid id PK
@@ -134,7 +175,10 @@ erDiagram
     decimal amount
   }
 
-  %% ==================== PAYMENT (payment) ====================
+
+  %% ============================================================
+  %% PAYMENT
+  %% ============================================================
 
   PaymentMethod {
     uuid id PK
@@ -157,7 +201,10 @@ erDiagram
     string type
   }
 
-  %% ==================== INVENTORY (inventory) ====================
+
+  %% ============================================================
+  %% INVENTORY
+  %% ============================================================
 
   StockLocation {
     uuid id PK
@@ -201,7 +248,10 @@ erDiagram
     int quantity
   }
 
-  %% ==================== SHIPPING (shipping) ====================
+
+  %% ============================================================
+  %% SHIPPING
+  %% ============================================================
 
   ShippingMethod {
     uuid id PK
@@ -229,7 +279,10 @@ erDiagram
     string status
   }
 
-  %% ==================== LOCATION (location) ====================
+
+  %% ============================================================
+  %% LOCATION
+  %% ============================================================
 
   Country {
     uuid id PK
@@ -243,7 +296,10 @@ erDiagram
     string name
   }
 
-  %% ==================== PROFILE (profile) ====================
+
+  %% ============================================================
+  %% PROFILE
+  %% ============================================================
 
   UserProfile {
     uuid id PK
@@ -270,71 +326,104 @@ erDiagram
     int quantity
   }
 
-  %% ==================== RELATIONSHIPS ====================
 
-  %% -- Catalog (same schema, solid) --
-  Product ||--o{ Variant : ""
-  Product ||--o{ ProductOptionType : ""
-  Product ||--o{ Classification : ""
-  Variant ||--o{ VariantImage : ""
-  VariantImage ||--o{ VariantImageEmbedding : ""
-  OptionType ||--o{ OptionValue : ""
-  OptionType ||--o{ ProductOptionType : ""
-  OptionValue ||--o{ OptionValueVariant : ""
-  Variant ||--o{ OptionValueVariant : ""
-  Taxonomy ||--o{ Taxon : ""
-  Taxon ||--o{ Taxon : "parent"
-  Taxon ||--o{ Classification : ""
+  %% ============================================================
+  %% CATALOG RELATIONSHIPS
+  %% ============================================================
 
-  %% -- Identity (same schema, solid) --
-  User ||--o{ UserRole : ""
-  Role ||--o{ UserRole : ""
-  User ||--o{ RefreshToken : ""
-  User ||--o{ UserLogin : ""
+  Product ||--o{ Variant : contains
+  Variant ||--o{ VariantImage : has
+  VariantImage ||--o{ VariantImageEmbedding : indexed
 
-  %% -- Ordering (same schema, solid) --
-  Order ||--o{ LineItem : ""
-  Order ||--o{ Adjustment : ""
+  Product ||--o{ ProductOptionType : defines
+  OptionType ||--o{ ProductOptionType : assigned
+  OptionType ||--o{ OptionValue : contains
+  OptionValue ||--o{ OptionValueVariant : assigned
+  Variant ||--o{ OptionValueVariant : has
 
-  %% -- Payment (same schema, solid) --
-  PaymentMethod ||--o{ PaymentCapture : ""
+  Taxonomy ||--o{ Taxon : contains
+  Taxon ||--o{ Taxon : parent
+  Product ||--o{ Classification : classified
+  Taxon ||--o{ Classification : categorizes
 
-  %% -- Inventory (same schema, solid) --
-  StockLocation ||--o{ StockItem : ""
-  StockLocation ||--o{ StockMovement : ""
-  StockItem ||--o{ StockMovement : ""
-  StockLocation ||--o{ StockReservation : ""
-  StockLocation ||--o{ StockTransfer : "source"
-  StockLocation ||--o{ StockTransfer : "dest"
-  StockTransfer ||--o{ TransferItem : ""
 
-  %% -- Shipping (same schema, solid) --
-  ShippingMethod ||--o{ ShippingRate : ""
-  ShippingMethod ||--o{ ShippingMethodZone : ""
+  %% ============================================================
+  %% IDENTITY RELATIONSHIPS
+  %% ============================================================
 
-  %% -- Location (same schema, solid) --
-  Country ||--o{ State : ""
+  User ||--o{ UserRole : has
+  Role ||--o{ UserRole : assigned
+  User ||--o{ RefreshToken : owns
+  User ||--o{ UserLogin : authenticates
 
-  %% -- Profile (same schema, solid) --
-  UserProfile ||--o{ Address : ""
-  Wishlist ||--o{ WishedItem : ""
 
-  %% -- Cross-context identifier references (dotted) --
-  Order |o--o{ PaymentCapture : ""
-  Order |o--o{ Shipment : ""
-  Order |o--o{ StockReservation : ""
-  Order |o--o{ PaymentMethod : ""
-  Order |o--o{ ShippingMethod : ""
-  Order |o--o{ Address : "bill/ship"
-  LineItem |o--o{ Variant : ""
-  Variant |o--o{ StockItem : ""
-  Variant |o--o{ StockReservation : ""
-  Variant |o--o{ TransferItem : ""
-  Variant |o--o{ WishedItem : ""
-  StockLocation |o--o{ Country : ""
-  StockLocation |o--o{ State : ""
-  User |o--o{ Order : ""
-  User |o--o{ UserProfile : ""
-  User |o--o{ Wishlist : ""
-  Shipment |o--o{ ShippingMethod : ""
-  Shipment |o--o{ Address : ""
+  %% ============================================================
+  %% ORDERING RELATIONSHIPS
+  %% ============================================================
+
+  Order ||--o{ LineItem : contains
+  Order ||--o{ Adjustment : adjusted
+
+
+  %% ============================================================
+  %% PAYMENT RELATIONSHIPS
+  %% ============================================================
+
+  PaymentMethod ||--o{ PaymentCapture : captures
+  PaymentCapture ||--o{ WebhookEvent : triggers
+
+
+  %% ============================================================
+  %% INVENTORY RELATIONSHIPS
+  %% ============================================================
+
+  StockLocation ||--o{ StockItem : stores
+  StockItem ||--o{ StockMovement : records
+  StockLocation ||--o{ StockReservation : reserves
+  StockLocation ||--o{ StockTransfer : transfers
+  StockTransfer ||--o{ TransferItem : contains
+
+
+  %% ============================================================
+  %% SHIPPING RELATIONSHIPS
+  %% ============================================================
+
+  ShippingMethod ||--o{ ShippingRate : defines
+  ShippingMethod ||--o{ ShippingMethodZone : serves
+  ShippingMethod ||--o{ Shipment : fulfills
+
+
+  %% ============================================================
+  %% LOCATION RELATIONSHIPS
+  %% ============================================================
+
+  Country ||--o{ State : contains
+
+
+  %% ============================================================
+  %% PROFILE RELATIONSHIPS
+  %% ============================================================
+
+  User ||--o{ UserProfile : profile
+  UserProfile ||--o{ Address : contains
+  User ||--o{ Wishlist : owns
+  Wishlist ||--o{ WishedItem : contains
+
+
+  %% ============================================================
+  %% CROSS-CONTEXT RELATIONSHIPS
+  %% ============================================================
+
+  User |o--o{ Order : places
+  Order |o--o{ PaymentCapture : payment
+  Order |o--o{ Shipment : shipment
+  Order |o--o{ StockReservation : reservation
+  Order |o--o{ Address : address
+
+  LineItem |o--o{ Variant : product
+  Variant |o--o{ StockItem : inventory
+  Variant |o--o{ StockReservation : reserved
+  Variant |o--o{ TransferItem : transferred
+  Variant |o--o{ WishedItem : wished
+
+  Shipment |o--o{ ShippingMethod : method
