@@ -23,6 +23,6 @@ Integration testing verifies that system components interact correctly when comp
 
 End-to-end verification validates complete user workflows from the frontend through the backend to the database:
 
-+ The key user flows — visual search, checkout, and admin product management — were verified manually using documented HTTP test files that simulate the sequence of API calls a frontend client makes during a real user session.
++ The key user flows (visual search, checkout, and admin product management) were verified manually using documented HTTP test files that simulate the sequence of API calls a frontend client makes during a real user session.
 + Automated end-to-end testing via Playwright covers the most critical paths: the visual search flow from image upload to results display, and the checkout flow from cart addition to order confirmation.
 + These tests run against a fully deployed containerized environment, giving confidence that the system operates correctly when all services are composed.

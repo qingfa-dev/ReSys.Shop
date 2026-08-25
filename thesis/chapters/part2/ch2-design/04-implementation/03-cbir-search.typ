@@ -13,7 +13,7 @@ Content-based image retrieval (CBIR) enables real-time visual product search acr
 2. *Server Validation (.NET API):* The backend verifies binary header magic bytes (preventing file extension spoofing), validates the MIME type, and re-enforces the 10 MB payload ceiling.
 3. *Vector Extraction (ML Sidecar):* The backend proxies image bytes to the #emph[/embeddings] endpoint. The sidecar executes preprocessing and model inference ($50 thin - thin 100$ ms latency), returning a 512-dimensional float vector with model metadata.
 4. *Vector Index Search (pgvector):* The backend queries the #emph("variant_images") table using pgvector's #emph("<=>") cosine distance operator:
-   - *HNSW Acceleration:* Leverages HNSW indexing for sub-10 ms logarithmic lookup times across thousands of stored embeddings.
+   - *HNSW Acceleration:* Uses HNSW indexing for sub-10 ms logarithmic lookup times across thousands of stored embeddings.
    - *Model Isolation Filter:* Enforces a #emph("model_name") predicate to prevent invalid cross-model vector comparisons.
 5. *Post-Processing & Deduplication:* The backend joins vector matches with parent product records:
    - *Similarity Score:* Computes score values via $ text("Similarity") = 1 - text("Distance") $.

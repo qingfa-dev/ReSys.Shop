@@ -4,7 +4,7 @@ The .NET backend implements Vertical Slice Architecture (VSA) combined with Comm
 
 ==== Feature Co-Location and Execution Mechanics
 
-Every feature is structured across five files: #raw("{Feature}.cs", lang: "csharp"), #raw("{Feature}.Request.cs", lang: "csharp"), #raw("{Feature}.Response.cs", lang: "csharp"), #raw("{Feature}.Endpoint.cs", lang: "csharp"), and #raw("{Feature}.Validator.cs", lang: "csharp"). The handler pipeline (Validate → Build → Complete):
+Every feature is structured across five files: #emph[{Feature}.cs], #emph[{Feature}.Request.cs], #emph[{Feature}.Response.cs], #emph[{Feature}.Endpoint.cs], and #emph[{Feature}.Validator.cs]. The handler pipeline (Validate → Build → Complete):
 
 #figure(
   table(
@@ -52,7 +52,7 @@ public sealed class CommandHandler(IApplicationDbContext db, ISender sender)
 
 ==== Request Pipeline Architecture
 
-Each feature implements #emph[ICarterModule] with thin endpoints that parse requests, construct MediatR commands, dispatch via #emph[ISender], and convert #emph("Result<T>") to HTTP responses. Routes follow #raw("/api/{surface}/{module}/{resource}", lang: "http") with Carter auto-discovery at startup.
+Each feature implements #emph[ICarterModule] with thin endpoints that parse requests, construct MediatR commands, dispatch via #emph[ISender], and convert #emph("Result<T>") to HTTP responses. Routes follow #emph[/api/{surface}/{module}/{resource}] with Carter auto-discovery at startup.
 
 Three MediatR pipeline behaviors wrap every command: #emph[LoggingBehavior] (outermost, captures request metadata and duration), #emph[ValidationBehavior] (runs FluentValidation, short-circuits on failure), and #emph[ExceptionMappingBehavior] (innermost, wraps unhandled exceptions).
 

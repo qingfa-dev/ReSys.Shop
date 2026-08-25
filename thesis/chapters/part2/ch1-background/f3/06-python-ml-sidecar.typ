@@ -2,7 +2,7 @@
 
 The machine learning capability runs as a dedicated Python 3.12 service, isolated from the .NET backend due to incompatible runtime dependencies (PyTorch requires Python, .NET requires the CLR) @paszke2019pytorch.
 
-- *Framework.* FastAPI provides async HTTP endpoints with automatic OpenAPI schema generation. Uvicorn serves as the ASGI runtime.
+- *Framework.* FastAPI provides async HTTP endpoints with automatic OpenAPI schema generation. Uvicorn is the ASGI runtime.
 
 - *Model management.* A singleton *ModelManager* lazy-loads models from the HuggingFace hub on first request. Once loaded, models persist in GPU memory (or CPU, if no GPU is available) for the lifetime of the service. The manager supports multiple architectures through a common embedding interface.
 

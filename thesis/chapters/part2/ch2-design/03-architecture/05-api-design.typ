@@ -80,4 +80,4 @@ Endpoints follow the convention #emph("/api/{surface}/{module}/{resource}"), whe
 
 ==== Error Handling
 
-All API endpoints conform to RFC 7807 Problem Details: #raw("400", lang: "http") for FluentValidation failures, #raw("401", lang: "http") for missing/expired JWT, #raw("403", lang: "http") for insufficient permissions, #raw("404", lang: "http") for entity/route resolution failure, #raw("409", lang: "http") for concurrency conflicts (PostgreSQL #emph[xmin]), and #raw("500", lang: "http") via global exception middleware preventing stack trace leakage.
+All API endpoints conform to RFC 7807 Problem Details: #emph[400] for FluentValidation failures, #emph[401] for missing/expired JWT, #emph[403] for insufficient permissions, #emph[404] for entity/route resolution failure, #emph[409] for concurrency conflicts (PostgreSQL #emph[xmin]), and #emph[500] via global exception middleware preventing stack trace leakage.

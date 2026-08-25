@@ -6,7 +6,7 @@ The ReSys.Shop database is a single PostgreSQL 17 instance partitioned into per-
 
 Each bounded context owns a dedicated schema that mirrors its aggregate boundaries rather than a generic normalized model. The Catalog schema holds the product aggregate and its variant, media, option, and taxonomy members. The Identity schema extends ASP.NET Identity with users, roles, claims, refresh tokens, and passkeys. The Ordering schema contains the order aggregate with line items and adjustments. The Payment schema tracks payment captures, configured gateways, and inbound webhook events. The Inventory schema records stock locations, items, an append-only movement ledger, reservations, and inter-location transfers. The Shipping schema defines methods, rate tiers, geographic zones, and shipments. The Location schema provides country and state reference data. The Profile schema stores customer profiles, addresses, and wishlists.
 
-Cross-context relationships use identifier references — loose UUID attributes rather than database-level foreign keys — so an order references user, variant, and address identifiers without coupling the schemas. This keeps modules logically independent and avoids coordinating transactions across contexts.
+Cross-context relationships use identifier references (loose UUID attributes rather than database-level foreign keys), so an order references user, variant, and address identifiers without coupling the schemas. This keeps modules logically independent and avoids coordinating transactions across contexts.
 
 ==== Core Entity-Relationship Model
 

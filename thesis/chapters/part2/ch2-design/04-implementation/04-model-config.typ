@@ -1,6 +1,6 @@
 === Model Configuration
 
-The ML sidecar uses environment-driven configuration to decouple model selection from application code. This mechanism enables seamless model swapping, multi-model embedding storage, and standardized benchmark comparisons without code modifications.
+The ML sidecar uses environment-driven configuration to decouple model selection from application code. This mechanism enables model swapping, multi-model embedding storage, and standardized benchmark comparisons without code modifications.
 
 ==== Environment-Driven Selection
 

@@ -26,7 +26,7 @@ public sealed class JwtSettings
 
 ==== Dynamic Authorization
 
-Role-Based Access Control separates administrative and storefront surfaces. Unprivileged accounts accessing #emph("/api/*/admin/*") endpoints receive an immediate #raw("403", lang: "http") prior to command dispatch. The built-in Administrator role bypasses all permission checks.
+Role-Based Access Control separates administrative and storefront surfaces. Unprivileged accounts accessing #emph("/api/*/admin/*") endpoints receive an immediate #emph[403] prior to command dispatch. The built-in Administrator role bypasses all permission checks.
 
 A three-layer permission architecture resolves claims at runtime:
 
@@ -66,6 +66,6 @@ A custom #emph[IAuthorizationPolicyProvider] resolves claim strings to policies 
 
 ==== System Hardening
 
-Rate limiting restricts authentication to 5 requests per minute, registration to 3 per hour, and payment processing to 30 per minute. Security middleware injects #raw("Content-Security-Policy", lang: "http"), #raw("Strict-Transport-Security", lang: "http"), #raw("X-Frame-Options", lang: "http"), and #raw("X-Content-Type-Options", lang: "http") headers. Visual search uploads enforce a 10 MB limit and validate magic bytes to verify valid JPEG, PNG, or WebP formats. Stripe payment webhooks validate the #emph[Stripe-Signature] header using HMAC signature verification before executing state transitions.
+Rate limiting restricts authentication to 5 requests per minute, registration to 3 per hour, and payment processing to 30 per minute. Security middleware injects #emph[Content-Security-Policy], #emph[Strict-Transport-Security], #emph[X-Frame-Options], and #emph[X-Content-Type-Options] headers. Visual search uploads enforce a 10 MB limit and validate magic bytes to verify valid JPEG, PNG, or WebP formats. Stripe payment webhooks validate the #emph[Stripe-Signature] header using HMAC signature verification before executing state transitions.
 
 The storage service includes a pre-upload virus scanning layer via ClamAV (nClam integration) and image format validation through SkiaSharp, preventing malicious payloads from reaching persistent storage.
