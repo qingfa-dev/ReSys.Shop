@@ -95,7 +95,7 @@ dotnet test /p:CollectCoverage=true
 dotnet test --filter "FullyQualifiedName~Location"
 ```
 
-**Evidence**: `Directory.Build.props:95-98`, `AGENTS.md:42-51`
+**Evidence**: `Directory.Build.props:95-98`
 
 ## 10.3 Frontend Testing
 

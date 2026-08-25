@@ -53,7 +53,7 @@ A historical vulnerability (commit `770b6a06`) allowed hardcoded dev JWT secrets
 2. `JwtSettingsValidator` rejects known-dev literal secrets in non-Development environments
 3. `setup-dev-secrets.sh` bootstraps dev secrets safely
 
-**Evidence**: `AGENTS.md:66`, `appsettings.Development.json:1-2`, `Tokens.Extensions.cs:38-43`
+**Evidence**: `appsettings.Development.json:1-2`, `Tokens.Extensions.cs:38-43`
 
 ### 8.2.3 External Identity Providers
 
@@ -167,7 +167,7 @@ A custom middleware injects security headers on every response:
 
 **No secrets are committed** to the repository. All `appsettings.json` secret fields are empty strings (`""`).
 
-**Evidence**: `appsettings.json` (empty secrets), `.env.template`, `AGENTS.md:66`
+**Evidence**: `appsettings.json` (empty secrets), `.env.template`
 
 ## 8.8 Evidence
 

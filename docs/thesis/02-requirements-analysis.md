@@ -88,8 +88,8 @@ Functional requirements are organized by business module. Each requirement is tr
 
 | ID | Requirement | Target | Evidence |
 |----|-------------|--------|----------|
-| NFR-01 | **Modularity** — Modules must have zero direct cross-references | Compile-time isolation | `AGENTS.md:10`, `Directory.Build.targets:42-53` |
-| NFR-02 | **Explicit error handling** — No exceptions for control flow; all failures return `Result<T>` | 100% of handlers | `AGENTS.md:10`, `Result.cs:1-43` |
+| NFR-01 | **Modularity** — Modules must have zero direct cross-references | Compile-time isolation | `Directory.Build.targets:42-53` |
+| NFR-02 | **Explicit error handling** — No exceptions for control flow; all failures return `Result<T>` | 100% of handlers | `Result.cs:1-43` |
 | NFR-03 | **Build strictness** — Warnings treated as errors | Zero warnings | `Directory.Build.props:17` |
 | NFR-04 | **Testability** — Unit tests runnable without Docker; integration tests with Docker | xUnit v3, Testcontainers | `Directory.Packages.props:102-112` |
 | NFR-05 | **Observability** — OpenTelemetry traces, metrics, logs; correlation IDs | OTLP export optional | `infra/Aspire/src/ReSys.ServiceDefaults/Extensions.cs:58-103` |
