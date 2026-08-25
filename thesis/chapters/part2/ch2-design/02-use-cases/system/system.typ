@@ -53,7 +53,7 @@
       + E2. ML service unreachable → system requeues image and triggers alert.
       + E3. New model not available (Regenerate) → system aborts regeneration; existing embeddings remain in use.
     ],
-    [*Requirements*], [CAT-FR-05, CAT-FR-15],
+    [*Requirements*], [CAT-GRP-03],
   ),
     kind: table,
   caption: [Embedding Operations.],
@@ -80,4 +80,4 @@ The embedding generation process described in the main success scenario follows 
 
 ==== UC-SYS-MNT: System Maintenance
 
-*Goal:* Perform scheduled and event-driven system maintenance tasks. *Trigger:* a scheduled job fires or the payment gateway sends a signed webhook. *Related requirements:* CAT-FR-06, CAT-FR-08, ORD-FR-03, INV-FR-07, PAY-FR-04. The flow monitors ML service health, expires abandoned carts, releases expired inventory reservations, processes payment webhooks with signature and idempotency validation, and maintains the search index; alternatives and exceptions cover empty batches, duplicate or out-of-order webhooks, and database or index failures.
+*Goal:* Perform scheduled and event-driven system maintenance tasks. *Trigger:* a scheduled job fires or the payment gateway sends a signed webhook. *Related requirements:* CAT-GRP-04, ORD-GRP-01, INV-GRP-02, PAY-GRP-03. The flow monitors ML service health, expires abandoned carts, releases expired inventory reservations, processes payment webhooks with signature and idempotency validation, and maintains the search index; alternatives and exceptions cover empty batches, duplicate or out-of-order webhooks, and database or index failures.

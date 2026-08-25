@@ -9,7 +9,7 @@
 
 ==== UC-STR-PAY: Payment Processing
 
-*Goal:* Create and confirm payment for an order. *Trigger:* the customer reaches the payment step of checkout with a calculated order total. *Related requirements:* PAY-FR-01, PAY-FR-02. The flow creates a payment intent through the gateway, reviews the final order summary, and confirms; alternatives cover invalid or declined payment details and additional authentication, while exceptions handle an unreachable gateway, order-creation failure after payment, and gateway timeouts.
+*Goal:* Create and confirm payment for an order. *Trigger:* the customer reaches the payment step of checkout with a calculated order total. *Related requirements:* PAY-GRP-01. The flow creates a payment intent through the gateway, reviews the final order summary, and confirms; alternatives cover invalid or declined payment details and additional authentication, while exceptions handle an unreachable gateway, order-creation failure after payment, and gateway timeouts.
 
 ==== Authentication
 #figure(
@@ -69,7 +69,7 @@
       + E1. Verification or reset email fails to send → system creates account/request but logs failure internally.
       + E2. Token issuance fails → system reports failure and suggests retry.
     ],
-    [*Requirements*], [IDN-FR-01, IDN-FR-02, IDN-FR-08, IDN-FR-14],
+    [*Requirements*], [IDN-GRP-01, IDN-GRP-02],
   ),
     kind: table,
   caption: [Authentication.],
@@ -122,7 +122,7 @@
     [*Exceptions*], [
       + E1. Token issuance or invalidation fails → client retains existing pair if access token still valid; clears locally otherwise.
     ],
-    [*Requirements*], [IDN-FR-04, IDN-FR-05, IDN-FR-16],
+    [*Requirements*], [IDN-GRP-01],
   ),
     kind: table,
   caption: [Session Management.],

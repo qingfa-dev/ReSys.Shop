@@ -56,7 +56,7 @@
     [*Exceptions*], [
       + E1. Retrieval or search failure → system displays error, offers retry.
     ],
-    [*Requirements*], [CAT-FR-01, CAT-FR-02, CAT-FR-03, CAT-FR-09, CAT-FR-16, CAT-FR-22],
+    [*Requirements*], [CAT-GRP-01, CAT-GRP-02, CAT-GRP-04, CAT-GRP-05],
   ),
     kind: table,
   caption: [Browse and Search Catalog.],
@@ -114,7 +114,7 @@
       + E1. ML service unavailable → system displays error, suggests retrying later.
       + E2. Embedding index empty → system reports visual search not yet available.
     ],
-    [*Requirements*], [CAT-FR-06, CAT-FR-07, CAT-FR-08, CAT-FR-17],
+    [*Requirements*], [CAT-GRP-04],
   ),
     kind: table,
   caption: [Visual Search.],

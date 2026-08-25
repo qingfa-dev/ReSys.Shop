@@ -9,4 +9,4 @@
 
 ==== UC-STR-PRF: Profile Management
 
-*Goal:* Manage shipping addresses, wishlists, and notification preferences. *Trigger:* the authenticated customer opens their profile. *Related requirements:* PRF-FR-01, PRF-FR-02, PRF-FR-03. The flow manages an address book, named wishlists with variant entries, and per-channel notification opt-in/out; alternatives cover duplicate wishlist items and addresses referenced by orders, and exceptions handle address validation, archived variants, and persistence failure.
+*Goal:* Manage shipping addresses, wishlists, and notification preferences. *Trigger:* the authenticated customer opens their profile. *Related requirements:* PRF-GRP-01, PRF-GRP-02. The flow manages an address book, named wishlists with variant entries, and per-channel notification opt-in/out; alternatives cover duplicate wishlist items and addresses referenced by orders, and exceptions handle address validation, archived variants, and persistence failure.

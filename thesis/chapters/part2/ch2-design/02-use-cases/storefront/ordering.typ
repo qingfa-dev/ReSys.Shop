@@ -49,7 +49,7 @@
       + E1. Variant deactivated or archived → system rejects, suggests refreshing product page.
       + E2. Merge fails due to data conflict → system creates user cart with guest items, notifies to review.
     ],
-    [*Requirements*], [ORD-FR-01, ORD-FR-02, ORD-FR-10],
+    [*Requirements*], [ORD-GRP-01],
   ),
     kind: table,
   caption: [Manage Cart.],
@@ -116,7 +116,7 @@
       + E2. Rate calculation fails → system displays error, suggests contacting support.
       + E3. Payment captured but inventory reservation fails → system voids payment, notifies order not completed.
     ],
-    [*Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-08, ORD-FR-11, ORD-FR-12],
+    [*Requirements*], [ORD-GRP-02, ORD-GRP-03],
   ),
     kind: table,
   caption: [Checkout.],
@@ -169,7 +169,7 @@
       + E1. Payment gateway unreachable (Cancel) → system cancels order, releases inventory, queues void, notifies customer.
       + E2. Retrieval failure (View) → system displays error and offers retry.
     ],
-    [*Requirements*], [ORD-FR-07, ORD-FR-14],
+    [*Requirements*], [ORD-GRP-04],
   ),
     kind: table,
   caption: [Order History.],
