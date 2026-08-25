@@ -5,7 +5,7 @@ The application utilizes *MediatR Behaviors* to implement cross-cutting concerns
 *Validation Pipeline:*
 Before a handler executes, the `ValidationBehavior` intercepts the request, runs all defined `FluentValidation` rules, and returns a structured error response if validation fails.
 
-```csharp
+```cs
 public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator)
     : IPipelineBehavior<TRequest, TResponse>
 {

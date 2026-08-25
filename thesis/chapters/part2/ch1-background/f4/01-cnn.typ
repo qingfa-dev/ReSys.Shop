@@ -1,6 +1,6 @@
 === Convolutional Neural Networks
 
-CNNs have dominated computer vision since AlexNet (2012). Variants evaluated: ResNet-50, ResNet-101, EfficientNet-B0, and EfficientNet-B4.
+CNNs have dominated computer vision since AlexNet (2012). Variants benchmarked: ResNet-50, ResNet-101, EfficientNet-B0, and EfficientNet-B4.
 
 ==== Hierarchical Feature Extraction
 
@@ -25,7 +25,7 @@ Local patterns cascade into global understanding: edges become textures in middl
 Deeper networks capture richer features but suffer from *vanishing gradients*: training signals decay as they propagate backward through many layers. ResNet solves this with *skip connections*: identity paths that bypass convolutional blocks and add the block input directly to its output @he2016deep. This lets gradients flow unimpeded, enabling 50-, 101-, or 152-layer networks to train effectively.
 #figure(
   image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_cnn-resnet.png", width: 100%),
-  caption: [ResNet architecture with residual skip connections enabling gradient flow across very deep networks],
+  caption: [ResNet architecture with residual skip connections],
 ) <fig-resnet-arch>
 
 ResNet-50 (25.6M parameters, 2,048-dim embeddings) remains a strong baseline for image retrieval. ResNet-101 (44.5M parameters) provides additional depth for comparison.
@@ -35,12 +35,12 @@ ResNet-50 (25.6M parameters, 2,048-dim embeddings) remains a strong baseline for
 Traditional scaling enlarges a network along one dimension: depth, width, or resolution. EfficientNet introduces *compound scaling*, balancing all three simultaneously using a learned coefficient @tan2019efficientnet. This produces models (B0 through B7) with competitive accuracy and far fewer parameters.
 #figure(
   image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_efficientnet-b0.png", height: 55%),
-  caption: [EfficientNet-B0 architecture showing the flow from input image to feature vector],
+  caption: [EfficientNet-B0 architecture: input image to feature vector],
 ) <fig-efficientnet-arch>
 
 EfficientNet-B0 uses 5.3M parameters and 1,280-dim embeddings, well suited to CPU-only deployments. EfficientNet-B4 (19.3M parameters, 1,792-dim embeddings) provides higher capacity.
 
-==== Evaluated CNN Variants
+==== Benchmarked CNN Variants
 
 #figure(
   table(
@@ -54,5 +54,5 @@ EfficientNet-B0 uses 5.3M parameters and 1,280-dim embeddings, well suited to CP
     [CNN], [EfficientNet-B4], [19.3M], [1792], [ImageNet (1.2M images)],
   ),
     kind: table,
-  caption: [CNN-based models evaluated],
+  caption: [CNN-based models benchmarked],
 ) <tbl-cnn-models>

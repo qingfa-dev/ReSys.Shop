@@ -1036,21 +1036,17 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("variant_image_id");
 
                     b.Property<Vector>("Vector")
-                        .HasColumnType("vector(512)")
+                        .HasColumnType("vector")
                         .HasColumnName("vector");
 
                     b.HasKey("Id")
                         .HasName("pk_variant_image_embeddings");
 
+                    b.HasIndex("ModelName")
+                        .HasDatabaseName("ix_product_image_embeddings_model_name");
+
                     b.HasIndex("VariantImageId")
                         .HasDatabaseName("ix_variant_image_embeddings_variant_image_id");
-
-                    b.HasIndex("Vector")
-                        .HasDatabaseName("ix_product_image_embeddings_vector_ivfflat")
-                        .HasAnnotation("Npgsql:StorageParameter:lists", 100);
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Vector"), "ivfflat");
-                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Vector"), new[] { "vector_cosine_ops" });
 
                     b.ToTable("variant_image_embeddings", "catalog");
                 });

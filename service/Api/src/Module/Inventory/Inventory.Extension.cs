@@ -15,6 +15,7 @@ public static class InventoryExtension
         builder.AddSeeder<StockLocationSeeder>();
         builder.AddSeeder<InventoryStockItemSeeder>();
         builder.AddSeeder<InventoryStockMovementSeeder>();
+        builder.AddSeeder<InventoryStockTransferSeeder>();
 
         builder.Services.AddScoped<DemoJsonHelper>();
         builder.Services.AddScoped<Backgrounds.ReservationExpiryJob>();

@@ -44,6 +44,6 @@ All models were loaded from pre-trained weights on HuggingFace or PyTorch Hub; n
 
 == Precision and Reproducibility
 
-All computations used float32 precision; mixed precision was not used due to numerical instability. Reproducibility settings: random seed 42, `model.eval()` with `torch.no_grad()`. Results may not be bitwise-identical on different hardware due to CPU performance variance, memory capacity differences, and disk I/O speed. All evaluation scripts and raw result files are available in the project's benchmark repository.
+All computations used float32 precision; mixed precision was not used due to numerical instability. Reproducibility settings: random seed 42, #emph("model.eval()") with #emph("torch.no_grad()"). Results may not be bitwise-identical on different hardware due to CPU performance variance, memory capacity differences, and disk I/O speed. All benchmark scripts and raw result files are available in the project's benchmark repository.
 
 #pagebreak()

@@ -33,7 +33,7 @@ The `ApiResponse<T>` wrapper enables consistent handling of metadata, such as pa
 
 Each feature exposes its own module. Below is the implementation of the *Product Management* API, demonstrating the rigorous security checks and command dispatching pattern.
 
-```csharp
+```cs
 public class ProductsModule : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)

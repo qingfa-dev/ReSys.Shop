@@ -36,7 +36,7 @@ public static partial class CreateOrderFromCart
 
             // TODO(audit 2026-08-16): cross-module ISender — replace with direct navigation.
             // GetPaymentForCheckoutQuery reads a PaymentCapture reachable via Order.PaymentCaptures
-            // (.Include(x => x.PaymentCaptures) + local filter). See AGENTS.md rule #2 candidates.
+            // (.Include(x => x.PaymentCaptures) + local filter).
             var paymentResult = await sender.Send(
                 new GetPaymentForCheckoutQuery { PaymentIntentId = command.Request.PaymentIntentId!, OrderId = cart.Id }, cancellationToken);
             if (paymentResult.IsFailure)

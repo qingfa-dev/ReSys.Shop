@@ -26,7 +26,7 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
         _inferenceClientMock = new Mock<IInferenceClient>();
         _orchestrator = new EmbeddingOrchestrator(
             _inferenceClientMock.Object, _dbContext,
-            Microsoft.Extensions.Options.Options.Create(new EmbeddingOrchestratorOptions { DefaultModel = "fashion-clip" }),
+            Microsoft.Extensions.Options.Options.Create(new EmbeddingOrchestratorOptions { DefaultModel = "fashion_clip" }),
             NullLogger<EmbeddingOrchestrator>.Instance);
     }
 
@@ -39,7 +39,7 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
             "image/jpeg", "test.jpg", 1000, "https://cdn.test.com/test.jpg",
             "u/test.jpg", position: 0, variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);
-        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion-clip", "v1");
+        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion_clip", "v1");
         _dbContext.Set<ImageEmbedding>().Add(embedding);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -66,7 +66,7 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
             "image/jpeg", "test.jpg", 1000, "https://cdn.test.com/test.jpg",
             "u/test.jpg", position: 0, variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);
-        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion-clip", "v1");
+        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion_clip", "v1");
         _dbContext.Set<ImageEmbedding>().Add(embedding);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -89,7 +89,7 @@ public class EmbeddingOrchestratorRunAsyncTests : IDisposable
             "image/jpeg", "test.jpg", 1000, "https://cdn.test.com/test.jpg",
             "u/test.jpg", position: 0, variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);
-        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion-clip", "v1");
+        var embedding = ImageEmbeddingMethod.CreatePending(image.Id, "fashion_clip", "v1");
         _dbContext.Set<ImageEmbedding>().Add(embedding);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

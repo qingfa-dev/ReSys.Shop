@@ -14,7 +14,7 @@ The preceding sections introduced the principal technologies that compose the Re
     [ML Sidecar], [Python 3.12, FastAPI, PyTorch], [Embedding generation with lazy model loading and GPU acceleration],
     [Background Jobs], [Hangfire], [Persistent job processing for cart expiry, embedding queue, and maintenance],
     [Auth and Identity], [JWT, ASP.NET Identity], [Access tokens, refresh rotation, permission-based authorisation],
-    [Benchmarking], [Python 3.12, PyTorch], [Systematic 11-model comparison across retrieval accuracy and efficiency],
+    [Benchmarking], [Python 3.12, PyTorch], [Systematic six-model comparison (of 11 supported architectures) across retrieval accuracy and efficiency],
   ),
     kind: table,
   caption: [Technology stack of the ReSys.Shop platform],

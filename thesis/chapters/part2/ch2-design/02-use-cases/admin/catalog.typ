@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-PROD — Manage Products],
+    [*Use Case*], [UC-ADM-PROD: Manage Products],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, and archive products in the catalog.],
     [*Pre/Post*], [
@@ -51,7 +51,7 @@
     [*Exceptions*], [
       + E1. System fails to persist → reports failure, retains form data for retry.
     ],
-    [*Requirements*], [CAT-FR-01, CAT-FR-02, CAT-FR-03, CAT-FR-11, CAT-FR-12, CAT-FR-13],
+    [*Requirements*], [CAT-GRP-01, CAT-GRP-02],
   ),
     kind: table,
   caption: [Manage Products.],
@@ -74,7 +74,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-VAR — Manage Variants],
+    [*Use Case*], [UC-ADM-VAR: Manage Variants],
     [*Actor*], [Administrator],
     [*Goal*], [Add and manage product variants including option-value configuration and pricing.],
     [*Pre/Post*], [
@@ -111,7 +111,7 @@
     [*Exceptions*], [
       + E1. Persistence failure → system reports, retains form data for retry.
     ],
-    [*Requirements*], [CAT-FR-03, CAT-FR-10, CAT-FR-21, CAT-FR-22],
+    [*Requirements*], [CAT-GRP-02],
   ),
     kind: table,
   caption: [Manage Variants.],
@@ -134,7 +134,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-IMG — Manage Images and Embeddings],
+    [*Use Case*], [UC-ADM-IMG: Manage Images and Embeddings],
     [*Actor*], [Administrator],
     [*Support*], [ML Service],
     [*Goal*], [Upload variant images and manage embedding generation.],
@@ -166,7 +166,7 @@
       + E1. ML service unavailable → system reports failure, suggests retry when operational.
       + E2. Processing cannot be scheduled → system stores image, notifies search will exclude it until processing succeeds.
     ],
-    [*Requirements*], [CAT-FR-04, CAT-FR-05, CAT-FR-14, CAT-FR-15],
+    [*Requirements*], [CAT-GRP-03],
   ),
     kind: table,
   caption: [Manage Images and Embeddings.],
@@ -189,7 +189,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-TAX — Manage Taxonomies and Classification],
+    [*Use Case*], [UC-ADM-TAX: Manage Taxonomies and Classification],
     [*Actor*], [Administrator],
     [*Goal*], [Create and modify taxonomy structures and assign product classifications.],
     [*Pre/Post*], [
@@ -220,7 +220,7 @@
     [*Exceptions*], [
       + E1. Concurrent modification → system refreshes data, asks to retry.
     ],
-    [*Requirements*], [CAT-FR-09, CAT-FR-18, CAT-FR-19],
+    [*Requirements*], [CAT-GRP-05],
   ),
     kind: table,
   caption: [Manage Taxonomies and Classification.],
@@ -243,7 +243,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-OPT — Manage Option Types],
+    [*Use Case*], [UC-ADM-OPT: Manage Option Types],
     [*Actor*], [Administrator],
     [*Goal*], [Create, modify, and remove option types and their associated values.],
     [*Pre/Post*], [
@@ -265,7 +265,7 @@
     [*Exceptions*], [
       + E1. Concurrent modification → system refreshes data, asks to retry.
     ],
-    [*Requirements*], [CAT-FR-10, CAT-FR-20],
+    [*Requirements*], [CAT-GRP-02],
   ),
     kind: table,
   caption: [Manage Option Types.],

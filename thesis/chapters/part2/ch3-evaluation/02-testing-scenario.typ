@@ -1,6 +1,6 @@
 == Scenario of Testing
 
-The testing scenarios cover the four functional areas identified in Section 3.1: visual search (7 scenarios), ML embedding pipeline (6 scenarios), shopping cart and checkout (8 scenarios), and admin product management (7 scenarios). Each scenario is validated with step-by-step test cases defined in Section 3.3.
+The testing scenarios cover the four functional areas identified in Section 3.1: visual search (7 scenarios), ML embedding pipeline (6 scenarios), shopping cart and checkout (8 scenarios), and admin product management (7 scenarios). Each scenario is validated with step-by-step test cases defined in Section 3.4.
 
 === Testing Environment
 

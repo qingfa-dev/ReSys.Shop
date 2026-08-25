@@ -17,7 +17,7 @@ def test_upsert_batch():
     labels = ["shirt", "jeans", "shoes"]
     embeddings = np.random.rand(3, 512).astype(np.float32)
 
-    retriever.upsert_batch(ids, labels, embeddings, model_slug="fashion-clip")
+    retriever.upsert_batch(ids, labels, embeddings, model_slug="fashion_clip")
     assert cur.executemany.call_count == 1
     sql = cur.executemany.call_args[0][0]
     assert "INSERT INTO" in sql

@@ -1,10 +1,10 @@
 === Frontend Applications
 
-The user-facing components consist of two Vue 3 single-page applications: a customer storefront (PrimeVue Aura theme) and an administration dashboard (PrimeVue Sakai theme with Chart.js 4). This section presents the implemented interfaces organized by the 26 use cases defined in Section 2.2.2.
+The user-facing components consist of two Vue 3 single-page applications: a customer storefront (PrimeVue Aura theme) and an administration dashboard (PrimeVue Sakai theme with Chart.js 4). This section presents the implemented interfaces organized by the 26 use cases defined in Section 2.2.
 
 ==== Frontend Architecture
 
-Both applications share Vue 3.5, TypeScript ~ 6.0, Vite 8, Pinia, and Axios. All backend communication follows a typed repository pattern mirroring the .NET `Result<T>` convention with `isSuccess`, `statusCode`, `data`, and `errors[]` fields. The `BaseRepository` wraps Axios with typed CRUD:
+Both applications share Vue 3.5, TypeScript ~ 6.0, Vite 8, Pinia, and Axios. All backend communication follows a typed repository pattern mirroring the .NET #emph("Result<T>") convention with #emph[isSuccess], #emph[statusCode], #emph[data], and #emph("errors[]") fields. The #emph[BaseRepository] wraps Axios with typed CRUD:
 
 ```typescript
 export interface Result<T> {
@@ -16,11 +16,11 @@ export interface Result<T> {
 }
 ```
 
-For visual search, the repository extends the base with a multipart upload method: `async searchByImage(file: File): Promise<Result<Product[]>>` dispatching `POST /api/storefront/search-by-image` with `Content-Type: multipart/form-data`.
+For visual search, the repository extends the base with a multipart upload method: #emph("async searchByImage(file: File): Promise<Result<Product[]>>") dispatching #emph[POST /api/storefront/catalog/products/images/search] with #emph("Content-Type: multipart/form-data").
 
 ==== Storefront Interfaces
 
-The customer storefront implements eight use cases covering product discovery, purchasing, and account management.
+The customer storefront implements nine use cases covering product discovery, purchasing, and account management.
 
 #include "f1-visual-search.typ"
 #include "f2-catalog-cart.typ"

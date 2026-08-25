@@ -42,14 +42,14 @@ class TestErrorPropagation:
         """
         response = authed_client.post(
             EMBED_URL,
-            json={"image_url": "http://example.com/img.jpg", "model": "invalid_model_xyz"},
+            json={"image_url": "http://example.com/img.jpg", "model_name": "invalid_model_xyz"},
         )
         assert response.status_code == 404
 
     def test_invalid_model_detail_contains_failure_info(self, authed_client):
         response = authed_client.post(
             EMBED_URL,
-            json={"image_url": "http://example.com/img.jpg", "model": "invalid_model_xyz"},
+            json={"image_url": "http://example.com/img.jpg", "model_name": "invalid_model_xyz"},
         )
         body = response.json()
         assert body["isSuccess"] is False
@@ -69,7 +69,10 @@ class TestErrorPropagation:
         try:
             response = authed_client.post(
                 EMBED_URL,
-                json={"image_url": "http://invalid.invalid/img.jpg", "model": "efficientnet_b0"},
+                json={
+                    "image_url": "http://invalid.invalid/img.jpg",
+                    "model_name": "efficientnet_b0",
+                },
             )
             assert response.status_code == 400
             assert response.json()["errors"][0]["code"] == "Image.LoadError"
@@ -86,7 +89,7 @@ class TestErrorPropagation:
         try:
             response = authed_client.post(
                 EMBED_URL,
-                json={"image_url": "http://example.com/img.jpg", "model": "efficientnet_b0"},
+                json={"image_url": "http://example.com/img.jpg", "model_name": "efficientnet_b0"},
             )
             assert response.status_code == 500
             assert response.json()["isSuccess"] is False

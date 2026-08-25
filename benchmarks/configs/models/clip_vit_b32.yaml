@@ -1,4 +1,4 @@
-id: clip-b32
+id: clip_b32
 name: "CLIP ViT-B/32"
 class: "ClipB32Model"
 module: "benchmark.models.clip_b32"

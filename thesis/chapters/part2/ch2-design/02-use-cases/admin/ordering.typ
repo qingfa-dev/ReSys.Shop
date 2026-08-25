@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-ORD — Manage Orders],
+    [*Use Case*], [UC-ADM-ORD: Manage Orders],
     [*Actor*], [Administrator],
     [*Support*], [Payment Gateway],
     [*Goal*], [View, modify, and manage the lifecycle of customer orders.],
@@ -71,7 +71,7 @@
       + E2. Payment gateway state mismatch → system prevents, advises verifying with gateway.
       + E3. Inventory decrement data conflict → system reports, suggests verifying stock levels.
     ],
-    [*Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-06, ORD-FR-07, ORD-FR-09, ORD-FR-13],
+    [*Requirements*], [ORD-GRP-02, ORD-GRP-03, ORD-GRP-04],
   ),
     kind: table,
   caption: [Manage Orders.],
@@ -84,7 +84,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-ORD-ITEMS — Manage Order Details],
+    [*Use Case*], [UC-ADM-ORD-ITEMS: Manage Order Details],
     [*Actor*], [Administrator],
     [*Goal*], [Manage line items, shipping address, and billing address on existing orders.],
     [*Pre/Post*], [
@@ -107,7 +107,7 @@
     [*Exceptions*], [
       + E1. Order became immutable concurrently → system refreshes, notifies order is no longer editable.
     ],
-    [*Requirements*], [ORD-FR-13],
+    [*Requirements*], [ORD-GRP-04],
   ),
     kind: table,
   caption: [Manage Order Details.],

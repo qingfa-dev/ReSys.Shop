@@ -123,7 +123,7 @@ Use `"❌ bad_code_example()"` and `"✅ good_code_example()"` as inline strings
 
 Reference elements in code comments using anchor syntax:
 
-```csharp
+```cs
 // See Domain/README.yaml#A1 — IEntity interface contract
 public interface IEntity { }
 ```

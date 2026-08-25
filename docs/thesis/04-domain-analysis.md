@@ -12,7 +12,7 @@ ReSys.Shop implements a **Domain-Driven Design (DDD)** approach with the followi
 
 **Design decision**: The project pragmatically avoids over-engineering DDD patterns. There are no explicit `ValueObject` base classes; instead, value semantics are modeled via records or primitive types with validation. The aggregate boundaries are enforced through EF Core navigation properties and handler-level transaction control, not through event sourcing or complex repository patterns.
 
-**Evidence**: `AGENTS.md:10-12`, `Module/*/Domain/*/*.cs`, `Shared/Application/Domain/Models/Entity.cs`
+**Evidence**: `Module/*/Domain/*/*.cs`, `Shared/Application/Domain/Models/Entity.cs`
 
 ## 4.1a Bounded Context Map
 
@@ -33,7 +33,7 @@ ReSys.Shop is decomposed into **8 bounded contexts**, each corresponding to one 
 
 **Design rationale**: Using a modular monolith with 8 namespaces in one assembly means the bounded contexts share a common **technical kernel** (`Shared.Application`). This is a pragmatic trade-off: we get compile-time type safety and easy refactoring across contexts, while still maintaining logical boundaries through convention and the `ValidateVerticalSliceIsolation` target (currently disabled, but documented in `Directory.Build.targets:42-53`).
 
-**Evidence**: `AGENTS.md:10-12`, `Module/*/Domain/`, `Shared/Application/`, `Directory.Build.targets:42-53`
+**Evidence**: `Module/*/Domain/`, `Shared/Application/`, `Directory.Build.targets:42-53`
 
 ## 4.2 Aggregate Boundaries
 
@@ -111,7 +111,7 @@ An aggregate is a cluster of associated objects treated as a single unit for dat
 
 All domain entities inherit from `Entity` (defined in `Shared.Application.Domain.Models`):
 
-```csharp
+```cs
 public abstract class Entity
 {
     public Guid Id { get; protected set; }

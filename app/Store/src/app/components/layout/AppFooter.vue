@@ -20,7 +20,7 @@ function subscribe(): void {
 <template>
   <!-- Section: Footer — brand, link columns and newsletter capture -->
   <footer class="border-t border-surface-200 bg-surface-50">
-    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+    <div class="mx-auto grid max-w-screen-2xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
       <!-- Brand: Wordmark with a one-line blurb about the storefront -->
       <div>
         <div class="flex items-center gap-2">
@@ -67,7 +67,7 @@ function subscribe(): void {
 
     <!-- Copyright: Divider then the legal line -->
     <Divider />
-    <div class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-screen-2xl px-4 pb-8 sm:px-6 lg:px-8">
       <p class="text-center text-sm text-muted">
         &copy; {{ new Date().getFullYear() }} ReSys.Shop. All rights reserved.
       </p>

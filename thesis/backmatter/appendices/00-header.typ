@@ -5,5 +5,5 @@
   #v(0.5cm)
   #set align(left)
 
-  This appendix provides supplementary material for the benchmark evaluation presented in Chapter 3. It includes the complete retrieval results for all four evaluated models across three ground-truth label schemes (A), the dataset composition and category distribution (B), the full hardware specifications of the benchmark environment (C), and the ReSys.Shop database schema extracted from the implementation codebase (D).
+  This appendix provides supplementary material for the benchmark analysis presented in Chapter 3. It includes the complete retrieval results for all six benchmarked models across three ground-truth label schemes (A), the dataset composition and category distribution (B), and the full hardware specifications of the benchmark environment (C). The ReSys.Shop database schema is documented in Section 2.3.4.
 ]

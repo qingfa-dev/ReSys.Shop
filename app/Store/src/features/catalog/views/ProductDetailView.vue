@@ -192,7 +192,7 @@ watch(() => route.params.id, id => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Section: Breadcrumb — home / shop / taxon trail / current product -->
     <Breadcrumb :model="breadcrumbItems" :home="homeItem" class="mb-6">
       <template #item="{ item, label, icon, props }">

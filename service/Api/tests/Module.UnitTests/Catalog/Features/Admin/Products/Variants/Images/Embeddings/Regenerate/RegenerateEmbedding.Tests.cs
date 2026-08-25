@@ -39,7 +39,7 @@ public class RegenerateEmbeddingTests : IDisposable
     public async Task Handle_ShouldResetExistingAndEnqueue()
     {
         var variantImageId = Guid.NewGuid();
-        var embedding = ImageEmbeddingMethod.Create(variantImageId, "fashion-clip", "v1", [0.1f]);
+        var embedding = ImageEmbeddingMethod.Create(variantImageId, "fashion_clip", "v1", [0.1f]);
         _dbContext.Set<ImageEmbedding>().Add(embedding);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -47,7 +47,7 @@ public class RegenerateEmbeddingTests : IDisposable
         _bgJobMock.Setup(b => b.Create(It.IsAny<Job>(), It.IsAny<EnqueuedState>())).Returns(jobId);
 
         var command = new RegenerateEmbedding.Command(new RegenerateEmbedding.Request
-            { VariantImageId = variantImageId, ModelName = "fashion-clip", ModelVersion = "v2" });
+            { VariantImageId = variantImageId, ModelName = "fashion_clip", ModelVersion = "v2" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -70,7 +70,7 @@ public class RegenerateEmbeddingTests : IDisposable
         _bgJobMock.Setup(b => b.Create(It.IsAny<Job>(), It.IsAny<EnqueuedState>())).Returns(jobId);
 
         var command = new RegenerateEmbedding.Command(new RegenerateEmbedding.Request
-            { VariantImageId = variantImageId, ModelName = "fashion-clip" });
+            { VariantImageId = variantImageId, ModelName = "fashion_clip" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 

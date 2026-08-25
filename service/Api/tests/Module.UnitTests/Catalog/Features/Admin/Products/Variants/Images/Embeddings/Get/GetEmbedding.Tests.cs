@@ -26,7 +26,7 @@ public class GetEmbeddingTests : IDisposable
     public async Task Handle_ShouldReturnEmbeddingDetail()
     {
         var variantImageId = Guid.NewGuid();
-        var embedding = ImageEmbeddingMethod.Create(variantImageId, "fashion-clip", "v1", [0.1f, 0.2f]);
+        var embedding = ImageEmbeddingMethod.Create(variantImageId, "fashion_clip", "v1", [0.1f, 0.2f]);
         embedding.Status = EmbeddingStatus.Completed;
         embedding.HangfireJobId = "job-123";
         embedding.CompletedAtUtc = DateTimeOffset.UtcNow;

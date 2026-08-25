@@ -1,4 +1,4 @@
-id: clip-l14
+id: clip_l14
 name: "CLIP ViT-L/14"
 class: "ClipL14Model"
 module: "benchmark.models.clip_l14"

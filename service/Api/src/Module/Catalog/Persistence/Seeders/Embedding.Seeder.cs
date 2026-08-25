@@ -17,20 +17,56 @@ public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context, DemoJs
         if (hasData)
             return Result.Ok();
 
-        var json = jsonHelper.LoadIfExists<DemoEmbeddingJson>("012_demo_embeddings.json");
-        if (json is null)
+        // Load per-model JSON files from 012_demo_embeddings/ folder
+        var basePath = jsonHelper.GetBasePath();
+        var embeddingsDir = Path.Combine(basePath, "012_demo_embeddings");
+        if (!Directory.Exists(embeddingsDir))
             return Result.Ok();
 
-        foreach (var e in json)
+        var jsonFiles = Directory.GetFiles(embeddingsDir, "*.json");
+        if (jsonFiles.Length == 0)
+            return Result.Ok();
+
+        int inserted = 0;
+        int skipped = 0;
+
+        foreach (var filePath in jsonFiles)
         {
-            var embedding = ImageEmbeddingMethod.Create(
-                variantImageId: Guid.Parse(e.VariantImageId),
-                modelName: e.ModelName,
-                modelVersion: e.ModelVersion,
-                vectorData: e.Vector);
-            Context.Set<ImageEmbedding>().Add(embedding);
+            var json = await File.ReadAllTextAsync(filePath, cancellationToken);
+            var entries = System.Text.Json.JsonSerializer.Deserialize<DemoEmbeddingJson[]>(
+                json, DemoJsonHelper.JsonOptions);
+
+            if (entries is null)
+                continue;
+
+            foreach (var e in entries)
+            {
+                var modelName = e.ModelName;
+                var vector = e.Vector;
+
+                // Validate: vector dimension must match expected dimension for the model
+                if (ImageEmbeddingConstant.VectorDimensions.TryGetValue(modelName, out var expectedDim))
+                {
+                    if (vector.Length != expectedDim)
+                    {
+                        skipped++;
+                        continue;
+                    }
+                }
+
+                var embedding = ImageEmbeddingMethod.Create(
+                    variantImageId: Guid.Parse(e.VariantImageId),
+                    modelName: modelName,
+                    modelVersion: e.ModelVersion,
+                    vectorData: vector);
+                Context.Set<ImageEmbedding>().Add(embedding);
+                inserted++;
+            }
         }
-        await SaveChangesWithIdempotencyAsync(cancellationToken);
+
+        if (inserted > 0)
+            await SaveChangesWithIdempotencyAsync(cancellationToken);
+
         return Result.Ok();
     }
 

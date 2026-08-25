@@ -35,7 +35,7 @@ public static partial class CreatePaymentIntent
         {
             // Validate: Cart state must be Delivery (fresh) or Payment (re-pick / retry)
             // TODO(audit 2026-08-16): cross-module ISender — GetCartForCheckoutQuery is a read of
-            // Order + LineItems; query the Order directly. See AGENTS.md rule #2 candidates.
+            // Order + LineItems; query the Order directly.
             var cartResult = await sender.Send(
                 new GetCartForCheckoutQuery { CartId = command.Request.OrderId }, cancellationToken);
             if (cartResult.IsFailure) return cartResult.Errors;

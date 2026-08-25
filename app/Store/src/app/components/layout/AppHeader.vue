@@ -64,7 +64,7 @@ onMounted(() => {
   <header
     class="sticky top-0 z-40 border-b border-surface-200 bg-surface-0/80 backdrop-blur"
   >
-    <div class="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6">
+    <div class="mx-auto flex h-16 max-w-screen-2xl items-center gap-2 px-4 sm:px-6">
       <!-- Mobile Nav Trigger: Opens the MobileNav drawer below lg (Task 11) -->
       <Button
         icon="pi pi-bars"

@@ -44,7 +44,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         if (string.IsNullOrEmpty(image.Url))
             return ImageEmbeddingResult.Errors.CommunicationFailed("VariantImage has no public URL.");
 
-        var request = new EmbeddingRequest { ImageUrl = image.Url, Model = effectiveModel };
+        var request = new EmbeddingRequest { ImageUrl = image.Url, ModelName = effectiveModel };
         var inferenceResult = await _inferenceClient.CreateEmbeddingAsync(request, ct);
         if (inferenceResult.IsFailure)
             return inferenceResult.Errors;
@@ -186,7 +186,7 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
             return Result.Ok();
         }
 
-        var request = new EmbeddingRequest { ImageUrl = image.Url, Model = embedding.ModelName };
+        var request = new EmbeddingRequest { ImageUrl = image.Url, ModelName = embedding.ModelName };
         var inferenceResult = await _inferenceClient.CreateEmbeddingAsync(request, ct);
         if (inferenceResult.IsFailure)
         {

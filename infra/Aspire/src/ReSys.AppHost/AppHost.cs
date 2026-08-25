@@ -9,7 +9,8 @@ IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(ar
 builder.Configuration.AddUserSecrets<Program>();
 
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
-    .WithImage(Images.Pgvector.Optimized);
+    .WithImage(Images.Pgvector.Optimized)
+    .WithPgAdmin();
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis(Infrastructures.Cache.Resource)
     .WithImage(Images.Redis.Optimized);

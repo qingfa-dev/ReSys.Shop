@@ -1,0 +1,39 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '64px'}}}%%
+erDiagram
+  direction LR
+  Order {
+    uuid id PK
+    string number UK
+    uuid user_id
+    uuid bill_address_id
+    uuid ship_address_id
+    uuid shipping_method_id
+    uuid payment_method_id
+    string status
+    string checkout_state
+    string payment_state
+    string shipment_state
+    decimal total
+    datetime completed_at_utc
+  }
+
+  LineItem {
+    uuid id PK
+    uuid order_id FK
+    uuid variant_id FK
+    int quantity
+    decimal price
+    decimal total
+    decimal adjustment_total
+  }
+
+  Adjustment {
+    uuid id PK
+    uuid order_id FK
+    string label
+    decimal amount
+    string state
+  }
+
+  Order ||--o{ LineItem : ""
+  Order ||--o{ Adjustment : ""

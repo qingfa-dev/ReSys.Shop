@@ -2,7 +2,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-cart-management.png",
-    width: 70%
+    width: 55%
   ),
   caption: [Use case diagram for Cart Management (UC-STR-CRT).],
 ) <fig-uc-str-crt-d>
@@ -14,7 +14,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-CRT — Manage Cart],
+    [*Use Case*], [UC-STR-CRT: Manage Cart],
     [*Actor*], [Customer],
     [*Goal*], [Add, update, and remove items in a shopping cart; associate guest cart with account.],
     [*Pre/Post*], [
@@ -49,7 +49,7 @@
       + E1. Variant deactivated or archived → system rejects, suggests refreshing product page.
       + E2. Merge fails due to data conflict → system creates user cart with guest items, notifies to review.
     ],
-    [*Requirements*], [ORD-FR-01, ORD-FR-02, ORD-FR-10],
+    [*Requirements*], [ORD-GRP-01],
   ),
     kind: table,
   caption: [Manage Cart.],
@@ -71,7 +71,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-CHK — Checkout],
+    [*Use Case*], [UC-STR-CHK: Checkout],
     [*Actor*], [Customer],
     [*Support*], [Payment Gateway],
     [*Goal*], [Complete the multi-step checkout: address selection, shipping method, and order confirmation.],
@@ -116,7 +116,7 @@
       + E2. Rate calculation fails → system displays error, suggests contacting support.
       + E3. Payment captured but inventory reservation fails → system voids payment, notifies order not completed.
     ],
-    [*Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-08, ORD-FR-11, ORD-FR-12],
+    [*Requirements*], [ORD-GRP-02, ORD-GRP-03],
   ),
     kind: table,
   caption: [Checkout.],
@@ -138,7 +138,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-STR-OHI — Order History],
+    [*Use Case*], [UC-STR-OHI: Order History],
     [*Actor*], [Customer],
     [*Support*], [Payment Gateway],
     [*Goal*], [View past orders and cancel pending orders.],
@@ -169,7 +169,7 @@
       + E1. Payment gateway unreachable (Cancel) → system cancels order, releases inventory, queues void, notifies customer.
       + E2. Retrieval failure (View) → system displays error and offers retry.
     ],
-    [*Requirements*], [ORD-FR-07, ORD-FR-14],
+    [*Requirements*], [ORD-GRP-04],
   ),
     kind: table,
   caption: [Order History.],

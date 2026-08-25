@@ -17,7 +17,7 @@ class TestRateLimiting:
         headers = {"X-API-Key": settings.API_KEY}
         payload = {
             "image_url": TEST_IMAGE_URL,
-            "model": "efficientnet_b0"
+            "model_name": "efficientnet_b0"
         }
 
         # Send enough requests to definitely exhaust the limit

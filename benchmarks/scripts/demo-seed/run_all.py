@@ -32,6 +32,8 @@ def main() -> None:
     parser.add_argument("--display-size", default="512")
     parser.add_argument("--search-size", default="224")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--demo", action="store_true",
+                        help="Use 6 thesis models only (default: all 11 registry models).")
     args = parser.parse_args()
 
     force_args = ["--force"] if args.force else []
@@ -48,8 +50,8 @@ def main() -> None:
         ("08_extract_product_taxons.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count)] + force_args),
         ("09_extract_stock.py", ["--output", str(args.output)] + force_args),
         ("10_process_images.py", ["--dataset", str(args.dataset), "--output", str(args.output),
-                                  "--display-size", args.display_size, "--search-size", args.search_size]),
-        ("11_generate_embeddings.py", ["--output", str(args.output)]),
+                                   "--display-size", args.display_size, "--search-size", args.search_size]),
+        ("11_generate_embeddings.py", ["--output", str(args.output)] + (["--demo"] if args.demo else [])),
         ("12_verify_output.py", ["--output", str(args.output), "--count", str(args.count)]),
     ]
 

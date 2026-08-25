@@ -292,7 +292,7 @@ onMounted(async () => {
 
 <template>
   <!-- Section: Page Header — title for the checkout wizard -->
-  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
     <h1 class="mb-8 text-2xl font-bold">Checkout</h1>
 
     <!-- Section: Wizard — five-panel stepper driven by the checkout store -->

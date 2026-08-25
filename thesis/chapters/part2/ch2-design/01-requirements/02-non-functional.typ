@@ -1,75 +1,13 @@
 === Non-Functional Requirements
 
-Five quality dimensions define production-readiness constraints with atomic, measurable targets. Verification is evaluated in Chapter 3.
+Five quality dimensions define production-readiness constraints with atomic, measurable targets. Each dimension forms a single requirement group whose identifier (for example, NFR-GRP-01) is used when a design decision refers back to these targets. Verification is assessed in Chapter 3.
 
-#figure(
-  table(
-    columns: (auto, auto, 1fr),
-    stroke: 0.5pt,
-    align: (left + horizon, left + horizon, left + horizon),
-    inset: 5.5pt,
+#strong[Performance] (NFR-GRP-01). End-to-end CBIR search workflows complete within one second per query, non-search REST endpoints respond within 200 milliseconds under standard load, and asynchronous I/O is enforced across all data-access and HTTP pipelines.
 
-    table.header([*ID*], [*Category*], [*Requirement Target*]),
+#strong[Security] (NFR-GRP-02). JWT access tokens @jones2015jwt expire after 15 minutes with single-use refresh token rotation, and fine-grained claims (domain.category.resource.action) are enforced at the API middleware boundary. Per-IP fixed-window rate limiting protects authentication, registration, password reset, payment, and webhook endpoints; uploads are validated via magic-byte header inspection with extension allowlists and a 10 MB cap; and security headers (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy) are injected by middleware, with HSTS applied by the reverse-proxy layer in deployment.
 
-    [NFR-01a], [Performance], [
-      *End-to-End Search Latency:* Complete CBIR search workflows within *1 second* per query.
-    ],
-    [NFR-01b], [Performance], [
-      *API Response Latency:* Non-search REST endpoints within *200 milliseconds* under standard load.
-    ],
-    [NFR-01c], [Performance], [
-      *Non-Blocking Processing:* Enforce asynchronous I/O across all data access and HTTP pipelines.
-    ],
+#strong[Modularity] (NFR-GRP-03). All business modules compile into one Module assembly with forward-only dependencies (Shared → Module → Api); inter-module behaviour routes through MediatR in-process dispatch where pipeline value (validation, logging, transactions) applies, while direct service calls and navigations are used where they fit the feature slice. Each module is independently testable without initialising foreign contexts.
 
-    [NFR-02a], [Security], [
-      *Token Lifecycle:* JWT access tokens @jones2015jwt expire after *15 minutes* with single-use refresh token rotation.
-    ],
-    [NFR-02b], [Security], [
-      *Endpoint Authorization:* Enforce fine-grained claims (`domain:category:action`) at the API middleware boundary.
-    ],
-    [NFR-02c], [Security], [
-      *Rate Limiting:* Authentication *5 attempts/min*; registration *3 attempts/hour* per client IP.
-    ],
-    [NFR-02d], [Security], [
-      *Upload Hardening:* Validate files via magic-byte header inspection, enforce extension allowlists, cap at *10 MB*.
-    ],
-    [NFR-02e], [Security], [
-      *Transport Security:* Inject security headers (`CSP`, `HSTS`, `X-Frame-Options`, `X-Content-Type-Options`).
-    ],
+#strong[Observability] (NFR-GRP-04). OpenTelemetry trace contexts propagate across the .NET API and the Python ML sidecar, structured logging attaches a unique correlation identifier to every log entry, and health monitoring exposes /health/live and /health/ready endpoints verifying database and cache connectivity, alongside the sidecar's own /health and /alive endpoints.
 
-    [NFR-03a], [Modularity], [
-      *Compile-Time Isolation:* Zero direct cross-module references within a single .NET assembly via build policy checks.
-    ],
-    [NFR-03b], [Modularity], [
-      *Decoupled Messaging:* Route inter-module communications exclusively through MediatR in-process dispatch.
-    ],
-    [NFR-03c], [Modularity], [
-      *Module Testability:* Each module independently testable without initializing foreign contexts.
-    ],
-
-    [NFR-04a], [Observability], [
-      *Distributed Tracing:* Propagate OpenTelemetry trace contexts across .NET and Python ML sidecar boundaries.
-    ],
-    [NFR-04b], [Observability], [
-      *Structured Logging:* Unique correlation identifier in every log entry across distributed execution paths.
-    ],
-    [NFR-04c], [Observability], [
-      *Health Monitoring:* Dedicated endpoints verifying database, cache, and sidecar connectivity.
-    ],
-
-    [NFR-05a], [Reliability], [
-      *Job Durability:* Background tasks via Hangfire @hangfire-docs backed by Redis @redis-docs to survive process restarts.
-    ],
-    [NFR-05b], [Reliability], [
-      *Automated Maintenance:* Daily purge of carts inactive for *7 days* and release associated inventory reservations.
-    ],
-    [NFR-05c], [Reliability], [
-      *Webhook Idempotency:* Idempotency key checks on Stripe webhooks to prevent duplicate state updates.
-    ],
-    [NFR-05d], [Reliability], [
-      *Reservation Timeouts:* Unconfirmed checkout inventory holds expire after *15 minutes* of inactivity.
-    ],
-  ),
-  kind: table,
-  caption: [Non-functional requirements across five quality dimensions.],
-) <nfr-all>
+#strong[Reliability] (NFR-GRP-05). Background tasks run on Hangfire @hangfire-docs backed by Redis @redis-docs so they survive process restarts; scheduled maintenance purges carts inactive for 7 days on an hourly job and releases their associated inventory reservations, Stripe webhooks are guarded by idempotency keys against duplicate state updates, and unconfirmed checkout inventory holds expire after 15 minutes of inactivity.

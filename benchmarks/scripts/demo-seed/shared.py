@@ -15,7 +15,9 @@ OPTION_TYPE_COLOR_ID = str(uuid5(SEED_NAMESPACE, "option_type.color"))
 
 MODEL_INPUT_SIZES: dict[str, int] = {
     "efficientnet_b0": 224, "clip_vit_b16": 224, "fashion_clip": 224,
-    "dinov2_vits14": 224,
+    "dinov2_vits14": 224, "clip_b32": 224, "clip_l14": 224,
+    "clip_generic": 224, "eva_clip": 224, "siglip": 224,
+    "convnext_tiny": 224, "resnet50": 224,
 }
 
 SCRIPTS_DIR = Path(__file__).resolve().parent

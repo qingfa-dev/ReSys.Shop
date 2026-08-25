@@ -42,17 +42,17 @@ def _register() -> dict[str, EmbeddingModel]:
     from benchmark.models.siglip import SigLipModel
 
     return {
-        "efficientnet-b0": EfficientNetB0Model(),
-        "convnext-tiny":   ConvNeXtTinyModel(),
-        "dinov2-vits14":   DinoV2ViTS14Model(),
-        "fashion-clip":    FashionClipModel(),
-        "clip-b32":        ClipB32Model(),
-        "clip-generic":    ClipGenericModel(),
-        "clip-l14":        ClipL14Model(),
-        "clip-vit-b16":    ClipViTB16Model(),
+        "efficientnet_b0": EfficientNetB0Model(),
+        "convnext_tiny":   ConvNeXtTinyModel(),
+        "dinov2_vits14":   DinoV2ViTS14Model(),
+        "fashion_clip":    FashionClipModel(),
+        "clip_b32":        ClipB32Model(),
+        "clip_generic":    ClipGenericModel(),
+        "clip_l14":        ClipL14Model(),
+        "clip_vit_b16":    ClipViTB16Model(),
         "siglip":          SigLipModel(),
-        "resnet-50":       ResNet50Model(),
-        "eva-clip":        EvaClipModel(),
+        "resnet50":        ResNet50Model(),
+        "eva_clip":        EvaClipModel(),
     }
 
 
@@ -78,17 +78,17 @@ def get_registry(device: str = CLI_STR.AUTO) -> dict[str, EmbeddingModel]:
     from benchmark.models.siglip import SigLipModel
 
     return {
-        "efficientnet-b0": EfficientNetB0Model(device=device),
-        "convnext-tiny":   ConvNeXtTinyModel(device=device),
-        "dinov2-vits14":   DinoV2ViTS14Model(device=device),
-        "fashion-clip":    FashionClipModel(device=device),
-        "clip-b32":        ClipB32Model(device=device),
-        "clip-generic":    ClipGenericModel(device=device),
-        "clip-l14":        ClipL14Model(device=device),
-        "clip-vit-b16":    ClipViTB16Model(device=device),
+        "efficientnet_b0": EfficientNetB0Model(device=device),
+        "convnext_tiny":   ConvNeXtTinyModel(device=device),
+        "dinov2_vits14":   DinoV2ViTS14Model(device=device),
+        "fashion_clip":    FashionClipModel(device=device),
+        "clip_b32":        ClipB32Model(device=device),
+        "clip_generic":    ClipGenericModel(device=device),
+        "clip_l14":        ClipL14Model(device=device),
+        "clip_vit_b16":    ClipViTB16Model(device=device),
         "siglip":          SigLipModel(device=device),
-        "resnet-50":       ResNet50Model(device=device),
-        "eva-clip":        EvaClipModel(device=device),
+        "resnet50":        ResNet50Model(device=device),
+        "eva_clip":        EvaClipModel(device=device),
     }
 
 

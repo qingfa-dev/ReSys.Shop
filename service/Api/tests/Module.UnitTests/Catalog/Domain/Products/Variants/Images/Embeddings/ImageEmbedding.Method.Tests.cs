@@ -43,7 +43,7 @@ public class ImageEmbeddingMethodTests
     public void CreatePending_ShouldCreatePendingEmbedding()
     {
         var variantImageId = Guid.NewGuid();
-        var result = ImageEmbeddingMethod.CreatePending(variantImageId, "fashion-clip", "v2");
+        var result = ImageEmbeddingMethod.CreatePending(variantImageId, "fashion_clip", "v2");
         result.Status.Should().Be(EmbeddingStatus.Pending);
         result.Dimensions.Should().Be(0);
         result.HangfireJobId.Should().BeNull();

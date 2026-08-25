@@ -47,7 +47,7 @@ onMounted(() => {
       v-animateonscroll.once="{ enterClass: 'animate-fadein' }"
       class="bg-gradient-to-br from-highlight via-surface-0 to-brand-subtle"
     >
-      <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+      <div class="mx-auto grid max-w-screen-2xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
         <div>
           <h1 class="text-4xl font-semibold leading-tight tracking-tight text-heading sm:text-5xl lg:text-6xl">
             Curated fashion, intelligently found
@@ -72,7 +72,7 @@ onMounted(() => {
     </section>
 
     <!-- Section: Featured — carousel rail deferred until scrolled into view -->
-    <DeferredContent class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <DeferredContent class="mx-auto max-w-screen-2xl px-4 py-16 sm:px-6 lg:px-8">
       <div class="mb-8 flex items-baseline justify-between gap-4">
         <h2 class="text-2xl font-semibold tracking-tight text-heading">Featured</h2>
         <Button as="router-link" to="/shop" label="View all" variant="text" />
@@ -91,7 +91,7 @@ onMounted(() => {
           <CarouselItem
             v-for="product in featuredProducts"
             :key="product.id"
-            class="basis-full! sm:basis-1/2! lg:basis-1/3! xl:basis-1/4!"
+            class="basis-full! sm:basis-1/2! lg:basis-1/3! xl:basis-1/4! 2xl:basis-1/5!"
           >
             <div class="p-2">
               <ProductGridCard :product="product" />
@@ -113,7 +113,7 @@ onMounted(() => {
     </DeferredContent>
 
     <!-- Section: Categories — root taxon tag row deferred until scrolled into view -->
-    <DeferredContent class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+    <DeferredContent class="mx-auto max-w-screen-2xl px-4 pb-16 sm:px-6 lg:px-8">
       <h2 class="mb-6 text-2xl font-semibold tracking-tight text-heading">Shop by Category</h2>
       <div v-if="rootTaxons.length > 0" class="flex flex-wrap gap-2">
         <Button

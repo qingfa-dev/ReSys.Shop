@@ -4,28 +4,28 @@ import pytest
 from embedding.services.inference_engine import InferenceEngine
 
 
+# All 11 benchmark models (matching C# VariantImageConstant.AIModels)
 AIMODEL_VALUES = [
-    "openclip-vit-b-32",
-    "openclip-vit-l-14",
-    "siglip-vit-b-16",
+    "clip_b32",
+    "clip_l14",
+    "clip_vit_b16",
+    "clip_generic",
     "fashion_clip",
-    "deepfashion-embed-v2",
     "dinov2_vits14",
-    "dinov2-vit-base",
-    "ibot-vit-base",
-    "swin-base",
-    "convnext-v2-tiny",
+    "convnext_tiny",
     "efficientnet_b0",
+    "resnet50",
+    "eva_clip",
+    "siglip",
 ]
 
+# Models not yet registered in the Python Embedding service
 DEFERRED_MODELS = [
-    "openclip-vit-l-14",
-    "siglip-vit-b-16",
-    "deepfashion-embed-v2",
-    "dinov2-vit-base",
-    "ibot-vit-base",
-    "swin-base",
-    "convnext-v2-tiny",
+    "clip_l14",
+    "clip_generic",
+    "convnext_tiny",
+    "eva_clip",
+    "siglip",
 ]
 
 EXPECTED_EXISTING = list(set(AIMODEL_VALUES) - set(DEFERRED_MODELS))

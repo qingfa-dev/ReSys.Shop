@@ -12,7 +12,7 @@ import pandas as pd
 import psutil
 from PIL import Image
 
-from benchmark._constants import CONST, MAGIC, SPLIT, THESIS_MODEL_KEYS
+from benchmark._constants import CONST, FIELD, MAGIC, SPLIT, THESIS_MODEL_KEYS
 from benchmark.datasets.ground_truth import GroundTruth
 from benchmark.datasets.loader import FashionDataset
 from benchmark.embeddings.generator import EmbeddingGenerator
@@ -51,6 +51,7 @@ class ThesisRunner:
         use_cache: bool = True,
         batch_size: int = MAGIC.BATCH_SIZE,
         secondary_label: str | None = None,
+        label_field: str = FIELD.LABEL,
     ) -> None:
         self.dataset_root = dataset_root
         self.output_dir = output_dir
@@ -61,6 +62,7 @@ class ThesisRunner:
         self.use_cache = use_cache
         self.batch_size = batch_size
         self._secondary_label = secondary_label
+        self._label_field = label_field
         self._registry = get_registry(device=device)
 
     def run(
@@ -97,7 +99,7 @@ class ThesisRunner:
                 logger.error("Model %s not in registry, skipping", key)
                 continue
             model = self._registry[key]
-            model_result = self._evaluate_model(model, splits)
+            model_result = self._evaluate_model(model, splits, self._label_field)
             results.append(model_result)
 
         if self._secondary_label:
@@ -115,6 +117,7 @@ class ThesisRunner:
         self,
         model,
         splits: list[tuple[Path, Path]],
+        label_field: str = FIELD.LABEL,
     ) -> dict[str, Any]:
         """Evaluate one model across all folds."""
         logger.info("Evaluating %s ...", model.name)
@@ -130,7 +133,9 @@ class ThesisRunner:
         # Batch: Evaluate each fold independently
         for fold_idx, (train_path, test_path) in enumerate(splits):
             logger.info("  Fold %d ...", fold_idx)
-            fold_result = self._evaluate_fold(model, train_path, test_path, fold_idx, load_time_ms)
+            fold_result = self._evaluate_fold(
+                model, train_path, test_path, fold_idx, load_time_ms, label_field,
+            )
             fold_results.append(fold_result)
             fold_map_scores.append(fold_result["map"])
 
@@ -164,6 +169,7 @@ class ThesisRunner:
         test_path: Path,
         fold_idx: int,
         load_time_ms: float,
+        label_field: str = FIELD.LABEL,
     ) -> dict[str, Any]:
         """Evaluate one model on one fold."""
         # Create: Datasets from fold split files
@@ -172,13 +178,13 @@ class ThesisRunner:
             split_file=test_path,
             split=SPLIT.TEST,
         )
-        query_ds.load()
+        query_ds.load(label_field=label_field)
         gallery_ds = FashionDataset(
             dataset_root=self.dataset_root,
             split_file=train_path,
             split=SPLIT.TRAIN,
         )
-        gallery_ds.load()
+        gallery_ds.load(label_field=label_field)
 
         # Transform: Generate embeddings for query and gallery sets
         query_gen = EmbeddingGenerator(

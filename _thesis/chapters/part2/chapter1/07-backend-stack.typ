@@ -22,7 +22,7 @@ Traditional ASP.NET uses "Controllers", which are classes that define API endpoi
 
 This project uses *Carter*, a library that organizes minimal APIs into modules:
 
-```csharp
+```cs
 // A simplified example of how endpoints are defined
 public class SearchModule : ICarterModule
 {
@@ -130,7 +130,7 @@ Key features used:
 - *PostgreSQL provider:* Connects EF Core to PostgreSQL
 
 Example of a database query:
-```csharp
+```cs
 var products = await dbContext.Products
     .Where(p => p.IsActive)
     .OrderByDescending(p => p.CreatedAt)

@@ -15,7 +15,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-LOC — Manage Stock Locations],
+    [*Use Case*], [UC-ADM-LOC: Manage Stock Locations],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, and remove stock locations.],
     [*Pre/Post*], [
@@ -38,7 +38,7 @@
     [*Exceptions*], [
       + E1. Concurrent modification → system refreshes, asks to retry.
     ],
-    [*Requirements*], [INV-FR-01],
+    [*Requirements*], [INV-GRP-01],
   ),
     kind: table,
   caption: [Manage Stock Locations.],
@@ -49,7 +49,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-item-management.png",
-    height: 25%
+    height: 22%
   ),
   caption: [Use case diagram for Stock Item Management (UC-ADM-STK).],
 ) <fig-uc-adm-stk-d>
@@ -61,7 +61,7 @@
     columns: (auto, 1fr),
     align: (left + horizon, left),
     stroke: 0.5pt,
-    [*Use Case*], [UC-ADM-STK — Manage Stock],
+    [*Use Case*], [UC-ADM-STK: Manage Stock],
     [*Actor*], [Administrator],
     [*Goal*], [Create, update, restock, transfer, and monitor stock levels.],
     [*Pre/Post*], [
@@ -113,7 +113,7 @@
       + E2. Concurrent modification → system refreshes, asks to re-enter.
       + E3. Retrieval failure → system displays error, offers retry.
     ],
-    [*Requirements*], [INV-FR-02, INV-FR-05, INV-FR-06, INV-FR-08, INV-FR-09, INV-FR-10, INV-FR-12],
+    [*Requirements*], [INV-GRP-01, INV-GRP-03, INV-GRP-04],
   ),
     kind: table,
   caption: [Manage Stock.],

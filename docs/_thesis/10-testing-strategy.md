@@ -34,7 +34,7 @@ The project implements a four-layer testing strategy:
 - `ApplicationDbContext.AdditionalConfigurationsAssemblies` must be set *before* first use to load module entity configs
 
 **Sample test pattern** (Create Product):
-```csharp
+```cs
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Feature", "ProductCreate")]
@@ -95,7 +95,7 @@ dotnet test /p:CollectCoverage=true
 dotnet test --filter "FullyQualifiedName~Location"
 ```
 
-**Evidence**: `Directory.Build.props:95-98`, `AGENTS.md:42-51`
+**Evidence**: `Directory.Build.props:95-98`
 
 ## 10.3 Frontend Testing
 

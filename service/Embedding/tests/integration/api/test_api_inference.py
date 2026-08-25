@@ -102,7 +102,7 @@ def test_all_models_produce_valid_embeddings(authed_client, model_name, expected
     """
     response = authed_client.post(
         EMBED_URL,
-        json={"image_url": TEST_IMAGE_URL, "model": model_name},
+        json={"image_url": TEST_IMAGE_URL, "model_name": model_name},
     )
     assert response.status_code == 200, (
         f"[{model_name}] Expected 200, got {response.status_code}: {response.text}"
@@ -121,7 +121,7 @@ def test_embedding_is_deterministic(authed_client, model_name):
     The same image sent twice must produce the exact same vector.
     Catches any accidental stochasticity (e.g. dropout left in train mode).
     """
-    payload = {"image_url": TEST_IMAGE_URL, "model": model_name}
+    payload = {"image_url": TEST_IMAGE_URL, "model_name": model_name}
     r1 = authed_client.post(EMBED_URL, json=payload).json()["value"]["vector"]
     r2 = authed_client.post(EMBED_URL, json=payload).json()["value"]["vector"]
     assert r1 == pytest.approx(r2, rel=1e-5), (
@@ -141,11 +141,11 @@ def test_different_images_produce_different_vectors(authed_client, model_name):
     Also verifies cosine similarity is < 1.0 (not a collapsed embedding space).
     """
     r1 = authed_client.post(
-        EMBED_URL, json={"image_url": TEST_IMAGE_URL, "model": model_name}
+        EMBED_URL, json={"image_url": TEST_IMAGE_URL, "model_name": model_name}
     ).json()["value"]["vector"]
 
     r2 = authed_client.post(
-        EMBED_URL, json={"image_url": TEST_IMAGE_URL_2, "model": model_name}
+        EMBED_URL, json={"image_url": TEST_IMAGE_URL_2, "model_name": model_name}
     ).json()["value"]["vector"]
 
     assert r1 != r2, f"[{model_name}] Two different images produced identical vectors"

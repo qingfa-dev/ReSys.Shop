@@ -42,29 +42,31 @@ public static class VariantImageConstant
     }
 
     /// <summary>
-    /// Canonical model identifiers used across the system.
+    /// Canonical model identifiers — snake_case slugs matching the benchmark registry.
     /// No metadata here — only identity strings.
     /// </summary>
     public static class AIModels
     {
-        // Multimodal
-        public const string OpenClipB32 = "openclip-vit-b-32";
-        public const string OpenClipL14 = "openclip-vit-l-14";
-        public const string SigLipBase = "siglip-vit-b-16";
+        // Multimodal (CLIP family)
+        public const string ClipB32 = "clip_b32";
+        public const string ClipL14 = "clip_l14";
+        public const string ClipViTB16 = "clip_vit_b16";
+        public const string ClipGeneric = "clip_generic";
 
         // Fashion-specific
-        public const string FashionClip = "fashion-clip";
-        public const string DeepFashion = "deepfashion-embed-v2";
+        public const string FashionClip = "fashion_clip";
 
         // Visual similarity
-        public const string DinoV2Small = "dinov2_vits14";
-        public const string DinoV2Base = "dinov2-vit-base";
-        public const string Ibot = "ibot-vit-base";
-        public const string SwinBase = "swin-base";
+        public const string DinoV2ViTS14 = "dinov2_vits14";
 
-        // Edge / fast
-        public const string ConvNextTiny = "convnext-v2-tiny";
+        // CNN
+        public const string ConvNextTiny = "convnext_tiny";
         public const string EfficientNetB0 = "efficientnet_b0";
+        public const string ResNet50 = "resnet50";
+
+        // CLIP variants
+        public const string EvaClip = "eva_clip";
+        public const string SigLIP = "siglip";
     }
 
     /// <summary>

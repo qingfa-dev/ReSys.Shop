@@ -78,9 +78,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Section: Catalog Grid — sticky filter aside and DataView product rail -->
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[16rem_1fr]">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[15rem_1fr]">
       <!-- Aside: Filter panel sticky on desktop; hidden below lg -->
       <aside class="hidden self-start lg:block">
         <div class="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto pr-1">
@@ -151,14 +151,14 @@ onMounted(() => {
           <!-- Grid: Product cards in responsive grid layout -->
           <template #grid="{ items }">
             <!-- Loading: Skeleton cards while the first page fetches -->
-            <div v-if="productList.loading && items.length === 0" class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+            <div v-if="productList.loading && items.length === 0" class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               <div v-for="n in 8" :key="n" class="space-y-3">
                 <Skeleton class="aspect-square w-full rounded-xl" />
                 <Skeleton width="70%" height="1rem" />
                 <Skeleton width="40%" height="1rem" />
               </div>
             </div>
-            <div v-else class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+            <div v-else class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               <ProductGridCard v-for="product in items" :key="product.id" :product="product" />
             </div>
           </template>

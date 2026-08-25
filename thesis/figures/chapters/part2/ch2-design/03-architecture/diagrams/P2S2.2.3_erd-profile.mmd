@@ -1,0 +1,40 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '64px'}}}%%
+erDiagram
+
+  UserProfile {
+    uuid id PK
+    uuid user_id FK
+    string email
+    uuid default_billing_address_id
+    uuid default_shipping_address_id
+    bool is_active
+  }
+
+  Address {
+    uuid id PK
+    uuid user_profile_id FK
+    string address_type
+    string address1
+    string city
+    string country_code
+    bool is_default
+  }
+
+  Wishlist {
+    uuid id PK
+    uuid user_id FK
+    string name
+    string token
+    bool is_default
+    bool is_private
+  }
+
+  WishedItem {
+    uuid id PK
+    uuid wishlist_id FK
+    uuid variant_id FK
+    int quantity
+  }
+
+  UserProfile ||--o{ Address : ""
+  Wishlist ||--o{ WishedItem : ""

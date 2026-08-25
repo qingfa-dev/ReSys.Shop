@@ -1,7 +1,7 @@
 ===== Product Images & Vectorization
 To support the multi-model AI strategy, the database uses a flexible *One-to-Many* relationship for storing embeddings.
 
-```csharp
+```cs
 public class ProductImage : Aggregate {
     public Guid ProductId { get; set; }
     public string Url { get; set; }

@@ -15,8 +15,12 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
         builder.HasKey(x => x.Id);
 
         #region Properties
+        // Untyped vector column — supports different dimensions per model.
+        // Per-model HNSW indexes are created via raw SQL in DatabaseInitializer
+        // because pgvector requires expression indexes with dimension casts
+        // (::vector(dim)) which EF Core cannot generate.
         builder.Property(x => x.Vector)
-            .HasColumnType("vector(512)");
+            .HasColumnType("vector");
 
         builder.Property(x => x.ModelName)
             .IsRequired()
@@ -34,10 +38,13 @@ public class ImageEmbeddingConfiguration : IEntityTypeConfiguration<ImageEmbeddi
         #endregion
 
         #region Indexes
-        builder.ConfigureIVFFlatIndex(
-            x => x.Vector,
-            lists: 100,
-            indexName: "ix_product_image_embeddings_vector_ivfflat");
+        builder.HasIndex(x => x.ModelName)
+            .HasDatabaseName("ix_product_image_embeddings_model_name");
+
+        // Per-model HNSW partial indexes with expression casts (::vector(dim))
+        // are created by DatabaseInitializer.EnsureVectorIndexesAsync.
+        // EF Core can't generate expression indexes, and pgvector rejects
+        // plain HNSW on untyped vector columns (no dimensions).
         #endregion
 
         #region Relationships

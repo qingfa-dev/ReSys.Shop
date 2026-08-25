@@ -1,10 +1,10 @@
 = Dataset Composition <appendix-b>
 
-This appendix details the composition of the benchmark dataset used in the evaluation presented in Chapter 3.
+This appendix details the composition of the benchmark dataset used in the analysis presented in Chapter 3.
 
 == Source and Selection
 
-The benchmark dataset is derived from the Fashion Product Images Dataset, a publicly available collection of 44,441 fashion product catalogue images from an Indian e-commerce platform. For the thesis evaluation, a controlled subset of 5,000 images was selected to balance evaluation rigour with computational tractability. Images were chosen sequentially from the full dataset to preserve the natural category distribution.
+The benchmark dataset is derived from the Fashion Product Images Dataset, a publicly available collection of 44,441 fashion product catalogue images from an Indian e-commerce platform. For the thesis benchmark, a controlled subset of 5,000 images was selected to balance benchmark rigour with computational tractability. The subset was sampled via stratified random sampling to preserve the natural category distribution.
 
 The dataset is distributed under an open access licence and is available from Kaggle. Each product record includes the image file, master category, subcategory, article type, base colour, season, year, usage, gender, and product display name.
 
@@ -35,11 +35,11 @@ The Apparel category dominates the distribution at 50%, followed by Accessories 
 
 == Ground-Truth Label Schemes
 
-Three label schemes of increasing granularity were used for evaluating retrieval relevance:
+Three label schemes of increasing granularity were used for assessing retrieval relevance:
 
 *Category-only* labels use the master category field (e.g., Apparel, Accessories, Footwear). Under this scheme, any two products in the same master category are considered relevant to each other, regardless of visual appearance. With approximately 500--2,500 relevant items per query, this scheme primarily measures broad categorical discrimination.
 
-*Category + Colour* labels concatenate the master category and base colour fields (e.g., "Apparel/Blue"). This is the primary relevance criterion used in Chapter 6. With an average of 8.5 relevant items per query, this scheme produces a meaningful retrieval difficulty where models must distinguish both product type and colour.
+*Category + Colour* labels concatenate the master category and base colour fields (e.g., "Apparel/Blue"). This is the primary relevance criterion used in Chapter 3. With an average of 8.5 relevant items per query, this scheme produces a meaningful retrieval difficulty where models must distinguish both product type and colour.
 
 *Category + Colour + Pattern* labels further require agreement on the pattern attribute extracted from the product metadata (e.g., "Apparel/Blue/Striped"). With an average of 3.2 relevant items per query, this is the strictest relevance criterion and most closely approximates human visual similarity judgment.
 
@@ -47,7 +47,7 @@ Three label schemes of increasing granularity were used for evaluating retrieval
 
 All images were preprocessed uniformly before embedding generation, regardless of the model architecture:
 
-- *Resize:* Images were resized to 224 by 224 pixels using bilinear interpolation, matching the standard input resolution of all evaluated models.
+- *Resize:* Images were resized to 224 by 224 pixels using bilinear interpolation, matching the standard input resolution of all benchmarked models.
 - *Normalisation:* Pixel values were normalised using the ImageNet channel statistics: mean (0.485, 0.456, 0.406) and standard deviation (0.229, 0.224, 0.225) for the RGB channels respectively. Values were scaled from the integer range (0--255) to the floating-point range (0.0--1.0) before normalisation.
 - *Colour space:* Images were maintained in RGB colour space. No grayscale conversion or colour augmentation was applied.
 - *Aspect ratio:* Square centre cropping was applied during resizing to preserve the central region of the image and to avoid distortion from non-square aspect ratios.

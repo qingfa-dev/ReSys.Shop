@@ -1,0 +1,650 @@
+[
+  {
+    "model_name": "EfficientNet-B0",
+    "model_slug": "efficientnet-b0",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.2227,
+        "precision@5": 0.4025,
+        "precision@10": 0.3748,
+        "precision@20": 0.341,
+        "recall@5": 0.0335,
+        "recall@10": 0.0573,
+        "recall@20": 0.0955,
+        "latency_mean_ms": 34.41,
+        "latency_std_ms": 4.63,
+        "throughput_per_sec": 25.57,
+        "load_time_ms": 127.03,
+        "index_storage_mb": 8.14,
+        "ram_mb": 56.15
+      },
+      {
+        "fold": 1,
+        "map": 0.2259,
+        "precision@5": 0.4098,
+        "precision@10": 0.3764,
+        "precision@20": 0.346,
+        "recall@5": 0.0355,
+        "recall@10": 0.0608,
+        "recall@20": 0.0993,
+        "latency_mean_ms": 30.8,
+        "latency_std_ms": 3.9,
+        "throughput_per_sec": 26.53,
+        "load_time_ms": 127.03,
+        "index_storage_mb": 8.13,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.2257,
+        "precision@5": 0.4026,
+        "precision@10": 0.3789,
+        "precision@20": 0.3434,
+        "recall@5": 0.0361,
+        "recall@10": 0.0605,
+        "recall@20": 0.0979,
+        "latency_mean_ms": 31.75,
+        "latency_std_ms": 3.06,
+        "throughput_per_sec": 26.26,
+        "load_time_ms": 127.03,
+        "index_storage_mb": 8.13,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.2248,
+        "std": 0.0018,
+        "ci_95": [
+          0.2227,
+          0.2259
+        ]
+      },
+      "precision@5": {
+        "mean": 0.405,
+        "std": 0.0042
+      },
+      "precision@10": {
+        "mean": 0.3767,
+        "std": 0.0021
+      },
+      "precision@20": {
+        "mean": 0.3435,
+        "std": 0.0025
+      },
+      "recall@5": {
+        "mean": 0.035,
+        "std": 0.0014
+      },
+      "recall@10": {
+        "mean": 0.0595,
+        "std": 0.0019
+      },
+      "recall@20": {
+        "mean": 0.0976,
+        "std": 0.0019
+      },
+      "latency_mean_ms": {
+        "mean": 32.32,
+        "std": 1.8713
+      },
+      "throughput_per_sec": {
+        "mean": 26.12,
+        "std": 0.4951
+      },
+      "load_time_ms": {
+        "mean": 127.03,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 8.1333,
+        "std": 0.0058
+      },
+      "ram_mb": {
+        "mean": 18.7167,
+        "std": 32.4182
+      }
+    }
+  },
+  {
+    "model_name": "ResNet-50",
+    "model_slug": "resnet-50",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.1972,
+        "precision@5": 0.3699,
+        "precision@10": 0.3452,
+        "precision@20": 0.3164,
+        "recall@5": 0.0336,
+        "recall@10": 0.0548,
+        "recall@20": 0.0922,
+        "latency_mean_ms": 72.19,
+        "latency_std_ms": 12.27,
+        "throughput_per_sec": 12.08,
+        "load_time_ms": 385.95,
+        "index_storage_mb": 13.03,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.2099,
+        "precision@5": 0.3905,
+        "precision@10": 0.359,
+        "precision@20": 0.3275,
+        "recall@5": 0.0369,
+        "recall@10": 0.0601,
+        "recall@20": 0.097,
+        "latency_mean_ms": 68.8,
+        "latency_std_ms": 4.16,
+        "throughput_per_sec": 12.09,
+        "load_time_ms": 385.95,
+        "index_storage_mb": 13.02,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.2012,
+        "precision@5": 0.3835,
+        "precision@10": 0.3507,
+        "precision@20": 0.3186,
+        "recall@5": 0.0344,
+        "recall@10": 0.0597,
+        "recall@20": 0.0974,
+        "latency_mean_ms": 91.78,
+        "latency_std_ms": 15.38,
+        "throughput_per_sec": 10.03,
+        "load_time_ms": 385.95,
+        "index_storage_mb": 13.01,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.2028,
+        "std": 0.0065,
+        "ci_95": [
+          0.1972,
+          0.2099
+        ]
+      },
+      "precision@5": {
+        "mean": 0.3813,
+        "std": 0.0105
+      },
+      "precision@10": {
+        "mean": 0.3516,
+        "std": 0.0069
+      },
+      "precision@20": {
+        "mean": 0.3208,
+        "std": 0.0059
+      },
+      "recall@5": {
+        "mean": 0.035,
+        "std": 0.0017
+      },
+      "recall@10": {
+        "mean": 0.0582,
+        "std": 0.003
+      },
+      "recall@20": {
+        "mean": 0.0955,
+        "std": 0.0029
+      },
+      "latency_mean_ms": {
+        "mean": 77.59,
+        "std": 12.4052
+      },
+      "throughput_per_sec": {
+        "mean": 11.4,
+        "std": 1.1865
+      },
+      "load_time_ms": {
+        "mean": 385.95,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 13.02,
+        "std": 0.01
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "DINOv2 ViT-S/14",
+    "model_slug": "dinov2-vit-s-14",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.1862,
+        "precision@5": 0.3471,
+        "precision@10": 0.3273,
+        "precision@20": 0.3017,
+        "recall@5": 0.0307,
+        "recall@10": 0.0551,
+        "recall@20": 0.0925,
+        "latency_mean_ms": 104.73,
+        "latency_std_ms": 19.91,
+        "throughput_per_sec": 9.77,
+        "load_time_ms": 1206.68,
+        "index_storage_mb": 2.44,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.1929,
+        "precision@5": 0.354,
+        "precision@10": 0.3357,
+        "precision@20": 0.3098,
+        "recall@5": 0.0354,
+        "recall@10": 0.0604,
+        "recall@20": 0.0992,
+        "latency_mean_ms": 123.18,
+        "latency_std_ms": 27.71,
+        "throughput_per_sec": 10.24,
+        "load_time_ms": 1206.68,
+        "index_storage_mb": 2.44,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.1907,
+        "precision@5": 0.3423,
+        "precision@10": 0.3285,
+        "precision@20": 0.3056,
+        "recall@5": 0.0347,
+        "recall@10": 0.0604,
+        "recall@20": 0.1007,
+        "latency_mean_ms": 114.05,
+        "latency_std_ms": 22.44,
+        "throughput_per_sec": 9.94,
+        "load_time_ms": 1206.68,
+        "index_storage_mb": 2.44,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.1899,
+        "std": 0.0034,
+        "ci_95": [
+          0.1862,
+          0.1929
+        ]
+      },
+      "precision@5": {
+        "mean": 0.3478,
+        "std": 0.0059
+      },
+      "precision@10": {
+        "mean": 0.3305,
+        "std": 0.0045
+      },
+      "precision@20": {
+        "mean": 0.3057,
+        "std": 0.0041
+      },
+      "recall@5": {
+        "mean": 0.0336,
+        "std": 0.0025
+      },
+      "recall@10": {
+        "mean": 0.0586,
+        "std": 0.0031
+      },
+      "recall@20": {
+        "mean": 0.0975,
+        "std": 0.0044
+      },
+      "latency_mean_ms": {
+        "mean": 113.9867,
+        "std": 9.2252
+      },
+      "throughput_per_sec": {
+        "mean": 9.9833,
+        "std": 0.238
+      },
+      "load_time_ms": {
+        "mean": 1206.68,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 2.44,
+        "std": 0.0
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "CLIP ViT-B/16",
+    "model_slug": "clip-vit-b-16",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.2203,
+        "precision@5": 0.4031,
+        "precision@10": 0.3721,
+        "precision@20": 0.3352,
+        "recall@5": 0.0378,
+        "recall@10": 0.0662,
+        "recall@20": 0.1069,
+        "latency_mean_ms": 237.24,
+        "latency_std_ms": 42.09,
+        "throughput_per_sec": 4.09,
+        "load_time_ms": 6388.2,
+        "index_storage_mb": 3.26,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.2295,
+        "precision@5": 0.4148,
+        "precision@10": 0.3836,
+        "precision@20": 0.3473,
+        "recall@5": 0.0396,
+        "recall@10": 0.067,
+        "recall@20": 0.1094,
+        "latency_mean_ms": 222.24,
+        "latency_std_ms": 10.7,
+        "throughput_per_sec": 4.07,
+        "load_time_ms": 6388.2,
+        "index_storage_mb": 3.25,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.226,
+        "precision@5": 0.4025,
+        "precision@10": 0.3733,
+        "precision@20": 0.3408,
+        "recall@5": 0.0401,
+        "recall@10": 0.0674,
+        "recall@20": 0.1105,
+        "latency_mean_ms": 242.75,
+        "latency_std_ms": 23.15,
+        "throughput_per_sec": 3.42,
+        "load_time_ms": 6388.2,
+        "index_storage_mb": 3.25,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.2253,
+        "std": 0.0046,
+        "ci_95": [
+          0.2203,
+          0.2295
+        ]
+      },
+      "precision@5": {
+        "mean": 0.4068,
+        "std": 0.0069
+      },
+      "precision@10": {
+        "mean": 0.3763,
+        "std": 0.0063
+      },
+      "precision@20": {
+        "mean": 0.3411,
+        "std": 0.0061
+      },
+      "recall@5": {
+        "mean": 0.0392,
+        "std": 0.0012
+      },
+      "recall@10": {
+        "mean": 0.0669,
+        "std": 0.0006
+      },
+      "recall@20": {
+        "mean": 0.1089,
+        "std": 0.0018
+      },
+      "latency_mean_ms": {
+        "mean": 234.0767,
+        "std": 10.6146
+      },
+      "throughput_per_sec": {
+        "mean": 3.86,
+        "std": 0.3812
+      },
+      "load_time_ms": {
+        "mean": 6388.2,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 3.2533,
+        "std": 0.0058
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "CLIP ViT-B/32",
+    "model_slug": "clip-vit-b-32",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.2216,
+        "precision@5": 0.4052,
+        "precision@10": 0.3725,
+        "precision@20": 0.337,
+        "recall@5": 0.0354,
+        "recall@10": 0.0645,
+        "recall@20": 0.1036,
+        "latency_mean_ms": 134.75,
+        "latency_std_ms": 19.76,
+        "throughput_per_sec": 12.3,
+        "load_time_ms": 1937.19,
+        "index_storage_mb": 3.26,
+        "ram_mb": 56.12
+      },
+      {
+        "fold": 1,
+        "map": 0.2284,
+        "precision@5": 0.4162,
+        "precision@10": 0.3816,
+        "precision@20": 0.3461,
+        "recall@5": 0.04,
+        "recall@10": 0.0682,
+        "recall@20": 0.1078,
+        "latency_mean_ms": 147.82,
+        "latency_std_ms": 19.29,
+        "throughput_per_sec": 12.02,
+        "load_time_ms": 1937.19,
+        "index_storage_mb": 3.25,
+        "ram_mb": 56.12
+      },
+      {
+        "fold": 2,
+        "map": 0.2249,
+        "precision@5": 0.4084,
+        "precision@10": 0.3741,
+        "precision@20": 0.3412,
+        "recall@5": 0.0417,
+        "recall@10": 0.0671,
+        "recall@20": 0.1083,
+        "latency_mean_ms": 147.1,
+        "latency_std_ms": 21.9,
+        "throughput_per_sec": 12.23,
+        "load_time_ms": 1937.19,
+        "index_storage_mb": 3.25,
+        "ram_mb": 56.12
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.225,
+        "std": 0.0034,
+        "ci_95": [
+          0.2216,
+          0.2284
+        ]
+      },
+      "precision@5": {
+        "mean": 0.4099,
+        "std": 0.0057
+      },
+      "precision@10": {
+        "mean": 0.3761,
+        "std": 0.0049
+      },
+      "precision@20": {
+        "mean": 0.3414,
+        "std": 0.0046
+      },
+      "recall@5": {
+        "mean": 0.039,
+        "std": 0.0033
+      },
+      "recall@10": {
+        "mean": 0.0666,
+        "std": 0.0019
+      },
+      "recall@20": {
+        "mean": 0.1066,
+        "std": 0.0026
+      },
+      "latency_mean_ms": {
+        "mean": 143.2233,
+        "std": 7.3469
+      },
+      "throughput_per_sec": {
+        "mean": 12.1833,
+        "std": 0.1457
+      },
+      "load_time_ms": {
+        "mean": 1937.19,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 3.2533,
+        "std": 0.0058
+      },
+      "ram_mb": {
+        "mean": 56.12,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "FashionCLIP",
+    "model_slug": "fashionclip",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.2362,
+        "precision@5": 0.4339,
+        "precision@10": 0.3931,
+        "precision@20": 0.3535,
+        "recall@5": 0.0415,
+        "recall@10": 0.0683,
+        "recall@20": 0.1105,
+        "latency_mean_ms": 108.02,
+        "latency_std_ms": 5.56,
+        "throughput_per_sec": 12.83,
+        "load_time_ms": 5454.97,
+        "index_storage_mb": 3.26,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.251,
+        "precision@5": 0.4535,
+        "precision@10": 0.4127,
+        "precision@20": 0.3699,
+        "recall@5": 0.0427,
+        "recall@10": 0.0722,
+        "recall@20": 0.1126,
+        "latency_mean_ms": 112.76,
+        "latency_std_ms": 9.04,
+        "throughput_per_sec": 12.88,
+        "load_time_ms": 5454.97,
+        "index_storage_mb": 3.25,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.2445,
+        "precision@5": 0.4369,
+        "precision@10": 0.4065,
+        "precision@20": 0.3623,
+        "recall@5": 0.0448,
+        "recall@10": 0.0745,
+        "recall@20": 0.1159,
+        "latency_mean_ms": 110.48,
+        "latency_std_ms": 4.99,
+        "throughput_per_sec": 13.09,
+        "load_time_ms": 5454.97,
+        "index_storage_mb": 3.25,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.2439,
+        "std": 0.0074,
+        "ci_95": [
+          0.2362,
+          0.251
+        ]
+      },
+      "precision@5": {
+        "mean": 0.4414,
+        "std": 0.0106
+      },
+      "precision@10": {
+        "mean": 0.4041,
+        "std": 0.01
+      },
+      "precision@20": {
+        "mean": 0.3619,
+        "std": 0.0082
+      },
+      "recall@5": {
+        "mean": 0.043,
+        "std": 0.0017
+      },
+      "recall@10": {
+        "mean": 0.0717,
+        "std": 0.0031
+      },
+      "recall@20": {
+        "mean": 0.113,
+        "std": 0.0027
+      },
+      "latency_mean_ms": {
+        "mean": 110.42,
+        "std": 2.3706
+      },
+      "throughput_per_sec": {
+        "mean": 12.9333,
+        "std": 0.138
+      },
+      "load_time_ms": {
+        "mean": 5454.97,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 3.2533,
+        "std": 0.0058
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  }
+]

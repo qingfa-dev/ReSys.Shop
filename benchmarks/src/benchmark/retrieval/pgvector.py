@@ -94,7 +94,7 @@ class PgvectorRetriever:
         """Look up the numeric id for a model slug.
 
         Args:
-            slug: Model slug (e.g. ``"fashion-clip"``).
+            slug: Model slug (e.g. ``"fashion_clip"``).
 
         Returns:
             The model id from ``embedding_models``.

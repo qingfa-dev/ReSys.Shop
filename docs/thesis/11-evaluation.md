@@ -57,7 +57,7 @@ The evaluation demonstrates that the system meets its stated objectives through 
 - Boot real PostgreSQL + full HTTP pipeline
 - `ApiFactory` provides harness for auth, DB reset, and config override
 
-**Evidence**: `dotnet test` commands in `AGENTS.md:42-51`
+**Evidence**: `dotnet test` runs (unit, shared, integration)
 
 ### 11.3.2 Manual API Test Coverage
 

@@ -17,4 +17,10 @@ Several platforms have deployed visual search at production scale.
   caption: [Comparison of commercial visual search products],
 ) <tbl-commercial-comparison>
 
-These products share common limitations for independent projects: they are proprietary and cannot be studied or modified, API access incurs costs at query volume, and reliance on external services creates vendor lock-in. This thesis demonstrates that comparable functionality is achievable with open-source tools, providing both a reference implementation and a cost-effective alternative for smaller deployments.
+These products share some common limitations for independent projects:
+
+- They are proprietary, so they cannot be studied or changed.
+- API access costs money based on how many queries are made.
+- Relying on external services creates dependency on that provider.
+
+This thesis shows that similar functionality can be built using open-source tools. This provides both a reference implementation and a lower-cost alternative for smaller deployments.

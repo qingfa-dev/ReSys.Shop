@@ -80,7 +80,7 @@
 // Part 3: Conclusion
 #part-heading[#term(lang, "part") 3: CONCLUSION AND FUTURE WORK]
 #counter(heading).step()
-// Roman numerals for Part 3 (no chapters, only subsections — same as Part 1)
+// Roman numerals for Part 3 (no chapters, only subsections - same as Part 1)
 #set heading(numbering: (..nums) => {
   let values = nums.pos()
   if values.len() == 1 {

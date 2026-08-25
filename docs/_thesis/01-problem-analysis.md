@@ -112,7 +112,6 @@ This scope aligns with the **principle of sufficient completeness for evaluation
 ## 1.6 Evidence
 
 - `README.md:1-184` — project intent and WIP notes
-- `AGENTS.md:1-80` — non-negotiable architectural rules
 - `service/Api/src/Api/Program.cs:26-66` — composition root showing 8 modules
 - `service/Api/src/Module/Catalog/Features/Admin/Products/Create/CreateProduct.cs:36-78` — vertical slice anatomy
 - `service/Api/src/Shared/Application/Models/Results/Result.cs:1-43` — `Result<T>` type

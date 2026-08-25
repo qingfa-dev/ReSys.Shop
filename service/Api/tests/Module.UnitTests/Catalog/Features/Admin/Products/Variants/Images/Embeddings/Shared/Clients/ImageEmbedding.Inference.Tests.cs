@@ -39,7 +39,7 @@ public class InferenceClientTests
         });
 
         var client = CreateInferenceClient(handler);
-        var request = new EmbeddingRequest { ImageUrl = "http://test/img.jpg", Model = "efficientnet_b0" };
+        var request = new EmbeddingRequest { ImageUrl = "http://test/img.jpg", ModelName = "efficientnet_b0" };
 
         var result = await client.CreateEmbeddingAsync(request);
 
@@ -134,6 +134,65 @@ public class InferenceClientTests
 
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().Contain(e => e.Code == "Inference.CommunicationFailed");
+    }
+
+    [Fact(DisplayName = "CreateEmbeddingFromBytesAsync: Success sends model_name as query string")]
+    public async Task CreateEmbeddingFromBytesAsync_Success_SendsModelNameAsQueryString()
+    {
+        var expectedResponse = new EmbeddingResponse
+        {
+            Vector = [0.1f, 0.2f, 0.3f],
+            ModelVersion = "resnet50",
+            Dimension = 2048,
+            Metadata = new Dictionary<string, object> { ["model"] = "resnet50" }
+        };
+
+        string? requestUri = null;
+        var handler = new MockHttpMessageHandler(req =>
+        {
+            requestUri = req.RequestUri!.PathAndQuery;
+            req.Method.Should().Be(HttpMethod.Post);
+            var body = JsonSerializer.Serialize(Result<EmbeddingResponse>.Ok(expectedResponse), JsonOptions);
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json")
+            });
+        });
+
+        var client = CreateInferenceClient(handler);
+        var result = await client.CreateEmbeddingFromBytesAsync([0x1, 0x2, 0x3], "image/jpeg", "resnet50");
+
+        result.IsSuccess.Should().BeTrue();
+        requestUri.Should().Be("/embeddings/bytes?model_name=resnet50");
+    }
+
+    [Fact(DisplayName = "CreateEmbeddingFromBytesAsync: Omits model_name query string when not provided")]
+    public async Task CreateEmbeddingFromBytesAsync_NoModelName_OmitsQueryString()
+    {
+        var expectedResponse = new EmbeddingResponse
+        {
+            Vector = [0.1f, 0.2f, 0.3f],
+            ModelVersion = "fashion_clip",
+            Dimension = 512,
+            Metadata = new Dictionary<string, object> { ["model"] = "fashion_clip" }
+        };
+
+        string? requestUri = null;
+        var handler = new MockHttpMessageHandler(req =>
+        {
+            requestUri = req.RequestUri!.PathAndQuery;
+            var body = JsonSerializer.Serialize(Result<EmbeddingResponse>.Ok(expectedResponse), JsonOptions);
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json")
+            });
+        });
+
+        var client = CreateInferenceClient(handler);
+        var result = await client.CreateEmbeddingFromBytesAsync([0x1, 0x2, 0x3], "image/jpeg");
+
+        result.IsSuccess.Should().BeTrue();
+        requestUri.Should().Be("/embeddings/bytes");
     }
 
     [Fact(DisplayName = "ListModelsAsync: Success returns model list")]

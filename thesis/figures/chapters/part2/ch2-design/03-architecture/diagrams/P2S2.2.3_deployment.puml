@@ -114,12 +114,10 @@ cloud "External Managed Cloud APIs" as CloudServices {
   node "Stripe Payments" as Stripe #FFFFFF
   node "SendGrid Email" as SendGrid #FFFFFF
   node "S3 Storage" as S3 #FFFFFF
-  node "Google Identity" as Google #FFFFFF
 }
 
 ApiApp --> Stripe : <<HTTPS API>>
 ApiApp --> SendGrid : <<HTTPS / SMTP>>
 ApiApp --> S3 : <<HTTPS SDK>>
-ApiApp --> Google : <<OAuth 2.0>>
 
 @enduml

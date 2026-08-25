@@ -45,10 +45,10 @@ public class InferenceClient : IInferenceClient
     /// <summary>Sends raw image bytes as a multipart upload to the inference service for embedding generation.</summary>
     /// <param name="imageBytes">Raw image byte data.</param>
     /// <param name="contentType">MIME content type of the image.</param>
-    /// <param name="model">Optional model name override.</param>
+    /// <param name="modelName">Optional model name override.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A result containing the embedding response or an error.</returns>
-    public async Task<Result<EmbeddingResponse>> CreateEmbeddingFromBytesAsync(byte[] imageBytes, string contentType, string? model = null, CancellationToken ct = default)
+    public async Task<Result<EmbeddingResponse>> CreateEmbeddingFromBytesAsync(byte[] imageBytes, string contentType, string? modelName = null, CancellationToken ct = default)
     {
         try
         {
@@ -56,10 +56,12 @@ public class InferenceClient : IInferenceClient
             var imageContent = new ByteArrayContent(imageBytes);
             imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
             content.Add(imageContent, "image", "upload");
-            if (!string.IsNullOrEmpty(model))
-                content.Add(new StringContent(model), "model");
 
-            var response = await _httpClient.PostAsync("/embeddings/bytes", content, ct);
+            var requestUri = "/embeddings/bytes";
+            if (!string.IsNullOrEmpty(modelName))
+                requestUri += $"?model_name={Uri.EscapeDataString(modelName)}";
+
+            var response = await _httpClient.PostAsync(requestUri, content, ct);
             return await DeserializeResultAsync<EmbeddingResponse>(response, ct);
         }
         catch (OperationCanceledException)

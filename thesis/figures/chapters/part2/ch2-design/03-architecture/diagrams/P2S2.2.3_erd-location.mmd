@@ -1,0 +1,18 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '64px'}}}%%
+erDiagram
+  direction LR
+  Country {
+    uuid id PK
+    string iso_code UK
+    string name
+    bool states_required
+  }
+
+  State {
+    uuid id PK
+    uuid country_id FK
+    string name
+    string abbreviation
+  }
+
+  Country ||--o{ State : ""

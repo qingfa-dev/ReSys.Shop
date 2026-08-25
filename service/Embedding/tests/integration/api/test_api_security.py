@@ -9,7 +9,7 @@ pytestmark = pytest.mark.integration
 class TestRequestValidation:
     def test_missing_image_url_returns_400(self, client):
         """FastAPI triggers a 422 which our handler converts to a 400 Result."""
-        payload = {"model": "efficientnet_b0"}
+        payload = {"model_name": "efficientnet_b0"}
         response = client.post("/embeddings", json=payload)
         assert response.status_code == 400
         body = response.json()

@@ -53,13 +53,13 @@ def test_ping_verifies_vector_extension(retriever) -> None:
 # ── model registry ────────────────────────────────────────────────────────────
 
 def test_get_model_id_fashion_clip(retriever) -> None:
-    model_id = retriever.get_model_id("fashion-clip")
+    model_id = retriever.get_model_id("fashion_clip")
     assert isinstance(model_id, int)
     assert model_id > 0
 
 
 def test_get_model_id_all_registered_models(retriever) -> None:
-    slugs = ["fashion-clip", "clip-b32", "clip-l14", "siglip", "eva-clip"]
+    slugs = ["fashion_clip", "clip_b32", "clip_l14", "siglip", "eva_clip"]
     ids = [retriever.get_model_id(s) for s in slugs]
     assert len(set(ids)) == 5, "Model IDs must be unique"
 
@@ -70,20 +70,20 @@ def test_get_model_id_unknown_slug_raises(retriever) -> None:
 
 
 def test_get_embedding_dim_512_models(retriever) -> None:
-    for slug in ("fashion-clip", "clip-b32", "eva-clip"):
+    for slug in ("fashion_clip", "clip_b32", "eva_clip"):
         assert retriever.get_embedding_dim(slug) == 512
 
 
 def test_get_embedding_dim_768_models(retriever) -> None:
-    for slug in ("clip-l14", "siglip"):
+    for slug in ("clip_l14", "siglip"):
         assert retriever.get_embedding_dim(slug) == 768
 
 
 def test_model_id_is_cached(retriever) -> None:
     """Second call must use the in-memory cache (no extra DB round-trip)."""
     retriever._model_id_cache.clear()
-    id1 = retriever.get_model_id("fashion-clip")
-    id2 = retriever.get_model_id("fashion-clip")
+    id1 = retriever.get_model_id("fashion_clip")
+    id2 = retriever.get_model_id("fashion_clip")
     assert id1 == id2
 
 
@@ -94,9 +94,9 @@ def test_upsert_512(retriever, random_512) -> None:
         product_id="test_upsert_512",
         label="Tshirts",
         embedding=random_512,
-        model_slug="fashion-clip",
+        model_slug="fashion_clip",
     )
-    count = retriever.count_embeddings("fashion-clip")
+    count = retriever.count_embeddings("fashion_clip")
     assert count >= 1
 
 
@@ -106,17 +106,17 @@ def test_upsert_is_idempotent(retriever, random_512) -> None:
             product_id="test_idempotent",
             label="Jeans",
             embedding=random_512,
-            model_slug="fashion-clip",
+            model_slug="fashion_clip",
         )
     # Should not raise or create duplicate rows
-    count_before = retriever.count_embeddings("fashion-clip")
+    count_before = retriever.count_embeddings("fashion_clip")
     retriever.upsert(
         product_id="test_idempotent",
         label="Jeans",
         embedding=random_512,
-        model_slug="fashion-clip",
+        model_slug="fashion_clip",
     )
-    count_after = retriever.count_embeddings("fashion-clip")
+    count_after = retriever.count_embeddings("fashion_clip")
     assert count_after == count_before  # ON CONFLICT DO UPDATE → no new row
 
 
@@ -125,9 +125,9 @@ def test_upsert_768(retriever, random_768) -> None:
         product_id="test_upsert_768",
         label="Watches",
         embedding=random_768,
-        model_slug="clip-l14",
+        model_slug="clip_l14",
     )
-    count = retriever.count_embeddings("clip-l14")
+    count = retriever.count_embeddings("clip_l14")
     assert count >= 1
 
 
@@ -147,7 +147,7 @@ def test_upsert_batch_512(retriever) -> None:
         product_ids=product_ids,
         labels=labels,
         embeddings=embeddings,
-        model_slug="fashion-clip",
+        model_slug="fashion_clip",
         batch_size=8,
     )
     assert count == n
@@ -161,7 +161,7 @@ def test_upsert_batch_length_mismatch_raises(retriever) -> None:
             product_ids=["a", "b"],        # length 2
             labels=["x"] * 5,             # length 5
             embeddings=embeddings,         # length 5
-            model_slug="fashion-clip",
+            model_slug="fashion_clip",
         )
 
 
@@ -173,7 +173,7 @@ def test_upsert_batch_unsupported_dim_raises(retriever) -> None:
             product_ids=["a", "b"],
             labels=["x", "y"],
             embeddings=embeddings,
-            model_slug="fashion-clip",
+            model_slug="fashion_clip",
         )
 
 
@@ -181,15 +181,15 @@ def test_upsert_batch_unsupported_dim_raises(retriever) -> None:
 
 def test_search_returns_results(retriever, random_512) -> None:
     # Ensure at least one row exists
-    retriever.upsert("search_test_001", "Tshirts", random_512, "fashion-clip")
-    results = retriever.search(random_512, model_slug="fashion-clip", top_k=5)
+    retriever.upsert("search_test_001", "Tshirts", random_512, "fashion_clip")
+    results = retriever.search(random_512, model_slug="fashion_clip", top_k=5)
     assert isinstance(results, list)
     assert len(results) >= 1
 
 
 def test_search_result_structure(retriever, random_512) -> None:
-    retriever.upsert("search_test_002", "Jeans", random_512, "fashion-clip")
-    results = retriever.search(random_512, model_slug="fashion-clip", top_k=3)
+    retriever.upsert("search_test_002", "Jeans", random_512, "fashion_clip")
+    results = retriever.search(random_512, model_slug="fashion_clip", top_k=3)
     for r in results:
         assert "product_id" in r
         assert "label" in r
@@ -204,20 +204,20 @@ def test_search_self_is_top_result(retriever) -> None:
     v = rng.standard_normal(512).astype(np.float32)
     v = v / np.linalg.norm(v)
 
-    retriever.upsert("search_self_test", "Shirts", v, "fashion-clip")
-    results = retriever.search(v, model_slug="fashion-clip", top_k=1)
+    retriever.upsert("search_self_test", "Shirts", v, "fashion_clip")
+    results = retriever.search(v, model_slug="fashion_clip", top_k=1)
     assert len(results) >= 1
     assert results[0]["product_id"] == "search_self_test"
     assert results[0]["score"] > 0.99  # near-perfect cosine similarity
 
 
 def test_search_top_k_respected(retriever, random_512) -> None:
-    results = retriever.search(random_512, model_slug="fashion-clip", top_k=3)
+    results = retriever.search(random_512, model_slug="fashion_clip", top_k=3)
     assert len(results) <= 3
 
 
 def test_search_results_are_sorted_descending(retriever, random_512) -> None:
-    results = retriever.search(random_512, model_slug="fashion-clip", top_k=10)
+    results = retriever.search(random_512, model_slug="fashion_clip", top_k=10)
     scores = [r["score"] for r in results]
     assert scores == sorted(scores, reverse=True), "Results must be sorted by score DESC"
 
@@ -227,7 +227,7 @@ def test_search_batch(retriever, random_512) -> None:
     queries = rng.standard_normal((3, 512)).astype(np.float32)
     queries = queries / np.linalg.norm(queries, axis=1, keepdims=True)
 
-    all_results = retriever.search_batch(queries, model_slug="fashion-clip", top_k=5)
+    all_results = retriever.search_batch(queries, model_slug="fashion_clip", top_k=5)
     assert len(all_results) == 3
     for res in all_results:
         assert isinstance(res, list)
@@ -236,8 +236,8 @@ def test_search_batch(retriever, random_512) -> None:
 # ── 768-D search ──────────────────────────────────────────────────────────────
 
 def test_search_768(retriever, random_768) -> None:
-    retriever.upsert("search_768_test", "Watches", random_768, "clip-l14")
-    results = retriever.search(random_768, model_slug="clip-l14", top_k=5)
+    retriever.upsert("search_768_test", "Watches", random_768, "clip_l14")
+    results = retriever.search(random_768, model_slug="clip_l14", top_k=5)
     assert len(results) >= 1
     assert results[0]["score"] > 0.99
 
@@ -256,7 +256,7 @@ def test_record_run(retriever) -> None:
         "n_query": 8700,
     }
     run_id = retriever.record_run(
-        model_slug="fashion-clip",
+        model_slug="fashion_clip",
         dataset_name="fashion-product-images-small",
         metrics=metrics,
         notes="integration test run",
@@ -328,5 +328,5 @@ def test_embedding_models_seeded(retriever) -> None:
     with retriever._conn.cursor() as cur:
         cur.execute("SELECT slug FROM embedding_models ORDER BY slug")
         slugs = {row[0] for row in cur.fetchall()}
-    expected = {"fashion-clip", "clip-b32", "clip-l14", "siglip", "eva-clip"}
+    expected = {"fashion_clip", "clip_b32", "clip_l14", "siglip", "eva_clip"}
     assert expected.issubset(slugs), f"Missing model slugs: {expected - slugs}"

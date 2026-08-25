@@ -44,4 +44,4 @@ This Context Map shows the **8 bounded contexts** of ReSys.Shop and the **Publis
 
 **Integration pattern**: **Conformist** — all contexts conform to the shared `Result<T>` type and `ICommand`/`IQuery` contracts defined in `Shared.Application`. This is a deliberate simplification: since all modules compile into one assembly, they share a ubiquitous technical language.
 
-**Evidence**: `AGENTS.md:10-12`, `Directory.Build.targets:42-53`, `Shared/Application/Mediators/`
+**Evidence**: `Directory.Build.targets:42-53`, `Shared/Application/Mediators/`
