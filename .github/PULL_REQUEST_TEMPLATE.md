@@ -13,8 +13,6 @@
 - [ ] New features follow vertical-slice layout (Handler + Request + Response + Endpoint + Validator)
 - [ ] Cross-module behavior uses `ISender` or direct service/navigation calls as fits the feature slice
 - [ ] Domain operations return `Result` / `Result<T>`, not exceptions
-- [ ] `.harness/domains.yml` LOC counts are up-to-date for affected modules
-- [ ] `AGENTS.md` is updated if conventions or structure changed
 
 ### Security
 

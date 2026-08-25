@@ -206,7 +206,7 @@ examiner will flag.
 
 **Overall assessment**: The architectural documentation is the strongest part of this
 project. The modular monolith + vertical slices + CQRS + `Result<T>` combination is
-coherent and well-justified. The non-negotiable rules in AGENTS.md are enforceable in
+coherent and well-justified. The non-negotiable rules are enforceable in
 principle. However, there are gaps between documented intent and code reality that
 weaken the architectural claims.
 
@@ -375,7 +375,7 @@ CQRS + Result<T>) is a contribution worthy of a thesis.
 - `Result<T>`: common in F# (Railway-Oriented Programming, ~2014)
 
 The thesis does not claim novelty in any individual pattern. The contribution is the
-*combination and enforcement* — specifically, the non-negotiable rules (AGENTS.md) and
+*combination and enforcement* — specifically, the non-negotiable rules and
 the `ValidateVerticalSliceIsolation` target. But since the target is **disabled**, the
 enforcement contribution is aspirational rather than actual.
 

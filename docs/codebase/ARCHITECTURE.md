@@ -71,7 +71,7 @@ HTTP Request → Carter Endpoint → FluentValidation → MediatR Pipeline → H
 
 ### 5) Known Architectural Risks
 
-- **ISender convention under review**: cross-module behavior flows through MediatR `ISender`, but this convention is itself up for reconsideration (see `AGENTS.md` rule #2 TODO and the `brainstorming` skill for proposal options).
+- **ISender convention under review**: cross-module behavior flows through MediatR `ISender`, but this convention is itself up for reconsideration (proposal options under review: keep as-is, direct cross-module service calls, a module gateway/facade layer, or splitting modules into separate assemblies with explicit ProjectReferences).
 - **No API gateway in production**: YARP is referenced in packages but [TODO] — no evidence of production gateway configuration. Aspire manages local dev orchestration only.
 - **Embedding service is a synchronous dependency**: The .NET API calls the Python Embedding service over HTTP during request handling — a failure in the ML sidecar blocks API responses. No circuit breaker observed in the embedding call path.
 - **Duplicate middleware**: `UseRateLimiter()` is called twice in Program.cs — once in `UseSecurity()` and once explicitly at line 62. Harmless but indicative of drift.

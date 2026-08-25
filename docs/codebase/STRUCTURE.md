@@ -20,10 +20,9 @@
 | `benchmarks/` | Python fashion image retrieval benchmarks (11 models) | `pyproject.toml` |
 | `docs/codebase/` | Architecture and process documentation | `ARCHITECTURE.md`, `STACK.md`, etc. |
 | `guide/` | Coding guidelines (code commenting) | `guide/code-commenting/CommentingRules.xml` |
-| `plan/` | Implementation plans | AGENTS.md reference |
-| `.harness/` | Agent-first engineering harness (domain boundaries, principles) | `.harness/domains.yml`, `.harness/principles.yml` |
+| `plan/` | Implementation plans | `plan/*.md` |
 | `.github/workflows/` | CI pipeline (build, test, lint for all stacks) | `.github/workflows/ci.yml` |
-| `ApiTests/` | 49 `.http` files for manual endpoint testing | AGENTS.md reference |
+| `ApiTests/` | 49 `.http` files for manual endpoint testing | `ApiTests/**/*.http` |
 
 ### 2) Entry Points
 

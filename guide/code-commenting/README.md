@@ -712,7 +712,6 @@ An ETH Zurich study (AGENTbench, 2026) found verbose, LLM-generated context anno
 | R13 ⭐ | [arXiv:2604.07502 (2026)](https://arxiv.org/abs/2604.07502) | Semantic Density Principle; software engineering conventions for the agentic era. |
 | R14 ⭐ | ETH Zurich AGENTbench (2026) | Human-curated annotations outperform LLM-generated context files. |
 | R15 ⭐ | [Osmani 2025](https://medium.com/@addyosmani/my-llm-coding-workflow-going-into-2026-52fe1681325e) | AI coding workflow; using comments as operational context for agents. |
-| R16 ⭐ | [DEV Community 2026](https://dev.to/corestory/how-to-give-ai-coding-agents-better-codebase-context-2ac3) | AGENTS.md standard; context file best practices for AI agents. |
 
 ---
 

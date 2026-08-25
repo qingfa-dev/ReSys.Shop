@@ -6,14 +6,6 @@
 .github/workflows
 .github/workflows/ci.yml
 .gitignore
-.superpowers
-.superpowers/sdd
-.superpowers/sdd/phase10-report.md
-.superpowers/sdd/phase9-report.md
-.superpowers/sdd/task-7.1-7.3-report.md
-.superpowers/sdd/v2-wave3-report.md
-.superpowers/sdd/v4-verify-report.md
-AGENTS.md
 Directory.Build.props
 Directory.Build.targets
 Directory.Packages.props
@@ -163,7 +155,6 @@ app/references/sakai-vue
 benchmarks
 benchmarks/.gitignore
 benchmarks/.python-version
-benchmarks/AGENTS.md
 benchmarks/PROJECT_COMPARISON.md
 benchmarks/README.md
 benchmarks/configs

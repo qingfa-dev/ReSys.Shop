@@ -37,7 +37,7 @@
   - `appsettings.json` serves as config template with empty placeholder values
 - **Hardcoding checks**: `appsettings.Development.json` no longer contains hardcoded credentials (redirects to dotnet user-secrets via `setup-dev-secrets.sh`). Testing configs (`appsettings.Testing.json`, `Api.Tests/appsettings.Testing.json`) use well-known test-only values (`integration-test-secret-key-32-chars!!`).
 - **Rotation or lifecycle notes**: JWT token rotation is enabled (`TokenSecurity.RotationEnabled = true`), reuse detection enabled, max token age 30 days. No automated secret rotation mechanism detected.
-- **Dockerfile**: `service/Embedding/Dockerfile` exists (multi-stage, non-root user, tini-based) for Python sidecar production deployment — contrary to AGENTS.md claim of "no Dockerfiles".
+- **Dockerfile**: `service/Embedding/Dockerfile` exists (multi-stage, non-root user, tini-based) for Python sidecar production deployment.
 
 ### 4) Reliability and Failure Behavior
 

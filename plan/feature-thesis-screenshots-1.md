@@ -159,7 +159,7 @@ directory (46 PNGs).
 - **DEP-003**: Admin SPA dev server (`app/Admin`) on `http://localhost:5173`.
 - **DEP-004**: Seeded test data: catalog products with images, cart line items, orders (one with a full checkout history), addresses, wishlists, notifications, users/roles/permissions, stock items/movements/locations, shipping methods/rates (via `DatabaseInitializer` or `Api.SmokeTests`).
 - **DEP-005**: Playwright (any version compatible with the installed Node; add `@playwright/test` + Chromium) — not currently in the repo; install in a scratch dir or add as dev dep.
-- **DEP-006**: Typst 0.15.1 (`typst compile main.typ` from `thesis/`), per `thesis/AGENTS.md`.
+- **DEP-006**: Typst 0.15.1 (`typst compile main.typ` from `thesis/`).
 - **DEP-007**: Existing chapter files `chapters/part2/ch2-design/04-implementations/05-frontend-ux/f1-visual-search.typ` ... `f10-system-processes.typ` (the 50 commented refs live here).
 
 ## 5. Files
@@ -207,9 +207,6 @@ directory (46 PNGs).
 
 ## 8. Related Specifications / Further Reading
 
-- `thesis/AGENTS.md` — thesis build/structure conventions (Typst 0.15.1, chapter pattern, figure conventions).
-- `thesis/spec/spec-process-thesis-review-remediation.md` — remediation process spec (REQ/CON numbering, log schema, verify-before-fix).
 - `thesis/spec/remediation-log.md` — remediation log (this plan appends the screenshot-capture row).
 - `thesis/spec/verify_remediation.py` — verification oracle (extended per REQ-008).
-- `/home/ngtphat/Projects/ReSys.Shop/AGENTS.md` — platform-level rules and verification commands.
 - `thesis/chapters/part2/ch2-design/04-implementations/05-frontend-ux/*.typ` — the f1-f10 chapter files edited by this plan.

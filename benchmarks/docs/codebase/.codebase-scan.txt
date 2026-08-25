@@ -19,9 +19,6 @@
 .ruff_cache/0.15.21/8234655029412910985
 .ruff_cache/0.15.21/8608227357260863720
 .ruff_cache/CACHEDIR.TAG
-.superpowers
-.superpowers/sdd
-AGENTS.md
 PROJECT_COMPARISON.md
 README.md
 configs
