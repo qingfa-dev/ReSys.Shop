@@ -6,15 +6,15 @@ The Python ML sidecar generates high-dimensional vector embeddings from product 
 
 The sidecar uses a three-layer architecture running under the Uvicorn ASGI server:
 
-- *FastAPI Interface Layer:* Handles HTTP routing, `X-API-Key` header authentication, multipart payload parsing, and JSON response serialization.
+- *FastAPI Interface Layer:* Handles HTTP routing, #emph[X-API-Key] header authentication, multipart payload parsing, and JSON response serialization.
 - *Model Manager Layer:* A singleton registry that lazily instantiates models, maintains GPU/CPU memory caches, and routes inference calls using the Strategy Pattern.
 - *PyTorch Runtime Layer:* Executes forward passes across hardware targets (CUDA for NVIDIA GPUs, MPS for Apple Silicon, or CPU fallback).
 
-The service exposes `POST /embeddings` (returns a float vector) and `GET /health`. Containerized via Docker and orchestrated by .NET Aspire, it is reachable at `http://ml-service` over the internal network.
+The service exposes #emph[POST /embeddings] (returns a float vector) and #emph[GET /health]. Containerized via Docker and orchestrated by .NET Aspire, it is reachable at #emph("http://ml-service") over the internal network.
 
 ==== Model Loading Strategy
 
-Models load *lazily* on first request rather than at service startup to prevent unnecessary GPU memory consumption. The Model Manager enforces a standardized `generate_embedding(image_bytes)` interface, selecting the active model via the `EMBEDDING_MODEL` environment variable.
+Models load *lazily* on first request rather than at service startup to prevent unnecessary GPU memory consumption. The Model Manager enforces a standardized #emph("generate_embedding(image_bytes)") interface, selecting the active model via the #emph("EMBEDDING_MODEL") environment variable.
 
 The sidecar supports four architectural model families:
 
@@ -32,7 +32,7 @@ The vector generation process moves from raw image ingestion to JSON serializati
   caption: [ML embedding pipeline: step-by-step flow from image upload to vector response.],
 ) <fig-ml-pipeline>
 
-1. *Authentication:* Validates the `X-API-Key` header, rejecting unauthorized calls with a `401 Unauthorized` status.
+1. *Authentication:* Validates the #emph[X-API-Key] header, rejecting unauthorized calls with a #emph[401 Unauthorized] status.
 2. *Model Selection:* Retrieves the active model from the Singleton cache, initializing it from disk if unallocated.
 3. *Preprocessing:* Resizes input images to $224 times 224$ pixels, converts interleaved channels to tensor arrays, and applies ImageNet normalization.
 4. *Forward Pass:* Propagates tensors through convolution or self-attention layers to extract visual features.
@@ -41,7 +41,7 @@ The vector generation process moves from raw image ingestion to JSON serializati
 
 ==== Health Monitoring
 
-The `GET /health` endpoint provides diagnostic health checks for the .NET Aspire orchestrator by validating three conditions:
+The #emph[GET /health] endpoint provides diagnostic health checks for the .NET Aspire orchestrator by validating three conditions:
 
 1. *Hardware Runtime:* Confirms CUDA or MPS acceleration availability.
 2. *Model Availability:* Ensures the active model is instantiated in memory.

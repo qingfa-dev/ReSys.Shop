@@ -4,7 +4,7 @@ The user-facing components consist of two Vue 3 single-page applications: a cust
 
 ==== Frontend Architecture
 
-Both applications share Vue 3.5, TypeScript ~ 6.0, Vite 8, Pinia, and Axios. All backend communication follows a typed repository pattern mirroring the .NET `Result<T>` convention with `isSuccess`, `statusCode`, `data`, and `errors[]` fields. The `BaseRepository` wraps Axios with typed CRUD:
+Both applications share Vue 3.5, TypeScript ~ 6.0, Vite 8, Pinia, and Axios. All backend communication follows a typed repository pattern mirroring the .NET #emph("Result<T>") convention with #emph[isSuccess], #emph[statusCode], #emph[data], and #emph("errors[]") fields. The #emph[BaseRepository] wraps Axios with typed CRUD:
 
 ```typescript
 export interface Result<T> {
@@ -16,7 +16,7 @@ export interface Result<T> {
 }
 ```
 
-For visual search, the repository extends the base with a multipart upload method: `async searchByImage(file: File): Promise<Result<Product[]>>` dispatching `POST /api/storefront/catalog/products/images/search` with `Content-Type: multipart/form-data`.
+For visual search, the repository extends the base with a multipart upload method: #emph("async searchByImage(file: File): Promise<Result<Product[]>>") dispatching #emph[POST /api/storefront/catalog/products/images/search] with #emph("Content-Type: multipart/form-data").
 
 ==== Storefront Interfaces
 

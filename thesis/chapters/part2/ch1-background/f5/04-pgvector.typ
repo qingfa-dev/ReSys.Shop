@@ -3,8 +3,8 @@
 pgvector is an open-source PostgreSQL extension adding vector operations to standard SQL @pgvector2023, storing vectors alongside regular product data.
 
 Key features:
-- *Vector column.* `vector` columns store embeddings and support arbitrary dimensionality; the platform stores an untyped `vector` column whose dimension is fixed per model (e.g., 512 for Fashion-CLIP).
-- *Similarity operators.* `<=>` for cosine distance, `<->` for Euclidean.
+- *Vector column.* #emph[vector] columns store embeddings and support arbitrary dimensionality; the platform stores an untyped #emph[vector] column whose dimension is fixed per model (e.g., 512 for Fashion-CLIP).
+- *Similarity operators.* #emph("<=>") for cosine distance, #emph("<->") for Euclidean.
 - *Indexing.* HNSW and IVFFlat for fast approximate search.
 
 The critical advantage is transactional consistency: vectors and product metadata share the same ACID boundary, avoiding the inconsistency problems that occur when a vector store and a relational database are kept separate. Combined queries can search for visually similar products filtered by category and price range in one query plan.

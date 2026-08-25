@@ -113,4 +113,4 @@ The data layer follows five global design rules:
 - *Soft Deletion:* The soft-deletion flag is filtered globally by EF Core, preserving referential integrity.
 - *Audit Columns:* Creation and modification timestamps are populated by EF Core save interceptors.
 - *Composite Indexes:* Targeted indexes serve high-frequency access paths, such as (user_id, status) and (session_id, status) on orders.
-- *Variable-Dimension Vector Storage:* The vector column is untyped `vector`, and a per-model HNSW partial index casts it to each model's dimensionality (512 for Fashion-CLIP, 384 for DINOv2 ViT-S/14, 768 for CLIP ViT-L/14, 1,280 for EfficientNet-B0, 2,048 for ResNet-50) and filters by `model_name`, letting one column serve models of differing output sizes.
+- *Variable-Dimension Vector Storage:* The vector column is untyped #emph[vector], and a per-model HNSW partial index casts it to each model's dimensionality (512 for Fashion-CLIP, 384 for DINOv2 ViT-S/14, 768 for CLIP ViT-L/14, 1,280 for EfficientNet-B0, 2,048 for ResNet-50) and filters by #emph("model_name"), letting one column serve models of differing output sizes.

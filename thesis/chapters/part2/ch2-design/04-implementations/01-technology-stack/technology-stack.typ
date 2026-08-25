@@ -1,6 +1,6 @@
 === Technology Stack
 
-The platform uses pinned versions across three ecosystems: .NET 10 for transactional semantics and API abstractions, Python 3.12 for deep learning (PyTorch, Hugging Face), and Vue 3 for reactive UIs. Centralized package management enforces reproducibility via `Directory.Packages.props` (NuGet), `uv.lock` (Python), and `pnpm-lock.yaml` (JavaScript).
+The platform uses pinned versions across three ecosystems: .NET 10 for transactional semantics and API abstractions, Python 3.12 for deep learning (PyTorch, Hugging Face), and Vue 3 for reactive UIs. Centralized package management enforces reproducibility via #emph[Directory.Packages.props] (NuGet), #emph[uv.lock] (Python), and #emph[pnpm-lock.yaml] (JavaScript).
 
 @tbl-framework-matrix details the core technologies grouped by architectural role.
 
@@ -34,6 +34,6 @@ The platform uses pinned versions across three ecosystems: .NET 10 for transacti
 
 ==== Service Containerization
 
-The platform defines six containerized resources with startup dependencies: PostgreSQL and Redis initialize first, followed by the Python ML sidecar with `/health` readiness probe, then the .NET API. Vue SPAs run as Vite dev servers reverse-proxying `/api/` endpoints. Multi-stage Docker builds isolate runtime dependencies with non-root execution via `tini`.
+The platform defines six containerized resources with startup dependencies: PostgreSQL and Redis initialize first, followed by the Python ML sidecar with #emph[/health] readiness probe, then the .NET API. Vue SPAs run as Vite dev servers reverse-proxying #emph[/api/] endpoints. Multi-stage Docker builds isolate runtime dependencies with non-root execution via #emph[tini].
 
 // [SCREENSHOT: implementation-docker-build.png] Terminal output showing the multi-stage Docker build for the ML sidecar: builder stage downloading PyTorch and HuggingFace dependencies, runtime stage copying only the virtual environment, and final image size annotation.

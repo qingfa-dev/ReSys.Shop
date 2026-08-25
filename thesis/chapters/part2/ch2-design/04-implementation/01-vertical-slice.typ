@@ -4,7 +4,7 @@ The backend implements *Vertical Slice Architecture* (VSA), grouping code by bus
 
 ==== Feature Co-Location and Endpoint Pipeline
 
-Features leverage *Carter Minimal APIs* for route discovery and *MediatR* for command/query dispatch. Each of the eight bounded contexts defines an `ICarterModule` to register its HTTP endpoints. Endpoints remain intentionally thin: they parse incoming HTTP requests, construct a MediatR command or query, dispatch it via `ISender`, and map the returned `Result<T>` directly to HTTP responses.
+Features leverage *Carter Minimal APIs* for route discovery and *MediatR* for command/query dispatch. Each of the eight bounded contexts defines an #emph[ICarterModule] to register its HTTP endpoints. Endpoints remain intentionally thin: they parse incoming HTTP requests, construct a MediatR command or query, dispatch it via #emph[ISender], and map the returned #emph("Result<T>") directly to HTTP responses.
 
 All business rules, database queries, and domain invariants reside exclusively inside feature handlers, making them fully testable isolated from HTTP dependencies. *FluentValidation* classes are co-located with their target requests, validating data models before handler execution via MediatR pipeline behaviors.
 
@@ -19,4 +19,4 @@ Every dispatched command and query traverses a central MediatR pipeline that app
 
 ==== Inter-Module Boundaries
 
-The architecture enforces a strict isolation rule: *no bounded context may directly import another context's namespace*. Inter-module integration relies exclusively on MediatR's `ISender` interface via in-process query dispatch or event notifications. This maintains microservice-like logical isolation and clean domain boundaries while keeping the deployment simplicity of a monolithic executable.
+The architecture enforces a strict isolation rule: *no bounded context may directly import another context's namespace*. Inter-module integration relies exclusively on MediatR's #emph[ISender] interface via in-process query dispatch or event notifications. This maintains microservice-like logical isolation and clean domain boundaries while keeping the deployment simplicity of a monolithic executable.

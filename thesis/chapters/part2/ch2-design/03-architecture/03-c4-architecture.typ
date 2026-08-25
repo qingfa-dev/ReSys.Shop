@@ -35,7 +35,7 @@ The deployable units:
 - *API Backend:* .NET 10 application executing domain logic via Carter minimal APIs and MediatR CQRS pipelines.
 - *Embedding Sidecar:* Python 3.12 FastAPI service loading ML models into GPU/CPU memory for on-demand embedding generation.
 - *PostgreSQL 17 (with pgvector):* Relational domain schemas and high-dimensional vector embeddings.
-- *Redis 7:* L2 distributed cache for `HybridCache` and persistent job store for Hangfire.
+- *Redis 7:* L2 distributed cache for #emph[HybridCache] and persistent job store for Hangfire.
 
 All communication routes through the API Backend; SPAs never query databases or external APIs directly.
 
@@ -48,13 +48,13 @@ The component view details the internal structure of the API Backend container (
   caption: [Component diagram: API Backend internals and three-layer Python ML sidecar.],
 ) <fig-c4-component>
 
-HTTP requests enter through Carter modules, which validate parameters and dispatch commands or queries via MediatR's `ISender` through logging, validation, and exception-handling pipeline behaviors.
+HTTP requests enter through Carter modules, which validate parameters and dispatch commands or queries via MediatR's #emph[ISender] through logging, validation, and exception-handling pipeline behaviors.
 
 Handlers delegate infrastructure tasks to eight internal components:
 1. *ApplicationDbContext:* EF Core context with interceptors for auditing, soft-deletes, and concurrency.
-2. *Specification DSL:* Composable `IQueryable` extensions for filtering, sorting, paging, and full-text search.
+2. *Specification DSL:* Composable #emph[IQueryable] extensions for filtering, sorting, paging, and full-text search.
 3. *Identity Provider:* ASP.NET Identity with JWT management.
-4. *Dynamic Permission Provider:* Runtime resolution of `{domain}:{category}:{action}` policy claims.
+4. *Dynamic Permission Provider:* Runtime resolution of #emph("{domain}:{category}:{action}") policy claims.
 5. *Storage Service:* Interchangeable local or S3-compatible file storage with upload validation.
 6. *Notification Hub:* Email (SendGrid/SMTP) and SMS (Sinch) routing with fallback support.
 7. *Hangfire Engine:* Background task execution (cart expiration, webhook dispatch, maintenance).
@@ -71,4 +71,4 @@ The deployment diagram illustrates the production infrastructure topology (@fig-
   caption: [Deployment topology showing containerized orchestration with horizontal scaling.],
 ) <fig-deployment>
 
-All services run as Docker containers orchestrated via Docker Compose for service discovery and health monitoring. The API Backend scales horizontally across replicas sharing PostgreSQL and Redis. The stateless ML sidecar scales independently. PostgreSQL runs a primary instance for writes alongside read replicas, with `pgvector` enabled across all nodes. Secrets and API keys are injected via environment configuration.
+All services run as Docker containers orchestrated via Docker Compose for service discovery and health monitoring. The API Backend scales horizontally across replicas sharing PostgreSQL and Redis. The stateless ML sidecar scales independently. PostgreSQL runs a primary instance for writes alongside read replicas, with #emph[pgvector] enabled across all nodes. Secrets and API keys are injected via environment configuration.

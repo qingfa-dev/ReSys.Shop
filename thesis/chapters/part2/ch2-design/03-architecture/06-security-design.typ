@@ -4,7 +4,7 @@ The security framework operates across three layers: authentication, authorizati
 
 ==== Authentication and Session Management
 
-JWT authentication is configured via `JwtSettings` with HS256 algorithm, 15-minute access token expiration, and 30-day maximum token age. Single-use refresh token rotation is enforced: exchanging an expired access token consumes the current refresh token and issues a new pair. If a refresh token that has already been used is submitted again, this is treated as a possible security breach. All active refresh tokens for that user are immediately revoked, and the user must log in again. Unauthenticated shoppers receive an HTTP-only cookie tracking an anonymous session ID; on login, the guest cart automatically merges with the user's persistent cart.
+JWT authentication is configured via #emph[JwtSettings] with HS256 algorithm, 15-minute access token expiration, and 30-day maximum token age. Single-use refresh token rotation is enforced: exchanging an expired access token consumes the current refresh token and issues a new pair. If a refresh token that has already been used is submitted again, this is treated as a possible security breach. All active refresh tokens for that user are immediately revoked, and the user must log in again. Unauthenticated shoppers receive an HTTP-only cookie tracking an anonymous session ID; on login, the guest cart automatically merges with the user's persistent cart.
 
 ```cs
 // JWT configuration (JwtSettings)
@@ -26,7 +26,7 @@ public sealed class JwtSettings
 
 ==== Dynamic Authorization
 
-Role-Based Access Control separates administrative and storefront surfaces. Unprivileged accounts accessing `/api/*/admin/*` endpoints receive an immediate #raw("403", lang: "http") prior to command dispatch. The built-in Administrator role bypasses all permission checks.
+Role-Based Access Control separates administrative and storefront surfaces. Unprivileged accounts accessing #emph("/api/*/admin/*") endpoints receive an immediate #raw("403", lang: "http") prior to command dispatch. The built-in Administrator role bypasses all permission checks.
 
 A three-layer permission architecture resolves claims at runtime:
 
@@ -50,7 +50,7 @@ public sealed class PermissionPolicyProvider : IAuthorizationPolicyProvider
 }
 ```
 
-Operations enforce granular resource-action claims. Ten `FeatureMetadata` files define the permission registry across modules, each mapping to the `PermissionContext` static catalogue. Permissions use the dot-separated format `domain.category.resource.action`:
+Operations enforce granular resource-action claims. Ten #emph[FeatureMetadata] files define the permission registry across modules, each mapping to the #emph[PermissionContext] static catalogue. Permissions use the dot-separated format #emph[domain.category.resource.action]:
 
 ```text
 admin.catalog.products.create
@@ -62,10 +62,10 @@ admin.ordering.payments.capture
 admin.inventory.stockitems.transfer
 ```
 
-A custom `IAuthorizationPolicyProvider` resolves claim strings to policies dynamically at runtime, allowing permission modifications in the database without application redeployments.
+A custom #emph[IAuthorizationPolicyProvider] resolves claim strings to policies dynamically at runtime, allowing permission modifications in the database without application redeployments.
 
 ==== System Hardening
 
-Rate limiting restricts authentication to 5 requests per minute, registration to 3 per hour, and payment processing to 30 per minute. Security middleware injects #raw("Content-Security-Policy", lang: "http"), #raw("Strict-Transport-Security", lang: "http"), #raw("X-Frame-Options", lang: "http"), and #raw("X-Content-Type-Options", lang: "http") headers. Visual search uploads enforce a 10 MB limit and validate magic bytes to verify valid JPEG, PNG, or WebP formats. Stripe payment webhooks validate the `Stripe-Signature` header using HMAC signature verification before executing state transitions.
+Rate limiting restricts authentication to 5 requests per minute, registration to 3 per hour, and payment processing to 30 per minute. Security middleware injects #raw("Content-Security-Policy", lang: "http"), #raw("Strict-Transport-Security", lang: "http"), #raw("X-Frame-Options", lang: "http"), and #raw("X-Content-Type-Options", lang: "http") headers. Visual search uploads enforce a 10 MB limit and validate magic bytes to verify valid JPEG, PNG, or WebP formats. Stripe payment webhooks validate the #emph[Stripe-Signature] header using HMAC signature verification before executing state transitions.
 
 The storage service includes a pre-upload virus scanning layer via ClamAV (nClam integration) and image format validation through SkiaSharp, preventing malicious payloads from reaching persistent storage.

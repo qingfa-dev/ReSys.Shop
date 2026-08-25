@@ -1,6 +1,6 @@
 === ML Sidecar and CBIR Search
 
-The Python ML sidecar generates vector embeddings from product images over HTTP, managing multiple pre-trained models through a strategy pattern switchable at runtime via `EMBEDDING_MODEL`.
+The Python ML sidecar generates vector embeddings from product images over HTTP, managing multiple pre-trained models through a strategy pattern switchable at runtime via #emph("EMBEDDING_MODEL").
 
 ==== Model Management
 
@@ -27,7 +27,7 @@ Six models span four architecture families, selected from a decorator-based regi
   caption: [Registered embedding models with output dimensionality and architectural family.],
 ) <tbl-registered-models>
 
-All models conform to `BaseEmbedder` via the Template Method pattern. The base class handles loading, forwarding, and L2-normalisation; subclasses provide only the forward pass. Models load lazily on first request within `torch.no_grad()`. The `device` property resolves CUDA, MPS, or CPU at runtime.
+All models conform to #emph[BaseEmbedder] via the Template Method pattern. The base class handles loading, forwarding, and L2-normalisation; subclasses provide only the forward pass. Models load lazily on first request within #emph("torch.no_grad()"). The #emph[device] property resolves CUDA, MPS, or CPU at runtime.
 
 ```python
 class BaseEmbedder(ABC):
@@ -41,7 +41,7 @@ class BaseEmbedder(ABC):
         return self._normalize(features)
 ```
 
-`_load_image` handles URLs, paths, raw bytes, and PIL Images, converting to RGB tensors. `_normalize` applies L2-normalisation and handles CLIP `image_embeds`, ViT `pooler_output`, and CNN feature maps via global average pooling.
+#emph("_load_image") handles URLs, paths, raw bytes, and PIL Images, converting to RGB tensors. #emph("_normalize") applies L2-normalisation and handles CLIP #emph("image_embeds"), ViT #emph("pooler_output"), and CNN feature maps via global average pooling.
 
 ==== Embedding Generation Pipeline
 
@@ -54,10 +54,10 @@ Six pipeline stages:
     align: (center + horizon, left, left),
     inset: 5pt,
     table.header([*Stage*], [*Component*], [*Description*]),
-    [1], [Authentication], [Validates `X-API-Key` header; rejects with 401.],
+    [1], [Authentication], [Validates #emph[X-API-Key] header; rejects with 401.],
     [2], [Model Selection], [Retrieves active model from registry; initialises from disk if unallocated.],
     [3], [Preprocessing], [Resizes to $224 times 224$ px, converts to tensor, applies ImageNet normalisation.],
-    [4], [Forward Pass], [Propagates through convolution or self-attention within `torch.no_grad()`.],
+    [4], [Forward Pass], [Propagates through convolution or self-attention within #emph("torch.no_grad()").],
     [5], [Pooling], [Global average pooling to fixed-length vector (512-dim for CLIP, up to 2048 for ResNet-50).],
     [6], [Serialization], [L2-normalisation, JSON packaging with model metadata and inference latency.],
   ),
@@ -74,12 +74,12 @@ API endpoints:
     align: (left + horizon, left, left),
     inset: 5pt,
     table.header([*Method*], [*Path*], [*Purpose*]),
-    [POST], [`/embeddings/bytes`], [Multipart image upload with optional `model` query parameter.],
-    [POST], [`/embeddings`], [Image URL for batch embedding during catalogue indexing.],
-    [GET], [`/health`], [Readiness probe: validates CUDA/MPS, active model, and synthetic forward pass.],
+    [POST], [#emph[/embeddings/bytes]], [Multipart image upload with optional #emph[model] query parameter.],
+    [POST], [#emph[/embeddings]], [Image URL for batch embedding during catalogue indexing.],
+    [GET], [#emph[/health]], [Readiness probe: validates CUDA/MPS, active model, and synthetic forward pass.],
   ),
   kind: table,
-  caption: [ML sidecar API endpoints requiring `X-API-Key` authentication.],
+  caption: [ML sidecar API endpoints requiring #emph[X-API-Key] authentication.],
 ) <tbl-api-endpoints>
 
 Response shape:
@@ -111,13 +111,13 @@ Response shape:
 
 Six stages across four architectural layers:
 
-1. *Client Validation (Vue 3).* Validates format (JPEG, PNG, WebP) and size ($<= 10$ MB). Dispatches multipart form to `POST /api/storefront/catalog/products/images/search`.
+1. *Client Validation (Vue 3).* Validates format (JPEG, PNG, WebP) and size ($<= 10$ MB). Dispatches multipart form to #emph[POST /api/storefront/catalog/products/images/search].
 2. *Server Validation (.NET API).* Verifies magic bytes, reapplies payload ceiling.
-3. *Vector Extraction (ML Sidecar).* Forwards image bytes to `/embeddings`; sidecar executes preprocessing and inference.
-4. *Vector Search (pgvector).* Queries via cosine distance `<=>` filtered by `model_name`; HNSW enables sub-10 ms lookup.
+3. *Vector Extraction (ML Sidecar).* Forwards image bytes to #emph[/embeddings]; sidecar executes preprocessing and inference.
+4. *Vector Search (pgvector).* Queries via cosine distance #emph("<=>") filtered by #emph("model_name"); HNSW enables sub-10 ms lookup.
 5. *Post-Processing.* Converts distance to similarity ($1 - text("distance")$), deduplicates by product; the storefront then applies a configurable minimum-similarity threshold to the returned scores.
 6. *UI Rendering (Vue 3).* Renders product grid with thumbnails, prices, and similarity scores within the sub-second budget.
 
-The pluggable architecture supports automated benchmarking (update `EMBEDDING_MODEL`, restart, sequential benchmarking of all models without code changes) and production A/B testing via dual sidecar instances with distinct models.
+The pluggable architecture supports automated benchmarking (update #emph("EMBEDDING_MODEL"), restart, sequential benchmarking of all models without code changes) and production A/B testing via dual sidecar instances with distinct models.
 
 // [SCREENSHOT: postman-embedding-request.png] API client showing POST /embeddings/bytes with fashion image upload and 512-dim float vector response.
