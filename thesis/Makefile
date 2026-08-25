@@ -44,9 +44,16 @@ $(BENCHMARK_CHARTS): $(CHARTS_SCRIPT) ../benchmarks/outputs/thesis_catonly/resul
 	@echo "  [charts] regenerating benchmark charts from authoritative JSON"
 	@python3 $(CHARTS_SCRIPT)
 
-figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.png: figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.mmd
+figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.png: \
+	figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.mmd
 	@echo "  [mmd-erd] $(notdir $<) -> $(notdir $@)"
-	@$(MMDC) -i $< -o $@ -w 2400 -s 1 -b transparent -t neutral
+	@$(MMDC) \
+		-i $< \
+		-o $@ \
+		-w 2400 \
+		-s 1 \
+		-b transparent \
+		-t neutral
 
 figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-%.png: figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-%.mmd
 	@echo "  [mmd-erd-schema] $(notdir $<) -> $(notdir $@)"
