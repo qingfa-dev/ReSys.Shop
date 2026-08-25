@@ -132,6 +132,12 @@
       it
     )
   }
-  
+
+  // Inline code (Courier New, slightly smaller to sit in Times New Roman body)
+  show raw.where(block: false): it => {
+    set text(font: "Courier New", size: 0.9em)
+    it
+  }
+
   doc
 }
