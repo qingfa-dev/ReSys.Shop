@@ -153,30 +153,6 @@ The API uses the standard .NET configuration pipeline (`appsettings.json` + envi
 | **Orchestration** | .NET Aspire 13.4 |
 | **Testing** | xUnit v3, Testcontainers, Respawn, Vitest, pytest |
 
-## Documentation
-
-In-depth documentation lives in [`docs/codebase/`](docs/codebase/):
-
-| Document | Covers |
-|----------|--------|
-| [STACK.md](docs/codebase/STACK.md) | Framework versions, all dependencies, dev toolchain, commands |
-| [ARCHITECTURE.md](docs/codebase/ARCHITECTURE.md) | Layers, CQRS pipeline, design patterns, architectural risks |
-| [STRUCTURE.md](docs/codebase/STRUCTURE.md) | Directory layout, entry points, module boundaries |
-| [CONVENTIONS.md](docs/codebase/CONVENTIONS.md) | Naming, formatting, error handling, import rules |
-| [INTEGRATIONS.md](docs/codebase/INTEGRATIONS.md) | External services, data stores, secrets, reliability |
-| [TESTING.md](docs/codebase/TESTING.md) | Test frameworks, layout, mocking strategy, coverage |
-| [CONCERNS.md](docs/codebase/CONCERNS.md) | Known issues, tech debt, security risks, WIP items |
-
-## Work in Progress
-
-> [!NOTE]
-> The following components are under active development and not yet feature-complete:
-
-- **Admin SPA** — Layout infrastructure (topbar, sidebar, breadcrumb) and auth routes are in place; feature views are being implemented
-- **Embedding service** — Module structure is defined; runtime imports are resolved; end-to-end verification pending
-- **Dockerfiles** — No container images yet; deployment uses CLI commands
-- **CI/CD** — Partial pipeline (`.github/workflows/ci.yml`) runs build, unit tests, and lint on PR/push; integration tests and deployment are not yet automated
-
 ---
 
 <div align="center">
