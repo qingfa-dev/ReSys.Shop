@@ -71,7 +71,7 @@
       + E2. Payment gateway state mismatch → system prevents, advises verifying with gateway.
       + E3. Inventory decrement data conflict → system reports, suggests verifying stock levels.
     ],
-    [*Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-06, ORD-FR-07, ORD-FR-09, ORD-FR-13],
+    [*Requirements*], [ORD-GRP-02, ORD-GRP-03, ORD-GRP-04],
   ),
     kind: table,
   caption: [Manage Orders.],
@@ -107,7 +107,7 @@
     [*Exceptions*], [
       + E1. Order became immutable concurrently → system refreshes, notifies order is no longer editable.
     ],
-    [*Requirements*], [ORD-FR-13],
+    [*Requirements*], [ORD-GRP-04],
   ),
     kind: table,
   caption: [Manage Order Details.],

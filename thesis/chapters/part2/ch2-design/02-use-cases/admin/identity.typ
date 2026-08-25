@@ -39,7 +39,7 @@
     [*Exceptions*], [
       + E1. Persistence failure → system reports, retains form data for retry.
     ],
-    [*Requirements*], [IDN-FR-09, IDN-FR-13],
+    [*Requirements*], [IDN-GRP-04],
   ),
     kind: table,
   caption: [Manage Users.],
@@ -108,7 +108,7 @@
     [*Exceptions*], [
       + E1. Concurrent modification or role deleted → system refreshes, asks to retry.
     ],
-    [*Requirements*], [IDN-FR-11, IDN-FR-12],
+    [*Requirements*], [IDN-GRP-03],
   ),
     kind: table,
   caption: [Manage Roles and Permissions.],

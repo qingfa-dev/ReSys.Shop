@@ -38,7 +38,7 @@
     [*Exceptions*], [
       + E1. Concurrent modification → system refreshes, asks to retry.
     ],
-    [*Requirements*], [INV-FR-01],
+    [*Requirements*], [INV-GRP-01],
   ),
     kind: table,
   caption: [Manage Stock Locations.],
@@ -113,7 +113,7 @@
       + E2. Concurrent modification → system refreshes, asks to re-enter.
       + E3. Retrieval failure → system displays error, offers retry.
     ],
-    [*Requirements*], [INV-FR-02, INV-FR-05, INV-FR-06, INV-FR-08, INV-FR-09, INV-FR-10, INV-FR-12],
+    [*Requirements*], [INV-GRP-01, INV-GRP-03, INV-GRP-04],
   ),
     kind: table,
   caption: [Manage Stock.],
