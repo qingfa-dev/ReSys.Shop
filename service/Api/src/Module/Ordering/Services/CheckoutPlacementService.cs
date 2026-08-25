@@ -54,7 +54,7 @@ public sealed class CheckoutPlacementService(
             try
             {
                 // TODO(audit 2026-08-16): cross-module ISender — CreateShipmentCommand creates a foreign
-                // aggregate; replace with a direct Shipping service call. See AGENTS.md rule #2 candidates.
+                // aggregate; replace with a direct Shipping service call.
                 var shipmentResult = await sender.Send(new CreateShipmentCommand
                 {
                     OrderId = cart.Id,

@@ -41,7 +41,7 @@
   <!-- 4. VERTICAL SLICE ISOLATION: Guard against future module-split ProjectReference cycles.
        All 9 modules share one Module.csproj assembly, so this target only applies if modules are
        ever split into separate projects. Cross-module `using` statements and EF Core FK
-       relationships are permitted (see AGENTS.md rule #2); no namespace drift check exists. -->
+       relationships are permitted; no namespace drift check exists. -->
   <Target Name="ValidateVerticalSliceIsolation"
           BeforeTargets="BeforeBuild;ResolveProjectReferences"
           Condition="true">
