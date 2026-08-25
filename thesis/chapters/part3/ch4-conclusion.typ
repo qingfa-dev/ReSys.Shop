@@ -36,11 +36,29 @@ As referenced by the title's *Recommendation*, product recommendation in this wo
 
 == Limitations
 
-Several limitations affect how well these findings apply more broadly. The benchmark uses 5,000 product images from a single dataset; results may not generalise to other markets. All figures were measured on a single laptop with CPU-only inference. The binary category-label ground truth is an imperfect stand-in for visual similarity. No formal user study was conducted. All models were used as published without fine-tuning. CLIP-based models' text-to-image capability was not assessed. The enriched-label scheme reduces P\@20 substantially (from \~0.90 under category-only labels to \~0.30 under category+colour+pattern labels, see Appendix A.2 and A.3) due to the finer-grained relevance criterion. RAM figures are approximate, estimated from each model's parameter count plus PyTorch runtime overhead (ranging from ~100 MB for EfficientNet-B0 to ~600 MB for the CLIP-family models) because direct process-level measurement proved unreliable. The 5,000-image benchmark establishes retrieval quality and relative model ranking, but does not characterise behaviour at production catalogue scale (millions of items), where index build time, query throughput under concurrent load, and embedding-storage growth become the dominant operational concerns. Finally, Fashion-CLIP's retrieval advantage over general-purpose CLIP may partly reflect differences in its 700K-image fashion pre-training corpus rather than architecture or fine-tuning alone; isolating each factor's contribution is outside this thesis's scope.
+Several limitations affect how well these findings apply more broadly:
+
++ The benchmark uses 5,000 product images from a single dataset; results may not generalise to other markets.
++ All figures were measured on a single laptop with CPU-only inference.
++ The binary category-label ground truth is an imperfect stand-in for visual similarity.
++ No formal user study was conducted.
++ All models were used as published without fine-tuning.
++ CLIP-based models' text-to-image capability was not assessed.
++ The enriched-label scheme reduces P\@20 substantially (from \~0.90 under category-only labels to \~0.30 under category+colour+pattern labels, see Appendix A.2 and A.3) due to the finer-grained relevance criterion.
++ RAM figures are approximate, estimated from each model's parameter count plus PyTorch runtime overhead (ranging from ~100 MB for EfficientNet-B0 to ~600 MB for the CLIP-family models) because direct process-level measurement proved unreliable.
++ The 5,000-image benchmark establishes retrieval quality and relative model ranking, but does not characterise behaviour at production catalogue scale (millions of items), where index build time, query throughput under concurrent load, and embedding-storage growth become the dominant operational concerns.
++ Fashion-CLIP's retrieval advantage over general-purpose CLIP may partly reflect differences in its 700K-image fashion pre-training corpus rather than architecture or fine-tuning alone; isolating each factor's contribution is outside this thesis's scope.
 
 === Ethical Considerations
 
-Visual search also raises ethical considerations that this engineering thesis does not resolve. Image-based recommendation may reinforce homogeneity, repeatedly surfacing visually similar items and narrowing catalogue diversity rather than broadening discovery. Where a deployment learns from user behaviour, the underlying embeddings can inherit and amplify bias present in the training data (e.g., skewed representation across body types, skin tones, or styles). Uploading personal images for search raises privacy expectations around storage, retention, and deletion, which a production deployment must address through explicit consent and retention policies. Finally, transformer inference carries an energy cost that scales with catalogue and request volume. These concerns are relevant to any responsible deployment of the reference implementation and are acknowledged here as open issues rather than resolved claims.
+Visual search also raises ethical considerations that this engineering thesis does not resolve:
+
++ Image-based recommendation may reinforce homogeneity, repeatedly surfacing visually similar items and narrowing catalogue diversity rather than broadening discovery.
++ Where a deployment learns from user behaviour, the underlying embeddings can inherit and amplify bias present in the training data (e.g., skewed representation across body types, skin tones, or styles).
++ Uploading personal images for search raises privacy expectations around storage, retention, and deletion, which a production deployment must address through explicit consent and retention policies.
++ Transformer inference carries an energy cost that scales with catalogue and request volume.
+
+These concerns are relevant to any responsible deployment of the reference implementation and are acknowledged here as open issues rather than resolved claims.
 
 == Future Work
 
