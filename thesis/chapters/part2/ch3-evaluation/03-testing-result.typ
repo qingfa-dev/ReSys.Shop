@@ -90,4 +90,4 @@
 
 === Summary
 
-All 28 test cases passed across four functional areas: visual search (7), ML embedding pipeline (6), cart and checkout (8), and admin product management (7). Error states, edge cases (empty carts, duplicate slugs, stock exhaustion), and recovery scenarios (sidecar restart) were handled correctly.
+All 28 test cases passed across four functional areas: visual search (7), ML embedding pipeline (6), cart and checkout (8), and admin product management (7). Error states, edge cases (empty carts, duplicate slugs, stock exhaustion), and recovery scenarios (sidecar restart) were handled correctly. These test cases validate the implemented features against their expected behaviour; they do not constitute an adversarial or negative test suite. Development-phase defects (e.g., embedding dimension mismatches during model switching, CORS configuration errors for the ML sidecar, and cart-merge race conditions) were identified and resolved during iterative testing and are not formally tracked in this table.

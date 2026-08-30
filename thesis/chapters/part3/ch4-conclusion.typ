@@ -1,4 +1,4 @@
-This chapter closes the thesis: summary, research questions, contributions, limitations, future work, and requirements traceability.
+This chapter summarises the thesis, answers the research questions, states the contributions, discusses limitations and future work, and traces requirements to findings.
 
 == Summary of Work
 
@@ -6,28 +6,28 @@ This thesis built a fashion e-commerce platform integrating a Vue 3 storefront, 
 
 === Answering the Research Questions
 
-*RQ1: How do fashion-specific embedding models compare with general-purpose models spanning CNN and ViT architectures?*
+#figure(
+  caption: [Research Question Answers],
+  table(
+    columns: (auto, 3fr, 2fr),
+    align: (left, left, left),
+    stroke: 0.5pt,
+    table.header([*RQ*], [*Answer*], [*Evidence*]),
+    [*RQ1*], [Fashion-specific vs general-purpose models: Fashion-CLIP achieved highest mAP (0.9336); advantage over DINOv2 ViT-S/14 (0.40\%) within measurement uncertainty at 3-fold CV; CLIP family more stable than DINOv2 under fine-grained ground truth], [@tbl-aggregate, @tbl-groundtruth, F3.6.1, F3.6.2],
+    [*RQ2*], [Accuracy-speed trade-off spans 2.86\% mAP across 2.7x latency range (42.6--113.6 ms); EfficientNet-B0 achieves 97.2\% of Fashion-CLIP's accuracy at 37.5\% of latency], [@tbl-efficiency, @tbl-comparison],
+    [*RQ3*], [Sidecar architecture separates ML inference from web logic; end-to-end search latency under one second on CPU; model switching via environment variable], [Section 2.3, @tbl-comparison],
+  ),
+  kind: table,
+) <tbl-rq-answers>
 
-Fashion-CLIP achieved the highest mean mAP among all six models: 0.9336 vs DINOv2 ViT-S/14 0.9299 (+0.40%), CLIP ViT-B/16 0.9202 (+1.46%), CLIP ViT-B/32 0.9184 (+1.66%), ResNet-50 0.9132 (+2.23%), and EfficientNet-B0 0.9077 (+2.86%). The advantage holds at shallow (P\@5: 0.9607 vs 0.9515) and deep (P\@20: 0.9383 vs 0.9297) retrieval depths with lowest cross-fold variability (±0.0060); however, with only three folds the 0.40% gap to DINOv2 ViT-S/14 is within measurement uncertainty. The six-model comparison reveals a tightly packed transformer top tier, with the self-supervised DINOv2 ViT-S/14 closing to within 0.40% of Fashion-CLIP on category-only retrieval.
-
-*RQ2: What trade-offs exist between search accuracy and processing speed?*
-
-The trade-off is large. Fashion-CLIP (mAP 0.9336, 113.6 ms) is the most accurate; EfficientNet-B0 (42.6 ms) achieves 97.2% of that accuracy at 37.5% of the latency. Domain fine-tuning provides accuracy without speed penalty (Fashion-CLIP vs CLIP ViT-B/16: +1.46% mAP at higher latency). For latency-sensitive deployments, EfficientNet-B0 is recommended; for quality-critical, Fashion-CLIP; DINOv2 ViT-S/14 is a lighter-weight alternative for coarse category retrieval.
-
-*RQ3: Can a service-oriented architecture with a dedicated AI sidecar effectively separate image inference from the main web application while maintaining acceptable response times?*
-
-The sidecar architecture successfully separated ML inference from web application logic. End-to-end search latency remained under one second on CPU. Independent scaling and fault isolation are enabled by the sidecar boundary without distributed infrastructure overhead; this study validates the latency and model-separation behaviour, treating the scaling and isolation guarantees as architectural design properties rather than experimentally stress-tested results, and demonstrates viability for real-time interactive search on consumer-grade hardware.
-
-=== Achievement of Technical Objectives
-
-All four technical objectives were met. Model integration was demonstrated through the operational search pipeline. Polyglot architecture achieved clean separation using the sidecar pattern. pgvector proved feasible: IVFFlat queries execute under 10 ms (2.7-6.5 ms). Benchmark analysis yielded accuracy and efficiency metrics across six benchmarked models spanning four architectural families.
+*Achievement of Technical Objectives.* All four technical objectives were addressed within the scope of the 5,000-image benchmark and commodity hardware. Model integration was demonstrated through the operational search pipeline. Polyglot architecture achieved clean separation using the sidecar pattern. pgvector proved feasible: IVFFlat queries execute under 10 ms (2.7-6.5 ms). Benchmark analysis yielded accuracy and efficiency metrics across six benchmarked models spanning four architectural families.
 
 == Contributions
 
 This thesis makes five concrete contributions:
 
 - *A six-model benchmark for fashion image retrieval.* Systematic benchmarking with seven reported accuracy columns (three metric families at three depths) and five efficiency metrics across four architecture families, six models supported, 3-fold cross-validation protocol, plus a three-way ground-truth sensitivity analysis.
-- *A reference CBIR implementation integrated into a production-style e-commerce platform.* This shows that open-source tools (PyTorch, FastAPI, pgvector, .NET 10) can support competitive visual search.
+- *A reference CBIR implementation integrated into a production-style e-commerce platform.* The pipeline shows that open-source tools (PyTorch, FastAPI, pgvector, .NET 10) can support competitive visual search.
 - *A pluggable model architecture enabling runtime model switching.* Strategy-pattern Model Manager controlled via environment variable decouples model selection from application code.
 - *Demonstration of pgvector's ACID-compliant vector storage.* Embeddings in the same PostgreSQL database as product data eliminate stale-index bugs.
 - *A validated polyglot architecture pattern for .NET and Python AI.* The sidecar integration gives other teams a working example for incorporating Python ML into .NET applications.
@@ -62,7 +62,7 @@ These concerns are relevant to any responsible deployment of the reference imple
 
 == Future Work
 
-Seven directions for future work are motivated by the limitations above and by insights from design and implementation. They are grouped roughly by expected effort: near-term, low-risk extensions (1-3) build directly on the existing pipeline; medium-term enhancements (4-6) require additional data or components; and the longest-lead item (7) targets a separate deployment target.
+These directions address the limitations identified above. They are grouped roughly by expected effort: near-term, low-risk extensions (1-3) build directly on the existing pipeline; medium-term enhancements (4-6) require additional data or components; and the longest-lead item (7) targets a separate deployment target.
 
 1. Fine-tune Fashion-CLIP on the target catalogue, the most direct path to improving retrieval accuracy.
 2. Conduct a user experience study with A/B testing to measure the actual engagement lift provided by CBIR (click-through rate, conversion rate).
@@ -95,16 +95,16 @@ These directions outline next steps from research demonstration toward a product
     [IVFFlat cosine similarity queries under 10 ms (2.7--6.5 ms); vectors share PostgreSQL database with relational data.],
     [Benchmark embedding model performance on constrained hardware],
     [Chapter 3, Sections 3.3--3.8],
-    [Six models benchmarked on 5,000 images. Fashion-CLIP: mAP 0.9336; EfficientNet-B0: 42.6 ms.],
+    [Six models benchmarked on 5,000 images. Fashion-CLIP: mAP 0.9336; EfficientNet-B0: 42.6 ms. F3.6.1, F3.6.2],
     [RQ1: Fashion-specific vs general-purpose model comparison],
     [Chapter 3, Section 3.4; Chapter 3, Section 3.6],
-    [Fashion-CLIP outperforms all other models: mAP 0.9336 vs 0.9077--0.9299 (+0.40--2.86%); DINOv2 ViT-S/14 closes to within 0.40% on category-only retrieval.],
+    [Fashion-CLIP highest mAP (0.9336); DINOv2 ViT-S/14 within 0.40\% on category-only retrieval. F3.6.1, F3.6.2, C1],
     [RQ2: Accuracy vs speed trade-offs],
     [Chapter 3, Sections 3.4--3.7],
-    [Fashion-CLIP: mAP 0.9336 at 113.6 ms; EfficientNet-B0: 97.2% of accuracy at 37.5% of latency (42.6 ms).],
+    [Fashion-CLIP: mAP 0.9336 at 113.6 ms; EfficientNet-B0: 97.2\% of accuracy at 37.5\% of latency (42.6 ms). @tbl-efficiency],
     [RQ3: Sidecar architecture viability for real-time search],
     [Chapter 2, Sections 2.3.2--2.3.3; Chapter 3, Section 3.8.4],
-    [End-to-end latency under one second; independent scaling and fault isolation as architectural design properties of the sidecar boundary without distributed overhead.],
+    [End-to-end latency under one second; model switching via environment variable. @tbl-comparison],
     [Build AI service],
     [Chapter 2, Section 2.3.2],
     [Python FastAPI service with three-layer architecture, lazy-loading, containerised via Docker.],
@@ -125,6 +125,6 @@ These directions outline next steps from research demonstration toward a product
   kind: table,
 ) <tbl-traceability>
 
-The traceability table shows thesis completeness: every objective finds resolution in the architecture, implementation, and analysis chapters.
+All objectives and research questions are addressed; no gaps remain.
 
-This thesis demonstrated that integrating deep learning-based visual search into a conventional e-commerce platform is technically feasible with open-source tools on modest hardware. The contributions are offered as building blocks for practitioners enabling customers to search by showing, not describing.
+This thesis demonstrated that integrating deep learning-based visual search into a conventional e-commerce platform is technically feasible with open-source tools on modest hardware. The contributions offer reference patterns for practitioners pursuing visual search in e-commerce.

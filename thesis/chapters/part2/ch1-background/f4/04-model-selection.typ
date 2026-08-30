@@ -4,7 +4,7 @@ The rationale for selecting Fashion-CLIP as the primary model for visual search 
 
 ==== Candidate Models
 
-Eleven candidate pre-trained models spanning three architectural families were considered; six representative models were benchmarked:
+Eleven candidate pre-trained models spanning three architectural families were considered; six representative models were benchmarked. The subset was chosen to cover every architectural family (CNN, ViT, CLIP, fashion-specific) with at least one representative per family, while keeping the total number of benchmarks manageable on consumer-grade hardware. Within each family, the model with the best published accuracy-to-compute ratio was preferred: ResNet-50 and EfficientNet-B0 for CNNs, DINOv2 ViT-S/14 for ViT, CLIP ViT-B/16 and CLIP ViT-B/32 for generic CLIP, and Fashion-CLIP for the fashion-specific category.
 #figure(
   table(
     columns: (auto, auto, auto, auto, auto),
@@ -40,7 +40,7 @@ Model selection was based on four criteria: retrieval quality (mAP\@10 and P\@K 
 
 *Fashion-CLIP* was selected as the primary embedding model for the visual search feature. Three factors drove this decision.
 
-First, retrieval quality: Fashion-CLIP achieved the highest mAP among the assessed models, outperforming generic CLIP ViT-B/16 by 1.46% under category-only relevance @chia2022fashionclip.
+First, retrieval quality: Fashion-CLIP achieved the highest mAP among the assessed models, outperforming generic CLIP ViT-B/16 on category-only relevance @chia2022fashionclip (see Chapter 3 for the quantitative comparison).
 
 Second, multimodal capability: Fashion-CLIP's dual-tower architecture enables search by image, by text description, and by hybrid image-plus-text queries, unavailable in vision-only models such as DINOv2 and EfficientNet.
 

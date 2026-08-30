@@ -46,7 +46,11 @@ Three accuracy metric families (mAP, P\@K, R\@K), measured at three depths (K\=5
 
 === Methodology
 
-The protocol used 3-fold stratified cross-validation preserving category distribution. Accuracy metrics (mAP, P\@K, R\@K) used exact cosine search over all gallery embeddings to isolate model quality from index effects. The pgvector production benchmark used IVFFlat with 100 lists (sub-10 ms query latency at 65--72% recall\@10, near-instant build). HNSW is designated for larger catalogue scales.
+The protocol used 3-fold stratified cross-validation preserving category distribution. Accuracy metrics (mAP, P\@K, R\@K) used exact cosine search over all gallery embeddings to isolate model quality from index effects. The pgvector production benchmark used IVFFlat with 100 lists (sub-10 ms query latency at 65--72% recall\@10, near-instant build) for the 512-dim and 1,280-dim models; ResNet-50's 2,048-dim embeddings were not indexed with IVFFlat in this benchmark. HNSW is designated for larger catalogue scales.
+
+=== Statistical Analysis
+
+This benchmark reports descriptive statistics: mean and standard deviation of mAP, P\@K, and R\@K across three stratified folds. With only three independent mAP values per model, formal significance testing has limited power. The non-overlapping-bounds heuristic (mean plus or minus two standard deviations) is used as a descriptive visual aid throughout Chapter 3, not as a significance test: non-overlapping bounds suggest the models may be visually separable, but do not imply a p-value or confidence interval. A paired test across queries (e.g., Wilcoxon signed-rank test on per-query Average Precision values) would provide substantially more statistical power by exploiting within-fold query-level variance, and is recommended for future work using the raw per-query AP values recorded during benchmarking.
 
 === Hardware Environment
 

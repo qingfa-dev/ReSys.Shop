@@ -33,7 +33,7 @@ This project builds a working fashion e-commerce platform with image-based searc
 
 === Research Questions
 
-Three questions guide the investigation and are answered empirically in Chapter 3.
+Three questions guide the investigation; Chapter 3 answers each experimentally.
 
 *RQ1: Model comparison.* How do fashion-specific embedding models compare with general-purpose CNN and ViT architectures on fashion product retrieval?
 

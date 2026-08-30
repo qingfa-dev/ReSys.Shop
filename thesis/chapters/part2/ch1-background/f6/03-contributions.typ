@@ -1,6 +1,6 @@
 === Contribution Differentiators
 
-This project differs from prior work by addressing the *engineering gap* between model research and production systems. Four contributions define this gap:
+This project differs from prior work by addressing the *engineering gap* between model research and production systems. Five contributions define this gap:
 
 *1. Polyglot architecture.* Python's machine learning ecosystem (PyTorch, HuggingFace) does not natively interoperate with the .NET stack common in enterprise e-commerce. This thesis presents a modular monolith with a dedicated AI sidecar. It combines .NET's type safety and transactional integrity with Python's access to state-of-the-art vision models, without the operational overhead of a full microservices deployment.
 
@@ -9,3 +9,5 @@ This project differs from prior work by addressing the *engineering gap* between
 *3. Commodity hardware benchmarking.* Commercial visual search runs on cloud TPU clusters. This thesis benchmarks six models on consumer-grade hardware, establishing that production-quality visual search is achievable without specialised infrastructure, lowering the barrier for small to medium e-commerce platforms.
 
 *4. Applied model comparison.* Instead of chasing the highest possible benchmark scores, this thesis compares models under realistic deployment constraints (inference latency budget, memory limits, storage cost). The resulting accuracy-efficiency trade-off data, presented in Chapter 3, provides a pragmatic guide for practitioners selecting embedding models.
+
+*5. Reference CBIR implementation.* The pipeline integrates pre-trained embedding models (PyTorch, FastAPI) into a production-style e-commerce platform (.NET 10, Vue 3, PostgreSQL pgvector), demonstrating that open-source tools can support competitive visual search without proprietary APIs or specialised hardware.
