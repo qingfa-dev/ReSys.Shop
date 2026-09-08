@@ -13,7 +13,7 @@
       align: (center, center),
       gutter: 1em,
       [
-        #text(size: 11pt)[TRƯỜNG ĐẠI HỌC CẦN THƠ] \
+        #text(size: 11pt)[ĐẠI HỌC CẦN THƠ] \
         #text(size: 11pt, weight: "bold")[TRƯỜNG CÔNG NGHỆ THÔNG TIN \ VÀ TRUYỀN THÔNG] \
         #text(size: 11pt, weight: "bold")[KHOA CÔNG NGHỆ THÔNG TIN]
         #v(-0.8em)
