@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Shared/Shared.csproj" />
+    <ProjectReference Include="../Shared/Shared.Foundations/Shared.Foundations.csproj" />
+    <ProjectReference Include="../Shared/Shared.Persistence/Shared.Persistence.csproj" />
     <ProjectReference Include="../Module/Module.csproj" />
   </ItemGroup>
 

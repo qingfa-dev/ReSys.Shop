@@ -8,7 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Shared/Shared.csproj" />
+    <ProjectReference Include="../Shared/Shared.Foundations/Shared.Foundations.csproj" />
+    <ProjectReference Include="../Shared/Shared.Governance/Shared.Governance.csproj" />
+    <ProjectReference Include="../Shared/Shared.Platform/Shared.Platform.csproj" />
+    <ProjectReference Include="../Shared/Shared.Security/Shared.Security.csproj" />
+    <ProjectReference Include="../Shared/Shared.Persistence/Shared.Persistence.csproj" />
+    <ProjectReference Include="../Shared/Shared.Integration/Shared.Integration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

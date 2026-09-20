@@ -16,7 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Shared/Shared.csproj" />
+    <ProjectReference Include="../../src/Shared/Shared.Foundations/Shared.Foundations.csproj" />
+    <ProjectReference Include="../../src/Shared/Shared.Governance/Shared.Governance.csproj" />
+    <ProjectReference Include="../../src/Shared/Shared.Platform/Shared.Platform.csproj" />
+    <ProjectReference Include="../../src/Shared/Shared.Security/Shared.Security.csproj" />
+    <ProjectReference Include="../../src/Shared/Shared.Persistence/Shared.Persistence.csproj" />
+    <ProjectReference Include="../../src/Shared/Shared.Integration/Shared.Integration.csproj" />
   </ItemGroup>
 
 </Project>
