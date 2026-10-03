@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Users.Permissions.Sync;
+using Module.Identity.Features.Shared.Admin.Users.Permissions.Sync;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authorization.Permissions.Services;

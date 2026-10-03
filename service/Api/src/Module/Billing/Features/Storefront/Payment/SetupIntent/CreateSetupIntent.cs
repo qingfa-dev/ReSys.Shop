@@ -1,0 +1,48 @@
+using IGatewayRegistry = Module.Billing.Services.Provider.IGatewayRegistry;
+
+using Module.Billing.Services.Provider;
+using Module.Billing.Domain.PaymentCaptures;
+using Module.Billing.Domain.PaymentMethods;
+using Module.Billing.Features.Storefront.Shared.Mappings;
+
+namespace Module.Billing.Features.Storefront.Payment.SetupIntent;
+
+/// <summary>Creates a Stripe SetupIntent for saved payment methods.</summary>
+public static partial class CreateSetupIntent
+{
+    public sealed record Command(Guid PaymentMethodId) : ICommand<Response>;
+
+    public sealed class CommandHandler(
+        IApplicationDbContext dbContext,
+        IGatewayRegistry gatewayRegistry)
+        : ICommandHandler<Command, Response>
+    {
+        /// <summary>Creates a Stripe SetupIntent for saved payment methods.</summary>
+        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        {
+            // Load: Payment method must be active and not deleted
+            var paymentMethod = await dbContext.Set<PaymentMethod>()
+                .FirstOrDefaultAsync(pm => pm.Id == command.PaymentMethodId && pm.Active && !pm.IsDeleted, cancellationToken);
+            if (paymentMethod is null)
+                return PaymentCaptureResult.Failure.NotFound;
+
+            // Check: Gateway must be registered
+            var gatewayResult = gatewayRegistry.GetGateway(paymentMethod.ProviderKey);
+            if (gatewayResult.IsFailure)
+                return PaymentCaptureResult.Failure.ProviderNotRegistered(paymentMethod.ProviderKey);
+            var gateway = gatewayResult.Value;
+
+            // Build: Metadata with payment method ID for gateway reference
+            var metadata = new Dictionary<string, string>
+            {
+                [GatewayConstants.Metadata.PaymentMethodIdKey] = paymentMethod.Id.ToString()
+            };
+
+            // Call: Gateway setup intent — Stripe SetupIntent.Create for saved payment methods
+            var setupResult = await gateway.CreateSetupIntentAsync(null, metadata, cancellationToken);
+            if (setupResult.IsFailure) return setupResult.Errors;
+
+            return setupResult.Value.MapToStoreDetail<Response>();
+        }
+    }
+}

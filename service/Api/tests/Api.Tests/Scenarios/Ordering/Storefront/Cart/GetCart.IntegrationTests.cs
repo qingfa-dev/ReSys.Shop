@@ -30,15 +30,22 @@ public sealed class GetCartIntegrationTests(ApiFixture fixture) : OrderingIntegr
         result.StatusCode.Should().Be(HttpStatusCode.OK);
         var value = result.DeserializeValue<CartGet.Response>();
         value.Should().NotBeNull();
-        value!.Id.Should().NotBeNull();
-        value.Items.Should().NotBeNull();
+        value!.Id.Should().NotBeEmpty();        value.Items.Should().NotBeNull();
         value.Currency.Should().Be("USD");
     }
 
     [Fact]
-    public async Task GetCart_WithoutAuth_Returns401()
+    public async Task GetCart_WithoutAuth_ReturnsOkAndSetsGuestCookie()
     {
         HttpResponseMessage response = await Client.GetAsync("/api/storefront/cart");
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        ApiResponse result = await response.ReadApiResponseAsync();
+
+        result.IsSuccess.Should().BeTrue();
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Verify: Guest session cookie is issued for anonymous requests
+        string? setCookie = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
+        setCookie.Should().NotBeNull();
+        setCookie.Should().Contain("Guest=");
     }
 }

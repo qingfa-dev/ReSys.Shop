@@ -1,9 +1,14 @@
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
+namespace Module.Catalog.Features.Admin.Taxons.Services.Hierarchy;
 
 public partial class TaxonHierarchyService
 {
+    /// <summary>Rebuilds nested set coordinates and regenerates permalinks for a taxonomy's taxon tree.</summary>
+    /// <param name="taxonomyId">The taxonomy identifier.</param>
+    /// <param name="taxonId">Optional anchor taxon to rebuild a subtree only.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A success result or an error if the taxonomy was not found.</returns>
     public async Task<Result> RebuildHierarchyAsync(
         Guid taxonomyId,
         Guid? taxonId = null,
@@ -38,6 +43,11 @@ public partial class TaxonHierarchyService
         return Result.Ok();
     }
 
+    /// <summary>Rebuilds nested set coordinates only (without permalink regeneration).</summary>
+    /// <param name="taxonomyId">The taxonomy identifier.</param>
+    /// <param name="taxonId">Optional anchor taxon to rebuild a subtree only.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A success result or an error if the taxonomy was not found.</returns>
     public async Task<Result> RebuildNestedSetsAsync(
         Guid taxonomyId,
         Guid? taxonId = null,

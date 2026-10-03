@@ -1,1 +1,0 @@
-"""Fashion-CLIP compatible preprocessing."""

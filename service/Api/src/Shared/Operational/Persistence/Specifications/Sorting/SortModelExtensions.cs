@@ -76,7 +76,7 @@ public static class SortModelExtensions
 
         try
         {
-            List<SortClause> clauses = new List<SortClause>();
+            List<SortClause> clauses = new();
 
             // Parse: Split on comma — each segment is one clause.
             foreach (string segment in sortString.Split(','))
@@ -154,7 +154,7 @@ public static class SortModelExtensions
             if (root.ValueKind != JsonValueKind.Array)
                 return SortModelResult.Failure.InvalidJson("Root element must be a JSON array.");
 
-            List<SortClause> clauses = new List<SortClause>();
+            List<SortClause> clauses = new();
 
             foreach (JsonElement element in root.EnumerateArray())
             {
@@ -227,7 +227,7 @@ public static class SortModelExtensions
         if (entries.Length == 0)
             return SortModel.Empty;
 
-        List<SortClause> clauses = new List<SortClause>(entries.Length);
+        List<SortClause> clauses = new(entries.Length);
 
         foreach (string entry in entries)
         {

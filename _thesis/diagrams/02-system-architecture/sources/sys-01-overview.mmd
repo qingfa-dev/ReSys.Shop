@@ -1,0 +1,31 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph TD
+    %% Clients
+    subgraph Clients [Frontend Ecosystem]
+        direction TB
+        Store["Storefront App<br/>(Vue 3 + PrimeVue)"]
+        Admin["Admin Panel<br/>(Vue 3 + Pinia)"]
+    end
+
+    %% Core System
+    subgraph Core [Backend Ecosystem]
+        direction TB
+        API["ReSys.Api<br/>(.NET 10 Minimal APIs)"]
+        ML["ReSys.ML<br/>(Python FastAPI)"]
+    end
+
+    %% Data
+    subgraph Data [Persistence Layer]
+        DB[("PostgreSQL 16<br/>(Relational + Vector)")]
+    end
+
+    %% Connections
+    Store <-->|HTTPS/JSON| API
+    Admin <-->|HTTPS/JSON| API
+    
+    API <-->|HTTP Internal| ML
+    API <-->|EF Core / SQL| DB
+    
+    %% Styling
+
+    %% Styles Removed for Academic Theme

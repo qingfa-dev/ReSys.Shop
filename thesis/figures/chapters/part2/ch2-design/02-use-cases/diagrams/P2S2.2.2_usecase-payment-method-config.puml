@@ -1,0 +1,88 @@
+@startuml usecase-payment-method-config
+
+left to right direction
+
+skinparam shadowing false
+skinparam dpi 180
+
+<style>
+
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
+}
+
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+
+actor "Administrator" as Admin
+
+rectangle {
+
+  ' UC-ADM-PAY-METHOD
+  usecase "Manage Payment Methods" as UC_MAIN
+
+  ' UC-ADM-PAY-METHOD-NEW
+  usecase "Create Payment Method" as UC_CREATE
+
+  ' UC-ADM-PAY-METHOD-CFG
+  usecase "Configure Method Settings" as UC_CONFIG
+
+  ' UC-ADM-PAY-METHOD-STS
+  usecase "Toggle Method Status" as UC_TOGGLE
+
+  ' UC-ADM-PAY-METHOD-API
+  usecase "Configure Gateway Credentials" as UC_API
+
+}
+
+Admin --> UC_MAIN
+Admin --> UC_CREATE
+Admin --> UC_CONFIG
+Admin --> UC_TOGGLE
+
+UC_CONFIG ..> UC_API : <<include>>
+
+@enduml

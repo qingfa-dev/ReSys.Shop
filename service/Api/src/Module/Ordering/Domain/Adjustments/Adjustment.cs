@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
@@ -6,7 +8,8 @@ namespace Module.Ordering.Domain.Adjustments;
 /// <summary>
 /// Represents an adjustment applied to an order or line item (e.g., discount, tax, shipping).
 /// </summary>
-    // @CAT-10 Invariant: Open adjustments auto-recalculate; Closed adjustments are locked; Amount can be positive (charge) or negative (credit)
+// @CAT-10 Invariant: Open adjustments auto-recalculate; Closed adjustments are locked; Amount can be positive (charge) or negative (credit)
+// @CAT-10 Boundary: Domain → Persistence — EF Core entity; do not add persistence concerns to domain logic
 public sealed partial class Adjustment : Entity, IAuditable
 {
     #region Properties
@@ -46,6 +49,10 @@ public sealed partial class Adjustment : Entity, IAuditable
     // Assign: Identity of the principal that last mutated this adjustment — null when not yet modified
     public string? ModifiedBy { get; set; }
     #endregion Auditing
+
+    #region Relationship
+    public Order Order { get; set; } = null!;
+    #endregion
 
     #region Constructor
     // Boundary: Persistence → Domain — reserved for EF Core materialization; do not invoke from application code

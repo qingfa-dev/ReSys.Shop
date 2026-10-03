@@ -4,10 +4,12 @@ namespace Module.Location.Features.Admin.States.Create;
 
 public static partial class CreateState
 {
+    /// <summary>Admin: create a state.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST {route} → create state
             app.MapPost(pattern: LocationFeature.Admin.States.Create.Route, handler: async (
                 [FromBody] Request request,
                 ISender sender,

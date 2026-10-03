@@ -1,5 +1,6 @@
-using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.Get;
 
@@ -27,56 +28,25 @@ public static partial class GetCart
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Check: Find the current user's active cart (Draft order).
+            // Load: Find the current user's active draft cart with line items
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .AsNoTracking()
                 .FirstOrDefaultAsync(cancellationToken);
 
+            // Check: Return empty cart if none exists
             if (cart is null)
-            {
-                return new Response
-                {
-                    Items = [],
-                    ItemTotal = 0,
-                    Total = 0,
-                    Currency = "USD",
-                    ItemCount = 0,
-                    CheckoutState = string.Empty
-                };
-            }
+                return CartMapping.EmptyCart<Response>();
 
+            // Enrich: Look up variant skus, product names, and primary images for line items
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
-            var variants = await dbContext.Set<Variant>()
-                .Where(v => variantIds.Contains(v.Id))
-                .AsNoTracking()
-                .ToDictionaryAsync(v => v.Id, v => v, cancellationToken);
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, variantIds, cancellationToken);
 
-            return new Response
-            {
-                Id = cart.Id,
-                Items = cart.LineItems.Select(li =>
-                {
-                    variants.TryGetValue(li.VariantId, out var v);
-                    return new CartItem
-                    {
-                        Id = li.Id,
-                        VariantId = li.VariantId,
-                        VariantName = v?.Sku ?? "",
-                        Sku = v?.Sku ?? "",
-                        Quantity = li.Quantity,
-                        Price = li.Price,
-                        Total = li.Total
-                    };
-                }).ToList(),
-                ItemTotal = cart.ItemTotal,
-                Total = cart.Total,
-                Currency = cart.Currency,
-                ItemCount = cart.ItemCount,
-                CheckoutState = cart.CheckoutState.ToString()
-            };
+            // Map: Return cart with enriched line items
+            return cart.MapToDetailWithItems<Response>(itemLookup);
         }
     }
 }

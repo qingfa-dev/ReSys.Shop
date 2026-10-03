@@ -1,5 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Mappings;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Update;
 
@@ -27,7 +27,7 @@ public static partial class UpdateShippingMethod
                 return ShippingMethodResult.Errors.NotFound;
 
             // Update: Apply partial update mapping
-            var result = command.Request.MapUpdateToDomain(method);
+            var result = command.Request.MapToDomain(method);
             if (result.IsFailure)
                 return result.Errors;
 

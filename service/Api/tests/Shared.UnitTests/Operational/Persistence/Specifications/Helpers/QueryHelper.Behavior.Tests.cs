@@ -156,8 +156,8 @@ public sealed class QueryHelperBehaviorTests
         Expression<Func<BehaviorTestModel, bool>> typed =
             (Expression<Func<BehaviorTestModel, bool>>)expr!;
         Func<BehaviorTestModel, bool> compiled = typed.Compile();
-        BehaviorTestModel matching = new BehaviorTestModel { Name = "test" };
-        BehaviorTestModel nonMatching = new BehaviorTestModel { Name = "other" };
+        BehaviorTestModel matching = new() { Name = "test" };
+        BehaviorTestModel nonMatching = new() { Name = "other" };
 
         // Assert
         compiled(matching).Should().BeTrue();
@@ -226,7 +226,7 @@ public sealed class QueryHelperBehaviorTests
         string[] cacheKeys = { "a", "b", "c", "d", "e" };
         string[] opTypes = { "Filter", "Search", "Sort" };
         int iterations = 100;
-        ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+        ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = 4 };
 
         // Act
         Action act = () =>

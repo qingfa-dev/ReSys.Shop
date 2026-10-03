@@ -1,0 +1,10 @@
+id: dinov2_vits14
+name: "DINOv2 ViT-S/14"
+class: "DinoV2ViTS14Model"
+module: "benchmark.models.dinov2_vits14"
+backbone: "ViT-S/14"
+embedding_dim: 384
+pretrained: "facebookresearch/dinov2"
+batch_size: 64
+image_size: 224
+normalize_embeddings: true

@@ -1,0 +1,56 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0017: Stock Allocation (InventoryUnit)
+autonumber
+
+actor "Checkout\nService" as Service <<Consumer>>
+participant "Inventory\nDomain" as Inv <<Domain Logic>>
+database "PostgreSQL" as DB <<Persistence>>
+
+' ─── Allocate Stock ──────────────────────────────────────────
+Service -> Inv: Allocate(OrderId, Lines)
+activate Inv
+    
+    ' ─── ACID Transaction ────────────────────────────────────
+    Inv -> DB: BEGIN TRANSACTION
+    activate DB
+    
+    loop For Each Line Item
+        ' 1. Find Physical Stock
+        Inv -> DB: Find Available StockItem\n(Where Qty > 0)
+        DB --> Inv: StockItem (Shelf A1)
+        
+        alt Stock Found
+            ' 2. Link Unit to Stock
+            Inv -> DB: Load InventoryUnit(LineItemId)
+            DB --> Inv: Unit (State: Pending)
+            
+            Inv -> Inv: Unit.SetStockItem(StockItem.Id)
+            Inv -> Inv: Unit.Reserve(OrderId)
+            note right of Inv
+                State Change:
+                Pending -> OnHand
+            end note
+            
+            ' 3. Decrement Physical Stock
+            Inv -> Inv: StockItem.Decrement(1)
+            
+            Inv -> DB: SaveChanges(Unit, StockItem)
+        else No Stock
+            Inv -> Inv: Unit.Backorder(OrderId)
+            note right of Inv
+                State: Backordered
+            end note
+             Inv -> DB: SaveChanges(Unit)
+        end
+    end
+    
+    Inv -> DB: COMMIT
+    DB --> Inv: Success
+    deactivate DB
+    
+    Inv --> Service: AllocationResult
+deactivate Inv
+
+@enduml

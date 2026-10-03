@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Users.Create;
+namespace Module.Identity.Features.Shared.Admin.Users.Create;
 
 public static partial class CreateUser
 {
@@ -8,5 +8,5 @@ public static partial class CreateUser
     /// Represents the request contract for creating a new user.
     /// Inherits properties from <see cref="UserRequest"/>.
     /// </summary>
-    public class Request : UserRequest { }
+    public record Request : UserRequest;
 }

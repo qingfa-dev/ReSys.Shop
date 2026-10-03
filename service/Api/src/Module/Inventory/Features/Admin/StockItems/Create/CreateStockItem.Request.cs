@@ -1,4 +1,4 @@
-using Module.Inventory.Features.Admin.StockItems.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.StockItems.Create;
 

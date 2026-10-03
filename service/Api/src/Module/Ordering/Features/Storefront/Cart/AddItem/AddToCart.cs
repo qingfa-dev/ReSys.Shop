@@ -1,10 +1,14 @@
-using Microsoft.Extensions.Configuration;
+using Module.Catalog.Domain.Products;
+using Module.Catalog.Domain.Variants;
 
-using Module.Catalog.Domain.Products.Variants;
-using Module.Inventory.Domain.Stock;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Features.Shared;
+using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
+using Shared.Application.Systems.SystemInfos;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.AddItem;
 
@@ -17,10 +21,12 @@ public static partial class AddToCart
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        IConfiguration configuration)
+        ISystemInfo systemInfo,
+        IStockItemService stockItem,
+        IStockReservationService stockReservationService)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock validation.</summary>
+        /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock reservation.</summary>
         /// <param name="command">The command containing the variant ID and quantity.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The response with the new or updated line item ID.</returns>
@@ -37,24 +43,47 @@ public static partial class AddToCart
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Check: Variant exists in catalog.
+            // Check: Variant exists in catalog — reject unknown products.
             var variant = await dbContext.Set<Variant>()
+                .Include(x => x.Product)
                 .FirstOrDefaultAsync(x => x.Id == request.VariantId, cancellationToken);
 
             if (variant is null)
                 return LineItemResult.Errors.VariantNotFound(request.VariantId);
 
+            // Check: Variant must be published — reject deleted or discontinued variants.
+            if (!variant.IsPublished())
+                return VariantResult.Errors.NotPurchasable;
+
+            // Check: Product must be active — reject draft, archived, or deleted products.
+            if (!variant.Product.IsAvailable())
+                return VariantResult.Errors.NotPurchasable;
+
+            // Check: Variant must have a price — reject unpriced variants instead of adding a free item.
+            if (variant.Price is null)
+                return VariantResult.Errors.NoDefaultPrice;
+
+            if (variant.Price < 0)
+                return LineItemResult.Errors.InvalidPrice;
+
+            // Check: Stock must be available for the requested quantity before touching the cart.
+            var availableResult = await stockItem.IsAvailableAsync(request.VariantId, request.Quantity, ct: cancellationToken);
+            if (!availableResult.IsSuccess || !availableResult.Value)
+                return OrderResult.Errors.CartQuantityInvalid;
+
             // Check: Find or create draft order for current user or guest session.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
             {
-                var currency = configuration["Ordering:DefaultCurrency"] ?? "USD";
-                var createResult = OrderExtensions.Create(currency, userId, Guid.Empty, sessionId: sessionId, shipAddressId: null);
+                // Create: New draft cart with default currency from system info.
+                var currency = systemInfo.DefaultCurrency;
+                var createResult = OrderMethod.Create(currency, userId, sessionId: sessionId, shipAddressId: null);
                 if (createResult.IsFailure)
                     return createResult.Errors;
 
@@ -62,46 +91,68 @@ public static partial class AddToCart
                 dbContext.Set<Order>().Add(cart);
             }
 
-            // Validate: Stock availability for requested quantity.
-            var stockItems = await dbContext.Set<StockItem>()
-                .Include(x => x.StockLocation)
-                .Where(x => x.VariantId == request.VariantId)
-                .ToListAsync(cancellationToken);
+            // Reserve: Delegate stock reservation to Inventory service.
+            // The service picks the best location(s) with available stock internally
+            // and splits the quantity across them when needed.
+            var reserveResult = await stockReservationService.ReserveForVariantAsync(
+                variantId: request.VariantId,
+                quantity: request.Quantity,
+                cartToken: cart.Id.ToString(),
+                ttlMinutes: InventoryFeature.Storefront.StockReservations.TtlMinutesDefault,
+                ct: cancellationToken);
 
-            if (!AvailabilityValidator.IsAvailable(stockItems, request.Quantity))
-                return StockItemResult.Errors.InsufficientStock;
+            if (reserveResult.IsFailure)
+                return reserveResult.Errors;
 
-            // Check: Variant already in cart — merge quantities.
+            // Snapshot: Total before any mutation — any total change regresses checkout state.
+            var previousTotal = cart.Total;
+
+            // Merge: Variant already in cart — add to existing line item quantity.
             var existingLine = cart.LineItems.FirstOrDefault(li => li.VariantId == request.VariantId);
             if (existingLine is not null)
             {
+                // Validate: Combined quantity must not exceed per-line maximum.
                 if (existingLine.Quantity + request.Quantity > LineItemConstant.MaxQuantity)
                     return LineItemResult.Errors.QuantityExceedsMax;
-                existingLine.Quantity += request.Quantity;
-                existingLine.Total = existingLine.Price * existingLine.Quantity;
-                cart.RecalculateTotals();
+                // Update: Increment existing line item quantity and recalculate.
+                var updateResult = existingLine.UpdateQuantity(existingLine.Quantity + request.Quantity);
+                if (updateResult.IsFailure)
+                    return updateResult.Errors;
+                var recalcResult = cart.RecalculateTotals();
+                if (recalcResult.IsFailure)
+                    return recalcResult.Errors;
+                cart.RegressCheckoutIfAmountChanged(previousTotal);
                 await dbContext.SaveChangesAsync(cancellationToken);
-                return Result<Response>.Ok(new Response { LineItemId = existingLine.Id });
+                var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
+                var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, variantIds, cancellationToken);
+                return Result<Response>.Ok(cart.MapToDetailWithItems<Response>(itemLookup));
             }
 
-            // Create: Add new line item to cart.
-            var lineItem = LineItemMethod.Create(cart.Id, request.VariantId, request.Quantity, variant.Price ?? 0);
+            // Create: Add new line item to cart with variant price snapshot.
+            var lineItem = LineItemMethod.Create(cart.Id, request.VariantId, request.Quantity, variant.Price.Value);
             if (lineItem.IsFailure)
                 return lineItem.Errors;
 
             var newItem = lineItem.Value;
 
             dbContext.Set<LineItem>().Add(newItem);
-            cart.RecalculateTotals();
+            var addRecalcResult = cart.RecalculateTotals();
+            if (addRecalcResult.IsFailure)
+                return addRecalcResult.Errors;
 
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record the new line item in audit log.
             LineItemLoggers.Created(logger, Id: newItem.Id, OrderId: cart.Id, VariantId: request.VariantId, ActionBy: currentUser.UserName);
 
+            var allVariantIds = cart.LineItems.Select(li => li.VariantId).ToList();
+            var allItemLookup = await ProductLookupFactory.BuildAsync(dbContext, allVariantIds, cancellationToken);
+
             return Result<Response>.Created(
-                new Response { LineItemId = newItem.Id },
+                cart.MapToDetailWithItems<Response>(allItemLookup),
                 LineItemResult.Success.Created(newItem.Id));
         }
-    }
+
+}
 }

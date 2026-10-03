@@ -3,13 +3,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
+
 using Shared.Operational.Persistence.Specifications.Helpers;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
+namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
 
 /// <summary>
 /// Expression-tree based evaluation of a product against a taxon's rule set.
@@ -21,7 +22,10 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
     private static readonly ConcurrentDictionary<Guid, Func<Product, bool>> CompiledRulesCache = new();
     private static readonly ConcurrentDictionary<Guid, DateTimeOffset?> TaxonModifiedCache = new();
 
-    /// <inheritdoc />
+    /// <summary>Evaluates a product against a taxon's rule set using cached expression trees for high throughput.</summary>
+    /// <param name="product">The product to evaluate.</param>
+    /// <param name="taxon">The taxon with automatic classification rules.</param>
+    /// <returns>True if the product matches the taxon's rule set; otherwise false.</returns>
     public bool Evaluate(Product product, Taxon taxon)
     {
         // Guard: Skip non-automatic taxons or those without rules
@@ -56,11 +60,11 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
         {
             // Compute: Compile the expression into a high-performance delegate
             var compiled = expr.Compile();
-            
+
             // Store: Update local caches
             CompiledRulesCache[taxon.Id] = compiled;
             TaxonModifiedCache[taxon.Id] = taxon.ModifiedAtUtc;
-            
+
             return compiled;
         }
 
@@ -116,7 +120,7 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
     private static Expression? BuildStringComparison(Expression left, TaxonRule rule)
     {
         ConstantExpression right = Expression.Constant(rule.Value, typeof(string));
-        
+
         MethodInfo equalsMethod = typeof(string).GetMethod("Equals", [typeof(string), typeof(StringComparison)])!;
         MethodInfo containsMethod = typeof(string).GetMethod("Contains", [typeof(string), typeof(StringComparison)])!;
         MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", [typeof(string), typeof(StringComparison)])!;
@@ -232,10 +236,10 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
     private static BinaryExpression? BuildMasterVariantStringComparison(ParameterExpression param, string propertyName, TaxonRule rule)
     {
         MemberExpression variantsProp = Expression.Property(param, "Variants");
-        
+
         // Use: Correct FirstOrDefault overload with predicate
         MethodInfo firstOrDefaultMethod = typeof(Enumerable).GetMethods()
-            .First(m => m.Name == "FirstOrDefault" && 
+            .First(m => m.Name == "FirstOrDefault" &&
                        m.IsGenericMethod &&
                        m.GetParameters().Length == 2 &&
                        m.GetParameters()[1].ParameterType.Name.StartsWith("Func", StringComparison.Ordinal))
@@ -246,10 +250,10 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
         LambdaExpression isMasterLambda = Expression.Lambda(isMasterExpr, vParam);
 
         MethodCallExpression masterVariant = Expression.Call(null, firstOrDefaultMethod, variantsProp, isMasterLambda);
-        
+
         Expression? comparison = BuildStringComparison(Expression.Property(masterVariant, propertyName), rule);
         if (comparison == null) return null;
-        
+
         // Guard: Check if master variant exists
         return Expression.AndAlso(Expression.NotEqual(masterVariant, Expression.Constant(null, typeof(Variant))), comparison);
     }
@@ -260,7 +264,7 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
 
         // Use: Correct FirstOrDefault overload with predicate
         MethodInfo firstOrDefaultMethod = typeof(Enumerable).GetMethods()
-            .First(m => m.Name == "FirstOrDefault" && 
+            .First(m => m.Name == "FirstOrDefault" &&
                        m.IsGenericMethod &&
                        m.GetParameters().Length == 2 &&
                        m.GetParameters()[1].ParameterType.Name.StartsWith("Func", StringComparison.Ordinal))
@@ -271,10 +275,10 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
         LambdaExpression isMasterLambda = Expression.Lambda(isMasterExpr, vParam);
 
         MethodCallExpression masterVariant = Expression.Call(null, firstOrDefaultMethod, variantsProp, isMasterLambda);
-        
+
         Expression? comparison = BuildDecimalComparison(Expression.Property(masterVariant, propertyName), rule);
         if (comparison == null) return null;
-        
+
         // Guard: Check if master variant exists
         return Expression.AndAlso(Expression.NotEqual(masterVariant, Expression.Constant(null, typeof(Variant))), comparison);
     }
@@ -284,7 +288,7 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
         ParameterExpression vParam = Expression.Parameter(typeof(Variant), "v");
         Expression? comparison = BuildStringComparison(Expression.Property(vParam, propertyName), rule);
         if (comparison == null) return null;
-        
+
         MethodInfo anyMethod = typeof(Enumerable).GetMethods()
             .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
             .MakeGenericMethod(typeof(Variant));
@@ -297,7 +301,7 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
         ParameterExpression vParam = Expression.Parameter(typeof(Variant), "v");
         Expression? comparison = BuildDecimalComparison(Expression.Property(vParam, propertyName), rule);
         if (comparison == null) return null;
-        
+
         MethodInfo anyMethod = typeof(Enumerable).GetMethods()
             .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
             .MakeGenericMethod(typeof(Variant));

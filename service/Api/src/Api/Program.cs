@@ -1,13 +1,15 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 using Module.Catalog;
 using Module.Identity;
 using Module.Inventory;
 using Module.Location;
 using Module.Ordering;
-using Module.Payment;
-using Module.Profile;
+using Module.Billing;
+using Module.Customer;
 using Module.Shipping;
+using Module.Dashboard;
 
 using ReSys.ServiceDefaults;
 
@@ -15,13 +17,21 @@ using Shared.Application;
 using Shared.Governance;
 using Shared.Observability;
 using Shared.Operational;
+using Shared.Operational.Persistence.Health;
 using Shared.Operational.Persistence.Initializers;
 using Shared.Performance;
 using Shared.Security;
 
+
 Assembly[] additionalAssemblies = [typeof(Module.IModuleMarker).Assembly];
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+// Configure: Serialize all enums as their string names across every API response
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // Configure: Add service defaults for Observability, Resilience, and Service Discovery
 builder.AddServiceDefaults();
@@ -35,12 +45,20 @@ builder.AddOperational(additionalAssemblies);
 // Configure: Add modular
 builder.AddLocationModule();
 builder.AddIdentityModule();
-builder.AddProfilesModule();
+builder.AddCustomerModule();
 builder.AddCatalogModule();
 builder.AddInventoryModule();
 builder.AddOrderingModule();
-builder.AddPaymentModule();
+builder.AddBillingModule();
 builder.AddShippingModule();
+builder.AddDashboardModule();
+
+// Initialize: Register database init state, hosted service, and health check
+builder.Services.AddSingleton<IDatabaseInitializationState, DatabaseInitializationState>();
+builder.Services.AddSingleton<IDatabaseInitializer, DatabaseInitializerService>();
+builder.Services.AddHostedService<DatabaseInitializerHostedService>();
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseInitializationHealthCheck>("database_initialization", tags: new[] { "ready" });
 
 WebApplication app = builder.Build();
 
@@ -52,12 +70,6 @@ app.UsePerformance();
 app.UseSecurity();
 app.UseOperational();
 app.UseObservability();
-app.UseHttpsRedirection();
 app.UseApplication();
-
-// Initialize: Apply pending migrations and run seeders before accepting traffic
-bool runMigrations = builder.Configuration.GetValue<bool>("DatabaseInitialization:RunMigrations");
-bool runSeeders = !app.Environment.IsProduction();
-await app.InitializeDatabaseAsync(runMigrations: runMigrations, runSeeders: runSeeders);
 
 await app.RunAsync();

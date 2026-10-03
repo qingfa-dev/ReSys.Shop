@@ -33,6 +33,11 @@ public static class UserResult
         public const string AllDevicesLoggedOut = "User logged out from all devices successfully.";
 
         /// <summary>
+        /// [Success]: Session retrieved
+        /// </summary>
+        public const string SessionRetrieved = "User session retrieved successfully.";
+
+        /// <summary>
         /// [Success]: Token refreshed
         /// </summary>
         public const string TokenRefreshed = "Token refreshed successfully.";
@@ -86,6 +91,11 @@ public static class UserResult
         /// [Success]: Get profile
         /// </summary>
         public const string GetProfile = "Profile retrieved successfully.";
+
+        /// <summary>
+        /// [Success]: Deleted
+        /// </summary>
+        public const string Deleted = "User deleted successfully.";
 
         #endregion
     }
@@ -517,6 +527,13 @@ public static class UserResult
         public static Error ExternalLoginTokenInvalid => Error.Unauthorized(
             code: "User.ExternalLogin.TokenInvalid",
             message: "The provided external authentication token is invalid or expired.");
+
+        /// <summary>
+        /// [External Login]: Profile creation failed
+        /// </summary>
+        public static Error ProfileCreationFailed => Error.Unexpected(
+            code: "Identity.ExternalLogin.ProfileCreationFailed",
+            message: "User profile could not be created. Please contact support.");
 
         #endregion
 

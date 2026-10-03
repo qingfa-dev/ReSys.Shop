@@ -4,11 +4,12 @@ namespace Module.Inventory.Features.Admin.StockTransfers.Transfer;
 
 public static partial class TransferStockTransfer
 {
-    /// <summary>Registers the stock transfer endpoint.</summary>
+    /// <summary>Transfers stock between locations.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /admin/inventory/stock-transfers/{id}/transfer — transfers stock between locations
             app.MapPost(InventoryFeature.Admin.StockTransfers.Transfer.Route, async (
                 Guid id,
                 ISender sender,

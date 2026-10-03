@@ -1,0 +1,56 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0016: Embedding Generation (Shared Volume)
+autonumber
+
+actor "System" as User <<Trigger>>
+participant "Mediator\nPipeline" as Bus <<Orchestrator>>
+participant "CmdHandler" as Cmd <<GenerateEmbedding>>
+participant "ML Service\n(FastAPI)" as ML <<Core Research>>
+participant "Shared Volume\n(Local Disk)" as Disk <<File System>>
+database "PostgreSQL\n(pgvector)" as DB <<Vector Store>>
+
+' ─── Step 1: Command Dispatch ────────────────────────
+User -> Bus: Send(GenerateEmbeddingCmd)
+activate Bus
+    Bus -> Cmd: Handle(Command)
+    activate Cmd
+        
+        Cmd -> DB: Get Image Path
+        activate DB
+        DB --> Cmd: RelativePath
+        deactivate DB
+        
+        ' ─── Step 2: Inference ───────────────────────
+        Cmd -> ML: GenerateEmbedding(RelativePath)
+        activate ML
+            
+            ML -> Disk: Read File(Path)
+            activate Disk
+                note right of Disk
+                    Volume Mount:
+                    /app/uploads/
+                end note
+            Disk --> ML: Image Bytes
+            deactivate Disk
+            
+            ML -> ML: Preprocess & Inference
+            ML --> Cmd: Vector [512]
+        deactivate ML
+        
+        ' ─── Step 3: Persistence ─────────────────────
+        Cmd -> DB: SaveEmbedding(Vector)
+        activate DB
+            note right of DB
+                UPDATE product_images 
+                SET embedding = @vector
+            end note
+        deactivate DB
+        
+    Cmd --> Bus: Result<Success>
+    deactivate Cmd
+Bus --> User: Ack
+deactivate Bus
+
+@enduml

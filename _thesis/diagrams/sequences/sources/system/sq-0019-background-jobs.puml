@@ -1,0 +1,44 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0019: Async Event Processing
+autonumber
+
+participant "Application" as App <<Publisher>>
+participant "Mediator\n(In-Process)" as MediatR <<Event Bus>>
+participant "Notification\nHandler" as Handler <<Subscriber>>
+participant "Domain\nLogic" as Logic <<Core>>
+
+' ─── Publication ─────────────────────────────────────────────
+App -> MediatR: Publish(DomainEvent)
+activate MediatR
+    
+    ' ─── Handling ────────────────────────────────────────────
+    MediatR -> Handler: Handle(Event, CancellationToken)
+    activate Handler
+        note right of Handler
+            Executed in same scope
+            or background task
+        end note
+        
+        Handler -> Logic: Execute Business Logic
+        activate Logic
+        Logic --> Handler: Result
+        deactivate Logic
+        
+        alt Success
+            Handler --> MediatR: Completed
+        else Exception
+            Handler --> MediatR: Error Propagated
+            deactivate Handler
+            
+            note right of MediatR
+                Error handling via 
+                Pipeline Behaviors
+            end note
+        end
+        
+    MediatR --> App: Ack (or Error)
+deactivate MediatR
+
+@enduml

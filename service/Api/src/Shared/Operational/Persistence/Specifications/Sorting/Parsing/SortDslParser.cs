@@ -22,7 +22,7 @@ internal static class SortDslParser
             if (string.IsNullOrEmpty(prefixField))
                 return SortModelResult.Failure.MissingField;
 
-            return new SortClause(prefixField, prefixDir);
+            return new SortClause { Field = prefixField, Direction = prefixDir };
         }
 
         // Handle: "Field" or "Field direction" separated by whitespace.
@@ -34,11 +34,11 @@ internal static class SortDslParser
         string field = tokens[0];
 
         if (tokens.Length == 1)
-            return new SortClause(field, SortDirection.Ascending);
+            return new SortClause { Field = field, Direction = SortDirection.Ascending };
 
         Result<SortDirection> dirResult = SortParserHelpers.ParseDirection(tokens[1].Trim());
         if (dirResult.IsFailure) return dirResult.Errors;
 
-        return new SortClause(field, dirResult.Value);
+        return new SortClause { Field = field, Direction = dirResult.Value };
     }
 }

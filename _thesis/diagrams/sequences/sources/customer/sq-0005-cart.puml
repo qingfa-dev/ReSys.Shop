@@ -1,0 +1,50 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0005: Manage Cart (Direct DB)
+autonumber
+
+actor "Customer" as User <<Shopper>>
+participant "Storefront" as Frontend <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+
+' ─── Add to Cart ─────────────────────────────────────────────
+User -> Frontend: Add Product (VariantId, Qty)
+activate Frontend
+    Frontend -> API: POST /api/cart/items
+    activate API
+    
+        ' ─── Step 1: Validation ──────────────────────────────
+        API -> DB: Get Variant & Check Stock
+        activate DB
+        DB --> API: Variant Details
+        deactivate DB
+        
+        alt Stock Available
+            ' ─── Step 2: Persistence ─────────────────────────
+            API -> DB: GetOrCreateOrder(Cart State)
+            activate DB
+            DB --> API: Order Entity
+            deactivate DB
+            
+            API -> DB: AddOrUpdateLineItem()
+            activate DB
+            note right of DB
+                Uses IApplicationDbContext
+                Saves directly to Order/LineItems tables
+            end note
+            DB --> API: Success
+            deactivate DB
+            
+            API --> Frontend: Updated Cart JSON
+        else Out of Stock
+            API --> Frontend: 400 Bad Request
+        end
+        
+    deactivate API
+    
+    Frontend --> User: Update Cart UI
+deactivate Frontend
+
+@enduml

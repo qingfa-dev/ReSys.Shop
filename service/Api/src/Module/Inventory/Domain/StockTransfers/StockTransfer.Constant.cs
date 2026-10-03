@@ -6,6 +6,7 @@ public static class StockTransferConstant
     {
         public const int NumberMaxLength = 50;
         public const int ReferenceMaxLength = 255;
+        public const int MaxStateLength = 20;
     }
 
     public static class Defaults

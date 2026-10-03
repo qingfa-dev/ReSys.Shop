@@ -4,10 +4,12 @@ namespace Module.Inventory.Features.Admin.StockLocations.Create;
 
 public static partial class CreateStockLocation
 {
+    /// <summary>Creates a stock location.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /admin/inventory/stock-locations — creates a stock location
             app.MapPost(InventoryFeature.Admin.StockLocations.Create.Route, async (
                 [FromBody] Request request,
                 ISender sender,

@@ -1,6 +1,7 @@
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
+using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockLocations;
 
 namespace Module.Inventory.Domain.StockTransfers;
@@ -24,6 +25,8 @@ public sealed partial class StockTransfer : Entity, IAuditable
     public Guid SourceLocationId { get; set; }
     /// <summary>Gets or sets the destination stock location identifier.</summary>
     public Guid DestinationLocationId { get; set; }
+    /// <summary>Concurrency token for optimistic locking — auto-managed by EF Core / PostgreSQL xid.</summary>
+    public uint RowVersion { get; set; }
     #endregion Properties
 
     #region Auditing
@@ -58,6 +61,11 @@ public sealed class TransferItem : Entity
     public int Quantity { get; set; }
     /// <summary>Gets or sets the quantity received at the destination.</summary>
     public int ReceivedQuantity { get; set; }
+
+    /// <summary>Gets or sets the parent stock transfer.</summary>
+    public StockTransfer? StockTransfer { get; set; }
+    /// <summary>Gets or sets the variant being transferred.</summary>
+    public Variant? Variant { get; set; }
 
     internal TransferItem() { }
 }

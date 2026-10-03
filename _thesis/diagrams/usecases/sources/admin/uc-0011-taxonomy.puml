@@ -1,0 +1,29 @@
+@startuml
+!include ../_shared/styles.iuml
+
+left to right direction
+
+actor Admin
+
+rectangle "ReSys.Shop Admin Portal" {
+  usecase "Manage\nTaxonomy" as UC0011
+  usecase "Create\nCategory" as UC0011_Create
+  usecase "Edit Category\nDetails" as UC0011_Edit
+  usecase "Delete\nCategory" as UC0011_Delete
+  usecase "Set Parent\nCategory" as UC0011_Parent
+  usecase "Reorder\nCategories" as UC0011_Sort
+  usecase "Assign Products\nto Category" as UC0011_Assign
+  
+  UC0011 <.. UC0011_Create : <<extend>>
+  UC0011 <.. UC0011_Edit : <<extend>>
+  UC0011 <.. UC0011_Delete : <<extend>>
+  UC0011 <.. UC0011_Sort : <<extend>>
+  
+  UC0011_Create ..> UC0011_Parent : <<include>>
+  UC0011_Edit ..> UC0011_Parent : <<include>>
+  
+  UC0011 <.. UC0011_Assign : <<extend>>
+}
+
+Admin --> UC0011
+@enduml

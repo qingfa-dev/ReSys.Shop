@@ -1,0 +1,170 @@
+import type { User, AuthTokens } from '../types/schemas/user.schema'
+
+export const mockUsers: User[] = [
+  {
+    id: 'user-1',
+    email: 'john.doe@example.com',
+    firstName: 'John',
+    lastName: 'Doe',
+    phone: '+1234567890',
+    avatar: 'https://picsum.photos/seed/user1/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-01-15T10:00:00Z',
+    updatedAt: '2026-04-01T10:00:00Z',
+  },
+  {
+    id: 'user-2',
+    email: 'jane.smith@example.com',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    phone: '+1234567891',
+    avatar: 'https://picsum.photos/seed/user2/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-02-20T10:00:00Z',
+    updatedAt: '2026-03-15T10:00:00Z',
+  },
+  {
+    id: 'user-3',
+    email: 'admin@example.com',
+    firstName: 'Admin',
+    lastName: 'User',
+    phone: '+1234567892',
+    avatar: 'https://picsum.photos/seed/user3/200/200',
+    role: 'admin',
+    emailVerified: true,
+    createdAt: '2024-06-01T10:00:00Z',
+    updatedAt: '2026-04-05T10:00:00Z',
+  },
+  {
+    id: 'user-4',
+    email: 'mike.wilson@example.com',
+    firstName: 'Mike',
+    lastName: 'Wilson',
+    phone: '+1234567893',
+    avatar: 'https://picsum.photos/seed/user4/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-03-10T10:00:00Z',
+    updatedAt: '2026-02-28T10:00:00Z',
+  },
+  {
+    id: 'user-5',
+    email: 'sarah.jones@example.com',
+    firstName: 'Sarah',
+    lastName: 'Jones',
+    phone: '+1234567894',
+    avatar: 'https://picsum.photos/seed/user5/200/200',
+    role: 'customer',
+    emailVerified: false,
+    createdAt: '2025-04-05T10:00:00Z',
+    updatedAt: '2026-04-01T10:00:00Z',
+  },
+  {
+    id: 'user-6',
+    email: 'david.brown@example.com',
+    firstName: 'David',
+    lastName: 'Brown',
+    phone: '+1234567895',
+    avatar: 'https://picsum.photos/seed/user6/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-05-12T10:00:00Z',
+    updatedAt: '2026-03-20T10:00:00Z',
+  },
+  {
+    id: 'user-7',
+    email: 'emily.davis@example.com',
+    firstName: 'Emily',
+    lastName: 'Davis',
+    phone: '+1234567896',
+    avatar: 'https://picsum.photos/seed/user7/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-06-18T10:00:00Z',
+    updatedAt: '2026-04-02T10:00:00Z',
+  },
+  {
+    id: 'user-8',
+    email: 'chris.miller@example.com',
+    firstName: 'Chris',
+    lastName: 'Miller',
+    phone: '+1234567897',
+    avatar: 'https://picsum.photos/seed/user8/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-07-22T10:00:00Z',
+    updatedAt: '2026-01-15T10:00:00Z',
+  },
+  {
+    id: 'user-9',
+    email: 'lisa.garcia@example.com',
+    firstName: 'Lisa',
+    lastName: 'Garcia',
+    phone: '+1234567898',
+    avatar: 'https://picsum.photos/seed/user9/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-08-30T10:00:00Z',
+    updatedAt: '2026-04-03T10:00:00Z',
+  },
+  {
+    id: 'user-10',
+    email: 'robert.taylor@example.com',
+    firstName: 'Robert',
+    lastName: 'Taylor',
+    phone: '+1234567899',
+    avatar: 'https://picsum.photos/seed/user10/200/200',
+    role: 'customer',
+    emailVerified: false,
+    createdAt: '2025-09-14T10:00:00Z',
+    updatedAt: '2025-12-20T10:00:00Z',
+  },
+  {
+    id: 'user-11',
+    email: 'amanda.lee@example.com',
+    firstName: 'Amanda',
+    lastName: 'Lee',
+    phone: '+1234567900',
+    avatar: 'https://picsum.photos/seed/user11/200/200',
+    role: 'customer',
+    emailVerified: true,
+    createdAt: '2025-10-08T10:00:00Z',
+    updatedAt: '2026-04-04T10:00:00Z',
+  },
+  {
+    id: 'user-12',
+    email: 'manager@example.com',
+    firstName: 'Store',
+    lastName: 'Manager',
+    phone: '+1234567901',
+    avatar: 'https://picsum.photos/seed/user12/200/200',
+    role: 'admin',
+    emailVerified: true,
+    createdAt: '2024-03-01T10:00:00Z',
+    updatedAt: '2026-04-06T10:00:00Z',
+  },
+]
+
+export const mockTokens: Record<string, AuthTokens> = {
+  'user-1': { accessToken: 'mock-access-token-user1', refreshToken: 'mock-refresh-token-user1', expiresIn: 3600 },
+  'user-2': { accessToken: 'mock-access-token-user2', refreshToken: 'mock-refresh-token-user2', expiresIn: 3600 },
+  'user-3': { accessToken: 'mock-access-token-admin', refreshToken: 'mock-refresh-token-admin', expiresIn: 7200 },
+}
+
+export function getUserById(id: string): User | undefined {
+  return mockUsers.find(u => u.id === id)
+}
+
+export function getUserByEmail(email: string): User | undefined {
+  return mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
+}
+
+export function getUsersByRole(role: 'customer' | 'admin'): User[] {
+  return mockUsers.filter(u => u.role === role)
+}
+
+export function getVerifiedUsers(): User[] {
+  return mockUsers.filter(u => u.emailVerified)
+}

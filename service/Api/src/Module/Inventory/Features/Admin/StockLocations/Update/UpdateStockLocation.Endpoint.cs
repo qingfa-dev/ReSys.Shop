@@ -4,10 +4,12 @@ namespace Module.Inventory.Features.Admin.StockLocations.Update;
 
 public static partial class UpdateStockLocation
 {
+    /// <summary>Updates a stock location.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PUT /admin/inventory/stock-locations/{id} — updates a stock location
             app.MapPut(InventoryFeature.Admin.StockLocations.Update.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

@@ -17,7 +17,8 @@ public static class AntiForgeryExtensions
         builder.Services.AddSingleton<IValidator<AntiForgerySetting>, AntiForgerySettingValidator>();
         builder.Services.AddOptions<AntiForgerySetting>()
             .BindConfiguration(AntiForgerySetting.SectionName)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // Compute: Materialize validated options for middleware configuration
         AntiForgerySetting antiForgeryOptions =

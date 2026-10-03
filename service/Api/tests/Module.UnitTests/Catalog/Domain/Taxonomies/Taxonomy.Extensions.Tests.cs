@@ -15,7 +15,7 @@ public class TaxonomyExtensionsTests
     {
         var id = Guid.NewGuid();
 
-        var result = TaxonomyExtensions.Create(name, presentation, position, id);
+        var result = TaxonomyMethod.Create(name, presentation, position, id);
         var taxonomy = result.Value;
 
         result.IsSuccess.Should().BeTrue();
@@ -29,7 +29,7 @@ public class TaxonomyExtensionsTests
     [Fact(DisplayName = "Create: Should generate new ID when not provided")]
     public void Create_WithoutId_ShouldGenerateNewId()
     {
-        var result = TaxonomyExtensions.Create("Name", "Presentation", 0);
+        var result = TaxonomyMethod.Create("Name", "Presentation", 0);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().NotBeEmpty();
@@ -41,7 +41,7 @@ public class TaxonomyExtensionsTests
     [InlineData("Just Name", null, 10)]
     public void Update_WithParameters_ShouldUpdateCorrectly(string? name, string? presentation, int position)
     {
-        var taxonomy = TaxonomyExtensions.Create("Old", "Old", 1).Value;
+        var taxonomy = TaxonomyMethod.Create("Old", "Old", 1).Value;
 
         var result = taxonomy.Update(name, presentation, position);
 
@@ -55,7 +55,7 @@ public class TaxonomyExtensionsTests
     [Fact(DisplayName = "Delete: Should mark as deleted")]
     public void Delete_ShouldSetIsDeletedTrue()
     {
-        var taxonomy = TaxonomyExtensions.Create("Name", "Presentation", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Name", "Presentation", 0).Value;
 
         var result = taxonomy.Delete();
 
@@ -66,7 +66,7 @@ public class TaxonomyExtensionsTests
     [Fact(DisplayName = "Restore: Should mark as not deleted")]
     public void Restore_ShouldSetIsDeletedFalse()
     {
-        var taxonomy = TaxonomyExtensions.Create("Name", "Presentation", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Name", "Presentation", 0).Value;
         taxonomy.Delete();
 
         var result = taxonomy.Restore();
@@ -78,7 +78,7 @@ public class TaxonomyExtensionsTests
     [Fact(DisplayName = "Delete: When already deleted should still work")]
     public void Delete_WhenAlreadyDeleted_ShouldStillSetDeleted()
     {
-        var taxonomy = TaxonomyExtensions.Create("Name", "Presentation", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Name", "Presentation", 0).Value;
         taxonomy.Delete();
 
         var result = taxonomy.Delete();
@@ -90,7 +90,7 @@ public class TaxonomyExtensionsTests
     [Fact(DisplayName = "Restore: When not deleted should still work")]
     public void Restore_WhenNotDeleted_ShouldStillRestore()
     {
-        var taxonomy = TaxonomyExtensions.Create("Name", "Presentation", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Name", "Presentation", 0).Value;
 
         var result = taxonomy.Restore();
 

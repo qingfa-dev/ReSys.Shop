@@ -1,0 +1,30 @@
+graph TD
+    subgraph Input
+        Img[Input Image]
+    end
+
+    subgraph "Model Zoo (Strategy Pattern)"
+        M1[EfficientNet-B0]
+        M2[ConvNeXt-Tiny]
+        M3[CLIP ViT-B/16]
+        M4[Fashion-CLIP]
+        M5[DINOv2]
+        
+        Img --> M1 & M2 & M3 & M4 & M5
+    end
+
+    subgraph "Feature Space"
+        V1[Shape/Texture Vector<br>1280-dim]
+        V2[Hierarchical Features<br>768-dim]
+        V3[Semantic Vector<br>512-dim]
+        V4[Fashion Attributes<br>512-dim]
+        V5[Visual Similarity<br>384-dim]
+
+        M1 --> V1
+        M2 --> V2
+        M3 --> V3
+        M4 --> V4
+        M5 --> V5
+    end
+
+    V1 & V2 & V3 & V4 & V5 --> Agg[Composite/Weighted Search]

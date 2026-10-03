@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Restore;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Restore;
 
@@ -39,7 +39,7 @@ public class RestoreTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should restore taxonomy successfully")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         entity.Delete();
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -65,7 +65,7 @@ public class RestoreTaxonomyTests : IDisposable
     public async Task Handle_ShouldRestoreRootTaxonViaSender_WhenRootExists()
     {
         var ct = TestContext.Current.CancellationToken;
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         entity.Delete();
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(ct);
@@ -85,7 +85,7 @@ public class RestoreTaxonomyTests : IDisposable
         persisted!.IsDeleted.Should().BeFalse();
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RestoreTaxon.Command>(c => c.TaxonomyId == entity.Id && c.Id == root.Id),
+            It.Is<RestoreTaxon.Command>(c => c.Id == root.Id),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -93,7 +93,7 @@ public class RestoreTaxonomyTests : IDisposable
     public async Task Handle_ShouldNotCallSender_WhenNoRootTaxon()
     {
         var ct = TestContext.Current.CancellationToken;
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         entity.Delete();
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(ct);

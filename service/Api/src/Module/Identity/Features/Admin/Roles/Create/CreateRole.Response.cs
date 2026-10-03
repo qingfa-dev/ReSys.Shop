@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Create;
+namespace Module.Identity.Features.Shared.Admin.Roles.Create;
 
 public static partial class CreateRole
 {
@@ -8,5 +8,5 @@ public static partial class CreateRole
     /// Represents the response contract for a created role.
     /// Inherits properties like Id, Name, Description, IsSystem, and audit fields from <see cref="RoleDetailResponse"/>.
     /// </summary>
-    public class Response : RoleDetailResponse { }
+    public record Response : RoleDetailResponse;
 }

@@ -1,0 +1,197 @@
+﻿@startuml sq-0009
+!theme plain
+title UC-0009: Product Image Upload
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Catalog API" as API
+participant "Blob Storage" as Blob
+queue "Message Bus" as Bus
+
+Admin -> FE: Upload Image
+activate FE
+FE -> FE: Validate (<10MB)
+FE -> FE: Generate Thumbnail
+FE -> Blob: Upload Original & Thumb
+activate Blob
+Blob --> FE: URLs
+deactivate Blob
+FE -> API: CreateImageRecord(URLs)
+activate API
+API -> Bus: Publish(ImageUploaded)
+activate Bus
+Bus --> API: Ack
+deactivate Bus
+API --> FE: Success (Pending)
+deactivate API
+FE --> Admin: Show in Gallery
+deactivate FE
+@enduml
+
+@startuml sq-0010
+!theme plain
+title UC-0010: Product Management
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Catalog API" as API
+database "PostgreSQL" as DB
+
+Admin -> FE: Create Product
+activate FE
+FE -> API: POST /products
+activate API
+API -> DB: Insert Product
+activate DB
+DB --> API: ID
+deactivate DB
+API -> DB: Insert Variants
+API --> FE: Product Created
+deactivate API
+FE --> Admin: Success
+deactivate FE
+@enduml
+
+@startuml sq-0011
+!theme plain
+title UC-0011: Taxonomy Management
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Catalog API" as API
+database "PostgreSQL" as DB
+
+Admin -> FE: Add Category
+activate FE
+FE -> API: POST /categories
+activate API
+API -> DB: Insert Category
+activate DB
+DB --> API: ID
+deactivate DB
+API --> FE: Created
+deactivate API
+FE --> Admin: Updated Tree
+deactivate FE
+@enduml
+
+@startuml sq-0012
+!theme plain
+title UC-0012: Monitor Inventory Levels
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Inventory API" as API
+database "PostgreSQL" as DB
+
+Admin -> FE: View Inventory
+activate FE
+FE -> API: GET /inventory/summary
+activate API
+API -> DB: SELECT SKU, OnHand, Reserved
+activate DB
+DB --> API: Stock Levels
+deactivate DB
+API --> FE: JSON Data
+deactivate API
+FE -> FE: Highlight Low Stock
+FE --> Admin: Display Grid
+deactivate FE
+@enduml
+
+@startuml sq-0021
+!theme plain
+title UC-0021: Audit Stock History (ERP)
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Inventory API" as API
+database "Inventory Ledger" as DB
+
+Admin -> FE: View Stock History (SKU)
+activate FE
+FE -> API: GET /inventory/{sku}/history
+activate API
+API -> DB: SELECT Movements WHERE SKU
+activate DB
+DB --> API: Ledger Entries
+deactivate DB
+API -> API: Calculate Running Balance
+API --> FE: Entries
+deactivate API
+FE --> Admin: Show Audit Trail
+deactivate FE
+@enduml
+
+@startuml sq-0013
+!theme plain
+title UC-0013: Order Fulfillment
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Fulfillment API" as API
+database "PostgreSQL" as DB
+
+Admin -> FE: Click "Ship Order"
+activate FE
+FE -> API: POST /orders/{id}/ship
+activate API
+API -> API: Allocate Warehouse (UC-0018)
+API -> DB: Create Shipment
+activate DB
+DB --> API: Created
+deactivate DB
+API -> DB: Decrement Reserved, Incr Shipped
+API --> FE: Success
+deactivate API
+FE --> Admin: Order Status "Shipped"
+deactivate FE
+@enduml
+
+@startuml sq-0014
+!theme plain
+title UC-0014: View Customer Activity
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Audit Service" as API
+database "Audit Logs" as DB
+
+Admin -> FE: View User Activity
+activate FE
+FE -> API: GET /audit/users/{id}
+activate API
+API -> DB: Query Logs (Login, Purchase)
+activate DB
+DB --> API: Log Entries
+deactivate DB
+API --> FE: JSON
+deactivate API
+FE --> Admin: Timeline View
+deactivate FE
+@enduml
+
+@startuml sq-0015
+!theme plain
+title UC-0015: Sales Analytics
+
+actor Admin
+participant "Admin Panel" as FE
+participant "Analytics API" as API
+database "Read Replicas" as DB
+
+Admin -> FE: Open Dashboard
+activate FE
+FE -> API: GET /analytics/sales
+activate API
+API -> DB: SUM(Orders) GroupBy Day
+activate DB
+DB --> API: Time Series Data
+deactivate DB
+API --> FE: JSON
+deactivate API
+FE --> Admin: Render Chart
+deactivate FE
+@enduml
+
+

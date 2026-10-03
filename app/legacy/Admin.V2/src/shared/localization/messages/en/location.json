@@ -1,0 +1,107 @@
+{
+  "countries": {
+    "titles": {
+      "list": "Countries",
+      "create": "Add Country",
+      "edit": "Edit Country"
+    },
+    "descriptions": {
+      "list": "Manage countries."
+    },
+    "form": {
+      "create_title": "Create Country",
+      "edit_title": "Edit: {name}",
+      "view_title": "Country",
+      "subtitle": "Configure country details and settings."
+    },
+    "labels": {
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "iso3_code": "ISO 3 Code",
+      "numeric_code": "Numeric Code",
+      "phone_code": "Phone Code",
+      "is_active": "Active",
+      "active_help": "Country is active"
+    },
+    "actions": {
+      "create": "Create Country",
+      "edit": "Edit",
+      "save_create": "Save Country",
+      "save_edit": "Save",
+      "cancel": "Cancel",
+      "view": "View",
+      "delete": "Delete"
+    },
+    "table": {
+      "search_placeholder": "Search countries...",
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "iso3_code": "ISO 3 Code",
+      "phone_code": "Phone Code",
+      "states_count": "States",
+      "active": "Active"
+    },
+    "messages": {
+      "create_success": "Country created successfully",
+      "update_success": "Country updated successfully",
+      "save_failed": "Save failed",
+      "load_failed": "Failed to load country",
+      "delete_success": "Country deleted successfully",
+      "delete_failed": "Failed to delete",
+      "delete_confirm_target": "this country",
+      "empty_list": "No countries found",
+      "empty_description": "Create your first country."
+    }
+  },
+  "states": {
+    "titles": {
+      "list": "States / Provinces",
+      "create": "Add State/Province",
+      "edit": "Edit State/Province"
+    },
+    "descriptions": {
+      "list": "Manage states and provinces."
+    },
+    "form": {
+      "create_title": "Create State/Province",
+      "edit_title": "Edit: {name}",
+      "view_title": "State/Province",
+      "subtitle": "Configure state/province details."
+    },
+    "labels": {
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "country": "Country",
+      "is_active": "Active",
+      "active_help": "State is active",
+      "select_country": "Select country"
+    },
+    "actions": {
+      "create": "Create State/Province",
+      "edit": "Edit",
+      "save_create": "Save State/Province",
+      "save_edit": "Save",
+      "cancel": "Cancel",
+      "view": "View",
+      "delete": "Delete"
+    },
+    "table": {
+      "search_placeholder": "Search states/provinces...",
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "country": "Country",
+      "active": "Active"
+    },
+    "messages": {
+      "create_success": "State created successfully",
+      "update_success": "State updated successfully",
+      "save_failed": "Save failed",
+      "load_failed": "Failed to load state",
+      "delete_success": "State deleted successfully",
+      "delete_failed": "Failed to delete",
+      "delete_confirm_target": "this state/province",
+      "empty_list": "No states found",
+      "empty_description": "Create your first state/province."
+    }
+  }
+}

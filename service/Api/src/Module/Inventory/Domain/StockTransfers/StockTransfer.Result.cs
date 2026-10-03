@@ -36,6 +36,10 @@ public static class StockTransferResult
                 code: "StockTransfer.InvalidStateTransition",
                 message: $"Cannot transition from {current} to {target}.");
 
+        public static Error InvalidState => Error.Validation(
+            code: "StockTransfer.State.Invalid",
+            message: "Transfer state must be one of the defined states.");
+
         public static Error VariantNotInTransfer(Guid variantId) =>
             Error.NotFound(
                 code: "StockTransfer.VariantNotInTransfer",

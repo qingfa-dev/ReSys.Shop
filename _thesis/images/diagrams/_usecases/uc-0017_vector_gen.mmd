@@ -1,0 +1,30 @@
+sequenceDiagram
+    autonumber
+    participant Job as Background Worker
+    participant API as ML Service API
+    participant LRU as Model Cache
+    participant Model as Fashion-CLIP
+    database DB as Postgres (pgvector)
+
+    Job->>API: POST /embed (ImageBatch)
+    activate API
+    API->>LRU: GetModel("fashion_clip")
+    activate LRU
+    LRU-->>API: Model Instance
+    deactivate LRU
+    
+    API->>API: Preprocess (Resize 224x224, Normalize)
+    
+    API->>Model: Forward Pass (Batch Tensor)
+    activate Model
+    Model-->>API: Embeddings (512d Float32)
+    deactivate Model
+    
+    API-->>Job: 200 OK (JSON Vectors)
+    deactivate API
+    
+    Job->>DB: BEGIN Transaction
+    activate DB
+    Job->>DB: INSERT INTO product_vectors VALUES (...)
+    Job->>DB: COMMIT
+    deactivate DB

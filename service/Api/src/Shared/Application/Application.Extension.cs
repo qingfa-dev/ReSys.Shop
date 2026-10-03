@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 
 using Shared.Application.Endpoints;
+using Shared.Application.Exceptions;
 using Shared.Application.Mediators;
 using Shared.Application.Systems;
 
@@ -19,6 +20,7 @@ public static class ApplicationExtension
         builder.AddSystems();
         builder.AddMediators(additionalAssemblies);
         builder.AddEndpoints(additionalAssemblies);
+        builder.AddGlobalExceptionHandler();
 
         return builder;
     }
@@ -29,6 +31,7 @@ public static class ApplicationExtension
 
     public static WebApplication UseApplication(this WebApplication app)
     {
+        app.UseGlobalExceptionHandler();
         app.UseSystems();
         app.UseMediators();
         app.UseEndpoints();

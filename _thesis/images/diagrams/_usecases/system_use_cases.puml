@@ -1,0 +1,85 @@
+﻿@startuml SQ-0015
+!theme plain
+title UC-0016: Generate AI Search Vectors
+
+participant "Background Job" as Job
+participant "ML Service" as ML
+database "Vector DB" as DB
+
+Job -> Job: Poll Pending Images
+Job -> ML: POST /embed (Image URL)
+activate ML
+ML -> ML: Download & Resize
+ML -> ML: Inference (Fashion-CLIP)
+ML --> Job: Vector (512-dim)
+deactivate ML
+Job -> DB: Upsert(ProductId, Vector)
+activate DB
+DB --> Job: Success
+deactivate DB
+Job -> Job: Mark Processed
+@enduml
+
+@startuml SQ-0016
+!theme plain
+title UC-0017: Automatic Stock Reservation
+
+participant "Checkout Svc" as API
+participant "Inventory Svc" as Inv
+database "Database" as DB
+
+API -> Inv: Reserve(Items)
+activate Inv
+Inv -> DB: Begin Transaction
+activate DB
+Inv -> DB: Query Available Stock
+DB --> Inv: Stock Levels
+Inv -> Inv: Check > Requested?
+Inv -> DB: UPDATE Reserved += Qty
+Inv -> DB: Commit
+DB --> Inv: Committed
+deactivate DB
+Inv --> API: Reserved OK
+deactivate Inv
+@enduml
+
+@startuml SQ-0017
+!theme plain
+title UC-0018: Fulfillment Logic
+
+participant "Fulfillment Svc" as API
+database "Inventory DB" as DB
+participant "Shipment Svc" as Ship
+
+API -> API: Identify Line Items
+API -> DB: Query Stock Locations
+activate DB
+DB --> API: Warehouse Availability
+deactivate DB
+API -> API: Select Closest Main Warehouse
+API -> Ship: CreateShipment(WarehouseId)
+activate Ship
+Ship --> API: Tracking Number
+deactivate Ship
+@enduml
+
+@startuml SQ-0018
+!theme plain
+title UC-0019: Low Stock Indicators
+
+participant "Dashboard Widget" as UI
+participant "Inventory API" as API
+database "Database" as DB
+
+UI -> API: Request Low Stock Count
+activate API
+API -> DB: COUNT WHERE Available < Min
+activate DB
+DB --> API: (Count: 5)
+deactivate DB
+API --> UI: { alert: 5 }
+deactivate API
+UI -> UI: Show Red Badge
+@enduml
+
+

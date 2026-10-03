@@ -1,0 +1,25 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0008: Product Recommendations
+
+actor "Customer" as Customer
+
+rectangle "Storefront App" {
+    usecase "View Recommendations" as View
+    usecase "Personalized Feed" as Feed
+    usecase "Recently Viewed" as Recent
+}
+
+rectangle "ML System" {
+    usecase "Fetch Candidates" as Candidates <<Core>>
+    usecase "Re-Rank Results" as Rank <<Core>>
+}
+
+Customer --> View
+View <.. Feed : <<extend>>
+View <.. Recent : <<extend>>
+
+View ..> Candidates : <<include>>
+Candidates ..> Rank : <<include>>
+
+@enduml

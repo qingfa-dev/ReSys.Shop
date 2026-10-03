@@ -1,0 +1,207 @@
+﻿@startuml sq-0001
+!theme plain
+title UC-0001: Visual Search by Image Upload
+
+actor Customer
+participant "Frontend" as FE
+participant "Backend API" as API
+participant "ML Service" as ML
+database "Vector DB" as DB
+
+Customer -> FE: Upload Image
+activate FE
+FE -> FE: Validate File (<10MB)
+FE -> API: POST /search/image
+activate API
+API -> ML: POST /embed
+activate ML
+ML -> ML: Generate Embedding
+ML --> API: Vector (512-dim)
+deactivate ML
+API -> DB: Query(Vector)
+activate DB
+DB --> API: Top-K Results
+deactivate DB
+API --> FE: Ranked Products
+deactivate API
+FE --> Customer: Display Grid
+deactivate FE
+@enduml
+
+@startuml sq-0002
+!theme plain
+title UC-0002: Perform Multi-step Checkout
+
+actor Customer
+participant "Frontend" as FE
+participant "Order Service" as API
+participant "Payment Gateway" as PG
+database "Database" as DB
+
+Customer -> FE: Proceed to Checkout
+activate FE
+FE -> Customer: Request Address
+Customer -> FE: Select Address
+FE -> Customer: Request Payment
+Customer -> FE: Enter Payment Details
+Customer -> FE: Place Order
+FE -> API: CreateOrder()
+activate API
+API -> DB: Reserve Inventory
+activate DB
+DB --> API: Reserved
+deactivate DB
+API -> PG: Process Payment
+activate PG
+PG --> API: Success
+deactivate PG
+API -> DB: Save Order
+activate DB
+DB --> API: Saved
+deactivate DB
+API --> FE: Order Confirmed
+deactivate API
+FE --> Customer: Show Success Page
+deactivate FE
+@enduml
+
+@startuml sq-0003
+!theme plain
+title UC-0003: Keyword Search and Browsing
+
+actor Customer
+participant "Frontend" as FE
+participant "Catalog Service" as API
+database "PostgreSQL" as DB
+
+Customer -> FE: Enter Query "Red Dress"
+activate FE
+FE -> API: GET /products?q=Red+Dress
+activate API
+API -> DB: Text Search (TsVector)
+activate DB
+DB --> API: Found Items
+deactivate DB
+API --> FE: JSON Response
+deactivate API
+FE --> Customer: Display Products
+deactivate FE
+@enduml
+
+@startuml sq-0004
+!theme plain
+title UC-0004: Style-Based Recommendations
+
+actor Customer
+participant "Frontend" as FE
+participant "Recommendation API" as API
+database "Vector DB" as DB
+
+Customer -> FE: View Product Page
+activate FE
+FE -> API: GET /products/{id}/similar
+activate API
+API -> DB: Query by ID Embedding
+activate DB
+DB --> API: Similar Products
+deactivate DB
+API --> FE: Returns List
+deactivate API
+FE --> Customer: Show "You May Also Like"
+deactivate FE
+@enduml
+
+@startuml sq-0005
+!theme plain
+title UC-0005: Manage Shopping Cart
+
+actor Customer
+participant "Frontend" as FE
+participant "Cart Service" as API
+database "Redis/DB" as DB
+
+Customer -> FE: Add to Cart
+activate FE
+FE -> API: POST /cart/items
+activate API
+API -> DB: Check Stock
+activate DB
+DB --> API: Available
+deactivate DB
+API -> DB: Update Session Cart
+API --> FE: Updated Totals
+deactivate API
+FE --> Customer: Show Mini-Cart
+deactivate FE
+@enduml
+
+@startuml sq-0006
+!theme plain
+title UC-0006: Track Order Status
+
+actor Customer
+participant "Frontend" as FE
+participant "Order Service" as API
+database "Database" as DB
+
+Customer -> FE: View Order History
+activate FE
+FE -> API: GET /orders
+activate API
+API -> DB: Select * WHERE UserId
+activate DB
+DB --> API: Order List
+deactivate DB
+API --> FE: Orders JSON
+deactivate API
+FE --> Customer: Display List
+deactivate FE
+@enduml
+
+@startuml sq-0007
+!theme plain
+title UC-0007: Manage Address Book
+
+actor Customer
+participant "Frontend" as FE
+participant "Identity Service" as API
+database "Database" as DB
+
+Customer -> FE: Add New Address
+activate FE
+FE -> FE: Validate Form
+FE -> API: POST /user/addresses
+activate API
+API -> DB: Insert Address
+activate DB
+DB --> API: Success
+deactivate DB
+API --> FE: Updated Profile
+deactivate API
+FE --> Customer: Show "Saved" Toast
+deactivate FE
+@enduml
+
+@startuml sq-0008
+!theme plain
+title UC-0008: Update Profile Information
+
+actor Customer
+participant "Frontend" as FE
+participant "Identity Service" as API
+database "Database" as DB
+
+Customer -> FE: Update Phone Number
+activate FE
+FE -> API: PUT /user/profile
+activate API
+API -> DB: Update User Record
+activate DB
+DB --> API: Success
+deactivate DB
+API --> FE: OK
+deactivate API
+FE --> Customer: Show Success
+deactivate FE
+@enduml
+

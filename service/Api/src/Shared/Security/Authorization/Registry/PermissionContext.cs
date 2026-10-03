@@ -137,11 +137,11 @@ public static class PermissionContext
             "products_optiontypes", "Product Option Types", "Product-to-option-type assignment resource.");
         public static readonly OptionDescriptor<string> ProductsClassifications = OptionDescriptor<string>.Option(
             "products_classifications", "Product Classifications", "Product classification assignment resource.");
-        public static readonly OptionDescriptor<string> ProductsVariants = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> Variants = OptionDescriptor<string>.Option(
             "products_variants", "Product Variants", "Product variant resource.");
-        public static readonly OptionDescriptor<string> ProductsVariantsOptionValues = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> VariantOptionValues = OptionDescriptor<string>.Option(
             "products_variants_optionvalues", "Product Variant Option Values", "Product variant option value resource.");
-        public static readonly OptionDescriptor<string> ProductsVariantsImages = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> VariantImages = OptionDescriptor<string>.Option(
             "products_variants_images", "Product Variant Images", "Product variant image resource.");
         public static readonly OptionDescriptor<string> Taxonomies = OptionDescriptor<string>.Option(
             "taxonomies", "Taxonomies", "Taxonomy definition resource.");
@@ -149,10 +149,8 @@ public static class PermissionContext
             "taxons", "Taxons", "Taxon (category node) resource.");
         public static readonly OptionDescriptor<string> OptionTypes = OptionDescriptor<string>.Option(
             "optiontypes", "Option Types", "Option type definition resource.");
-        public static readonly OptionDescriptor<string> OptionTypesOptionValues = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> OptionTypeValues = OptionDescriptor<string>.Option(
             "optiontypes_optionvalues", "Option Type Values", "Option type value resource.");
-        public static readonly OptionDescriptor<string> PropertyTypes = OptionDescriptor<string>.Option(
-            "propertytypes", "Property Types", "Property type definition resource.");
         public static readonly OptionDescriptor<string> Orders = OptionDescriptor<string>.Option(
             "orders", "Orders", "Order resource.");
         public static readonly OptionDescriptor<string> Fulfillment = OptionDescriptor<string>.Option(
@@ -189,8 +187,6 @@ public static class PermissionContext
             "store_contact", "Store Contact", "Store contact information resource.");
         public static readonly OptionDescriptor<string> StoreSeo = OptionDescriptor<string>.Option(
             "store_seo", "Store SEO", "Store SEO settings resource.");
-        public static readonly OptionDescriptor<string> StoreCurrency = OptionDescriptor<string>.Option(
-            "store_currency", "Store Currency", "Store currency configuration resource.");
         public static readonly OptionDescriptor<string> StoreCheckout = OptionDescriptor<string>.Option(
             "store_checkout", "Store Checkout", "Store checkout settings resource.");
         public static readonly OptionDescriptor<string> TaxCategories = OptionDescriptor<string>.Option(
@@ -211,6 +207,10 @@ public static class PermissionContext
             "shipping_methods", "Shipping Methods", "Shipping method configuration resource.");
         public static readonly OptionDescriptor<string> ShippingRates = OptionDescriptor<string>.Option(
             "shipping_rates", "Shipping Rates", "Shipping rate configuration resource.");
+        public static readonly OptionDescriptor<string> CatalogDashboard = OptionDescriptor<string>.Option(
+            "catalog_dashboard", "Catalog Dashboard", "Catalog dashboard resource.");
+        public static readonly OptionDescriptor<string> InventoryDashboard = OptionDescriptor<string>.Option(
+            "inventory_dashboard", "Inventory Dashboard", "Inventory dashboard resource.");
     }
 
     private static readonly Dictionary<string, PermissionMetadata> SByIdentifier =
@@ -228,7 +228,7 @@ public static class PermissionContext
         all.AddRange(LocationFeatureMetadata.All);
         all.AddRange(ProfileFeatureMetadata.All);
         all.AddRange(OrderingFeatureMetadata.All);
-        all.AddRange(PaymentFeatureMetadata.All);
+        all.AddRange(BillingFeatureMetadata.All);
         all.AddRange(InventoryFeatureMetadata.All);
         all.AddRange(ConfigurationFeatureMetadata.All);
         all.AddRange(DashboardFeatureMetadata.All);

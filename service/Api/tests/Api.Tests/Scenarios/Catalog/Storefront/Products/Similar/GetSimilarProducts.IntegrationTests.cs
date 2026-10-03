@@ -22,20 +22,20 @@ public sealed class GetSimilarProductsIntegrationTests(ApiFixture fixture) : Cat
             slug = "similar-base-product"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         CreateProductResponse product = createResult.DeserializeValue<CreateProductResponse>()!;
 
         using var activateRequest = new System.Net.Http.HttpRequestMessage(
-            System.Net.Http.HttpMethod.Patch, $"/api/catalog/products/{product.Id}/activate");
+            System.Net.Http.HttpMethod.Patch, $"/api/admin/catalog/products/{product.Id}/activate");
         activateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
             "Bearer", AuthTokenHelper.GenerateAdminToken());
         HttpResponseMessage activateResponse = await Client.SendAsync(activateRequest);
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{product.Id}/similar");
+            $"/api/storefront/products/similar?productId={product.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -47,7 +47,7 @@ public sealed class GetSimilarProductsIntegrationTests(ApiFixture fixture) : Cat
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/api/storefront/products/{nonexistentId}/similar");
+            $"/api/storefront/products/similar?productId={nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Get.PagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.PagedOrAll;
 
 public static partial class GetRolesPagedOrAll
 {
@@ -8,5 +8,5 @@ public static partial class GetRolesPagedOrAll
     /// Represents the response contract for a list of roles, typically used in paged results.
     /// Inherits properties like Id, Name, Description, and IsSystem from <see cref="RoleListResponse"/>.
     /// </summary>
-    public class Response : RoleListResponse { }
+    public record Response : RoleListResponse;
 }

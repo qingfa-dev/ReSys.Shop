@@ -31,7 +31,7 @@ public sealed class SortExpressionBuilderTests
     [Fact]
     public void BuildKeySelector_FromSortClause_ShouldBuildExpression()
     {
-        SortClause clause = new("Name", SortDirection.Descending);
+        SortClause clause = new() { Field = "Name", Direction = SortDirection.Descending };
 
         Expression<Func<TestEntity, object>>? expression = SortExpressionBuilder.BuildKeySelector<TestEntity>(clause);
 

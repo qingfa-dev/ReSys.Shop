@@ -1,0 +1,10 @@
+id: convnext_tiny
+name: "ConvNeXt-Tiny"
+class: "ConvNeXtTinyModel"
+module: "benchmark.models.convnext_tiny"
+backbone: "ConvNeXt-Tiny"
+embedding_dim: 768
+pretrained: "IMAGENET1K_V1"
+batch_size: 64
+image_size: 224
+normalize_embeddings: true

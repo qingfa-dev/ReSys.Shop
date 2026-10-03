@@ -1,0 +1,30 @@
+{
+  "titles": {
+    "list": "Payment Methods",
+    "create": "Add Payment Method",
+    "edit": "Edit Payment Method",
+    "detail": "Payment Detail"
+  },
+  "labels": {
+    "name": "Name",
+    "provider": "Provider",
+    "description": "Description",
+    "is_active": "Active",
+    "display_order": "Display Order"
+  },
+  "actions": {
+    "capture": "Capture",
+    "void": "Void",
+    "refund": "Refund"
+  },
+  "validation": {
+    "name": {
+      "required": "Name is required",
+      "max_length": "Name must not exceed {max} characters"
+    },
+    "provider": {
+      "required": "Provider is required",
+      "max_length": "Provider must not exceed {max} characters"
+    }
+  }
+}

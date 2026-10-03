@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.Paged;
+namespace Module.Catalog.Features.Admin.Taxons.Get.Paged;
 
 public static partial class GetTaxonsAllOrPaged
 {
@@ -8,7 +8,7 @@ public static partial class GetTaxonsAllOrPaged
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Admin.Taxonomies.Taxons.GetAll.Route, async (
+            app.MapGet(CatalogFeature.Admin.Taxons.GetAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -19,9 +19,9 @@ public static partial class GetTaxonsAllOrPaged
             })
             .WithName(nameof(GetTaxonsAllOrPaged))
             .WithTags(CatalogFeature.Tags.Taxon)
-            .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.GetAll.Permission)
-            .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.GetAll.Summary)
-            .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.GetAll.Description)
+            .HasPermission(CatalogFeature.Admin.Taxons.GetAll.Permission)
+            .WithSummary(CatalogFeature.Admin.Taxons.GetAll.Summary)
+            .WithDescription(CatalogFeature.Admin.Taxons.GetAll.Description)
             .Produces<PagedResult<Response>>();
         }
     }

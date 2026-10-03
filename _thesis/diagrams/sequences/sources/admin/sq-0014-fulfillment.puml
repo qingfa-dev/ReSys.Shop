@@ -1,0 +1,51 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0014: Order Fulfillment (SMTP/SendGrid)
+autonumber
+
+actor "Ops Manager" as Admin <<Ops Manager>>
+participant "Admin API" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+participant "Notification\nService" as Mail <<FluentEmail>>
+participant "SMTP / SendGrid" as Provider <<External Provider>>
+
+' ─── Get Orders ──────────────────────────────────────────────
+Admin -> API: Get Pending Orders
+activate API
+    API -> DB: Select State='Paid'
+    activate DB
+    DB --> API: Orders
+    deactivate DB
+    API --> Admin: Order List
+deactivate API
+
+' ─── Fulfillment ─────────────────────────────────────────────
+Admin -> API: Mark Shipped(OrderID, Tracking)
+activate API
+    API -> DB: Update Status='Shipped'
+    activate DB
+    DB --> API: Success
+    deactivate DB
+    
+    ' ─── Email Notification ──────────────────────────────────
+    API -> Mail: SendShippingNotification(Email, Tracking)
+    activate Mail
+        Mail -> Mail: Load Template(Shipping.cshtml)
+        
+        Mail -> Provider: Send(Message)
+        activate Provider
+            note right of Provider
+                Configured in appsettings:
+                "Provider": "smtp" | "sendgrid"
+            end note
+        Provider --> Mail: Queued/Sent
+        deactivate Provider
+        
+        Mail --> API: Success
+    deactivate Mail
+    
+    API --> Admin: Success
+deactivate API
+
+@enduml

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Shared.Performance.Caching.Options;
@@ -9,10 +10,13 @@ namespace Shared.Performance.Caching.Wrappers;
 // Invariant: All operations check Enabled flag first; bypass skips cache entirely and delegates to factory.
 // Boundary: Cache → HybridCache — delegates to .NET 10 HybridCache infrastructure; never accesses Redis/memory directly.
 public sealed partial class CacheService(
-    HybridCache hybridCache,
+    IServiceProvider serviceProvider,
     IOptions<CachingSetting> cachingOptions,
     ILogger<CacheService> logger) : ICacheService
 {
+    private HybridCache? _hybridCache;
+    private HybridCache? HybridCache => _hybridCache ??= serviceProvider.GetService<HybridCache>();
+
     /// <summary>Retrieves a cached value by key or creates and stores it via the factory function.</summary>
     // Contract: pre=key!=null, post=return!=null, throws=Exception on HybridCache failure
     public async ValueTask<T> GetOrCreateAsync<T>(
@@ -23,7 +27,7 @@ public sealed partial class CacheService(
         CancellationToken cancellationToken = default)
     {
         // Guard: bypass cache entirely when disabled and execute factory directly — avoids cache overhead
-        if (!cachingOptions.Value.Enabled)
+        if (!cachingOptions.Value.Enabled || HybridCache is null)
         {
             Loggers.CacheBypassed(logger, key);
             return await factory(cancellationToken);
@@ -31,7 +35,7 @@ public sealed partial class CacheService(
 
         // Call: retrieve from L1/L2 or generate via HybridCache (module boundary: Cache → HybridCache)
         var hceOptions = options.ToHybridCacheEntryOptions();
-        T result = await hybridCache.GetOrCreateAsync(
+        T result = await HybridCache.GetOrCreateAsync(
             key,
             factory,
             hceOptions,
@@ -51,8 +55,8 @@ public sealed partial class CacheService(
         IEnumerable<string>? tags = null,
         CancellationToken cancellationToken = default)
     {
-        // Guard: skip when caching is disabled to avoid unnecessary work
-        if (!cachingOptions.Value.Enabled)
+        // Guard: skip when caching is disabled or HybridCache unavailable
+        if (!cachingOptions.Value.Enabled || HybridCache is null)
         {
             Loggers.CacheBypassed(logger, key);
             return;
@@ -60,7 +64,7 @@ public sealed partial class CacheService(
 
         // Call: persist value in the cache hierarchy (module boundary: Cache → HybridCache)
         var hceOptions = options.ToHybridCacheEntryOptions();
-        await hybridCache.SetAsync(
+        await HybridCache.SetAsync(
             key,
             value,
             hceOptions,
@@ -74,15 +78,15 @@ public sealed partial class CacheService(
     // Contract: pre=key!=null, post=entry evicted, throws=Exception on HybridCache failure
     public async ValueTask RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
-        // Guard: skip when caching is disabled
-        if (!cachingOptions.Value.Enabled)
+        // Guard: skip when caching is disabled or HybridCache unavailable
+        if (!cachingOptions.Value.Enabled || HybridCache is null)
         {
             Loggers.CacheBypassed(logger, key);
             return;
         }
 
         // Call: invalidate entry across all tiers (module boundary: Cache → HybridCache)
-        await hybridCache.RemoveAsync(key, cancellationToken);
+        await HybridCache.RemoveAsync(key, cancellationToken);
 
         Loggers.CacheRemoved(logger, key);
     }
@@ -91,15 +95,15 @@ public sealed partial class CacheService(
     // Contract: pre=tags!=null, post=matching entries evicted, throws=Exception on HybridCache failure
     public async ValueTask RemoveByTagAsync(IEnumerable<string> tags, CancellationToken cancellationToken = default)
     {
-        // Guard: skip when caching is disabled
-        if (!cachingOptions.Value.Enabled)
+        // Guard: skip when caching is disabled or HybridCache unavailable
+        if (!cachingOptions.Value.Enabled || HybridCache is null)
         {
             return;
         }
 
         // Call: bulk invalidate entries by tags (module boundary: Cache → HybridCache)
         IEnumerable<string> enumerable = tags as string[] ?? [.. tags];
-        await hybridCache.RemoveByTagAsync(enumerable, cancellationToken);
+        await HybridCache.RemoveByTagAsync(enumerable, cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -112,14 +116,14 @@ public sealed partial class CacheService(
     // Contract: pre=tag!=null, post=matching entries evicted, throws=Exception on HybridCache failure
     public async ValueTask RemoveByTagAsync(string tag, CancellationToken cancellationToken = default)
     {
-        // Guard: skip when caching is disabled
-        if (!cachingOptions.Value.Enabled)
+        // Guard: skip when caching is disabled or HybridCache unavailable
+        if (!cachingOptions.Value.Enabled || HybridCache is null)
         {
             return;
         }
 
         // Call: invalidate entries by tag (module boundary: Cache → HybridCache)
-        await hybridCache.RemoveByTagAsync(tag, cancellationToken);
+        await HybridCache.RemoveByTagAsync(tag, cancellationToken);
 
         Loggers.CacheRemovedByTag(logger, tag);
     }

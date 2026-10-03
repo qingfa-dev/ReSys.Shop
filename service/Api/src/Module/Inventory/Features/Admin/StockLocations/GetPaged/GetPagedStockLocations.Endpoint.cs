@@ -4,10 +4,12 @@ namespace Module.Inventory.Features.Admin.StockLocations.GetPaged;
 
 public static partial class GetPagedStockLocations
 {
+    /// <summary>Gets paged stock locations.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /admin/inventory/stock-locations — gets paged stock locations
             app.MapGet(InventoryFeature.Admin.StockLocations.GetAll.Route, async (
                 [AsParameters] QueryingParameters parameters,
                 ISender sender,

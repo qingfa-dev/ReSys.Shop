@@ -10,7 +10,7 @@ public sealed class SearchingModelResultTests
     [Fact(DisplayName = "ToValidationResult: Valid model returns IsValid=true, empty violations")]
     public void ToValidationResult_ValidModel_ShouldReturnValid()
     {
-        SearchModel model = new(new SearchTerm("hello"), ["Name", "Description"]);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Name", "Description"]);
 
         SearchValidationResult result = model.ToValidationResult();
 
@@ -22,7 +22,7 @@ public sealed class SearchingModelResultTests
     public void ToValidationResult_InvalidModel_ShouldReturnInvalid()
     {
         HashSet<string> allowedFields = new(["Name"], StringComparer.OrdinalIgnoreCase);
-        SearchModel model = new(new SearchTerm("hello"), ["Forbidden"], SearchMode.Any, allowedFields);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Forbidden"], SearchMode.Any, allowedFields);
 
         SearchValidationResult result = model.ToValidationResult();
 
@@ -34,7 +34,7 @@ public sealed class SearchingModelResultTests
     public void ToValidationResult_ShouldExposeAllowedFields()
     {
         HashSet<string> allowedFields = new(["Name"], StringComparer.OrdinalIgnoreCase);
-        SearchModel model = new(new SearchTerm("hello"), ["Name"], SearchMode.Any, allowedFields);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Name"], SearchMode.Any, allowedFields);
 
         SearchValidationResult result = model.ToValidationResult();
 
@@ -44,7 +44,7 @@ public sealed class SearchingModelResultTests
     [Fact(DisplayName = "ToValidationResult: AllowedFields is null in result when not set")]
     public void ToValidationResult_AllowedFieldsNull_WhenNotSet()
     {
-        SearchModel model = new(new SearchTerm("hello"), []);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, []);
 
         SearchValidationResult result = model.ToValidationResult();
 
@@ -54,9 +54,11 @@ public sealed class SearchingModelResultTests
     [Fact(DisplayName = "SearchValidationResult: Deconstruction works")]
     public void SearchValidationResult_Deconstruction_ShouldWork()
     {
-        SearchValidationResult result = new(false, ["X"], ["A"]);
+        SearchValidationResult result = new() { IsValid = false, Violations = ["X"], AllowedFields = ["A"] };
 
-        (bool isValid, IReadOnlyList<string> violations, IReadOnlyList<string>? allowedFields) = result;
+        bool isValid = result.IsValid;
+        IReadOnlyList<string> violations = result.Violations;
+        IReadOnlyList<string>? allowedFields = result.AllowedFields;
 
         isValid.Should().BeFalse();
         violations.Should().Contain("X");

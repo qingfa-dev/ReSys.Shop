@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Features.Admin.Taxonomies.Create;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Create;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Create;
 
@@ -57,7 +57,7 @@ public class CreateTaxonomyTests : IDisposable
 
         _senderMock.Verify(x => x.Send(
             It.Is<CreateTaxon.Command>(c =>
-                c.TaxonomyId == persisted.Id &&
+                c.Request.TaxonomyId == persisted.Id &&
                 c.Request.Name == "categories" &&
                 c.Request.Presentation == "Product Categories" &&
                 c.Request.Slug == "categories" &&
@@ -68,7 +68,7 @@ public class CreateTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when name is duplicate")]
     public async Task Handle_ShouldReturnFailure_WhenNameIsDuplicate()
     {
-        var existing = TaxonomyExtensions.Create("Categories", "Existing", 0).Value;
+        var existing = TaxonomyMethod.Create("Categories", "Existing", 0).Value;
         _dbContext.Set<Taxonomy>().Add(existing);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -106,7 +106,7 @@ public class CreateTaxonomyTests : IDisposable
         persisted!.Presentation.Should().Be("");
 
         _senderMock.Verify(x => x.Send(
-            It.Is<CreateTaxon.Command>(c => c.TaxonomyId == persisted.Id),
+            It.Is<CreateTaxon.Command>(c => c.Request.TaxonomyId == persisted.Id),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

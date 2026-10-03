@@ -38,8 +38,8 @@ internal static class SearchQueryStringParser
                 caseSensitiveValue = parsed;
             }
 
-            SearchModel model = new SearchModel(
-                new SearchTerm(search.Trim(), caseSensitiveValue),
+            SearchModel model = new(
+                new SearchTerm { Value = search.Trim(), CaseSensitive = caseSensitiveValue },
                 fields,
                 mode,
                 rawInput: search);
@@ -48,7 +48,9 @@ internal static class SearchQueryStringParser
         }
         catch (Exception ex)
         {
-            return SearchingModelResult.Failure.InvalidQueryString(ex.Message);
+            return Result<SearchModel>.Unexpected(
+                exception: ex,
+                errors: [SearchingModelResult.Failure.InvalidQueryString(ex.Message)]);
         }
     }
 }

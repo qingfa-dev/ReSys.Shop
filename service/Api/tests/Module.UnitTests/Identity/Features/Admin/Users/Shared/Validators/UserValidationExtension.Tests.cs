@@ -1,5 +1,5 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
-using Module.Identity.Features.Admin.Users.Shared.Validators;
+using Module.Identity.Features.Admin.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Validators;
 
 namespace Module.UnitTests.Identity.Features.Admin.Users.Shared.Validators;
 
@@ -15,7 +15,7 @@ public class UserValidationTests
         _validator = new TestValidator();
     }
 
-    private sealed class TestRequest : UserParameter { }
+    private sealed record TestRequest : UserParameter;
 
     private sealed class TestValidator : AbstractValidator<TestRequest>
     {

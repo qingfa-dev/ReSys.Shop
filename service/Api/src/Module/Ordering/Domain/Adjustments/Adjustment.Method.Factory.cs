@@ -18,6 +18,10 @@ public static partial class AdjustmentMethod
         bool eligible = AdjustmentConstant.Defaults.Eligible,
         bool included = AdjustmentConstant.Defaults.Included)
     {
+        // Validate: Reject negative amounts
+        if (amount < 0)
+            return AdjustmentResult.Errors.InvalidAmount;
+
         // Format: DisplayAmount uses invariant "F2" — prevents locale-driven decimal separators in API payloads
         // Create: state defaults to "open" so downstream recalculations pick up this adjustment
         return new Adjustment
@@ -36,7 +40,7 @@ public static partial class AdjustmentMethod
             OrderId = orderId,
             // Assign: UTC timestamp + "System" principal — audit trail for all adjustments regardless of origin
             CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = "System"
+            CreatedBy = AdjustmentConstant.Defaults.CreatedBy
         };
     }
     #endregion

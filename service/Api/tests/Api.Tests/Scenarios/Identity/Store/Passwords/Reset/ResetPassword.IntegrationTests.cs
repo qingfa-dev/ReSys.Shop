@@ -17,7 +17,7 @@ public sealed class ResetPasswordIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/reset", request);
+            "/api/storefront/identity/passwords/reset", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -33,13 +33,13 @@ public sealed class ResetPasswordIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/reset", request);
+            "/api/storefront/identity/passwords/reset", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
-    public async Task ResetPassword_WithMissingUserId_Returns422()
+    public async Task ResetPassword_WithMissingUserId_Returns400()
     {
         var request = new
         {
@@ -48,13 +48,13 @@ public sealed class ResetPasswordIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/reset", request);
+            "/api/storefront/identity/passwords/reset", request);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task ResetPassword_WithMissingToken_Returns422()
+    public async Task ResetPassword_WithMissingToken_Returns400()
     {
         var request = new
         {
@@ -63,9 +63,9 @@ public sealed class ResetPasswordIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/reset", request);
+            "/api/storefront/identity/passwords/reset", request);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public sealed class ResetPasswordIntegrationTests(ApiFixture fixture) : Identity
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/reset", request);
+            "/api/storefront/identity/passwords/reset", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }

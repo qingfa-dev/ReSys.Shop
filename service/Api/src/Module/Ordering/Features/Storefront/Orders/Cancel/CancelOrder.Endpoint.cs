@@ -4,11 +4,13 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
 
 public static partial class CancelOrder
 {
+    /// <summary>Maps the storefront order-cancellation route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(OrderingFeature.Storefront.Orders.Cancel.Route, async (
+            // Map: POST api/storefront/orders/{id:guid}/cancel — cancel an order
+            app.MapPost(OrderingFeature.Storefront.Orders.Cancel.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>

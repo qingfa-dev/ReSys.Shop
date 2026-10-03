@@ -1,11 +1,8 @@
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Revoke;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Revoke;
 
 public static partial class RevokeProductClassifications
 {
-    public sealed record Request
-    {
-        public IEnumerable<ProductClassificationAssignmentItem> Items { get; init; } = [];
-    }
+    public sealed record Request : ProductClassificationCollectionParameters;
 }

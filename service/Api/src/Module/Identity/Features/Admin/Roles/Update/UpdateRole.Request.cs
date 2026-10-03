@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Update;
+namespace Module.Identity.Features.Shared.Admin.Roles.Update;
 
 public static partial class UpdateRole
 {
@@ -8,5 +8,5 @@ public static partial class UpdateRole
     /// Represents the request contract for updating an existing role.
     /// Inherits common role properties from <see cref="RoleRequest"/>.
     /// </summary>
-    public class Request : RoleRequest;
+    public record Request : RoleRequest;
 }

@@ -1,0 +1,28 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0011: Manage Taxonomy
+autonumber
+
+actor "Admin" as Admin <<Catalog Manager>>
+participant "Admin API" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+
+Admin -> API: Create Category(Name, ParentID)
+activate API
+    API -> DB: Insert Category
+    activate DB
+    DB --> API: CategoryID
+    deactivate DB
+    API --> Admin: Created
+deactivate API
+
+Admin -> API: Reorder Categories(List<ID>)
+activate API
+    loop For Each Item
+        API -> DB: Update SortOrder
+    end
+    API --> Admin: Success
+deactivate API
+
+@enduml

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Store.Passwords.Forgot;
+using Module.Identity.Features.Shared.Storefront.Passwords.Forgot;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
@@ -26,9 +26,12 @@ public class RequestPasswordResetTests
         _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
         _notificationServiceMock = new Mock<INotificationService>();
 
+        var dateTime = new Mock<ISystemDateTime>();
+        dateTime.Setup(x => x.UtcNow).Returns(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero));
+
         _handler = new RequestPasswordReset.CommandHandler(
             _userManagerMock.Object,
-            Mock.Of<ISystemDateTime>(),
+            dateTime.Object,
             _notificationServiceMock.Object,
             Options.Create(new NotificationSetting { ApplicationUrl = "https://example.com" }),
             Mock.Of<ILogger<RequestPasswordReset.CommandHandler>>());
@@ -45,7 +48,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request("notfound@example.com"));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = "notfound@example.com" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -65,7 +68,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.FindByEmailAsync(user.Email!))
             .ReturnsAsync(user);
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request(user.Email!));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = user.Email! });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -91,7 +94,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Success);
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request(user.Email!));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = user.Email! });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -119,7 +122,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Failed" }));
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request(user.Email!));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = user.Email! });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 

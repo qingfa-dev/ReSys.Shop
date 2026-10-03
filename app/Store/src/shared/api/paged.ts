@@ -1,0 +1,74 @@
+import type { QueryingParameters } from '@/shared/types/querying'
+import { queryingParamsToModel } from '@/shared/types/querying'
+import type { PagedResult } from '@/shared/types/result'
+import { pagedFailure } from '@/shared/types/result'
+import { get, HttpError } from './client'
+import type { ApiError } from '@/shared/types/error'
+
+export interface PagedRequestOptions {
+  allowedFilterFields?: string[]
+  allowedSortFields?: string[]
+  allowedSearchFields?: string[]
+  signal?: AbortSignal
+  headers?: Record<string, string>
+}
+
+// Transform: QueryingParameters → URLSearchParams for HTTP query string
+function buildSearchParams(params: QueryingParameters): URLSearchParams {
+  const sp = new URLSearchParams()
+  if (params.filter) sp.set('filter', params.filter)
+  if (params.search) sp.set('search', params.search)
+  if (params.searchFields?.length) sp.set('searchFields', params.searchFields.join(','))
+  if (params.searchMode) sp.set('searchMode', params.searchMode)
+  if (params.sort?.length) params.sort.forEach(s => sp.append('sort', s))
+  if (params.pageNumber != null) sp.set('page', String(params.pageNumber))
+  if (params.pageSize != null) sp.set('pageSize', String(params.pageSize))
+  // Append: Dedicated storefront filters — repeated params bind to Guid[] on the backend
+  if (params.taxonId?.length) params.taxonId.forEach(id => sp.append('taxonId', id))
+  if (params.optionValueId?.length) params.optionValueId.forEach(id => sp.append('optionValueId', id))
+  if (params.minPrice != null) sp.set('minPrice', String(params.minPrice))
+  if (params.maxPrice != null) sp.set('maxPrice', String(params.maxPrice))
+  // Append: Product context params — bound as separate [FromQuery] on backend endpoints
+  if (params.productId) sp.set('productId', params.productId)
+  if (params.topK != null) sp.set('topK', String(params.topK))
+  return sp
+}
+
+// Call: Paged GET with field whitelists — validates params before building query string
+export async function getPaged<T>(
+  url: string,
+  params: QueryingParameters,
+  options?: PagedRequestOptions,
+): Promise<PagedResult<T>> {
+  // Validate: Parse and whitelist filter/sort/search fields against allowed lists
+  const parsed = queryingParamsToModel(
+    params,
+    options?.allowedFilterFields ?? null,
+    options?.allowedSortFields ?? null,
+    options?.allowedSearchFields ?? null,
+  )
+
+  if (!parsed.isSuccess) {
+    return pagedFailure<T>(parsed.errors, parsed.statusCode)
+  }
+
+  const searchParams = buildSearchParams(params)
+  const qs = searchParams.toString()
+
+  try {
+    const sep = url.includes('?') ? '&' : '?'
+    const fullUrl = qs ? `${url}${sep}${qs}` : url
+    return await get<PagedResult<T>>(fullUrl, { signal: options?.signal, headers: options?.headers })
+  } catch (e) {
+    // Catch: HTTP errors → typed failure result; network errors → generic 500
+    if (e instanceof HttpError) {
+      return pagedFailure<T>(e.errors, e.statusCode)
+    }
+    const apiError: ApiError = {
+      code: 'NetworkError',
+      message: e instanceof Error ? e.message : 'Network request failed.',
+      type: 500,
+    }
+    return pagedFailure<T>([apiError])
+  }
+}

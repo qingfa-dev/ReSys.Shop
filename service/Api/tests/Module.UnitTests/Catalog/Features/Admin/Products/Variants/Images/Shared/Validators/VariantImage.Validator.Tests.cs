@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Http;
 
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Validators;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Shared.Validators;
 
@@ -57,7 +57,7 @@ public class VariantImageParametersValidatorTests
     [Fact(DisplayName = "Parameters: Should fail when type is invalid")]
     public void Validate_WhenTypeInvalid_ShouldHaveError()
     {
-        var model = new TestParameters { Type = "InvalidType" };
+        var model = new TestParameters { Type = (VariantImageType)999 };
         var result = _sut.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Type)
@@ -65,14 +65,12 @@ public class VariantImageParametersValidatorTests
     }
 
     [Theory(DisplayName = "Parameters: Should pass with valid type")]
-    [InlineData("")]
-    [InlineData(null)]
-    [InlineData("Default")]
-    [InlineData("Thumbnail")]
-    [InlineData("Gallery")]
-    public void Validate_WhenTypeValid_ShouldNotHaveError(string? type)
+    [InlineData(VariantImageType.Default)]
+    [InlineData(VariantImageType.Thumbnail)]
+    [InlineData(VariantImageType.Gallery)]
+    public void Validate_WhenTypeValid_ShouldNotHaveError(VariantImageType type)
     {
-        var model = new TestParameters { Type = type ?? string.Empty };
+        var model = new TestParameters { Type = type };
         var result = _sut.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(x => x.Type);
@@ -144,6 +142,43 @@ public class UploadImageRequestValidatorTests
             .WithErrorCode(VariantImageResult.Failure.FileTooLarge.Code);
     }
 
+    [Theory(DisplayName = "Upload: Should fail when extension is disallowed")]
+    [InlineData(".exe")]
+    [InlineData(".php")]
+    [InlineData(".html")]
+    [InlineData(".bmp")]
+    public void Validate_WhenExtensionDisallowed_ShouldHaveError(string extension)
+    {
+        var file = new FormFile(Stream.Null, 0, 1024, "file", $"evil{extension}")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/jpeg"
+        };
+        var model = new UploadImageRequest { File = file };
+        var result = _sut.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.File.FileName);
+    }
+
+    [Theory(DisplayName = "Upload: Should pass when extension is allowed")]
+    [InlineData(".jpg")]
+    [InlineData(".jpeg")]
+    [InlineData(".png")]
+    [InlineData(".gif")]
+    [InlineData(".webp")]
+    public void Validate_WhenExtensionAllowed_ShouldNotHaveError(string extension)
+    {
+        var file = new FormFile(new MemoryStream(new byte[1024]), 0, 1024, "file", $"image{extension}")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/jpeg"
+        };
+        var model = new UploadImageRequest { File = file, Position = 1, Type = VariantImageType.Gallery };
+        var result = _sut.TestValidate(model);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
     [Fact(DisplayName = "Upload: Should pass with valid file")]
     public void Validate_WhenValid_ShouldNotHaveError()
     {
@@ -152,7 +187,7 @@ public class UploadImageRequestValidatorTests
             Headers = new HeaderDictionary(),
             ContentType = "image/jpeg"
         };
-        var model = new UploadImageRequest { File = file, Position = 1, Type = "Gallery" };
+        var model = new UploadImageRequest { File = file, Position = 1, Type = VariantImageType.Gallery };
         var result = _sut.TestValidate(model);
 
         result.ShouldNotHaveAnyValidationErrors();
@@ -169,7 +204,7 @@ public class UpdateImageRequestValidatorTests
     [Fact(DisplayName = "Update: Should pass with valid update request")]
     public void Validate_WhenValid_ShouldNotHaveError()
     {
-        var model = new UpdateImageRequest { Alt = "Updated alt", Position = 2, Type = "Thumbnail" };
+        var model = new UpdateImageRequest { Alt = "Updated alt", Position = 2, Type = VariantImageType.Thumbnail };
         var result = _sut.TestValidate(model);
 
         result.ShouldNotHaveAnyValidationErrors();
@@ -188,10 +223,19 @@ public class UpdateImageRequestValidatorTests
     [Fact(DisplayName = "Update: Should fail when type is invalid")]
     public void Validate_WhenTypeInvalid_ShouldHaveError()
     {
-        var model = new UpdateImageRequest { Type = "BogusType" };
+        var model = new UpdateImageRequest { Type = (VariantImageType)999 };
         var result = _sut.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor("Type")
             .WithErrorCode(VariantImageResult.Failure.InvalidType.Code);
+    }
+
+    [Fact(DisplayName = "Update: Should pass when type is not provided (null)")]
+    public void Validate_WhenTypeNull_ShouldNotHaveError()
+    {
+        var model = new UpdateImageRequest { Alt = "Updated alt", Position = 2 };
+        var result = _sut.TestValidate(model);
+
+        result.ShouldNotHaveValidationErrorFor("Type");
     }
 }

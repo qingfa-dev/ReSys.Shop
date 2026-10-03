@@ -4,11 +4,12 @@ namespace Module.Inventory.Features.Admin.StockTransfers.Cancel;
 
 public static partial class CancelStockTransfer
 {
-    /// <summary>Registers the stock transfer endpoint.</summary>
+    /// <summary>Cancels a stock transfer.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /admin/inventory/stock-transfers/{id}/cancel — cancels a stock transfer
             app.MapPost(InventoryFeature.Admin.StockTransfers.Cancel.Route, async (
                 Guid id,
                 ISender sender,

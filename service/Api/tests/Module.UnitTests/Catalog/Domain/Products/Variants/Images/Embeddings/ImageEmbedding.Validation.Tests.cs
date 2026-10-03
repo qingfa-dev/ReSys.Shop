@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Domain.Variants.Images.Embeddings;
 
 namespace Module.UnitTests.Catalog.Domain.Products.Variants.Images.Embeddings;
 

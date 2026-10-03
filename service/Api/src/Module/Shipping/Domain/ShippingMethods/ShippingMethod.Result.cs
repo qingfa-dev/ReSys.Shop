@@ -65,6 +65,11 @@ public static class ShippingMethodResult
             code: "ShippingMethod.Calculator.TooLong",
             message: $"Shipping method calculator type cannot exceed {ShippingMethodConstant.Constraints.MaxCalculatorTypeLength} characters.");
 
+        /// <summary>Returns a validation error indicating presentation is too long.</summary>
+        public static Error PresentationTooLong => Error.Validation(
+            code: "ShippingMethod.Presentation.TooLong",
+            message: $"Shipping method presentation cannot exceed {ShippingMethodConstant.Constraints.MaxPresentationLength} characters.");
+
         /// <summary>Returns a validation error indicating the ID is required.</summary>
         public static Error IdRequired => Error.Validation(
             code: "ShippingMethod.Id.Required",

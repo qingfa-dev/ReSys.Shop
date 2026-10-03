@@ -27,7 +27,7 @@ internal static class SortQueryStringParser
             if (string.IsNullOrEmpty(field))
                 return SortModelResult.Failure.MissingField;
 
-            return new SortClause(field, dir);
+            return new SortClause { Field = field, Direction = dir };
         }
 
         // Branch B: Colon-separated field:direction pair.
@@ -43,13 +43,13 @@ internal static class SortQueryStringParser
             Result<SortDirection> dirResult = SortParserHelpers.ParseDirection(dirToken);
             if (dirResult.IsFailure) return dirResult.Errors;
 
-            return new SortClause(field, dirResult.Value);
+            return new SortClause { Field = field, Direction = dirResult.Value };
         }
 
         // Branch C: Bare field name — defaults to ascending.
         if (string.IsNullOrEmpty(entry))
             return SortModelResult.Failure.MissingField;
 
-        return new SortClause(entry, SortDirection.Ascending);
+        return new SortClause { Field = entry, Direction = SortDirection.Ascending };
     }
 }

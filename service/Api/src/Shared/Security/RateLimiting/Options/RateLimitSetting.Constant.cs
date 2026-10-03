@@ -21,6 +21,8 @@ public static class RateLimitSettingConstant
 
         public const string Payment = "payment";
 
+        public const string Webhook = "webhook";
+
         public const string Default = "default";
     }
 }

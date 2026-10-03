@@ -511,35 +511,4 @@ testing:
             result.Should().Be(42);
         }
 
-file_structure: |
-  Performance/
-  ├── README.yaml                          # This documentation
-  ├── Performance.Extension.cs             # Top-level AddPerformance() extension
-  └── Caching/
-      ├── Caching.Extension.cs             # AddCaching() registration and config
-      ├── Options/
-      │   ├── CachingSetting.cs            # Root config class (SectionName, Enabled)
-      │   ├── CachingSetting.Constant.cs   # Connection string key constants
-      │   ├── CachingSetting.Result.cs     # Validation error factories
-      │   ├── CachingSetting.Validator.cs  # FluentValidation rules
-      │   ├── Distributed/
-      │   │   ├── DistributedCacheSetting.cs           # L2 config (Type, Expiration)
-      │   │   ├── DistributedCacheSetting.Constant.cs  # Valid provider types
-      │   │   ├── DistributedCacheSetting.Result.cs    # Validation errors
-      │   │   └── DistributedCacheSetting.Validator.cs # FluentValidation rules
-      │   ├── Hybrid/
-      │   │   ├── HybridCacheSetting.cs              # Hybrid config (Payload, KeyLength)
-      │   │   ├── HybridCacheSetting.Constant.cs    # Constraints and defaults
-      │   │   ├── HybridCacheSetting.Result.cs      # Validation errors
-      │   │   └── HybridCacheSetting.Validator.cs   # FluentValidation rules
-      │   └── InMemory/
-      │       ├── MemoryCacheSetting.cs            # L1 config (Compaction, SizeLimit)
-      │       ├── MemoryCacheSetting.Constant.cs   # Constraints and defaults
-      │       ├── MemoryCacheSetting.Result.cs     # Validation errors
-      │       └── MemoryCacheSetting.Validator.cs  # FluentValidation rules
-      └── Wrappers/
-          ├── Caching.Service.Interface.cs   # ICacheService contract
-          ├── Caching.Service.Implement.cs   # CacheService implementation
-          ├── Caching.Service.Loggers.cs     # Source-generated log messages
-          ├── CachingEntryOption.cs          # Per-entry cache options
-          └── CachingEntryOption.Converter.cs # Option-to-HybridCache bridge
+tree_file: docs/codebase/shared.tree.txt

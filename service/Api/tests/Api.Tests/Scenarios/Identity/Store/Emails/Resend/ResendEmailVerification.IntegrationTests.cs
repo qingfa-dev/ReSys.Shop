@@ -15,7 +15,7 @@ public sealed class ResendEmailVerificationIntegrationTests(ApiFixture fixture) 
         var request = new { email };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/resend", request);
+            "/api/storefront/identity/emails/resend", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -26,7 +26,7 @@ public sealed class ResendEmailVerificationIntegrationTests(ApiFixture fixture) 
         var request = new { email = "nonexistent@example.com" };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/resend", request);
+            "/api/storefront/identity/emails/resend", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -35,7 +35,7 @@ public sealed class ResendEmailVerificationIntegrationTests(ApiFixture fixture) 
     public async Task ResendVerification_WithMissingEmail_Returns422()
     {
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/resend", new { });
+            "/api/storefront/identity/emails/resend", new { });
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }

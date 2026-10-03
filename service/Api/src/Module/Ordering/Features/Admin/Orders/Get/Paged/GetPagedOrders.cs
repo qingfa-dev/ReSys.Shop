@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.Paged;
 
@@ -17,10 +17,16 @@ public static partial class GetPagedOrders
         /// <returns>The paged order list response.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var parsing = request.Parameters.ParseAll();
+            // Contract: pre=request!=null, post=result!=null
+            // Validate: Parse and validate paging/filtering/sorting parameters.
+            var parsing = request.Parameters.ParseAll(
+                allowedFilterFields: OrderConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: OrderConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: OrderConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Map: Apply filters and project to list-item DTO.
             var pagedResult = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .AsNoTracking()

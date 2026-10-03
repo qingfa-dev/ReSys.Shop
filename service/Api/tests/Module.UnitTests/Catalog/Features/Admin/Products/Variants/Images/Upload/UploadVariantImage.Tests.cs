@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Upload;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Upload;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Upload;
 
@@ -17,6 +17,7 @@ public class UploadVariantImageTests : IDisposable
     private readonly Mock<ILogger<UploadVariantImage.CommandHandler>> _loggerMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly UploadVariantImage.CommandHandler _handler;
+    private string? CapturedStorageKey;
 
     public UploadVariantImageTests()
     {
@@ -51,12 +52,14 @@ public class UploadVariantImageTests : IDisposable
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var uploadResult = Result<UploadResult>.Ok(new UploadResult(
-            Key: "catalog/variants/1/images/img.jpg",
-            Provider: "local",
-            Uri: new Uri("https://cdn.test.com/media/img.jpg"),
-            SizeBytes: 2048,
-            StoredAtUtc: DateTimeOffset.UtcNow));
+        var uploadResult = Result<UploadResult>.Ok(new UploadResult
+        {
+            Key = "catalog/variants/1/images/img.jpg",
+            Provider = "local",
+            Uri = new Uri("https://cdn.test.com/media/img.jpg"),
+            SizeBytes = 2048,
+            StoredAtUtc = DateTimeOffset.UtcNow
+        });
 
         _storageServiceMock
             .Setup(x => x.UploadAsync(
@@ -77,7 +80,7 @@ public class UploadVariantImageTests : IDisposable
             File = file,
             Alt = "Test image",
             Position = 1,
-            Type = "Gallery"
+            Type = VariantImageType.Gallery
         };
 
         var result = await _handler.Handle(
@@ -92,7 +95,7 @@ public class UploadVariantImageTests : IDisposable
         result.Value.FileSize.Should().Be(2048);
         result.Value.Alt.Should().Be("Test image");
         result.Value.Position.Should().Be(1);
-        result.Value.Type.Should().Be("Gallery");
+        result.Value.Type.Should().Be(VariantImageType.Gallery);
 
         var persisted = await _dbContext.Set<VariantImage>()
             .FirstOrDefaultAsync(x => x.Id == result.Value.Id, TestContext.Current.CancellationToken);
@@ -149,5 +152,105 @@ public class UploadVariantImageTests : IDisposable
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Storage.Error");
+    }
+
+    [Fact(DisplayName = "Handler: sanitizes filename with path traversal characters")]
+    public async Task Handle_PathTraversalFileName_SanitizesToLeaf()
+    {
+        var product = ProductMethod.Create("Test Product", "test-product", status: ProductStatus.Draft).Value;
+        var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
+        _dbContext.Set<Product>().Add(product);
+        _dbContext.Set<Variant>().Add(variant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var uploadResult = Result<UploadResult>.Ok(new UploadResult
+        {
+            Key = "catalog/variants/1/images/passwd.jpg",
+            Provider = "local",
+            Uri = new Uri("https://cdn.test.com/media/passwd.jpg"),
+            SizeBytes = 2048,
+            StoredAtUtc = DateTimeOffset.UtcNow
+        });
+
+        _storageServiceMock
+            .Setup(x => x.UploadAsync(
+                It.IsAny<UploadRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<UploadOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<UploadRequest, string?, UploadOptions?, CancellationToken>((req, _, _, _) => CapturedStorageKey = req.Key)
+            .ReturnsAsync(uploadResult);
+
+        var file = new FormFile(new MemoryStream(new byte[2048]), 0, 2048, "file", "../../../etc/passwd.jpg")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/jpeg"
+        };
+
+        var request = new UploadVariantImage.Request
+        {
+            File = file,
+            Alt = "Test",
+            Position = 1,
+            Type = VariantImageType.Gallery
+        };
+
+        var result = await _handler.Handle(
+            new UploadVariantImage.Command(variant.Id, request),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        CapturedStorageKey.Should().EndWith("passwd.jpg");
+        CapturedStorageKey.Should().NotContain("..");
+    }
+
+    [Fact(DisplayName = "Handler: Should demote the prior Search image when uploading a new Search image")]
+    public async Task Handle_ShouldDemotePriorSearch_WhenUploadingNewSearch()
+    {
+        var product = ProductMethod.Create("Test Product", "test-product", status: ProductStatus.Draft).Value;
+        var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
+        _dbContext.Set<Product>().Add(product);
+        _dbContext.Set<Variant>().Add(variant);
+
+        var existing = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create(
+            "image/jpeg", "old.jpg", 1024,
+            url: "https://cdn.test.com/old.jpg", storagePath: "u/old.jpg",
+            position: 0, type: VariantImageType.Search, variantId: variant.Id).Value;
+        _dbContext.Set<VariantImage>().Add(existing);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var uploadResult = Result<UploadResult>.Ok(new UploadResult
+        {
+            Key = "catalog/variants/1/images/new.jpg",
+            Provider = "local",
+            Uri = new Uri("https://cdn.test.com/media/new.jpg"),
+            SizeBytes = 2048,
+            StoredAtUtc = DateTimeOffset.UtcNow
+        });
+        _storageServiceMock
+            .Setup(x => x.UploadAsync(
+                It.IsAny<UploadRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<UploadOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(uploadResult);
+
+        var file = new FormFile(new MemoryStream(new byte[2048]), 0, 2048, "file", "new.jpg")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/jpeg"
+        };
+
+        var request = new UploadVariantImage.Request { File = file, Type = VariantImageType.Search };
+        var result = await _handler.Handle(
+            new UploadVariantImage.Command(variant.Id, request),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Type.Should().Be(VariantImageType.Search);
+
+        var demoted = await _dbContext.Set<VariantImage>()
+            .FirstAsync(x => x.Id == existing.Id, TestContext.Current.CancellationToken);
+        demoted.Type.Should().Be(VariantImageType.Thumbnail);
     }
 }

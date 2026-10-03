@@ -10,7 +10,7 @@ public sealed class SortClauseTests
     [Fact]
     public void Constructor_WithDefaultParameters_ShouldUseDefaults()
     {
-        SortClause clause = new("Name");
+        SortClause clause = new() { Field = "Name" };
 
         clause.Field.Should().Be("Name");
         clause.Direction.Should().Be(SortDirection.Ascending);
@@ -24,8 +24,8 @@ public sealed class SortClauseTests
     public void Equality_ShouldWork(
         string fieldA, string fieldB, SortDirection dir, SortNulls? nulls, bool expectEqual)
     {
-        SortClause a = new(fieldA, dir, nulls);
-        SortClause b = new(fieldB, dir, nulls);
+        SortClause a = new() { Field = fieldA, Direction = dir, Nulls = nulls };
+        SortClause b = new() { Field = fieldB, Direction = dir, Nulls = nulls };
 
         if (expectEqual)
             a.Should().Be(b);

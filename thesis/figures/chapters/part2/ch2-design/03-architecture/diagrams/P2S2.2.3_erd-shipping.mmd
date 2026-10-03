@@ -1,0 +1,44 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '64px'}}}%%
+erDiagram
+
+  ShippingMethod {
+    uuid id PK
+    string name
+    string code
+    string calculator_type
+    bool available_to_users
+    string tracking_url
+  }
+
+  ShippingRate {
+    uuid id PK
+    uuid shipping_method_id FK
+    string name
+    decimal cost
+    decimal final_price
+    decimal min_weight
+    decimal max_weight
+    decimal free_shipping_threshold
+  }
+
+  ShippingMethodZone {
+    uuid id PK
+    uuid shipping_method_id FK
+    string country_code
+    string state_code
+  }
+
+  Shipment {
+    uuid id PK
+    uuid order_id FK
+    uuid shipping_method_id FK
+    uuid address_id FK
+    string tracking_number
+    string status
+    datetime shipped_at_utc
+    datetime delivered_at_utc
+  }
+
+  ShippingMethod ||--o{ ShippingRate : ""
+  ShippingMethod ||--o{ ShippingMethodZone : ""
+  ShippingMethod ||--o{ Shipment : ""

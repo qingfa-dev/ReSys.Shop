@@ -127,7 +127,11 @@ public sealed partial class SearchModel
     /// <c>[Entity]Constant.Query.SearchableFields</c>.
     /// </param>
     public IReadOnlyList<string> ResolveFields(IReadOnlyList<string> defaultFields)
-        => Fields.Count > 0 ? Fields : defaultFields;
+    {
+        if (Fields.Count > 0) return Fields;
+        if (defaultFields.Count > 0) return defaultFields;
+        return AllowedFields?.ToList().AsReadOnly() ?? [];
+    }
 
     #endregion Derived Views
 
@@ -137,7 +141,7 @@ public sealed partial class SearchModel
     /// Returns an empty <see cref="SearchModel"/> with no term, no fields, and no violations.
     /// </summary>
     public static SearchModel Empty { get; } =
-        new(new SearchTerm(string.Empty), [], SearchMode.Any);
+        new(new SearchTerm { Value = string.Empty }, [], SearchMode.Any);
 
     #endregion Static Factories
 

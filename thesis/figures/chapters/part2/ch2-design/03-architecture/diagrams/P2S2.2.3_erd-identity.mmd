@@ -1,0 +1,77 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '64px'}}}%%
+erDiagram
+
+  User {
+    uuid id PK
+    string email UK
+    string user_name
+    string password_hash
+    string phone_number
+    bool email_confirmed
+    bool two_factor_enabled
+    bool is_active
+  }
+
+  Role {
+    uuid id PK
+    string name UK
+    string description
+    bool is_system
+  }
+
+  UserRole {
+    uuid user_id PK
+    uuid role_id PK
+  }
+
+  UserClaim {
+    uuid id PK
+    uuid user_id FK
+    string claim_type
+    string claim_value
+  }
+
+  RoleClaim {
+    uuid id PK
+    uuid role_id FK
+    string claim_type
+    string claim_value
+  }
+
+  UserLogin {
+    uuid user_id PK
+    string login_provider PK
+    string provider_key
+  }
+
+  UserToken {
+    uuid user_id PK
+    string login_provider PK
+    string name PK
+    string value
+  }
+
+  RefreshToken {
+    uuid id PK
+    uuid user_id FK
+    uuid token_family_id FK
+    string token_hash
+    datetime expires_at_utc
+    datetime revoked_at_utc
+    string device_id
+  }
+
+  Passkey {
+    uuid id PK
+    uuid user_id FK
+    bytea credential_id
+  }
+
+  User ||--o{ UserRole : ""
+  Role ||--o{ UserRole : ""
+  User ||--o{ UserClaim : ""
+  Role ||--o{ RoleClaim : ""
+  User ||--o{ UserLogin : ""
+  User ||--o{ UserToken : ""
+  User ||--o{ RefreshToken : ""
+  User ||--o{ Passkey : ""

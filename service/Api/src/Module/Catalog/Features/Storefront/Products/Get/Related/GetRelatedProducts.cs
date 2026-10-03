@@ -1,6 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
-using Module.Catalog.Features.Storefront.Products.Shared.Models;
+using Module.Catalog.Features.Storefront.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Related;
 
@@ -11,10 +10,6 @@ public static partial class GetRelatedProducts
 {
     public sealed record Query(Guid Id, Parameters Parameters) : IPagedQuery<Response>;
 
-    public record Parameters : QueryingParameters;
-
-public record Response : StoreProductListItemResponse;
-
     /// <summary>
     /// Retrieves related products for a given product using shared taxon strategy.
     /// Page size from parameters controls the number of related products returned.
@@ -23,15 +18,22 @@ public record Response : StoreProductListItemResponse;
         IApplicationDbContext dbContext,
         ILogger<PagedQueryHandler> logger) : IPagedQueryHandler<Query, Response>
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// Retrieves related products by shared taxon strategy, sorted by overlapping classification count.
+        /// </summary>
+        /// <param name="query">The query containing the product ID and pagination parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A paged result of related product list items.</returns>
         // Contract: pre=query.Id!=Guid.Empty, post=result.Items!=null
         public async Task<PagedResult<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Load: Product by ID with classifications for taxon discovery
             var product = await dbContext.Set<Product>()
                 .Include(x => x.Classifications)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == query.Id && !x.IsDeleted, cancellationToken);
 
+            // Check: Product must exist to find related items
             if (product is null)
             {
                 // Log: Record product not found for observability
@@ -52,6 +54,7 @@ public record Response : StoreProductListItemResponse;
 
             var parameters = query.Parameters;
 
+            // Compute: Build related-products query via shared taxon matching
             var relatedQuery = dbContext.Set<Product>()
                 .Include(x => x.Variants)
                     .ThenInclude(v => v.Prices)
@@ -64,7 +67,10 @@ public record Response : StoreProductListItemResponse;
                 .AsNoTracking();
 
             // Parse: Validate and parse querying parameters
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: ProductConstant.Query.AllowedFilterFields,
+                allowedSearchFields: ProductConstant.Query.AllowedSearchFields,
+                allowedSortFields: ProductConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

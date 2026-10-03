@@ -17,7 +17,7 @@ public sealed class ChangeEmailIntegrationTests(ApiFixture fixture) : IdentityIn
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/change", request);
+            "/api/storefront/identity/emails/change", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -33,7 +33,7 @@ public sealed class ChangeEmailIntegrationTests(ApiFixture fixture) : IdentityIn
         };
 
         using HttpRequestMessage httpRequest = IdentityTestHelper.CreateUserRequest(
-            HttpMethod.Post, "/api/store/identity/emails/change", userId, email,
+            HttpMethod.Post, "/api/storefront/identity/emails/change", userId, email,
             JsonContent.Create(request));
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);
@@ -52,7 +52,7 @@ public sealed class ChangeEmailIntegrationTests(ApiFixture fixture) : IdentityIn
         };
 
         using HttpRequestMessage httpRequest = IdentityTestHelper.CreateUserRequest(
-            HttpMethod.Post, "/api/store/identity/emails/change", userId, email,
+            HttpMethod.Post, "/api/storefront/identity/emails/change", userId, email,
             JsonContent.Create(request));
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);
@@ -72,7 +72,7 @@ public sealed class ChangeEmailIntegrationTests(ApiFixture fixture) : IdentityIn
         };
 
         using HttpRequestMessage httpRequest = IdentityTestHelper.CreateUserRequest(
-            HttpMethod.Post, "/api/store/identity/emails/change", userId, email,
+            HttpMethod.Post, "/api/storefront/identity/emails/change", userId, email,
             JsonContent.Create(request));
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);

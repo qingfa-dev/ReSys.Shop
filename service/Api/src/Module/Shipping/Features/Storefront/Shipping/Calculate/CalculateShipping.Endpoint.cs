@@ -8,12 +8,17 @@ public static partial class CalculateShipping
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(ShippingFeature.Storefront.Shipping.Calculate.Route, async (
-                [FromBody] Request request,
+            app.MapGet(ShippingFeature.Storefront.Shipping.Calculate.Route, async (
+                [FromQuery] Guid shippingMethodId,
+                [FromQuery] Guid orderId,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var result = await sender.Send(new Command(request), ct);
+                var result = await sender.Send(new Command(new Request
+                {
+                    ShippingMethodId = shippingMethodId,
+                    OrderId = orderId
+                }), ct);
                 return result.ToResult();
             })
             .RequireAuthorization()

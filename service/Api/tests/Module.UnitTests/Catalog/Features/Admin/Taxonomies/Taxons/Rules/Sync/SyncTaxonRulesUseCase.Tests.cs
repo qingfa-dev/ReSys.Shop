@@ -1,8 +1,9 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
+using Module.Catalog.Features.Admin.Shared.Models;
+using Module.Catalog.Features.Admin.Taxons.Rules.Sync;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
 
@@ -13,8 +14,8 @@ public class SyncTaxonRulesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IAutoClassificationService> _autoClassificationMock;
-    private readonly Mock<ILogger<SyncTaxonRules.CommandHandler>> _loggerMock;
-    private readonly SyncTaxonRules.CommandHandler _handler;
+    private readonly Mock<ILogger<SyncTaxonRules.PagedQueryHandler>> _loggerMock;
+    private readonly SyncTaxonRules.PagedQueryHandler _handler;
 
     public SyncTaxonRulesTests()
     {
@@ -29,9 +30,9 @@ public class SyncTaxonRulesTests : IDisposable
         _autoClassificationMock.Setup(x => x.RegenerateForTaxonAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        _loggerMock = new Mock<ILogger<SyncTaxonRules.CommandHandler>>();
+        _loggerMock = new Mock<ILogger<SyncTaxonRules.PagedQueryHandler>>();
 
-        _handler = new SyncTaxonRules.CommandHandler(_dbContext, _autoClassificationMock.Object, _loggerMock.Object);
+        _handler = new SyncTaxonRules.PagedQueryHandler(_dbContext, _autoClassificationMock.Object, _loggerMock.Object);
     }
 
     public void Dispose()
@@ -43,7 +44,7 @@ public class SyncTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should add new rules when they have no Id")]
     public async Task Handle_ShouldAddNewRules_WhenNoId()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -54,13 +55,13 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
                     Value = "T-Shirt"
                 },
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_price",
                     MatchPolicy = "greater_than",
@@ -69,10 +70,10 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().HaveCount(2);
+        result.Items.Should().HaveCount(2);
 
         var persisted = await _dbContext.Set<TaxonRule>().Where(x => x.TaxonId == taxon.Id).ToListAsync(TestContext.Current.CancellationToken);
         persisted.Should().HaveCount(2);
@@ -81,7 +82,7 @@ public class SyncTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should update existing and remove omitted rules")]
     public async Task Handle_ShouldUpdateAndRemove_WhenIdsProvided()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var existingRule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
         var toRemove = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductSku, TaxonRuleMatchPolicy.Contains, "XYZ");
@@ -95,7 +96,7 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Id = existingRule.Id,
                     Type = "product_price",
@@ -105,10 +106,10 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().HaveCount(1);
+        result.Items.Should().HaveCount(1);
 
         var updated = await _dbContext.Set<TaxonRule>().FindAsync([existingRule.Id], TestContext.Current.CancellationToken);
         updated.Should().NotBeNull();
@@ -122,7 +123,7 @@ public class SyncTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should handle mixed add-update-remove correctly")]
     public async Task Handle_ShouldHandleMixedScenario()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var keep = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Keep");
         var remove = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductSku, TaxonRuleMatchPolicy.Contains, "Remove");
@@ -136,14 +137,14 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Id = keep.Id,
                     Type = "product_price",
                     MatchPolicy = "greater_than",
                     Value = "25.00"
                 },
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_sku",
                     MatchPolicy = "is_equal_to",
@@ -152,10 +153,10 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().HaveCount(2);
+        result.Items.Should().HaveCount(2);
 
         var allPersisted = await _dbContext.Set<TaxonRule>().Where(x => x.TaxonId == taxon.Id).ToListAsync(TestContext.Current.CancellationToken);
         allPersisted.Should().HaveCount(2);
@@ -164,7 +165,7 @@ public class SyncTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should remove all existing rules when incoming list is empty")]
     public async Task Handle_ShouldRemoveAll_WhenEmptyIncomingList()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var rule1 = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "A");
         var rule2 = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductPrice, TaxonRuleMatchPolicy.GreaterThan, "10");
@@ -176,10 +177,10 @@ public class SyncTaxonRulesTests : IDisposable
 
         var request = new SyncTaxonRules.Request { Rules = [] };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Rules.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
 
         var persisted = await _dbContext.Set<TaxonRule>().Where(x => x.TaxonId == taxon.Id).ToListAsync(TestContext.Current.CancellationToken);
         persisted.Should().BeEmpty();
@@ -189,17 +190,17 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
         var result = await _handler.Handle(
-            new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request()),
+            new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request()),
             TestContext.Current.CancellationToken);
 
-        result.IsFailure.Should().BeTrue();
+        result.IsSuccess.Should().BeFalse();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
     }
 
     [Fact(DisplayName = "Handler: Should trigger auto-classification when taxon is automatic")]
     public async Task Handle_ShouldTriggerAutoClassification_WhenTaxonIsAutomatic()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -210,7 +211,7 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
@@ -219,7 +220,7 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -229,7 +230,7 @@ public class SyncTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should not propagate exception when auto-classification throws")]
     public async Task Handle_ShouldNotPropagate_WhenAutoClassificationThrows()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -243,7 +244,7 @@ public class SyncTaxonRulesTests : IDisposable
         {
             Rules =
             [
-                new SyncTaxonRules.SyncItem
+                new SyncItem
                 {
                     Type = "product_name",
                     MatchPolicy = "is_equal_to",
@@ -252,38 +253,10 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return taxon-not-found when taxon belongs to different taxonomy")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonIdMismatch()
-    {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var otherTaxonomy = TaxonomyExtensions.Create("Brands", "Brands", 0).Value;
-        var taxon = TaxonMethod.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
-        _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);
-        _dbContext.Set<Taxon>().Add(taxon);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var request = new SyncTaxonRules.Request
-        {
-            Rules =
-            [
-                new SyncTaxonRules.SyncItem
-                {
-                    Type = "product_name",
-                    MatchPolicy = "is_equal_to",
-                    Value = "Shirt"
-                }
-            ]
-        };
-
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
-    }
 }

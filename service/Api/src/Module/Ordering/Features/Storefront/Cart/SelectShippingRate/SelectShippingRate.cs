@@ -1,6 +1,5 @@
-using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
-using Module.Shipping.Domain.Calculators;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
 
@@ -35,68 +34,41 @@ public static partial class SelectShippingRate
             if (cart is null)
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
-            // Update: Set shipping method on cart.
-            cart.ShippingMethodId = command.Request.ShippingMethodId;
-            cart.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            // Update: Set shipping method on cart via domain method.
+            var previousMethodId = cart.ShippingMethodId;
+            var previousTotal = cart.Total;
+            var methodResult = cart.SetShippingMethod(command.Request.ShippingMethodId);
+            if (methodResult.IsFailure)
+                return methodResult.Errors;
 
-            // Compute: Calculate total order weight from variant weights.
-            var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
-            var variantWeights = await dbContext.Set<Catalog.Domain.Products.Variants.Variant>()
-                .Where(v => variantIds.Contains(v.Id))
-                .Select(v => new { v.Id, v.Weight })
-                .ToListAsync(cancellationToken);
+            // Apply: Authoritative server-side shipping cost for the selected method.
+            var costResult = await ShippingCostApplier.ApplyAsync(
+                dbContext, cart, command.Request.ShippingMethodId, cancellationToken);
+            if (costResult.IsFailure)
+                return costResult.Errors;
 
-            var weightMap = variantWeights.ToDictionary(v => v.Id, v => v.Weight ?? 0m);
-            var orderWeight = cart.LineItems.Sum(li =>
-                weightMap.TryGetValue(li.VariantId, out var w) ? li.Quantity * w : 0m);
+            cart.RegressCheckoutIfAmountChanged(previousTotal);
 
-            // Compute: Calculate shipping cost for the selected method.
-            var calcResult = await ShippingRateCalculator.CalculateAsync(
-                dbContext,
-                command.Request.ShippingMethodId,
-                orderWeight,
-                cart.Total,
-                cancellationToken);
-
-            if (calcResult.IsSuccess)
+            // Re-pick: a shipping method change at Payment regresses to Delivery so the
+            // customer re-selects a payment method against the new shipping cost.
+            if (cart.CheckoutState == CheckoutState.PickPaymentMethod
+                && command.Request.ShippingMethodId != previousMethodId)
             {
-                var (cost, _) = calcResult.Value;
-
-                // Remove: Clear old shipping adjustments before adding replacement.
-                var existingShipping = cart.Adjustments
-                    .Where(a => a.SourceType == "Shipping")
-                    .ToList();
-                foreach (var adj in existingShipping)
-                {
-                    cart.Adjustments.Remove(adj);
-                    dbContext.Set<Adjustment>().Remove(adj);
-                }
-
-                // Create: Add shipping adjustment with computed cost.
-                if (cost > 0)
-                {
-                    var adjResult = AdjustmentMethod.Create(
-                        label: "Shipping",
-                        amount: cost,
-                        adjustableId: cart.Id,
-                        adjustableType: "Order",
-                        sourceId: command.Request.ShippingMethodId,
-                        sourceType: "Shipping",
-                        orderId: cart.Id);
-
-                    if (adjResult.IsSuccess)
-                    {
-                        cart.Adjustments.Add(adjResult.Value);
-                        dbContext.Set<Adjustment>().Add(adjResult.Value);
-                    }
-                }
+                var regress = cart.RegressCheckoutState(CheckoutState.PickDeliveryMethod);
+                if (regress.IsFailure)
+                    return regress.Errors;
             }
 
-            // Compute: Recalculate order totals regardless of calculator result.
-            cart.RecalculateTotals();
+            // Advance: Address → Delivery only; later states either already passed Delivery or regressed here.
+            if (cart.CheckoutState == CheckoutState.Address)
+            {
+                var stateResult = cart.AdvanceCheckoutState(CheckoutState.PickDeliveryMethod);
+                if (stateResult.IsFailure)
+                    return stateResult.Errors;
+            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.ShippingRateSelected(cart.Id));
         }
     }
 }

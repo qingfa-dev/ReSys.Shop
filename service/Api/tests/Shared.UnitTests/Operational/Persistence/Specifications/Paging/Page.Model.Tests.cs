@@ -21,7 +21,7 @@ public sealed class PageModelTests
     [Fact]
     public void Constructor_ShouldSetProperties()
     {
-        PageBounds bounds = new(DefaultPage: 1, DefaultPageSize: 20, MaxPageSize: 200);
+        PageBounds bounds = new() { DefaultPage = 1, DefaultPageSize = 20, MaxPageSize = 200 };
 
         PageModel model = new(page: 3, pageSize: 20, bounds: bounds);
 
@@ -39,7 +39,7 @@ public sealed class PageModelTests
     [InlineData(5, 100, 400)]
     public void Skip_ShouldCalculateCorrectOffset(int page, int pageSize, int expectedSkip)
     {
-        PageBounds bounds = new(DefaultPage: 1, DefaultPageSize: pageSize, MaxPageSize: 100);
+        PageBounds bounds = new() { DefaultPage = 1, DefaultPageSize = pageSize, MaxPageSize = 100 };
 
         PageModel model = new(page: page, pageSize: pageSize, bounds: bounds);
 
@@ -54,7 +54,7 @@ public sealed class PageModelTests
     [InlineData(1, 10, 9, 1)]
     public void TotalPages_ShouldCalculateCorrectly(int page, int pageSize, long totalCount, int expectedPages)
     {
-        PageBounds bounds = new(DefaultPage: page, DefaultPageSize: pageSize, MaxPageSize: 100);
+        PageBounds bounds = new() { DefaultPage = page, DefaultPageSize = pageSize, MaxPageSize = 100 };
 
         PageModel model = new(page: page, pageSize: pageSize, bounds: bounds);
 
@@ -67,7 +67,7 @@ public sealed class PageModelTests
     [InlineData(1, 10, 10, false)]
     public void HasNextPage_ShouldReturnCorrectValue(int page, int pageSize, long totalCount, bool expected)
     {
-        PageBounds bounds = new(DefaultPage: page, DefaultPageSize: pageSize, MaxPageSize: 100);
+        PageBounds bounds = new() { DefaultPage = page, DefaultPageSize = pageSize, MaxPageSize = 100 };
 
         PageModel model = new(page: page, pageSize: pageSize, bounds: bounds);
 

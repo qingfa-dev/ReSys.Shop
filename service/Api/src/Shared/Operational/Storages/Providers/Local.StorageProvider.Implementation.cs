@@ -46,8 +46,14 @@ internal sealed partial class LocalStorageProvider(
             Loggers.LogUploadSuccess(logger, request.Key, size);
 
             // Transform: return result with null URI — local FS has no public endpoint
-            return Result<UploadResult>.Ok(new UploadResult(
-                request.Key, Name, null, size, DateTimeOffset.UtcNow));
+            return Result<UploadResult>.Ok(new UploadResult
+            {
+                Key = request.Key,
+                Provider = Name,
+                Uri = null,
+                SizeBytes = size,
+                StoredAtUtc = DateTimeOffset.UtcNow
+            });
         }
         catch (OperationCanceledException)
         {
@@ -57,7 +63,9 @@ internal sealed partial class LocalStorageProvider(
         {
             // Catch: file I/O error during write — surface as provider error
             Loggers.LogUploadFailed(logger, request.Key, ex);
-            return StorageResult.Failure.ProviderError(ex.Message);
+            return Result<UploadResult>.Unexpected(
+                exception: ex,
+                errors: [StorageResult.Failure.ProviderError(ex.Message)]);
         }
     }
 
@@ -84,8 +92,15 @@ internal sealed partial class LocalStorageProvider(
             var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, options.Value.BufferSize, useAsync: true);
             var info = new FileInfo(fullPath);
             // Create: StoredObjectInfo with ContentType=null — local FS lacks MIME metadata
-            var meta = new StoredObjectInfo(key, Name, info.Length, info.LastWriteTimeUtc, ContentType: null);
-            return Task.FromResult(Result<DownloadResult>.Ok(new DownloadResult(stream, meta)));
+            var meta = new StoredObjectInfo
+            {
+                Key = key,
+                Provider = Name,
+                SizeBytes = info.Length,
+                LastModifiedUtc = info.LastWriteTimeUtc,
+                ContentType = null
+            };
+            return Task.FromResult(Result<DownloadResult>.Ok(new DownloadResult { Content = stream, Info = meta }));
         }
         catch (OperationCanceledException)
         {
@@ -95,7 +110,10 @@ internal sealed partial class LocalStorageProvider(
         {
             // Catch: file I/O error during read — surface as provider error
             Loggers.LogDownloadFailed(logger, key, ex);
-            return Task.FromResult<Result<DownloadResult>>(StorageResult.Failure.ProviderError(ex.Message));
+            return Task.FromResult(
+                Result<DownloadResult>.Unexpected(
+                    exception: ex,
+                    errors: [StorageResult.Failure.ProviderError(ex.Message)]));
         }
     }
 
@@ -130,7 +148,10 @@ internal sealed partial class LocalStorageProvider(
         {
             // Catch: file I/O error during delete — surface as provider error
             Loggers.LogDeleteFailed(logger, key, ex);
-            return Task.FromResult<Result>(StorageResult.Failure.ProviderError(ex.Message));
+            return Task.FromResult(
+                Result.Unexpected(
+                    exception: ex,
+                    errors: [StorageResult.Failure.ProviderError(ex.Message)]));
         }
     }
 
@@ -155,7 +176,7 @@ internal sealed partial class LocalStorageProvider(
         {
             var info = new FileInfo(fullPath);
             return Task.FromResult(Result<StoredObjectInfo>.Ok(
-                new StoredObjectInfo(key, Name, info.Length, info.LastWriteTimeUtc, ContentType: null)));
+                new StoredObjectInfo { Key = key, Provider = Name, SizeBytes = info.Length, LastModifiedUtc = info.LastWriteTimeUtc, ContentType = null }));
         }
         catch (OperationCanceledException)
         {
@@ -165,7 +186,10 @@ internal sealed partial class LocalStorageProvider(
         {
             // Catch: file I/O error during stat — surface as provider error
             Loggers.LogStatFailed(logger, key, ex);
-            return Task.FromResult<Result<StoredObjectInfo>>(StorageResult.Failure.ProviderError(ex.Message));
+            return Task.FromResult(
+                Result<StoredObjectInfo>.Unexpected(
+                    exception: ex,
+                    errors: [StorageResult.Failure.ProviderError(ex.Message)]));
         }
     }
 
@@ -189,7 +213,7 @@ internal sealed partial class LocalStorageProvider(
                 {
                     var relativeKey = Path.GetRelativePath(root, f).Replace('\\', '/');
                     var fi = new FileInfo(f);
-                    return new StoredObjectInfo(relativeKey, Name, fi.Length, fi.LastWriteTimeUtc, ContentType: null);
+                    return new StoredObjectInfo { Key = relativeKey, Provider = Name, SizeBytes = fi.Length, LastModifiedUtc = fi.LastWriteTimeUtc, ContentType = null };
                 })
                 .Where(o => prefix is null || o.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 .ToList();
@@ -204,7 +228,10 @@ internal sealed partial class LocalStorageProvider(
         {
             // Catch: file I/O error during directory enumeration — surface as provider error
             Loggers.LogListFailed(logger, ex);
-            return Task.FromResult<Result<IReadOnlyList<StoredObjectInfo>>>(StorageResult.Failure.ProviderError(ex.Message));
+            return Task.FromResult(
+                Result<IReadOnlyList<StoredObjectInfo>>.Unexpected(
+                    exception: ex,
+                    errors: [StorageResult.Failure.ProviderError(ex.Message)]));
         }
     }
 
@@ -227,7 +254,9 @@ internal sealed partial class LocalStorageProvider(
         catch (Exception ex)
         {
             // Catch: path resolution failed (invalid chars, etc.) — surface as provider error
-            return StorageResult.Failure.ProviderError(ex.Message);
+            return Result<string>.Unexpected(
+                exception: ex,
+                errors: [StorageResult.Failure.ProviderError(ex.Message)]);
         }
     }
 }

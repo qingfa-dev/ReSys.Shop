@@ -6,11 +6,26 @@ namespace Shared.Operational.Persistence.Configurations.Dictionaries;
 
 public sealed class EncryptedDictionaryConverter : ValueConverter<Dictionary<string, string>, string>
 {
-    private static Func<IEncryptionService>? _encryptionServiceFactory;
+    private static IServiceProvider? _serviceProvider;
+    private static Func<IServiceProvider, IEncryptionService>? _resolver;
 
-    public static void Configure(Func<IEncryptionService> factory)
+    public static void Configure(Func<IServiceProvider, IEncryptionService> resolver)
     {
-        _encryptionServiceFactory = factory;
+        _resolver = resolver;
+    }
+
+    public static void ConfigureServiceProvider(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+    public static IEncryptionService GetService()
+    {
+        if (_serviceProvider is not null && _resolver is not null)
+            return _resolver(_serviceProvider);
+
+        throw new InvalidOperationException(
+            "EncryptedDictionaryConverter.Configure() and ConfigureServiceProvider() must be called at startup.");
     }
 
     public EncryptedDictionaryConverter()
@@ -33,12 +48,5 @@ public sealed class EncryptedDictionaryConverter : ValueConverter<Dictionary<str
 
         var json = GetService().Decrypt(encrypted);
         return JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [];
-    }
-
-    private static IEncryptionService GetService()
-    {
-        return _encryptionServiceFactory?.Invoke()
-            ?? throw new InvalidOperationException(
-                "EncryptedDictionaryConverter.Configure() must be called at startup.");
     }
 }

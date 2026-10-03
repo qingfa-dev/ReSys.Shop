@@ -1,12 +1,15 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.Cancel;
+
 public static partial class CancelOrderAdmin
 {
+    /// <summary>Maps the admin order-cancellation route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/admin/ordering/orders/{id:guid}/cancel — admin cancel an order
             app.MapPost(OrderingFeature.Admin.Orders.Cancel.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

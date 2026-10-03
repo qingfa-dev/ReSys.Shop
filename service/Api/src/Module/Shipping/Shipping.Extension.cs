@@ -1,4 +1,7 @@
+using Microsoft.Extensions.DependencyInjection;
+
 using Module.Shipping.Persistence.Seeders;
+using Module.Shipping.Services;
 
 namespace Module.Shipping;
 
@@ -13,6 +16,9 @@ public static class ShippingExtension
     /// <returns>The application builder for chaining.</returns>
     public static WebApplicationBuilder AddShippingModule(this WebApplicationBuilder builder)
     {
+        // Register: Fulfillment sync service
+        builder.Services.AddScoped<ShipmentFulfillmentSyncService>();
+
         // Register: Seeders
         builder.AddSeeder<ShippingMethodSeeder>();
         builder.AddSeeder<ShippingRateSeeder>();

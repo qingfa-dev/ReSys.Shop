@@ -8,7 +8,7 @@ using System.Text.Json;
 
 using Microsoft.IdentityModel.Tokens;
 
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Helpers;
 
@@ -42,9 +42,9 @@ public static class IdentityTestHelper
 
     private static string BuildUserToken((Guid UserId, string Email) key)
     {
-        SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
+        SymmetricSecurityKey securityKey = new(
             Encoding.UTF8.GetBytes(TestSecret));
-        SigningCredentials credentials = new SigningCredentials(
+        SigningCredentials credentials = new(
             securityKey, SecurityAlgorithms.HmacSha256);
 
         Claim[] claims =
@@ -58,7 +58,7 @@ public static class IdentityTestHelper
                 ClaimValueTypes.Integer64)
         ];
 
-        SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+        SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddHours(1),
@@ -67,7 +67,7 @@ public static class IdentityTestHelper
             SigningCredentials = credentials
         };
 
-        JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+        JwtSecurityTokenHandler tokenHandler = new();
         SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(securityToken);
     }
@@ -87,7 +87,7 @@ public static class IdentityTestHelper
             phoneNumberConfirmed = true
         };
 
-        using HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/identity/users")
+        using HttpRequestMessage httpRequest = new(HttpMethod.Post, "/api/identity/users")
         {
             Content = JsonContent.Create(request)
         };
@@ -121,7 +121,7 @@ public static class IdentityTestHelper
             description = "Test role for integration tests"
         };
 
-        using HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/identity/roles")
+        using HttpRequestMessage httpRequest = new(HttpMethod.Post, "/api/identity/roles")
         {
             Content = JsonContent.Create(request)
         };
@@ -159,8 +159,8 @@ public static class IdentityTestHelper
     public static async Task<Guid> GetFirstRoleIdAsync(HttpClient client)
     {
         HttpResponseMessage response = await client.GetAsync("/api/identity/roles?pageSize=1");
-        PagedResult<Module.Identity.Features.Admin.Roles.Shared.Models.RoleListResponse> result =
-            await response.ReadAsPagedResultAsync<Module.Identity.Features.Admin.Roles.Shared.Models.RoleListResponse>();
+        PagedResult<Module.Identity.Features.Admin.Shared.Models.RoleListResponse> result =
+            await response.ReadAsPagedResultAsync<Module.Identity.Features.Admin.Shared.Models.RoleListResponse>();
 
         if (!result.IsSuccess || !result.Items.Any())
             throw new InvalidOperationException("No roles found");
@@ -171,7 +171,7 @@ public static class IdentityTestHelper
     public static HttpRequestMessage CreateAdminRequest(HttpMethod method, string requestUri, HttpContent? content = null)
     {
         string token = Infrastructure.Auth.AuthTokenHelper.GenerateAdminToken();
-        HttpRequestMessage request = new HttpRequestMessage(method, requestUri)
+        HttpRequestMessage request = new(method, requestUri)
         {
             Content = content
         };
@@ -179,10 +179,17 @@ public static class IdentityTestHelper
         return request;
     }
 
+    public static string GetAccessToken(ApiResponse loginResult)
+    {
+        using JsonDocument doc = JsonDocument.Parse(loginResult.ValueRaw!);
+        JsonElement root = doc.RootElement;
+        return root.GetProperty("accessToken").GetString()!;
+    }
+
     public static HttpRequestMessage CreateUserRequest(HttpMethod method, string requestUri, Guid userId, string email, HttpContent? content = null)
     {
         string token = GenerateUserToken(userId, email);
-        HttpRequestMessage request = new HttpRequestMessage(method, requestUri)
+        HttpRequestMessage request = new(method, requestUri)
         {
             Content = content
         };

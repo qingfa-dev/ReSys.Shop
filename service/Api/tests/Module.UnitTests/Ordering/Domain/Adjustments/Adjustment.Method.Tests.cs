@@ -31,6 +31,16 @@ public class AdjustmentMethodTests
         a.CreatedAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
     }
 
+    [Fact(DisplayName = "Create: negative amount returns InvalidAmount error")]
+    public void Create_WithNegativeAmount_ShouldFail()
+    {
+        var result = AdjustmentMethod.Create(
+            "Discount", -10m, Guid.NewGuid(), "Order", Guid.NewGuid(), "Shipping", Guid.NewGuid());
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Should().Be(AdjustmentResult.Errors.InvalidAmount);
+    }
+
     [Fact(DisplayName = "Close: when open transitions to closed")]
     public void Close_WhenOpen_ShouldSucceed()
     {

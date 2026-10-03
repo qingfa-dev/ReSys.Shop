@@ -1,8 +1,8 @@
-using Module.Shipping.Features.Admin.ShippingRates.Shared.Models;
+using Module.Shipping.Features.Admin.Shared.Models;
 
 namespace Module.Shipping.Features.Admin.ShippingRates.Update;
 
 public static partial class UpdateShippingRate
 {
-    public class Request : ShippingRateUpdateRequest;
+    public record Request : ShippingRateRequest;
 }

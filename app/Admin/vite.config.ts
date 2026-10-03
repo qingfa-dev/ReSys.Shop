@@ -1,54 +1,49 @@
-// --- vite.config.ts ---
-// Vite build configuration for the Admin SPA.
-// Plugin order: @tailwindcss/vite first (processes @import "tailwindcss"),
-// then Vue + Vue JSX, then PrimeVue auto-import resolver.
-// The `@` alias maps to ./src for clean imports.
-// ---
-
 import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
-import { PrimeVueResolver } from '@primevue/auto-import-resolver'
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
+
 import tailwind from '@tailwindcss/vite'
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import Components from 'unplugin-vue-components/vite'
-import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8'))
-
+// https://vite.dev/config/
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
-    tailwind(),
     vue(),
     vueJsx(),
     vueDevTools(),
+    tailwind(),
     Components({
       resolvers: [PrimeVueResolver()],
     }),
-    AutoImport({
-      imports: ['vue', 'vue-router'],
-      dirs: ['src/shared/composables'],
-      dts: 'src/auto-imports.d.ts',
-      eslintrc: {
-        enabled: true,
-      },
-    }),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5035',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': { target: process.env.VITE_API_URL || 'http://localhost:5035', changeOrigin: true },
+      '@providers': fileURLToPath(new URL('./src/app/providers', import.meta.url)),
+      '@router': fileURLToPath(new URL('./src/app/router', import.meta.url)),
+      '@layout': fileURLToPath(new URL('./src/shared/components/layout', import.meta.url)),
+      '@panel': fileURLToPath(new URL('./src/shared/components/panel', import.meta.url)),
+      '@data': fileURLToPath(new URL('./src/shared/components/data', import.meta.url)),
+      '@overlay': fileURLToPath(new URL('./src/shared/components/overlay', import.meta.url)),
+      '@form': fileURLToPath(new URL('./src/shared/components/form', import.meta.url)),
+      '@config': fileURLToPath(new URL('./src/app/config', import.meta.url)),
     },
   },
 })

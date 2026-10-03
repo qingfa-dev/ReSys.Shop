@@ -1,22 +1,12 @@
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Domain.Orders.Services;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 
 /// <summary>Associates a guest cart with the currently authenticated user, merging line items.</summary>
 public static partial class AssociateCartWithUser
 {
-    public class Request
-    {
-        public Guid GuestOrderId { get; init; }
-    }
-
-    public class Response
-    {
-        public Guid Id { get; init; }
-        public int ItemCount { get; init; }
-    }
-
     public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
@@ -35,36 +25,51 @@ public static partial class AssociateCartWithUser
 
             var sessionId = currentUser.SessionId;
 
+            // Check: Find the guest cart scoped to the current session.
             var guestOrder = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
+                .Include(o => o.Adjustments)
                 .FirstOrDefaultAsync(o => o.Id == command.Request.GuestOrderId && o.UserId == null && o.SessionId == sessionId, cancellationToken);
 
             if (guestOrder is null)
                 return (Result<Response>)OrderResult.Errors.NotFound(command.Request.GuestOrderId);
 
+            // Check: Find existing user cart — may or may not exist.
             var userOrder = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
+                .Include(o => o.Adjustments)
                 .FirstOrDefaultAsync(o => o.UserId == userId && o.Status == OrderStatus.Draft, cancellationToken);
 
             if (userOrder is null)
             {
-                // No existing user cart — assign guest cart to user
-                guestOrder.UserId = userId;
-                guestOrder.SessionId = null;
+                // Update: No existing user cart — transfer ownership to authenticated user.
+                var transferResult = guestOrder.TransferOwnership(userId);
+                if (transferResult.IsFailure)
+                    return (Result<Response>)transferResult.Errors;
             }
             else
             {
-                // Merge guest cart into user cart
-                var merger = new OrderMerger(userOrder);
-                merger.Merge(guestOrder, userId, discardMerged: true);
+                // Merge: Combine guest cart line items into user cart by variant.
+                var mergeResult = userOrder.Merge(guestOrder, userId, discardMerged: true);
+                if (mergeResult.IsFailure)
+                    return (Result<Response>)mergeResult.Errors;
+                // Remove: Delete the now-empty guest cart.
                 dbContext.Set<Order>().Remove(guestOrder);
             }
 
             var targetOrder = userOrder ?? guestOrder;
-            targetOrder.RecalculateTotals();
+            var recalcResult = targetOrder.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response { Id = targetOrder.Id, ItemCount = targetOrder.ItemCount };
+            var variantIds = targetOrder.LineItems.Select(li => li.VariantId).ToList();
+            var variantNames = await dbContext.Set<Variant>()
+                .Where(v => variantIds.Contains(v.Id))
+                .AsNoTracking()
+                .ToDictionaryAsync(v => v.Id, v => v.Sku ?? "", cancellationToken);
+
+            return targetOrder.MapToDetailWithItems<Response>(variantNames);
         }
     }
 }

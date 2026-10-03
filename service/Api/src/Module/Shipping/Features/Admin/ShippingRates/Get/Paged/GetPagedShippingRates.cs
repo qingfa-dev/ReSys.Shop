@@ -1,12 +1,12 @@
 using Module.Shipping.Domain.ShippingRates;
-using Module.Shipping.Features.Admin.ShippingRates.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Mappings;
 
 namespace Module.Shipping.Features.Admin.ShippingRates.Get.Paged;
 
 /// <summary>Retrieves a paged list of shipping rates ordered by name.</summary>
 public static partial class GetPagedShippingRates
 {
-    public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
@@ -18,7 +18,10 @@ public static partial class GetPagedShippingRates
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=request!=null, post=paged result returned
-            var parsing = request.Parameters.ParseAll();
+            var parsing = request.Parameters.ParseAll(
+                allowedFilterFields: ShippingRateConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: ShippingRateConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: ShippingRateConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return parsing.Errors;
 

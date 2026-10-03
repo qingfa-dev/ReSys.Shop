@@ -4,10 +4,12 @@ namespace Module.Location.Features.Admin.States.GetPagedOrAll;
 
 public static partial class GetStatePagedOrAll
 {
+    /// <summary>Admin: list/paginate states.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route} → paginated/all states for admin
             app.MapGet(pattern: LocationFeature.Admin.States.GetAll.Route, handler: async (
                 [AsParameters] Parameters parameters,
                 ISender sender,

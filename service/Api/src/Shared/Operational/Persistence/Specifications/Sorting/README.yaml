@@ -67,7 +67,7 @@ Sorting/
 
 ## Usage
 
-```csharp
+```cs
 // From DSL string
 Result<SortModel> result = SortModelExtensions.FromString("Name asc, CreatedAt desc", allowedFields);
 

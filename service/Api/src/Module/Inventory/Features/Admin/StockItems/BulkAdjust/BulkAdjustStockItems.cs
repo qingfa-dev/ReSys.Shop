@@ -1,6 +1,6 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
-using Module.Inventory.Features.Admin.StockMovements.Shared.Mappings;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.BulkAdjust;
 
@@ -35,15 +35,10 @@ public static partial class BulkAdjustStockItems
 
                 var previousCount = entity.CountOnHand;
 
-                var affected = await dbContext.Set<StockItem>()
-                    .Where(x => x.Id == item.StockItemId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(x => x.CountOnHand, x => x.CountOnHand + item.Quantity)
-                        .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
-                    cancellationToken);
-
-                if (affected == 0)
-                    return StockItemResult.Errors.NotFound(item.StockItemId);
+                var adjustResult = entity.AdjustCountOnHand(item.Quantity, request.Reason);
+                if (adjustResult.IsFailure)
+                    return adjustResult;
+                entity.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
                 var movementResult = StockMovementMapping.MapToDomain(
                     stockItemId: item.StockItemId,

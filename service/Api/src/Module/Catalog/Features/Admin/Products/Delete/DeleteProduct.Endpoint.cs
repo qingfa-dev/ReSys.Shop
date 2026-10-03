@@ -6,7 +6,7 @@ public static partial class DeleteProduct
 {
     /// <summary>
     /// DELETE endpoint that soft-deletes a product by ID, cascading to all variants.
-    /// Route: api/catalog/products/{id:guid}
+    /// Route: api/admin/catalog/products/{id:guid}
     /// Permission: Products.Delete
     /// </summary>
     public class Endpoint : ICarterModule

@@ -1,0 +1,31 @@
+namespace Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
+
+public static partial class GetSession
+{
+    /// <summary>Maps the current session retrieval route.</summary>
+    public sealed class Endpoint : ICarterModule
+    {
+        public void AddRoutes(IEndpointRouteBuilder app)
+        {
+            // Map: GET /api/storefront/auth/sessions — get current user session info
+            app.MapGet(IdentityFeature.Storefront.Auth.Sessions.Get.Route, async (
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var query = new Query();
+                var result = await sender.Send(query, ct);
+                return result.ToResult();
+            })
+            .RequireAuthorization()
+            .WithName(nameof(GetSession))
+            .WithTags(IdentityFeature.Tags.Authentication)
+            .WithSummary(IdentityFeature.Storefront.Auth.Sessions.Get.Summary)
+            .WithDescription(IdentityFeature.Storefront.Auth.Sessions.Get.Description)
+            .Produces<Result<Response>>()
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status401Unauthorized)
+            .Produces<Result>(StatusCodes.Status404NotFound)
+            .Produces<Result>(StatusCodes.Status422UnprocessableEntity);
+        }
+    }
+}

@@ -1,1 +1,0 @@
-"""Local filesystem image storage."""

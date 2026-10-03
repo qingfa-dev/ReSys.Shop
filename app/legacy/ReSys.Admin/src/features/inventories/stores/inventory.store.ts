@@ -1,0 +1,158 @@
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { inventoryService } from '../services/inventory.service';
+import type {
+  StockItem,
+  StockLocation,
+  StockTransfer,
+  InventoryUnit,
+  InventorySearchParams,
+  InventoryUnitSearchParams
+} from '../types/inventory.types';
+
+export const useInventoryStore = defineStore('inventory', () => {
+  // --- STATE ---
+  const stocks = ref<StockItem[]>([]);
+  const locations = ref<StockLocation[]>([]);
+  const locationTree = ref<any[]>([]);
+  const transfers = ref<StockTransfer[]>([]);
+  const units = ref<InventoryUnit[]>([]);
+  
+  const loading = ref(false);
+  const totalStocks = ref(0);
+  const totalLocations = ref(0);
+  const totalTransfers = ref(0);
+  const totalUnits = ref(0);
+
+  const stockQuery = ref<InventorySearchParams>({
+    page: 1,
+    page_size: 10,
+    search: '',
+    sort_by: 'quantity_on_hand',
+    is_descending: true
+  });
+
+  const locationQuery = ref<InventorySearchParams>({
+    page: 1,
+    page_size: 20,
+    sort_by: 'name'
+  });
+
+  const transferQuery = ref<InventorySearchParams>({
+    page: 1,
+    page_size: 10,
+    sort_by: 'created_at',
+    is_descending: true
+  });
+
+  const unitQuery = ref<InventoryUnitSearchParams>({
+    page: 1,
+    page_size: 20,
+    sort_by: 'created_at',
+    is_descending: true
+  });
+
+  // --- ACTIONS ---
+
+  async function fetchStocks(params: InventorySearchParams = {}) {
+    loading.value = true;
+    stockQuery.value = { ...stockQuery.value, ...params };
+    try {
+      const result = await inventoryService.listStocks(stockQuery.value);
+      if (result.success && result.data) {
+        stocks.value = result.data;
+        totalStocks.value = result.meta?.total_count || 0;
+      }
+      return result;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchLocations(params: InventorySearchParams = {}) {
+    loading.value = true;
+    locationQuery.value = { ...locationQuery.value, ...params };
+    try {
+      const result = await inventoryService.listLocations(locationQuery.value);
+      if (result.success && result.data) {
+        locations.value = result.data;
+        totalLocations.value = result.meta?.total_count || 0;
+      }
+      return result;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function toggleLocationStatus(id: string, activate: boolean) {
+    const result = await inventoryService.toggleLocationStatus(id, activate);
+    return result;
+  }
+
+  async function fetchTransfers(params: InventorySearchParams = {}) {
+    loading.value = true;
+    transferQuery.value = { ...transferQuery.value, ...params };
+    try {
+      const result = await inventoryService.listTransfers(transferQuery.value);
+      if (result.success && result.data) {
+        transfers.value = result.data;
+        totalTransfers.value = result.meta?.total_count || 0;
+      }
+      return result;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchUnits(params: InventoryUnitSearchParams = {}) {
+    loading.value = true;
+    unitQuery.value = { ...unitQuery.value, ...params };
+    try {
+      const result = await inventoryService.listInventoryUnits(unitQuery.value);
+      if (result.success && result.data) {
+        units.value = result.data;
+        totalUnits.value = result.meta?.total_count || 0;
+      }
+      return result;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchLocationTree() {
+    loading.value = true;
+    try {
+      const result = await inventoryService.getLocationTree();
+      if (result.success && result.data) {
+        locationTree.value = result.data;
+      }
+      return result;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  return {
+    stocks,
+    locations,
+    locationTree,
+    transfers,
+    units,
+    loading,
+    totalStocks,
+    totalLocations,
+    totalTransfers,
+    totalUnits,
+    stockQuery,
+    locationQuery,
+    transferQuery,
+    unitQuery,
+    inventoryService,
+    fetchStocks,
+    fetchLocations,
+    fetchLocationTree,
+    toggleLocationStatus,
+    fetchTransfers,
+    fetchUnits
+  };
+});

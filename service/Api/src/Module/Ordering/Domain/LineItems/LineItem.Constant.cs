@@ -11,6 +11,7 @@ public static class LineItemConstant
     public static class Defaults
     {
         public const int Quantity = 1;
+        public const string CreatedBy = "System";
     }
 
     public static class Query
@@ -28,5 +29,7 @@ public static class LineItemConstant
             nameof(LineItem.OrderId),
             nameof(LineItem.VariantId)
         ];
+
+        public static readonly string[] AllowedSearchFields = [];
     }
 }

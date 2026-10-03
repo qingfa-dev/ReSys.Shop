@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Admin.StockReservations.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockReservations.Get.Paged;
 
@@ -21,7 +21,10 @@ public static partial class GetPagedStockReservations
             var parameters = request.Parameters;
 
             // Parse: Validate and parse querying parameters for pagination, filtering, and sorting
-            var parseAll = parameters.ParseAll();
+            var parseAll = parameters.ParseAll(
+                allowedFilterFields: StockReservationConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: StockReservationConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: StockReservationConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 

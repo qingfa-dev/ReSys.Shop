@@ -32,7 +32,7 @@ public sealed class OpenApiSchemaNamingTests
     {
         get
         {
-            TheoryData<Type, string> data = new TheoryData<Type, string>();
+            TheoryData<Type, string> data = new();
 
             // Simple non-nested, non-generic
             data.Add(typeof(NamingSimple), "NamingSimple");
@@ -71,7 +71,7 @@ public sealed class OpenApiSchemaNamingTests
     [Fact(DisplayName = "GetSchemaReferenceId should unwrap Nullable<T> for nested value type")]
     public void GetSchemaReferenceId_ShouldUnwrapNullable_WhenNestedValueType()
     {
-        string result = OpenApiSchemaNaming.GetSchemaReferenceId(typeof(Nullable<NamingOuter.NestedValue>));
+        string result = OpenApiSchemaNaming.GetSchemaReferenceId(typeof(NamingOuter.NestedValue?));
 
         result.Should().Be("NamingOuterNestedValue");
     }

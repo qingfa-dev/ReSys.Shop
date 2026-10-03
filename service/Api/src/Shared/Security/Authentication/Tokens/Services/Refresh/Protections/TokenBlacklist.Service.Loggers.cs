@@ -2,6 +2,7 @@ namespace Shared.Security.Authentication.Tokens.Services.Refresh.Protections;
 
 public partial class TokenBlacklistService
 {
+    /// <summary>Structured log event definitions for token blacklist operations.</summary>
     internal static partial class Loggers
     {
         [LoggerMessage(
@@ -20,7 +21,7 @@ public partial class TokenBlacklistService
             EventId = 205,
             Level = LogLevel.Information,
             Message = "Token {Jti} added to blacklist until {Expiry}")]
-        public static partial void LogTokenBlacklisted(ILogger logger, string jti, DateTime expiry);
+        public static partial void LogTokenBlacklisted(ILogger logger, string jti, DateTimeOffset expiry);
 
         [LoggerMessage(
             EventId = 206,

@@ -1,0 +1,10 @@
+id: clip_generic
+name: "CLIP-generic"
+class: "ClipGenericModel"
+module: "benchmark.models.clip_generic"
+backbone: "ViT-B/32"
+embedding_dim: 512
+pretrained: "openai/clip-vit-base-patch32"
+batch_size: 64
+image_size: 224
+normalize_embeddings: true

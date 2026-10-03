@@ -1,4 +1,4 @@
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 
 /// <summary>

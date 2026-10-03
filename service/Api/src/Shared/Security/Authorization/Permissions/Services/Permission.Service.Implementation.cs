@@ -35,30 +35,29 @@ public sealed partial class PermissionService(
             Result<HashSet<Guid>> rolesResult = await store.GetUserRoleIdsAsync(userId, ct);
             HashSet<Guid> roleIds = rolesResult.IsSuccess ? rolesResult.Value : [];
 
-            // Batch: resolve permissions for each role in parallel via cache-aware pipeline — avoids N+1
-            IEnumerable<Task<HashSet<string>>> rolePermissionTasks = roleIds.Select(async roleId =>
+            // Call: fetch direct user permissions (non-role claims) from store
+            Result<HashSet<string>> userDirectResult = await store.GetUserDirectPermissionsAsync(userId, ct);
+            HashSet<string> userDirectPerms = userDirectResult.IsSuccess ? userDirectResult.Value : [];
+
+            // Resolve: resolve permissions for each role sequentially — shared DbContext cannot parallelize
+            var rolePermissionSets = new List<HashSet<string>>(roleIds.Count);
+            foreach (Guid roleId in roleIds)
             {
                 Result<HashSet<string>?> roleCacheResult = await cache.GetRoleAsync(roleId, ct);
                 if (roleCacheResult is { IsSuccess: true, Value: not null })
-                    return roleCacheResult.Value;
+                {
+                    rolePermissionSets.Add(roleCacheResult.Value);
+                    continue;
+                }
 
-                // Cache: fallback to store on cache miss; populate role cache after resolution
                 Result<HashSet<string>> roleStoreResult = await store.GetRolePermissionsAsync(roleId, ct);
                 HashSet<string> rolePerms = roleStoreResult.IsSuccess ? roleStoreResult.Value : [];
 
                 if (roleStoreResult.IsSuccess)
                     await cache.SetRoleAsync(roleId, rolePerms, ct);
 
-                return rolePerms;
-            });
-
-            // Call: fetch direct user permissions (non-role claims) from store
-            Task<Result<HashSet<string>>> userDirectPermsTask = store.GetUserDirectPermissionsAsync(userId, ct);
-
-            // Await: execute all role resolution tasks concurrently for throughput
-            HashSet<string>[] rolePermissionSets = await Task.WhenAll(rolePermissionTasks);
-            Result<HashSet<string>> userDirectResult = await userDirectPermsTask;
-            HashSet<string> userDirectPerms = userDirectResult.IsSuccess ? userDirectResult.Value : [];
+                rolePermissionSets.Add(rolePerms);
+            }
 
             // Merge: union all role permission sets with direct user permissions — case-insensitive dedup
             var permissions = new HashSet<string>(userDirectPerms, StringComparer.OrdinalIgnoreCase);

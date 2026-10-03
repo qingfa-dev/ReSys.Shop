@@ -1,6 +1,6 @@
 using Api.Tests.Infrastructure;
 
-using Module.Location.Features.Admin.States.Shared.Models;
+using Module.Location.Features.Shared.States.Models;
 
 namespace Api.Tests.Scenarios.Location.Store.States.GetPagedOrAll;
 
@@ -9,7 +9,7 @@ public sealed class GetStorefrontStatePagedOrAllIntegrationTests(ApiFixture fixt
     [Fact]
     public async Task GetStatePagedOrAll_ReturnsSeededStates()
     {
-        HttpResponseMessage response = await Client.GetAsync("/api/store/locations/states");
+        HttpResponseMessage response = await Client.GetAsync("/api/storefront/locations/states");
         PagedResult<StateListResponse> result = await response.ReadAsPagedResultAsync<StateListResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -22,7 +22,7 @@ public sealed class GetStorefrontStatePagedOrAllIntegrationTests(ApiFixture fixt
     public async Task GetStatePagedOrAll_WithPagination_RespectsPageSize()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/locations/states?pageSize=5");
+            "/api/storefront/locations/states?pageSize=5");
         PagedResult<StateListResponse> result = await response.ReadAsPagedResultAsync<StateListResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -34,7 +34,7 @@ public sealed class GetStorefrontStatePagedOrAllIntegrationTests(ApiFixture fixt
     public async Task GetStatePagedOrAll_WithFilter_IsActiveEqualsTrue()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/locations/states?filter=IsActive=true");
+            "/api/storefront/locations/states?filter=IsActive=true");
         PagedResult<StateListResponse> result = await response.ReadAsPagedResultAsync<StateListResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -46,7 +46,7 @@ public sealed class GetStorefrontStatePagedOrAllIntegrationTests(ApiFixture fixt
     public async Task GetStatePagedOrAll_WithSortAscending_ReturnsOrdered()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/locations/states?sort=Name:asc");
+            "/api/storefront/locations/states?sort=Name:asc");
         PagedResult<StateListResponse> result = await response.ReadAsPagedResultAsync<StateListResponse>();
 
         result.IsSuccess.Should().BeTrue();

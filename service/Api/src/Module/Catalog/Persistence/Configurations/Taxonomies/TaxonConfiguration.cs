@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 
 namespace Module.Catalog.Persistence.Configurations.Taxonomies;
 
@@ -110,6 +110,12 @@ public class TaxonConfiguration : IEntityTypeConfiguration<Taxon>
             .WithOne(r => r.Taxon)
             .HasForeignKey(r => r.TaxonId)
             .OnDelete(DeleteBehavior.Cascade);
+        #endregion
+
+        #region Indexes
+        builder.HasIndex(x => new { x.TaxonomyId, x.Slug })
+            .IsUnique()
+            .HasDatabaseName("ix_taxa_taxonomy_slug");
         #endregion
     }
 }

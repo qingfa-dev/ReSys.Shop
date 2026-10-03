@@ -1,0 +1,4 @@
+experiment:
+  model: clip_b32
+  dataset: deepfashion
+  seed: 42

@@ -1,0 +1,23 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0012: Inventory Management
+
+actor "Administrator" as Admin
+
+rectangle "Admin Portal" {
+    usecase "View Stock Levels" as View
+    usecase "Adjust Stock" as Adjust
+    usecase "View Audit Log" as Audit
+}
+
+rectangle "System" {
+    usecase "Aggregate Units" as Agg <<System>>
+}
+
+Admin --> View
+View <.. Adjust : <<extend>>
+View <.. Audit : <<extend>>
+
+View ..> Agg : <<include>>
+
+@enduml

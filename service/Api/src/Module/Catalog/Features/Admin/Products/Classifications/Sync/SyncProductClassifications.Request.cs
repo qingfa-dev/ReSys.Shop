@@ -1,11 +1,8 @@
-using Module.Catalog.Features.Admin.Products.Classifications.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Products.Classifications.Sync;
+namespace Module.Catalog.Features.Admin.Products.ProductClassifications.Sync;
 
 public static partial class SyncProductClassifications
 {
-    public sealed record Request
-    {
-        public IEnumerable<ProductClassificationAssignmentItem> Items { get; init; } = [];
-    }
+    public sealed record Request : ProductClassificationCollectionParameters;
 }

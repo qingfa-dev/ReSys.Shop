@@ -38,10 +38,13 @@
              Condition="'@(ForbiddenRef)' != ''" />
   </Target>
 
-  <!-- 4. VERTICAL SLICE ISOLATION: Prevent modules from referencing each other -->
+  <!-- 4. VERTICAL SLICE ISOLATION: Guard against future module-split ProjectReference cycles.
+       All 9 modules share one Module.csproj assembly, so this target only applies if modules are
+       ever split into separate projects. Cross-module `using` statements and EF Core FK
+       relationships are permitted; no namespace drift check exists. -->
   <Target Name="ValidateVerticalSliceIsolation"
           BeforeTargets="BeforeBuild;ResolveProjectReferences"
-          Condition="false"> <!-- Enable by setting to 'true' -->
+          Condition="true">
     <ItemGroup>
       <ForbiddenRef Include="@(ProjectReference)"
         Condition="$(MSBuildProjectName.Contains('.Module.')) AND

@@ -33,7 +33,7 @@ public class GetTaxonomyByIdTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenFound()
     {
         // Arrange
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -60,7 +60,7 @@ public class GetTaxonomyByIdTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxonomy is soft-deleted")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonomyIsSoftDeleted()
     {
-        var entity = TaxonomyExtensions.Create("Deleted", "Deleted", 0).Value;
+        var entity = TaxonomyMethod.Create("Deleted", "Deleted", 0).Value;
         entity.Delete();
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

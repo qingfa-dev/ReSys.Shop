@@ -1,22 +1,12 @@
 using Module.Ordering.Domain.LineItems;
+using Module.Ordering.Features.Admin.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Shared.Services;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
 
 /// <summary>Retrieves a single line item by ID scoped to its parent order, returning a detail response DTO.</summary>
 public static partial class GetOrderLineItemById
 {
-    public class Response
-    {
-        public Guid Id { get; init; }
-        public Guid VariantId { get; init; }
-        public int Quantity { get; init; }
-        public decimal Price { get; init; }
-        public decimal Total { get; init; }
-        public decimal AdjustmentTotal { get; init; }
-        public string Currency { get; init; } = string.Empty;
-        public DateTimeOffset CreatedAtUtc { get; init; }
-    }
-
     public sealed record Query(Guid OrderId, Guid LineItemId) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext) : IQueryHandler<Query, Response>
@@ -27,6 +17,8 @@ public static partial class GetOrderLineItemById
         /// <returns>The line item detail response.</returns>
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Contract: pre=query!=null, post=result!=null
+            // Check: Find the line item scoped to its parent order.
             var lineItem = await dbContext.Set<LineItem>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(
@@ -36,17 +28,10 @@ public static partial class GetOrderLineItemById
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(query.LineItemId);
 
-            return new Response
-            {
-                Id = lineItem.Id,
-                VariantId = lineItem.VariantId,
-                Quantity = lineItem.Quantity,
-                Price = lineItem.Price,
-                Total = lineItem.Total,
-                AdjustmentTotal = lineItem.AdjustmentTotal,
-                Currency = lineItem.Currency,
-                CreatedAtUtc = lineItem.CreatedAtUtc
-            };
+            // Enrich: Resolve the parent product reference (id, name, primary image) for the line item.
+            var itemLookup = await ProductLookupFactory.BuildAsync(dbContext, [lineItem.VariantId], cancellationToken);
+
+            return lineItem.MapToLineItemResponse<Response>(itemLookup.GetValueOrDefault(lineItem.VariantId));
         }
     }
 }

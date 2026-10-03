@@ -1,31 +1,39 @@
 using System.Globalization;
-using Module.Inventory.Domain.StockLocations.StockItems;
+
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.Import;
 
 public static partial class ImportStockItems
 {
-    public sealed record Command(IFormFile File) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
+    /// <summary>Handler for importing stock items from a CSV file.</summary>
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Imports stock items from a CSV file.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var file = command.File;
+            var file = command.Request.File;
+            // Validate: Reject missing or empty file
             if (file is null || file.Length == 0)
                 return StockItemResult.Errors.ImportFileRequired;
 
             const long MaxFileSize = 5_242_880; // 5 MB
+            // Validate: Reject files exceeding the 5 MB size cap
             if (file.Length > MaxFileSize)
-                return Error.Validation("StockItem.Import.FileTooLarge", "CSV file must not exceed 5 MB.");
+                return StockItemResult.Errors.ImportFileTooLarge;
 
             using var reader = new StreamReader(file.OpenReadStream());
+            // Parse: Read CSV header line to validate file format
             var header = await reader.ReadLineAsync(cancellationToken);
 
+            // Validate: Reject empty CSV files with no header
             if (string.IsNullOrWhiteSpace(header))
                 return StockItemResult.Errors.ImportEmptyFile;
 
@@ -79,11 +87,13 @@ public static partial class ImportStockItems
                         }
                     }
 
+                    // Load: Check if a stock item already exists for this variant and location
                     var existing = await dbContext.Set<StockItem>()
                         .FirstOrDefaultAsync(x => x.VariantId == variantId && x.StockLocationId == stockLocationId, cancellationToken);
 
                     if (existing is not null)
                     {
+                        // Update: Overwrite existing stock item with imported values
                         existing.CountOnHand = countOnHand;
                         existing.Backorderable = backorderable;
                         existing.ModifiedAtUtc = DateTimeOffset.UtcNow;
@@ -92,6 +102,7 @@ public static partial class ImportStockItems
                     }
                     else
                     {
+                        // Create: Build new stock item via domain factory
                         var result = StockItemMethod.Create(stockLocationId, variantId, backorderable, countOnHand);
                         if (result.IsFailure)
                         {
@@ -113,17 +124,9 @@ public static partial class ImportStockItems
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            logger.LogDebug(
-                "[StockItem.Import]: Created {Created}, Updated {Updated}, Failed {Failed}",
-                created, updated, errors.Count);
+            ImportStockItemsLoggers.ImportCompleted(logger, created, updated, errors.Count);
 
-            return new Response
-            {
-                Created = created,
-                Updated = updated,
-                Failed = errors.Count,
-                Errors = errors
-            };
+            return (created, updated, errors).MapToImportResult<Response>();
         }
     }
 }

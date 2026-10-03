@@ -7,7 +7,7 @@ public static partial class GetProductsPagedList
     /// <summary>
     /// GET endpoint that retrieves a paged list of products with filtering
     /// by status, taxon, season, and search term.
-    /// Route: api/catalog/products
+    /// Route: api/admin/catalog/products
     /// Permission: Products.List
     /// </summary>
     public class Endpoint : ICarterModule

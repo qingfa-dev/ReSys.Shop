@@ -24,5 +24,22 @@ public static class StockReservationValidation
         return ruleBuilder
             .Must(state => state is ReservationState.Reserved or ReservationState.Fulfilled or ReservationState.Released or ReservationState.Expired)
             .WithErrorCode(StockReservationResult.Errors.InvalidStateTransition.Code)
-            .WithMessage(StockReservationResult.Errors.InvalidStateTransition.Message);}
+            .WithMessage(StockReservationResult.Errors.InvalidStateTransition.Message);
+    }
+
+    public static IRuleBuilderOptions<T, Guid?> ApplyStockLocationRequired<T>(this IRuleBuilder<T, Guid?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(StockReservationResult.Errors.StockLocationRequired.Code)
+            .WithMessage(StockReservationResult.Errors.StockLocationRequired.Message);
+    }
+
+    public static IRuleBuilderOptions<T, int> ApplyTtlRangeRules<T>(this IRuleBuilder<T, int> ruleBuilder)
+    {
+        return ruleBuilder
+            .InclusiveBetween(StockReservationConstant.Defaults.MinTtlMinutes, StockReservationConstant.Defaults.MaxTtlMinutes)
+            .WithErrorCode(StockReservationResult.Errors.TtlOutOfRange.Code)
+            .WithMessage(StockReservationResult.Errors.TtlOutOfRange.Message);
+    }
 }

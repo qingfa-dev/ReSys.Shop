@@ -35,29 +35,23 @@ public static partial class ProductLoggers
     [LoggerMessage(
         EventId = 5001,
         Level = LogLevel.Warning,
-        Message = "[Storefront.ProductNotFound]: Product with slug '{Slug}' was not found")]
-    public static partial void StorefrontProductNotFoundBySlug(ILogger logger, string Slug);
-
-    [LoggerMessage(
-        EventId = 5002,
-        Level = LogLevel.Warning,
         Message = "[Storefront.ProductNotFound]: Product with ID '{ProductId}' was not found")]
     public static partial void StorefrontProductNotFoundById(ILogger logger, Guid ProductId);
 
     [LoggerMessage(
-        EventId = 5003,
+        EventId = 5002,
         Level = LogLevel.Information,
         Message = "[Storefront.ProductDetailLoaded]: Product '{Slug}' ({Id}) loaded")]
     public static partial void StorefrontProductDetailLoaded(ILogger logger, string Slug, Guid Id);
 
     [LoggerMessage(
-        EventId = 5004,
+        EventId = 5003,
         Level = LogLevel.Information,
         Message = "[Storefront.RelatedProductsFound]: Found {Count} related products for product {ProductId}")]
     public static partial void StorefrontRelatedProductsFound(ILogger logger, int Count, Guid ProductId);
 
     [LoggerMessage(
-        EventId = 5005,
+        EventId = 5004,
         Level = LogLevel.Information,
         Message = "[Storefront.NoTaxonsFound]: Product {ProductId} has no taxon classifications")]
     public static partial void StorefrontNoTaxonsFound(ILogger logger, Guid ProductId);

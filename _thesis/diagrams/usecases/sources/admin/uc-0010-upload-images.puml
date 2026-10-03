@@ -1,0 +1,25 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0010: Upload Product Images
+
+actor "Administrator" as Admin
+
+rectangle "Admin Portal" {
+    usecase "Upload Images" as Upload
+    usecase "Reorder Images" as Reorder
+    usecase "Set Main Image" as Main
+}
+
+rectangle "System" {
+    usecase "Save to Disk" as Disk <<System>>
+    usecase "Generate Embeddings" as ML <<Core>>
+}
+
+Admin --> Upload
+Upload ..> Reorder : <<include>>
+Upload ..> Main : <<include>>
+
+Upload ..> Disk : <<include>>
+Disk ..> ML : <<include>>
+
+@enduml

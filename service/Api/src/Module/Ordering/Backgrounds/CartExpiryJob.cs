@@ -2,11 +2,15 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Backgrounds;
 
+/// <summary>Background job that expires draft carts past a configurable inactivity cutoff.</summary>
+// Contract: pre=dbContext!=null && logger!=null, post=expired carts have Status==Expired && IsDeleted==true
 public sealed partial class CartExpiryJob
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ILogger<CartExpiryJob> _logger;
     private readonly int _afterDays;
+
+    internal const int BatchSize = 500;
 
     public CartExpiryJob(IApplicationDbContext dbContext, ILogger<CartExpiryJob> logger, int afterDays = 7)
     {
@@ -15,27 +19,35 @@ public sealed partial class CartExpiryJob
         _afterDays = afterDays;
     }
 
+    /// <summary>Executes the expiry sweep — transitions draft carts past the cutoff to Expired with soft-delete, in batches.</summary>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RunAsync(CancellationToken ct = default)
     {
         var cutoff = DateTimeOffset.UtcNow.AddDays(-_afterDays);
-        var expired = await _dbContext.Set<Order>()
-            .Where(o => o.Status == OrderStatus.Draft && o.ModifiedAtUtc < cutoff && !o.IsDeleted)
-            .AsNoTracking()
-            .Select(o => new { o.Id, o.Status, o.ModifiedAtUtc, o.IsDeleted })
-            .ToListAsync(ct);
+        var totalExpired = 0;
 
-        Loggers.Found(_logger, expired.Count, cutoff);
-
-        foreach (var cart in expired)
+        List<Order> expired;
+        do
         {
-            await _dbContext.Set<Order>()
-                .Where(o => o.Id == cart.Id)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(o => o.Status, OrderStatus.Expired)
-                    .SetProperty(o => o.IsDeleted, true)
-                    .SetProperty(o => o.DeletedAtUtc, DateTimeOffset.UtcNow), ct);
-        }
+            expired = await _dbContext.Set<Order>()
+                .Where(o => o.Status == OrderStatus.Draft
+                    && (o.ModifiedAtUtc == null || o.ModifiedAtUtc < cutoff)
+                    && !o.IsDeleted)
+                .Take(BatchSize)
+                .ToListAsync(ct);
 
-        Loggers.Completed(_logger, expired.Count);
+            foreach (var cart in expired)
+            {
+                cart.Status = OrderStatus.Expired;
+                cart.Delete(OrderConstant.Defaults.CreatedBy);
+            }
+
+            totalExpired += expired.Count;
+            await _dbContext.SaveChangesAsync(ct);
+
+            Loggers.Found(_logger, expired.Count, cutoff);
+        } while (expired.Count == BatchSize);
+
+        Loggers.Completed(_logger, totalExpired);
     }
 }

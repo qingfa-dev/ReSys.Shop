@@ -6,7 +6,7 @@ public sealed partial class LoggingBehavior<TRequest, TResponse>
     {
         [LoggerMessage(
             EventId = 116,
-            Level = LogLevel.Information,
+            Level = LogLevel.Debug,
             Message = "Handling request {RequestName}")]
         public static partial void HandlingRequest(ILogger logger, string requestName);
 
@@ -18,7 +18,7 @@ public sealed partial class LoggingBehavior<TRequest, TResponse>
 
         [LoggerMessage(
             EventId = 118,
-            Level = LogLevel.Information,
+            Level = LogLevel.Debug,
             Message = "Request {RequestName} succeeded")]
         public static partial void RequestSucceeded(ILogger logger, string requestName);
     }

@@ -63,7 +63,9 @@ public partial class RefreshTokenService(
         {
             // Catch: token generation failure must not leak cryptographic details to caller
             Loggers.LogTokenGenerationFailed(logger, userId, ex);
-            return RefreshTokenResult.Failure.GenerationFailed;
+            return Result<RefreshTokenResponseModel>.Unexpected(
+                exception: ex,
+                errors: [RefreshTokenResult.Failure.GenerationFailed]);
         }
     }
 
@@ -95,7 +97,7 @@ public partial class RefreshTokenService(
         // Compute: slide expiration forward when enabled and below max-age ceiling to extend valid session
         if (_tokenSecurityOptions.SlidingExpirationEnabled && entity.LastUsedAtUtc.HasValue)
         {
-            DateTime maxAge = DateTime.UtcNow.AddDays(_tokenSecurityOptions.MaxTokenAgeDays);
+            DateTimeOffset maxAge = DateTime.UtcNow.AddDays(_tokenSecurityOptions.MaxTokenAgeDays);
             if (entity.ExpiresAtUtc < maxAge)
             {
                 entity.ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationInDays);
@@ -231,7 +233,7 @@ public partial class RefreshTokenService(
             string newTokenHash = ComputeSha256Hash(newRawToken);
 
             // Create: new entity shares TokenFamilyId with old token to preserve rotation chain
-            RefreshToken newEntity = new RefreshToken
+            RefreshToken newEntity = new()
             {
                 Id = Guid.NewGuid(),
                 TokenHash = newTokenHash,
@@ -262,7 +264,9 @@ public partial class RefreshTokenService(
         {
             // Catch: rotation failure must not orphan old token — caller may retry
             Loggers.LogTokenRotationFailed(logger, oldEntity.UserId, ex);
-            return RefreshTokenResult.Failure.RotationFailed;
+            return Result<RefreshTokenResponseModel>.Unexpected(
+                exception: ex,
+                errors: [RefreshTokenResult.Failure.RotationFailed]);
         }
     }
 
@@ -283,17 +287,18 @@ public partial class RefreshTokenService(
 
     private static RefreshTokenResponseModel MapToResponse(RefreshToken entity, string? rawToken = null)
     {
-        return new RefreshTokenResponseModel(
-            Id: entity.Id,
-            Token: rawToken ?? string.Empty,
-            UserId: entity.UserId,
-            CreatedAt: entity.CreatedAtUtc.UtcDateTime,
-            ExpiresAt: entity.ExpiresAtUtc.UtcDateTime,
-            RevokedAt: entity.RevokedAtUtc?.UtcDateTime,
-            RevokedReason: entity.RevocationReason?.ToString(),
-            ReplacedByToken: entity.ReplacedByTokenId?.ToString(),
-            IsActive: entity.IsActive
-        );
+        return new RefreshTokenResponseModel
+        {
+            Id = entity.Id,
+            Token = rawToken ?? string.Empty,
+            UserId = entity.UserId,
+            CreatedAt = entity.CreatedAtUtc.UtcDateTime,
+            ExpiresAt = entity.ExpiresAtUtc.UtcDateTime,
+            RevokedAt = entity.RevokedAtUtc?.UtcDateTime,
+            RevokedReason = entity.RevocationReason?.ToString(),
+            ReplacedByToken = entity.ReplacedByTokenId?.ToString(),
+            IsActive = entity.IsActive
+        };
     }
 
     private static RefreshTokenRevocationReason MapRevocationReason(string? reason)

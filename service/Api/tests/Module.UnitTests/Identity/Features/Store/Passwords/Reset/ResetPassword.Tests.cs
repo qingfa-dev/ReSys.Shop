@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Passwords.Reset;
+using Module.Identity.Features.Shared.Storefront.Passwords.Reset;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
@@ -24,9 +24,12 @@ public class ResetPasswordTests
         _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
         _notificationServiceMock = new Mock<INotificationService>();
 
+        var dateTime = new Mock<ISystemDateTime>();
+        dateTime.Setup(x => x.UtcNow).Returns(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero));
+
         _handler = new ResetPassword.CommandHandler(
             _userManagerMock.Object,
-            Mock.Of<ISystemDateTime>(),
+            dateTime.Object,
             _notificationServiceMock.Object,
             Mock.Of<ILogger<ResetPassword.CommandHandler>>());
 
@@ -42,7 +45,7 @@ public class ResetPasswordTests
             .Setup(x => x.FindByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(Guid.NewGuid(), "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = Guid.NewGuid(), Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -65,7 +68,7 @@ public class ResetPasswordTests
             .Setup(x => x.ResetPasswordAsync(user, "valid-token", "NewPass1!"))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "InvalidToken", Description = "Invalid token." }));
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(user.Id, "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = user.Id, Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -90,7 +93,7 @@ public class ResetPasswordTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Success);
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(user.Id, "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = user.Id, Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -116,7 +119,7 @@ public class ResetPasswordTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Failed to update." }));
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(user.Id, "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = user.Id, Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 

@@ -24,8 +24,6 @@ public static class CachingExtensions
     /// <summary>
     /// Registers caching services with the specified configuration.
     /// </summary>
-    /// <param name="services">The service collection to add services to.</param>
-    /// <param name="configuration">The configuration for retrieving settings.</param>
     /// <returns>The service collection for method chaining.</returns>
     /// <exception cref="OptionsValidationException">
     /// Thrown when caching options fail validation on startup.
@@ -39,7 +37,8 @@ public static class CachingExtensions
         // Initialize: Fluent options builder for caching configuration
         builder.Services.AddOptions<CachingSetting>()
             .BindConfiguration(CachingSetting.SectionName)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
         
         #endregion
 
@@ -48,9 +47,28 @@ public static class CachingExtensions
         // Check: Global enablement status for caching infrastructure
         CachingSetting cachingSetting = builder.Configuration.GetSection(CachingSetting.SectionName).Get<CachingSetting>() ?? new CachingSetting();
 
+        // Add: ICacheService always registered — CacheService checks CachingSetting.Enabled internally and no-ops when disabled.
+        // This ensures dependents (e.g. PermissionCache) are always resolvable regardless of caching configuration.
+        builder.Services.AddSingleton<ICacheService, CacheService>();
+
         if (!cachingSetting.Enabled)
         {
             return builder;
+        }
+
+        // Add: HybridCache layer combining L1 and L2 (optional — only registered when hybrid mode is enabled)
+        if (cachingSetting.Hybrid.Enabled)
+        {
+            builder.Services.AddHybridCache(options =>
+            {
+                options.MaximumPayloadBytes = cachingSetting.Hybrid.MaximumPayloadBytes;
+                options.MaximumKeyLength = cachingSetting.Hybrid.MaximumKeyLength;
+                options.DefaultEntryOptions = new CachingEntryOption
+                {
+                    Expiration = TimeSpan.FromMinutes(cachingSetting.Hybrid.DefaultExpirationMinutes),
+                    LocalCacheExpiration = TimeSpan.FromMinutes(cachingSetting.Memory.DefaultExpirationMinutes)
+                }.ToHybridCacheEntryOptions();
+            });
         }
 
         // Add: In-memory cache with configured compaction
@@ -76,14 +94,22 @@ public static class CachingExtensions
             }
             else
             {
-                // Create: Explicit ConnectionMultiplexer for telemetry instrumentation
-                ConnectionMultiplexer multiplexer = ConnectionMultiplexer.Connect(connectionString);
-                builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+                // Register: IConnectionMultiplexer as lazy singleton — connection is deferred
+                // to first use so the application can start when Redis is temporarily unavailable.
+                // AbortOnConnectFail=false prevents Connect() from throwing; the multiplexer will
+                // keep retrying in the background and become usable once Redis recovers.
+                builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+                {
+                    var configOptions = ConfigurationOptions.Parse(connectionString);
+                    configOptions.AbortOnConnectFail = false;
+                    configOptions.ConnectTimeout = 5000;
+                    return ConnectionMultiplexer.Connect(configOptions);
+                });
 
-                // Add: Redis cache registration using ConnectionMultiplexerFactory
+                // Add: Redis cache — StackExchangeRedisCache connects lazily on first cache operation
                 builder.Services.AddStackExchangeRedisCache(options =>
                 {
-                    options.ConnectionMultiplexerFactory = () => Task.FromResult<IConnectionMultiplexer>(multiplexer);
+                    options.Configuration = connectionString;
                 });
 
                 // Initialize: Configure instance name for cache key isolation
@@ -100,24 +126,6 @@ public static class CachingExtensions
             builder.Services.AddDistributedMemoryCache();
         }
 
-        // Add: HybridCache layer combining L1 and L2
-        if (cachingSetting.Hybrid.Enabled)
-        {
-            builder.Services.AddHybridCache(options =>
-            {
-                options.MaximumPayloadBytes = cachingSetting.Hybrid.MaximumPayloadBytes;
-                options.MaximumKeyLength = cachingSetting.Hybrid.MaximumKeyLength;
-                options.DefaultEntryOptions = new CachingEntryOption
-                {
-                    Expiration = TimeSpan.FromMinutes(cachingSetting.Hybrid.DefaultExpirationMinutes),
-                    LocalCacheExpiration = TimeSpan.FromMinutes(cachingSetting.Memory.DefaultExpirationMinutes)
-                }.ToHybridCacheEntryOptions();
-            });
-
-            // Add: Orchestration service for caching operations
-            builder.Services.AddSingleton<ICacheService, CacheService>();
-        }
-
         #endregion
 
         return builder;
@@ -128,7 +136,7 @@ public static class CachingExtensions
     #region Private Helpers
 
     private static (string Name, string? Value) ResolveConnectionString(
-        Microsoft.Extensions.Configuration.ConfigurationManager configuration)
+        ConfigurationManager configuration)
     {
         var aspireConnectionString = configuration.GetConnectionString(CachingSettingConstant.Aspire);
         if (!string.IsNullOrEmpty(aspireConnectionString))

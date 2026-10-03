@@ -14,7 +14,8 @@ public static class StockReservationMethod
         Guid? orderId,
         int ttlMinutes,
         string? cartToken = null,
-        string? createdBy = null)
+        string? createdBy = null,
+        Guid? id = null)
     {
         // Validate: Reservation quantity must be positive
         if (quantity <= 0)
@@ -26,7 +27,7 @@ public static class StockReservationMethod
         // Create: Stock reservation with expiry
         var reservation = new StockReservation
         {
-            Id = Guid.NewGuid(),
+            Id = id ?? Guid.NewGuid(),
             VariantId = variantId,
             Quantity = quantity,
             StockLocationId = stockLocationId,
@@ -50,7 +51,8 @@ public static class StockReservationMethod
         Guid? orderId = null,
         string? cartToken = null,
         DateTimeOffset? createdAtUtc = null,
-        string createdBy = "System")
+        string createdBy = "System",
+        string? reason = null)
     {
         var reservation = new StockReservation
         {
@@ -62,6 +64,7 @@ public static class StockReservationMethod
             State = state,
             ExpiresAtUtc = expiresAtUtc,
             CartToken = cartToken,
+            Reason = reason,
         };
 
         AuditableBehavior.CreateBy(reservation, createdBy, createdAtUtc);
@@ -82,7 +85,31 @@ public static class StockReservationMethod
         if (reservation.IsExpired())
             return StockReservationResult.Errors.AlreadyExpired;
 
+        if (reservation.State != ReservationState.Reserved)
+            return StockReservationResult.Errors.InvalidStateTransition;
+
         reservation.State = ReservationState.Released;
+        reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
+    // Update: Return a consumed (Fulfilled) reservation back to Released — used on order cancellation.
+    public static Result Return(this StockReservation reservation)
+    {
+        if (reservation.State != ReservationState.Fulfilled)
+            return StockReservationResult.Errors.InvalidStateTransition;
+        reservation.State = ReservationState.Released;
+        reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
+    // Expire: Mark the reservation as expired at the current time
+    public static Result Expire(this StockReservation reservation)
+    {
+        if (reservation.State != ReservationState.Reserved)
+            return StockReservationResult.Errors.InvalidStateTransition;
+
+        reservation.State = ReservationState.Expired;
         reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok();
     }

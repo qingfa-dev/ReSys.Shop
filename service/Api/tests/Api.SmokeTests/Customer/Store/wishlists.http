@@ -1,0 +1,69 @@
+# =============================================================================
+# Profile - Store Wishlists API Tests
+# =============================================================================
+# Base URL: {{baseUrl}}/api/storefront/profiles/wishlists
+# Auth: Store Bearer Token required for most operations
+# =============================================================================
+
+### Add to wishlist - Success (201)
+# Adds a product to the authenticated user's wishlist
+# Expected: 201 Created with the wishlist entry
+POST {{baseUrl}}/api/storefront/profiles/wishlists
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "productId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "productName": "Wireless Bluetooth Headphones"
+}
+
+### Add to wishlist - Duplicate (409)
+# Attempts to add the same product again; should conflict
+# Expected: 409 Conflict
+POST {{baseUrl}}/api/storefront/profiles/wishlists
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "productId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "productName": "Wireless Bluetooth Headphones"
+}
+
+### List wishlist (200)
+# Returns all items in the authenticated user's wishlist
+# Expected: 200 OK with a list of wishlist entries
+GET {{baseUrl}}/api/storefront/profiles/wishlists
+Authorization: Bearer {{storeToken}}
+
+### Remove from wishlist - Success (200)
+# Removes a specific item from the wishlist by its entry ID
+# Expected: 200 OK (or 204 No Content depending on implementation)
+DELETE {{baseUrl}}/api/storefront/profiles/wishlists/{{existingAddressId}}
+Authorization: Bearer {{storeToken}}
+
+### Remove from wishlist - Not Found (404)
+# Attempts to remove a non-existent wishlist entry
+# Expected: 404 Not Found
+DELETE {{baseUrl}}/api/storefront/profiles/wishlists/{{nonExistentId}}
+Authorization: Bearer {{storeToken}}
+
+### Add to wishlist - No Auth (401)
+# Attempts to add a product to wishlist without an Authorization header
+# Expected: 401 Unauthorized
+POST {{baseUrl}}/api/storefront/profiles/wishlists
+Content-Type: {{contentType}}
+
+{
+  "productId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "productName": "Wireless Bluetooth Headphones"
+}
+
+### List wishlist - No Auth (401)
+# Attempts to list wishlist without an Authorization header
+# Expected: 401 Unauthorized
+GET {{baseUrl}}/api/storefront/profiles/wishlists
+
+### Remove from wishlist - No Auth (401)
+# Attempts to remove a wishlist item without an Authorization header
+# Expected: 401 Unauthorized
+DELETE {{baseUrl}}/api/storefront/profiles/wishlists/{{existingAddressId}}

@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Products.Variants.Options;
+using Module.Catalog.Domain.Variants.Options;
 
 namespace Module.UnitTests.Catalog.Domain.Products.Variants.Options;
 

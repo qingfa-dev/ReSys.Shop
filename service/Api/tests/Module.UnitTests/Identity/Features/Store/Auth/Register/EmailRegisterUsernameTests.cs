@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Store.Auth.Register;
+using Module.Identity.Features.Shared.Storefront.Auth.Register;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
@@ -54,11 +54,7 @@ public class EmailRegisterUsernameTests
 
         var handler = CreateHandler();
         var result = await handler.Handle(new EmailRegister.Command(
-            new EmailRegister.Request(
-                Email: "new@example.com",
-                UserName: "existinguser",
-                Password: "Password123!",
-                FirstName: "New")), default);
+            new EmailRegister.Request { Email = "new@example.com", UserName = "existinguser", Password = "Password123!", FirstName = "New" }), default);
 
         result.IsFailure.Should().BeTrue();
     }

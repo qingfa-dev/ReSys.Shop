@@ -1,0 +1,89 @@
+@startuml
+
+' ═══════════════════════════════════════════════════════════
+' ReSys.Shop Use Case Style (Academic Grayscale Theme)
+' High Contrast | Large Text | Print Friendly
+' ═══════════════════════════════════════════════════════════
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 14
+skinparam usecaseFontSize 16
+skinparam actorFontSize 16
+skinparam stereotypeFontSize 12
+
+' ─── Color Palette (Monochrome) ──────────────────────────────
+!define RE_WHITE  #FFFFFF
+!define RE_BLACK  #000000
+!define RE_GRAY   #E0E0E0
+!define RE_STROKE #000000
+
+' ─── Actor Styling ───────────────────────────────────────────
+skinparam actor {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+  FontColor RE_BLACK
+  FontStyle bold
+}
+
+' ─── Use Case Styling ────────────────────────────────────────
+skinparam usecase {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+  FontColor RE_BLACK
+  FontStyle normal
+  
+  ' Secondary/System use cases can have a slight gray fill
+  BackgroundColor<<Secondary>> RE_GRAY
+  BorderColor<<Secondary>> RE_STROKE
+}
+
+' ─── System Boundary ─────────────────────────────────────────
+skinparam package {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+  FontSize 14
+  FontStyle bold
+  FontColor RE_BLACK
+}
+
+skinparam rectangle {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+  FontSize 14
+  FontStyle bold
+  FontColor RE_BLACK
+}
+
+' ─── Relationships ───────────────────────────────────────────
+skinparam arrow {
+  Color RE_STROKE
+  Thickness 1.5
+  FontSize 12
+  FontColor RE_BLACK
+}
+
+' ─── Notes ───────────────────────────────────────────────────
+skinparam note {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.0
+  FontSize 12
+  FontColor RE_BLACK
+  Shadowing false
+}
+
+' ─── General Settings ────────────────────────────────────────
+left to right direction
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam padding 8
+skinparam nodesep 40
+skinparam ranksep 40
+skinparam dpi 300
+
+
+@enduml

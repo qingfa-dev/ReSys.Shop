@@ -4,7 +4,7 @@ using Shared.Security.Authorization.Registry;
 using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Permissions.Get;
+namespace Module.Identity.Features.Shared.Admin.Roles.Permissions.Get;
 
 /// <summary>
 /// Defines the use case for retrieving permissions assigned to a role.
@@ -57,15 +57,15 @@ public static partial class GetRolePermissions
 
             var categories = PermissionContext.All
                 .GroupBy(p => p.Category)
-                .Select(categoryGroup => new Response.CategoryResponse
+                .Select(categoryGroup => new CategoryResponse
                 {
                     Category = categoryGroup.Key,
                     Resources = [.. categoryGroup
                         .GroupBy(p => p.Resource)
-                        .Select(resourceGroup => new Response.ResourceResponse
+                        .Select(resourceGroup => new ResourceResponse
                         {
                             Resource = resourceGroup.Key,
-                            Permissions = [.. resourceGroup.Select(permission => new Response.PermissionItemResponse
+                            Permissions = [.. resourceGroup.Select(permission => new PermissionItemResponse
                             {
                                 Identifier = permission.Identifier,
                                 Name = permission.Name,
@@ -77,10 +77,7 @@ public static partial class GetRolePermissions
                 })
                 .ToList();
 
-            var response = new Response
-            {
-                Categories = categories
-            };
+            var response = new Response { Categories = categories };
 
             return response;
         }

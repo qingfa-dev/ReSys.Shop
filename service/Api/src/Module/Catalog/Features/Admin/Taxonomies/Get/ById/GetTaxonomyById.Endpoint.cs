@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Get.ById;
 
 public static partial class GetTaxonomyById
 {
+    /// <summary>Maps the taxonomy detail route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/admin/taxonomies/{id} — single taxonomy by ID
             app.MapGet(CatalogFeature.Admin.Taxonomies.GetById.Route, async (
                 Guid id,
                 ISender sender,

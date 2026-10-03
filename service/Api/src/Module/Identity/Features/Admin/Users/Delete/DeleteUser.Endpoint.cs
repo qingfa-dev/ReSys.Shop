@@ -1,29 +1,20 @@
-namespace Module.Identity.Features.Admin.Users.Delete;
+namespace Module.Identity.Features.Shared.Admin.Users.Delete;
 
 public static partial class DeleteUser
 {
-    /// <summary>
-    /// Represents the API endpoint for deleting a user.
-    /// </summary>
+    /// <summary>Maps the user deletion route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for deleting a user to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a DELETE endpoint for users by ID.
+            // Map: DELETE /api/admin/users/{id} — delete a user
             app.MapDelete(IdentityFeature.Admin.Users.Delete.Route, async (
-                Guid id,
+                [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Create: Construct a command with the user ID from the route.
-                var command = new Command(new Request { Id = id });
-                // Send: Dispatch the command to the mediator for processing.
+                var command = new Command(id);
                 var result = await sender.Send(command, ct);
-                // Map: Convert the result to an IResult for the HTTP response.
                 return result.ToResult();
             })
             .WithName(nameof(DeleteUser))
@@ -31,7 +22,7 @@ public static partial class DeleteUser
             .HasPermission(IdentityFeature.Admin.Users.Delete.Permission)
             .WithSummary(IdentityFeature.Admin.Users.Delete.Summary)
             .WithDescription(IdentityFeature.Admin.Users.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)
             .Produces<Result>(StatusCodes.Status404NotFound);

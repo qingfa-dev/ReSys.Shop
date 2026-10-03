@@ -1,11 +1,14 @@
-using Microsoft.Extensions.Configuration;
-
-using Module.Catalog.Domain.Products.Variants;
-using Module.Inventory.Domain.Stock;
+using Module.Catalog.Domain.Products;
+using Module.Catalog.Domain.Variants;
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Services;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
+
+using Shared.Application.Systems.SystemInfos;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
 
@@ -15,9 +18,11 @@ namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
 public class AddToCartDefaultsTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<IStockReservationService> _reservationServiceMock;
+    private readonly Mock<IStockItemService> _stockItemMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<AddToCart.CommandHandler>> _loggerMock;
-    private readonly Mock<IConfiguration> _configurationMock;
+    private readonly Mock<ISystemInfo> _systemInfoMock;
     private readonly AddToCart.CommandHandler _handler;
 
     public AddToCartDefaultsTests()
@@ -33,16 +38,28 @@ public class AddToCartDefaultsTests : IDisposable
         ];
         _dbContext = new ApplicationDbContext(options);
 
+        _reservationServiceMock = new Mock<IStockReservationService>();
+        _reservationServiceMock
+            .Setup(x => x.ReserveForVariantAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(StockReservationMethod.Reserve(
+                Guid.NewGuid(), 1, Guid.NewGuid(), null, 15, cartToken: "test"));
+
+        _stockItemMock = new Mock<IStockItemService>();
+        _stockItemMock
+            .Setup(x => x.IsAvailableAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserName).Returns("customer");
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
         _loggerMock = new Mock<ILogger<AddToCart.CommandHandler>>();
 
-        _configurationMock = new Mock<IConfiguration>();
-        _configurationMock.Setup(x => x["Ordering:DefaultCurrency"]).Returns("USD");
+        _systemInfoMock = new Mock<ISystemInfo>();
+        _systemInfoMock.Setup(x => x.DefaultCurrency).Returns("USD");
 
-        _handler = new AddToCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _configurationMock.Object);
+        _handler = new AddToCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _systemInfoMock.Object, _stockItemMock.Object, _reservationServiceMock.Object);
     }
 
     public void Dispose()
@@ -54,7 +71,9 @@ public class AddToCartDefaultsTests : IDisposable
     [Fact(DisplayName = "Handler: Should create cart with configured currency and no default address")]
     public async Task Handle_ShouldCreateCart_WithConfiguredCurrencyAndNoDefaultAddress()
     {
-        var variant = new Variant { Sku = "TSHIRT-001", Price = 19.99m };
+        var product = ProductMethod.Create("Test Product", status: ProductStatus.Active).Value;
+        _dbContext.Set<Product>().Add(product);
+        var variant = new Variant { Sku = "TSHIRT-001", Price = 19.99m, ProductId = product.Id };
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

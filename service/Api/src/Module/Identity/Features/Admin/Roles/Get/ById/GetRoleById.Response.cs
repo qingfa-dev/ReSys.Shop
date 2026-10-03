@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Get.ById;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.ById;
 
 public static partial class GetRoleById
 {
@@ -8,5 +8,5 @@ public static partial class GetRoleById
     /// Represents the response contract for retrieving a role by its ID.
     /// Inherits properties like Id, Name, Description, IsSystem, and audit fields from <see cref="RoleDetailResponse"/>.
     /// </summary>
-    public class Response : RoleDetailResponse { }
+    public record Response : RoleDetailResponse;
 }

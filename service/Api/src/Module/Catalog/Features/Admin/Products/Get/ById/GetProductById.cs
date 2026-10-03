@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Features.Admin.Products.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Products.Get.ById;
 

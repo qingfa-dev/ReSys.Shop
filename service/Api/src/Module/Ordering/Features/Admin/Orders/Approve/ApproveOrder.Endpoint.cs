@@ -4,11 +4,13 @@ namespace Module.Ordering.Features.Admin.Orders.Approve;
 
 public static partial class ApproveOrder
 {
+    /// <summary>Maps the admin order-approval route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(OrderingFeature.Admin.Orders.Approve.Route, async (Guid id, ISender sender, CancellationToken ct) =>
+            // Map: POST api/admin/ordering/orders/{id:guid}/approve — approve a placed order
+            app.MapPost(OrderingFeature.Admin.Orders.Approve.Route, async ([FromRoute] Guid id, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new Command(id), ct);
                 return result.ToResult();
@@ -19,6 +21,7 @@ public static partial class ApproveOrder
             .WithSummary(OrderingFeature.Admin.Orders.Approve.Summary)
             .WithDescription(OrderingFeature.Admin.Orders.Approve.Description)
             .Produces<Result<Response>>()
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

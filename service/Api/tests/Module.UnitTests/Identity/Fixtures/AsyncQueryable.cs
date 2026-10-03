@@ -103,7 +103,7 @@ internal class InMemoryDbSet<T> : IQueryable<T>, IAsyncEnumerable<T>, IAsyncQuer
     {
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node.Method.DeclaringType == typeof(Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions)
+            if (node.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
                 && node.Method.Name is "AsNoTracking" or "AsNoTrackingWithIdentityResolution")
                 return Visit(node.Arguments[0]);
             return base.VisitMethodCall(node);

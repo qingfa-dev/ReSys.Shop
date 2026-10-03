@@ -1,0 +1,4 @@
+experiment:
+  model: clip_l14
+  dataset: deepfashion
+  seed: 42

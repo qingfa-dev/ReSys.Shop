@@ -13,7 +13,11 @@ namespace Shared.UnitTests.Application.Extensions.Validations;
 [Trait("Feature", "Extensions")]
 public class OptionsBuilderExtensionsTests
 {
-    public record TestOptions(string? Name, int Value);
+    public record TestOptions
+    {
+        public string? Name { get; init; }
+        public int Value { get; init; }
+    }
 
     public class TestValidator : AbstractValidator<TestOptions>
     {
@@ -33,7 +37,7 @@ public class OptionsBuilderExtensionsTests
                 var sut = new FluentValidateOptions<TestOptions>(
                     Mock.Of<IServiceProvider>(), "named");
 
-                var result = sut.Validate("other_name", new TestOptions("x", 1));
+                var result = sut.Validate("other_name", new TestOptions { Name = "x", Value = 1 });
 
                 result.Should().BeSameAs(ValidateOptionsResult.Skip);
             }
@@ -46,7 +50,7 @@ public class OptionsBuilderExtensionsTests
                 var sut = new FluentValidateOptions<TestOptions>(
                     mockServiceProvider.Object, name: null);
 
-                var result = sut.Validate("any", new TestOptions("x", 1));
+                var result = sut.Validate("any", new TestOptions { Name = "x", Value = 1 });
 
                 result.Skipped.Should().BeFalse();
                 result.Succeeded.Should().BeTrue();
@@ -60,7 +64,7 @@ public class OptionsBuilderExtensionsTests
                 var sut = new FluentValidateOptions<TestOptions>(
                     mockServiceProvider.Object, "cfg");
 
-                var result = sut.Validate("cfg", new TestOptions("x", 1));
+                var result = sut.Validate("cfg", new TestOptions { Name = "x", Value = 1 });
 
                 result.Skipped.Should().BeFalse();
                 result.Succeeded.Should().BeTrue();
@@ -87,7 +91,7 @@ public class OptionsBuilderExtensionsTests
                 var sut = new FluentValidateOptions<TestOptions>(
                     mockServiceProvider.Object, null);
 
-                var result = sut.Validate(null, new TestOptions("x", 1));
+                var result = sut.Validate(null, new TestOptions { Name = "x", Value = 1 });
 
                 result.Should().BeSameAs(ValidateOptionsResult.Success);
             }
@@ -106,7 +110,7 @@ public class OptionsBuilderExtensionsTests
                 var sut = new FluentValidateOptions<TestOptions>(
                     mockServiceProvider.Object, null);
 
-                var result = sut.Validate(null, new TestOptions(null, 1));
+                var result = sut.Validate(null, new TestOptions { Name = null, Value = 1 });
 
                 result.Failed.Should().BeTrue();
                 result.Failures.Should().Contain(
@@ -128,7 +132,7 @@ public class OptionsBuilderExtensionsTests
                 var sut = new FluentValidateOptions<TestOptions>(
                     mockServiceProvider.Object, null);
 
-                var result = sut.Validate(null, new TestOptions(null, 0));
+                var result = sut.Validate(null, new TestOptions { Name = null, Value = 0 });
 
                 result.Failed.Should().BeTrue();
                 result.Failures.Should().Contain(

@@ -1,0 +1,4 @@
+#include "appendices/00-header.typ"
+#include "appendices/a-benchmark-results.typ"
+#include "appendices/b-dataset.typ"
+#include "appendices/c-hardware.typ"

@@ -1,0 +1,111 @@
+@startwbs usecase-overview-wbs
+
+<style>
+
+wbsDiagram {
+  LineColor #222222
+  LineThickness 2
+  FontName Arial
+  FontSize 62
+  FontColor #000000
+  RoundCorner 8
+  HorizontalPadding 8
+  VerticalPadding 6
+  MaximumWidth 700
+}
+
+node {
+  Padding 6
+  Margin 3
+}
+
+:depth(0) {
+  BackgroundColor #333333
+  FontColor #FFFFFF
+  FontStyle bold
+  LineColor #222222
+  LineThickness 2
+}
+
+:depth(1) {
+  BackgroundColor #E0E0E0
+  FontColor #000000
+  FontStyle bold
+  LineColor #222222
+  LineThickness 2
+}
+
+:depth(2) {
+  BackgroundColor #F0F4F8
+  FontColor #000000
+  FontStyle bold
+  LineColor #333333
+}
+
+:depth(3) {
+  BackgroundColor #FFFFFF
+  FontColor #000000
+  LineColor #555555
+}
+
+</style>
+
+* ReSys.Shop Use Cases (26)
+
+** Administration (15)
+
+*** Catalog
+**** Manage Products\n(UC-ADM-PROD)
+**** Manage Variants\n(UC-ADM-VAR)
+**** Manage Images & Embeddings\n(UC-ADM-IMG)
+**** Manage Taxonomies\n(UC-ADM-TAX)
+**** Manage Option Types\n(UC-ADM-OPT)
+
+*** Ordering
+**** Manage Orders\n(UC-ADM-ORD)
+**** Manage Order Details\n(UC-ADM-ORD-ITEMS)
+
+*** Payment
+**** Manage Payments\n(UC-ADM-PAY)
+**** Manage Payment Methods\n(UC-ADM-PAY-METHOD)
+
+*** Inventory
+**** Manage Stock\n(UC-ADM-STK)
+**** Manage Stock Locations\n(UC-ADM-LOC)
+
+*** Identity
+**** Manage Users\n(UC-ADM-USR)
+**** Manage Roles & Permissions\n(UC-ADM-ROL)
+
+*** Shipping
+**** Manage Shipping\n(UC-ADM-SHP)
+
+*** Location
+**** Manage Reference Data\n(UC-ADM-REF)
+
+** Storefront (9)
+
+*** Product Discovery
+**** Browse & Search Catalog\n(UC-STR-BRW)
+**** Visual Search\n(UC-STR-SRC)
+
+*** Purchase Flow
+**** Manage Cart\n(UC-STR-CRT)
+**** Checkout\n(UC-STR-CHK)
+**** Order History\n(UC-STR-OHI)
+**** Payment Processing\n(UC-STR-PAY)
+
+*** Account Management
+**** Authentication\n(UC-STR-AUT)
+**** Session Management\n(UC-STR-SES)
+**** Profile Management\n(UC-STR-PRF)
+
+** Background Services (2)
+
+*** Machine Learning
+**** Embedding Operations\n(UC-SYS-EMB)
+
+*** Platform Maintenance
+**** System Maintenance\n(UC-SYS-MNT)
+
+@endwbs

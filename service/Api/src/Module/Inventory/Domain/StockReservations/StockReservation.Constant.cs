@@ -5,6 +5,8 @@ public static class StockReservationConstant
     public static class Defaults
     {
         public const int DefaultTtlMinutes = 15;
+        public const int MinTtlMinutes = 1;
+        public const int MaxTtlMinutes = 10080;     // 7 days
     }
 
     public static class Constraints
@@ -26,5 +28,7 @@ public static class StockReservationConstant
             nameof(StockReservation.ExpiresAtUtc),
             nameof(StockReservation.CreatedAtUtc)
         ];
+
+        public static readonly string[] AllowedSearchFields = [];
     }
 }

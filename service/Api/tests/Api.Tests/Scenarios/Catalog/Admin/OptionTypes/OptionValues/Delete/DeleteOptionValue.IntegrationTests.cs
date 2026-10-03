@@ -3,8 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.OptionValues.Delete;
 
@@ -22,7 +21,7 @@ public sealed class DeleteOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage createOtResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createOptionTypeRequest);
+            "/api/admin/catalog/option-types", createOptionTypeRequest);
         ApiResponse createOtResult = await createOtResponse.ReadApiResponseAsync();
         createOtResult.IsSuccess.Should().BeTrue();
         OptionTypeDetailResponse? optionType = createOtResult.DeserializeValue<OptionTypeDetailResponse>();
@@ -31,11 +30,12 @@ public sealed class DeleteOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var createValueRequest = new
         {
             name = "Deletable Value",
-            presentation = "Deletable"
+            presentation = "Deletable",
+            optionTypeId = optionType!.Id
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType!.Id}/values", createValueRequest);
+            "/api/admin/catalog/option-values", createValueRequest);
         ApiResponse createValResult = await createValResponse.ReadApiResponseAsync();
         createValResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? created = createValResult.DeserializeValue<OptionValueListItemResponse>();
@@ -43,7 +43,7 @@ public sealed class DeleteOptionValueIntegrationTests(ApiFixture fixture) : Cata
         Guid newId = created!.Id;
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType.Id}/values/{newId}");
+            $"/api/admin/catalog/option-values/{newId}");
 
         deleteResponse.IsSuccessStatusCode.Should().BeTrue();
     }
@@ -55,7 +55,7 @@ public sealed class DeleteOptionValueIntegrationTests(ApiFixture fixture) : Cata
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values/{nonexistentId}");
+            $"/api/admin/catalog/option-values/{nonexistentId}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

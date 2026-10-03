@@ -3,8 +3,6 @@ using Shared.Security.Authorization.Permissions.Store;
 
 namespace Shared.Security.Authorization.Permissions.Services;
 
-// Boundary: Services → Caches + Store — Orchestrates multi-tier resolution: UserCache → RoleCache → Database.
-
 /// <summary>
 /// Central orchestrator for all permission-related operations.
 /// Wraps and coordinates <see cref="IPermissionCache"/> and <see cref="IPermissionStore"/>.

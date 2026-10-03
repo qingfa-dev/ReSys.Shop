@@ -16,28 +16,28 @@ public static class TaxonomyConstant
 
     public static class Query
     {
-        public static readonly string[] AllowedSearchFields =
-        [
+        public static IReadOnlySet<string> AllowedSearchFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Taxonomy.Name),
             nameof(Taxonomy.Presentation),
             nameof(Taxonomy.CreatedBy),
             nameof(Taxonomy.ModifiedBy)
-        ];
+        };
 
-        public static readonly string[] AllowedSortFields =
-        [
+        public static IReadOnlySet<string> AllowedSortFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Taxonomy.Name),
             nameof(Taxonomy.Presentation),
             nameof(Taxonomy.CreatedBy),
             nameof(Taxonomy.ModifiedBy)
-        ];
+        };
 
-        public static readonly string[] AllowedFilterFields =
-        [
+        public static IReadOnlySet<string> AllowedFilterFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Taxonomy.Name),
             nameof(Taxonomy.Presentation),
             nameof(Taxonomy.CreatedBy),
             nameof(Taxonomy.ModifiedBy)
-        ];
+        };
     }
 }

@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": ["src/**/__tests__/*", "env.d.ts"],
+  "compilerOptions": {
+    "types": ["@vitest/coverage-v8"],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo"
+  }
+}

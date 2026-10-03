@@ -11,7 +11,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "GenerateSlug: Should return existing slug")]
     public void GenerateSlug_WhenSlugExists_ShouldReturnSlug()
     {
-        var product = ProductMethod.Create("Product", "existing-slug").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "existing-slug").Value;
 
         var result = product.GenerateSlug();
 
@@ -21,7 +21,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "GenerateSlug: Should generate from name when no slug")]
     public void GenerateSlug_WhenNoSlug_ShouldGenerateFromName()
     {
-        var product = ProductMethod.Create("Product", "product").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "product").Value;
         product.Slug = null!;
 
         var result = product.GenerateSlug();
@@ -56,7 +56,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "IsSlugAvailable: Should return true when different from current")]
     public void IsSlugAvailable_WhenDifferent_ShouldReturnTrue()
     {
-        var product = ProductMethod.Create("Product", "current-slug").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "current-slug").Value;
 
         var result = product.IsSlugAvailable("new-slug");
 
@@ -66,7 +66,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "IsSlugAvailable: Should return false when same as current")]
     public void IsSlugAvailable_WhenSame_ShouldReturnFalse()
     {
-        var product = ProductMethod.Create("Product", "current-slug").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "current-slug").Value;
 
         var result = product.IsSlugAvailable("current-slug");
 
@@ -76,7 +76,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "IsSlugAvailable: Should return false when candidate is empty")]
     public void IsSlugAvailable_WhenEmpty_ShouldReturnFalse()
     {
-        var product = ProductMethod.Create("Product", "current-slug").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "current-slug").Value;
 
         var result = product.IsSlugAvailable("");
 
@@ -86,7 +86,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "NormalizeSlug: Should downcase the slug")]
     public void NormalizeSlug_WhenHasUpper_ShouldDowncase()
     {
-        var product = ProductMethod.Create("Product", "UPPER-SLUG").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "UPPER-SLUG").Value;
 
         product.NormalizeSlug();
 
@@ -96,7 +96,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "EnsureSlugIsUnique: Should return candidate when available")]
     public void EnsureSlugIsUnique_WhenAvailable_ShouldReturnCandidate()
     {
-        var product = ProductMethod.Create("Product", "current-slug").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "current-slug").Value;
 
         var result = product.EnsureSlugIsUnique("new-slug");
 
@@ -106,7 +106,7 @@ public class ProductMethodSlugsTests
     [Fact(DisplayName = "EnsureSlugIsUnique: Should append suffix when not available")]
     public void EnsureSlugIsUnique_WhenCollision_ShouldAppendSuffix()
     {
-        var product = ProductMethod.Create("Product", "same-slug").Value;
+        var product = ProductMethod.Create(name: "Product", slug: "same-slug").Value;
 
         var result = product.EnsureSlugIsUnique("same-slug");
 

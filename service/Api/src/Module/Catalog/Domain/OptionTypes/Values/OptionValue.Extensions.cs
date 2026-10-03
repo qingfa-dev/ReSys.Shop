@@ -1,6 +1,6 @@
 namespace Module.Catalog.Domain.OptionTypes.Values;
 
-public static class OptionValueExtensions
+public static class OptionValueMethod
 {
     #region Factory Methods
     /// <summary>

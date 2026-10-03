@@ -32,6 +32,7 @@ public sealed class GuestSessionMiddleware
                 MaxAge = TimeSpan.FromDays(_settings.ExpirationInDays)
             };
 
+            context.Items[cookieName] = sessionId;
             context.Response.Cookies.Append(cookieName, sessionId, cookieOptions);
         }
 

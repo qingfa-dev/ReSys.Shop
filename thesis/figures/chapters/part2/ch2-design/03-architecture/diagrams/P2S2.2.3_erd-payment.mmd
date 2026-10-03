@@ -1,0 +1,34 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '64px'}}}%%
+erDiagram
+  direction LR
+  PaymentMethod {
+    uuid id PK
+    string name
+    string code
+    string provider_key
+    bool active
+    bool auto_capture
+  }
+
+  PaymentCapture {
+    uuid id PK
+    uuid order_id FK
+    uuid payment_method_id FK
+    decimal amount
+    decimal captured_amount
+    string currency
+    string state
+    string stripe_payment_intent_id
+    decimal refunded_amount
+    datetime completed_at_utc
+  }
+
+  WebhookEvent {
+    uuid id PK
+    string stripe_event_id UK
+    string type
+    string state
+    int attempt_count
+  }
+
+  PaymentMethod ||--o{ PaymentCapture : ""

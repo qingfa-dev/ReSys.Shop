@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 
 namespace Module.Catalog.Features.Admin.Products.Delete;
 

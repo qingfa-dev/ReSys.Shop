@@ -12,7 +12,7 @@ public sealed class SortClauseBehaviorTests
     [InlineData(SortDirection.Descending, "desc")]
     public void DirectionToken_ShouldReturnExpectedToken(SortDirection direction, string expected)
     {
-        SortClause clause = new("Field", direction);
+        SortClause clause = new() { Field = "Field", Direction = direction };
 
         clause.DirectionToken.Should().Be(expected);
     }
@@ -25,7 +25,7 @@ public sealed class SortClauseBehaviorTests
     public void ToString_ShouldReturnExpectedRepresentation(
         string field, SortDirection direction, SortNulls? nulls, string expected)
     {
-        SortClause clause = new(field, direction, nulls);
+        SortClause clause = new() { Field = field, Direction = direction, Nulls = nulls };
 
         clause.ToString().Should().Be(expected);
     }

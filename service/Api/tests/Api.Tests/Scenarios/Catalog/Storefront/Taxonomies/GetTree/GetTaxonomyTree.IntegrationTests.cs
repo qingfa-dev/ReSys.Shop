@@ -21,7 +21,7 @@ public sealed class GetTaxonomyTreeIntegrationTests(ApiFixture fixture) : Catalo
             presentation = "Tree"
         };
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createRequest);
+            "/api/admin/catalog/taxonomies", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         string taxonomyId = createResult.DeserializeValue<IdResponse>()!.Id;

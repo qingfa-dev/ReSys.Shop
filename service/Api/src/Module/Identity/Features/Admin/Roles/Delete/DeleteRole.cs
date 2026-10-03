@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 
+using Module.Identity.Features.Admin.Shared.Mappings;
+
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Delete;
+namespace Module.Identity.Features.Shared.Admin.Roles.Delete;
 
 /// <summary>
 /// Defines the use case for deleting an existing role.
@@ -29,23 +31,28 @@ public static partial class DeleteRole
         {
             var request = command.Request;
 
+            // Load: Retrieve the role to verify it exists before deletion
             var role = await roleManager.FindByIdAsync(request.Id.ToString());
             if (role is null)
                 return RoleResult.Failure.NotFound;
 
+            // Guard: Prevent deletion of system-protected roles to maintain platform integrity
             if (role.IsSystem)
             {
+                // Log: Record attempted deletion of protected role for security audit
                 RoleLoggers.Management.SystemRoleProtected(logger, RoleName: role.Name!, RoleId: role.Id);
                 return RoleResult.Failure.SystemRoleProtected;
             }
 
+            // Call: Execute the deletion via Identity role manager
             var result = await roleManager.DeleteAsync(role);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
+            // Log: Confirm role was deleted with identifying details
             RoleLoggers.Management.Deleted(logger, RoleName: role.Name!, RoleId: role.Id);
 
-            return new Response { Id = role.Id, Name = role.Name ?? string.Empty };
+            return role.MapToListItem<Response>();
         }
     }
 }

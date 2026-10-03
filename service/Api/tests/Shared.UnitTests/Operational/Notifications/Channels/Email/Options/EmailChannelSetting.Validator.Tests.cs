@@ -14,7 +14,7 @@ public sealed class EmailChannelSettingValidatorTests
     private static EmailChannelSetting CreateValidSetting() => new()
     {
         FromEmail = "sender@example.com",
-        FromName = "support@example.com",
+        FromName = "Support Team",
 };
 
     [Fact(DisplayName = "Valid EmailChannelSetting should pass all validation rules")]
@@ -53,13 +53,5 @@ public sealed class EmailChannelSettingValidatorTests
         result.ShouldHaveValidationErrorFor(x => x.FromName);
     }
 
-    [Fact(DisplayName = "FromName with invalid format should fail with FromNameRequired")]
-    public void FromName_InvalidFormat_ShouldFail()
-    {
-        EmailChannelSetting setting = CreateValidSetting();
-        setting.FromName = "not-an-email";
-        TestValidationResult<EmailChannelSetting> result = _sut.TestValidate(setting);
-        result.ShouldHaveValidationErrorFor(x => x.FromName)
-            .WithErrorCode(EmailChannelSettingResult.Failure.FromNameRequired.Code);
-    }
+
 }

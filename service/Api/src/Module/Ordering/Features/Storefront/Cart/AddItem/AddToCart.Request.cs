@@ -1,10 +1,10 @@
+using Module.Ordering.Features.Storefront.Shared.Models;
+
 namespace Module.Ordering.Features.Storefront.Cart.AddItem;
 
 public static partial class AddToCart
 {
-    public class Request
+    public sealed record Request : CartParameters
     {
-        public Guid VariantId { get; init; }
-        public int Quantity { get; init; } = 1;
     }
 }

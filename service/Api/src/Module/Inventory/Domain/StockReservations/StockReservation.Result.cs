@@ -59,5 +59,27 @@ public static class StockReservationResult
         public static Error InvalidStateTransition => Error.Validation(
             code: "StockReservation.InvalidStateTransition",
             message: "Reservation state must be one of: Reserved, Fulfilled, Released, Expired.");
+
+        public static Error StockLocationRequired => Error.Validation(
+            code: "StockReservation.Cart.StockLocationRequired",
+            message: "Stock location is required for cart reservation.");
+
+        public static Error CartTokenRequired => Error.Validation(
+            code: "StockReservation.Cart.CartTokenRequired",
+            message: "Cart token is required for cart reservation.");
+
+        public static Error TtlOutOfRange => Error.Validation(
+            code: "StockReservation.Cart.TtlOutOfRange",
+            message: $"TTL minutes must be between {StockReservationConstant.Defaults.MinTtlMinutes} and {StockReservationConstant.Defaults.MaxTtlMinutes}.");
+
+        /// <summary>Error when no active reservations exist for the cart.</summary>
+        public static Error NoActiveReservations => Error.Conflict(
+            code: "StockReservation.Consume.NoActive",
+            message: "No active reservations found - reservations may have expired.");
+
+        /// <summary>Error when the stock item for a variant cannot be found.</summary>
+        public static Error StockItemNotFound(Guid variantId) => Error.NotFound(
+            code: "StockReservation.Consume.StockItemNotFound",
+            message: $"Stock item not found for variant {variantId}.");
     }
 }

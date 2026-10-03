@@ -1,5 +1,5 @@
 using Module.Shipping.Domain.ShippingRates;
-using Module.Shipping.Features.Admin.ShippingRates.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Mappings;
 
 namespace Module.Shipping.Features.Admin.ShippingRates.Get.ById;
 

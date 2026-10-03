@@ -1,16 +1,15 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import ui from '@nuxt/ui/vue-plugin'
-
 import App from './App.vue'
-import router from './router'
-import './assets/css/main.css'
-import './assets/shop/main.scss'
+import router from './app/router'
+import { registerPrimeVue } from '@providers/primevue'
+import { registerPinia } from '@providers/pinia'
+
+import '@/assets/main.css'
 
 const app = createApp(App)
 
-app.use(createPinia())
 app.use(router)
-app.use(ui)
+registerPinia(app)
+registerPrimeVue(app)
 
 app.mount('#app')

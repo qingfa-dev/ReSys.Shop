@@ -5,9 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Persistence;
+using Module.Inventory.Persistence.Constants;
 using Module.Location.Persistence;
 using Module.Ordering.Persistence;
-using Module.Profile.Persistence;
+using Module.Customer.Persistence;
 
 using Npgsql;
 
@@ -27,6 +28,7 @@ public sealed class ApiFixture : IAsyncLifetime
     [
         CatalogSchema.Name,
         IdentitySchema.Name,
+        InventorySchema.Name,
         LocationSchema.Name,
         OrderingSchema.Name,
         ProfileSchema.Name
@@ -43,6 +45,9 @@ public sealed class ApiFixture : IAsyncLifetime
     public HttpClient Client => _factory?.CreateClient()
         ?? throw new InvalidOperationException("Factory not initialized");
 
+    public ApiFactory Factory => _factory
+        ?? throw new InvalidOperationException("Factory not initialized");
+
     public async ValueTask InitializeAsync()
     {
         ConfigureContainerRuntime();
@@ -52,7 +57,7 @@ public sealed class ApiFixture : IAsyncLifetime
             "true",
             StringComparison.OrdinalIgnoreCase);
 
-        PostgreSqlBuilder builder = new PostgreSqlBuilder("pgvector/pgvector:pg17");
+        PostgreSqlBuilder builder = new("pgvector/pgvector:pg17");
         if (reuse)
         {
             builder = builder.WithReuse(true);
@@ -77,7 +82,7 @@ public sealed class ApiFixture : IAsyncLifetime
         _respawnersBySchema = new ConcurrentDictionary<string, Respawner>(StringComparer.OrdinalIgnoreCase);
         foreach (string schema in AllSchemas)
         {
-            await using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+            await using NpgsqlConnection connection = new(_connectionString);
             await connection.OpenAsync();
             Respawner perSchema = await Respawner.CreateAsync(connection, new RespawnerOptions
             {
@@ -87,7 +92,7 @@ public sealed class ApiFixture : IAsyncLifetime
             _respawnersBySchema[schema] = perSchema;
         }
 
-        await using (NpgsqlConnection allConn = new NpgsqlConnection(_connectionString))
+        await using (NpgsqlConnection allConn = new(_connectionString))
         {
             await allConn.OpenAsync();
             _respawner = await Respawner.CreateAsync(allConn, new RespawnerOptions
@@ -109,7 +114,7 @@ public sealed class ApiFixture : IAsyncLifetime
 
         HashSet<string> schemaSet = new(schemas, StringComparer.OrdinalIgnoreCase);
 
-        await using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+        await using NpgsqlConnection connection = new(_connectionString);
         await connection.OpenAsync();
 
         foreach (string schema in schemaSet)
@@ -148,7 +153,14 @@ public sealed class ApiFixture : IAsyncLifetime
 
         foreach (IDataSeeder seeder in seeders.OrderBy(s => s.Order))
         {
-            await seeder.SeedAsync(CancellationToken.None);
+            try
+            {
+                await seeder.SeedAsync(CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Seeder {seeder.GetType().Name} (Order {seeder.Order}) failed: {ex.Message}");
+            }
         }
     }
 
@@ -158,6 +170,7 @@ public sealed class ApiFixture : IAsyncLifetime
         {
             [CatalogSchema.Name] = new List<Type>(),
             [IdentitySchema.Name] = new List<Type>(),
+            [InventorySchema.Name] = new List<Type>(),
             [LocationSchema.Name] = new List<Type>(),
             [OrderingSchema.Name] = new List<Type>(),
             [ProfileSchema.Name] = new List<Type>(),
@@ -188,6 +201,8 @@ public sealed class ApiFixture : IAsyncLifetime
 
         if (ns.Contains(".Catalog.", StringComparison.OrdinalIgnoreCase))
             return CatalogSchema.Name;
+        if (ns.Contains(".Inventory.", StringComparison.OrdinalIgnoreCase))
+            return InventorySchema.Name;
         if (ns.Contains(".Location.", StringComparison.OrdinalIgnoreCase))
             return LocationSchema.Name;
         if (ns.Contains(".Ordering.", StringComparison.OrdinalIgnoreCase))

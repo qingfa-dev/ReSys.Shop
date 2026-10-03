@@ -1,6 +1,6 @@
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Mappings;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Features.Admin.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Shared.Mappings;
 
@@ -45,11 +45,11 @@ public class VariantMappingTests
             CostPrice = 15.00m,
             CostCurrency = "USD",
             Weight = 1.5m,
-            WeightUnit = "kg",
+            WeightUnit = WeightUnit.Kg,
             Height = 10m,
             Width = 20m,
             Depth = 5m,
-            DimensionsUnit = "cm",
+            DimensionsUnit = DimensionUnit.Cm,
         };
 
         var result = request.MapToDomain(entity);

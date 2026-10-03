@@ -1,0 +1,29 @@
+using Module.Catalog.Features.Shared;
+
+namespace Module.Catalog.Features.Storefront.Products.Get.PagedOrAll;
+
+public static partial class GetStorefrontProducts
+{
+    /// <summary>Maps the storefront product listing route.</summary>
+    public class Endpoint : ICarterModule
+    {
+        public void AddRoutes(IEndpointRouteBuilder app)
+        {
+            // Map: GET /api/storefront/products — paged listing with filtering, sorting, and search
+            app.MapGet(CatalogFeature.Storefront.Products.Get.PagedOrAll.Route, async (
+                [AsParameters] Parameters parameters,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var query = new Query(parameters);
+                var result = await sender.Send(query, ct);
+                return result.ToPagedResult();
+            })
+            .WithName(nameof(GetStorefrontProducts))
+            .WithTags(CatalogFeature.Tags.Product)
+            .WithSummary(CatalogFeature.Storefront.Products.Get.PagedOrAll.Summary)
+            .WithDescription(CatalogFeature.Storefront.Products.Get.PagedOrAll.Description)
+            .Produces<PagedResult<Response>>();
+        }
+    }
+}

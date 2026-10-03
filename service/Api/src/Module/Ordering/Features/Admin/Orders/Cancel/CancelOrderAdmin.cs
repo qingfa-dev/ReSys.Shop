@@ -1,8 +1,11 @@
-using Shared.Application.Contracts.Inventory;
+using Module.Billing.Features.Shared.Commands;
+using Module.Inventory.Services.StockReservations;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
-using Module.Ordering.Features.Shared.Services;
+using Module.Ordering.Features.Admin.Shared.Extensions;
+using Module.Ordering.Features.Admin.Shared.Mappings;
+using Module.Shipping.Domain.Shipments;
 
+using Shared.Application.Domain.Orders;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
@@ -19,7 +22,7 @@ public static partial class CancelOrderAdmin
         INotificationService notificationService,
         ILogger<CommandHandler> logger,
         ISender sender,
-        IStockQuantityService stockChecker) : ICommandHandler<Command, Response>
+        IStockReservationService stockReservation) : ICommandHandler<Command, Response>
     {
         /// <summary>Voids payments, releases inventory for placed orders, persists the cancellation, and notifies the customer.</summary>
         /// <param name="command">The command containing the order ID and cancellation details.</param>
@@ -30,48 +33,74 @@ public static partial class CancelOrderAdmin
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var order = await dbContext.Set<Order>()
-                .Include(o => o.LineItems)
+                .IncludeOrderDetail()
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
             var wasPlaced = order.Status == OrderStatus.Placed;
+
+            // Guard: Only Placed orders can be canceled — defense-in-depth beyond the domain guard,
+            // so a terminal/abnormal order fails before any side effect (void, shipment, stock).
+            if (order.Status != OrderStatus.Placed)
+                return OrderResult.Errors.InvalidStatusTransition;
+
             Guid.TryParse(currentUser.UserId, out var userId);
             var result = order.Cancel(userId);
             if (result.IsFailure)
                 return result.Errors;
 
+            order.RecomputePaymentState();
+
+            // In-process: Cancel all shipments BEFORE dispatching the gateway void — a failed
+            // shipment guard returns without touching gateway payments.
+            foreach (var shipment in order.Shipments)
+            {
+                var shipmentCancelResult = shipment.Cancel();
+                if (shipmentCancelResult.IsFailure)
+                    return shipmentCancelResult.Errors;
+            }
+
+            order.ShipmentState = ShipmentState.Canceled;
+
+            // Call: Void pending payments via Payment module — fire-and-forget on failure.
+            // TODO(audit 2026-08-16): cross-module ISender — keep ISender (gateway + txn + idempotency
+            // keys); or extract to Billing IPaymentProcessingService and inject. Not a navigation fit.
             var voidResult = await sender.Send(
-                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand(
-                    order.Id, "Order cancelled by admin"),
+                new VoidOrderPaymentsCommand
+                {
+                    OrderId = order.Id,
+                    Reason = OrderConstant.CancelReasons.Admin
+                },
                 cancellationToken);
             if (voidResult.IsFailure)
             {
-                logger.LogWarning("Failed to void payments for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
+                // Log: Payment void failure is non-fatal — order is already cancelled.
+                OrderLoggers.VoidPaymentsFailed(logger, order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
+            // Release: Return consumed stock for previously placed orders.
             if (wasPlaced)
             {
-                foreach (var lineItem in order.LineItems)
-                {
-                    var orderInventory = new OrderInventoryService(order, lineItem, dbContext, stockChecker);
-                    await orderInventory.RemoveAsync(lineItem.Quantity, cancellationToken);
-                }
+                var returnResult = await stockReservation.ReturnConsumedForOrderAsync(order.Id, cancellationToken);
+                if (returnResult.IsFailure)
+                    return returnResult.Errors;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
             await SendOrderCanceledNotificationAsync(order, cancellationToken);
 
-            return order.MapToDetail<Response>();
+            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Canceled(order.Id));
         }
 
         private async Task SendOrderCanceledNotificationAsync(Order order, CancellationToken ct)
         {
+            // Skip: No email on order — nothing to notify.
             if (string.IsNullOrWhiteSpace(order.Email))
                 return;
 
+            // Notify: Send cancellation email with order number and customer name.
             var message = NotificationMessage.Create(
                 NotificationUseCase.OrderCancelled,
                 NotificationRecipient.Create(order.Email, order.Number),
@@ -80,11 +109,11 @@ public static partial class CancelOrderAdmin
                     (NotificationParameterType.OrderNumber, order.Number),
                     (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
 
+            // Suppress: Notification failure must not block order cancellation — best-effort only.
             var result = await notificationService.SendAsync(message, ct);
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
+                OrderLoggers.CancelNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

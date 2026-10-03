@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Admin.Taxons.Delete;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
 
@@ -52,7 +52,7 @@ public class DeleteTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should delete taxon successfully and rebuild hierarchy")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
@@ -60,10 +60,9 @@ public class DeleteTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Id.Should().Be(taxon.Id);
 
         var persisted = await _dbContext.Set<Taxon>()
             .IgnoreQueryFilters()
@@ -78,7 +77,7 @@ public class DeleteTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should call auto-classification when taxon is automatic")]
     public async Task Handle_ShouldCallAutoClassification_WhenAutomatic()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, true, null, null, false, null, null).Value;
 
@@ -86,30 +85,21 @@ public class DeleteTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
         _autoClassificationServiceMock.Verify(x => x.RegenerateForTaxonAsync(taxon.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonomyNotFound()
-    {
-        var result = await _handler.Handle(new DeleteTaxon.Command(Guid.NewGuid(), Guid.NewGuid()), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonomyResult.Errors.NotFound.Code);
-    }
-
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -118,7 +108,7 @@ public class DeleteTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxon has children")]
     public async Task Handle_ShouldReturnFailure_WhenHasChildren()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var child = TaxonMethod.Create(taxonomy.Id, taxon.Id, "T-Shirts", "T-Shirts", null, 0, "t-shirts", null, null, null, false, null, null, false, null, null).Value;
@@ -127,7 +117,7 @@ public class DeleteTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon, child);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.HasChildren.Code);

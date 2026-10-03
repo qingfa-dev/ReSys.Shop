@@ -67,6 +67,7 @@
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
     <PackageReference Include="nClam" />
+
   </ItemGroup>
-  
+
 </Project>

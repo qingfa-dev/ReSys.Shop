@@ -1,8 +1,8 @@
-using Module.Ordering.Features.Admin.Orders.Shared.Models;
+using Module.Ordering.Features.Admin.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Orders.Create;
 
 public static partial class CreateOrder
 {
-    public class Request : OrderRequest { }
+    public sealed record Request : OrderRequest;
 }

@@ -1,0 +1,84 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Catalog Variant Prices
+# =============================================================================
+# @baseUrl          = {{baseUrl}}
+# @contentType      = {{contentType}}
+# @adminToken       = {{adminToken}}
+# @nonExistentId    = {{nonExistentId}}
+# @existingVariantId = {{existingVariantId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Set price – success
+# POST /api/admin/catalog/variant-prices (VariantId in body)
+# Expected: 200 OK – price set
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/admin/catalog/variant-prices
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "variantId": "{{existingVariantId}}",
+  "amount": 29.99,
+  "currency": "USD"
+}
+
+### ---------------------------------------------------------------------------
+### 2. Set price – invalid currency
+# POST /api/admin/catalog/variant-prices (VariantId in body)
+# Expected: 400 Bad Request – invalid currency code
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/admin/catalog/variant-prices
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "variantId": "{{existingVariantId}}",
+  "amount": 29.99,
+  "currency": "INVALID"
+}
+
+### ---------------------------------------------------------------------------
+### 3. List prices
+# GET /api/admin/catalog/variant-prices?variantId=
+# Expected: 200 OK – list of prices for variant
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/admin/catalog/variant-prices?variantId={{existingVariantId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 4. Remove price – success
+# DELETE /api/admin/catalog/variant-prices/{priceId} (VariantId in body)
+# Expected: 200 OK – price removed
+# ---------------------------------------------------------------------------
+DELETE {{baseUrl}}/api/admin/catalog/variant-prices/{{nonExistentId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "variantId": "{{existingVariantId}}"
+}
+
+### ---------------------------------------------------------------------------
+### 5. Sync prices – success
+# POST /api/admin/catalog/variant-prices/sync (VariantId in body)
+# Expected: 200 OK – prices synchronized
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/admin/catalog/variant-prices/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "variantId": "{{existingVariantId}}",
+  "prices": [
+    {
+      "amount": 24.99,
+      "currency": "USD"
+    },
+    {
+      "amount": 29.99,
+      "currency": "EUR"
+    }
+  ]
+}

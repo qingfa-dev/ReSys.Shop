@@ -1,0 +1,29 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '24px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef monoNode fill:#fafafa,stroke:#555,stroke-width:2px
+    classDef svcNode fill:#fff,stroke:#888,stroke-width:1px,stroke-dasharray: 4 2
+    classDef modNode fill:#f8f8f8,stroke:#555,stroke-width:2px
+    classDef chosenNode fill:#fff,stroke:#333,stroke-width:3px
+    classDef noteNode fill:#fff,stroke:#aaa,stroke-width:1px,stroke-dasharray: 3 3
+
+    subgraph Mono["Monolith"]
+        direction LR
+        M1["UI"]:::monoNode --- M2["Business Logic"]:::monoNode --- M3["Data"]:::monoNode
+    end
+
+    subgraph Micro["Microservices"]
+        direction LR
+        S1["Catalog"]:::svcNode -.- S2["Orders"]:::svcNode -.- S3["Payments"]:::svcNode
+    end
+
+    subgraph Mod["Modular Monolith"]
+        direction LR
+        C1["Catalog"]:::modNode --> C2["Orders"]:::modNode --> C3["Payments"]:::modNode
+        C4["Identity"]:::modNode --> C2
+    end
+
+    Mono --> Micro --> Mod
+
+    N1["Single deploy, tight coupling"]:::noteNode -.-> Mono
+    N2["Independent deploy, network overhead"]:::noteNode -.-> Micro
+    N3["In-process bus (MediatR), logical isolation, single deploy"]:::noteNode -.-> Mod

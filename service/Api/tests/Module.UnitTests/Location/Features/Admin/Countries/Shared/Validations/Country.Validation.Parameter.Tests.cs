@@ -1,5 +1,5 @@
-using Module.Location.Features.Admin.Countries.Shared.Models;
-using Module.Location.Features.Admin.Countries.Shared.Validators;
+using Module.Location.Features.Shared.Countries.Models;
+using Module.Location.Features.Shared.Countries.Validators;
 
 using CountryConstant = Module.Location.Domain.Countries.CountryConstant;
 using CountryResult = Module.Location.Domain.Countries.CountryResult;

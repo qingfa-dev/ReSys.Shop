@@ -17,17 +17,17 @@ public static partial class GetCountryPagedOrAll
                 .WithErrorCode("InvalidPage");
 
             RuleFor(x => x.Parameters.PageSize)
-                .Must(value => value.HasValue && value.Value >= 1 && value.Value <= CountryConstant.Constraints.Query.MaxPageSize)
+                .Must(value => value.HasValue && value.Value >= 1 && value.Value <= CountryConstant.Query.MaxPageSize)
                 .When(x => x.Parameters.PageSize.HasValue)
                 .WithErrorCode("InvalidPageSize");
 
             RuleFor(x => x.Parameters.Search)
-                .MaximumLength(CountryConstant.Constraints.Query.MaxSearchLength)
+                .MaximumLength(CountryConstant.Query.MaxSearchLength)
                 .When(x => x.Parameters.Search is not null)
                 .WithErrorCode("SearchTooLong");
 
             RuleFor(x => x.Parameters.Filter)
-                .MaximumLength(CountryConstant.Constraints.Query.MaxFilterLength)
+                .MaximumLength(CountryConstant.Query.MaxFilterLength)
                 .When(x => x.Parameters.Filter is not null)
                 .WithErrorCode("FilterTooLong");
         }

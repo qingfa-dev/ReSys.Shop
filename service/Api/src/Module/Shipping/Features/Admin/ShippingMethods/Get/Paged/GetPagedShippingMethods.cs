@@ -1,5 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;
+using Module.Shipping.Features.Admin.Shared.Mappings;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Get.Paged;
 
@@ -18,7 +18,10 @@ public static partial class GetPagedShippingMethods
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=request!=null, post=paged result returned
-            var parsing = request.Parameters.ParseAll();
+            var parsing = request.Parameters.ParseAll(
+                allowedFilterFields: ShippingMethodConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: ShippingMethodConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: ShippingMethodConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return parsing.Errors;
 

@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Store.Emails.Change;
+using Module.Identity.Features.Shared.Storefront.Emails.Change;
+using Shared.Governance.Conventions;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
@@ -47,7 +48,7 @@ public class ChangeEmailTests
             .ReturnsAsync((User?)null);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -67,7 +68,7 @@ public class ChangeEmailTests
             .ReturnsAsync(false);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "WrongPassword"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "WrongPassword" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -93,7 +94,7 @@ public class ChangeEmailTests
             .ReturnsAsync(existingUser);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("existing@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "existing@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -123,7 +124,7 @@ public class ChangeEmailTests
 
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -151,7 +152,7 @@ public class ChangeEmailTests
             .ReturnsAsync(IdentityResult.Success);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -181,7 +182,7 @@ public class ChangeEmailTests
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Update failed" }));
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -212,7 +213,7 @@ public class ChangeEmailTests
 
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("current@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "current@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -225,17 +226,17 @@ public class ChangeEmailTests
         var userId = Guid.NewGuid();
         var result = ChangeEmail.BuildConfirmPath(userId, "tokenABC", "newemail@test.com");
 
-        result.Should().Be($"confirm-email-change?userId={userId}&token=tokenABC&newEmail=newemail%40test.com");
+        result.Should().Be($"confirm-email-change?userId={userId}&token={"tokenABC".ToBase64Url()}&newEmail={"newemail@test.com".ToBase64Url()}");
     }
 
-    [Fact(DisplayName = "UseCase: BuildConfirmPath should URL encode special characters")]
-    public void BuildConfirmPath_ShouldUrlEncodeSpecialCharacters()
+    [Fact(DisplayName = "UseCase: BuildConfirmPath should base64url encode special characters")]
+    public void BuildConfirmPath_ShouldBase64UrlEncodeSpecialCharacters()
     {
         var userId = Guid.NewGuid();
         var result = ChangeEmail.BuildConfirmPath(userId, "token+with=special", "email+test@test.com");
 
-        result.Should().Contain("token%2Bwith%3Dspecial");
-        result.Should().Contain("newEmail=email%2Btest%40test.com");
+        result.Should().Contain($"token={"token+with=special".ToBase64Url()}");
+        result.Should().Contain($"newEmail={"email+test@test.com".ToBase64Url()}");
     }
 
     [Fact(DisplayName = "UseCase: Should set ModifiedAtUtc when changing email")]
@@ -262,7 +263,7 @@ public class ChangeEmailTests
 
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 

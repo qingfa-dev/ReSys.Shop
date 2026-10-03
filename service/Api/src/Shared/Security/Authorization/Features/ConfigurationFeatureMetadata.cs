@@ -53,14 +53,6 @@ public static class ConfigurationFeatureMetadata
         public static IReadOnlyList<PermissionMetadata> All => [Update];
     }
 
-    public static class StoreCurrency
-    {
-        public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.StoreCurrency, PermissionContext.Actions.Update);
-
-        public static IReadOnlyList<PermissionMetadata> All => [Update];
-    }
-
     public static class StoreCheckout
     {
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -124,7 +116,6 @@ public static class ConfigurationFeatureMetadata
         .. StoreBranding.All,
         .. StoreContact.All,
         .. StoreSeo.All,
-        .. StoreCurrency.All,
         .. StoreCheckout.All,
         .. TaxCategories.All,
         .. TaxRates.All,

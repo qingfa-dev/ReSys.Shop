@@ -1,0 +1,28 @@
+# datasets.yaml
+datasets:
+  deepfashion:
+    name: "DeepFashion In-Shop Retrieval"
+    source: "local"
+    path: "data/raw/deepfashion"
+    image_size: 224
+    categories:
+      - tops
+      - bottoms
+      - dresses
+      - outerwear
+      - shoes
+    split_files:
+      train: "data/splits/deepfashion_train.json"
+      val: "data/splits/deepfashion_val.json"
+      test: "data/splits/deepfashion_test.json"
+    metadata: "data/metadata/deepfashion.json"
+
+  fashion200k:
+    name: "Fashion-200k"
+    source: "local"
+    path: "data/raw/fashion200k"
+    image_size: 224
+    split_files:
+      train: "data/splits/fashion200k_train.json"
+      test: "data/splits/fashion200k_test.json"
+    metadata: "data/metadata/fashion200k.json"

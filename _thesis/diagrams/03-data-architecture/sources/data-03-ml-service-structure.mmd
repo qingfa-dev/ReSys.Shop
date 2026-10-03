@@ -1,0 +1,25 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph LR
+    subgraph Client [Backend Client]
+        API[.NET API]
+    end
+    
+    subgraph Service [ML Python Service]
+        FastAPI[FastAPI Host]
+        
+        subgraph Models [Loaded Models]
+            B0[EfficientNet-B0]
+            CLIP[Fashion-CLIP]
+            DINO[DINOv2]
+        end
+        
+        Endpoints[HTTP Endpoints]
+    end
+    
+    API -->|HTTP Post Image| Endpoints
+    Endpoints -->|Inference| Models
+    Models -->|Vector| Endpoints
+    Endpoints -->|JSON Response| API
+    
+
+    %% Styles Removed for Academic Theme

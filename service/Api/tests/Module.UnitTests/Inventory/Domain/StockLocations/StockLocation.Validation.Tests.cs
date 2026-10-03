@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Features.Admin.StockLocations.Shared.Validators;
+using Module.Inventory.Features.Admin.Shared.Validators;
 
 namespace Module.UnitTests.Inventory.Domain.StockLocations;
 

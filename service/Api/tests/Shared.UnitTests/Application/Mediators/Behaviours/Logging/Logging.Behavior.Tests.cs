@@ -19,7 +19,7 @@ public class LoggingBehaviorTests
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Data = "test-value" };
 
         RequestHandlerDelegate<Result> next = (_) =>
             Task.FromResult(Result.Ok());
@@ -29,8 +29,8 @@ public class LoggingBehaviorTests
         result.IsSuccess.Should().BeTrue();
 
         logger.Entries.Should().HaveCount(2);
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Handling request TestRequest"));
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Request TestRequest succeeded"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Handling request TestRequest"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Request TestRequest succeeded"));
     }
 
     [Fact(DisplayName = "Should log start and success when Result<T> request succeeds")]
@@ -51,8 +51,8 @@ public class LoggingBehaviorTests
         result.IsSuccess.Should().BeTrue();
 
         logger.Entries.Should().HaveCount(2);
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Handling request TestRequestWithGenericResult"));
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Request TestRequestWithGenericResult succeeded"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Handling request TestRequestWithGenericResult"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Request TestRequestWithGenericResult succeeded"));
     }
 
     #endregion
@@ -64,7 +64,7 @@ public class LoggingBehaviorTests
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Data = "test-value" };
         var failure = Error.Create("Test.Code", "Test error description");
 
         RequestHandlerDelegate<Result> next = (_) =>
@@ -75,7 +75,7 @@ public class LoggingBehaviorTests
         result.IsFailure.Should().BeTrue();
 
         logger.Entries.Should().HaveCount(2);
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Handling request TestRequest"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Handling request TestRequest"));
         logger.Entries.Should().Contain(e => e.Level == LogLevel.Error && e.Message.Contains("Request TestRequest failed with Errors: Test error description"));
     }
 
@@ -88,7 +88,7 @@ public class LoggingBehaviorTests
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Data = "test-value" };
 
         RequestHandlerDelegate<Result> next = (_) =>
             Task.FromResult(Result.Ok());
@@ -100,6 +100,9 @@ public class LoggingBehaviorTests
 
     #endregion
 
-    public record TestRequest(string Data) : IRequest<Result>;
+    public record TestRequest : IRequest<Result>
+    {
+        public string Data { get; init; } = default!;
+    }
     public record TestRequestWithGenericResult : IRequest<Result<string>>;
 }

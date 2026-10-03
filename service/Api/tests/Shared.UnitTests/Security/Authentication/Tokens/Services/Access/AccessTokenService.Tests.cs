@@ -35,10 +35,12 @@ public sealed class AccessTokenServiceTests
     {
         // Arrange
         AccessTokenService service = CreateService();
-        TokenRequestModel request = new TokenRequestModel(
-            UserId: Guid.NewGuid(),
-            Email: "test@example.com",
-            FullName: "Test User");
+        TokenRequestModel request = new()
+        {
+                UserId = Guid.NewGuid(),
+                Email = "test@example.com",
+                FullName = "Test User"
+            };
 
         // Act
         Result<TokenResponseModel> result = service.GenerateToken(request);
@@ -56,10 +58,12 @@ public sealed class AccessTokenServiceTests
         // Arrange
         AccessTokenService service = CreateService();
         Guid userId = Guid.NewGuid();
-        TokenRequestModel request = new TokenRequestModel(
-            UserId: userId,
-            Email: "claims@example.com",
-            FullName: "Claims User");
+        TokenRequestModel request = new()
+        {
+                UserId = userId,
+                Email = "claims@example.com",
+                FullName = "Claims User"
+            };
 
         // Act
         Result<TokenResponseModel> result = service.GenerateToken(request);
@@ -67,7 +71,7 @@ public sealed class AccessTokenServiceTests
         // Assert
         result.IsSuccess.Should().BeTrue();
 
-        JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+        JwtSecurityTokenHandler handler = new();
         JwtSecurityToken jwt = handler.ReadJwtToken(result.Value.Token);
 
         jwt.Subject.Should().Be(userId.ToString());
@@ -86,10 +90,12 @@ public sealed class AccessTokenServiceTests
         JwtSettings settings = CreateValidSettings();
         settings.AccessTokenExpirationInMinutes = 15;
         AccessTokenService service = CreateService(settings);
-        TokenRequestModel request = new TokenRequestModel(
-            UserId: Guid.NewGuid(),
-            Email: "expiry@example.com",
-            FullName: "Expiry User");
+        TokenRequestModel request = new()
+        {
+                UserId = Guid.NewGuid(),
+                Email = "expiry@example.com",
+                FullName = "Expiry User"
+            };
 
         // Act
         Result<TokenResponseModel> result = service.GenerateToken(request);
@@ -113,10 +119,12 @@ public sealed class AccessTokenServiceTests
         JwtSettings settings = CreateValidSettings();
         settings.Secret = "short";
         AccessTokenService service = CreateService(settings);
-        TokenRequestModel request = new TokenRequestModel(
-            UserId: Guid.NewGuid(),
-            Email: "test@example.com",
-            FullName: "Test User");
+        TokenRequestModel request = new()
+        {
+                UserId = Guid.NewGuid(),
+                Email = "test@example.com",
+                FullName = "Test User"
+            };
 
         // Act
         Result<TokenResponseModel> result = service.GenerateToken(request);
@@ -133,10 +141,12 @@ public sealed class AccessTokenServiceTests
         JwtSettings settings = CreateValidSettings();
         settings.Secret = string.Empty;
         AccessTokenService service = CreateService(settings);
-        TokenRequestModel request = new TokenRequestModel(
-            UserId: Guid.NewGuid(),
-            Email: "test@example.com",
-            FullName: "Test User");
+        TokenRequestModel request = new()
+        {
+                UserId = Guid.NewGuid(),
+                Email = "test@example.com",
+                FullName = "Test User"
+            };
 
         // Act
         Result<TokenResponseModel> result = service.GenerateToken(request);

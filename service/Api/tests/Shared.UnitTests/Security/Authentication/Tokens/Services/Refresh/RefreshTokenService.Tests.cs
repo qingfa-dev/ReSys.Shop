@@ -172,7 +172,7 @@ public sealed class RefreshTokenServiceTests
             .ReturnsAsync(entity);
         RefreshTokenService service = CreateService();
 
-        RevokeTokenRequestModel request = new RevokeTokenRequestModel("token-to-revoke", "user_logout");
+        RevokeTokenRequestModel request = new() { Token = "token-to-revoke", Reason = "user_logout" };
 
         // Act
         Result result = await service.RevokeAsync(request);
@@ -187,7 +187,7 @@ public sealed class RefreshTokenServiceTests
     {
         // Arrange
         RefreshTokenService service = CreateService();
-        RevokeTokenRequestModel request = new RevokeTokenRequestModel(string.Empty);
+        RevokeTokenRequestModel request = new() { Token = string.Empty };
 
         // Act
         Result result = await service.RevokeAsync(request);
@@ -202,7 +202,7 @@ public sealed class RefreshTokenServiceTests
     {
         // Arrange
         Guid userId = Guid.NewGuid();
-        List<RefreshToken> activeTokens = new List<RefreshToken>
+        List<RefreshToken> activeTokens = new()
         {
             CreateActiveToken(),
             CreateActiveToken()

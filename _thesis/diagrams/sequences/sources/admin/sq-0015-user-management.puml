@@ -1,0 +1,33 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0016: User Management
+autonumber
+
+actor "Super Admin" as Super <<Role Admin>>
+participant "Identity API" as API <<Authentication>>
+database "PostgreSQL" as DB <<User Store>>
+
+Super -> API: Create User(Email, Role)
+activate API
+    API -> DB: Check Email Unique
+    
+    API -> API: Hash Password
+    API -> DB: Insert User + Claim
+    activate DB
+    DB --> API: UserID
+    deactivate DB
+    
+    API --> Super: User Created
+deactivate API
+
+Super -> API: Lock User(UserID)
+activate API
+    API -> DB: Update lockout_end = Future
+    activate DB
+    DB --> API: Success
+    deactivate DB
+    API --> Super: User Locked
+deactivate API
+
+@enduml

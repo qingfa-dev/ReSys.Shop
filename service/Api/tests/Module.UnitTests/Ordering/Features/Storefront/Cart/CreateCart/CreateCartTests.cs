@@ -9,7 +9,7 @@ public class CreateCartTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
-    private readonly global::Module.Ordering.Features.Storefront.Cart.CreateCart.CreateCart.CommandHandler _handler;
+    private readonly Module.Ordering.Features.Storefront.Cart.CreateCart.CreateCart.CommandHandler _handler;
 
     public CreateCartTests()
     {
@@ -23,7 +23,7 @@ public class CreateCartTests : IDisposable
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
-        _handler = new global::Module.Ordering.Features.Storefront.Cart.CreateCart.CreateCart.CommandHandler(_dbContext, _currentUserMock.Object);
+        _handler = new Module.Ordering.Features.Storefront.Cart.CreateCart.CreateCart.CommandHandler(_dbContext, _currentUserMock.Object);
     }
 
     public void Dispose()
@@ -36,7 +36,7 @@ public class CreateCartTests : IDisposable
     public async Task Handle_ShouldCreateCart()
     {
         var result = await _handler.Handle(
-            new global::Module.Ordering.Features.Storefront.Cart.CreateCart.CreateCart.Command(),
+            new Module.Ordering.Features.Storefront.Cart.CreateCart.CreateCart.Command(),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();

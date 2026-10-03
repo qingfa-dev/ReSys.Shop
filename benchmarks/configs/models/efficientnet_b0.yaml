@@ -1,0 +1,10 @@
+id: efficientnet_b0
+name: "EfficientNet-B0"
+class: "EfficientNetB0Model"
+module: "benchmark.models.efficientnet_b0"
+backbone: "EfficientNet-B0"
+embedding_dim: 1280
+pretrained: "IMAGENET1K_V1"
+batch_size: 64
+image_size: 224
+normalize_embeddings: true

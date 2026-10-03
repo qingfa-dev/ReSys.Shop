@@ -1,4 +1,4 @@
-using Module.Location.Features.Admin.States.Shared.Validators;
+using Module.Location.Features.Shared.States.Validators;
 
 namespace Module.Location.Features.Admin.States.Update;
 

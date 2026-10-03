@@ -40,6 +40,6 @@ internal static class SortJsonParser
             nulls = nullsResult.Value;
         }
 
-        return new SortClause(field, direction, nulls);
+        return new SortClause { Field = field, Direction = direction, Nulls = nulls };
     }
 }

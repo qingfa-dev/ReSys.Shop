@@ -39,8 +39,8 @@ public class CachingExtensionsTests
         provider.GetService<HybridCache>().Should().NotBeNull();
     }
 
-    [Fact(DisplayName = "AddCaching when disabled should not register ICacheService")]
-    public void AddCaching_WhenDisabled_ShouldNotRegisterCacheServices()
+    [Fact(DisplayName = "AddCaching when disabled should register CacheService (no-op)")]
+    public void AddCaching_WhenDisabled_ShouldRegisterCacheServiceAsNoOp()
     {
         Dictionary<string, string?> configData = new()
         {
@@ -52,7 +52,9 @@ public class CachingExtensionsTests
 
         ServiceProvider provider = builder.Services.BuildServiceProvider();
 
-        provider.GetService<ICacheService>().Should().BeNull();
+        // CacheService is always registered — it no-ops internally when CachingSetting.Enabled is false
+        provider.GetService<ICacheService>().Should().NotBeNull();
+        provider.GetRequiredService<ICacheService>().Should().BeOfType<CacheService>();
     }
 
     [Fact(DisplayName = "AddCaching when memory disabled should not register IMemoryCache")]
@@ -101,7 +103,9 @@ public class CachingExtensionsTests
         provider.GetService<HybridCache>().Should().BeNull();
         // IMemoryCache is registered via AddDistributedMemoryCache fallback
         provider.GetService<IMemoryCache>().Should().NotBeNull();
-        provider.GetService<ICacheService>().Should().BeNull();
+        // ICacheService is always registered when caching is enabled; no-ops internally when HybridCache unavailable
+        provider.GetService<ICacheService>().Should().NotBeNull();
+        provider.GetRequiredService<ICacheService>().Should().BeOfType<CacheService>();
     }
 
     [Fact(DisplayName = "AddCaching should return builder for chaining")]

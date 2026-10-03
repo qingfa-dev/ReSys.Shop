@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Update;
+namespace Module.Identity.Features.Shared.Admin.Roles.Update;
 
 public static partial class UpdateRole
 {
@@ -8,5 +8,5 @@ public static partial class UpdateRole
     /// Represents the response contract for an updated role.
     /// Inherits properties like Id, Name, Description, IsSystem, and audit fields from <see cref="RoleDetailResponse"/>.
     /// </summary>
-    public class Response : RoleDetailResponse { }
+    public record Response : RoleDetailResponse;
 }

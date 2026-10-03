@@ -307,13 +307,4 @@ testing:
             // Assert: verify expected tables and columns exist
         }
 
-file_structure: |
-  Migrations/
-  ├── Api.Migrations.csproj               # Project references Shared + Module, EF Core Design
-  ├── DesignTimeDbContextFactory.cs        # IDesignTimeDbContextFactory for CLI tooling
-  ├── Migrations/
-  │   ├── {timestamp}_{name}.cs                 # Migration Up/Down (one per change)
-  │   ├── {timestamp}_{name}.Designer.cs        # Snapshot at migration creation
-  │   └── ApplicationDbContextModelSnapshot.cs  # Cumulative model snapshot
-  ├── README.yaml                         # This documentation
-  └── GUIDE.yaml                          # Step-by-step migration guide
+tree_file: docs/codebase/migrations.tree.txt

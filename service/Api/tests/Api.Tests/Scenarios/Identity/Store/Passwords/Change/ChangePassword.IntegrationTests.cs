@@ -17,13 +17,13 @@ public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : Identit
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/passwords/change", request);
+            "/api/storefront/identity/passwords/change", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
-    public async Task ChangePassword_WithMissingCurrentPassword_Returns422()
+    public async Task ChangePassword_WithMissingCurrentPassword_Returns400()
     {
         (Guid userId, string email, _) = await IdentityTestHelper.CreateTestUserAsync(Client);
 
@@ -33,16 +33,16 @@ public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : Identit
         };
 
         using HttpRequestMessage httpRequest = IdentityTestHelper.CreateUserRequest(
-            HttpMethod.Post, "/api/store/identity/passwords/change", userId, email,
+            HttpMethod.Post, "/api/storefront/identity/passwords/change", userId, email,
             JsonContent.Create(request));
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task ChangePassword_WithMissingNewPassword_Returns422()
+    public async Task ChangePassword_WithMissingNewPassword_Returns400()
     {
         (Guid userId, string email, _) = await IdentityTestHelper.CreateTestUserAsync(Client);
 
@@ -52,12 +52,12 @@ public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : Identit
         };
 
         using HttpRequestMessage httpRequest = IdentityTestHelper.CreateUserRequest(
-            HttpMethod.Post, "/api/store/identity/passwords/change", userId, email,
+            HttpMethod.Post, "/api/storefront/identity/passwords/change", userId, email,
             JsonContent.Create(request));
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : Identit
         };
 
         using HttpRequestMessage httpRequest = IdentityTestHelper.CreateUserRequest(
-            HttpMethod.Post, "/api/store/identity/passwords/change", userId, email,
+            HttpMethod.Post, "/api/storefront/identity/passwords/change", userId, email,
             JsonContent.Create(request));
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);

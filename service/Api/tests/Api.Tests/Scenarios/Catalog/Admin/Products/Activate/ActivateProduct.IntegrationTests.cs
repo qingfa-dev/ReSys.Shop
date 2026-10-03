@@ -21,14 +21,14 @@ public sealed class ActivateProductIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<GetProductResponse>();
         created.Should().NotBeNull();
 
         string token = AuthTokenHelper.GenerateAdminToken();
-        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/catalog/products/{created!.Id}/activate");
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/admin/catalog/products/{created!.Id}/activate");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         HttpResponseMessage response = await Client.SendAsync(request);
         ApiResponse result = await response.ReadApiResponseAsync();
@@ -53,7 +53,7 @@ public sealed class ActivateProductIntegrationTests(ApiFixture fixture) : Catalo
         Guid nonexistentId = Guid.NewGuid();
 
         string token = AuthTokenHelper.GenerateAdminToken();
-        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/catalog/products/{nonexistentId}/activate");
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/admin/catalog/products/{nonexistentId}/activate");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         HttpResponseMessage response = await Client.SendAsync(request);
         ApiResponse result = await response.ReadApiResponseAsync();

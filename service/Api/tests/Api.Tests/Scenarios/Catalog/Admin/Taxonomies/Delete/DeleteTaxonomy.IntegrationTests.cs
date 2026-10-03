@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Delete;
 
@@ -20,13 +20,13 @@ public sealed class DeleteTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createRequest);
+            "/api/admin/catalog/taxonomies", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? created = createResult.DeserializeValue<TaxonomyDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{created!.Id}");
+            $"/api/admin/catalog/taxonomies/{created!.Id}");
         ApiResponse result = await deleteResponse.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -38,7 +38,7 @@ public sealed class DeleteTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{nonexistentId}");
+            $"/api/admin/catalog/taxonomies/{nonexistentId}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -54,13 +54,13 @@ public sealed class DeleteTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createRequest);
+            "/api/admin/catalog/taxonomies", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? created = createResult.DeserializeValue<TaxonomyDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.DeleteAsync(
-            $"/api/catalog/taxonomies/{created!.Id}");
+            $"/api/admin/catalog/taxonomies/{created!.Id}");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

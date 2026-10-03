@@ -1,8 +1,8 @@
-using Module.Shipping.Features.Admin.ShippingMethods.Shared.Models;
+using Module.Shipping.Features.Admin.Shared.Models;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Update;
 
 public static partial class UpdateShippingMethod
 {
-    public class Response : ShippingMethodDetailResponse;
+    public record Response : ShippingMethodDetailResponse;
 }

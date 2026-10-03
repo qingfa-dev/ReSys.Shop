@@ -1,8 +1,8 @@
-using Module.Inventory.Features.Admin.StockTransfers.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Create;
 
 public static partial class CreateStockTransfer
 {
-    public class Request : StockTransferRequest { }
+    public record Request : StockTransferRequest;
 }

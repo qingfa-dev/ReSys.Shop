@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Store.Emails.Resend;
+using Module.Identity.Features.Shared.Storefront.Emails.Resend;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Governance.Conventions;
@@ -47,7 +47,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync((User?)null);
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("nonexistent@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "nonexistent@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -65,7 +65,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync(user);
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("confirmed@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "confirmed@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -94,7 +94,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -122,7 +122,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Update failed" }));
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -153,7 +153,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -183,7 +183,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -213,7 +213,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -241,7 +241,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync(IdentityResult.Success);
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -256,7 +256,7 @@ public class ResendEmailVerificationTests
         var userId = Guid.NewGuid();
         var result = ResendEmailVerification.BuildVerificationPath(userId, "tokenABC");
 
-        result.Should().Be($"verify-email?userId={userId}&token={"tokenABC".ToBase64()}");
+        result.Should().Be($"verify-email?userId={userId}&token={"tokenABC".ToBase64Url()}");
 
     }
 
@@ -266,7 +266,43 @@ public class ResendEmailVerificationTests
         var userId = Guid.NewGuid();
         var result = ResendEmailVerification.BuildVerificationPath(userId, "token+with=special&chars");
 
-        result.Should().Be($"verify-email?userId={userId}&token={"token+with=special&chars".ToBase64()}");
+        result.Should().Be($"verify-email?userId={userId}&token={"token+with=special&chars".ToBase64Url()}");
 
+    }
+
+    [Fact(DisplayName = "BugFix: BuildVerificationPath encodes token with base64url, decodable by ConfirmEmail's TryFromBase64Url")]
+    public void BuildVerificationPath_EncodesBase64Url_Decodable()
+    {
+        var userId = Guid.NewGuid();
+        var rawToken = "test-token-with/special+chars";
+
+        var path = ResendEmailVerification.BuildVerificationPath(userId, rawToken);
+
+        var tokenFromUrl = ExtractQueryParam(path, "token");
+        var success = tokenFromUrl.TryFromBase64Url(out var decoded);
+        success.Should().BeTrue();
+        decoded.Should().Be(rawToken);
+    }
+
+    [Fact(DisplayName = "BugFix: BuildVerificationPath does not contain URL-unsafe characters")]
+    public void BuildVerificationPath_NoUnsafeUrlChars()
+    {
+        var path = ResendEmailVerification.BuildVerificationPath(Guid.NewGuid(), "test");
+        var token = ExtractQueryParam(path, "token");
+
+        token.Should().NotContain("+");
+        token.Should().NotContain("/");
+        token.Should().NotContain("=");
+    }
+
+    private static string ExtractQueryParam(string url, string param)
+    {
+        var query = url[(url.IndexOf('?') + 1)..];
+        foreach (var pair in query.Split('&'))
+        {
+            var parts = pair.Split('=');
+            if (parts[0] == param) return parts[1];
+        }
+        return string.Empty;
     }
 }

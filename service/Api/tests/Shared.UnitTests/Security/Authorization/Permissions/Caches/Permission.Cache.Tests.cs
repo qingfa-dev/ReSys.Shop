@@ -48,7 +48,7 @@ public sealed class PermissionCacheTests
         string expectedKey = $"perm:user:{userId}";
 
         _cacheServiceMock
-            .Setup(x => x.GetOrCreateAsync<HashSet<string>?>(
+            .Setup(x => x.GetOrCreateAsync(
                 expectedKey,
                 It.IsAny<Func<CancellationToken, ValueTask<HashSet<string>?>>>(),
                 It.IsAny<CachingEntryOption?>(),
@@ -69,7 +69,7 @@ public sealed class PermissionCacheTests
         string expectedKey = $"perm:user:{userId}";
 
         _cacheServiceMock
-            .Setup(x => x.GetOrCreateAsync<HashSet<string>?>(
+            .Setup(x => x.GetOrCreateAsync(
                 expectedKey,
                 It.IsAny<Func<CancellationToken, ValueTask<HashSet<string>?>>>(),
                 It.IsAny<CachingEntryOption?>(),
@@ -157,7 +157,7 @@ public sealed class PermissionCacheTests
         string expectedKey = $"perm:role:{roleId}";
 
         _cacheServiceMock
-            .Setup(x => x.GetOrCreateAsync<HashSet<string>?>(
+            .Setup(x => x.GetOrCreateAsync(
                 expectedKey,
                 It.IsAny<Func<CancellationToken, ValueTask<HashSet<string>?>>>(),
                 It.IsAny<CachingEntryOption?>(),
@@ -178,7 +178,7 @@ public sealed class PermissionCacheTests
         string expectedKey = $"perm:role:{roleId}";
 
         _cacheServiceMock
-            .Setup(x => x.GetOrCreateAsync<HashSet<string>?>(
+            .Setup(x => x.GetOrCreateAsync(
                 expectedKey,
                 It.IsAny<Func<CancellationToken, ValueTask<HashSet<string>?>>>(),
                 It.IsAny<CachingEntryOption?>(),

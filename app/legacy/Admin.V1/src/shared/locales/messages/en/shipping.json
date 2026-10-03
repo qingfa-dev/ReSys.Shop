@@ -1,0 +1,37 @@
+{
+  "titles": {
+    "list": "Shipping Methods",
+    "create": "Add Shipping Method",
+    "edit": "Edit Shipping Method",
+    "rate_list": "Shipping Rates",
+    "rate_form": "Shipping Rate"
+  },
+  "labels": {
+    "name": "Name",
+    "carrier": "Carrier",
+    "description": "Description",
+    "is_active": "Active",
+    "display_order": "Display Order",
+    "rate": "Rate",
+    "shipping_method": "Shipping Method",
+    "from_weight": "From Weight",
+    "to_weight": "To Weight"
+  },
+  "validation": {
+    "name": {
+      "required": "Name is required",
+      "max_length": "Name must not exceed {max} characters"
+    },
+    "carrier": {
+      "required": "Carrier is required",
+      "max_length": "Carrier must not exceed {max} characters"
+    },
+    "shipping_method": {
+      "required": "Invalid shipping method",
+      "invalid": "Invalid shipping method"
+    },
+    "rate": {
+      "min": "Rate must be non-negative"
+    }
+  }
+}

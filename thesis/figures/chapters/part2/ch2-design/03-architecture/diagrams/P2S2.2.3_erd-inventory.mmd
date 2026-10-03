@@ -1,0 +1,65 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '64px'}}}%%
+erDiagram
+
+  StockLocation {
+    uuid id PK
+    string code
+    string name
+    uuid country_id
+    uuid state_id
+    bool active
+    bool default
+    int low_stock_threshold
+  }
+
+  StockItem {
+    uuid id PK
+    uuid variant_id FK
+    uuid stock_location_id FK
+    int count_on_hand
+    bool backorderable
+  }
+
+  StockMovement {
+    uuid id PK
+    uuid stock_item_id FK
+    uuid stock_location_id FK
+    int quantity
+    int previous_count_on_hand
+    string action
+    string reason
+  }
+
+  StockReservation {
+    uuid id PK
+    uuid variant_id FK
+    uuid stock_location_id FK
+    uuid order_id
+    int quantity
+    string state
+    datetime expires_at_utc
+  }
+
+  StockTransfer {
+    uuid id PK
+    string number
+    string state
+    uuid source_location_id FK
+    uuid destination_location_id FK
+  }
+
+  TransferItem {
+    uuid id PK
+    uuid stock_transfer_id FK
+    uuid variant_id FK
+    int quantity
+    int received_quantity
+  }
+
+  StockLocation ||--o{ StockItem : ""
+  StockLocation ||--o{ StockMovement : ""
+  StockItem ||--o{ StockMovement : ""
+  StockLocation ||--o{ StockReservation : ""
+  StockLocation ||--o{ StockTransfer : "source"
+  StockLocation ||--o{ StockTransfer : "dest"
+  StockTransfer ||--o{ TransferItem : ""

@@ -1,0 +1,40 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0001: Browse Products
+autonumber
+
+actor "Customer" as User <<Guest/User>>
+participant "Storefront" as Frontend <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+
+' ─── Product Listing ─────────────────────────────────────────
+User -> Frontend: View Category / Search
+activate Frontend
+    Frontend -> API: GET /api/products?page=1&size=20
+    activate API
+        API -> DB: Query Products (Paged)
+        activate DB
+        DB --> API: Product List
+        deactivate DB
+        API --> Frontend: Products JSON
+    deactivate API
+    Frontend --> User: Display Grid
+deactivate Frontend
+
+' ─── Product Details ─────────────────────────────────────────
+User -> Frontend: Click Product
+activate Frontend
+    Frontend -> API: GET /api/products/{id}
+    activate API
+        API -> DB: Get Product + Variants + Images
+        activate DB
+        DB --> API: Full Product Details
+        deactivate DB
+        API --> Frontend: Product DTO
+    deactivate API
+    Frontend --> User: Show Product Page
+deactivate Frontend
+
+@enduml

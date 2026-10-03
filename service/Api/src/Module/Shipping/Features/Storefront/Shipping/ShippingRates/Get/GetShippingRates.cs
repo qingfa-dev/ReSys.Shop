@@ -1,0 +1,39 @@
+using Module.Shipping.Domain.ShippingRates;
+using Module.Shipping.Features.Admin.Shared.Mappings;
+
+namespace Module.Shipping.Features.Storefront.Shipping.Rates;
+/// <summary>Lists shipping rates available for storefront checkout.</summary>
+public static partial class GetShippingRates
+{
+    public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
+
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext, ILogger<PagedQueryHandler> logger)
+        : IPagedQueryHandler<Query, Response>
+    {
+        /// <summary>Loads and paginates shipping rates with full cost and delivery details.</summary>
+        /// <param name="request">The query containing paging parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A paged result of shipping rate details.</returns>
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
+        {
+            _ = logger;
+            // Validate: Parse and validate query parameters against allowed fields
+            var parsing = request.Parameters.ParseAll(
+                allowedFilterFields: ShippingRateConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: ShippingRateConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: ShippingRateConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (parsing.IsFailure)
+                return parsing.Errors;
+
+            // Load: Query shipping rates with filtering, sorting, and pagination
+            var pagedResult = await dbContext.Set<ShippingRate>()
+                .AsNoTracking()
+                .ApplyQuerying(parsing.Value)
+                // Transform: Map domain entity to response DTO
+                .Select(r => r.MapToDetail<Response>())
+                .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
+
+            return pagedResult;
+        }
+    }
+}

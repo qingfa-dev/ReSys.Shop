@@ -4,11 +4,12 @@ namespace Module.Location.Features.Admin.Countries.Update;
 
 public static partial class UpdateCountry
 {
-    // ============ ENDPOINT ============
+    /// <summary>Admin: update a country.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PUT {route}/{id} → update country
             app.MapPut(pattern: LocationFeature.Admin.Countries.Update.Route, handler: async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

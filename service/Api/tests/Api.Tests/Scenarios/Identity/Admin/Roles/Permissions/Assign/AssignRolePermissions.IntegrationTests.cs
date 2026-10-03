@@ -38,7 +38,7 @@ public sealed class AssignRolePermissionsIntegrationTests(ApiFixture fixture) : 
             permissions = new[] { "system.users.list" }
         };
 
-        using HttpRequestMessage noAuthRequest = new HttpRequestMessage(
+        using HttpRequestMessage noAuthRequest = new(
             HttpMethod.Put, $"/api/identity/roles/{someId}/permissions/assign")
         {
             Content = JsonContent.Create(request)

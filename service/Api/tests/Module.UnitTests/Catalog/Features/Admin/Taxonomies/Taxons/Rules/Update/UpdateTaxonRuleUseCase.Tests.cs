@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Update;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
+using Module.Catalog.Features.Admin.Taxons.Rules.Update;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Update;
 
@@ -43,7 +43,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should update rule successfully when taxon is non-automatic")]
     public async Task Handle_ShouldReturnSuccess_WhenTaxonNotAutomatic()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
 
@@ -59,7 +59,7 @@ public class UpdateTaxonRuleTests : IDisposable
             Value = "50.00"
         };
 
-        var result = await _handler.Handle(new UpdateTaxonRule.Command(taxonomy.Id, taxon.Id, rule.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxonRule.Command(taxon.Id, rule.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Type.Should().Be("product_price");
@@ -78,7 +78,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should update rule and trigger auto-classification when taxon is automatic")]
     public async Task Handle_ShouldTriggerAutoClassification_WhenTaxonIsAutomatic()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
 
@@ -94,7 +94,7 @@ public class UpdateTaxonRuleTests : IDisposable
             Value = "New"
         };
 
-        var result = await _handler.Handle(new UpdateTaxonRule.Command(taxonomy.Id, taxon.Id, rule.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxonRule.Command(taxon.Id, rule.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -105,7 +105,7 @@ public class UpdateTaxonRuleTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
         var result = await _handler.Handle(
-            new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request()),
+            new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request()),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -115,7 +115,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when rule not found")]
     public async Task Handle_ShouldReturnFailure_WhenRuleNotFound()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -123,7 +123,7 @@ public class UpdateTaxonRuleTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new UpdateTaxonRule.Command(taxonomy.Id, taxon.Id, Guid.NewGuid(), new UpdateTaxonRule.Request()),
+            new UpdateTaxonRule.Command(taxon.Id, Guid.NewGuid(), new UpdateTaxonRule.Request()),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -133,7 +133,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should not propagate exception when auto-classification throws")]
     public async Task Handle_ShouldNotPropagate_WhenAutoClassificationThrows()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
 
@@ -152,27 +152,10 @@ public class UpdateTaxonRuleTests : IDisposable
             Value = "New"
         };
 
-        var result = await _handler.Handle(new UpdateTaxonRule.Command(taxonomy.Id, taxon.Id, rule.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxonRule.Command(taxon.Id, rule.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return taxon-not-found when taxon belongs to different taxonomy")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonIdMismatch()
-    {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var otherTaxonomy = TaxonomyExtensions.Create("Brands", "Brands", 0).Value;
-        var taxon = TaxonMethod.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
-        _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);
-        _dbContext.Set<Taxon>().Add(taxon);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var result = await _handler.Handle(
-            new UpdateTaxonRule.Command(taxonomy.Id, taxon.Id, Guid.NewGuid(), new UpdateTaxonRule.Request()),
-            TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
-    }
 }

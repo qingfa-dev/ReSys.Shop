@@ -6,7 +6,7 @@ public static partial class ActivateProduct
 {
     /// <summary>
     /// PATCH endpoint that activates a product by ID.
-    /// Route: api/catalog/products/{id:guid}/activate
+    /// Route: api/admin/catalog/products/{id:guid}/activate
     /// Permission: Products.ManageStatus
     /// </summary>
     public class Endpoint : ICarterModule

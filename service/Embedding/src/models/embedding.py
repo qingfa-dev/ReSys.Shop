@@ -1,1 +1,0 @@
-"""Embedding domain model."""

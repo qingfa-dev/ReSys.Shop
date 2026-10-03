@@ -18,7 +18,7 @@ public sealed class ExternalUserModelTests
         string lastName = "Doe";
 
         // Act
-        ExternalUserInfo info = new(provider, subjectId, email, firstName, lastName);
+        ExternalUserInfo info = new() { Provider = provider, ProviderSubjectId = subjectId, Email = email, FirstName = firstName, LastName = lastName };
 
         // Assert
         info.Provider.Should().Be(provider);
@@ -32,7 +32,7 @@ public sealed class ExternalUserModelTests
     public void ExternalUserInfo_ShouldAcceptNullLastName()
     {
         // Act
-        ExternalUserInfo info = new("google", "sub-789", "user@gmail.com", "Jane", null);
+        ExternalUserInfo info = new() { Provider = "google", ProviderSubjectId = "sub-789", Email = "user@gmail.com", FirstName = "Jane", LastName = null };
 
         // Assert
         info.LastName.Should().BeNull();
@@ -42,9 +42,9 @@ public sealed class ExternalUserModelTests
     public void ExternalUserInfo_ShouldHaveStructuralEquality()
     {
         // Arrange
-        ExternalUserInfo info1 = new("google", "sub-1", "a@b.com", "Alice", "Smith");
-        ExternalUserInfo info2 = new("google", "sub-1", "a@b.com", "Alice", "Smith");
-        ExternalUserInfo info3 = new("google", "sub-2", "c@d.com", "Bob", "Jones");
+        ExternalUserInfo info1 = new() { Provider = "google", ProviderSubjectId = "sub-1", Email = "a@b.com", FirstName = "Alice", LastName = "Smith" };
+        ExternalUserInfo info2 = new() { Provider = "google", ProviderSubjectId = "sub-1", Email = "a@b.com", FirstName = "Alice", LastName = "Smith" };
+        ExternalUserInfo info3 = new() { Provider = "google", ProviderSubjectId = "sub-2", Email = "c@d.com", FirstName = "Bob", LastName = "Jones" };
 
         // Assert
         info1.Should().Be(info2);

@@ -1,8 +1,8 @@
-using Module.Ordering.Features.Admin.Orders.Shared.Models;
+using Module.Ordering.Features.Admin.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Orders.Update;
 
 public static partial class UpdateOrderAdmin
 {
-    public class Response : OrderDetailResponse { }
+    public sealed record Response : OrderDetailResponse;
 }

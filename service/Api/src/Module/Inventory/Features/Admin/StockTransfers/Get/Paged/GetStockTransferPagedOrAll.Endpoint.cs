@@ -4,10 +4,12 @@ namespace Module.Inventory.Features.Admin.StockTransfers.Get.Paged;
 
 public static partial class GetStockTransferPagedOrAll
 {
+    /// <summary>Gets paged stock transfers.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /admin/inventory/stock-transfers — gets paged stock transfers
             app.MapGet(InventoryFeature.Admin.StockTransfers.GetAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,

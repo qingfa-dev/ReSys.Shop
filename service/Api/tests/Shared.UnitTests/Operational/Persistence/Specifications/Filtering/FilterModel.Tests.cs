@@ -19,7 +19,7 @@ public sealed class FilterModelTests
     [Fact(DisplayName = "FilterModel: Constructor populates Root and Conditions")]
     public void Constructor_ShouldPopulateRootAndConditions()
     {
-        IReadOnlyList<FilterCondition> conditions = new[] { new FilterCondition("Name", FilterOperator.Equal, "Apple") };
+        IReadOnlyList<FilterCondition> conditions = new[] { new FilterCondition { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" } };
         FilterGroup root = FilterGroup.FlatAnd(conditions);
         FilterModel model = new(root);
 
@@ -32,10 +32,11 @@ public sealed class FilterModelTests
     public void Conditions_ShouldFlattenNestedGroups()
     {
         FilterGroup inner = FilterGroup.FlatAnd(
-            new[] { new FilterCondition("B", FilterOperator.Equal, "2") });
-        FilterGroup root = new(FilterLogic.And,
-            new[] { new FilterCondition("A", FilterOperator.Equal, "1") },
-            new[] { inner });
+            new[] { new FilterCondition { Field = "B", Operator = FilterOperator.Equal, Value = "2" } });
+        FilterGroup root = new()
+        { Logic = FilterLogic.And,
+            Conditions = new[] { new FilterCondition { Field = "A", Operator = FilterOperator.Equal, Value = "1" } },
+            Groups = new[] { inner } };
         FilterModel model = new(root);
 
         model.Conditions.Should().HaveCount(2);
@@ -64,7 +65,7 @@ public sealed class FilterModelTests
     public void IsValid_ShouldBeTrue_WhenNoAllowedFields()
     {
         FilterGroup root = FilterGroup.FlatAnd(
-            new[] { new FilterCondition("AnyField", FilterOperator.Equal, "value") });
+            new[] { new FilterCondition { Field = "AnyField", Operator = FilterOperator.Equal, Value = "value" } });
         FilterModel model = new(root);
 
         model.IsValid.Should().BeTrue();
@@ -74,7 +75,7 @@ public sealed class FilterModelTests
     public void IsValid_ShouldBeFalse_WhenFieldNotInWhitelist()
     {
         FilterGroup root = FilterGroup.FlatAnd(
-            new[] { new FilterCondition("Forbidden", FilterOperator.Equal, "value") });
+            new[] { new FilterCondition { Field = "Forbidden", Operator = FilterOperator.Equal, Value = "value" } });
         HashSet<string> allowedFields = new(["Name", "Age"], StringComparer.OrdinalIgnoreCase);
         FilterModel model = new(root, allowedFields);
 
@@ -86,7 +87,7 @@ public sealed class FilterModelTests
     public void Violations_ShouldBeCaseInsensitive()
     {
         FilterGroup root = FilterGroup.FlatAnd(
-            new[] { new FilterCondition("NAME", FilterOperator.Equal, "value") });
+            new[] { new FilterCondition { Field = "NAME", Operator = FilterOperator.Equal, Value = "value" } });
         HashSet<string> allowedFields = new(["Name"], StringComparer.OrdinalIgnoreCase);
         FilterModel model = new(root, allowedFields);
 
@@ -99,9 +100,9 @@ public sealed class FilterModelTests
     {
         FilterGroup root = FilterGroup.FlatAnd(new FilterCondition[]
         {
-            new("Name", FilterOperator.Equal, "Apple"),
-            new("Age", FilterOperator.Equal, "25"),
-            new("Name", FilterOperator.NotEqual, "Banana"),
+            new() { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" },
+            new() { Field = "Age", Operator = FilterOperator.Equal, Value = "25" },
+            new() { Field = "Name", Operator = FilterOperator.NotEqual, Value = "Banana" },
         });
         FilterModel model = new(root);
 
@@ -114,7 +115,7 @@ public sealed class FilterModelTests
     public void HasField_ShouldReturnTrue_WhenFieldExists()
     {
         FilterGroup root = FilterGroup.FlatAnd(
-            new[] { new FilterCondition("Name", FilterOperator.Equal, "X") });
+            new[] { new FilterCondition { Field = "Name", Operator = FilterOperator.Equal, Value = "X" } });
         FilterModel model = new(root);
 
         model.HasField("Name").Should().BeTrue();
@@ -127,8 +128,8 @@ public sealed class FilterModelTests
     {
         FilterGroup root = FilterGroup.FlatAnd(new FilterCondition[]
         {
-            new("Name", FilterOperator.Equal, "Apple"),
-            new("Age", FilterOperator.GreaterThan, "18"),
+            new() { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" },
+            new() { Field = "Age", Operator = FilterOperator.GreaterThan, Value = "18" },
         });
         FilterModel model = new(root);
 

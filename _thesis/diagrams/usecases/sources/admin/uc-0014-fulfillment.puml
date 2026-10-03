@@ -1,0 +1,23 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0014: Order Fulfillment
+
+actor "Administrator" as Admin
+
+rectangle "Admin Portal" {
+    usecase "View Orders" as View
+    usecase "Mark Shipped" as Ship
+    usecase "Print Label" as Label
+}
+
+rectangle "System" {
+    usecase "Send Email" as Mail <<System>>
+}
+
+Admin --> View
+View <.. Ship : <<extend>>
+View <.. Label : <<extend>>
+
+Ship ..> Mail : <<include>>
+
+@enduml

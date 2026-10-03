@@ -51,7 +51,7 @@ public class ParameterizableExtensionsTests
             new() { Id = Guid.NewGuid(), Name = "keep" }
         }.AsQueryable();
 
-        var result = data.WhereNotId<TestEntity, Guid>(targetId).ToList();
+        var result = data.WhereNotId(targetId).ToList();
 
         result.Should().ContainSingle().Which.Name.Should().Be("keep");
     }
@@ -80,7 +80,7 @@ public class ParameterizableExtensionsTests
             new() { Id = Guid.NewGuid(), Name = "other-name" }
         }.AsQueryable();
 
-        var result = data.WhereDuplicateName<TestEntity, Guid>("my-name", currentId).ToList();
+        var result = data.WhereDuplicateName("my-name", currentId).ToList();
 
         result.Should().BeEmpty();
     }

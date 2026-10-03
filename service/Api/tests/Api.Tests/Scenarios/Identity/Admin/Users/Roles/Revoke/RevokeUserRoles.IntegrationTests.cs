@@ -71,7 +71,7 @@ public sealed class RevokeUserRolesIntegrationTests(ApiFixture fixture) : Identi
             roles = new[] { "SomeRole" }
         };
 
-        using HttpRequestMessage noAuthRequest = new HttpRequestMessage(
+        using HttpRequestMessage noAuthRequest = new(
             HttpMethod.Post, $"/api/identity/users/{someId}/roles/revoke")
         {
             Content = JsonContent.Create(request)

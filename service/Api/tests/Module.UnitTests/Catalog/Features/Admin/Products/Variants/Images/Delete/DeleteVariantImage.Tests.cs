@@ -1,5 +1,5 @@
-using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Variants.Images.Delete;
+using Module.Catalog.Domain.Variants.Images;
+using Module.Catalog.Features.Admin.Variants.Images.Delete;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Delete;
 
@@ -41,7 +41,7 @@ public class DeleteVariantImageTests : IDisposable
     [Fact(DisplayName = "Handler: Should delete image and remove from storage")]
     public async Task Handle_ShouldDeleteImage_WhenValid()
     {
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
             url: "https://cdn.test.com/photo.jpg", storagePath: "uploads/photo.jpg",
             variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);
@@ -80,7 +80,7 @@ public class DeleteVariantImageTests : IDisposable
     [Fact(DisplayName = "Handler: Should propagate storage failure")]
     public async Task Handle_ShouldReturnFailure_WhenStorageFails()
     {
-        var image = Module.Catalog.Domain.Products.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
+        var image = Module.Catalog.Domain.Variants.Images.VariantImageMethod.Create("image/jpeg", "photo.jpg", 1024,
             url: "https://cdn.test.com/photo.jpg", storagePath: "uploads/photo.jpg",
             variantId: Guid.NewGuid()).Value;
         _dbContext.Set<VariantImage>().Add(image);

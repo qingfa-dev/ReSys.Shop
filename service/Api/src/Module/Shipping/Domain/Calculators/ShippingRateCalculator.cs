@@ -15,9 +15,9 @@ public static class ShippingRateCalculator
     /// <param name="orderWeight">Total order weight in the rate's weight unit.</param>
     /// <param name="orderTotal">Total order amount (for free-shipping threshold).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A result with (cost, isFree) tuple on success, or failure on no rate available.</returns>
+    /// <returns>A result with (cost, isFree, rateId) tuple on success, or failure on no rate available.</returns>
     // @CAT-10 Contract: pre=dbContext!=null, post=cost>=0, throws=none
-    public static async Task<Result<(decimal cost, bool isFree)>> CalculateAsync(
+    public static async Task<Result<(decimal cost, bool isFree, Guid rateId)>> CalculateAsync(
         IApplicationDbContext dbContext,
         Guid shippingMethodId,
         decimal orderWeight,
@@ -62,10 +62,10 @@ public static class ShippingRateCalculator
             .FirstOrDefault(r => r.FreeShippingThreshold.HasValue && orderTotal >= r.FreeShippingThreshold.Value);
 
         if (freeRate is not null)
-            return (0m, true);
+            return (0m, true, freeRate.Id);
 
         // Compute: Select the cheapest matching rate.
         var bestRate = candidateRates[0];
-        return (bestRate.Cost, false);
+        return (bestRate.Cost, false, bestRate.Id);
     }
 }

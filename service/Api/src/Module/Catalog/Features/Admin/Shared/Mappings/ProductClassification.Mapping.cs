@@ -1,0 +1,43 @@
+using Module.Catalog.Domain.Products.Classifications;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Admin.Shared.Models;
+
+namespace Module.Catalog.Features.Admin.Shared.Mappings;
+
+public static partial class ProductClassificationMapping
+{
+    public static Result<Classification> MapToDomain<T>(
+        this T item,
+        Guid productId)
+        where T : ProductClassificationAssignmentItem
+    {
+        return ClassificationMethod.Create(
+            productId: productId,
+            taxonId: item.TaxonId,
+            position: item.Position);
+    }
+
+    public static void MapToDomain<T>(
+        this T item,
+        Classification entity)
+        where T : ProductClassificationAssignmentItem
+    {
+        entity.Position = item.Position;
+    }
+
+    public static T MapToClassificationListItem<T>(
+        this Taxon taxon,
+        bool isAssigned,
+        int position = 0)
+        where T : ClassificationItemResponse, new()
+    {
+        return new T
+        {
+            TaxonId = taxon.Id,
+            Name = taxon.Name,
+            PrettyName = taxon.PrettyName,
+            IsAssigned = isAssigned,
+            Position = isAssigned ? position : 0
+        };
+    }
+}

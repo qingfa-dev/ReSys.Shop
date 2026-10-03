@@ -1,4 +1,4 @@
-using Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+using Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 namespace Shared.UnitTests.Operational.Notifications.Channels.Email.Providers;
 

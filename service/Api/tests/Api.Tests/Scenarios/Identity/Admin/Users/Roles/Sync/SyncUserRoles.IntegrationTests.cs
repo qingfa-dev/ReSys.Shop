@@ -82,7 +82,7 @@ public sealed class SyncUserRolesIntegrationTests(ApiFixture fixture) : Identity
             roles = new[] { "SomeRole" }
         };
 
-        using HttpRequestMessage noAuthRequest = new HttpRequestMessage(
+        using HttpRequestMessage noAuthRequest = new(
             HttpMethod.Patch, $"/api/identity/users/{someId}/roles/sync")
         {
             Content = JsonContent.Create(request)

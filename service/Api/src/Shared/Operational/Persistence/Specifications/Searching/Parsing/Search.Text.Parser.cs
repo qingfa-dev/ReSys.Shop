@@ -12,7 +12,7 @@ internal static class SearchTextParser
         }
 
         return new SearchModel(
-            new SearchTerm(input.Trim()),
+            new SearchTerm { Value = input.Trim() },
             [],
             SearchMode.Any,
             rawInput: input);

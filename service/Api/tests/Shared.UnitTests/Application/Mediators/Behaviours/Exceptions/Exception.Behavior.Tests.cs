@@ -28,7 +28,7 @@ public class ExceptionMappingBehaviorTests
     public async Task Handle_NoException_ReturnsSuccess()
     {
         var behavior = CreateBehavior(_logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Value = "test-value" };
 
         RequestHandlerDelegate<Result> next = (_) => Task.FromResult(Result.Ok());
 
@@ -46,7 +46,7 @@ public class ExceptionMappingBehaviorTests
     public async Task Handle_ExceptionThrown_ReturnsFailure()
     {
         var behavior = CreateBehavior(_logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Value = "test-value" };
         var exception = new InvalidOperationException("Test exception");
 
         RequestHandlerDelegate<Result> next = (_) =>
@@ -88,7 +88,7 @@ public class ExceptionMappingBehaviorTests
     public async Task Handle_ExceptionThrown_LogsError()
     {
         var behavior = CreateBehavior(_logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Value = "test-value" };
         var exception = new InvalidOperationException("Test exception");
 
         RequestHandlerDelegate<Result> next = (_) =>
@@ -108,7 +108,7 @@ public class ExceptionMappingBehaviorTests
         // Arrange
         _logger.SetEnabled(LogLevel.Error, false);
         var behavior = CreateBehavior(_logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Value = "test-value" };
         var exception = new InvalidOperationException("Test exception");
 
         RequestHandlerDelegate<Result> next = (_) => throw exception;
@@ -131,7 +131,7 @@ public class ExceptionMappingBehaviorTests
     public async Task Handle_VariousExceptionTypes_ReturnsFailure(Type exceptionType)
     {
         var behavior = CreateBehavior(_logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Value = "test-value" };
         var exception = (Exception)Activator.CreateInstance(exceptionType)!;
 
         RequestHandlerDelegate<Result> next = (_) =>

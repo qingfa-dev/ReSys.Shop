@@ -17,7 +17,7 @@ public sealed class EmailChannelSettingValidator : AbstractValidator<EmailChanne
         .WithMessage(EmailChannelSettingResult.Failure.FromEmailRequired.Message);
 
         RuleFor(x => x.FromName)
-        .MustBeValidEmail()
+        .NotEmpty()
         .WithErrorCode(EmailChannelSettingResult.Failure.FromNameRequired.Code)
         .WithMessage(EmailChannelSettingResult.Failure.FromNameRequired.Message);
     }

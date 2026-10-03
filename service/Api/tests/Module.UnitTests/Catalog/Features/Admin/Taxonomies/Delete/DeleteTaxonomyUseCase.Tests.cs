@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Delete;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
+using Module.Catalog.Features.Admin.Taxons.Delete;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Delete;
 
@@ -25,7 +25,7 @@ public class DeleteTaxonomyTests : IDisposable
 
         _senderMock = new Mock<ISender>();
         _senderMock.Setup(x => x.Send(It.IsAny<DeleteTaxon.Command>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<DeleteTaxon.Response>.Ok(new DeleteTaxon.Response { Id = Guid.NewGuid() }));
+            .ReturnsAsync(Result.Ok(TaxonResult.Success.Deleted));
 
         _handler = new DeleteTaxonomy.CommandHandler(_dbContext, _senderMock.Object);
     }
@@ -39,7 +39,7 @@ public class DeleteTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should delete taxonomy successfully when no taxons")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -65,7 +65,7 @@ public class DeleteTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxonomy has non-root taxons")]
     public async Task Handle_ShouldReturnFailure_WhenHasTaxons()
     {
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var child = TaxonMethod.Create(entity.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
@@ -85,7 +85,7 @@ public class DeleteTaxonomyTests : IDisposable
     public async Task Handle_ShouldDeleteRootTaxonViaSender_WhenRootExists()
     {
         var ct = TestContext.Current.CancellationToken;
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(entity);

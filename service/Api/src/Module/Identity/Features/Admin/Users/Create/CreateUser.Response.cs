@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Users.Create;
+namespace Module.Identity.Features.Shared.Admin.Users.Create;
 
 public static partial class CreateUser
 {
@@ -8,5 +8,5 @@ public static partial class CreateUser
     /// Represents the response contract for a created user.
     /// Inherits properties from <see cref="UserDetailResponse"/>.
     /// </summary>
-    public class Response : UserDetailResponse { }
+    public record Response : UserDetailResponse;
 }

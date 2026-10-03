@@ -1,8 +1,8 @@
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.Catalog.Features.Admin.OptionTypes.Get.ById;
 
 public static partial class GetOptionTypeById
 {
-public record Response : OptionTypeDetailResponse;
+    public record Response : OptionTypeDetailResponse;
 }

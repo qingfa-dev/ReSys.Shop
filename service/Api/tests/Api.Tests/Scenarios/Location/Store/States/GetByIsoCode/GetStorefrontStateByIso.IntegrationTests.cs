@@ -2,7 +2,7 @@ using System.Net;
 
 using Api.Tests.Infrastructure;
 
-using Module.Location.Features.Admin.States.Shared.Models;
+using Module.Location.Features.Shared.States.Models;
 
 namespace Api.Tests.Scenarios.Location.Store.States.GetByIsoCode;
 
@@ -11,7 +11,7 @@ public sealed class GetStorefrontStateByIsoIntegrationTests(ApiFixture fixture) 
     [Fact]
     public async Task GetStateByIso_WithExistingCode_Returns200()
     {
-        HttpResponseMessage response = await Client.GetAsync("/api/store/locations/states/by-iso/CA");
+        HttpResponseMessage response = await Client.GetAsync("/api/storefront/locations/states/by-iso/CA");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -25,7 +25,7 @@ public sealed class GetStorefrontStateByIsoIntegrationTests(ApiFixture fixture) 
     [Fact]
     public async Task GetStateByIso_WithNonexistentCode_Returns404()
     {
-        HttpResponseMessage response = await Client.GetAsync("/api/store/locations/states/by-iso/XX");
+        HttpResponseMessage response = await Client.GetAsync("/api/storefront/locations/states/by-iso/XX");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

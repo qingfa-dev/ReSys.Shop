@@ -1,0 +1,36 @@
+flowchart TD
+    %% Nodes
+    subgraph Client ["Frontend Layer (Vue 3)"]
+        Store["Storefront App\n(ReSys.Shop)"]
+        Admin["Admin Panel\n(ReSys.Admin)"]
+    end
+
+    subgraph Backend ["Transactional Layer (.NET 10)"]
+        API["Core API Service\n(Orchestrator)"]
+    end
+
+    subgraph AI ["Computational Layer (Python 3.12)"]
+        ML["ML Service\n(FastAPI + Cloud)"]
+    end
+
+    subgraph Data ["Persistence Layer"]
+        DB[("PostgreSQL\n(pgvector)")]
+    end
+
+    %% Styles
+    classDef frontend fill:#e6f7ff,stroke:#1890ff,stroke-width:2px;
+    classDef backend fill:#fff7e6,stroke:#fa8c16,stroke-width:2px;
+    classDef ai fill:#f6ffed,stroke:#52c41a,stroke-width:2px;
+    classDef db fill:#fff0f6,stroke:#eb2f96,stroke-width:2px;
+
+    class Store,Admin frontend;
+    class API backend;
+    class ML ai;
+    class DB db;
+
+    %% Connections
+    Store -->|HTTP/REST| API
+    Admin -->|HTTP/REST| API
+    API <-->|gRPC/HTTP| ML
+    API -->|SQL + EF Core| DB
+    ML -.->|Read/Write Vectors| DB

@@ -1,0 +1,113 @@
+@use '../tokens' as *;
+
+.layout-menu {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+
+  .layout-root-menuitem {
+    > .layout-menuitem-root-text {
+      font-size: 0.857rem;
+      text-transform: uppercase;
+      font-weight: var(--font-bold);
+      color: var(--color-text);
+      margin: 0.75rem 0;
+    }
+
+    > a {
+      display: none;
+    }
+  }
+
+  .active-menuitem {
+    > a .layout-submenu-toggler {
+      transform: rotate(-180deg);
+    }
+  }
+
+  li.active-menuitem {
+    > a .layout-submenu-toggler {
+      transform: rotate(-180deg);
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    a {
+      display: flex;
+      align-items: center;
+      position: relative;
+      outline: 0 none;
+      color: var(--color-text);
+      cursor: pointer;
+      padding: $menu-item-padding;
+      border-radius: var(--radius);
+      transition:
+        background-color $duration-fast,
+        box-shadow $duration-fast;
+
+      .layout-menuitem-icon {
+        margin-right: $menu-icon-gap;
+        font-size: $menu-icon-size;
+      }
+
+      .layout-submenu-toggler {
+        font-size: var(--text-xs);
+        margin-left: auto;
+        transition: transform $duration-fast;
+      }
+
+      &.active-route {
+        font-weight: var(--font-bold);
+        color: var(--color-primary);
+        background-color: var(--color-primary-50, var(--p-highlight-background));
+
+        .layout-menuitem-icon {
+          color: var(--color-primary);
+        }
+      }
+
+      &:hover {
+        background-color: var(--color-surface-hover);
+      }
+
+      &:focus {
+        @include focus-ring-inset;
+      }
+    }
+
+    ul {
+      overflow: hidden;
+
+      li a { margin-left: 1rem; }
+      li li a { margin-left: 2rem; }
+      li li li a { margin-left: 2.5rem; }
+      li li li li a { margin-left: 3rem; }
+      li li li li li a { margin-left: 3.5rem; }
+      li li li li li li a { margin-left: 4rem; }
+    }
+  }
+}
+
+.layout-submenu-enter-from,
+.layout-submenu-leave-to {
+  max-height: 0;
+}
+
+.layout-submenu-enter-to,
+.layout-submenu-leave-from {
+  max-height: 1000px;
+}
+
+.layout-submenu-leave-active {
+  overflow: hidden;
+  transition: max-height $duration-slow $ease-collapse;
+}
+
+.layout-submenu-enter-active {
+  overflow: hidden;
+  transition: max-height $duration-expand $ease-expand;
+}

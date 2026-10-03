@@ -1,7 +1,8 @@
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Reposition;
+using Module.Catalog.Features.Admin.Shared.Models;
 
-public sealed class Request
+namespace Module.Catalog.Features.Admin.Taxons.Reposition;
+
+public static partial class RepositionTaxon
 {
-    public Guid? ParentId { get; set; }
-    public int Position { get; set; }
+    public sealed record Request : TaxonRequest;
 }

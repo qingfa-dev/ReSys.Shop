@@ -25,9 +25,11 @@ public sealed partial class FacebookTokenValidator : IFacebookTokenValidator
             throw new InvalidOperationException("Invalid Facebook access token");
         }
         var doc = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
-        return new FacebookUserInfo(
-            Id: doc.GetProperty("id").GetString() ?? string.Empty,
-            Email: doc.TryGetProperty("email", out var e) ? e.GetString() ?? string.Empty : string.Empty,
-            Name: doc.TryGetProperty("name", out var n) ? n.GetString() : null);
+        return new FacebookUserInfo
+        {
+            Id = doc.GetProperty("id").GetString() ?? string.Empty,
+            Email = doc.TryGetProperty("email", out var e) ? e.GetString() ?? string.Empty : string.Empty,
+            Name = doc.TryGetProperty("name", out var n) ? n.GetString() : null
+        };
     }
 }

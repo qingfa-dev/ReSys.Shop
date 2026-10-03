@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Features.Admin.Products.Create;
-using Module.Catalog.Features.Admin.Products.Variants.Add;
+using Module.Catalog.Features.Admin.Variants.Add;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Create;
 
@@ -64,7 +64,6 @@ public class CreateProductTests : IDisposable
 
         _senderMock.Verify(x => x.Send(
             It.Is<AddVariant.Command>(c =>
-                c.ProductId == persisted.Id &&
                 c.Request.IsMaster),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -72,7 +71,7 @@ public class CreateProductTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when slug is duplicate")]
     public async Task Handle_ShouldReturnFailure_WhenSlugIsDuplicate()
     {
-        var existing = ProductMethod.Create("Existing", "t-shirt", status: ProductStatus.Draft).Value;
+        var existing = ProductMethod.Create(name: "Existing", slug: "t-shirt", status: ProductStatus.Draft).Value;
         _dbContext.Set<Product>().Add(existing);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

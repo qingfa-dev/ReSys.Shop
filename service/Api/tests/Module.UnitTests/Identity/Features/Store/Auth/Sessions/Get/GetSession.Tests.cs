@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.Sessions.Get;
-using Module.Profile.Domain;
+using Module.Identity.Features.Shared.Storefront.Auth.Sessions.Get;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authorization.Permissions.Services;
@@ -68,7 +67,7 @@ public class GetSessionTests
         var result = await CreateHandler().Handle(new GetSession.Query(), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(UserProfileResult.Failure.AuthRequired.Code);
+        result.Errors[0].Code.Should().Be(UserResult.Failure.Unauthorized.Code);
     }
 
     // ==================== USER NOT FOUND ====================
@@ -116,6 +115,8 @@ public class GetSessionTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().Be(user.Id);
+        result.Value.Email.Should().Be(user.Email);
+        result.Value.UserName.Should().Be(user.UserName);
         result.Value.Roles.Should().BeEquivalentTo(roles);
         result.Value.Permissions.Should().BeEquivalentTo(permissions);
     }
@@ -150,6 +151,8 @@ public class GetSessionTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().Be(user.Id);
+        result.Value.Email.Should().Be(user.Email);
+        result.Value.UserName.Should().Be(user.UserName);
         result.Value.Roles.Should().BeEquivalentTo(roles);
         result.Value.Permissions.Should().BeEmpty();
     }

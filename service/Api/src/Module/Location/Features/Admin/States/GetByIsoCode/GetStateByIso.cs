@@ -1,5 +1,5 @@
 using Module.Location.Domain.States;
-using Module.Location.Features.Admin.States.Shared.Mappings;
+using Module.Location.Features.Shared.States.Mappings;
 
 namespace Module.Location.Features.Admin.States.GetByIsoCode;
 

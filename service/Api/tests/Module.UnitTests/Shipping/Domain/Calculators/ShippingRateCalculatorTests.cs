@@ -37,7 +37,7 @@ public class ShippingRateCalculatorTests : IDisposable
     [Fact(DisplayName = "Calculate: Weight-matched rate returns expected cost")]
     public async Task Calculate_WeightMatchedRate_ReturnsCost()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Standard",
             cost: 5.99m,
             shippingMethodId: _methodId,
@@ -57,7 +57,7 @@ public class ShippingRateCalculatorTests : IDisposable
     [Fact(DisplayName = "Calculate: Weight-matched higher tier returns expected cost")]
     public async Task Calculate_WeightMatchedHigherTier_ReturnsCost()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Express",
             cost: 10.99m,
             shippingMethodId: _methodId,
@@ -77,7 +77,7 @@ public class ShippingRateCalculatorTests : IDisposable
     [Fact(DisplayName = "Calculate: No-weight-restriction rate matches any order weight")]
     public async Task Calculate_NoWeightRestriction_MatchesAnyWeight()
     {
-        var rate = ShippingRateExtensions.Create(
+        var rate = ShippingRateMethod.Create(
             name: "Flat Rate",
             cost: 5.99m,
             shippingMethodId: _methodId,
@@ -97,13 +97,13 @@ public class ShippingRateCalculatorTests : IDisposable
     [Fact(DisplayName = "Calculate: Cheapest rate selected when multiple rates match weight")]
     public async Task Calculate_MultipleMatchingRates_SelectsCheapest()
     {
-        var expensive = ShippingRateExtensions.Create(
+        var expensive = ShippingRateMethod.Create(
             name: "Express",
             cost: 8.99m,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 10m).Value;
-        var cheap = ShippingRateExtensions.Create(
+        var cheap = ShippingRateMethod.Create(
             name: "Standard",
             cost: 5.99m,
             shippingMethodId: _methodId,
@@ -135,13 +135,13 @@ public class ShippingRateCalculatorTests : IDisposable
     [Fact(DisplayName = "Calculate: Weight mismatch falls back to unrestricted rate")]
     public async Task Calculate_WeightMismatch_FallsBackToUnrestrictedRate()
     {
-        var restricted = ShippingRateExtensions.Create(
+        var restricted = ShippingRateMethod.Create(
             name: "Standard",
             cost: 5.99m,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m).Value;
-        var unrestricted = ShippingRateExtensions.Create(
+        var unrestricted = ShippingRateMethod.Create(
             name: "Flat Rate",
             cost: 8.99m,
             shippingMethodId: _methodId,

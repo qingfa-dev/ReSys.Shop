@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Restore;
 
 public static partial class RestoreTaxonomy
 {
+    /// <summary>Maps the taxonomy restore route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PATCH /api/admin/taxonomies/{id}/restore — restore a soft-deleted taxonomy
             app.MapPatch(CatalogFeature.Admin.Taxonomies.Restore.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

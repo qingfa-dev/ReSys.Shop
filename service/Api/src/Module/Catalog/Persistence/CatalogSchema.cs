@@ -17,8 +17,8 @@ public static class CatalogSchema
     {
         public const string Products = "products";
         public const string Variants = "variants";
-        public const string ProductImages = "product_images";
-        public const string ProductImageEmbeddings = "product_image_embeddings";
+        public const string VariantImages = "variant_images";
+        public const string VariantImageEmbeddings = "variant_image_embeddings";
         public const string OptionTypes = "option_types";
         public const string OptionValues = "option_values";
         public const string Taxonomies = "taxonomies";

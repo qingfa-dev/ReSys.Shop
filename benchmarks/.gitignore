@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+
+# UV
+uv.lock
+
+# Data (large files / raw datasets not committed)
+data/raw/
+data/cache/
+data/processed/
+outputs/embeddings/
+outputs/logs/
+
+# Keep outputs structure but not generated content
+outputs/metrics/*.json
+outputs/reports/*.csv
+outputs/reports/*.json
+outputs/tables/*.typ
+outputs/figures/*.pdf
+outputs/figures/*.png
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Env
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+benchmarks/old

@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Shared.Countries.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.Countries.Delete;
 

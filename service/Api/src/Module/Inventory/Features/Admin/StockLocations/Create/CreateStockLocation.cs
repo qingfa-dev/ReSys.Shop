@@ -1,5 +1,5 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Features.Admin.StockLocations.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Create;
 

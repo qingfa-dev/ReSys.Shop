@@ -3,8 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.OptionValues.Update;
 
@@ -22,7 +21,7 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         };
 
         HttpResponseMessage createOtResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createOptionTypeRequest);
+            "/api/admin/catalog/option-types", createOptionTypeRequest);
         ApiResponse createOtResult = await createOtResponse.ReadApiResponseAsync();
         createOtResult.IsSuccess.Should().BeTrue();
         OptionTypeDetailResponse? optionType = createOtResult.DeserializeValue<OptionTypeDetailResponse>();
@@ -31,11 +30,12 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var createValueRequest = new
         {
             name = "Smooth",
-            presentation = "Smooth"
+            presentation = "Smooth",
+            optionTypeId = optionType!.Id
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType!.Id}/values", createValueRequest);
+            "/api/admin/catalog/option-values", createValueRequest);
         ApiResponse createValResult = await createValResponse.ReadApiResponseAsync();
         createValResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? created = createValResult.DeserializeValue<OptionValueListItemResponse>();
@@ -44,11 +44,12 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var updateRequest = new
         {
             name = "Rough",
-            presentation = "Rough"
+            presentation = "Rough",
+            optionTypeId = optionType.Id
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType.Id}/values/{created!.Id}", updateRequest);
+            $"/api/admin/catalog/option-values/{created!.Id}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -68,11 +69,12 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var request = new
         {
             name = "Ghost",
-            presentation = "Ghost"
+            presentation = "Ghost",
+            optionTypeId = optionTypeId
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values/{nonexistentId}", request);
+            $"/api/admin/catalog/option-values/{nonexistentId}", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

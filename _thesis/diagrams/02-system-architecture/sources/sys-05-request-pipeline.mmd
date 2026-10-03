@@ -1,0 +1,27 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+flowchart TB
+    %% Styles (Grayscale)
+    classDef entry fill:#ffffff,stroke:#000000,stroke-width:2px,color:black,font-size:16px
+    classDef pipe fill:#f4f4f4,stroke:#000000,stroke-width:2px,color:black,font-size:16px
+    classDef core fill:#e0e0e0,stroke:#000000,stroke-width:2px,color:black,font-size:16px
+
+    %% Nodes
+    Http([HTTP Request]):::entry
+    
+    subgraph Pipeline [MediatR Pipeline behaviors]
+        Log[Logging Behavior]:::pipe
+        Val[Validation Behavior]:::pipe
+        Tx[Transaction Behavior]:::pipe
+    end
+    
+    Handler{{Feature Handler\nDomain Logic}}:::core
+    
+    Http --> Log
+    Log --> Val
+    Val --> Tx
+    Tx --> Handler
+    
+    Handler -.-> Tx
+    Tx -.-> Val
+    Val -.-> Log
+    Log -.-> Response([HTTP Response]):::entry

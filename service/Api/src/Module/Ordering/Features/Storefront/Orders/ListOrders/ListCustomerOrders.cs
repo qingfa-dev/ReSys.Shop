@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Orders.ListOrders;
 
@@ -18,31 +19,28 @@ public static partial class ListCustomerOrders
         /// <returns>The paged order list response.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Contract: pre=query!=null, post=result!=null
             var parameters = request.Parameters;
 
-            // Contract: pre=query!=null, post=result!=null
+            // Check: Resolve current user identifier
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return PagedResult<Response>.Create();
 
-            var parseAll = parameters.ParseAll();
+            // Parse: Validate and parse querying parameters
+            var parseAll = parameters.ParseAll(
+                allowedFilterFields: OrderConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: OrderConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: OrderConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 
-            // Check: Retrieve orders for current user (excluding drafts) with querying options.
+            // Filter: Exclude draft orders from customer order list.
             var pagedResult = await dbContext.Set<Order>()
                 .AsNoTracking()
                 .Where(o => o.UserId == userId && o.Status != OrderStatus.Draft)
                 .OrderByDescending(o => o.CreatedAtUtc)
                 .ApplyQuerying(parseAll.Value)
-                .Select(o => new Response
-                {
-                    Id = o.Id,
-                    Number = o.Number,
-                    Status = o.Status.ToString(),
-                    Total = o.Total,
-                    CreatedAtUtc = o.CreatedAtUtc
-                })
-                .ToPagedOrAllAsync(parseAll.Value, x => x, cancellationToken);
+                .ToPagedOrAllAsync(parseAll.Value, x => x.MapToStoreListItem<Response>(), cancellationToken);
 
             return pagedResult;
         }

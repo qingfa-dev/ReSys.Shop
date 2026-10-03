@@ -7,7 +7,7 @@ public static class AuthenticatedRequestExtensions
     private static HttpRequestMessage CreateAdminRequest(HttpMethod method, string requestUri, HttpContent? content = null)
     {
         string token = AuthTokenHelper.GenerateAdminToken();
-        HttpRequestMessage request = new HttpRequestMessage(method, requestUri)
+        HttpRequestMessage request = new(method, requestUri)
         {
             Content = content
         };

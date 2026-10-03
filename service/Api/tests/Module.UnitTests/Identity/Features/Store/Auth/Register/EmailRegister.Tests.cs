@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.Identity.Features.Store.Auth.Register;
+using Module.Identity.Features.Shared.Storefront.Auth.Register;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Governance.Conventions;
@@ -48,7 +48,7 @@ public class EmailRegisterTests
         string firstName = "John",
         string? lastName = null,
         string? phone = null) => new(
-        new EmailRegister.Request(email, userName, password, firstName, lastName, phone));
+        new EmailRegister.Request { Email = email, UserName = userName, Password = password, FirstName = firstName, LastName = lastName, Phone = phone });
 
     private void SetUpEmailNotTaken() =>
         _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);

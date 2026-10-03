@@ -59,10 +59,12 @@ internal static class FilterJsonParser
             }
         }
 
-        return new FilterGroup(
-            FilterModelConstant.Defaults.RootLogic,
-            conditions.AsReadOnly(),
-            subGroups.AsReadOnly());
+        return new FilterGroup
+        {
+            Logic = FilterModelConstant.Defaults.RootLogic,
+            Conditions = conditions.AsReadOnly(),
+            Groups = subGroups.AsReadOnly()
+        };
     }
 
     private static Result<FilterGroup> ParseGroup(JsonElement element)
@@ -105,7 +107,7 @@ internal static class FilterJsonParser
             }
         }
 
-        return new FilterGroup(logic, conditions.AsReadOnly(), subGroups.AsReadOnly());
+        return new FilterGroup { Logic = logic, Conditions = conditions.AsReadOnly(), Groups = subGroups.AsReadOnly() };
     }
 
     // ── Leaf condition ────────────────────────────────────────────────────────
@@ -133,6 +135,6 @@ internal static class FilterJsonParser
             ? (valueEl.GetString() ?? string.Empty)
             : string.Empty;
 
-        return new FilterCondition(field, op, value);
+        return new FilterCondition { Field = field, Operator = op, Value = value };
     }
 }

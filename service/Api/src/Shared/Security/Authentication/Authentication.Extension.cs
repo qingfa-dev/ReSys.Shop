@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 
 using Shared.Security.Authentication.Contexts;
 using Shared.Security.Authentication.External;
+using Shared.Security.Authentication.Guest;
 using Shared.Security.Authentication.Tokens;
 
 namespace Shared.Security.Authentication;
@@ -29,6 +30,9 @@ public static class AuthenticationExtensions
         // Add: External login providers (Google, etc.)
         builder.AddExternalAuthentication();
 
+        // Add: Guest session for anonymous session tracking
+        builder.AddGuestSession();
+
         return builder;
     }
 
@@ -39,6 +43,7 @@ public static class AuthenticationExtensions
     /// <returns>The web application for method chaining.</returns>
     public static WebApplication UseApplicationAuthentication(this WebApplication app)
     {
+        app.UseGuestSession();
         app.UseAuthentication();
         return app;
     }

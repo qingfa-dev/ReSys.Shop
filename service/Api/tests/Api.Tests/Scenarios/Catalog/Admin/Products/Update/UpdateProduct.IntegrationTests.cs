@@ -20,7 +20,7 @@ public sealed class UpdateProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createRequest);
+            "/api/admin/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var created = createResult.DeserializeValue<CreateProductResponse>();
@@ -34,7 +34,7 @@ public sealed class UpdateProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/products/{created!.Id}", updateRequest);
+            $"/api/admin/catalog/products/{created!.Id}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -62,7 +62,7 @@ public sealed class UpdateProductIntegrationTests(ApiFixture fixture) : CatalogI
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/products/{nonexistentId}", request);
+            $"/api/admin/catalog/products/{nonexistentId}", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

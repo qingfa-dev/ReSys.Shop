@@ -1,0 +1,38 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '24px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff'}}}%%
+block-beta
+    columns 3
+    
+    block:Slice1
+        columns 1
+        S1Header["Feature: Catalog"]
+        space
+        S1UI["API / UI"]
+        S1Logic["Business Logic"]
+        S1Data["Data Access"]
+    end
+
+    block:Slice2
+        columns 1
+        S2Header["Feature: Ordering"]
+        space
+        S2UI["API / UI"]
+        S2Logic["Business Logic"]
+        S2Data["Data Access"]
+    end
+
+    block:Slice3
+        columns 1
+        S3Header["Feature: Identity"]
+        space
+        S3UI["API / UI"]
+        S3Logic["Business Logic"]
+        S3Data["Data Access"]
+    end
+
+    classDef slice fill:#ffffff,stroke:#333,stroke-width:2px;
+    classDef layer fill:#f4f4f4,stroke:#333,stroke-width:1px;
+    classDef header fill:#d0d0d0,stroke:#333,stroke-width:1px,color:#000;
+
+    class Slice1,Slice2,Slice3 slice;
+    class S1UI,S1Logic,S1Data,S2UI,S2Logic,S2Data,S3UI,S3Logic,S3Data layer;
+    class S1Header,S2Header,S3Header header;

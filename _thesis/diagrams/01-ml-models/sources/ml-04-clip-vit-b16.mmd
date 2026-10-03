@@ -1,0 +1,35 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph TB
+    A[Input Image] --> B["Vision Transformer<br/>ViT-B/16 variant"]
+    
+    B --> C["Patch Processing<br/>14×14 = 196 patches"]
+    C --> D["Transformer Blocks<br/>12 layers, 12 heads"]
+    D --> E["Global Representation<br/>CLS token output"]
+    E --> F["Feature Vector<br/>512-dim embedding"]
+    
+    subgraph GPT ["General-Purpose Training"]
+        G["400M Image-Text Pairs<br/>Diverse internet data"] --> H["Broad Semantic Understanding"]
+        H --> I["Cross-domain Knowledge<br/>• Objects & scenes<br/>• Styles & aesthetics<br/>• General concepts"]
+    end
+    
+    I -.Trained on.-> B
+    
+    F --> J[Recommendation Engine]
+    
+    J --> K["Query: User's<br/>browsing history"]
+    K --> L["Find Similar Vibes<br/>Not exact duplicates"]
+    
+    L --> M["Semantic Similarity<br/>Cosine distance in embedding space"]
+    M --> N["Recommended Products<br/>Stylistically coherent"]
+    
+    O["Broader Understanding"] -.-> L
+    P["• Category relevance<br/>• Style consistency<br/>• Aesthetic harmony<br/>• Not just visual match"] -.-> O
+    
+    Q["Use Case: Discovery"] -.-> N
+    R["• Explore similar styles<br/>• Find complementary items<br/>• Broaden product range"] -.-> Q
+    
+    S["Complement to Fashion-CLIP"] -.-> J
+    T["Fashion-CLIP: Precise search<br/>CLIP ViT: Exploratory discovery"] -.-> S
+    
+
+    %% Styles Removed for Academic Theme

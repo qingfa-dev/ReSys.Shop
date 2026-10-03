@@ -1,0 +1,344 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+classDiagram
+    direction TB
+    
+    %% ============================================
+    %% CATALOG BOUNDED CONTEXT
+    %% ============================================
+    
+    class Product {
+        <<Aggregate Root>>
+        -Guid id
+        -string name
+        -string slug
+        -ProductStatus status
+        -DateTimeOffset? availableOn
+        -bool isDeleted
+        +Create(name, sku, price) Product
+        +AddVariant(sku, price) Variant
+        +AddImage(url, alt) ProductImage
+        +SetPropertyValue(propertyType, value)
+        +AddClassification(taxonId)
+        +Activate()
+        +Delete()
+    }
+    
+    class Variant {
+        <<Entity>>
+        -Guid id
+        -Guid productId
+        -string sku
+        -decimal price
+        -bool isMaster
+        -bool isDeleted
+        +Create(productId, sku, price) Variant
+        +UpdatePrice(price)
+        +Delete()
+    }
+    
+    class ProductImage {
+        <<Entity>>
+        -Guid id
+        -Guid productId
+        -string url
+        -string alt
+        -ProductImageType role
+        -int position
+        +Create(productId, url) ProductImage
+        +SetRole(role)
+        +Update(alt, position)
+    }
+    
+    class ProductProperty {
+        <<Value Object>>
+        -Guid productId
+        -Guid propertyTypeId
+        -string value
+        +Create(productId, propertyTypeId, value)
+        +UpdateValue(value)
+    }
+    
+    class Classification {
+        <<Entity>>
+        -Guid productId
+        -Guid taxonId
+        -int position
+        +Create(productId, taxonId) Classification
+        +UpdatePosition(position)
+    }
+    
+    Product "1" *-- "1..*" Variant : contains
+    Product "1" *-- "0..*" ProductImage : contains
+    Product "1" *-- "0..*" ProductProperty : has
+    Product "1" *-- "0..*" Classification : categorized by
+    
+    %% ============================================
+    %% ORDERING BOUNDED CONTEXT
+    %% ============================================
+    
+    class Order {
+        <<Aggregate Root>>
+        -Guid id
+        -string number
+        -OrderState state
+        -long itemTotalCents
+        -long shipmentTotalCents
+        -long totalCents
+        -string userId
+        -DateTimeOffset? completedAt
+        +Create(currency, number, userId) Order
+        +AddItem(variant, quantity) LineItem
+        +SetAddress(shipAddress, billAddress)
+        +PlaceOrder()
+        +Complete()
+        +Cancel()
+    }
+    
+    class LineItem {
+        <<Entity>>
+        -Guid id
+        -Guid orderId
+        -Guid variantId
+        -int quantity
+        -long priceCents
+        -string productName
+        -string sku
+        +Create(orderId, variant, quantity) LineItem
+        +UpdateQuantity(quantity)
+        +Remove()
+    }
+    
+    class Payment {
+        <<Entity>>
+        -Guid id
+        -Guid orderId
+        -long amountCents
+        -PaymentState state
+        -string paymentMethod
+        -DateTimeOffset? capturedAt
+        +Create(orderId, amount) Payment
+        +Authorize()
+        +Capture()
+        +Void()
+    }
+    
+    class Shipment {
+        <<Entity>>
+        -Guid id
+        -Guid orderId
+        -string trackingNumber
+        -ShipmentState state
+        -DateTimeOffset? shippedAt
+        +Create(orderId) Shipment
+        +Ship(trackingNumber)
+        +Deliver()
+    }
+    
+    class InventoryUnit {
+        <<Entity>>
+        -Guid id
+        -Guid variantId
+        -Guid lineItemId
+        -Guid stockItemId
+        -Guid? orderId
+        -InventoryUnitState state
+        +Create(variantId, lineItemId) InventoryUnit
+        +Reserve(orderId)
+        +Backorder(orderId)
+        +Ship(shipmentId)
+        +Cancel()
+    }
+    
+    class OrderHistory {
+        <<Value Object>>
+        -Guid id
+        -Guid orderId
+        -string event
+        -string details
+        -DateTimeOffset occurredAt
+        +Create(orderId, event) OrderHistory
+    }
+    
+    Order "1" *-- "1..*" LineItem : contains
+    Order "1" *-- "0..*" Payment : has
+    Order "1" *-- "0..*" Shipment : has
+    Order "1" *-- "0..*" InventoryUnit : reserves
+    Order "1" *-- "0..*" OrderHistory : tracks
+    
+    %% ============================================
+    %% INVENTORIES BOUNDED CONTEXT
+    %% ============================================
+    
+    class StockItem {
+        <<Aggregate Root>>
+        -Guid id
+        -Guid variantId
+        -Guid stockLocationId
+        -string sku
+        -int quantityOnHand
+        -int quantityReserved
+        -bool backorderable
+        -int backorderLimit
+        +Create(variantId, locationId, sku) StockItem
+        +AdjustStock(quantity, type)
+        +Reserve(quantity, orderId) List~InventoryUnit~
+        +Release(quantity, orderId)
+        +Fulfill(quantity, shipmentId)
+        +CountAvailable() int
+    }
+    
+    class StockMovement {
+        <<Entity - Immutable>>
+        -Guid id
+        -Guid stockItemId
+        -int quantity
+        -int balanceBefore
+        -StockMovementType type
+        -decimal unitCost
+        -string reason
+        -DateTimeOffset createdAt
+        +Create(stockItemId, quantity, type) StockMovement
+    }
+    
+    class StockLocation {
+        <<Aggregate Root>>
+        -Guid id
+        -string name
+        -string code
+        -StockLocationType type
+        -bool isActive
+        +Create(name, code, type) StockLocation
+        +Activate()
+        +Deactivate()
+    }
+    
+    class StockTransfer {
+        <<Aggregate Root>>
+        -Guid id
+        -Guid sourceLocationId
+        -Guid destinationLocationId
+        -Guid variantId
+        -int quantity
+        -StockTransferStatus status
+        +Create(source, destination, variant, qty) StockTransfer
+        +Approve()
+        +Complete()
+        +Cancel()
+    }
+    
+    StockItem "1" *-- "0..*" StockMovement : ledger
+    StockItem "0..*" --o "1" StockLocation : located at
+    StockItem "1" *-- "0..*" InventoryUnit : tracks
+    
+    %% ============================================
+    %% IDENTITY BOUNDED CONTEXT
+    %% ============================================
+    
+    class User {
+        <<Aggregate Root>>
+        -string id
+        -string email
+        -string userName
+        -string passwordHash
+        -bool isActive
+        -bool emailConfirmed
+        -DateTimeOffset? lastSignInAt
+        +Create(email, userName) User
+        +UpdateProfile(firstName, lastName)
+        +AssignRole(roleId)
+        +UnassignRole(roleId)
+        +RecordSignIn(ipAddress)
+        +LockAccount()
+        +UnlockAccount()
+    }
+    
+    class UserAddress {
+        <<Entity>>
+        -Guid id
+        -string userId
+        -string street
+        -string city
+        -string state
+        -string zipCode
+        -string country
+        -bool isDefault
+        +Create(userId, street, city) UserAddress
+        +MarkAsDefault()
+        +Update(street, city, state)
+    }
+    
+    class UserRole {
+        <<Value Object - Join>>
+        -string userId
+        -string roleId
+        +Create(userId, roleId)
+    }
+    
+    class RefreshToken {
+        <<Entity>>
+        -Guid id
+        -string userId
+        -string token
+        -DateTimeOffset expiresAt
+        -DateTimeOffset createdAt
+        -bool isRevoked
+        +Create(userId, token, expiresAt) RefreshToken
+        +Revoke()
+        +IsActive() bool
+    }
+    
+    class CustomerProfile {
+        <<Entity>>
+        -string userId
+        -decimal loyaltyPoints
+        -int totalOrders
+        -DateTimeOffset? lastOrderAt
+        +Create(userId) CustomerProfile
+        +AddLoyaltyPoints(points)
+        +RecordOrder()
+    }
+    
+    class StaffProfile {
+        <<Entity>>
+        -string userId
+        -string employeeId
+        -string department
+        -DateTimeOffset hiredAt
+        +Create(userId, employeeId) StaffProfile
+        +UpdateDepartment(department)
+    }
+    
+    class Role {
+        <<Aggregate Root>>
+        -string id
+        -string name
+        -string normalizedName
+        +Create(name) Role
+        +UpdateName(name)
+    }
+    
+    User "1" *-- "0..*" UserAddress : has
+    User "1" *-- "0..*" UserRole : assigned
+    User "1" *-- "0..*" RefreshToken : has
+    User "1" *-- "0..1" CustomerProfile : extends
+    User "1" *-- "0..1" StaffProfile : extends
+    Role "1" *-- "0..*" UserRole : grants
+    
+    %% ============================================
+    %% CROSS-CONTEXT RELATIONSHIPS
+    %% ============================================
+    
+    LineItem "0..*" --> "1" Variant : references
+    InventoryUnit "0..*" --> "1" Variant : tracks
+    StockItem "0..*" --> "1" Variant : manages
+    Order "1" --> "0..1" UserAddress : ship to
+    Order "1" --> "0..1" UserAddress : bill to
+    
+    %% ============================================
+    %% STYLING
+    %% ============================================
+    classDef aggregate fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef entity fill:#f1f8e9,stroke:#33691e,stroke-width:2px
+    classDef valueObj fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef identity fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+

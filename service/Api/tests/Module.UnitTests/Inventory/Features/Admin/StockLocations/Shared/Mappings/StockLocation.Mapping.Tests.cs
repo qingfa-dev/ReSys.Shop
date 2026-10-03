@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Features.Admin.StockLocations.Shared.Mappings;
-using Module.Inventory.Features.Admin.StockLocations.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Mappings;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockLocations.Shared.Mappings;
 

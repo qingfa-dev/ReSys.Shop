@@ -3,8 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Prices.Shared.Models;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.Prices.Set;
 
@@ -20,14 +19,14 @@ public sealed class SetPriceIntegrationTests(ApiFixture fixture) : CatalogIntegr
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
         product.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -37,19 +36,20 @@ public sealed class SetPriceIntegrationTests(ApiFixture fixture) : CatalogIntegr
 
         var request = new
         {
+            variantId = variant!.Id,
             amount = 19.99m,
             currency = "USD"
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}/prices", request);
+            "/api/admin/catalog/variant-prices", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
         result.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage getResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{variant.Id}/prices");
+            $"/api/admin/catalog/variant-prices?variantId={variant.Id}");
         var getResult = await getResponse.ReadAsPagedResultAsync<PriceResponse>();
         getResult.IsSuccess.Should().BeTrue();
         getResult.Items.Should().Contain(p => p.Amount == 19.99m && p.Currency == "USD");
@@ -72,12 +72,13 @@ public sealed class SetPriceIntegrationTests(ApiFixture fixture) : CatalogIntegr
 
         var request = new
         {
+            variantId = nonexistentVariantId,
             amount = 9.99m,
             currency = "USD"
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{nonexistentVariantId}/prices", request);
+            "/api/admin/catalog/variant-prices", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

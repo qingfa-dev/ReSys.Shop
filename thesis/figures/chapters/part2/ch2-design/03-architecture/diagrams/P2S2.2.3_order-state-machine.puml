@@ -1,0 +1,68 @@
+@startuml order-state-machine
+
+skinparam backgroundColor White
+skinparam DefaultFontSize 13
+skinparam DefaultFontName Arial
+skinparam shadowing false
+
+skinparam activity {
+  BackgroundColor #F7F9FA
+  BorderColor #263238
+  BorderThickness 2
+  FontSize 13
+}
+
+skinparam diamond {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  FontSize 12
+}
+
+start
+
+:Customer creates cart;
+
+partition "Checkout Pipeline" {
+  :1. Enter **Address**;
+  
+  if (Cancel?) then (yes)
+    :Stop;
+    detach
+  else (no)
+    :2. Select **Delivery** method;
+    
+    if (Cancel?) then (yes)
+      :Stop;
+      detach
+    else (no)
+      :3. Select **Payment** method;
+      
+      if (Cancel?) then (yes)
+        :Release inventory;
+        stop
+      else (no)
+        :4. Review and **Confirm**;
+        
+        if (Cancel?) then (yes)
+          :Void payment;
+          stop
+        else (no)
+          :5. **Complete** order;
+          
+          :Reserve inventory;
+          :Lock order data;
+          :Send confirmation;
+          stop
+        endif
+      endif
+    endif
+  endif
+}
+
+note right
+  Forward-only stages
+  Cancel at any step
+  prior to completion
+end note
+
+@enduml

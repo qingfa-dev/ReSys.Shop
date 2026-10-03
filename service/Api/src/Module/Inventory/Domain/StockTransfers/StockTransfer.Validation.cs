@@ -12,4 +12,12 @@ public static class StockTransferValidation
 
         return Result.Ok();
     }
+
+    public static IRuleBuilderOptions<T, TransferState> ApplyStateRules<T>(this IRuleBuilder<T, TransferState> ruleBuilder)
+    {
+        return ruleBuilder
+            .IsInEnum()
+            .WithErrorCode(StockTransferResult.Failure.InvalidState.Code)
+            .WithMessage(StockTransferResult.Failure.InvalidState.Message);
+    }
 }

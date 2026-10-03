@@ -30,7 +30,7 @@ internal sealed partial class S3StorageProvider(
         // Compute: build S3 URI from provider config (ServiceUrl or virtual-hosted style)
         var uri = BuildBucketUri(request.Key);
         return Task.FromResult(Result<UploadResult>.Ok(
-            new UploadResult(request.Key, Name, uri, 0, DateTimeOffset.UtcNow)));
+            new UploadResult { Key = request.Key, Provider = Name, Uri = uri, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
     }
 
     /// <summary>Downloads a file from S3 — stub; awaits AWSSDK.S3 integration.</summary>

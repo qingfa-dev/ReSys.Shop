@@ -7,7 +7,7 @@ using Shared.Security.Identity.Domain.Permissions;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-using static Module.Identity.Features.Admin.Roles.Permissions.Assign.AssignRolePermissions;
+using static Module.Identity.Features.Shared.Admin.Roles.Permissions.Assign.AssignRolePermissions;
 
 namespace Module.UnitTests.Identity.Features.Admin.Roles.Permissions.Assign;
 

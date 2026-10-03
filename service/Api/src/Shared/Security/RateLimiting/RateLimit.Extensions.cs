@@ -20,6 +20,7 @@ public static class RateLimitExtensions
     public const string RegisterPolicy = "register";
     public const string ForgotPasswordPolicy = "forgot-password";
     public const string PaymentPolicy = "payment";
+    public const string WebhookPolicy = "webhook";
     public const string DefaultPolicy = "default";
 
     public static WebApplicationBuilder AddRateLimiting(this WebApplicationBuilder builder)
@@ -37,10 +38,14 @@ public static class RateLimitExtensions
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            if (!setting.Enabled)
-                return;
-
-            ConfigurePolicies(options, setting);
+            if (setting.Enabled)
+            {
+                ConfigurePolicies(options, setting);
+            }
+            else
+            {
+                ConfigurePolicies(options, RateLimitSetting.Default);
+            }
 
             return;
         });
@@ -70,6 +75,7 @@ public static class RateLimitExtensions
         AddNamedPolicy(options, RegisterPolicy, setting.Policies, ipPartition: true);
         AddNamedPolicy(options, ForgotPasswordPolicy, setting.Policies, ipPartition: true);
         AddNamedPolicy(options, PaymentPolicy, setting.Policies, ipPartition: true, userPartition: true);
+        AddNamedPolicy(options, WebhookPolicy, setting.Policies, ipPartition: true);
     }
 
     private static void AddNamedPolicy(

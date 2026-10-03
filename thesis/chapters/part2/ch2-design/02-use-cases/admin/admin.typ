@@ -1,0 +1,6 @@
+#include "catalog.typ"
+#include "ordering.typ"
+#include "payment.typ"
+#include "inventory.typ"
+#include "identity.typ"
+#include "shipping.typ"

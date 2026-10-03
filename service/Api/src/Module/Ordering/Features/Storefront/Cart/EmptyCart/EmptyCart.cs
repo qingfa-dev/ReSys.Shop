@@ -1,18 +1,20 @@
 using Module.Ordering.Domain.Orders;
+using Module.Inventory.Services.StockReservations;
 
 namespace Module.Ordering.Features.Storefront.Cart.EmptyCart;
 
-/// <summary>Removes all line items and adjustments from the current user's draft cart, resetting it to empty.</summary>
+/// <summary>Removes all line items and adjustments from the current user's draft cart, releases its stock reservations, and resets it to empty.</summary>
 public static partial class EmptyCart
 {
     public sealed record Command : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IStockReservationService stockReservationService)
         : ICommandHandler<Command>
     {
-        /// <summary>Calls domain Empty logic to clear line items and adjustments, then recalculates and persists.</summary>
+        /// <summary>Calls domain Empty logic to clear line items and adjustments, releases reservations, then recalculates and persists.</summary>
         /// <param name="command">The (empty) command.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The result of the operation.</returns>
@@ -37,14 +39,23 @@ public static partial class EmptyCart
             if (cart is null)
                 return Result.Ok();
 
-            // Update: Clear all cart contents via domain logic.
+            // Update: Clear all cart contents via domain logic (removes line items and adjustments).
             var result = cart.Empty();
             if (result.IsFailure)
                 return result.Errors;
 
-            cart.RecalculateTotals();
+            var recalcResult = cart.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok();
+
+            // Release: Free all stock reservations held for this cart.
+            var releaseResult = await stockReservationService.ReleaseCartReservationsAsync(
+                cart.Id.ToString(), ct: cancellationToken);
+            if (releaseResult.IsFailure)
+                return releaseResult.Errors;
+
+            return Result.Ok(OrderResult.Success.Emptied(cart.Id));
         }
     }
 }

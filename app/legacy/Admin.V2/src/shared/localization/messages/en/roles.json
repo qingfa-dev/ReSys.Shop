@@ -1,0 +1,74 @@
+{
+  "titles": {
+    "list": "Roles",
+    "create": "Create Role",
+    "edit": "Edit Role",
+    "permissions": "Permissions"
+  },
+  "labels": {
+    "name": "Role Name",
+    "description": "Description",
+    "priority": "Priority",
+    "users": "Users",
+    "type": "Type"
+  },
+  "actions": {
+    "create": "Create Role",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "save_permissions": "Save Changes"
+  },
+  "messages": {
+    "create_success": "Role created successfully",
+    "update_success": "Role updated successfully",
+    "delete_success": "Role deleted successfully",
+    "permissions_updated": "Permissions updated successfully",
+    "load_error": "Failed to load role details"
+  },
+  "table": {
+    "name": "Role Name",
+    "priority": "Priority",
+    "users": "Users",
+    "type": "Type",
+    "actions": "Actions"
+  },
+  "picklist": {
+    "available": "Available",
+    "assigned": "Assigned"
+  },
+  "descriptions": {
+    "list": "Manage user roles"
+  },
+  "permissions": {
+    "titles": {
+      "list": "Permissions"
+    },
+    "descriptions": {
+      "list": "View all system permissions",
+      "detail": "Permission details"
+    },
+    "table": {
+      "module": "Module",
+      "key": "Permission Key",
+      "name": "Name",
+      "description": "Description"
+    }
+  },
+  "validation": {
+    "name": {
+      "required": "Role name is required",
+      "max_length": "Role name must not exceed {max} characters",
+      "format": "Role name may only contain lowercase letters and underscores"
+    },
+    "display_name": {
+      "max_length": "Display name must not exceed {max} characters"
+    },
+    "description": {
+      "max_length": "Description must not exceed {max} characters"
+    },
+    "priority": {
+      "whole": "Priority must be a whole number",
+      "min": "Priority must be non-negative"
+    }
+  }
+}

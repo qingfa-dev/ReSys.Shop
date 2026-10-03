@@ -1,0 +1,38 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0006: Track Order
+autonumber
+
+actor "Customer" as User <<Order Owner>>
+participant "Storefront" as Frontend <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+
+User -> Frontend: View Order History
+activate Frontend
+    Frontend -> API: GET /api/orders/my-orders
+    activate API
+        API -> DB: Select Orders by CustomerID
+        activate DB
+        DB --> API: Order List (Summary)
+        deactivate DB
+        API --> Frontend: Orders JSON
+    deactivate API
+    Frontend --> User: Show List
+deactivate Frontend
+
+User -> Frontend: Click Order #1234
+activate Frontend
+    Frontend -> API: GET /api/orders/1234
+    activate API
+        API -> DB: Get Order + Lines + ShipStatus
+        activate DB
+        DB --> API: Full Order Details
+        deactivate DB
+        API --> Frontend: Order DTO
+    deactivate API
+    Frontend --> User: Show Details & Tracking
+deactivate Frontend
+
+@enduml

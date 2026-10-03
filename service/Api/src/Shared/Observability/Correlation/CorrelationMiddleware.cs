@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Shared.Observability.Correlation;
 
+/// <summary>Middleware that ensures every request has a correlation ID for cross-service tracing.</summary>
 internal sealed class CorrelationMiddleware
 {
     private readonly RequestDelegate _next;

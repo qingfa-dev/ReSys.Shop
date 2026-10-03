@@ -1,19 +1,22 @@
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
 
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Delete;
+namespace Module.Catalog.Features.Admin.Taxons.Rules.Delete;
 
+/// <summary>
+/// Defines the use case for deleting a taxon rule.
+/// </summary>
 public static partial class DeleteTaxonRule
 {
-    public sealed record Command(Guid TaxonomyId, Guid TaxonId, Guid RuleId) : ICommand<Response>;
+    public sealed record Command(Guid TaxonId, Guid RuleId) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         IAutoClassificationService autoClassificationService,
         ILogger<CommandHandler> logger)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>
         /// Deletes a taxon rule, persists the removal, and triggers auto-classification regeneration if the taxon is automatic.
@@ -23,14 +26,13 @@ public static partial class DeleteTaxonRule
         /// <returns>A success result indicating the rule was deleted.</returns>
         /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         // Contract: pre=command!=null, post=result!=null
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var taxonId = command.TaxonId;
             var ruleId = command.RuleId;
 
             var taxon = await dbContext.Set<Taxon>()
-                .FirstOrDefaultAsync(x => x.Id == taxonId && x.TaxonomyId == taxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == taxonId, cancellationToken);
             if (taxon is null)
                 return TaxonResult.Errors.NotFound;
 
@@ -60,7 +62,7 @@ public static partial class DeleteTaxonRule
                 }
             }
 
-            return new Response(ruleId);
+            return Result.Ok(TaxonRuleResult.Success.Deleted(ruleId));
         }
     }
 }

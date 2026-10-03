@@ -1,0 +1,88 @@
+@startuml usecase-admin-payment-processing
+
+left to right direction
+
+skinparam shadowing false
+skinparam dpi 180
+
+<style>
+
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
+}
+
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+
+actor "Administrator" as Admin
+actor "Payment Gateway" as Gateway <<system>>
+
+rectangle {
+
+  ' UC-ADM-PAY-01
+  usecase "Capture Payment" as UC_CAPTURE
+
+  ' UC-ADM-PAY-02
+  usecase "Refund Payment" as UC_REFUND
+
+  ' UC-ADM-PAY-03
+  usecase "Void Payment" as UC_VOID
+
+  ' UC-ADM-PAY-04
+  usecase "View Payments" as UC_VIEW
+
+}
+
+Admin --> UC_CAPTURE
+Admin --> UC_REFUND
+Admin --> UC_VOID
+Admin --> UC_VIEW
+
+UC_CAPTURE --> Gateway : <<communicates>>
+UC_REFUND --> Gateway : <<communicates>>
+UC_VOID --> Gateway : <<communicates>>
+
+@enduml

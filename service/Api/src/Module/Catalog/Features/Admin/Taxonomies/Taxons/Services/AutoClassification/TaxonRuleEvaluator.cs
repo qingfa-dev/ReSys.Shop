@@ -1,16 +1,20 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Domain.Taxons.Rules;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Features.Admin.Taxons.Services.AutoClassification.Abstractions;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
+namespace Module.Catalog.Features.Admin.Taxons.Services.AutoClassification;
 
 /// <summary>
 /// Pure, stateless evaluation of a product against a taxon's rule set.
 /// </summary>
 public sealed class TaxonRuleEvaluator : ITaxonRuleEvaluator
 {
-    /// <inheritdoc />
+    /// <summary>Evaluates whether a product matches a taxon's rule set based on the configured match policy (All/Any).</summary>
+    /// <param name="product">The product to evaluate.</param>
+    /// <param name="taxon">The taxon with automatic classification rules and match policy.</param>
+    /// <returns>True if the product matches the taxon's rule set; otherwise false.</returns>
     public bool Evaluate(Product product, Taxon taxon)
     {
         // Validate: Basic requirements for evaluation
@@ -47,7 +51,7 @@ public sealed class TaxonRuleEvaluator : ITaxonRuleEvaluator
         };
     }
 
-    private static Domain.Products.Variants.Variant? GetMasterVariant(Product product)
+    private static Variant? GetMasterVariant(Product product)
         => product.Variants.FirstOrDefault(v => v.IsMaster);
 
     private static bool CompareString(string? actual, TaxonRuleMatchPolicy policy, string expected)

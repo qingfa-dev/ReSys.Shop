@@ -1,4 +1,6 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Shared.Extensions;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -9,7 +11,6 @@ namespace Module.Ordering.Features.Admin.Orders.Resume;
 /// <summary>Resumes a previously canceled order.</summary>
 public static partial class ResumeOrder
 {
-    public class Response { public Guid Id { get; init; } public OrderStatus Status { get; init; } }
     public sealed record Command(Guid Id) : ICommand<Response>;
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -24,9 +25,11 @@ public static partial class ResumeOrder
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
+            // Check: Find the order to resume.
+            var order = await dbContext.Set<Order>().IncludeOrderDetail().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null) return (Result<Response>)OrderResult.Errors.NotFound(command.Id);
 
+            // Call: Invoke domain resume logic — transitions from Canceled to previous status.
             var result = order.Resume();
             if (result.IsFailure) return (Result<Response>)result.Errors;
 
@@ -35,14 +38,16 @@ public static partial class ResumeOrder
             // Notify: Send order confirmation to the customer's email.
             await SendOrderResumedNotificationAsync(order, cancellationToken);
 
-            return new Response { Id = order.Id, Status = order.Status };
+            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Resumed(order.Id));
         }
 
         private async Task SendOrderResumedNotificationAsync(Order order, CancellationToken ct)
         {
+            // Skip: No email on order — nothing to notify.
             if (string.IsNullOrWhiteSpace(order.Email))
                 return;
 
+            // Notify: Send order-resumed notification with order number and customer name.
             var message = NotificationMessage.Create(
                 NotificationUseCase.OrderConfirmed,
                 NotificationRecipient.Create(order.Email, order.Number),
@@ -51,11 +56,11 @@ public static partial class ResumeOrder
                     (NotificationParameterType.OrderNumber, order.Number),
                     (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
 
+            // Suppress: Notification failure must not block order resume — best-effort only.
             var result = await notificationService.SendAsync(message, ct);
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to send order resumed notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
+                OrderLoggers.ResumeNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

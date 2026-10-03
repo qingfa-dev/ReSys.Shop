@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
-using Module.Ordering.Domain.Orders.Contracts;
 using Module.Ordering.Persistence.Seeders;
+using Module.Ordering.Services;
 
 namespace Module.Ordering;
 
@@ -16,11 +16,14 @@ public static class OrderingExtension
     // @CAT-10 Boundary: Module DI registration entry point
     public static WebApplicationBuilder AddOrderingModule(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IOrderEventPublisher, Infrastructure.Events.NullOrderEventPublisher>();
+        // Register: Cart expiry background components (Hangfire scheduler; BackgroundService removed)
         builder.Services.AddScoped<Backgrounds.CartExpiryJob>();
-        builder.Services.AddHostedService<Services.CartExpiryService>();
+        builder.Services.AddHostedService<Backgrounds.CartExpiryJobScheduler>();
 
-        // Register: Seeders
+        // Register: Order placement pipeline service
+        builder.Services.AddScoped<CheckoutPlacementService>();
+
+        // Register: Seeders for development database initialization
         builder.AddSeeder<OrderSeeder>();
         builder.AddSeeder<PaymentSeeder>();
 

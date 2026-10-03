@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Admin.Roles.Get.PagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.PagedOrAll;
 
 public static partial class GetRolesPagedOrAll
 {

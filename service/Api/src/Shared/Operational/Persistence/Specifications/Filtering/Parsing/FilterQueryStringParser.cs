@@ -57,6 +57,6 @@ internal static class FilterQueryStringParser
         if (!FilterOperatorMap.TryParse(opToken, out FilterOperator op))
             return FilterModelResult.Failure.UnknownOperator(opToken);
 
-        return new FilterCondition(field, op, value);
+        return new FilterCondition { Field = field, Operator = op, Value = value };
     }
 }

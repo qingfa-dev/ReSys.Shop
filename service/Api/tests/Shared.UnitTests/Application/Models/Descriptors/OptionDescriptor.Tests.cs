@@ -96,7 +96,7 @@ public sealed class OptionDescriptorTests
     [Fact(DisplayName = "OptionDescriptor generic: works with record type as TValue")]
     public void OptionDescriptor_WithRecordType()
     {
-        var value = new SampleRecord("key1", 100);
+        var value = new SampleRecord { Key = "key1", Count = 100 };
 
         OptionDescriptor<SampleRecord> option = new()
         {
@@ -115,5 +115,9 @@ public sealed class OptionDescriptorTests
         Gamma
     }
 
-    private sealed record SampleRecord(string Key, int Count);
+    private sealed record SampleRecord
+    {
+        public string Key { get; init; } = default!;
+        public int Count { get; init; }
+    }
 }

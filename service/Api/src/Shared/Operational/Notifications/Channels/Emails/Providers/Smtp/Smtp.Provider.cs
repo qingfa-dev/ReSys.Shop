@@ -117,7 +117,9 @@ public sealed partial class SmtpProvider(
         {
             // Catch: Handle and log SMTP delivery failure
             NotificationProvider.Loggers.LogSendException(_logger, Name, ex);
-            return NotificationProviderResult.Failure.SendFailed(Name, ex.Message);
+            return Result.Unexpected(
+                exception: ex,
+                errors: [NotificationProviderResult.Failure.SendFailed(Name, ex.Message)]);
         }
     }
 }

@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Users.Shared.Mappings;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.Update;
+namespace Module.Identity.Features.Shared.Admin.Users.Update;
 
 /// <summary>
 /// Defines the use case for updating an existing user and their associated profile.
@@ -41,29 +41,36 @@ public static partial class UpdateUser
         {
             var request = command.Request;
 
+            // Load: Retrieve the target user to verify they exist
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Check: Reject duplicate email if another user already holds it
             var existingByEmail = await userManager.FindByEmailAsync(request.Email);
             if (existingByEmail is not null && existingByEmail.Id != user.Id)
                 return UserResult.Failure.EmailDuplicate;
 
+            // Check: Reject duplicate username if another user already holds it
             var existingByUserName = await userManager.FindByNameAsync(request.UserName);
             if (existingByUserName is not null && existingByUserName.Id != user.Id)
                 return UserResult.Failure.UsernameDuplicate;
 
+            // Transform: Apply request data to the existing user entity
             var updateResult = request.MapToDomain(user);
             if (updateResult.IsFailure)
                 return updateResult.Errors;
 
+            // Call: Persist the updated user via Identity user manager
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
+            // Log: Record user update with identifying details for audit trail
             UserLoggers.Management.Updated(logger, UserName: user.UserName!, Email: user.Email!, UserId: user.Id,
                 ActionBy: currentUser.UserName);
 
+            // Transform: Return mapped response with updated user details
             return user.MapToDetail<Response>();
         }
     }

@@ -1,8 +1,8 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Restore;
-using Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
+using Module.Catalog.Domain.Taxons;
+using Module.Catalog.Features.Admin.Taxons.Create;
+using Module.Catalog.Features.Admin.Taxons.Restore;
+using Module.Catalog.Features.Admin.Taxons.Update;
 using Module.Catalog.Features.Admin.Taxonomies.Update;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Update;
@@ -45,7 +45,7 @@ public class UpdateTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should update taxonomy successfully")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var entity = TaxonomyExtensions.Create("Old Name", "Old Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Old Name", "Old Presentation", 0).Value;
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -81,8 +81,8 @@ public class UpdateTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when new name is duplicate")]
     public async Task Handle_ShouldReturnFailure_WhenNameIsDuplicate()
     {
-        var entity = TaxonomyExtensions.Create("Target", "Presentation", 0).Value;
-        var other = TaxonomyExtensions.Create("Other", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Target", "Presentation", 0).Value;
+        var other = TaxonomyMethod.Create("Other", "Presentation", 0).Value;
         _dbContext.Set<Taxonomy>().AddRange(entity, other);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -97,7 +97,7 @@ public class UpdateTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should create root taxon via sender when root not found")]
     public async Task Handle_ShouldCreateRootTaxon_WhenRootNotFound()
     {
-        var entity = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -133,7 +133,7 @@ public class UpdateTaxonomyTests : IDisposable
     public async Task Handle_ShouldRestoreThenUpdateRoot_WhenRootIsDeleted()
     {
         var ct = TestContext.Current.CancellationToken;
-        var entity = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(ct);
 
@@ -159,12 +159,11 @@ public class UpdateTaxonomyTests : IDisposable
             It.IsAny<CancellationToken>()), Times.Never);
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RestoreTaxon.Command>(c => c.TaxonomyId == entity.Id && c.Id == root.Id),
+            It.Is<RestoreTaxon.Command>(c => c.Id == root.Id),
             It.IsAny<CancellationToken>()), Times.Once);
 
         _senderMock.Verify(x => x.Send(
             It.Is<UpdateTaxon.Command>(c =>
-                c.TaxonomyId == entity.Id &&
                 c.Request.Name == "updated" &&
                 c.Request.Presentation == "Updated Display" &&
                 c.Request.Slug == "updated"),
@@ -175,7 +174,7 @@ public class UpdateTaxonomyTests : IDisposable
     public async Task Handle_ShouldUpdateRootTaxon_WhenRootIsActive()
     {
         var ct = TestContext.Current.CancellationToken;
-        var entity = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         root.Lft = 1; root.Rgt = 2; root.Depth = 0;
 
@@ -205,7 +204,6 @@ public class UpdateTaxonomyTests : IDisposable
 
         _senderMock.Verify(x => x.Send(
             It.Is<UpdateTaxon.Command>(c =>
-                c.TaxonomyId == entity.Id &&
                 c.Request.Name == "updated" &&
                 c.Request.Presentation == "Updated" &&
                 c.Request.Slug == "updated"),

@@ -501,19 +501,4 @@ testing:
       notes: >
         Pure unit tests — no I/O, no DI container, no database required.
 
-file_structure: |
-  Observability/
-  ├── Observability.Extension.cs            # Top-level AddObservability / UseObservability
-  ├── ObservabilityConstant.cs             # Default values, constraints, and patterns
-  ├── ObservabilitySetting.cs              # Strongly-typed configuration POCO
-  ├── ObservabilitySetting.Result.cs       # Typed Error factories for validation failures
-  ├── ObservabilitySetting.Validator.cs    # FluentValidation rules for settings
-  ├── Correlation/
-  │   ├── Correlation.Extension.cs         # AddObservabilityCorrelation / UseObservabilityCorrelation
-  │   ├── CorrelationContext.cs            # Scoped correlation ID holder
-  │   ├── CorrelationMiddleware.cs         # Request pipeline middleware
-  │   └── ICorrelationContext.cs           # Public interface contract
-  ├── HealthChecks/
-  │   └── HealthChecks.Extension.cs        # Health check registration and endpoint mapping
-  └── Logging/
-      └── Logging.Extension.cs             # HTTP logging configuration and sensitive header redaction
+tree_file: docs/codebase/shared.tree.txt

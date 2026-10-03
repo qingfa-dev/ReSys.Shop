@@ -10,7 +10,7 @@ public sealed class ExternalProvidersIntegrationTests(ApiFixture fixture) : Iden
     public async Task GetExternalProviders_Returns200()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/identity/auth/login/external/providers");
+            "/api/storefront/identity/auth/login/external/providers");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

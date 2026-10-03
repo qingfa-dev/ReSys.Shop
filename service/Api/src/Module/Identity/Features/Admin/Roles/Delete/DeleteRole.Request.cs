@@ -1,10 +1,10 @@
-using Module.Identity.Features.Admin.Roles.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Roles.Delete;
+namespace Module.Identity.Features.Shared.Admin.Roles.Delete;
 
 public static partial class DeleteRole
 {
-    public class Request : RoleRequest
+    public record Request : RoleRequest
     {
         public required Guid Id { get; init; }
     }

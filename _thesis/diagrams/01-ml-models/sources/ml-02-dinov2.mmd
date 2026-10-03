@@ -1,0 +1,33 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph TB
+    A[Input Image] --> B[Split into Patches 16×16]
+    B --> C[Linear Projection]
+    C --> D[Patch Embeddings + Position]
+    
+    D --> E[Add CLS Token]
+    E --> F[Transformer Encoder 12-24 layers]
+    
+    F --> G[Multi-Head Self-Attention]
+    G --> H[Feed-Forward Network]
+    H --> I{More Layers?}
+    
+    I -->|Yes| G
+    I -->|No| J[Extract CLS Token]
+    J --> K[Feature Vector 768-1024 dim]
+    
+    subgraph SSL[Self-Supervised Learning]
+        L[Same Image] --> M[Global View]
+        L --> N[Local View]
+        M --> O[Student Network]
+        N --> O
+        O --> P[Predict Relationship]
+        P --> Q[Teacher Network EMA]
+        Q -.Update.-> O
+    end
+    
+    R[No Human Labels] -.-> P
+    S[Structural Fidelity] -.-> K
+    T[Silhouette & geometry] -.-> S
+    
+
+    %% Styles Removed for Academic Theme

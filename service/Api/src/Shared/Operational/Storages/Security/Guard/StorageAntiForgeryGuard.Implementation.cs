@@ -56,7 +56,7 @@ internal sealed partial class StorageAntiForgeryGuard(
         string cacheKey = GetCacheKey(identityKey);
 
         // Cache: read current failure count or start at 0
-        int failures = await cacheService.GetOrCreateAsync<int>(
+        int failures = await cacheService.GetOrCreateAsync(
             cacheKey,
             static _ => ValueTask.FromResult(0),
             CreateEntryOptions(opts.BlockDuration),
@@ -94,7 +94,7 @@ internal sealed partial class StorageAntiForgeryGuard(
     // Contract: pre=identityKey!=null, post=return==true if blocked, throws=never
     public async Task<bool> IsBlockedAsync(string identityKey, CancellationToken ct = default)
     {
-        int failures = await cacheService.GetOrCreateAsync<int>(
+        int failures = await cacheService.GetOrCreateAsync(
             GetCacheKey(identityKey),
             static _ => ValueTask.FromResult(0),
             cancellationToken: ct);

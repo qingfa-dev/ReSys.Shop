@@ -24,7 +24,7 @@ public sealed class CountrySeeder(IApplicationDbContext context) : AbstractDataS
 
         Context.Set<Country>().AddRange(entities: [us, vietnam]);
 
-        await Context.SaveChangesAsync(cancellationToken: cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }

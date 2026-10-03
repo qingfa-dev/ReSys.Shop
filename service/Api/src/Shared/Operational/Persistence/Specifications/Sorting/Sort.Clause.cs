@@ -3,28 +3,30 @@ namespace Shared.Operational.Persistence.Specifications.Sorting;
 /// <summary>
 /// Represents a single sort clause: a field name, a direction, and an optional null-placement rule.
 /// </summary>
-/// <param name="Field">
-/// The property name to sort by. Supports dot-notation for navigation properties
-/// (e.g. <c>"Order.CreatedAt"</c>). Accepts snake_case, camelCase, or PascalCase —
-/// the expression builder resolves casing at runtime.
-/// </param>
-/// <param name="Direction">
-/// The sort direction. Defaults to <see cref="SortDirection.Ascending"/>.
-/// </param>
-/// <param name="Nulls">
-/// Optional null-placement rule. <see langword="null"/> means the engine default applies.
-/// </param>
 /// <remarks>
 /// <c>SortClause</c> is the leaf unit of a <see cref="SortModel"/>. The ordering of clauses
 /// in <see cref="SortModel.Clauses"/> determines sort priority — index 0 is the primary sort,
 /// index 1 is the tie-breaker, and so on.
 /// </remarks>
-public sealed partial record SortClause(
-    string Field,
-    SortDirection Direction = SortDirection.Ascending,
-    SortNulls? Nulls = null
-)
+public sealed partial record SortClause
 {
+    /// <summary>
+    /// The property name to sort by. Supports dot-notation for navigation properties
+    /// (e.g. <c>"Order.CreatedAt"</c>). Accepts snake_case, camelCase, or PascalCase —
+    /// the expression builder resolves casing at runtime.
+    /// </summary>
+    public string Field { get; init; } = default!;
+
+    /// <summary>
+    /// The sort direction. Defaults to <see cref="SortDirection.Ascending"/>.
+    /// </summary>
+    public SortDirection Direction { get; init; } = SortDirection.Ascending;
+
+    /// <summary>
+    /// Optional null-placement rule. <see langword="null"/> means the engine default applies.
+    /// </summary>
+    public SortNulls? Nulls { get; init; } = null;
+
     #region Constants
 
     public static class Constant

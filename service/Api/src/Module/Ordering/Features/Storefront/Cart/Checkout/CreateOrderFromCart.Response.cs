@@ -1,8 +1,8 @@
-using Module.Ordering.Features.Admin.Orders.Shared.Models;
+using Module.Ordering.Features.Admin.Shared.Models;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
 
 public static partial class CreateOrderFromCart
 {
-    public class Response : OrderDetailResponse { }
+    public sealed record Response : OrderDetailResponse;
 }

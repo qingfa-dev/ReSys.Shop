@@ -5,4 +5,9 @@ public interface IMicrosoftTokenValidator
     Task<MicrosoftUserInfo> ValidateAsync(string accessToken, CancellationToken ct = default);
 }
 
-public sealed record MicrosoftUserInfo(string Id, string Mail, string? DisplayName);
+public sealed record MicrosoftUserInfo
+{
+    public string Id { get; init; } = default!;
+    public string Mail { get; init; } = default!;
+    public string? DisplayName { get; init; }
+}

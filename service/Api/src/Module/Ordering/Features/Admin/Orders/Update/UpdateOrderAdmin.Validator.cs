@@ -4,10 +4,12 @@ namespace Module.Ordering.Features.Admin.Orders.Update;
 
 public static partial class UpdateOrderAdmin
 {
+    /// <summary>Validates the UpdateOrderAdmin command — order ID required; email validated when provided.</summary>
     public sealed class Validator : AbstractValidator<Command>
     {
         public Validator()
         {
+            // Validate: Order ID must not be empty.
             RuleFor(x => x.Id)
                 .NotEmpty()
                 .WithErrorCode(OrderResult.Errors.IdRequired.Code)
@@ -15,9 +17,13 @@ public static partial class UpdateOrderAdmin
 
             When(x => x.Request.Email is not null, () =>
             {
-                RuleFor(x => x.Request.Email).EmailAddress()
-                    .WithErrorCode("Order.Email.Invalid")
-                    .WithMessage("Email address is not valid.");
+                RuleFor(x => x.Request.Email).ApplyEmailRules();
+            });
+
+            // Validate: Special instructions must not exceed the maximum length.
+            When(x => x.Request.SpecialInstructions is not null, () =>
+            {
+                RuleFor(x => x.Request.SpecialInstructions).ApplySpecialInstructionsRules();
             });
         }
     }

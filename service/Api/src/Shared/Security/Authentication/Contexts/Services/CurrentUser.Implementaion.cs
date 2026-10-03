@@ -34,7 +34,10 @@ public class CurrentUser(
     public string? IpAddress => HttpContext?.Connection.RemoteIpAddress?.ToString();
 
     /// <inheritdoc/>
-    public string? SessionId => HttpContext?.Request.Cookies[guestSessionSetting.Value.CookieName] ?? HttpContext?.Request.Headers["X-Session-Id"].FirstOrDefault();
+    public string? SessionId =>
+        HttpContext?.Request.Cookies[guestSessionSetting.Value.CookieName]
+        ?? HttpContext?.Items[guestSessionSetting.Value.CookieName] as string
+        ?? HttpContext?.Request.Headers["X-Session-Id"].FirstOrDefault();
 
     /// <inheritdoc/>
     public string? Device => HttpContext?.Request.Headers.UserAgent.ToString();

@@ -1,0 +1,26 @@
+.layout-main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: space-between;
+    padding: 6rem 2rem 0 2rem;
+    transition: margin-left var(--layout-section-transition-duration);
+}
+
+.layout-main {
+    flex: 1 1 auto;
+    padding-bottom: 2rem;
+}
+
+.layout-main-enter-active,
+.layout-main-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.layout-main-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.layout-main-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}

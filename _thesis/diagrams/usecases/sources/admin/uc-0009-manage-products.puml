@@ -1,0 +1,20 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0009: Manage Products
+
+actor "Administrator" as Admin
+
+rectangle "Admin Portal" {
+    usecase "Create Product" as Create
+    usecase "Edit Details" as Edit
+    usecase "Manage Varients" as Variants
+    usecase "Soft Delete" as Delete
+}
+
+Admin --> Create
+Admin --> Edit
+Admin --> Delete
+
+Create ..> Variants : <<include>>
+
+@enduml

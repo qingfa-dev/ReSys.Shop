@@ -16,20 +16,19 @@ public static partial class DeleteOrder
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            // Check: Order exists and is not placed.
+            // Check: Find the order to delete.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            if (order.Status is OrderStatus.Placed)
-                return OrderResult.Errors.InvalidStatusForDelete;
-
-            order.IsDeleted = true;
-            order.DeletedAtUtc = DateTimeOffset.UtcNow;
+            // Update: Soft-delete — mark as deleted with timestamp instead of hard removal.
+            var deleteResult = order.Delete("System");
+            if (deleteResult.IsFailure)
+                return deleteResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.Deleted(command.Id));
         }
     }
 }

@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Features.Admin.Products.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Products.Get.Paged;
 
@@ -53,11 +53,16 @@ public static partial class GetProductsPagedList
 
             // Sort: Default newest-first ordering then apply pagination
             // Parse: Validate and parse querying parameters
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: ProductConstant.Query.AllowedFilterFields,
+                allowedSearchFields: ProductConstant.Query.AllowedSearchFields,
+                allowedSortFields: ProductConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 
             var pagedResult = await query
+                .Include(x => x.Classifications)
+                .Include(x => x.Classifications).ThenInclude(c => c.Taxon)
                 .OrderByDescending(x => x.CreatedAtUtc)
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToListItem<Response>(), cancellationToken);

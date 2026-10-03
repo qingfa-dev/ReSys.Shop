@@ -126,7 +126,7 @@ The API uses the standard .NET configuration pipeline (`appsettings.json` + envi
 │   └── Embedding/         # Python FastAPI ML sidecar (Fashion-CLIP)
 ├── app/
 │   ├── Admin/             # Vue 3 admin SPA (PrimeVue + Tailwind CSS)
-│   └── Store/             # Vue 3 storefront SPA (Nuxt UI + Tailwind CSS)
+│   └── Store/             # Vue 3 storefront SPA (PrimeVue 5 + Tailwind CSS)
 ├── infra/Aspire/          # .NET Aspire orchestration (AppHost + ServiceDefaults)
 ├── ApiTests/              # HTTP test files (.http)
 ├── docs/codebase/         # Architecture, stack, conventions, concerns
@@ -148,34 +148,10 @@ The API uses the standard .NET configuration pipeline (`appsettings.json` + envi
 | **Payments** | Stripe.net (planned), BogusGateway (dev) |
 | **Observability** | OpenTelemetry (traces, metrics, logs), health checks |
 | **Admin SPA** | Vue 3, PrimeVue 4, Pinia, Tailwind CSS 4, Vite 8 |
-| **Store SPA** | Vue 3, Nuxt UI 4, Pinia, Tailwind CSS 4, Vite 8 |
+| **Store SPA** | Vue 3, PrimeVue 5 (Aura), Pinia, Tailwind CSS 4, Vite 8 |
 | **ML sidecar** | Python 3.14, FastAPI, PyTorch, open-clip-torch |
 | **Orchestration** | .NET Aspire 13.4 |
 | **Testing** | xUnit v3, Testcontainers, Respawn, Vitest, pytest |
-
-## Documentation
-
-In-depth documentation lives in [`docs/codebase/`](docs/codebase/):
-
-| Document | Covers |
-|----------|--------|
-| [STACK.md](docs/codebase/STACK.md) | Framework versions, all dependencies, dev toolchain, commands |
-| [ARCHITECTURE.md](docs/codebase/ARCHITECTURE.md) | Layers, CQRS pipeline, design patterns, architectural risks |
-| [STRUCTURE.md](docs/codebase/STRUCTURE.md) | Directory layout, entry points, module boundaries |
-| [CONVENTIONS.md](docs/codebase/CONVENTIONS.md) | Naming, formatting, error handling, import rules |
-| [INTEGRATIONS.md](docs/codebase/INTEGRATIONS.md) | External services, data stores, secrets, reliability |
-| [TESTING.md](docs/codebase/TESTING.md) | Test frameworks, layout, mocking strategy, coverage |
-| [CONCERNS.md](docs/codebase/CONCERNS.md) | Known issues, tech debt, security risks, WIP items |
-
-## Work in Progress
-
-> [!NOTE]
-> The following components are under active development and not yet feature-complete:
-
-- **Admin SPA** — Layout infrastructure (topbar, sidebar, breadcrumb) and auth routes are in place; feature views are being implemented
-- **Embedding service** — Module structure is defined; runtime imports are resolved; end-to-end verification pending
-- **Dockerfiles** — No container images yet; deployment uses CLI commands
-- **CI/CD** — No pipeline configured; builds and tests run manually
 
 ---
 

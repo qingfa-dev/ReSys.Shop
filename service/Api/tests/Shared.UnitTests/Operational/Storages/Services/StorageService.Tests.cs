@@ -67,10 +67,12 @@ public sealed class StorageServiceTests
 
     private static UploadRequest CreateValidRequest()
     {
-        return new UploadRequest(
-            "test/file.txt",
-            new MemoryStream("hello"u8.ToArray()),
-            "text/plain");
+        return new UploadRequest
+        {
+            Key = "test/file.txt",
+            Content = new MemoryStream("hello"u8.ToArray()),
+            ContentType = "text/plain"
+        };
     }
 
     [Fact(DisplayName = "UploadAsync with unknown provider should return ProviderNotFound")]
@@ -90,8 +92,14 @@ public sealed class StorageServiceTests
     public async Task UploadAsync_WithDefaultProviderAndNullProviderName_ShouldSucceed()
     {
         StorageService sut = CreateSut();
-        UploadResult expectedResult = new UploadResult(
-            "test/file.txt", "default", null, 5, DateTimeOffset.UtcNow);
+        UploadResult expectedResult = new()
+        {
+            Key = "test/file.txt",
+            Provider = "default",
+            Uri = null,
+            SizeBytes = 5,
+            StoredAtUtc = DateTimeOffset.UtcNow
+        };
 
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<UploadResult>.Ok(expectedResult));
@@ -108,7 +116,7 @@ public sealed class StorageServiceTests
     public async Task UploadAsync_WithInvalidCsrfToken_ShouldReturnAccessDenied()
     {
         StorageService sut = CreateSut();
-        DefaultHttpContext httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
 
         _httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
         _antiforgeryGuardMock
@@ -125,7 +133,7 @@ public sealed class StorageServiceTests
     public async Task UploadAsync_WithValidCsrfToken_ShouldProceedToSecurityCheck()
     {
         StorageService sut = CreateSut();
-        DefaultHttpContext httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
 
         _httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
         _antiforgeryGuardMock
@@ -134,7 +142,7 @@ public sealed class StorageServiceTests
         _enforcerMock.Setup(x => x.EnforceAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         Result<UploadResult> result = await sut.UploadAsync(CreateValidRequest());
 
@@ -150,7 +158,7 @@ public sealed class StorageServiceTests
         _enforcerMock.Setup(x => x.EnforceAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         Result<UploadResult> result = await sut.UploadAsync(CreateValidRequest());
 
@@ -195,8 +203,12 @@ public sealed class StorageServiceTests
         var malwareScannerMock = new Mock<IStorageMalwareScanner>();
         malwareScannerMock
             .Setup(x => x.ScanAsync(It.IsAny<Stream>(), It.IsAny<string?>(), It.IsAny<UploadOptions?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(MalwareScannerResult.ScanSucceeded(new MalwareScanResult(
-                IsClean: false, ThreatName: "Win.Test.EICAR", ScanEngine: "Test")));
+            .ReturnsAsync(MalwareScannerResult.ScanSucceeded(new MalwareScanResult
+            {
+                IsClean = false,
+                ThreatName = "Win.Test.EICAR",
+                ScanEngine = "Test"
+            }));
 
         StorageService sut = CreateSut(malwareScanner: malwareScannerMock.Object);
         _enforcerMock.Setup(x => x.EnforceAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
@@ -217,13 +229,13 @@ public sealed class StorageServiceTests
         var malwareScannerMock = new Mock<IStorageMalwareScanner>();
         malwareScannerMock
             .Setup(x => x.ScanAsync(It.IsAny<Stream>(), It.IsAny<string?>(), It.IsAny<UploadOptions?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(MalwareScannerResult.ScanSucceeded(new MalwareScanResult(IsClean: true, ScanEngine: "Test")));
+            .ReturnsAsync(MalwareScannerResult.ScanSucceeded(new MalwareScanResult { IsClean = true, ScanEngine = "Test" }));
 
         StorageService sut = CreateSut(malwareScanner: malwareScannerMock.Object);
         _enforcerMock.Setup(x => x.EnforceAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         var request = CreateValidRequest();
         var opts = new UploadOptions { ScanForMalware = true };
@@ -267,7 +279,7 @@ public sealed class StorageServiceTests
         _enforcerMock.Setup(x => x.EnforceAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         var request = CreateValidRequest();
         var opts = new UploadOptions { ResizeWidth = 100, ResizeHeight = 100 };
@@ -287,7 +299,7 @@ public sealed class StorageServiceTests
         _enforcerMock.Setup(x => x.EnforceAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         Result<UploadResult> result = await sut.UploadAsync(CreateValidRequest());
 
@@ -309,9 +321,18 @@ public sealed class StorageServiceTests
     public async Task DownloadAsync_WithValidProvider_ShouldSucceed()
     {
         StorageService sut = CreateSut();
-        DownloadResult expectedResult = new DownloadResult(
-            new MemoryStream(),
-            new StoredObjectInfo("key", "default", 0, DateTimeOffset.UtcNow, null));
+        DownloadResult expectedResult = new()
+        {
+            Content = new MemoryStream(),
+            Info = new StoredObjectInfo
+            {
+                Key = "key",
+                Provider = "default",
+                SizeBytes = 0,
+                LastModifiedUtc = DateTimeOffset.UtcNow,
+                ContentType = null
+            }
+        };
 
         _providerMock.Setup(x => x.DownloadAsync("key", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<DownloadResult>.Ok(expectedResult));
@@ -389,7 +410,7 @@ public sealed class StorageServiceTests
     public async Task StatAsync_WithValidProvider_ShouldSucceed()
     {
         StorageService sut = CreateSut();
-        StoredObjectInfo expectedInfo = new StoredObjectInfo("key", "default", 100, DateTimeOffset.UtcNow, "text/plain");
+        StoredObjectInfo expectedInfo = new() { Key = "key", Provider = "default", SizeBytes = 100, LastModifiedUtc = DateTimeOffset.UtcNow, ContentType = "text/plain" };
 
         _providerMock.Setup(x => x.StatAsync("key", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<StoredObjectInfo>.Ok(expectedInfo));
@@ -415,9 +436,9 @@ public sealed class StorageServiceTests
     public async Task ListAsync_WithValidProvider_ShouldSucceed()
     {
         StorageService sut = CreateSut();
-        List<StoredObjectInfo> expectedList = new List<StoredObjectInfo>
+        List<StoredObjectInfo> expectedList = new()
         {
-            new StoredObjectInfo("file1.txt", "default", 10, DateTimeOffset.UtcNow, "text/plain")
+            new StoredObjectInfo { Key = "file1.txt", Provider = "default", SizeBytes = 10, LastModifiedUtc = DateTimeOffset.UtcNow, ContentType = "text/plain" }
         };
 
         _providerMock.Setup(x => x.ListAsync(It.IsAny<string?>(), It.IsAny<CancellationToken>()))
@@ -439,7 +460,7 @@ public sealed class StorageServiceTests
         UploadRequest? capturedRequest = null;
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .Callback<UploadRequest, CancellationToken>((req, _) => capturedRequest = req)
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         var request = CreateValidRequest();
         var opts = new UploadOptions { GenerateHash = true };
@@ -461,7 +482,7 @@ public sealed class StorageServiceTests
         UploadRequest? capturedRequest = null;
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .Callback<UploadRequest, CancellationToken>((req, _) => capturedRequest = req)
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         var request = CreateValidRequest();
         var opts = new UploadOptions { Encrypt = true };
@@ -485,7 +506,7 @@ public sealed class StorageServiceTests
         UploadRequest? capturedRequest = null;
         _providerMock.Setup(x => x.UploadAsync(It.IsAny<UploadRequest>(), It.IsAny<CancellationToken>()))
             .Callback<UploadRequest, CancellationToken>((req, _) => capturedRequest = req)
-            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult("key", "default", null, 0, DateTimeOffset.UtcNow)));
+            .ReturnsAsync(Result<UploadResult>.Ok(new UploadResult { Key = "key", Provider = "default", Uri = null, SizeBytes = 0, StoredAtUtc = DateTimeOffset.UtcNow }));
 
         var request = CreateValidRequest();
         var opts = new UploadOptions { Overwrite = true };

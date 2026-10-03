@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.Taxonomies;
-using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.Taxons;
 
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
+namespace Module.Catalog.Features.Admin.Taxons.Services.Hierarchy;
 
 public partial class TaxonHierarchyService
 {

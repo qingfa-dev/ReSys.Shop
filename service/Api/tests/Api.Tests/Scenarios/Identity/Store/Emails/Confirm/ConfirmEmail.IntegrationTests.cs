@@ -16,7 +16,7 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
@@ -31,13 +31,13 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task ConfirmEmail_WithMissingUserId_Returns404()
+    public async Task ConfirmEmail_WithMissingUserId_Returns422()
     {
         var request = new
         {
@@ -45,9 +45,9 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityI
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/store/identity/emails/confirm", request);
+            "/api/storefront/identity/emails/confirm", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }

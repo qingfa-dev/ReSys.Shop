@@ -1,8 +1,8 @@
-using Module.Inventory.Features.Admin.StockMovements.Shared.Models;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.StockMovements.Get.ById;
 
 public static partial class GetStockMovementById
 {
-    public class Response : StockMovementDetailResponse { }
+    public record Response : StockMovementDetailResponse;
 }

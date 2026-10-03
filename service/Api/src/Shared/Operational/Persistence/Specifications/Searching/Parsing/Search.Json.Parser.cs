@@ -59,8 +59,8 @@ internal static class SearchJsonParser
                 };
             }
 
-            SearchModel model = new SearchModel(
-                new SearchTerm(term!, caseSensitive),
+            SearchModel model = new(
+                new SearchTerm { Value = term!, CaseSensitive = caseSensitive },
                 fields,
                 mode,
                 rawInput: element.GetRawText());
@@ -69,7 +69,9 @@ internal static class SearchJsonParser
         }
         catch (Exception ex)
         {
-            return SearchingModelResult.Failure.InvalidJson(ex.Message);
+            return Result<SearchModel>.Unexpected(
+                exception: ex,
+                errors: [SearchingModelResult.Failure.InvalidJson(ex.Message)]);
         }
     }
 }

@@ -1,0 +1,14 @@
+# metrics.yaml
+metrics:
+  retrieval:
+    - precision_at_k
+    - recall_at_k
+    - map
+    - ndcg_at_k
+  efficiency:
+    - latency_ms
+    - throughput_per_sec
+  latency:
+    percentiles: [50, 95, 99]
+    warmup_runs: 10
+    benchmark_runs: 100

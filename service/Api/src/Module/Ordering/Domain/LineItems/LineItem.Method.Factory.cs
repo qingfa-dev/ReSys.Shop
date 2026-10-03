@@ -29,7 +29,7 @@ public static partial class LineItemMethod
             Quantity = quantity,
             Price = price,
             CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = "System"
+            CreatedBy = LineItemConstant.Defaults.CreatedBy
         };
 
         lineItem.RecalculateTotal();

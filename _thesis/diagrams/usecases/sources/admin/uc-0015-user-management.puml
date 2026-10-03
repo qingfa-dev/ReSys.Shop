@@ -1,0 +1,16 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0015: User Management
+
+actor "Administrator" as Admin
+
+rectangle "Admin Portal" {
+  usecase "User Management" as Manage
+  usecase "Manage Roles" as Roles
+  usecase "Manage Claims" as Claims
+}
+
+Admin --> Manage
+Manage ..> Roles : <<include>>
+Manage ..> Claims : <<include>>
+@enduml

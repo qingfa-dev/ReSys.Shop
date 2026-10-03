@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.OptionTypes;
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
-using Module.Catalog.Features.Admin.OptionTypes.Shared.Validators;
+using Module.Catalog.Features.Admin.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Validators;
 
 namespace Module.UnitTests.Catalog.Features.Admin.OptionTypes.Shared;
 

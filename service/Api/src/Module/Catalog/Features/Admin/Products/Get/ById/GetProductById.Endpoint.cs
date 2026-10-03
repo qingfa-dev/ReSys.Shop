@@ -6,7 +6,7 @@ public static partial class GetProductById
 {
     /// <summary>
     /// GET endpoint that retrieves a single product by ID with full related data.
-    /// Route: api/catalog/products/{id:guid}
+    /// Route: api/admin/catalog/products/{id:guid}
     /// Permission: Products.View
     /// </summary>
     public class Endpoint : ICarterModule

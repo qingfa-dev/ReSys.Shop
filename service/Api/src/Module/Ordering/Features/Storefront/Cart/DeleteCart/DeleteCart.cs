@@ -24,9 +24,9 @@ public static partial class DeleteCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return Result.Ok();
+                return OrderResult.Errors.UserNotAuthenticated;
 
-            // Check: Find the user's draft cart.
+            // Check: Find the user's draft cart by user ID or guest session.
             var cart = await dbContext.Set<Order>()
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
@@ -35,12 +35,13 @@ public static partial class DeleteCart
             if (cart is null)
                 return Result.Ok();
 
-            // Update: Soft-delete the cart with timestamp.
-            cart.IsDeleted = true;
-            cart.DeletedAtUtc = DateTimeOffset.UtcNow;
+            // Update: Soft-delete the cart with timestamp — preserves record for audit.
+            var deleteResult = cart.Delete(currentUser.UserName ?? "System");
+            if (deleteResult.IsFailure)
+                return deleteResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.Deleted(cart.Id));
         }
     }
 }

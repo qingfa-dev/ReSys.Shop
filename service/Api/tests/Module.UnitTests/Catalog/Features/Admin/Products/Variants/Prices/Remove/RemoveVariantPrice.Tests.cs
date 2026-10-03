@@ -1,6 +1,6 @@
-using Module.Catalog.Domain.Products.Variants;
-using Module.Catalog.Domain.Products.Variants.Prices;
-using Module.Catalog.Features.Admin.Products.Variants.Prices.Remove;
+using Module.Catalog.Domain.Variants;
+using Module.Catalog.Domain.Variants.Prices;
+using Module.Catalog.Features.Admin.Variants.Prices.Remove;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Prices.Remove;
 

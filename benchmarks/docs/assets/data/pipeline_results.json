@@ -1,0 +1,652 @@
+[
+  {
+    "model_name": "FashionCLIP",
+    "model_slug": "fashionclip",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.2189,
+        "precision@5": 0.31,
+        "precision@10": 0.255,
+        "precision@20": 0.2392,
+        "recall@5": 0.156,
+        "recall@10": 0.2155,
+        "recall@20": 0.3507,
+        "latency_mean_ms": 59.93,
+        "latency_std_ms": 2.04,
+        "throughput_per_sec": 27.05,
+        "load_time_ms": 5341.83,
+        "index_storage_mb": 0.12,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.1431,
+        "precision@5": 0.2774,
+        "precision@10": 0.2468,
+        "precision@20": 0.2073,
+        "recall@5": 0.1012,
+        "recall@10": 0.1628,
+        "recall@20": 0.2689,
+        "latency_mean_ms": 66.19,
+        "latency_std_ms": 1.63,
+        "throughput_per_sec": 24.34,
+        "load_time_ms": 5341.83,
+        "index_storage_mb": 0.12,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.1725,
+        "precision@5": 0.2873,
+        "precision@10": 0.2535,
+        "precision@20": 0.2042,
+        "recall@5": 0.1366,
+        "recall@10": 0.2145,
+        "recall@20": 0.3149,
+        "latency_mean_ms": 73.15,
+        "latency_std_ms": 4.13,
+        "throughput_per_sec": 24.02,
+        "load_time_ms": 5341.83,
+        "index_storage_mb": 0.14,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.1782,
+        "std": 0.0382
+      },
+      "precision@5": {
+        "mean": 0.2916,
+        "std": 0.0167
+      },
+      "precision@10": {
+        "mean": 0.2518,
+        "std": 0.0044
+      },
+      "precision@20": {
+        "mean": 0.2169,
+        "std": 0.0194
+      },
+      "recall@5": {
+        "mean": 0.1313,
+        "std": 0.0278
+      },
+      "recall@10": {
+        "mean": 0.1976,
+        "std": 0.0301
+      },
+      "recall@20": {
+        "mean": 0.3115,
+        "std": 0.041
+      },
+      "latency_mean_ms": {
+        "mean": 66.4233,
+        "std": 6.6131
+      },
+      "throughput_per_sec": {
+        "mean": 25.1367,
+        "std": 1.6647
+      },
+      "load_time_ms": {
+        "mean": 5341.83,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 0.1267,
+        "std": 0.0115
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    },
+    "production_metrics": {
+      "index_build_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_query_latency_ms": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@5": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@10": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@20": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ingestion_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "ResNet-50",
+    "model_slug": "resnet-50",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.1792,
+        "precision@5": 0.2967,
+        "precision@10": 0.2583,
+        "precision@20": 0.2275,
+        "recall@5": 0.1216,
+        "recall@10": 0.1996,
+        "recall@20": 0.3138,
+        "latency_mean_ms": 50.68,
+        "latency_std_ms": 7.65,
+        "throughput_per_sec": 16.85,
+        "load_time_ms": 256.53,
+        "index_storage_mb": 0.47,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.1173,
+        "precision@5": 0.2516,
+        "precision@10": 0.2129,
+        "precision@20": 0.2,
+        "recall@5": 0.0795,
+        "recall@10": 0.1317,
+        "recall@20": 0.2412,
+        "latency_mean_ms": 47.36,
+        "latency_std_ms": 1.13,
+        "throughput_per_sec": 17.51,
+        "load_time_ms": 256.53,
+        "index_storage_mb": 0.48,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.1983,
+        "precision@5": 0.3587,
+        "precision@10": 0.3313,
+        "precision@20": 0.296,
+        "recall@5": 0.0601,
+        "recall@10": 0.1025,
+        "recall@20": 0.1683,
+        "latency_mean_ms": 48.03,
+        "latency_std_ms": 1.46,
+        "throughput_per_sec": 17.51,
+        "load_time_ms": 256.53,
+        "index_storage_mb": 4.7,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.1649,
+        "std": 0.0423
+      },
+      "precision@5": {
+        "mean": 0.3023,
+        "std": 0.0538
+      },
+      "precision@10": {
+        "mean": 0.2675,
+        "std": 0.0597
+      },
+      "precision@20": {
+        "mean": 0.2412,
+        "std": 0.0494
+      },
+      "recall@5": {
+        "mean": 0.0871,
+        "std": 0.0314
+      },
+      "recall@10": {
+        "mean": 0.1446,
+        "std": 0.0498
+      },
+      "recall@20": {
+        "mean": 0.2411,
+        "std": 0.0728
+      },
+      "latency_mean_ms": {
+        "mean": 48.69,
+        "std": 1.7556
+      },
+      "throughput_per_sec": {
+        "mean": 17.29,
+        "std": 0.3811
+      },
+      "load_time_ms": {
+        "mean": 256.53,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 1.8833,
+        "std": 2.4393
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    },
+    "production_metrics": {
+      "index_build_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_query_latency_ms": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@5": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@10": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@20": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ingestion_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "EfficientNet-B0",
+    "model_slug": "efficientnet-b0",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.1878,
+        "precision@5": 0.2122,
+        "precision@10": 0.1743,
+        "precision@20": 0.1452,
+        "recall@5": 0.1976,
+        "recall@10": 0.2716,
+        "recall@20": 0.3636,
+        "latency_mean_ms": 16.7,
+        "latency_std_ms": 0.4,
+        "throughput_per_sec": 48.04,
+        "load_time_ms": 84.89,
+        "index_storage_mb": 2.64,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.132,
+        "precision@5": 0.2419,
+        "precision@10": 0.2242,
+        "precision@20": 0.2048,
+        "recall@5": 0.0988,
+        "recall@10": 0.1582,
+        "recall@20": 0.2532,
+        "latency_mean_ms": 16.04,
+        "latency_std_ms": 0.64,
+        "throughput_per_sec": 49.27,
+        "load_time_ms": 84.89,
+        "index_storage_mb": 0.3,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.1575,
+        "precision@5": 0.2592,
+        "precision@10": 0.2225,
+        "precision@20": 0.2099,
+        "recall@5": 0.1044,
+        "recall@10": 0.1682,
+        "recall@20": 0.3144,
+        "latency_mean_ms": 16.23,
+        "latency_std_ms": 0.77,
+        "throughput_per_sec": 48.81,
+        "load_time_ms": 84.89,
+        "index_storage_mb": 0.35,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.1591,
+        "std": 0.0279
+      },
+      "precision@5": {
+        "mean": 0.2378,
+        "std": 0.0238
+      },
+      "precision@10": {
+        "mean": 0.207,
+        "std": 0.0283
+      },
+      "precision@20": {
+        "mean": 0.1866,
+        "std": 0.036
+      },
+      "recall@5": {
+        "mean": 0.1336,
+        "std": 0.0555
+      },
+      "recall@10": {
+        "mean": 0.1993,
+        "std": 0.0628
+      },
+      "recall@20": {
+        "mean": 0.3104,
+        "std": 0.0553
+      },
+      "latency_mean_ms": {
+        "mean": 16.3233,
+        "std": 0.3398
+      },
+      "throughput_per_sec": {
+        "mean": 48.7067,
+        "std": 0.6215
+      },
+      "load_time_ms": {
+        "mean": 84.89,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 1.0967,
+        "std": 1.3368
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    },
+    "production_metrics": {
+      "index_build_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_query_latency_ms": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@5": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@10": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@20": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ingestion_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "CLIP-generic",
+    "model_slug": "clip-generic",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.1793,
+        "precision@5": 0.2767,
+        "precision@10": 0.2533,
+        "precision@20": 0.2242,
+        "recall@5": 0.137,
+        "recall@10": 0.2061,
+        "recall@20": 0.3189,
+        "latency_mean_ms": 67.05,
+        "latency_std_ms": 6.02,
+        "throughput_per_sec": 25.74,
+        "load_time_ms": 5895.99,
+        "index_storage_mb": 0.12,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.1319,
+        "precision@5": 0.2355,
+        "precision@10": 0.2323,
+        "precision@20": 0.2,
+        "recall@5": 0.0881,
+        "recall@10": 0.1525,
+        "recall@20": 0.255,
+        "latency_mean_ms": 70.04,
+        "latency_std_ms": 3.09,
+        "throughput_per_sec": 25.24,
+        "load_time_ms": 5895.99,
+        "index_storage_mb": 0.12,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.1771,
+        "precision@5": 0.2648,
+        "precision@10": 0.2423,
+        "precision@20": 0.207,
+        "recall@5": 0.1295,
+        "recall@10": 0.2043,
+        "recall@20": 0.3183,
+        "latency_mean_ms": 70.16,
+        "latency_std_ms": 2.75,
+        "throughput_per_sec": 25.12,
+        "load_time_ms": 5895.99,
+        "index_storage_mb": 0.14,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.1628,
+        "std": 0.0268
+      },
+      "precision@5": {
+        "mean": 0.259,
+        "std": 0.0212
+      },
+      "precision@10": {
+        "mean": 0.2426,
+        "std": 0.0105
+      },
+      "precision@20": {
+        "mean": 0.2104,
+        "std": 0.0125
+      },
+      "recall@5": {
+        "mean": 0.1182,
+        "std": 0.0263
+      },
+      "recall@10": {
+        "mean": 0.1876,
+        "std": 0.0304
+      },
+      "recall@20": {
+        "mean": 0.2974,
+        "std": 0.0367
+      },
+      "latency_mean_ms": {
+        "mean": 69.0833,
+        "std": 1.7619
+      },
+      "throughput_per_sec": {
+        "mean": 25.3667,
+        "std": 0.3288
+      },
+      "load_time_ms": {
+        "mean": 5895.99,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 0.1267,
+        "std": 0.0115
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    },
+    "production_metrics": {
+      "index_build_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_query_latency_ms": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@5": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@10": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "pgvector_recall@20": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ingestion_time_s": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  },
+  {
+    "model_name": "CLIP ViT-B/32",
+    "model_slug": "clip-vit-b-32",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.2326,
+        "precision@5": 0.4126,
+        "precision@10": 0.373,
+        "precision@20": 0.33,
+        "recall@5": 0.0621,
+        "recall@10": 0.1012,
+        "recall@20": 0.1581,
+        "latency_mean_ms": 69.87,
+        "latency_std_ms": 2.7,
+        "throughput_per_sec": 25.75,
+        "load_time_ms": 15167.65,
+        "index_storage_mb": 3.26,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.2274,
+        "precision@5": 0.4038,
+        "precision@10": 0.37,
+        "precision@20": 0.3305,
+        "recall@5": 0.0528,
+        "recall@10": 0.0913,
+        "recall@20": 0.1482,
+        "latency_mean_ms": 69.22,
+        "latency_std_ms": 2.57,
+        "throughput_per_sec": 25.5,
+        "load_time_ms": 15167.65,
+        "index_storage_mb": 3.26,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.2171,
+        "precision@5": 0.3986,
+        "precision@10": 0.3649,
+        "precision@20": 0.3252,
+        "recall@5": 0.0509,
+        "recall@10": 0.0861,
+        "recall@20": 0.1417,
+        "latency_mean_ms": 70.44,
+        "latency_std_ms": 2.36,
+        "throughput_per_sec": 25.39,
+        "load_time_ms": 15167.65,
+        "index_storage_mb": 3.25,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.2257,
+        "std": 0.0079
+      },
+      "precision@5": {
+        "mean": 0.405,
+        "std": 0.0071
+      },
+      "precision@10": {
+        "mean": 0.3693,
+        "std": 0.0041
+      },
+      "precision@20": {
+        "mean": 0.3286,
+        "std": 0.0029
+      },
+      "recall@5": {
+        "mean": 0.0553,
+        "std": 0.006
+      },
+      "recall@10": {
+        "mean": 0.0929,
+        "std": 0.0077
+      },
+      "recall@20": {
+        "mean": 0.1493,
+        "std": 0.0083
+      },
+      "latency_mean_ms": {
+        "mean": 69.8433,
+        "std": 0.6104
+      },
+      "throughput_per_sec": {
+        "mean": 25.5467,
+        "std": 0.1845
+      },
+      "load_time_ms": {
+        "mean": 15167.65,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 3.2567,
+        "std": 0.0058
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    },
+    "production_metrics": {
+      "index_build_time_s": {
+        "mean": 0.1867,
+        "std": 0.0208
+      },
+      "pgvector_query_latency_ms": {
+        "mean": 2.1867,
+        "std": 0.0569
+      },
+      "pgvector_recall@5": {
+        "mean": 0.7337,
+        "std": 0.0037
+      },
+      "pgvector_recall@10": {
+        "mean": 0.6901,
+        "std": 0.0017
+      },
+      "pgvector_recall@20": {
+        "mean": 0.6244,
+        "std": 0.0055
+      },
+      "ingestion_time_s": {
+        "mean": 2.59,
+        "std": 0.3464
+      }
+    }
+  }
+]

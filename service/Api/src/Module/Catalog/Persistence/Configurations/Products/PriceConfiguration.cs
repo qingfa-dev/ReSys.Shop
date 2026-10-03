@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Products.Variants.Prices;
+using Module.Catalog.Domain.Variants.Prices;
 
 namespace Module.Catalog.Persistence.Configurations.Products;
 

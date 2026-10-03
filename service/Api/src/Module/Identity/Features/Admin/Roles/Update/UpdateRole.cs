@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Shared.Mappings;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Update;
+namespace Module.Identity.Features.Shared.Admin.Roles.Update;
 
 /// <summary>
 /// Defines the use case for updating an existing role.
@@ -39,29 +39,37 @@ public static partial class UpdateRole
         {
             var request = command.Request;
 
+            // Load: Retrieve the existing role to verify it exists before updating
             var role = await roleManager.FindByIdAsync(command.Id.ToString());
             if (role is null)
                 return RoleResult.Failure.NotFound;
 
+            // Guard: Prevent modification of system-protected roles to maintain platform integrity
             if (role.IsSystem)
             {
+                // Log: Record attempted update of protected role for security audit
                 RoleLoggers.Management.SystemRoleProtected(logger, RoleName: role.Name!, RoleId: role.Id);
                 return RoleResult.Failure.SystemRoleProtected;
             }
 
+            // Check: Verify the new name does not conflict with another existing role
             var existingByName = await roleManager.FindByNameAsync(request.Name);
             if (existingByName is not null && existingByName.Id != role.Id)
                 return RoleResult.Failure.AlreadyExists;
 
+            // Transform: Apply request data to the existing role entity
             request.MapToDomain(role);
             AuditableBehavior.Touch(role, DateTimeOffset.UtcNow);
 
+            // Call: Persist the updated role via Identity role manager
             var result = await roleManager.UpdateAsync(role);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
+            // Log: Record role update with identifying details for audit trail
             RoleLoggers.Management.Updated(logger, RoleName: role.Name!, RoleId: role.Id);
 
+            // Transform: Return mapped response with updated role details
             return role.MapToDetail<Response>();
         }
     }

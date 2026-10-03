@@ -18,24 +18,24 @@ public static class OptionValueConstant
 
     public static class Query
     {
-        public static readonly string[] AllowedSearchFields =
-        [
+        public static IReadOnlySet<string> AllowedSearchFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(OptionValue.Name),
             nameof(OptionValue.Presentation)
-        ];
+        };
 
-        public static readonly string[] AllowedSortFields =
-        [
+        public static IReadOnlySet<string> AllowedSortFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(OptionValue.Name),
             nameof(OptionValue.Presentation),
             nameof(OptionValue.Position)
-        ];
+        };
 
-        public static readonly string[] AllowedFilterFields =
-        [
+        public static IReadOnlySet<string> AllowedFilterFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(OptionValue.Name),
             nameof(OptionValue.Presentation),
             nameof(OptionValue.OptionTypeId)
-        ];
+        };
     }
 }

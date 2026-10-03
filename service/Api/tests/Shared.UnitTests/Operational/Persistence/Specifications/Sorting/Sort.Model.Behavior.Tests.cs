@@ -41,7 +41,7 @@ public sealed class SortModelBehaviorTests
     public void ResolveClauses_ShouldReturnExpected(bool useEmpty, string expectedField)
     {
         SortModel model = useEmpty ? SortModel.Empty : SortModelExtensions.FromString("Name asc").Value;
-        IReadOnlyList<SortClause> defaults = [new SortClause("Default")];
+        IReadOnlyList<SortClause> defaults = [new SortClause { Field = "Default" }];
 
         IReadOnlyList<SortClause> resolved = model.ResolveClauses(defaults);
 

@@ -1,0 +1,110 @@
+[
+  {
+    "model_name": "EfficientNet-B0",
+    "model_slug": "efficientnet-b0",
+    "folds": [
+      {
+        "fold": 0,
+        "map": 0.9031,
+        "precision@5": 0.9394,
+        "precision@10": 0.9297,
+        "precision@20": 0.9165,
+        "recall@5": 0.0245,
+        "recall@10": 0.0435,
+        "recall@20": 0.0738,
+        "latency_mean_ms": 43.39,
+        "latency_std_ms": 6.02,
+        "throughput_per_sec": 22.67,
+        "load_time_ms": 148.87,
+        "index_storage_mb": 8.14,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 1,
+        "map": 0.9036,
+        "precision@5": 0.9448,
+        "precision@10": 0.934,
+        "precision@20": 0.9201,
+        "recall@5": 0.0252,
+        "recall@10": 0.0429,
+        "recall@20": 0.0733,
+        "latency_mean_ms": 45.47,
+        "latency_std_ms": 7.22,
+        "throughput_per_sec": 21.87,
+        "load_time_ms": 148.87,
+        "index_storage_mb": 8.13,
+        "ram_mb": 0.0
+      },
+      {
+        "fold": 2,
+        "map": 0.9165,
+        "precision@5": 0.9474,
+        "precision@10": 0.9388,
+        "precision@20": 0.9248,
+        "recall@5": 0.0275,
+        "recall@10": 0.0464,
+        "recall@20": 0.0773,
+        "latency_mean_ms": 43.9,
+        "latency_std_ms": 5.83,
+        "throughput_per_sec": 21.07,
+        "load_time_ms": 148.87,
+        "index_storage_mb": 8.13,
+        "ram_mb": 0.0
+      }
+    ],
+    "aggregate": {
+      "map": {
+        "mean": 0.9077,
+        "std": 0.0076,
+        "ci_95": [
+          0.9031,
+          0.9165
+        ]
+      },
+      "precision@5": {
+        "mean": 0.9439,
+        "std": 0.0041
+      },
+      "precision@10": {
+        "mean": 0.9342,
+        "std": 0.0046
+      },
+      "precision@20": {
+        "mean": 0.9205,
+        "std": 0.0042
+      },
+      "recall@5": {
+        "mean": 0.0257,
+        "std": 0.0016
+      },
+      "recall@10": {
+        "mean": 0.0443,
+        "std": 0.0019
+      },
+      "recall@20": {
+        "mean": 0.0748,
+        "std": 0.0022
+      },
+      "latency_mean_ms": {
+        "mean": 44.2533,
+        "std": 1.0841
+      },
+      "throughput_per_sec": {
+        "mean": 21.87,
+        "std": 0.8
+      },
+      "load_time_ms": {
+        "mean": 148.87,
+        "std": 0.0
+      },
+      "index_storage_mb": {
+        "mean": 8.1333,
+        "std": 0.0058
+      },
+      "ram_mb": {
+        "mean": 0.0,
+        "std": 0.0
+      }
+    }
+  }
+]

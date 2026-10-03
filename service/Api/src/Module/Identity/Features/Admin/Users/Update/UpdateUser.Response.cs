@@ -1,6 +1,6 @@
-using Module.Identity.Features.Admin.Users.Shared.Models;
+using Module.Identity.Features.Admin.Shared.Models;
 
-namespace Module.Identity.Features.Admin.Users.Update;
+namespace Module.Identity.Features.Shared.Admin.Users.Update;
 
 public static partial class UpdateUser
 {
@@ -8,5 +8,5 @@ public static partial class UpdateUser
     /// Represents the response contract for an updated user.
     /// Inherits properties from <see cref="UserDetailResponse"/>.
     /// </summary>
-    public class Response : UserDetailResponse { }
+    public record Response : UserDetailResponse;
 }

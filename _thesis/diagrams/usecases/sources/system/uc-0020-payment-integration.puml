@@ -1,0 +1,19 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0020: Payment Integration
+
+rectangle "System Process" {
+    usecase "Create Intent" as Intent
+    usecase "Capture Payment" as Capture
+    usecase "Handle Webhook" as Webhook
+}
+
+rectangle "External" {
+    usecase "Stripe API" as Stripe <<System>>
+}
+
+Intent ..> Stripe : <<include>>
+Capture ..> Stripe : <<include>>
+Webhook <.. Stripe : <<include>>
+
+@enduml

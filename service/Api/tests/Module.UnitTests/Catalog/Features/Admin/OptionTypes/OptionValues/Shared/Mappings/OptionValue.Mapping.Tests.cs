@@ -1,7 +1,7 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Mappings;
-using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Mappings;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Mappings;
 
@@ -36,7 +36,7 @@ public class OptionValueMappingTests
     [Fact(DisplayName = "ToDomain (Update): Should update existing entity from request")]
     public void ToDomain_Update_ShouldUpdateEntity()
     {
-        var entity = OptionValueExtensions.Create(
+        var entity = OptionValueMethod.Create(
             Guid.NewGuid(), "Old", "Old Color", 0).Value;
 
         var request = new OptionValueRequest

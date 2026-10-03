@@ -1,0 +1,86 @@
+@startuml
+
+' ═══════════════════════════════════════════════════════════
+' Shared Style Configuration for ReSys.Shop Sequence Diagrams
+' ACADEMIC GRAYSCALE THEME
+' High Contrast | Print Friendly | Minimalist
+' ═══════════════════════════════════════════════════════════
+
+' ─── Typography ──────────────────────────────────────────────
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 14
+skinparam actorFontSize 14
+skinparam participantFontSize 14
+skinparam noteFontSize 12
+skinparam sequenceMessageFontSize 12
+
+' ─── Color Palette (Monochrome) ──────────────────────────────
+!define RE_WHITE  #FFFFFF
+!define RE_BLACK  #000000
+!define RE_GRAY   #E0E0E0
+!define RE_STROKE #000000
+
+' ─── Output Settings ─────────────────────────────────────────
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam maxMessageSize 180
+skinparam wrapWidth 250
+
+' ─── Participant Styling ─────────────────────────────────────
+skinparam participant {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+}
+
+skinparam actor {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+  FontColor RE_BLACK
+  FontStyle bold
+}
+
+skinparam database {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+}
+
+skinparam queue {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.5
+}
+
+' ─── Sequence Elements ───────────────────────────────────────
+skinparam sequence {
+  ArrowColor RE_STROKE
+  ArrowThickness 1.5
+  LifeLineBorderColor RE_STROKE
+  LifeLineBackgroundColor RE_WHITE
+  
+  BoxBorderColor RE_STROKE
+  BoxFontSize 14
+  BoxFontStyle bold
+  BoxBackgroundColor transparent
+}
+
+' ─── Note Styling ────────────────────────────────────────────
+skinparam note {
+  BackgroundColor RE_WHITE
+  BorderColor RE_STROKE
+  BorderThickness 1.0
+  FontSize 12
+  FontColor RE_BLACK
+  Shadowing false
+}
+
+' ─── Stereotypes ─────────────────────────────────────────────
+skinparam actor {
+  StereotypeFontSize 11
+  StereotypeFontColor RE_BLACK
+  StereotypeFontStyle italic
+}
+
+@enduml

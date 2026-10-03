@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Catalog.Domain.Taxonomies.Taxons.Rules;
+using Module.Catalog.Domain.Taxons.Rules;
 
 namespace Module.Catalog.Persistence.Configurations.Taxonomies;
 

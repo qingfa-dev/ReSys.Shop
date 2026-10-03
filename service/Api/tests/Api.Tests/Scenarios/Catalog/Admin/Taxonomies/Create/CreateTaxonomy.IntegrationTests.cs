@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Create;
 
@@ -20,7 +20,7 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -41,10 +41,10 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
             position = 1
         };
 
-        await Client.PostAsAdminRawAsync("/api/catalog/taxonomies", request);
+        await Client.PostAsAdminRawAsync("/api/admin/catalog/taxonomies", request);
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -61,7 +61,7 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -79,7 +79,7 @@ public sealed class CreateTaxonomyIntegrationTests(ApiFixture fixture) : Catalog
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/taxonomies", request);
+            "/api/admin/catalog/taxonomies", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

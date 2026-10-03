@@ -4,28 +4,30 @@ namespace Shared.Operational.Persistence.Specifications.Filtering;
 /// Represents a single atomic filter condition: a property name, a comparison operator,
 /// and a string value to compare against.
 /// </summary>
-/// <param name="Field">
-/// The property name to filter on. Supports dot-notation for navigation properties
-/// (e.g. <c>"Order.Customer.Name"</c>). Accepts snake_case, camelCase, or PascalCase —
-/// casing is resolved at expression-build time.
-/// </param>
-/// <param name="Operator">The comparison operator to apply.</param>
-/// <param name="Value">
-/// The raw string representation of the comparison value. <c>"null"</c> is treated as a
-/// typed <see langword="null"/>; an empty string is treated as <see cref="string.Empty"/>
-/// for string properties.
-/// </param>
 /// <remarks>
 /// <c>FilterCondition</c> is the leaf node of the <see cref="FilterGroup"/> tree.
 /// It carries no logical connective — that belongs to the parent
 /// <see cref="FilterGroup.Logic"/>.
 /// </remarks>
-public sealed partial record FilterCondition(
-    string Field,
-    FilterOperator Operator,
-    string Value
-)
+public sealed partial record FilterCondition
 {
+    /// <summary>
+    /// The property name to filter on. Supports dot-notation for navigation properties
+    /// (e.g. <c>"Order.Customer.Name"</c>). Accepts snake_case, camelCase, or PascalCase —
+    /// casing is resolved at expression-build time.
+    /// </summary>
+    public string Field { get; init; } = default!;
+
+    /// <summary>The comparison operator to apply.</summary>
+    public FilterOperator Operator { get; init; }
+
+    /// <summary>
+    /// The raw string representation of the comparison value. <c>"null"</c> is treated as a
+    /// typed <see langword="null"/>; an empty string is treated as <see cref="string.Empty"/>
+    /// for string properties.
+    /// </summary>
+    public string Value { get; init; } = default!;
+
     #region Derived Properties
 
     /// <summary>

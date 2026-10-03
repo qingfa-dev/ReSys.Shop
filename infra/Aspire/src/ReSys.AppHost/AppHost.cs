@@ -1,15 +1,16 @@
-using Aspire.Hosting.JavaScript;
+using Microsoft.Extensions.Configuration;
 
 using ReSys.ServiceDefaults.Constants;
 
-// [WIP-MVP] YARP API gateway is deferred to v1.x. The Services.Gateway constant is defined
-// in ReSys.ServiceDefaults but not registered as a resource here. Frontends call the API
-// directly via VITE_API_URL. See docs/superpowers/specs/2026-07-07-mvp-cut-design.md.
-
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
+// Load this AppHost project's user-secrets (UserSecretsId in the csproj) so the
+// Stripe key can be configured once via `dotnet user-secrets` instead of a shell export.
+builder.Configuration.AddUserSecrets<Program>();
+
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
-    .WithImage(Images.Pgvector.Optimized);
+    .WithImage(Images.Pgvector.Optimized)
+    .WithPgAdmin();
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis(Infrastructures.Cache.Resource)
     .WithImage(Images.Redis.Optimized);
@@ -23,27 +24,69 @@ var embedding = builder.AddUvicornApp(
         "embedding.main:app")
     .WithUv()
     .WithHttpHealthCheck("/health")
-    .WithHttpEndpoint(targetPort: 8000, name: "http")
-    .WithExternalHttpEndpoints();
+    .WithHttpEndpoint(targetPort: 8000, name: "http");
+
 
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Services.Api)
     .WithReference(database)
     .WithReference(redis)
     .WithReference(embedding)
-    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development");
+    .WithEnvironment("Http__Clients__Inference__BaseAddress", embedding.GetEndpoint("http"))
+    .WithHttpHealthCheck("/health")
+    .WithHttpsEndpoint(port: 5001, name: "https")
+    .WithExternalHttpEndpoints()
+    .WithOtlpExporter()
+    .WaitFor(redis)
+    .WaitFor(postgres);
 
-IResourceBuilder<ViteAppResource> store = builder.AddViteApp(Application.Store, "../../../../app/Store")
+// Resolve the Stripe key from user-secrets ("Stripe:ApiKey") with the process
+// env var as a fallback, so both `dotnet user-secrets set` and shell export work.
+var stripeApiKey = builder.Configuration["Stripe:ApiKey"]
+    ?? Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+if (!string.IsNullOrEmpty(stripeApiKey))
+{
+    // Runs the host `stripe` binary (NOT a container): the container approach cannot
+    // reach the host API via localhost on Linux. --forward-to is resolved inside a
+    // WithArgs callback that runs after Aspire has allocated the API's endpoints, so
+    // AllocatedEndpoint yields the real https://localhost:5001 URL (the object[] and
+    // $"" forms both stringify the EndpointReference to its type name). --skip-verify
+    // is required for the Aspire dev certificate.
+    builder.AddExecutable("stripe-listen", "stripe", Environment.CurrentDirectory)
+        .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
+        .WithArgs(context =>
+        {
+            context.Args.Add("listen");
+            context.Args.Add("--skip-verify");
+            context.Args.Add("--latest");
+            context.Args.Add("--events");
+            context.Args.Add("payment_intent.succeeded,payment_intent.payment_failed,payment_intent.requires_action,payment_intent.processing,payment_intent.canceled,checkout.session.completed,checkout.session.expired,charge.refunded,charge.dispute.created");
+            context.Args.Add("--forward-to");
+            context.Args.Add($"{api.GetEndpoint("https").EndpointAnnotation.AllocatedEndpoint}/api/storefront/billing/webhooks/stripe");
+        })
+        .WaitFor(api);
+    Console.WriteLine("[stripe] stripe-listen resource added (forwarding to https://localhost:5001/api/storefront/billing/webhooks/stripe, --skip-verify).");
+}
+else
+{
+    Console.WriteLine("[stripe] WARNING: STRIPE_SECRET_KEY is not set in this process; the 'stripe-listen' webhook resource will NOT be created.");
+    Console.WriteLine("[stripe]   Export it in the terminal that runs this AppHost, then restart: export STRIPE_SECRET_KEY=sk_test_...");
+}
+
+#pragma warning disable ASPIRECERTIFICATES001
+builder.AddViteApp(Application.Admin, "../../../../app/Admin")
     .WithPnpm()
-    .WithHttpEndpoint(targetPort: 5173)
-    .WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
     .WithReference(api)
-    .WaitFor(api);
+    .WithHttpsEndpoint(port: 5173, env: "PORT")
+    .WithHttpsDeveloperCertificate()
+    .WithDeveloperCertificateTrust(trust: true);
+#pragma warning restore ASPIRECERTIFICATES001
 
-IResourceBuilder<ViteAppResource> admin = builder.AddViteApp(Application.Admin, "../../../../app/Admin")
+#pragma warning disable ASPIRECERTIFICATES001
+builder.AddViteApp(Application.Store, "../../../../app/Store")
     .WithPnpm()
-    .WithHttpEndpoint(targetPort: 5174)
-    .WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
     .WithReference(api)
-    .WaitFor(api);
-
+    .WithHttpsEndpoint(port: 5174, env: "PORT")
+    .WithHttpsDeveloperCertificate()
+    .WithDeveloperCertificateTrust(trust: true);
+#pragma warning restore ASPIRECERTIFICATES001
 builder.Build().Run();

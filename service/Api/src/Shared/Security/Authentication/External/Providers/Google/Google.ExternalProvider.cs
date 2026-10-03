@@ -23,7 +23,7 @@ public sealed partial class GoogleExternalProvider(
 
     public string Provider => "google";
 
-    public ProviderOption GetProviderConfig() => new ProviderOption()
+    public ProviderOption GetProviderConfig() => new()
     {
         Provider = Provider,
         Options = new Dictionary<string, string>
@@ -57,12 +57,14 @@ public sealed partial class GoogleExternalProvider(
                 return UserResult.Failure.ExternalLoginEmailMissing;
 
             // Create: ExternalUserInfo with provider, subject ID, email, and name claims from Google payload
-            return new ExternalUserInfo(
-                Provider: Provider,
-                ProviderSubjectId: payload.Subject,
-                Email: payload.Email,
-                FirstName: payload.GivenName ?? payload.Name ?? payload.Email.Split('@')[0],
-                LastName: payload.FamilyName);
+            return new ExternalUserInfo
+            {
+                Provider = Provider,
+                ProviderSubjectId = payload.Subject,
+                Email = payload.Email,
+                FirstName = payload.GivenName ?? payload.Name ?? payload.Email.Split('@')[0],
+                LastName = payload.FamilyName
+            };
         }
         // Catch: Invalid JWT — log warning and return ExternalLoginTokenInvalid error
         catch (InvalidJwtException ex)

@@ -1,0 +1,429 @@
+%%{
+  init: {
+    'theme': 'neutral',
+
+    'themeVariables': {
+      'fontSize': '69px',
+      'fontFamily': 'Times New Roman, serif',
+
+      'primaryColor': '#ffffff',
+      'primaryTextColor': '#111111',
+      'primaryBorderColor': '#222222',
+
+      'secondaryColor': '#ffffff',
+      'tertiaryColor': '#ffffff',
+
+      'lineColor': '#555555'
+    },
+
+    'er': {
+      'layoutDirection': 'BT',
+
+      'minEntityWidth': 190,
+      'minEntityHeight': 78,
+
+      'entityPadding': 7,
+
+      'nodeSpacing': 18,
+      'rankSpacing': 32,
+
+      'diagramPadding': 6
+    }
+  }
+}%%
+
+erDiagram
+
+  %% ============================================================
+  %% CATALOG
+  %% ============================================================
+
+  Product {
+    uuid id PK
+    string slug UK
+    string name
+    string status
+    uuid master_variant_id FK
+  }
+
+  Variant {
+    uuid id PK
+    uuid product_id FK
+    bool is_master
+    string sku UK
+    decimal price
+  }
+
+  VariantImage {
+    uuid id PK
+    uuid variant_id FK
+    string url
+  }
+
+  VariantImageEmbedding {
+    uuid id PK
+    uuid variant_image_id FK
+    string model_name
+    vector_512 vector
+  }
+
+  OptionType {
+    uuid id PK
+    string name
+  }
+
+  OptionValue {
+    uuid id PK
+    uuid option_type_id FK
+    string name
+  }
+
+  ProductOptionType {
+    uuid id PK
+    uuid product_id FK
+    uuid option_type_id FK
+  }
+
+  OptionValueVariant {
+    uuid id PK
+    uuid variant_id FK
+    uuid option_value_id FK
+  }
+
+  Taxonomy {
+    uuid id PK
+    string name
+  }
+
+  Taxon {
+    uuid id PK
+    uuid taxonomy_id FK
+    uuid parent_id FK
+    string name
+    string slug
+  }
+
+  Classification {
+    uuid id PK
+    uuid product_id FK
+    uuid taxon_id FK
+  }
+
+
+  %% ============================================================
+  %% IDENTITY
+  %% ============================================================
+
+  User {
+    uuid id PK
+    string email UK
+    string password_hash
+  }
+
+  Role {
+    uuid id PK
+    string name UK
+  }
+
+  UserRole {
+    uuid user_id PK
+    uuid role_id PK
+  }
+
+  RefreshToken {
+    uuid id PK
+    uuid user_id FK
+    string token_hash
+  }
+
+  UserLogin {
+    uuid user_id PK
+    string login_provider PK
+    string provider_key
+  }
+
+
+  %% ============================================================
+  %% ORDERING
+  %% ============================================================
+
+  Order {
+    uuid id PK
+    string number UK
+    uuid user_id
+    uuid bill_address_id
+    uuid ship_address_id
+    string status
+    string checkout_state
+    string payment_state
+    string shipment_state
+    decimal total
+    datetime completed_at_utc
+  }
+
+  LineItem {
+    uuid id PK
+    uuid order_id FK
+    uuid variant_id FK
+    int quantity
+    decimal price
+  }
+
+  Adjustment {
+    uuid id PK
+    uuid order_id FK
+    decimal amount
+  }
+
+
+  %% ============================================================
+  %% PAYMENT
+  %% ============================================================
+
+  PaymentMethod {
+    uuid id PK
+    string name
+    string provider_key
+  }
+
+  PaymentCapture {
+    uuid id PK
+    uuid order_id FK
+    uuid payment_method_id FK
+    decimal amount
+    string state
+    string stripe_payment_intent_id
+  }
+
+  WebhookEvent {
+    uuid id PK
+    string stripe_event_id UK
+    string type
+  }
+
+
+  %% ============================================================
+  %% INVENTORY
+  %% ============================================================
+
+  StockLocation {
+    uuid id PK
+    string code
+    string name
+  }
+
+  StockItem {
+    uuid id PK
+    uuid variant_id FK
+    uuid stock_location_id FK
+    int count_on_hand
+  }
+
+  StockMovement {
+    uuid id PK
+    uuid stock_item_id FK
+    int quantity
+  }
+
+  StockReservation {
+    uuid id PK
+    uuid variant_id FK
+    uuid stock_location_id FK
+    uuid order_id
+    int quantity
+    string state
+  }
+
+  StockTransfer {
+    uuid id PK
+    string number
+    uuid source_location_id FK
+    uuid destination_location_id FK
+  }
+
+  TransferItem {
+    uuid id PK
+    uuid stock_transfer_id FK
+    uuid variant_id FK
+    int quantity
+  }
+
+
+  %% ============================================================
+  %% SHIPPING
+  %% ============================================================
+
+  ShippingMethod {
+    uuid id PK
+    string name
+    string code
+  }
+
+  ShippingRate {
+    uuid id PK
+    uuid shipping_method_id FK
+    decimal cost
+  }
+
+  ShippingMethodZone {
+    uuid id PK
+    uuid shipping_method_id FK
+    string country_code
+  }
+
+  Shipment {
+    uuid id PK
+    uuid order_id FK
+    uuid shipping_method_id FK
+    string tracking_number
+    string status
+  }
+
+
+  %% ============================================================
+  %% LOCATION
+  %% ============================================================
+
+  Country {
+    uuid id PK
+    string iso_code UK
+    string name
+  }
+
+  State {
+    uuid id PK
+    uuid country_id FK
+    string name
+  }
+
+
+  %% ============================================================
+  %% PROFILE
+  %% ============================================================
+
+  UserProfile {
+    uuid id PK
+    uuid user_id FK
+    string email
+  }
+
+  Address {
+    uuid id PK
+    uuid user_profile_id FK
+    string address_type
+  }
+
+  Wishlist {
+    uuid id PK
+    uuid user_id FK
+    string name
+  }
+
+  WishedItem {
+    uuid id PK
+    uuid wishlist_id FK
+    uuid variant_id FK
+    int quantity
+  }
+
+
+  %% ============================================================
+  %% CATALOG RELATIONSHIPS
+  %% ============================================================
+
+  Product ||--o{ Variant : contains
+  Variant ||--o{ VariantImage : has
+  VariantImage ||--o{ VariantImageEmbedding : indexed
+
+  Product ||--o{ ProductOptionType : defines
+  OptionType ||--o{ ProductOptionType : assigned
+  OptionType ||--o{ OptionValue : contains
+  OptionValue ||--o{ OptionValueVariant : assigned
+  Variant ||--o{ OptionValueVariant : has
+
+  Taxonomy ||--o{ Taxon : contains
+  Taxon ||--o{ Taxon : parent
+  Product ||--o{ Classification : classified
+  Taxon ||--o{ Classification : categorizes
+
+
+  %% ============================================================
+  %% IDENTITY RELATIONSHIPS
+  %% ============================================================
+
+  User ||--o{ UserRole : has
+  Role ||--o{ UserRole : assigned
+  User ||--o{ RefreshToken : owns
+  User ||--o{ UserLogin : authenticates
+
+
+  %% ============================================================
+  %% ORDERING RELATIONSHIPS
+  %% ============================================================
+
+  Order ||--o{ LineItem : contains
+  Order ||--o{ Adjustment : adjusted
+
+
+  %% ============================================================
+  %% PAYMENT RELATIONSHIPS
+  %% ============================================================
+
+  PaymentMethod ||--o{ PaymentCapture : captures
+  PaymentCapture ||--o{ WebhookEvent : triggers
+
+
+  %% ============================================================
+  %% INVENTORY RELATIONSHIPS
+  %% ============================================================
+
+  StockLocation ||--o{ StockItem : stores
+  StockItem ||--o{ StockMovement : records
+  StockLocation ||--o{ StockReservation : reserves
+  StockLocation ||--o{ StockTransfer : transfers
+  StockTransfer ||--o{ TransferItem : contains
+
+
+  %% ============================================================
+  %% SHIPPING RELATIONSHIPS
+  %% ============================================================
+
+  ShippingMethod ||--o{ ShippingRate : defines
+  ShippingMethod ||--o{ ShippingMethodZone : serves
+  ShippingMethod ||--o{ Shipment : fulfills
+
+
+  %% ============================================================
+  %% LOCATION RELATIONSHIPS
+  %% ============================================================
+
+  Country ||--o{ State : contains
+
+
+  %% ============================================================
+  %% PROFILE RELATIONSHIPS
+  %% ============================================================
+
+  User ||--o{ UserProfile : profile
+  UserProfile ||--o{ Address : contains
+  User ||--o{ Wishlist : owns
+  Wishlist ||--o{ WishedItem : contains
+
+
+  %% ============================================================
+  %% CROSS-CONTEXT RELATIONSHIPS
+  %% ============================================================
+
+  User |o--o{ Order : places
+  Order |o--o{ PaymentCapture : payment
+  Order |o--o{ Shipment : shipment
+  Order |o--o{ StockReservation : reservation
+  Order |o--o{ Address : address
+
+  LineItem |o--o{ Variant : product
+  Variant |o--o{ StockItem : inventory
+  Variant |o--o{ StockReservation : reserved
+  Variant |o--o{ TransferItem : transferred
+  Variant |o--o{ WishedItem : wished
+
+  Shipment |o--o{ ShippingMethod : method

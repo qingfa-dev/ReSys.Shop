@@ -45,11 +45,15 @@ public static class QueryingParametersExtensions
         Result<SearchModel> searchResult;
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
+            // Map: feilds to string list seperated by ','
+            var searchFieldsString = ( parameters.SearchFields is not null && parameters.SearchFields.Length > 0)
+                ? string.Join(',', parameters.SearchFields)
+                : null;
             searchResult = SearchModelExtensions.FromQueryString(
-                parameters.Search,
-                parameters.SearchFields is { Length: > 0 } ? string.Join(",", parameters.SearchFields) : null,
-                parameters.SearchMode,
-                null,
+                search: parameters.Search,
+                searchFields: searchFieldsString,
+                searchingMode: parameters.SearchMode,
+                caseSensitive: null,
                 allowedSearchFields);
         }
         else
@@ -74,10 +78,12 @@ public static class QueryingParametersExtensions
         // Aggregate: Return all errors if any, otherwise the full QueryingModel.
         return errors.Count > 0
             ? Result<QueryingModel>.Validation(errors: errors)
-            : (Result<QueryingModel>)new QueryingModel(
-            filterResult.Value,
-            searchResult.Value,
-            sortResult.Value,
-            pageModel);
+            : (Result<QueryingModel>)new QueryingModel
+            {
+                Filter = filterResult.Value,
+                Search = searchResult.Value,
+                Sort = sortResult.Value,
+                Page = pageModel
+            };
     }
 }

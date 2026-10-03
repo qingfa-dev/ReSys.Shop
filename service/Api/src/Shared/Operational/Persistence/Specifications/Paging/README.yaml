@@ -63,7 +63,7 @@ Paging/
 
 ## Usage
 
-```csharp
+```cs
 // From explicit integer values
 Result<PageModel> result = PageModelExtensions.FromValues(page: 2, pageSize: 20);
 

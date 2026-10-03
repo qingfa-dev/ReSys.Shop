@@ -1,0 +1,60 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Catalog Product Option Types
+# =============================================================================
+# @baseUrl          = {{baseUrl}}
+# @contentType      = {{contentType}}
+# @adminToken       = {{adminToken}}
+# @existingProductId = {{existingProductId}}
+# @existingOptionTypeId = {{existingOptionTypeId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Get assigned option types
+# GET /api/admin/catalog/product-option-types?productId=
+# Expected: 200 OK – list of option types assigned to product
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/admin/catalog/product-option-types?productId={{existingProductId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 2. Assign option types – success
+# POST /api/admin/catalog/product-option-types/assign (ProductId in body)
+# Expected: 200 OK – option types assigned
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/admin/catalog/product-option-types/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "productId": "{{existingProductId}}",
+  "optionTypeIds": ["{{existingOptionTypeId}}"]
+}
+
+### ---------------------------------------------------------------------------
+### 3. Revoke option types – success
+# POST /api/admin/catalog/product-option-types/revoke (ProductId in body)
+# Expected: 200 OK – option types revoked
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/admin/catalog/product-option-types/revoke
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "productId": "{{existingProductId}}",
+  "optionTypeIds": ["{{existingOptionTypeId}}"]
+}
+
+### ---------------------------------------------------------------------------
+### 4. Sync option types – success
+# PUT /api/admin/catalog/product-option-types/sync (ProductId in body)
+# Expected: 200 OK – option types synchronized
+# ---------------------------------------------------------------------------
+PUT {{baseUrl}}/api/admin/catalog/product-option-types/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "productId": "{{existingProductId}}",
+  "optionTypeIds": ["{{existingOptionTypeId}}"]
+}

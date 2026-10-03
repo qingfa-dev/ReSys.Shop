@@ -1,6 +1,7 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.Update;
+
 public static partial class UpdateOrderAdmin
 {
     public class Endpoint : ICarterModule
@@ -13,6 +14,7 @@ public static partial class UpdateOrderAdmin
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Call: Dispatch UpdateOrderAdmin command via MediatR.
                 var result = await sender.Send(new Command(id, request), ct);
                 return result.ToResult();
             })

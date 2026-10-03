@@ -1,36 +1,40 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockItems;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Services.Models;
+using Module.Inventory.Features.Admin.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.StockItems.Summary;
 
 /// <summary>Handles retrieval of consolidated per-variant stock summary across all locations.</summary>
 public static partial class GetStockSummary
 {
-    public sealed record Query : IQuery<List<Response>>;
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
 
-    public sealed class QueryHandler(IApplicationDbContext dbContext)
-        : IQueryHandler<Query, List<Response>>
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
+        : IPagedQueryHandler<Query, Response>
     {
         /// <summary>Executes the get stock summary query.</summary>
         /// <param name="request">The query (no parameters needed).</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A list of per-variant stock summaries.</returns>
-        public async Task<Result<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
+        // Contract: pre=request!=null, post=result!=null
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var now = DateTimeOffset.UtcNow;
 
+            // Load: Fetch all stock items with location details for computing availability
             var stockItems = await dbContext.Set<StockItem>()
                 .Include(si => si.StockLocation)
                 .Where(si => si.StockLocation != null && !si.StockLocation.IsDeleted && si.StockLocation.Active)
                 .ToListAsync(cancellationToken);
 
+            // Load: Fetch active reservation totals grouped by variant and location
             var reservations = await dbContext.Set<StockReservation>()
                 .Where(r => r.State == ReservationState.Reserved && r.ExpiresAtUtc > now)
                 .GroupBy(r => new { r.VariantId, r.StockLocationId })
                 .Select(g => new { g.Key.VariantId, g.Key.StockLocationId, Reserved = g.Sum(r => r.Quantity) })
                 .ToListAsync(cancellationToken);
 
+            // Aggregate: Build lookup map of variant → location → reserved quantity
             var reservationMap = reservations
                 .Where(r => r.StockLocationId.HasValue)
                 .GroupBy(r => r.VariantId)
@@ -38,6 +42,7 @@ public static partial class GetStockSummary
                     g => g.Key,
                     g => g.ToDictionary(r => r.StockLocationId!.Value, r => r.Reserved));
 
+            // Compute: Group stock items by variant and compute totals with reservation accounting
             var grouped = stockItems
                 .GroupBy(si => si.VariantId)
                 .Select(g =>
@@ -47,14 +52,14 @@ public static partial class GetStockSummary
                     {
                         var reserved = locationReservations.GetValueOrDefault(si.StockLocationId, 0);
                         var available = si.CountOnHand - reserved;
-                        return new LocationStockInfo
+                        return new LocationBreakdownItem
                         {
                             LocationId = si.StockLocationId,
                             LocationName = si.StockLocation?.Name ?? "Unknown",
                             CountOnHand = si.CountOnHand,
                             Reserved = reserved,
                             Available = available >= 0 ? available : 0,
-                            IsLowStock = si.StockLocation != null && si.CountOnHand <= si.StockLocation.LowStockThreshold
+                            IsLowStock = si.StockLocation != null && available <= si.StockLocation.LowStockThreshold
                         };
                     }).ToList();
 
@@ -62,7 +67,7 @@ public static partial class GetStockSummary
                     var totalReserved = locationBreakdown.Sum(l => l.Reserved);
                     var totalAvailable = locationBreakdown.Sum(l => l.Available);
 
-                    return new VariantStockSummary
+                    return new Response
                     {
                         VariantId = g.Key,
                         TotalOnHand = totalOnHand,
@@ -73,7 +78,13 @@ public static partial class GetStockSummary
                 })
                 .ToList();
 
-            return grouped.Select(x => new Response(x)).ToList();
+            var pageModel = PageModelExtensions.FromValues(request.Parameters.PageNumber, request.Parameters.PageSize).Value;
+            var results = grouped.OrderBy(s => s.VariantId).ToList();
+
+            // Transform: Return all in one page or honor caller-supplied paging
+            return pageModel.IsEmpty
+                ? PagedResult<Response>.Create(results, 1, Math.Max(1, results.Count), results.Count)
+                : results.ToPagedResult(pageModel);
         }
     }
 }

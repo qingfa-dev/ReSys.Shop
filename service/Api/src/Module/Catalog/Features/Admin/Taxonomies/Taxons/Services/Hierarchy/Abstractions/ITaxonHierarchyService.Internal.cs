@@ -1,4 +1,4 @@
-namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+namespace Module.Catalog.Features.Admin.Taxons.Services.Hierarchy.Abstractions;
 
 public partial interface ITaxonHierarchyService
 {

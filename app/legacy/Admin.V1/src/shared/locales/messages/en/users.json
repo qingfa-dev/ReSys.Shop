@@ -1,0 +1,150 @@
+{
+  "titles": {
+    "list": "Staff Management",
+    "customers": "Customer Management",
+    "customer_detail": "Customer Detail",
+    "create": "Invite Staff",
+    "edit": "Edit User",
+    "basic_info": "User Details",
+    "permissions": "Direct Permissions",
+    "roles": "Assigned Roles",
+    "security": "Security & access"
+  },
+  "descriptions": {
+    "list": "Manage administrative users and permissions.",
+    "customers": "View and manage registered customers and their account status.",
+    "create": "Invite a new staff member to the admin panel."
+  },
+  "tabs": {
+    "details": "Profile",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "security": "Security"
+  },
+  "table": {
+    "user": "User",
+    "roles": "Roles",
+    "status": "Status",
+    "joined": "Joined",
+    "actions": "Actions",
+    "clear_filter": "Clear Filters",
+    "orders": "Orders",
+    "total_spent": "Total Spent"
+  },
+  "labels": {
+    "full_name": "Full Name",
+    "email": "Email",
+    "roles": "Roles",
+    "status": "Status",
+    "username": "Username",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "phone": "Phone",
+    "joined": "Joined"
+  },
+  "actions": {
+    "new": "Invite Staff",
+    "save": "Save User",
+    "cancel": "Cancel",
+    "delete": "Remove Access",
+    "edit": "Edit Profile",
+    "reset_password": "Reset Password",
+    "unlock": "Unlock Account",
+    "verify": "Verify Account",
+    "save_roles": "Save Changes",
+    "save_permissions": "Save Changes"
+  },
+  "security": {
+    "status_title": "Account Security Status",
+    "actions_title": "Administrative Actions",
+    "reset_password": "Force Password Reset",
+    "unlock_account": "Unlock Account",
+    "manual_verify": "Manual Verification",
+    "lockout_end": "Lockout Ends",
+    "failed_attempts": "Failed Attempts",
+    "email_verified": "Email Verified",
+    "phone_verified": "Phone Verified"
+  },
+  "placeholders": {
+    "search": "Search by name or email...",
+    "name": "e.g. John Doe",
+    "email": "e.g. john\\@resys.shop"
+  },
+  "messages": {
+    "create_success": "User invited successfully.",
+    "update_success": "User updated successfully.",
+    "delete_success": "User access removed successfully.",
+    "reset_password_success": "Password has been reset successfully.",
+    "unlock_success": "Account has been unlocked.",
+    "verify_success": "Account verification updated.",
+    "status_updated": "User is now {status}",
+    "customer_detail_error": "Failed to load customer details",
+    "customer_load_error": "Failed to load customers",
+    "load_error": "Failed to load user details",
+    "roles_updated": "User roles updated",
+    "permissions_updated": "Direct permissions updated",
+    "empty_list": "No users found matching your criteria.",
+    "loading": "Loading users..."
+  },
+  "confirm": {
+    "delete_header": "Confirm Removal",
+    "delete_message": "Are you sure you want to remove staff access for \"{email}\"? This action cannot be undone.",
+    "accept_label": "Remove Access",
+    "reject_label": "Cancel",
+    "reset_password_header": "Reset Password",
+    "reset_password_message": "Are you sure you want to force a password reset for this user? A temporary password will be required."
+  },
+  "validation": {
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email format",
+      "max_length": "Email must not exceed {max} characters"
+    },
+    "first_name": {
+      "required": "First name is required",
+      "max_length": "First name must not exceed {max} characters"
+    },
+    "last_name": {
+      "required": "Last name is required",
+      "max_length": "Last name must not exceed {max} characters"
+    },
+    "roles": {
+      "min_one": "At least one role must be assigned"
+    },
+    "password": {
+      "min_length": "Password must be at least {min} characters",
+      "max_length": "Password must not exceed {max} characters"
+    },
+    "phone": {
+      "max_length": "Phone number must not exceed {max} characters"
+    },
+    "identifier": {
+      "required": "Identifier is required",
+      "max_length": "Identifier must not exceed {max} characters",
+      "format": "Identifier format: lowercase letters, numbers, underscores, dots"
+    },
+    "name": {
+      "required": "Name is required",
+      "max_length": "Name must not exceed {max} characters"
+    },
+    "description": {
+      "max_length": "Description must not exceed {max} characters"
+    },
+    "action": {
+      "required": "Action is required",
+      "max_length": "Action must not exceed {max} characters"
+    },
+    "role_name": {
+      "required": "Role name is required",
+      "max_length": "Role name must not exceed {max} characters",
+      "format": "Role name may only contain lowercase letters and underscores"
+    },
+    "display_name": {
+      "max_length": "Display name must not exceed {max} characters"
+    },
+    "priority": {
+      "whole": "Priority must be a whole number",
+      "min": "Priority must be non-negative"
+    }
+  }
+}

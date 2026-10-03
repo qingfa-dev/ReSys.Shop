@@ -1,0 +1,18 @@
+[project]
+name=thesis
+lang=en
+type=bachelor
+
+[student]
+name=vi
+id=bachelor
+class=Hệ thống Thương mại Điện tử
+
+[advisor]
+name=Nguyen Thanh Phat
+title=B2026001
+
+[chapter]
+prefix=chapter
+padding=2
+auto_renumber=true

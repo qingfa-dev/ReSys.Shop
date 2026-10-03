@@ -1,4 +1,4 @@
-using Module.Catalog.Domain.Products.Variants.Prices;
+using Shared.Application.Domain.Currencies;
 
 namespace Module.Ordering.Domain.Orders;
 
@@ -9,49 +9,25 @@ public static class OrderConstant
     {
         public const int MaxNumberLength = 50;
         public const int MaxSessionIdLength = 100;
-        public const int MaxCurrencyLength = 3;
+        public const int MaxCurrencyLength = SystemCurrencyConstant.Constraints.MaxCodeLength;
         public const int MaxEmailLength = 255;
         public const int MaxSpecialInstructionsLength = 2000;
-        public const int Precision = PriceConstant.Constraints.Precision;
-        public const int Scale = PriceConstant.Constraints.Scale;
+        public const int Precision = SystemCurrencyConstant.Constraints.MonetaryPrecision;
+        public const int Scale = SystemCurrencyConstant.Constraints.MonetaryScale;
+        public const int MaxLineItems = 100;
+        public const int MaxAdjustments = 50;
     }
 
     public static class Defaults
     {
-        public const string Currency = "USD";
+        public const string Currency = SystemCurrencyConstant.Defaults.Code;
         public const string CreatedBy = "System";
     }
 
-    public static class PaymentState
+    public static class CancelReasons
     {
-        public const string Completed = "completed";
-        public const string Failed = "failed";
-        public const string Void = "void";
-        public const string BalanceDue = "balance_due";
-        public const string CreditOwed = "credit_owed";
-        public const string Paid = "paid";
-        public const string Pending = "pending";
-        public const string Checkout = "checkout";
-        public const string Invalid = "invalid";
-    }
-
-    public static class ShipmentState
-    {
-        public const string Pending = "pending";
-        public const string Delivered = "delivered";
-        public const string Partial = "partial";
-        public const string Ready = "ready";
-        public const string Backorder = "backorder";
-        public const string Canceled = "canceled";
-    }
-
-    public static class CheckoutStep
-    {
-        public const string Address = "address";
-        public const string Delivery = "delivery";
-        public const string Payment = "payment";
-        public const string Confirm = "confirm";
-        public const string Complete = "complete";
+        public const string Customer = "Order cancelled by customer";
+        public const string Admin = "Order cancelled by admin";
     }
 
     public static class StockAction
@@ -83,7 +59,6 @@ public static class OrderConstant
             nameof(Order.CheckoutState),
             nameof(Order.Currency),
             nameof(Order.UserId),
-            nameof(Order.StoreId),
             nameof(Order.IsDeleted)
         ];
     }

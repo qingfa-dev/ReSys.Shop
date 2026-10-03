@@ -1,0 +1,25 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0004: Visual Search
+
+actor "Customer" as Customer
+
+rectangle "Storefront App" {
+    usecase "Upload Image" as Upload
+    usecase "View Similar Items" as Results
+    usecase "Crop/Resize" as Edit
+}
+
+rectangle "Backend Services" {
+    usecase "Generate Embedding" as Embed <<Core>>
+    usecase "Vector Search" as Vector <<Core>>
+}
+
+Customer --> Upload
+Upload ..> Results : <<include>>
+Upload <.. Edit : <<extend>>
+
+Upload ..> Embed : <<include>>
+Embed ..> Vector : <<include>>
+
+@enduml

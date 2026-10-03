@@ -1,1 +1,1 @@
-"""Business logic services."""
+"""Service layer for embedding operations."""

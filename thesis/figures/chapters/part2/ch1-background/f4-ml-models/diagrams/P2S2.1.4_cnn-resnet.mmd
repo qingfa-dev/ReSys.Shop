@@ -1,0 +1,36 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '28px', 'fontFamily': 'Arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef mainNode fill:#ffffff,stroke:#333333,stroke-width:2.5px
+    classDef backboneNode fill:#f8f9fa,stroke:#444444,stroke-width:1.5px
+    classDef trainNode fill:#ffffff,stroke:#666666,stroke-width:1.5px,stroke-dasharray: 4 2
+    classDef outputNode fill:#f4f4f4,stroke:#222222,stroke-width:2px
+
+    %% INPUT & STEM STAGE
+    A["Input Image<br/>(224 x 224 x 3)"]:::mainNode --> B["Convolutional Stem<br/>• 7x7 Conv, Stride 2 (112x112x64)<br/>• 3x3 Max Pool, Stride 2 (56x56x64)"]:::backboneNode
+
+    %% RESNET-50 BACKBONE STAGE
+    subgraph Backbone["ResNet-50 Backbone (50 Weight Layers)"]
+        direction LR
+        B --> Stage1["Stage 1: 3x Bottleneck Blocks<br/>(56x56x256)"]:::backboneNode
+        Stage1 --> Stage2["Stage 2: 4x Bottleneck Blocks<br/>(28x28x512)"]:::backboneNode
+        Stage2 --> Stage3["Stage 3: 6x Bottleneck Blocks<br/>(14x14x1024)"]:::backboneNode
+        Stage3 --> Stage4["Stage 4: 3x Bottleneck Blocks<br/>(7x7x2048)"]:::backboneNode
+    end
+
+    %% PRE-TRAINING SUBSYSTEM
+    subgraph PT["Self-Supervised / Supervised Pre-training"]
+        direction LR
+        F["ImageNet-1k / Custom Catalog"]:::trainNode --> G["Classification or<br/>Contrastive Loss (SimCLR/MoCo)"]:::trainNode
+    end
+    PT -. "Pre-trains Backbone" .-> Backbone
+
+    %% RIGHT-SIDE AGGREGATION, PROJECTION & SEARCH STAGE
+    subgraph OutputPipeline ["Feature Extraction & Retrieval Pipeline"]
+        direction LR
+        GAP["Global Average Pooling (GAP)<br/>(Spatial Reduction → 2048-dim)"]:::outputNode --> Proj["Linear Projection Head<br/>(Dimensionality Reduction → 512-dim)"]:::backboneNode
+        Proj --> Norm["L2 Vector Normalization<br/>(||v||₂ = 1)"]:::backboneNode
+        Norm --> D["K-NN Cosine Similarity Search<br/>(Catalog Retrieval & Recommendations)"]:::outputNode
+    end
+
+    %% CONNECTION FROM BACKBONE TO RIGHT-SIDE PIPELINE
+    Stage4 ==> GAP

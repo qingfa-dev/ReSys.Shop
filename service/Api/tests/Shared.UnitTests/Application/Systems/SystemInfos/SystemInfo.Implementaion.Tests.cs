@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 using Shared.Application.Systems.SystemInfos;
@@ -17,10 +18,18 @@ public class SystemInfoTests
         return mock;
     }
 
+    private static IConfiguration CreateConfig(string? defaultCurrency = null)
+    {
+        var dict = new Dictionary<string, string?>();
+        if (defaultCurrency is not null)
+            dict["System:DefaultCurrency"] = defaultCurrency;
+        return new ConfigurationBuilder().AddInMemoryCollection(dict).Build();
+    }
+
     [Fact(DisplayName = "SystemInfo should implement ISystemInfo")]
     public void SystemInfo_ShouldImplementISystemInfo()
     {
-        var systemInfo = new SystemInfo(CreateMockEnvironment().Object);
+        var systemInfo = new SystemInfo(CreateMockEnvironment().Object, CreateConfig());
 
         systemInfo.Should().BeAssignableTo<ISystemInfo>();
     }
@@ -29,7 +38,7 @@ public class SystemInfoTests
     public void ApplicationName_ShouldReturnApplicationNameFromEnvironment()
     {
         var expectedName = "MyTestApp";
-        var systemInfo = new SystemInfo(CreateMockEnvironment(appName: expectedName).Object);
+        var systemInfo = new SystemInfo(CreateMockEnvironment(appName: expectedName).Object, CreateConfig());
 
         var result = systemInfo.ApplicationName;
 
@@ -39,7 +48,7 @@ public class SystemInfoTests
     [Fact(DisplayName = "ApplicationName should be null when environment returns null")]
     public void ApplicationName_NullFromEnvironment_ShouldBeNull()
     {
-        var systemInfo = new SystemInfo(CreateMockEnvironment(appName: null!).Object);
+        var systemInfo = new SystemInfo(CreateMockEnvironment(appName: null!).Object, CreateConfig());
 
         var result = systemInfo.ApplicationName;
 
@@ -50,7 +59,7 @@ public class SystemInfoTests
     public void Environment_ShouldReturnEnvironmentNameFromEnvironment()
     {
         var expectedEnv = "Production";
-        var systemInfo = new SystemInfo(CreateMockEnvironment(envName: expectedEnv).Object);
+        var systemInfo = new SystemInfo(CreateMockEnvironment(envName: expectedEnv).Object, CreateConfig());
 
         var result = systemInfo.Environment;
 
@@ -60,7 +69,7 @@ public class SystemInfoTests
     [Fact(DisplayName = "MachineName should return local machine name")]
     public void MachineName_ShouldReturnLocalMachineName()
     {
-        var systemInfo = new SystemInfo(CreateMockEnvironment().Object);
+        var systemInfo = new SystemInfo(CreateMockEnvironment().Object, CreateConfig());
 
         var result = systemInfo.MachineName;
 
@@ -70,7 +79,7 @@ public class SystemInfoTests
     [Fact(DisplayName = "ProcessId should return current process ID")]
     public void ProcessId_ShouldReturnCurrentProcessId()
     {
-        var systemInfo = new SystemInfo(CreateMockEnvironment().Object);
+        var systemInfo = new SystemInfo(CreateMockEnvironment().Object, CreateConfig());
 
         var result = systemInfo.ProcessId;
 
@@ -80,7 +89,7 @@ public class SystemInfoTests
     [Fact(DisplayName = "Version should return version string")]
     public void Version_ShouldReturnVersionString()
     {
-        var systemInfo = new SystemInfo(CreateMockEnvironment().Object);
+        var systemInfo = new SystemInfo(CreateMockEnvironment().Object, CreateConfig());
 
         var result = systemInfo.Version;
 

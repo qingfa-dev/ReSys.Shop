@@ -1,1 +1,0 @@
-"""OpenAI CLIP model implementation."""

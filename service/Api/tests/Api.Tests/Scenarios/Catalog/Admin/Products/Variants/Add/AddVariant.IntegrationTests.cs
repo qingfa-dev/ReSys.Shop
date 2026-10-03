@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.Add;
+using Module.Catalog.Features.Admin.Variants.Add;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.Add;
 
@@ -19,7 +19,7 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
@@ -27,13 +27,14 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
 
         var request = new
         {
+            productId = product!.Id,
             sku = "TEST-001",
             isMaster = false,
             price = 29.99m
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants", request);
+            "/api/admin/catalog/variants", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -58,7 +59,7 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
@@ -66,12 +67,13 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
 
         var request = new
         {
+            productId = product!.Id,
             isMaster = false,
             price = 19.99m
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants", request);
+            "/api/admin/catalog/variants", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -83,12 +85,13 @@ public sealed class AddVariantIntegrationTests(ApiFixture fixture) : CatalogInte
     {
         var request = new
         {
+            productId = Guid.NewGuid(),
             sku = "UNAUTH-SKU",
             isMaster = false
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            "/api/catalog/products/00000000-0000-0000-0000-000000000000/variants", request);
+            "/api/admin/catalog/variants", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

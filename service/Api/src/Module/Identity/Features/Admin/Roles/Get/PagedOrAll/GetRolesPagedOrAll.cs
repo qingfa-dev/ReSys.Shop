@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Admin.Roles.Shared.Mappings;
+using DomainRoles = Module.Identity.Domain.Roles;
 
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
+using Module.Identity.Features.Admin.Shared.Mappings;
+
 using Shared.Security.Identity.Domain.Roles;
 
-namespace Module.Identity.Features.Admin.Roles.Get.PagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Roles.Get.PagedOrAll;
 
 /// <summary>
 /// Defines the use case for retrieving roles with paged or all results.
@@ -14,6 +15,9 @@ public static partial class GetRolesPagedOrAll
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Query"/> to retrieve roles with paging or all results.
+    /// </summary>
     public sealed class QueryHandler(RoleManager<Role> roleManager)
         : IPagedQueryHandler<Query, Response>
     {
@@ -27,12 +31,18 @@ public static partial class GetRolesPagedOrAll
         {
             var parameters = request.Parameters;
 
-            var parsing = parameters.ParseAll();
+            // Validate: Parse and validate filter, search, and sort parameters against allowed fields
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: DomainRoles.RoleConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: DomainRoles.RoleConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: DomainRoles.RoleConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return PagedResult<Response>.Create(errors: parsing.Errors);
 
+            // Load: Access role queryable from the role manager
             var roles = roleManager.Roles;
 
+            // Transform: Apply dynamic querying and projection, then paginate the results
             var pagedResult = await roles
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(r => r.MapToListItem<Response>(), parsing.Value.Page, cancellationToken);

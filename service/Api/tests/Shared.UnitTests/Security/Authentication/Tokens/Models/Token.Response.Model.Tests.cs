@@ -15,7 +15,7 @@ public sealed class TokenResponseModelTests
         long expiresIn = 1234567890;
 
         // Act
-        TokenResponseModel model = new(token, expiresIn);
+        TokenResponseModel model = new() { Token = token, ExpiresIn = expiresIn };
 
         // Assert
         model.Token.Should().Be(token);
@@ -26,9 +26,9 @@ public sealed class TokenResponseModelTests
     public void TokenResponseModel_ShouldHaveStructuralEquality()
     {
         // Arrange
-        TokenResponseModel model1 = new("token-a", 1000);
-        TokenResponseModel model2 = new("token-a", 1000);
-        TokenResponseModel model3 = new("token-b", 2000);
+        TokenResponseModel model1 = new() { Token = "token-a", ExpiresIn = 1000 };
+        TokenResponseModel model2 = new() { Token = "token-a", ExpiresIn = 1000 };
+        TokenResponseModel model3 = new() { Token = "token-b", ExpiresIn = 2000 };
 
         // Assert
         model1.Should().Be(model2);
@@ -42,16 +42,25 @@ public sealed class TokenResponseModelTests
         Guid id = Guid.NewGuid();
         string token = "refresh-token-value";
         Guid userId = Guid.NewGuid();
-        DateTime createdAt = DateTime.UtcNow.AddDays(-1);
-        DateTime expiresAt = DateTime.UtcNow.AddDays(7);
+        DateTimeOffset createdAt = DateTime.UtcNow.AddDays(-1);
+        DateTimeOffset expiresAt = DateTime.UtcNow.AddDays(7);
         DateTime? revokedAt = null;
         string? revokedReason = null;
         string? replacedByToken = null;
 
         // Act
-        RefreshTokenResponseModel model = new(
-            id, token, userId, createdAt, expiresAt,
-            revokedAt, revokedReason, replacedByToken, IsActive: true);
+        RefreshTokenResponseModel model = new()
+        {
+            Id = id,
+            Token = token,
+            UserId = userId,
+            CreatedAt = createdAt,
+            ExpiresAt = expiresAt,
+            RevokedAt = revokedAt,
+            RevokedReason = revokedReason,
+            ReplacedByToken = replacedByToken,
+            IsActive = true
+        };
 
         // Assert
         model.Id.Should().Be(id);
@@ -73,10 +82,18 @@ public sealed class TokenResponseModelTests
         string revokedReason = "user_logout";
 
         // Act
-        RefreshTokenResponseModel model = new(
-            Guid.NewGuid(), "token", Guid.NewGuid(),
-            DateTime.UtcNow, DateTime.UtcNow.AddDays(7),
-            revokedAt, revokedReason, null, IsActive: false);
+        RefreshTokenResponseModel model = new()
+        {
+            Id = Guid.NewGuid(),
+            Token = "token",
+            UserId = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            RevokedAt = revokedAt,
+            RevokedReason = revokedReason,
+            ReplacedByToken = null,
+            IsActive = false
+        };
 
         // Assert
         model.RevokedAt.Should().Be(revokedAt);
@@ -90,19 +107,46 @@ public sealed class TokenResponseModelTests
         // Arrange
         Guid id = Guid.NewGuid();
         Guid userId = Guid.NewGuid();
-        DateTime now = DateTime.UtcNow;
+        DateTimeOffset now = DateTime.UtcNow;
 
-        RefreshTokenResponseModel model1 = new(
-            id, "tok", userId, now, now.AddDays(1),
-            null, null, null, IsActive: true);
+        RefreshTokenResponseModel model1 = new()
+        {
+            Id = id,
+            Token = "tok",
+            UserId = userId,
+            CreatedAt = now,
+            ExpiresAt = now.AddDays(1),
+            RevokedAt = null,
+            RevokedReason = null,
+            ReplacedByToken = null,
+            IsActive = true
+        };
 
-        RefreshTokenResponseModel model2 = new(
-            id, "tok", userId, now, now.AddDays(1),
-            null, null, null, IsActive: true);
+        RefreshTokenResponseModel model2 = new()
+        {
+            Id = id,
+            Token = "tok",
+            UserId = userId,
+            CreatedAt = now,
+            ExpiresAt = now.AddDays(1),
+            RevokedAt = null,
+            RevokedReason = null,
+            ReplacedByToken = null,
+            IsActive = true
+        };
 
-        RefreshTokenResponseModel model3 = new(
-            Guid.NewGuid(), "other", Guid.NewGuid(), now, now.AddDays(1),
-            null, null, null, IsActive: false);
+        RefreshTokenResponseModel model3 = new()
+        {
+            Id = Guid.NewGuid(),
+            Token = "other",
+            UserId = Guid.NewGuid(),
+            CreatedAt = now,
+            ExpiresAt = now.AddDays(1),
+            RevokedAt = null,
+            RevokedReason = null,
+            ReplacedByToken = null,
+            IsActive = false
+        };
 
         // Assert
         model1.Should().Be(model2);

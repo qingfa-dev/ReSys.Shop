@@ -1,6 +1,6 @@
 using Module.Location.Domain.States;
-using Module.Location.Features.Admin.States.Shared.Models;
-using Module.Location.Features.Admin.States.Shared.Validators;
+using Module.Location.Features.Shared.States.Models;
+using Module.Location.Features.Shared.States.Validators;
 
 namespace Module.UnitTests.Location.Features.Admin.States.Shared.Validations;
 

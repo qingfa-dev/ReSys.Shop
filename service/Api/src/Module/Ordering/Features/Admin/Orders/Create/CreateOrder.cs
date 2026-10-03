@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Admin.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Create;
 /// <summary>Creates a new draft order from the provided request, maps domain data, and persists the entity to initialize the order lifecycle.</summary>
@@ -19,8 +19,8 @@ public static partial class CreateOrder
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var request = command.Request;
 
-            // Create: Map the request to a new Order entity.
-            var result = request.MapToDomain(userId: Guid.Empty, storeId: Guid.Empty);
+            // Create: Map the request to a new Order entity with default identifiers.
+            var result = request.MapToDomain(userId: Guid.Empty);
             if (result.IsFailure)
                 return result.Errors;
 
@@ -29,8 +29,7 @@ public static partial class CreateOrder
             dbContext.Set<Order>().Add(order);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Return the created entity as response.
-            return order.MapToDetail<Response>();
+            return Result<Response>.Created(order.MapToDetail<Response>(), OrderResult.Success.Created(order.Id));
         }
     }
 }

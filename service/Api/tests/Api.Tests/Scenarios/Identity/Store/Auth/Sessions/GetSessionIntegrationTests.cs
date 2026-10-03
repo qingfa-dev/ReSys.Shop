@@ -10,7 +10,7 @@ public sealed class GetSessionIntegrationTests(ApiFixture fixture) : IdentityInt
     public async Task GetSession_WithoutAuth_Returns401()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/identity/auth/sessions");
+            "/api/storefront/identity/auth/sessions");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

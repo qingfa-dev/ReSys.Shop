@@ -81,7 +81,9 @@ public sealed partial class SinchProvider(
         catch (Exception ex)
         {
             NotificationProvider.Loggers.LogSendException(_logger, Name, ex);
-            return NotificationProviderResult.Failure.SendFailed(Name, ex.Message);
+            return Result.Unexpected(
+                exception: ex,
+                errors: [NotificationProviderResult.Failure.SendFailed(Name, ex.Message)]);
         }
     }
 }

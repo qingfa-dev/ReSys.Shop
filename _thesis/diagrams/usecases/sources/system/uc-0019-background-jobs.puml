@@ -1,0 +1,17 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0020: Async Events
+
+rectangle "System Process" {
+    usecase "Publish Event" as Pub
+    usecase "Handle Event" as Handle
+}
+
+rectangle "Components" {
+    usecase "Mediator" as Med <<System>>
+}
+
+Pub ..> Med : <<include>>
+Med ..> Handle : <<include>>
+
+@enduml

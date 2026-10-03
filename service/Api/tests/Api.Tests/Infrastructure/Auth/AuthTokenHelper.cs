@@ -19,9 +19,9 @@ public static class AuthTokenHelper
 
     private static string BuildAdminToken()
     {
-        SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
+        SymmetricSecurityKey securityKey = new(
             Encoding.UTF8.GetBytes(TestSecret));
-        SigningCredentials credentials = new SigningCredentials(
+        SigningCredentials credentials = new(
             securityKey, SecurityAlgorithms.HmacSha256);
 
         Claim[] claims =
@@ -33,10 +33,10 @@ public static class AuthTokenHelper
             new Claim(JwtRegisteredClaimNames.Iat,
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
                 ClaimValueTypes.Integer64),
-            new Claim(ClaimTypes.Role, "Admin")
+            new Claim("role", "Admin")
         ];
 
-        SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+        SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddHours(1),
@@ -45,7 +45,7 @@ public static class AuthTokenHelper
             SigningCredentials = credentials
         };
 
-        JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+        JwtSecurityTokenHandler tokenHandler = new();
         SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(securityToken);
     }

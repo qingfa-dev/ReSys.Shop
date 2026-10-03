@@ -1,13 +1,17 @@
-using Module.Identity.Features.Admin.Users.Shared.Mappings;
+using DomainUsers = Module.Identity.Domain.Users;
+using Module.Identity.Features.Admin.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Admin.Users.GetPagedOrAll;
+namespace Module.Identity.Features.Shared.Admin.Users.GetPagedOrAll;
 
 public static partial class GetUsersPagedOrAll
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Query"/> to retrieve users with paging or all results.
+    /// </summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
@@ -23,12 +27,18 @@ public static partial class GetUsersPagedOrAll
         {
             var parameters = request.Parameters;
 
-            var parsing = parameters.ParseAll();
+            // Validate: Parse and validate filter, search, and sort parameters against allowed fields
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: DomainUsers.UserConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: DomainUsers.UserConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: DomainUsers.UserConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Load: Access user queryable from the database context
             var users = dbContext.Set<User>();
 
+            // Transform: Apply dynamic querying and projection, then paginate the results
             var pagedResult = await users
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, u => u.MapToListItem<Response>(), cancellationToken);

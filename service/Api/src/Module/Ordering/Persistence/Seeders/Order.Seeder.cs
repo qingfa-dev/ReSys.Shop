@@ -1,36 +1,39 @@
-using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Variants;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Domain.PaymentCaptures;
+using Module.Billing.Domain.PaymentMethods;
+using Module.Billing.Domain.PaymentCaptures;
 
-using Module.Profile.Domain;
-using Module.Profile.Domain.Addresses;
+using Module.Customer.Domain;
+using Module.Customer.Domain.Addresses;
 using Module.Shipping.Domain.ShippingMethods;
+
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Ordering.Persistence.Seeders;
 
+// Initialize: Seed sample orders with line items, payments, and shipping for development and testing
 public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
 {
     public override int Order => 190;
 
     public override async Task<Result> SeedAsync(CancellationToken cancellationToken)
     {
+        // Check: Skip seeding if order data already exists
         var hasData = await HasDataAsync<Order>(cancellationToken);
         if (hasData)
             return Result.Ok();
 
+        // Acquire: Fetch reference data needed for order creation (users, variants, addresses, shipping, payment)
         var users = await Context.Set<User>().ToListAsync(cancellationToken);
         var variants = await Context.Set<Variant>().Where(v => !v.IsDeleted).ToListAsync(cancellationToken);
         var addresses = await Context.Set<Address>().ToListAsync(cancellationToken);
         var shippingMethod = await Context.Set<ShippingMethod>().FirstOrDefaultAsync(sm => sm.Code == "standard", cancellationToken);
         var creditCard = await Context.Set<PaymentMethod>().FirstOrDefaultAsync(pm => pm.Code == "credit_card", cancellationToken);
 
+        // Validate: Skip seeding if required reference data is missing
         if (users.Count == 0 || variants.Count == 0 || addresses.Count == 0 || shippingMethod is null || creditCard is null)
             return Result.Ok();
-
-        var storeId = Guid.Empty;
 
         var admin = users.FirstOrDefault(u => u.Email == "admin@resys.shop");
         var user1 = users.FirstOrDefault(u => u.Email == "user1@resys.shop");
@@ -38,11 +41,12 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         if (admin is null || user1 is null || user2 is null)
             return Result.Ok();
 
-        await CreateOrder(admin, "DICKY", "DY", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
-        await CreateOrder(user1, "USER1", "U1", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
-        await CreateOrder(user2, "USER2", "U2", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
+        // Create: Seed orders for admin and test users with randomized line items and full payment lifecycle
+        await CreateOrder(admin, "DICKY", "DY", shippingMethod, creditCard, addresses, variants, cancellationToken);
+        await CreateOrder(user1, "USER1", "U1", shippingMethod, creditCard, addresses, variants, cancellationToken);
+        await CreateOrder(user2, "USER2", "U2", shippingMethod, creditCard, addresses, variants, cancellationToken);
 
-        await Context.SaveChangesAsync(cancellationToken);
+        await SaveChangesWithIdempotencyAsync(cancellationToken);
 
         return Result.Ok();
     }
@@ -53,7 +57,6 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         string initials,
         ShippingMethod shippingMethod,
         PaymentMethod creditCard,
-        Guid storeId,
         List<Address> addresses,
         List<Variant> variants,
         CancellationToken ct)
@@ -66,7 +69,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         if (address is null)
             return;
 
-        var orderResult = OrderExtensions.Create("USD", user.Id, storeId);
+        var orderResult = OrderMethod.Create(OrderConstant.Defaults.Currency, user.Id);
         var order = orderResult.Value;
         order.BillAddressId = address.Id;
         order.ShipAddressId = address.Id;
@@ -111,7 +114,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
             return;
         order.PaymentTotal = payment.Amount;
         order.OutstandingBalance = order.Total - order.PaymentTotal;
-        order.UpdatePaymentState();
+        order.UpdatePaymentState(); // Result unused — seeder writes domain state directly
 
         Context.Set<Order>().Add(order);
     }

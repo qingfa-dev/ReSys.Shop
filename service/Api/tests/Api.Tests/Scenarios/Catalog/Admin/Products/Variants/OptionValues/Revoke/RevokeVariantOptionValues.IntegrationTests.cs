@@ -3,8 +3,8 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.OptionValues.Get;
-using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
+using Module.Catalog.Features.Admin.Variants.Values.Get;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.OptionValues.Revoke;
 
@@ -20,7 +20,7 @@ public sealed class RevokeVariantOptionValuesIntegrationTests(ApiFixture fixture
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/products", createProductRequest);
+            "/api/admin/catalog/products", createProductRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
         var product = createResult.DeserializeValue<ProductResponse>();
@@ -35,7 +35,7 @@ public sealed class RevokeVariantOptionValuesIntegrationTests(ApiFixture fixture
         };
 
         HttpResponseMessage optionTypeResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/option-types", createOptionTypeRequest);
+            "/api/admin/catalog/option-types", createOptionTypeRequest);
         ApiResponse optionTypeResult = await optionTypeResponse.ReadApiResponseAsync();
         optionTypeResult.IsSuccess.Should().BeTrue();
         var optionType = optionTypeResult.DeserializeValue<OptionTypeResponse>();
@@ -45,18 +45,19 @@ public sealed class RevokeVariantOptionValuesIntegrationTests(ApiFixture fixture
         {
             name = "Red",
             presentation = "Red",
-            position = 1
+            position = 1,
+            optionTypeId = optionType!.Id
         };
 
         HttpResponseMessage optionValueResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType!.Id}/values", createOptionValueRequest);
+            "/api/admin/catalog/option-values", createOptionValueRequest);
         ApiResponse optionValueResult = await optionValueResponse.ReadApiResponseAsync();
         optionValueResult.IsSuccess.Should().BeTrue();
         var optionValue = optionValueResult.DeserializeValue<OptionValueResponse>();
         optionValue.Should().NotBeNull();
 
         HttpResponseMessage listResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/products/{product!.Id}/variants");
+            $"/api/admin/catalog/variants?productId={product!.Id}");
         ApiResponse listResult = await listResponse.ReadApiResponseAsync();
         listResult.IsSuccess.Should().BeTrue();
         var listValue = listResult.DeserializeValue<VariantsListResponse>();
@@ -66,32 +67,32 @@ public sealed class RevokeVariantOptionValuesIntegrationTests(ApiFixture fixture
 
         var assignRequest = new
         {
+            variantId = variant!.Id,
             optionValueIds = new[] { optionValue!.Id }
         };
 
         HttpResponseMessage assignResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{variant!.Id}/option-values/assign", assignRequest);
+            "/api/admin/catalog/variant-option-values/assign", assignRequest);
         assignResponse.IsSuccessStatusCode.Should().BeTrue();
 
         var revokeRequest = new
         {
+            variantId = variant.Id,
             optionValueIds = new[] { optionValue.Id }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{variant.Id}/option-values/revoke", revokeRequest);
+            "/api/admin/catalog/variant-option-values/revoke", revokeRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
         result.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage getResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/variants/{variant.Id}/option-values");
-        ApiResponse getResult = await getResponse.ReadApiResponseAsync();
-        getResult.IsSuccess.Should().BeTrue();
-        GetVariantOptionValues.Response? value = getResult.DeserializeValue<GetVariantOptionValues.Response>();
-        value.Should().NotBeNull();
-        value!.Items.Should().Contain(i => i.Name == "Red" && !i.IsAssigned);
+            $"/api/admin/catalog/variant-option-values?variantId={variant.Id}");
+        PagedResult<GetVariantOptionValues.Response> value = await getResponse.ReadAsPagedResultAsync<GetVariantOptionValues.Response>();
+        value.IsSuccess.Should().BeTrue();
+        value.Items.Should().Contain(i => i.Name == "Red" && !i.IsAssigned);
     }
 
     private record ProductResponse
@@ -121,11 +122,12 @@ public sealed class RevokeVariantOptionValuesIntegrationTests(ApiFixture fixture
 
         var request = new
         {
+            variantId = nonexistentVariantId,
             optionValueIds = new[] { Guid.NewGuid() }
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/variants/{nonexistentVariantId}/option-values/revoke", request);
+            "/api/admin/catalog/variant-option-values/revoke", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

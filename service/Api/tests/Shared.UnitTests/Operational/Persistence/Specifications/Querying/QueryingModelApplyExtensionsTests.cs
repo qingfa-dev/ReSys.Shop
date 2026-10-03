@@ -32,7 +32,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
 
     private static IReadOnlyList<string> SearchFields => ["Name", "Category"];
 
-    private static IReadOnlyList<SortClause> DefaultSort => [new SortClause("Name", SortDirection.Ascending)];
+    private static IReadOnlyList<SortClause> DefaultSort => [new SortClause { Field = "Name", Direction = SortDirection.Ascending }];
 
     public QueryingModelApplyExtensionsTests()
     {
@@ -62,7 +62,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ApplyFilter: Empty filter leaves query unchanged")]
     public void ApplyFilter_EmptyFilter_ShouldReturnAll()
     {
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplyFilter(model).ToList();
 
@@ -73,7 +73,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     public void ApplyFilter_ValidFilter_ShouldFilter()
     {
         FilterModel filter = FilterModelExtensions.FromString("Name=Apple").Value;
-        QueryingModel model = new(filter, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = filter, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplyFilter(model).ToList();
 
@@ -84,7 +84,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ApplySearch: Empty search leaves query unchanged")]
     public void ApplySearch_EmptySearch_ShouldReturnAll()
     {
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplySearch(model, SearchFields).ToList();
 
@@ -94,8 +94,8 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ApplySearch: Valid search finds matches")]
     public void ApplySearch_ValidSearch_ShouldFindMatches()
     {
-        SearchModel search = new(new SearchTerm("fruit"), []);
-        QueryingModel model = new(FilterModel.Empty, search, SortModel.Empty, PageModel.Empty);
+        SearchModel search = new(new SearchTerm { Value = "fruit" }, []);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = search, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplySearch(model, SearchFields).ToList();
 
@@ -105,7 +105,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ApplySort: Empty sort leaves query unchanged")]
     public void ApplySort_EmptySort_ShouldNotFail()
     {
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplySort(model, DefaultSort).ToList();
 
@@ -116,7 +116,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     public void ApplySort_ValidSort_ShouldSort()
     {
         SortModel sort = SortModelExtensions.FromString("Name desc").Value;
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, sort, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = sort, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplySort(model).ToList();
 
@@ -126,7 +126,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ApplyQuerying: Empty model leaves query unchanged")]
     public void ApplyQuerying_EmptyModel_ShouldReturnAll()
     {
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplyQuerying(model).ToList();
 
@@ -137,7 +137,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     public void ApplyQuerying_FilterOnly_ShouldFilter()
     {
         FilterModel filter = FilterModelExtensions.FromString("Name=Apple").Value;
-        QueryingModel model = new(filter, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = filter, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplyQuerying(model).ToList();
 
@@ -148,8 +148,8 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ApplyQuerying: Search only")]
     public void ApplyQuerying_SearchOnly_ShouldFindMatches()
     {
-        SearchModel search = new(new SearchTerm("fruit"), []);
-        QueryingModel model = new(FilterModel.Empty, search, SortModel.Empty, PageModel.Empty);
+        SearchModel search = new(new SearchTerm { Value = "fruit" }, []);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = search, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplyQuerying(model, SearchFields).ToList();
 
@@ -160,7 +160,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     public void ApplyQuerying_SortOnly_ShouldSort()
     {
         SortModel sort = SortModelExtensions.FromString("Name desc").Value;
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, sort, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = sort, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplyQuerying(model, defaultSortClauses: DefaultSort).ToList();
 
@@ -171,9 +171,9 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     public void ApplyQuerying_AllConcerns_ShouldChain()
     {
         FilterModel filter = FilterModelExtensions.FromString("Category=Fruit").Value;
-        SearchModel search = new(new SearchTerm("ap"), []);
+        SearchModel search = new(new SearchTerm { Value = "ap" }, []);
         SortModel sort = SortModelExtensions.FromString("Name desc").Value;
-        QueryingModel model = new(filter, search, sort, PageModel.Empty);
+        QueryingModel model = new() { Filter = filter, Search = search, Sort = sort, Page = PageModel.Empty };
 
         List<TestEntity> result = GetData().ApplyQuerying(model, SearchFields, DefaultSort).ToList();
 
@@ -187,7 +187,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     {
         SortModel sort = SortModelExtensions.FromString("Name asc").Value;
         PageModel page = PageModelExtensions.FromValues(1, 2).Value;
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, sort, page);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = sort, Page = page };
 
         PagedResult<TestEntity> result = await GetData().ApplySort(model)
             .ToPagedResultAsync(model.Page);
@@ -201,7 +201,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ToPagedOrAllAsync: Empty page returns all items")]
     public async Task ToPagedOrAllAsync_EmptyPage_ShouldReturnAll()
     {
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         PagedResult<TestEntity> result = await GetData()
             .ApplyQuerying(model)
@@ -213,7 +213,7 @@ public sealed class QueryingModelApplyExtensionsTests : IDisposable
     [Fact(DisplayName = "ToPagedOrEmptyAsync: Empty page returns no content")]
     public async Task ToPagedOrEmptyAsync_EmptyPage_ShouldReturnNoContent()
     {
-        QueryingModel model = new(FilterModel.Empty, SearchModel.Empty, SortModel.Empty, PageModel.Empty);
+        QueryingModel model = new() { Filter = FilterModel.Empty, Search = SearchModel.Empty, Sort = SortModel.Empty, Page = PageModel.Empty };
 
         PagedResult<TestEntity> result = await GetData()
             .ApplyQuerying(model)

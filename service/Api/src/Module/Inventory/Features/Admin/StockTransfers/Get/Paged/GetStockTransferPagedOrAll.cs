@@ -18,7 +18,10 @@ public static partial class GetStockTransferPagedOrAll
         {
             // Contract: pre=request!=null, post=result!=null
             var parameters = request.Parameters;
-            var parseAll = parameters.ParseAll();
+            var parseAll = parameters.ParseAll(
+                allowedFilterFields: StockTransferConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: StockTransferConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: StockTransferConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 
@@ -31,7 +34,7 @@ public static partial class GetStockTransferPagedOrAll
                     Id = x.Id,
                     Number = x.Number,
                     Reference = x.Reference,
-                    State = x.State.ToString(),
+                    State = x.State,
                     SourceLocationId = x.SourceLocationId,
                     DestinationLocationId = x.DestinationLocationId,
                     TotalItems = x.TransferItems.Count,

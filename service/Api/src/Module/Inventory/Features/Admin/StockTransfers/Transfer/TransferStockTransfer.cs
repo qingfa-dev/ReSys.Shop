@@ -1,5 +1,5 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockItems;
+using Module.Inventory.Domain.StockMovements;
 using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Transfer;
@@ -27,35 +27,36 @@ public static partial class TransferStockTransfer
                 .Include(t => t.TransferItems)
                 .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);
 
+            // Check: Transfer must exist
             if (transfer is null)
                 return StockTransferResult.Failure.NotFound;
 
+            // Update: Transition state from Draft to InTransit
             var transitionResult = transfer.Transfer();
             if (transitionResult.IsFailure) return transitionResult;
 
             foreach (var item in transfer.TransferItems)
             {
+                // Load: Source stock item for this variant
                 var stockItem = await dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == item.VariantId
                         && si.StockLocationId == transfer.SourceLocationId, cancellationToken);
 
+                // Check: Stock item must exist at source
                 if (stockItem is null)
                     return StockTransferResult.Failure.InsufficientStockAtSource;
 
                 var previousCount = stockItem.CountOnHand;
 
-                var affected = await dbContext.Set<StockItem>()
-                    .Where(x => x.VariantId == item.VariantId
-                        && x.StockLocationId == transfer.SourceLocationId
-                        && x.CountOnHand >= item.Quantity)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(x => x.CountOnHand, x => x.CountOnHand - item.Quantity)
-                        .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
-                    cancellationToken);
-
-                if (affected == 0)
+                // Check: Sufficient stock at source
+                if (stockItem.CountOnHand < item.Quantity)
                     return StockTransferResult.Failure.InsufficientStockAtSource;
 
+                // Update: Deduct stock at source location
+                stockItem.CountOnHand -= item.Quantity;
+                stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+                // Record: Create stock movement record for audit trail
                 var movementResult = StockMovementMethod.Create(
                     stockItemId: stockItem.Id,
                     quantity: -item.Quantity,
@@ -70,8 +71,10 @@ public static partial class TransferStockTransfer
                     dbContext.Set<StockMovement>().Add(movementResult.Value);
             }
 
+            // Await: Persist all changes
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // Log: Record transfer execution for audit trail
             StockTransferLoggers.Transferred(logger, Id: command.Id);
             return Result.Ok();
         }

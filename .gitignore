@@ -5,6 +5,8 @@
 
 # dotenv files
 .env
+.env.local
+.env.*.local
 
 # User-specific files
 *.rsuser
@@ -22,7 +24,9 @@ mono_crash.*
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/
+# NARROWED: only match build-output Release dirs — NOT source feature dirs (e.g. StockReservations/Release/)
+**/[Bb]in/[Rr]elease/
+**/[Oo]bj/[Rr]elease/
 [Rr]eleases/
 x64/
 x86/
@@ -483,3 +487,10 @@ $RECYCLE.BIN/
 *.swp
 .worktrees
 app/ReSys.Admin/
+infra/Storage/demo/images/
+benchmarks/old/
+benchmarks/scripts/demo-seed/output/
+
+# Diagram tooling
+diagrams/plantuml.jar
+thesis/images/diagrams/*.png

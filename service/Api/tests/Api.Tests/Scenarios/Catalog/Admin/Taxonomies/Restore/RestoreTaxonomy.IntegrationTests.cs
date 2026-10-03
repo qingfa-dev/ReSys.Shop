@@ -3,7 +3,7 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
+using Module.Catalog.Features.Admin.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Restore;
 
@@ -20,23 +20,23 @@ public sealed class RestoreTaxonomyIntegrationTests(ApiFixture fixture) : Catalo
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/catalog/taxonomies", createRequest);
+            "/api/admin/catalog/taxonomies", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonomyDetailResponse? created = createResult.DeserializeValue<TaxonomyDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{created!.Id}");
+            $"/api/admin/catalog/taxonomies/{created!.Id}");
         ApiResponse deleteResult = await deleteResponse.ReadApiResponseAsync();
         deleteResult.IsSuccess.Should().BeTrue();
 
         HttpResponseMessage restoreResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{created.Id}/restore", null);
+            $"/api/admin/catalog/taxonomies/{created.Id}/restore", null);
         ApiResponse restoreResult = await restoreResponse.ReadApiResponseAsync();
         restoreResult.IsSuccess.Should().BeTrue();
 
         HttpResponseMessage getResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{created.Id}");
+            $"/api/admin/catalog/taxonomies/{created.Id}");
         ApiResponse getResult = await getResponse.ReadApiResponseAsync();
         getResult.IsSuccess.Should().BeTrue();
         getResult.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -51,7 +51,7 @@ public sealed class RestoreTaxonomyIntegrationTests(ApiFixture fixture) : Catalo
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage restoreResponse = await Client.PatchAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{nonexistentId}/restore", null);
+            $"/api/admin/catalog/taxonomies/{nonexistentId}/restore", null);
 
         restoreResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

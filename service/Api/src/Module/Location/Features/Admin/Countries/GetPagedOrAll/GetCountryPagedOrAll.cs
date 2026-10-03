@@ -1,7 +1,5 @@
 using Module.Location.Domain.Countries;
-using Module.Location.Features.Admin.Countries.Shared.Mappings;
-
-using Shared.Operational.Persistence.Specifications.Paging.Extensions;
+using Module.Location.Features.Shared.Countries.Mappings;
 
 namespace Module.Location.Features.Admin.Countries.GetPagedOrAll;
 
@@ -22,7 +20,10 @@ public static partial class GetCountryPagedOrAll
             // Contract: pre=request!=null, post=paged result returned
             var parameters = request.Parameters;
 
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: CountryConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: CountryConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: CountryConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return PagedResult<Response>.Create(errors: parsing.Errors);
 
